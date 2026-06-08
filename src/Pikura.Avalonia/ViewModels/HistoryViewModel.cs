@@ -276,19 +276,17 @@ public partial class HistoryViewModel : ViewModelBase
         {
             jobVm.ApplyProgress(progress);
 
-            // Move finished/paused jobs out of Active list immediately
-            if (progress.Status == JobStatus.Cancelled || progress.Status == JobStatus.Paused)
+            // Move cancelled jobs out of Active list immediately
+            // (Paused jobs are handled by OnJobCompleted to avoid duplicate processing)
+            if (progress.Status == JobStatus.Cancelled)
             {
                 var active = ActiveJobs.FirstOrDefault(j => j.Job.Id == progress.JobId);
                 if (active != null)
                 {
                     ActiveJobs.Remove(active);
                     active.Job.Status = progress.Status;
-                    if (progress.Status == JobStatus.Cancelled &&
-                        !CancelledJobs.Any(j => j.Job.Id == active.Job.Id))
+                    if (!CancelledJobs.Any(j => j.Job.Id == active.Job.Id))
                         CancelledJobs.Insert(0, active);
-                    // Paused jobs stay in DB as Paused — they reappear via LoadJobsAsync
-                    // when the queue view refreshes; no separate list needed here.
                 }
             }
         });
