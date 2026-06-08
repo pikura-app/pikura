@@ -229,28 +229,39 @@ public partial class HistoryViewModel : ViewModelBase
         {
             Console.Error.WriteLine($"[History] Route: status={job.Status} activeCount={ActiveJobs.Count}");
             var active = ActiveJobs.FirstOrDefault(j => j.Job.Id == job.Id);
-            if (active != null) ActiveJobs.Remove(active);
-            // Paused jobs need the coordinator so Resume/Pause commands work
-            var vm = new DownloadJobViewModel(job, _imageLoader,
-                job.Status == JobStatus.Paused ? _coordinator : null)
-                { OnReordered = job.Status == JobStatus.Paused
-                    ? () => Dispatcher.UIThread.InvokeAsync(LoadJobsAsync)
-                    : null };
+            
             switch (job.Status)
             {
-                case JobStatus.Completed:
-                    if (!CompletedJobs.Any(j => j.Job.Id == job.Id))  CompletedJobs.Insert(0, vm);  break;
-                case JobStatus.Failed:
-                    if (!FailedJobs.Any(j => j.Job.Id == job.Id))     FailedJobs.Insert(0, vm);     break;
-                case JobStatus.Cancelled:
-                    if (!CancelledJobs.Any(j => j.Job.Id == job.Id))  CancelledJobs.Insert(0, vm);  break;
                 case JobStatus.Paused:
-                    // Paused jobs stay in the active list, inserted after all Running jobs
-                    if (!ActiveJobs.Any(j => j.Job.Id == job.Id))
+                    // For paused jobs, update the existing VM in place instead of removing/recreating
+                    if (active != null)
                     {
+                        active.IsPausable = false;
+                        active.IsResumable = true;
+                        active.IsCancellable = true;
+                        active.StatusText = "⏸ Paused";
+                        active.Job.Status = JobStatus.Paused;
+                        // Move it after all Running jobs
+                        ActiveJobs.Remove(active);
                         var insertIdx = ActiveJobs.Count(j => j.Job.Status == JobStatus.Running);
-                        ActiveJobs.Insert(insertIdx, vm);
+                        ActiveJobs.Insert(insertIdx, active);
                     }
+                    break;
+                    
+                case JobStatus.Completed:
+                case JobStatus.Failed:
+                case JobStatus.Cancelled:
+                    // Remove from active and move to appropriate list
+                    if (active != null) ActiveJobs.Remove(active);
+                    var vm = new DownloadJobViewModel(job, _imageLoader, null)
+                        { OnReordered = null };
+                    
+                    if (job.Status == JobStatus.Completed && !CompletedJobs.Any(j => j.Job.Id == job.Id))
+                        CompletedJobs.Insert(0, vm);
+                    else if (job.Status == JobStatus.Failed && !FailedJobs.Any(j => j.Job.Id == job.Id))
+                        FailedJobs.Insert(0, vm);
+                    else if (job.Status == JobStatus.Cancelled && !CancelledJobs.Any(j => j.Job.Id == job.Id))
+                        CancelledJobs.Insert(0, vm);
                     break;
             }
             Console.Error.WriteLine($"[History] After Route: completed={CompletedJobs.Count} failed={FailedJobs.Count}");
