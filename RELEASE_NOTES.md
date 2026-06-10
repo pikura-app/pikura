@@ -1,3 +1,26 @@
+## Pikura 1.8.0
+
+Live settings, artist profile image downloads, 429 error recovery, and UI polish.
+
+### New Features
+
+- **Download artist avatar and banner** — new checkbox in Settings → Advanced → Download Behavior. When enabled, Pikura fetches the artist's full profile and saves `avatar.jpg` and `banner.jpg` to their folder before downloading artworks.
+- **HTTP 429 error panel in viewer** — when Pixiv rate-limits an image load in the inline gallery viewer, a clearly-worded error panel with a Retry button is shown instead of a blank tile. Click Retry to reload without navigating away.
+- **Fullscreen viewer keyboard navigation shows full resolution** — pressing arrow keys to move between artworks now correctly loads the full-size original image for each artwork, with canvas state fully reset between navigations.
+
+### Improvements
+
+- **Live settings for running download jobs** — Safe Mode, delay between downloads, retry count, and retry delay are now read from current settings at each use point. Toggling Safe Mode or adjusting delays mid-job takes effect at the next artwork boundary without restarting.
+- **R-18 toggle button spacing** — Content mode (Off / Show / Only) and Type filter (Both / R-18 / R-18G) buttons have improved padding and spacing for a cleaner look.
+- **Overwrite behavior button spacing** — Skip / Overwrite / Backup buttons match the improved toggle style.
+- **Blocklist Add button spacing** — The gap between the text input and Add button in the Tags, Titles, and Member IDs columns is improved.
+
+### Changes
+
+- **Blacklist renamed to Blocklist** — the section label in Settings is updated to "Blocklist (block download)".
+
+---
+
 ## Pikura 1.7.5
 
 Download queue reliability, retry performance, and History date grouping.
