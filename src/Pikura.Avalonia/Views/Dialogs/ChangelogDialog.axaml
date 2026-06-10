@@ -32,9 +32,9 @@
         <!-- Release notes body -->
         <ScrollViewer Grid.Row="1"
                       VerticalScrollBarVisibility="Auto"
-                      HorizontalScrollBarVisibility="Disabled"
-                      Padding="20,14">
+                      HorizontalScrollBarVisibility="Disabled">
             <StackPanel x:Name="NotesPanel" Spacing="4"
+                        Margin="20,14"
                         HorizontalAlignment="Stretch"/>
         </ScrollViewer>
 
