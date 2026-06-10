@@ -1,3 +1,4 @@
+using System;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
@@ -17,6 +18,7 @@ public partial class ArtworkViewerWindow : Window
     private bool   _isPanning;
     private Point  _panStart;
     private double _panStartX, _panStartY;
+    private DateTime _pressTime;
 
     public ArtworkViewerWindow() { InitializeComponent(); }
 
@@ -30,6 +32,9 @@ public partial class ArtworkViewerWindow : Window
         PopupZoomInBtn.Click  += (_, _) => ZoomAroundCenter(1.25);
         PopupZoomOutBtn.Click += (_, _) => ZoomAroundCenter(1.0 / 1.25);
         PopupZoomFitBtn.Click += (_, _) => FitToCanvas();
+
+        // Fullscreen keys
+        KeyDown += OnKeyDown;
 
         // Pointer events on canvas
         PopupCanvas.PointerWheelChanged += OnWheel;
@@ -140,6 +145,7 @@ public partial class ArtworkViewerWindow : Window
     {
         if (!e.GetCurrentPoint(PopupCanvas).Properties.IsLeftButtonPressed) return;
         _isPanning  = true;
+        _pressTime  = DateTime.Now;
         _panStart   = e.GetPosition(PopupCanvas);
         _panStartX  = _imgX;
         _panStartY  = _imgY;
@@ -155,5 +161,96 @@ public partial class ArtworkViewerWindow : Window
         ApplyTransform();
     }
 
-    private void OnReleased(object? sender, PointerReleasedEventArgs e) => _isPanning = false;
+    private void OnReleased(object? sender, PointerReleasedEventArgs e)
+    {
+        if (!_isPanning) return;
+        _isPanning = false;
+
+        // In fullscreen, if it was a quick click (not a drag), navigate based on position
+        if (WindowState == WindowState.FullScreen && DataContext is ArtworkViewerViewModel vm)
+        {
+            var clickDuration = DateTime.Now - _pressTime;
+            if (clickDuration.TotalMilliseconds < 300) // Quick click, not a drag
+            {
+                var pos = e.GetPosition(PopupCanvas);
+                var canvasWidth = PopupCanvas?.Bounds.Width ?? 0;
+                
+                // Click on left 30% = previous page, right 30% = next page
+                if (pos.X < canvasWidth * 0.3 && vm.PrevPageCommand.CanExecute(null))
+                {
+                    vm.PrevPageCommand.Execute(null);
+                }
+                else if (pos.X > canvasWidth * 0.7 && vm.NextPageCommand.CanExecute(null))
+                {
+                    vm.NextPageCommand.Execute(null);
+                }
+            }
+        }
+    }
+
+    private void OnKeyDown(object? sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.F11)
+        {
+            // If already fullscreen, F11 closes the window (like ESC)
+            if (WindowState == WindowState.FullScreen)
+            {
+                Close();
+                e.Handled = true;
+                return;
+            }
+            ToggleFullscreen();
+            e.Handled = true;
+            return;
+        }
+        if (e.Key == Key.Escape && WindowState == WindowState.FullScreen)
+        {
+            // ESC in fullscreen closes the window entirely
+            Close();
+            e.Handled = true;
+            return;
+        }
+
+        // Arrow keys for page navigation
+        if (DataContext is ArtworkViewerViewModel vm)
+        {
+            if (e.Key == Key.Left)
+            {
+                if (vm.PrevPageCommand.CanExecute(null))
+                    vm.PrevPageCommand.Execute(null);
+                e.Handled = true;
+                return;
+            }
+            if (e.Key == Key.Right)
+            {
+                if (vm.NextPageCommand.CanExecute(null))
+                    vm.NextPageCommand.Execute(null);
+                e.Handled = true;
+                return;
+            }
+        }
+    }
+
+    private void OnFullscreenClicked(object? sender, RoutedEventArgs e) => ToggleFullscreen();
+
+    private void ToggleFullscreen()
+    {
+        var goingFull = WindowState != WindowState.FullScreen;
+        WindowState = goingFull ? WindowState.FullScreen : WindowState.Normal;
+
+        // Hide ALL chrome in fullscreen - just show the image
+        if (this.FindControl<Border>("BottomPanel") is { } bottom)
+            bottom.IsVisible = !goingFull;
+        if (this.FindControl<Border>("TopToolbar") is { } top)
+            top.IsVisible = !goingFull;
+        if (this.FindControl<StackPanel>("LoadingSpinner") is { } spinner)
+            spinner.IsVisible = !goingFull && (DataContext as ArtworkViewerViewModel)?.IsLoadingPage == true;
+
+        // In fullscreen: just the image on black background
+        // Navigation: arrow keys or click left/right edges
+        if (goingFull)
+        {
+            FitToCanvas();
+        }
+    }
 }

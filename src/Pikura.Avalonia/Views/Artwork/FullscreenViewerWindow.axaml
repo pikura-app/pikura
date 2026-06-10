@@ -1,0 +1,26 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Pikura.Avalonia.ViewModels"
+        xmlns:anim="using:Pikura.Avalonia.Controls"
+        x:Class="Pikura.Avalonia.Views.Artwork.FullscreenViewerWindow"
+        x:DataType="vm:ArtworkViewerViewModel"
+        Background="Black"
+        WindowState="FullScreen"
+        ShowInTaskbar="False">
+    
+    <!-- Just the image, nothing else -->
+    <Canvas Name="Canvas" ClipToBounds="True" Background="Black">
+        <Image Name="Image"
+               Source="{Binding CurrentPageBitmap}"
+               Stretch="Uniform"
+               RenderTransformOrigin="0,0"
+               RenderOptions.BitmapInterpolationMode="HighQuality"
+               IsVisible="{Binding !IsUgoira}"/>
+        <anim:AnimatedImage Name="UgoiraImage"
+                            SourcePath="{Binding UgoiraPreviewPath}"
+                            IsPlaying="{Binding IsPlayingUgoira}"
+                            Stretch="Uniform"
+                            RenderTransformOrigin="0,0"
+                            IsVisible="{Binding IsUgoira}"/>
+    </Canvas>
+</Window>

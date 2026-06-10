@@ -9,12 +9,12 @@
         Width="1000" Height="750"
         MinWidth="500" MinHeight="400"
         WindowStartupLocation="CenterOwner"
-        Background="{actipro:ThemeResource Container3BackgroundBrush}">
+        Background="Black">
 
-    <Grid RowDefinitions="Auto,*,Auto">
+    <Grid RowDefinitions="Auto,*,Auto" Name="MainGrid">
 
         <!-- Zoom toolbar -->
-        <Border Grid.Row="0"
+        <Border Grid.Row="0" Name="TopToolbar"
                 Background="{actipro:ThemeResource Container2BackgroundBrush}"
                 BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
                 BorderThickness="0,0,0,1" Padding="8,5">
@@ -32,14 +32,17 @@
                            Foreground="{actipro:ThemeResource Container1BorderBrush}"/>
                 <TextBlock Name="PopupResLabel" VerticalAlignment="Center" FontSize="11"
                            Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                <TextBlock Text="|" VerticalAlignment="Center" Margin="4,0"
+                           Foreground="{actipro:ThemeResource Container1BorderBrush}"/>
+                <Button Name="PopupFullscreenBtn" Content="&#9974;" Padding="10,4" CornerRadius="4" FontSize="14"
+                        ToolTip.Tip="Fullscreen (F11) - ESC to exit and close" Click="OnFullscreenClicked"/>
             </StackPanel>
         </Border>
 
-        <!-- Image area with page navigation -->
-        <Grid Grid.Row="1">
-            <!-- Zoomable canvas: the Canvas is the clip region; Image sits inside and is repositioned by transforms -->
-            <Canvas Name="PopupCanvas" ClipToBounds="True"
-                    Background="{actipro:ThemeResource Container3BackgroundBrush}">
+        <!-- Image area -->
+        <Grid Grid.Row="1" Name="ImageArea" Background="Black">
+            <!-- Just the image, nothing else. Canvas for positioning. -->
+            <Canvas Name="PopupCanvas" ClipToBounds="True" Background="Black">
                 <Image Name="PopupImage"
                        Source="{Binding CurrentPageBitmap}"
                        Stretch="Uniform"
@@ -55,35 +58,16 @@
                                     IsVisible="{Binding IsUgoira}"/>
             </Canvas>
 
-            <!-- Loading spinner -->
-            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="10"
+            <!-- Loading spinner (hidden in fullscreen) -->
+            <StackPanel Name="LoadingSpinner" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="10"
                         IsVisible="{Binding IsLoadingPage}">
                 <ProgressBar IsIndeterminate="True" Width="160"/>
                 <TextBlock Text="Loading…" Foreground="#9CA3AF" HorizontalAlignment="Center"/>
             </StackPanel>
-
-            <!-- Page navigation arrows (hidden for ugoira) -->
-            <Button HorizontalAlignment="Left" VerticalAlignment="Center" Margin="12,0"
-                    Command="{Binding PrevPageCommand}"
-                    IsVisible="{Binding HasMultiplePages}"
-                    Content="‹" FontSize="28" Padding="10,4"
-                    CornerRadius="20" Opacity="0.8"/>
-            <Button HorizontalAlignment="Right" VerticalAlignment="Center" Margin="12,0"
-                    Command="{Binding NextPageCommand}"
-                    IsVisible="{Binding HasMultiplePages}"
-                    Content="›" FontSize="28" Padding="10,4"
-                    CornerRadius="20" Opacity="0.8"/>
-
-            <!-- Page indicator -->
-            <Border HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,12"
-                    Background="#CC000000" CornerRadius="10" Padding="12,4"
-                    IsVisible="{Binding HasMultiplePages}">
-                <TextBlock Text="{Binding PageIndicator}" Foreground="White" FontSize="12"/>
-            </Border>
         </Grid>
 
         <!-- Bottom panel: info + actions -->
-        <Border Grid.Row="2"
+        <Border Grid.Row="2" Name="BottomPanel"
                 Background="{actipro:ThemeResource Container1BackgroundBrush}"
                 BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
                 BorderThickness="0,1,0,0" Padding="16,12">
