@@ -27,7 +27,10 @@ public sealed record JobProgress(
     int CurrentPageIndex = 0,
     int CurrentPageTotal = 0,
     long CurrentBytesSoFar = 0,
-    long? CurrentTotalBytes = null);
+    long? CurrentTotalBytes = null,
+    double SpeedMbps = 0,
+    int? EtaSeconds = null,
+    long ArtworkBytesCompleted = 0);
 
 /// <summary>
 /// Coordinates batch download operations.
@@ -49,6 +52,9 @@ public sealed class DownloadCoordinator : IDisposable
     // Progress reporting
     private readonly ConcurrentDictionary<Guid, List<IProgress<JobProgress>>> _progressListeners = new();
 
+    // Rate tracking for speed/ETA (timestamp + bytes-so-far snapshot)
+    private readonly ConcurrentDictionary<Guid, (DateTime Time, long Bytes)> _rateSnapshots = new();
+
     /// <summary>
     /// Event raised when a job starts running.
     /// </summary>
@@ -58,6 +64,11 @@ public sealed class DownloadCoordinator : IDisposable
     /// Event raised when a job completes (successfully or with failures).
     /// </summary>
     public event EventHandler<JobCompletedEventArgs>? JobCompleted;
+
+    /// <summary>
+    /// Event raised when a new job is created (queued but not yet started).
+    /// </summary>
+    public event EventHandler<JobCompletedEventArgs>? JobCreated;
 
     /// <summary>
     /// Raises <see cref="JobStarted"/> for a job that was created externally (e.g. gallery/viewer single-download).
@@ -134,12 +145,20 @@ public sealed class DownloadCoordinator : IDisposable
         CancellationToken ct = default,
         JobStatus? initialStatusOverride = null)
     {
-        // Queued = waiting for a concurrent slot to open.
-        // Pending = slot is available, StartJobAsync will transition to Running immediately.
-        var maxJobs = _settingsService.Current.MaxConcurrentJobs;
-        var hasSlot = maxJobs <= 0 || _activeJobs.Count < maxJobs;
-        var initialStatus = initialStatusOverride
-            ?? ((startImmediately && hasSlot) ? JobStatus.Pending : JobStatus.Queued);
+        // Always create as Pending (or an explicit override such as Paused).
+        // StartJobAsync is the single authority that promotes a job to Running:
+        // it enforces the concurrent-job/SafeMode slot limit and actually launches
+        // ExecuteJobAsync. Pre-setting Status=Running here would make StartJobAsync
+        // reject the job (it only starts Pending/Paused), leaving a "zombie" job that
+        // shows Running but never downloads and can't be paused.
+        var initialStatus = initialStatusOverride ?? JobStatus.Pending;
+
+        // Append new jobs to the end of the active queue: take the current max SortOrder
+        // among active (running/paused/pending) jobs and add one. This keeps the queue
+        // order stable and ensures a freshly-created job doesn't jump ahead of existing
+        // ones (the active list is sorted by SortOrder, then CreatedAt).
+        var existingOrders = await _jobRepository.GetPendingJobSortOrdersAsync(ct);
+        var nextSortOrder = existingOrders.Count > 0 ? existingOrders.Max(o => o.SortOrder) + 1 : 0;
 
         var job = new DownloadJob
         {
@@ -148,8 +167,9 @@ public sealed class DownloadCoordinator : IDisposable
             Targets = targets,
             Settings = settingsOverride ?? new SettingsOverride { UseGlobalSettings = true },
             Status = initialStatus,
-            StartedAt = initialStatus == JobStatus.Running ? DateTime.UtcNow : null,
-            CreatedAt = DateTime.UtcNow
+            StartedAt = null,
+            CreatedAt = DateTime.UtcNow,
+            SortOrder = nextSortOrder
         };
 
         // Save to database
@@ -157,7 +177,11 @@ public sealed class DownloadCoordinator : IDisposable
         _logger.LogInformation("Created download job {JobId} ({Name}) with {TargetCount} targets, status={Status}",
             job.Id, job.Name, job.Targets.Count, initialStatus);
 
-        if (startImmediately)
+        JobCreated?.Invoke(this, new JobCompletedEventArgs(job));
+
+        // Launch when requested. StartJobAsync promotes Pending/Paused → Running when a
+        // slot is free, otherwise the job stays Pending and auto-starts later.
+        if (startImmediately && initialStatus is JobStatus.Pending or JobStatus.Paused)
         {
             await StartJobAsync(job.Id, ct);
         }
@@ -168,7 +192,7 @@ public sealed class DownloadCoordinator : IDisposable
     /// <summary>
     /// Starts a pending job.
     /// </summary>
-    public async Task<bool> StartJobAsync(Guid jobId, CancellationToken ct = default)
+    public async Task<bool> StartJobAsync(Guid jobId, CancellationToken ct = default, bool forceStart = false)
     {
         var job = await _jobRepository.GetJobAsync(jobId, ct);
         if (job == null)
@@ -177,19 +201,24 @@ public sealed class DownloadCoordinator : IDisposable
             return false;
         }
 
-        if (job.Status != JobStatus.Pending && job.Status != JobStatus.Queued && job.Status != JobStatus.Paused)
+        if (job.Status != JobStatus.Pending && job.Status != JobStatus.Paused)
         {
             _logger.LogWarning("Cannot start job {JobId}: status is {Status}", jobId, job.Status);
             return false;
         }
 
-        // Enforce MaxConcurrentJobs limit
-        var maxJobs = _settingsService.Current.MaxConcurrentJobs;
-        if (maxJobs > 0 && _activeJobs.Count >= maxJobs)
+        // Enforce MaxConcurrentJobs limit (bypassed when user explicitly presses ▶)
+        if (!forceStart)
         {
-            _logger.LogInformation("Job {JobId} queued: concurrent job limit ({Max}) reached", jobId, maxJobs);
-            await _jobRepository.UpdateJobStatusAsync(jobId, JobStatus.Queued, null, ct);
-            return false;
+            var maxJobs = _settingsService.Current.MaxConcurrentJobs;
+            if (_settingsService.Current.SafeMode)
+                maxJobs = 1; // SafeMode enforces sequential jobs
+
+            if (maxJobs > 0 && _activeJobs.Count >= maxJobs)
+            {
+                _logger.LogInformation("Job {JobId} remains Pending: concurrent job limit ({Max}) reached", jobId, maxJobs);
+                return false;
+            }
         }
 
         // Create cancellation token for this job
@@ -226,11 +255,32 @@ public sealed class DownloadCoordinator : IDisposable
                 return;
             }
 
-            // Update final status
-            var finalStatus = t.IsFaulted ? JobStatus.Failed :
-                             t.IsCanceled ? JobStatus.Cancelled : JobStatus.Completed;
-
-            var error = t.IsFaulted ? t.Exception?.InnerException?.Message : null;
+            // Update final status — check for partially-failed multi-target jobs
+            JobStatus finalStatus;
+            string? error = null;
+            if (t.IsFaulted)
+            {
+                finalStatus = JobStatus.Failed;
+                error = t.Exception?.InnerException?.Message;
+            }
+            else if (t.IsCanceled)
+            {
+                finalStatus = JobStatus.Cancelled;
+            }
+            else
+            {
+                // Even if the task completed normally, some targets may have failed
+                var refreshedJob = await _jobRepository.GetJobAsync(jobId);
+                var anyFailed = refreshedJob?.Targets.Any(t2 => t2.Status == TargetStatus.Failed) ?? false;
+                finalStatus = anyFailed ? JobStatus.Failed : JobStatus.Completed;
+                if (anyFailed)
+                {
+                    var failedTargets = refreshedJob!.Targets.Where(t2 => t2.Status == TargetStatus.Failed).ToList();
+                    error = failedTargets.Count == 1
+                        ? $"1 target failed: {failedTargets[0].ErrorMessage}"
+                        : $"{failedTargets.Count} targets failed";
+                }
+            }
             await _jobRepository.UpdateJobStatusAsync(jobId, finalStatus, error);
 
             // Fire completion event
@@ -264,11 +314,15 @@ public sealed class DownloadCoordinator : IDisposable
             return true;
         }
 
-        // Job might not be in active dictionary but still in database as Running
+        // Job is not actively running (e.g. Paused or Pending) but still
+        // exists in the database. Cancel it directly and notify the UI so it moves
+        // out of the active list into Cancelled.
         var job = await _jobRepository.GetJobAsync(jobId);
-        if (job?.Status == JobStatus.Running)
+        if (job != null && job.Status is JobStatus.Running or JobStatus.Paused or JobStatus.Pending)
         {
             await _jobRepository.UpdateJobStatusAsync(jobId, JobStatus.Cancelled);
+            ReportProgress(jobId, new JobProgress(jobId, JobStatus.Cancelled, 0, 0, 0, null, "Cancelled"));
+            _logger.LogInformation("Cancelled {Status} job {JobId}", job.Status, jobId);
             return true;
         }
 
@@ -299,6 +353,28 @@ public sealed class DownloadCoordinator : IDisposable
         // ContinueWith will detect Paused status and fire JobCompleted with the correct state.
         _logger.LogInformation("Paused job {JobId}", jobId);
         return true;
+    }
+
+    /// <summary>
+    /// Pauses all currently running jobs as part of a graceful application shutdown so
+    /// their progress is preserved and they can be resumed on next launch. Best-effort:
+    /// startup recovery re-pauses any orphans that slip through.
+    /// </summary>
+    public async Task PauseAllRunningForShutdownAsync()
+    {
+        foreach (var (jobId, cts) in _activeJobs.ToArray())
+        {
+            try
+            {
+                await _jobRepository.UpdateJobStatusAsync(jobId, JobStatus.Paused);
+                await cts.CancelAsync();
+                _logger.LogInformation("Paused job {JobId} for shutdown", jobId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to pause job {JobId} during shutdown", jobId);
+            }
+        }
     }
 
     /// <summary>
@@ -374,6 +450,17 @@ public sealed class DownloadCoordinator : IDisposable
 
     #endregion
 
+    /// <summary>
+    /// Called once on app startup. Converts any jobs left in Running state from a
+    /// previous session to Paused (preserving progress), then auto-starts Pending
+    /// jobs up to the concurrent-job limit.
+    /// </summary>
+    public async Task StartupRecoveryAsync(CancellationToken ct = default)
+    {
+        await _jobRepository.RecoverInterruptedJobsAsync(ct);
+        await TryStartNextPendingJobAsync();
+    }
+
     #region Queuing
 
     /// <summary>
@@ -384,14 +471,18 @@ public sealed class DownloadCoordinator : IDisposable
         var maxJobs = _settingsService.Current.MaxConcurrentJobs;
         if (maxJobs > 0 && _activeJobs.Count >= maxJobs) return;
 
-        var pending = await _jobRepository.GetJobsAsync(status: JobStatus.Queued);
+        var pending = await _jobRepository.GetJobsAsync(status: JobStatus.Pending);
         var next = pending
             .Where(j => !_activeJobs.ContainsKey(j.Id))
-            .OrderBy(j => j.CreatedAt)
+            .OrderBy(j => j.SortOrder)
+            .ThenBy(j => j.CreatedAt)
             .FirstOrDefault();
 
         if (next != null)
+        {
+            _logger.LogInformation("Auto-starting next pending job {JobId}", next.Id);
             await StartJobAsync(next.Id);
+        }
     }
 
     private readonly ConcurrentDictionary<Guid, (DownloadTarget, ImageEditPreset)> _presetQueue = [];
@@ -505,6 +596,35 @@ public sealed class DownloadCoordinator : IDisposable
 
     private void ReportProgress(Guid jobId, JobProgress progress)
     {
+        // Compute speed & ETA from byte deltas
+        double speedMbps = 0;
+        int? etaSec = null;
+        if (progress.CurrentBytesSoFar > 0)
+        {
+            var now = DateTime.UtcNow;
+            if (_rateSnapshots.TryGetValue(jobId, out var prev))
+            {
+                var elapsedSec = (now - prev.Time).TotalSeconds;
+                var bytesDelta = progress.CurrentBytesSoFar - prev.Bytes;
+                if (elapsedSec > 0.1 && bytesDelta > 0)
+                {
+                    speedMbps = bytesDelta / elapsedSec / (1024.0 * 1024.0);
+                    if (progress.CurrentTotalBytes > 0)
+                    {
+                        var remain = progress.CurrentTotalBytes.Value - progress.CurrentBytesSoFar;
+                        etaSec = (int)(remain / (bytesDelta / elapsedSec));
+                    }
+                }
+            }
+            _rateSnapshots[jobId] = (now, progress.CurrentBytesSoFar);
+        }
+        else if (progress.Status is JobStatus.Completed or JobStatus.Cancelled or JobStatus.Failed)
+        {
+            _rateSnapshots.TryRemove(jobId, out _);
+        }
+
+        var augmented = progress with { SpeedMbps = speedMbps, EtaSeconds = etaSec };
+
         if (_progressListeners.TryGetValue(jobId, out var listeners))
         {
             List<IProgress<JobProgress>> snapshot;
@@ -517,7 +637,7 @@ public sealed class DownloadCoordinator : IDisposable
             {
                 try
                 {
-                    listener.Report(progress);
+                    listener.Report(augmented);
                 }
                 catch { /* ignore listener errors */ }
             }
@@ -576,8 +696,15 @@ public sealed class DownloadCoordinator : IDisposable
         var targetsToRun = job.Targets.Where(t =>
             t.Status != TargetStatus.Completed &&
             t.Status != TargetStatus.Skipped).ToList();
-        var safeMode = _settingsService.Current.SafeMode;
         var processedAny = false;
+
+        // Job-wide artwork totals for accurate multi-artist progress.
+        // Seed offset from already-completed targets; total grows as each artist's count is discovered.
+        var jobArtworkOffset = job.Targets
+            .Where(t => t.Status == TargetStatus.Completed)
+            .Sum(t => t.FoundItems > 0 ? t.FoundItems : t.DownloadedItems);
+        var jobArtworkTotal = jobArtworkOffset; // grows via onArtistTotalKnown callbacks
+
         foreach (var target in targetsToRun)
         {
             ct.ThrowIfCancellationRequested();
@@ -589,7 +716,7 @@ public sealed class DownloadCoordinator : IDisposable
             // targets still get their own finer-grained per-artwork pacing inside
             // DownloadArtistAsync; the two layers compose because this delay
             // fires *before* the artist target starts processing.
-            if (safeMode && processedAny)
+            if (_settingsService.Current.SafeMode && processedAny)
             {
                 var jittered = 2.0 + (Random.Shared.NextDouble() * 2.0); // 2.0–4.0s
                 await Task.Delay(TimeSpan.FromSeconds(jittered), ct);
@@ -609,8 +736,15 @@ public sealed class DownloadCoordinator : IDisposable
                 $"Processing {target.Name}..."
             ));
 
-            var maxRetries = effectiveSettings.AutoRetryFailedDownloads == true ? (effectiveSettings.MaxRetryAttempts ?? 3) : 0;
-            var retryDelay = TimeSpan.FromSeconds(effectiveSettings.RetryDelaySeconds ?? 5);
+            // Prefer the user-facing "Retry count" setting (RetryCount); fall back to the
+            // legacy MaxRetryAttempts, then a default of 3. AutoRetry gates whether any
+            // retries happen at all.
+            // Read these live from global settings so changes apply without restarting the job.
+            var liveSettings = _settingsService.Current;
+            var maxRetries = (effectiveSettings.AutoRetryFailedDownloads ?? liveSettings.AutoRetryFailedDownloads)
+                ? (effectiveSettings.RetryCount ?? effectiveSettings.MaxRetryAttempts ?? liveSettings.RetryCount)
+                : 0;
+            var retryDelay = TimeSpan.FromSeconds(effectiveSettings.RetryDelaySeconds ?? liveSettings.RetryDelaySeconds);
             var attempt = 0;
             var success = false;
 
@@ -625,10 +759,20 @@ public sealed class DownloadCoordinator : IDisposable
 
                     // Execute based on target type
                     int found, downloaded;
+                    long bytes = 0;
                     if (target.Type == TargetType.Artist)
                     {
-                        (found, downloaded) = await DownloadArtistAsync(
+                        (found, downloaded, bytes) = await DownloadArtistAsync(
                             job.Id, target, targetSettings, ct,
+                            jobArtworkOffset: jobArtworkOffset,
+                            jobArtworkTotal: jobArtworkTotal,
+                            onArtistTotalKnown: artistTotal =>
+                            {
+                                // Update job-wide total now that we know the real count.
+                                // jobArtworkTotal includes a 0-placeholder for this target;
+                                // replace it with the real value.
+                                jobArtworkTotal += artistTotal;
+                            },
                             onOutputFolder: folder =>
                             {
                                 if (string.IsNullOrWhiteSpace(job.OutputFolder))
@@ -639,12 +783,14 @@ public sealed class DownloadCoordinator : IDisposable
                             },
                             onFirstThumbnail: url =>
                             {
-                                if (string.IsNullOrWhiteSpace(target.ThumbnailUrl))
-                                {
-                                    target.ThumbnailUrl = url;
-                                    _ = _jobRepository.SaveJobAsync(job, ct);
-                                }
+                                // Always update to the first artwork thumbnail — these are
+                                // disk-cached by PixivImageLoader and reliably render on restart,
+                                // unlike profile image URLs which can 403 after a session reset.
+                                target.ThumbnailUrl = url;
+                                _ = _jobRepository.SaveJobAsync(job, ct);
                             });
+                        // Advance the offset by this artist's confirmed total for the next target.
+                        jobArtworkOffset += found;
                     }
                     else
                     {
@@ -664,6 +810,16 @@ public sealed class DownloadCoordinator : IDisposable
                         };
                     }
 
+                    // Guard against silent success: if the target had items to fetch but
+                    // every one failed (e.g. disposed semaphore, rate-limit, network), do
+                    // NOT mark it Completed. Throw so it routes through the retry/Failed
+                    // path and surfaces to the user instead of reporting "succeeded, 0 files".
+                    if (found > 0 && downloaded == 0)
+                    {
+                        throw new InvalidOperationException(
+                            $"All {found} item(s) for target {target.TargetId} failed to download (0 succeeded).");
+                    }
+
                     await _jobRepository.UpdateTargetStatusAsync(
                         target.Id,
                         TargetStatus.Completed,
@@ -675,7 +831,12 @@ public sealed class DownloadCoordinator : IDisposable
                 }
                 catch (OperationCanceledException)
                 {
-                    await _jobRepository.UpdateTargetStatusAsync(target.Id, TargetStatus.Cancelled);
+                    // If the job was paused (not user-cancelled), leave the target in its
+                    // current in-progress state (Running/Pending) so it is re-queued on resume.
+                    // Only mark Cancelled when the user explicitly cancelled the job.
+                    var jobStatus = (await _jobRepository.GetJobAsync(job.Id))?.Status;
+                    if (jobStatus != JobStatus.Paused)
+                        await _jobRepository.UpdateTargetStatusAsync(target.Id, TargetStatus.Cancelled);
                     throw;
                 }
                 catch (Exception ex)
@@ -700,7 +861,7 @@ public sealed class DownloadCoordinator : IDisposable
                         // network doesn't produce a metronome-perfect retry cadence
                         // that's trivially fingerprintable as a bot.
                         var thisDelay = retryDelay;
-                        if (safeMode)
+                        if (_settingsService.Current.SafeMode)
                         {
                             var factor = 0.75 + (Random.Shared.NextDouble() * 0.5);
                             thisDelay = TimeSpan.FromMilliseconds(retryDelay.TotalMilliseconds * factor);
@@ -725,11 +886,14 @@ public sealed class DownloadCoordinator : IDisposable
         ));
     }
 
-    private async Task<(int Found, int Downloaded)> DownloadArtistAsync(
+    private async Task<(int Found, int Downloaded, long Bytes)> DownloadArtistAsync(
         Guid jobId,
         DownloadTarget target,
         SettingsOverride settings,
         CancellationToken ct,
+        int jobArtworkOffset = 0,
+        int jobArtworkTotal = 0,
+        Action<int>? onArtistTotalKnown = null,
         Action<string>? onOutputFolder = null,
         Action<string>? onFirstThumbnail = null)
     {
@@ -738,7 +902,7 @@ public sealed class DownloadCoordinator : IDisposable
         var allArtworkIds = profile.AllArtworkIds();
 
         if (allArtworkIds.Count == 0)
-            return (0, 0);
+            return (0, 0, 0);
 
         // Cap to the N most-recent artworks when requested (IDs are already newest-first)
         if (settings.MaxArtworksPerArtist is > 0)
@@ -777,8 +941,11 @@ public sealed class DownloadCoordinator : IDisposable
             ? PageRangeParser.Parse(target.PageRange)
             : PageRangeParser.Parse("0"); // All pages
 
-        // Filter the metadata list before counting "found"
-        var filteredArtworks = allMetadata.Values.Where(artwork =>
+        // Artworks that pass all content filters (ignoring the resume checkpoint). This is
+        // the artist's FULL total for this job and must stay stable across pause/resume so
+        // the UI progress doesn't "drop" when resuming (which made it look like a new job).
+        var completedIds = target.CompletedArtworkIds;
+        var matchedArtworks = allMetadata.Values.Where(artwork =>
         {
             if (settings.FilterAiGenerated == true && artwork.IsAiGenerated) return false;
             if (settings.SkipManga   == true && artwork.IllustType == 1) return false;
@@ -790,77 +957,189 @@ public sealed class DownloadCoordinator : IDisposable
             return true;
         }).ToList();
 
-        int found = filteredArtworks.Count;
-        int downloaded = 0;
-        int artworkIndex = 0;
+        // The subset still to download this run = matched minus those already completed
+        // in a previous run (resume checkpoint).
+        var filteredArtworks = matchedArtworks
+            .Where(a => !completedIds.Contains(a.Id))
+            .ToList();
 
-        foreach (var artwork in filteredArtworks)
+        // Stable full total + how many were already done before this run started, so the
+        // reported "completed / total" continues from where it left off instead of 0/N.
+        int fullTotal = matchedArtworks.Count;
+        int alreadyDone = fullTotal - filteredArtworks.Count;
+
+        // Persist FoundItems immediately so if the job is paused before completing,
+        // the total artwork count is already in the DB for display on next launch.
+        if (target.FoundItems != fullTotal)
         {
-            ct.ThrowIfCancellationRequested();
-            artworkIndex++;
+            target.FoundItems = fullTotal;
+            _ = _jobRepository.UpdateFoundItemsAsync(target.Id, fullTotal);
+        }
 
-            // Report per-artwork progress
-            ReportProgress(jobId, new JobProgress(
-                jobId,
-                JobStatus.Running,
-                downloaded,
-                found,
-                found > 0 ? artworkIndex * 100.0 / found : 0,
-                artwork.Title,
-                $"Downloading {artworkIndex}/{found}: {artwork.Title}"
-            ));
+        // Notify caller of the confirmed total so job-wide sum can be updated.
+        onArtistTotalKnown?.Invoke(fullTotal);
+        // effectiveJobTotal = offset from prior targets + this artist's full total.
+        // The caller's jobArtworkTotal now reflects all known targets after the callback.
+        var effectiveJobTotal = jobArtworkOffset + fullTotal;
 
+        // Download avatar + banner before artwork loop when option is enabled
+        var downloadProfileImages = settings.DownloadAvatarAndBanner ?? _settingsService.Current.DownloadAvatarAndBanner;
+        if (downloadProfileImages && filteredArtworks.Count > 0)
+        {
             try
             {
-                var pages = await _client.GetArtworkPagesAsync(artwork.Id, ct);
+                var sampleArtwork = filteredArtworks[0];
+                var artistFolder = _downloadService.ResolveArtistFolder(sampleArtwork, settings);
+                Directory.CreateDirectory(artistFolder);
 
-                List<int>? pageIndices = null;
-                if (!pageRange.IsAll)
+                var userInfo = await _client.GetArtistFullAsync(target.TargetId, ct).ConfigureAwait(false);
+                if (userInfo != null)
                 {
-                    pageIndices = pageRange.ToZeroBasedIndices()
-                        .Where(i => i < pages.Count)
-                        .ToList();
+                    // Avatar (big version preferred)
+                    var avatarUrl = userInfo.ImageBigUrl ?? userInfo.ImageUrl;
+                    if (!string.IsNullOrWhiteSpace(avatarUrl))
+                    {
+                        var avatarExt = Path.GetExtension(new Uri(avatarUrl).AbsolutePath);
+                        if (string.IsNullOrWhiteSpace(avatarExt)) avatarExt = ".jpg";
+                        var avatarDest = Path.Combine(artistFolder, $"avatar{avatarExt}");
+                        if (!File.Exists(avatarDest))
+                        {
+                            await _downloadService.DownloadGenericFileAsync(avatarUrl, avatarDest, "https://www.pixiv.net/", ct).ConfigureAwait(false);
+                            _logger.LogInformation("Saved avatar for {UserId} -> {Path}", target.TargetId, avatarDest);
+                        }
+                    }
 
-                    if (pageIndices.Count == 0)
-                        continue;
-                }
-
-                // Inter-artwork pacing. SafeMode enforces a minimum 2-second delay
-                // plus 0-2 seconds of jitter even if the user's configured delay is 0
-                // — this is the single most important behavior for avoiding Pixiv's
-                // "unauthorized access attempts" suspension on long artist downloads.
-                var delaySec = settings.DownloadDelaySeconds ?? 0;
-                if (_settingsService.Current.SafeMode)
-                {
-                    var jittered = 2.0 + (Random.Shared.NextDouble() * 2.0); // 2.0–4.0s
-                    if (delaySec < jittered) delaySec = (int)Math.Ceiling(jittered);
-                }
-                if (delaySec > 0)
-                    await Task.Delay(TimeSpan.FromSeconds(delaySec), ct);
-
-                var savedFiles = await _downloadService.DownloadArtworkPagesAsync(artwork, pageIndices, null, ct, settings);
-                downloaded++;
-
-                // Capture output folder and thumbnail from the first successfully downloaded artwork
-                if (savedFiles.Count > 0)
-                {
-                    onOutputFolder?.Invoke(Path.GetDirectoryName(savedFiles[0])!);
-                    onOutputFolder = null; // only capture once
-                }
-                if (!string.IsNullOrEmpty(artwork.ThumbnailUrl))
-                {
-                    onFirstThumbnail?.Invoke(artwork.ThumbnailUrl);
-                    onFirstThumbnail = null; // only capture once
+                    // Banner/background (only present with ?full=1)
+                    var bannerUrl = userInfo.Background?.Url;
+                    if (!string.IsNullOrWhiteSpace(bannerUrl) && userInfo.Background?.IsPrivate != true)
+                    {
+                        var bannerExt = Path.GetExtension(new Uri(bannerUrl).AbsolutePath);
+                        if (string.IsNullOrWhiteSpace(bannerExt)) bannerExt = ".jpg";
+                        var bannerDest = Path.Combine(artistFolder, $"banner{bannerExt}");
+                        if (!File.Exists(bannerDest))
+                        {
+                            await _downloadService.DownloadGenericFileAsync(bannerUrl, bannerDest, "https://www.pixiv.net/", ct).ConfigureAwait(false);
+                            _logger.LogInformation("Saved banner for {UserId} -> {Path}", target.TargetId, bannerDest);
+                        }
+                    }
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, "Failed to download artwork {ArtworkId} from artist {ArtistId}",
-                    artwork.Id, target.TargetId);
+                _logger.LogWarning(ex, "Failed to download avatar/banner for artist {UserId} — continuing with artworks", target.TargetId);
             }
         }
 
-        return (found, downloaded);
+        int downloaded = 0;
+        long bytesThisRun = 0;
+        int artworkIndex = 0;
+        bool outputFolderCaptured = false;
+        bool thumbnailCaptured = false;
+
+        // Degree of parallelism: SafeMode forces 1 via the download semaphore, but we
+        // also cap the outer loop so the inter-artwork delay fires sequentially in SafeMode.
+        var parallelDegree = _settingsService.Current.SafeMode
+            ? 1
+            : Math.Max(1, settings.MaxConcurrentDownloads ?? _settingsService.Current.MaxConcurrentDownloads);
+
+        await Parallel.ForEachAsync(filteredArtworks,
+            new ParallelOptions { MaxDegreeOfParallelism = parallelDegree, CancellationToken = ct },
+            async (artwork, innerCt) =>
+            {
+                var idx = Interlocked.Increment(ref artworkIndex);
+                var completedSoFar = alreadyDone + Volatile.Read(ref downloaded);
+                // Report job-wide counts: offset by artworks from prior targets.
+                var jobCompletedSoFar = jobArtworkOffset + completedSoFar;
+                ReportProgress(jobId, new JobProgress(
+                    jobId, JobStatus.Running,
+                    jobCompletedSoFar, effectiveJobTotal,
+                    effectiveJobTotal > 0 ? (jobArtworkOffset + alreadyDone + idx) * 100.0 / effectiveJobTotal : 0,
+                    artwork.Title,
+                    $"Downloading {alreadyDone + idx}/{fullTotal}: {artwork.Title}",
+                    CurrentThumbnailUrl: artwork.ThumbnailUrl));
+
+                try
+                {
+                    List<int>? pageIndices = null;
+                    if (!pageRange.IsAll)
+                    {
+                        var pages = await _client.GetArtworkPagesAsync(artwork.Id, innerCt);
+                        if (pages.Count == 0)
+                            throw new InvalidOperationException($"Artwork {artwork.Id} returned no pages (possibly deleted, private, or rate-limited)");
+                        pageIndices = pageRange.ToZeroBasedIndices()
+                            .Where(i => i < pages.Count)
+                            .ToList();
+                        if (pageIndices.Count == 0) return;
+                    }
+
+                    // Inter-artwork pacing (sequential in SafeMode; parallel runs skip fixed delay
+                    // since the download semaphore already gates throughput).
+                    // Read live so the user can adjust delay/SafeMode without restarting the job.
+                    if (parallelDegree == 1)
+                    {
+                        var liveGlobal = _settingsService.Current;
+                        var delaySec = settings.DownloadDelaySeconds ?? liveGlobal.DownloadDelaySeconds;
+                        if (liveGlobal.SafeMode)
+                        {
+                            var jittered = 2.0 + (Random.Shared.NextDouble() * 2.0);
+                            if (delaySec < jittered) delaySec = (int)Math.Ceiling(jittered);
+                        }
+                        if (delaySec > 0)
+                            await Task.Delay(TimeSpan.FromSeconds(delaySec), innerCt);
+                    }
+
+                    var savedFiles = await _downloadService.DownloadArtworkPagesAsync(artwork, pageIndices, null, innerCt, settings);
+                    var dl = Interlocked.Increment(ref downloaded);
+                    var artworkBytes = savedFiles.Sum(f => { try { return new System.IO.FileInfo(f).Length; } catch { return 0L; } });
+                    Interlocked.Add(ref bytesThisRun, artworkBytes);
+
+                    if (artworkBytes > 0)
+                    {
+                        _ = _jobRepository.AddBytesAsync(target.Id, artworkBytes);
+                        var completedNow = alreadyDone + dl;
+                        var jobCompletedNow = jobArtworkOffset + completedNow;
+                        ReportProgress(jobId, new JobProgress(
+                            jobId, JobStatus.Running,
+                            jobCompletedNow, effectiveJobTotal,
+                            effectiveJobTotal > 0 ? jobCompletedNow * 100.0 / effectiveJobTotal : 0,
+                            artwork.Title, null,
+                            ArtworkBytesCompleted: artworkBytes));
+                    }
+
+                    lock (target.CompletedArtworkIds)
+                    {
+                        if (!target.CompletedArtworkIds.Contains(artwork.Id))
+                        {
+                            target.CompletedArtworkIds.Add(artwork.Id);
+                            _ = _jobRepository.AppendCompletedArtworkIdAsync(target.Id, artwork.Id, innerCt);
+                        }
+                    }
+
+                    if (savedFiles.Count > 0 && !Volatile.Read(ref outputFolderCaptured))
+                    {
+                        Volatile.Write(ref outputFolderCaptured, true);
+                        onOutputFolder?.Invoke(Path.GetDirectoryName(savedFiles[0])!);
+                    }
+                    if (!string.IsNullOrEmpty(artwork.ThumbnailUrl) && !Volatile.Read(ref thumbnailCaptured))
+                    {
+                        Volatile.Write(ref thumbnailCaptured, true);
+                        onFirstThumbnail?.Invoke(artwork.ThumbnailUrl);
+                    }
+                }
+                catch (OperationCanceledException) { throw; }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to download artwork {ArtworkId} from artist {ArtistId}",
+                        artwork.Id, target.TargetId);
+                }
+            });
+
+        // Report the FULL totals (stable across pause/resume) and the CUMULATIVE number
+        // downloaded (prior runs + this run), so the persisted target counts — and the
+        // completed-job artwork summary — reflect the whole job, not just the last run.
+        // The silent-success guard still triggers correctly: fullTotal>0 with cumulative==0
+        // means nothing was ever downloaded.
+        return (fullTotal, alreadyDone + downloaded, bytesThisRun);
     }
 
     private static HashSet<string> ParseTagSet(string? csv)
@@ -907,6 +1186,10 @@ public sealed class DownloadCoordinator : IDisposable
         if (settings.SkipR18G         == true && detail.XRestrict == 2)    return (1, 0);
 
         var pages = await _client.GetArtworkPagesAsync(target.TargetId, ct);
+        if (pages.Count == 0)
+        {
+            throw new InvalidOperationException($"Artwork {target.TargetId} returned no pages (possibly deleted, private, or rate-limited)");
+        }
 
         // Apply page range
         var pageRange = target.HasCustomPageRange

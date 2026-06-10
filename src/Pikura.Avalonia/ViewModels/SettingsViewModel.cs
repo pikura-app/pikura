@@ -114,6 +114,7 @@ public partial class SettingsViewModel : ViewModelBase
     [ObservableProperty] private string _imageProcessingOutputFolder = "";
 
     // Download Control
+    [ObservableProperty] private bool _downloadAvatarAndBanner;
     [ObservableProperty] private int _overwriteMode; // 0=skip, 1=overwrite, 2=backup
     [ObservableProperty] private bool _backupOldFile;
     [ObservableProperty] private int _minFileSizeKB;
@@ -168,6 +169,10 @@ public partial class SettingsViewModel : ViewModelBase
     [ObservableProperty] private string _pixivLocale = "en";
     [ObservableProperty] private string _appLanguage = "English";
 
+    // Gallery Viewer Keyboard Navigation
+    [ObservableProperty] private bool _galleryKeyboardNavEnabled = true;
+    [ObservableProperty] private bool _fullscreenKeyboardNavEnabled = true;
+
     // Startup & System Tray
     [ObservableProperty] private bool _startWithWindows;
     [ObservableProperty] private string _startupWindowState = "Normal";
@@ -179,6 +184,7 @@ public partial class SettingsViewModel : ViewModelBase
     [ObservableProperty] private bool _notifyOnDownloadComplete = false;
     [ObservableProperty] private bool _notifyOnDownloadStarted  = false;
     [ObservableProperty] private bool _notifyOnDownloadFailed   = true;
+    [ObservableProperty] private bool _notifyOnDownloadPaused   = true;
 
     /// <summary>0=Disabled, 1=Minimize to tray, 2=Close to tray</summary>
     public int TrayBehavior
@@ -538,6 +544,7 @@ public partial class SettingsViewModel : ViewModelBase
         ImageProcessingOutputFolder = s.ImageProcessingOutputFolder ?? "";
 
         // Download Control
+        DownloadAvatarAndBanner = s.DownloadAvatarAndBanner;
         OverwriteMode = s.OverwriteMode;
         BackupOldFile = s.BackupOldFile;
         MinFileSizeKB = s.MinFileSizeKB;
@@ -591,6 +598,10 @@ public partial class SettingsViewModel : ViewModelBase
         PixivLocale  = s.Locale;
         AppLanguage  = s.AppLanguage;
 
+        // Gallery Viewer Keyboard Navigation
+        GalleryKeyboardNavEnabled    = s.GalleryKeyboardNavEnabled;
+        FullscreenKeyboardNavEnabled = s.FullscreenKeyboardNavEnabled;
+
         // Startup & System Tray
         StartWithWindows = s.StartWithWindows;
         StartupWindowState = s.StartupWindowState;
@@ -602,6 +613,7 @@ public partial class SettingsViewModel : ViewModelBase
         NotifyOnDownloadComplete = s.NotifyOnDownloadComplete;
         NotifyOnDownloadStarted  = s.NotifyOnDownloadStarted;
         NotifyOnDownloadFailed   = s.NotifyOnDownloadFailed;
+        NotifyOnDownloadPaused   = s.NotifyOnDownloadPaused;
         OnPropertyChanged(nameof(TrayBehavior));
 
         SettingsPathHint = $"Settings: {SettingsService.DefaultPath()}";
@@ -795,7 +807,15 @@ public partial class SettingsViewModel : ViewModelBase
         => _settingsService.Update(s => s.MaxConcurrentJobs = value);
 
     partial void OnSafeModeChanged(bool value)
-        => _settingsService.Update(s => s.SafeMode = value);
+    {
+        _settingsService.Update(s => s.SafeMode = value);
+        if (value)
+        {
+            // Enforce Safe Mode limits immediately in both settings and UI
+            MaxConcurrentJobs = 1;
+            MaxConcurrentDownloads = 1;
+        }
+    }
 
     partial void OnCreateSubfolderPerSubmissionChanged(bool value)
         => _settingsService.Update(s => s.CreateSubfolderPerSubmission = value);
@@ -939,6 +959,9 @@ public partial class SettingsViewModel : ViewModelBase
     }
 
     // Download Control
+    partial void OnDownloadAvatarAndBannerChanged(bool value)
+        => _settingsService.Update(s => s.DownloadAvatarAndBanner = value);
+
     partial void OnOverwriteModeChanged(int value)
         => _settingsService.Update(s => s.OverwriteMode = value);
 
@@ -1334,6 +1357,13 @@ public partial class SettingsViewModel : ViewModelBase
         return preview;
     }
 
+    // Gallery Viewer Keyboard Navigation
+    partial void OnGalleryKeyboardNavEnabledChanged(bool value)
+        => _settingsService.Update(s => s.GalleryKeyboardNavEnabled = value);
+
+    partial void OnFullscreenKeyboardNavEnabledChanged(bool value)
+        => _settingsService.Update(s => s.FullscreenKeyboardNavEnabled = value);
+
     // Startup & System Tray - Instant save handlers
     partial void OnStartWithWindowsChanged(bool value)
     {
@@ -1417,6 +1447,9 @@ public partial class SettingsViewModel : ViewModelBase
 
     partial void OnNotifyOnDownloadFailedChanged(bool value)
         => _settingsService.Update(s => s.NotifyOnDownloadFailed = value);
+
+    partial void OnNotifyOnDownloadPausedChanged(bool value)
+        => _settingsService.Update(s => s.NotifyOnDownloadPaused = value);
 
     // ── Hoshi AI Model Management ────────────────────────────────────────────
     partial void OnUseCustomHoshiModelsChanged(bool value)

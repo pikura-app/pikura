@@ -33,6 +33,12 @@ public sealed class PixivDownloadService
     private readonly FfmpegService _ffmpegService;
     private readonly ILogger<PixivDownloadService> _logger;
 
+    // Semaphore to limit concurrent downloads (respects MaxConcurrentDownloads setting).
+    // Swapped out at runtime when the limit changes; guarded by _semaphoreLock.
+    private SemaphoreSlim _downloadSemaphore = new(1, 1);
+    private int _currentSemaphoreLimit = 1;
+    private readonly object _semaphoreLock = new();
+
     private static readonly string DiagLog = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
         "Pikura", "download.log");
@@ -63,6 +69,59 @@ public sealed class PixivDownloadService
         _ffmpegService = ffmpegService;
         _ugoiraService = ugoiraService;
         _logger = logger;
+
+        // Initialize semaphore based on current settings
+        UpdateSemaphoreLimit();
+    }
+
+    /// <summary>
+    /// Updates the download semaphore limit based on MaxConcurrentDownloads setting.
+    /// SafeMode overrides: when enabled, limits to 1 concurrent download regardless of setting.
+    /// </summary>
+    private void UpdateSemaphoreLimit()
+    {
+        var maxConcurrent = _settings.Current.MaxConcurrentDownloads;
+        if (_settings.Current.SafeMode)
+            maxConcurrent = 1; // SafeMode enforces sequential downloads
+
+        maxConcurrent = Math.Max(1, maxConcurrent);
+
+        lock (_semaphoreLock)
+        {
+            if (maxConcurrent == _currentSemaphoreLimit) return;
+            // Swap in a new semaphore sized to the new limit. The previous instance is
+            // intentionally NOT disposed: in-flight downloads still hold a reference to it
+            // (captured in AcquireDownloadSlotAsync) and must be able to Release() on it.
+            // SemaphoreSlim does not require disposal unless its AvailableWaitHandle was
+            // accessed (we never do), so the GC reclaims the old one safely.
+            _downloadSemaphore = new SemaphoreSlim(maxConcurrent, maxConcurrent);
+            _currentSemaphoreLimit = maxConcurrent;
+        }
+    }
+
+    /// <summary>
+    /// Waits for a download slot to become available (respects MaxConcurrentDownloads).
+    /// </summary>
+    private async Task<IDisposable> AcquireDownloadSlotAsync(CancellationToken ct)
+    {
+        UpdateSemaphoreLimit();
+        // Capture the current semaphore instance so the matching Release() always targets
+        // the same one even if the limit is changed (and the field swapped) mid-download.
+        SemaphoreSlim semaphore;
+        lock (_semaphoreLock) { semaphore = _downloadSemaphore; }
+        await semaphore.WaitAsync(ct);
+        return new SemaphoreRelease(semaphore);
+    }
+
+    private sealed class SemaphoreRelease : IDisposable
+    {
+        private readonly SemaphoreSlim _semaphore;
+        private bool _disposed;
+        public SemaphoreRelease(SemaphoreSlim semaphore) => _semaphore = semaphore;
+        public void Dispose()
+        {
+            if (!_disposed) { _disposed = true; _semaphore.Release(); }
+        }
     }
 
     /// <summary>
@@ -198,7 +257,7 @@ public sealed class PixivDownloadService
         {
             _logger.LogWarning("Artwork {Id} returned no pages", artwork.Id);
             Diag("ABORT: no pages");
-            return [];
+            throw new InvalidOperationException($"Artwork {artwork.Id} returned no pages (possibly deleted, private, or rate-limited)");
         }
 
         var s = _settings.Current;
@@ -353,7 +412,12 @@ public sealed class PixivDownloadService
 
             try
             {
-                await DownloadFileAsync(pageUrl, destPath, batchIdx, batchTotal, artwork.Id, progress, ct)
+                // Wait for a download slot (respects MaxConcurrentDownloads and SafeMode)
+                using var slot = await AcquireDownloadSlotAsync(ct);
+                var effectiveMinKB = ovr?.MinFileSizeKB ?? s.MinFileSizeKB;
+                var effectiveMaxKB = ovr?.MaxFileSizeKB ?? s.MaxFileSizeKB;
+                await DownloadFileAsync(pageUrl, destPath, batchIdx, batchTotal, artwork.Id, progress, ct,
+                    effectiveMinKB, effectiveMaxKB)
                     .ConfigureAwait(false);
                 Diag($"  page[{i}] DOWNLOADED size={(File.Exists(destPath) ? new FileInfo(destPath).Length : -1)}");
 
@@ -425,6 +489,24 @@ public sealed class PixivDownloadService
     }
 
     /// <summary>
+    /// Resolves the folder path that artworks for <paramref name="artwork"/> would be saved to,
+    /// using the same template logic as <see cref="DownloadArtworkPagesAsync"/>.
+    /// Used by the coordinator to determine where to save artist avatar/banner files.
+    /// </summary>
+    public string ResolveArtistFolder(ArtworkPreview artwork, SettingsOverride? overrideSettings = null)
+    {
+        var s = _settings.Current;
+        var ovr = overrideSettings != null && !overrideSettings.UseGlobalSettings ? overrideSettings : null;
+        var effectiveDownloadRoot = !string.IsNullOrWhiteSpace(ovr?.DownloadRoot) ? ovr!.DownloadRoot! : s.DownloadRoot;
+        var effectiveFolderTemplate = ovr?.FolderTemplate ?? s.FolderTemplate;
+        var effectiveDateFormat = ovr?.DateFormat ?? s.DateFormat;
+        var template = new FilenameTemplate(effectiveDateFormat);
+        var ctx = new FilenameContext { Artwork = artwork, PageIndex = 0, PageCount = 1, OriginalUrl = string.Empty };
+        var folderPath = template.Resolve(effectiveFolderTemplate, ctx);
+        return Path.Combine(effectiveDownloadRoot, folderPath);
+    }
+
+    /// <summary>
     /// Public SafeMode-aware downloader for arbitrary URLs (FANBOX content, image-editor
     /// preset queue, anything else outside the Pixiv image CDN flow). Honors the same
     /// 429/503 backoff + Retry-After logic as the main artwork pipeline so SafeMode
@@ -462,7 +544,8 @@ public sealed class PixivDownloadService
     private async Task DownloadFileAsync(
         string url, string destPath,
         int pageIndex, int totalPages, string artworkId,
-        IProgress<DownloadProgress>? progress, CancellationToken ct)
+        IProgress<DownloadProgress>? progress, CancellationToken ct,
+        int minFileSizeKB = 0, int maxFileSizeKB = 0)
     {
         var client = _httpFactory.GetClient();
 
@@ -476,20 +559,31 @@ public sealed class PixivDownloadService
         var expectedTotal = resp.Content.Headers.ContentLength;
         var tmp = destPath + ".part";
         long readTotal = 0;
+
+        // Per-download stall timeout (DownloadTimeout setting). Applied only to the data
+        // transfer — not the SafeMode 429/503 backoff above — and reset after each chunk so
+        // it acts as an inactivity timeout: a download is aborted only if no bytes arrive
+        // for the configured number of seconds. 0 = no timeout.
+        var timeoutSec = _settings.Current.DownloadTimeout;
+        using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+        if (timeoutSec > 0) timeoutCts.CancelAfter(TimeSpan.FromSeconds(timeoutSec));
+        var dlCt = timeoutCts.Token;
         try
         {
-            await using (var src = await resp.Content.ReadAsStreamAsync(ct).ConfigureAwait(false))
+            await using (var src = await resp.Content.ReadAsStreamAsync(dlCt).ConfigureAwait(false))
             await using (var dst = new FileStream(tmp, FileMode.Create, FileAccess.Write, FileShare.None, BufferSize, useAsync: true))
             {
                 var buffer = new byte[BufferSize];
                 int read;
-                while ((read = await src.ReadAsync(buffer.AsMemory(0, BufferSize), ct).ConfigureAwait(false)) > 0)
+                while ((read = await src.ReadAsync(buffer.AsMemory(0, BufferSize), dlCt).ConfigureAwait(false)) > 0)
                 {
-                    await dst.WriteAsync(buffer.AsMemory(0, read), ct).ConfigureAwait(false);
+                    await dst.WriteAsync(buffer.AsMemory(0, read), dlCt).ConfigureAwait(false);
                     readTotal += read;
                     progress?.Report(new DownloadProgress(artworkId, pageIndex, totalPages, readTotal, expectedTotal));
+                    // Reset the inactivity window: we just made progress.
+                    if (timeoutSec > 0) timeoutCts.CancelAfter(TimeSpan.FromSeconds(timeoutSec));
                 }
-                await dst.FlushAsync(ct).ConfigureAwait(false);
+                await dst.FlushAsync(dlCt).ConfigureAwait(false);
             }
 
             // ---- Integrity checks (fail-fast: deletes the .part file on any mismatch) ----
@@ -511,8 +605,30 @@ public sealed class PixivDownloadService
             if (!await HasValidImageHeaderAsync(tmp, ct).ConfigureAwait(false))
                 throw new IOException($"Downloaded file is not a recognized image (HTML error page?): {url}");
 
+            // 5) Min/Max file size filter (0 = disabled). Delete .part and skip without error.
+            if (minFileSizeKB > 0 && readTotal < (long)minFileSizeKB * 1024)
+            {
+                try { File.Delete(tmp); } catch { /* best-effort */ }
+                Diag($"  SKIP: file {readTotal} bytes is below MinFileSizeKB={minFileSizeKB} KB");
+                return;
+            }
+            if (maxFileSizeKB > 0 && readTotal > (long)maxFileSizeKB * 1024)
+            {
+                try { File.Delete(tmp); } catch { /* best-effort */ }
+                Diag($"  SKIP: file {readTotal} bytes exceeds MaxFileSizeKB={maxFileSizeKB} KB");
+                return;
+            }
+
             if (File.Exists(destPath)) File.Delete(destPath);
             File.Move(tmp, destPath);
+        }
+        catch (OperationCanceledException) when (!ct.IsCancellationRequested)
+        {
+            // The cancellation came from our inactivity-timeout, NOT a user pause/cancel.
+            // Translate it into a regular failure (TimeoutException) so the coordinator
+            // retries this download instead of treating the whole job as cancelled.
+            try { if (File.Exists(tmp)) File.Delete(tmp); } catch { /* best-effort */ }
+            throw new TimeoutException($"Download timed out after {timeoutSec}s of inactivity: {url}");
         }
         catch
         {

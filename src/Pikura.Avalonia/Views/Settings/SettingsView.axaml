@@ -80,6 +80,27 @@
                                 </StackPanel>
                             </StackPanel>
                         </Border>
+
+                        <!-- Gallery Viewer Keyboard Navigation -->
+                        <Border Background="{actipro:ThemeResource Container1BackgroundBrush}"
+                                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                                BorderThickness="1" CornerRadius="8" Padding="28">
+                            <StackPanel Spacing="16">
+                                <TextBlock Text="Gallery Viewer" FontWeight="SemiBold" FontSize="14"/>
+                                <TextBlock FontSize="12" TextWrapping="Wrap"
+                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                           Text="Use arrow keys to navigate between artworks when the viewer is open."/>
+                                <CheckBox Content="Enable keyboard navigation in gallery (&#x2190; &#x2192; arrow keys)"
+                                          IsChecked="{Binding GalleryKeyboardNavEnabled, Mode=TwoWay}"
+                                          FontSize="13"
+                                          ToolTip.Tip="Left/Right arrow keys move to the previous/next artwork while the inline viewer panel is open"/>
+                                <CheckBox Content="Enable keyboard navigation in fullscreen viewer"
+                                          IsChecked="{Binding FullscreenKeyboardNavEnabled, Mode=TwoWay}"
+                                          FontSize="13"
+                                          ToolTip.Tip="Left/Right arrow keys navigate between artworks in the fullscreen viewer window"/>
+                            </StackPanel>
+                        </Border>
+
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>
@@ -634,7 +655,7 @@
                                 BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="24">
                             <StackPanel Spacing="20">
-                                <TextBlock Text="Blacklists (block download)" FontWeight="SemiBold" FontSize="13"/>
+                                <TextBlock Text="Blocklist (block download)" FontWeight="SemiBold" FontSize="13"/>
                                 <Grid ColumnDefinitions="*,1,*,1,*" ColumnSpan="1">
 
                                     <!-- Tags -->
@@ -646,8 +667,8 @@
                                         </Grid>
                                         <Grid ColumnDefinitions="*,Auto">
                                             <TextBox Grid.Column="0" Text="{Binding NewBlacklistTag, Mode=TwoWay}"
-                                                     PlaceholderText="Tag&#x2026;" CornerRadius="5" FontSize="12" Margin="0,0,6,0"/>
-                                            <Button Grid.Column="1" Content="Add" CornerRadius="5" FontSize="12"
+                                                     PlaceholderText="Tag&#x2026;" CornerRadius="5" FontSize="12" Margin="0,0,8,0"/>
+                                            <Button Grid.Column="1" Content="Add" CornerRadius="5" FontSize="12" Padding="14,6"
                                                     Command="{Binding AddBlacklistTagCommand}"/>
                                         </Grid>
                                         <ItemsControl ItemsSource="{Binding BlacklistTags}">
@@ -681,8 +702,8 @@
                                         </Grid>
                                         <Grid ColumnDefinitions="*,Auto">
                                             <TextBox Grid.Column="0" Text="{Binding NewBlacklistTitle, Mode=TwoWay}"
-                                                     PlaceholderText="Title pattern&#x2026;" CornerRadius="5" FontSize="12" Margin="0,0,6,0"/>
-                                            <Button Grid.Column="1" Content="Add" CornerRadius="5" FontSize="12"
+                                                     PlaceholderText="Title pattern&#x2026;" CornerRadius="5" FontSize="12" Margin="0,0,8,0"/>
+                                            <Button Grid.Column="1" Content="Add" CornerRadius="5" FontSize="12" Padding="14,6"
                                                     Command="{Binding AddBlacklistTitleCommand}"/>
                                         </Grid>
                                         <ItemsControl ItemsSource="{Binding BlacklistTitles}">
@@ -712,8 +733,8 @@
                                         <TextBlock Text="Member IDs" FontWeight="SemiBold" FontSize="12"/>
                                         <Grid ColumnDefinitions="*,Auto">
                                             <TextBox Grid.Column="0" Text="{Binding NewBlacklistMember, Mode=TwoWay}"
-                                                     PlaceholderText="Member ID&#x2026;" CornerRadius="5" FontSize="12" Margin="0,0,6,0"/>
-                                            <Button Grid.Column="1" Content="Add" CornerRadius="5" FontSize="12"
+                                                     PlaceholderText="Member ID&#x2026;" CornerRadius="5" FontSize="12" Margin="0,0,8,0"/>
+                                            <Button Grid.Column="1" Content="Add" CornerRadius="5" FontSize="12" Padding="14,6"
                                                     Command="{Binding AddBlacklistMemberCommand}"/>
                                         </Grid>
                                         <ItemsControl ItemsSource="{Binding BlacklistMembers}">
@@ -744,34 +765,34 @@
                                 BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="28">
                             <Grid ColumnDefinitions="*,20,*">
-                                <StackPanel Grid.Column="0" Spacing="24">
+                                <StackPanel Grid.Column="0" Spacing="20">
                                     <TextBlock Text="R-18 Content" FontWeight="SemiBold" FontSize="14"/>
-                                    <StackPanel Spacing="6">
+                                    <StackPanel Spacing="8">
                                         <TextBlock Text="Content mode" FontSize="13"
                                                    Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
-                                        <StackPanel Orientation="Horizontal" Spacing="6">
-                                            <Button Content="Off" CornerRadius="6" Padding="12,6" FontSize="12"
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <Button Content="Off" CornerRadius="6" Padding="16,7" FontSize="12"
                                                     Classes.accent="{Binding R18Mode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=Off}"
                                                     Click="OnR18ModeButtonClick" Tag="Off"/>
-                                            <Button Content="Show" CornerRadius="6" Padding="12,6" FontSize="12"
+                                            <Button Content="Show" CornerRadius="6" Padding="16,7" FontSize="12"
                                                     Classes.accent="{Binding R18Mode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=Show}"
                                                     Click="OnR18ModeButtonClick" Tag="Show"/>
-                                            <Button Content="Only" CornerRadius="6" Padding="12,6" FontSize="12"
+                                            <Button Content="Only" CornerRadius="6" Padding="16,7" FontSize="12"
                                                     Classes.accent="{Binding R18Mode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=Only}"
                                                     Click="OnR18ModeButtonClick" Tag="Only"/>
                                         </StackPanel>
                                     </StackPanel>
-                                    <StackPanel Spacing="6">
+                                    <StackPanel Spacing="8">
                                         <TextBlock Text="Type filter" FontSize="13"
                                                    Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
-                                        <StackPanel Orientation="Horizontal" Spacing="6">
-                                            <Button Content="Both" CornerRadius="6" Padding="12,6" FontSize="12"
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <Button Content="Both" CornerRadius="6" Padding="16,7" FontSize="12"
                                                     Classes.accent="{Binding R18Type, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=Both}"
                                                     Click="OnR18TypeButtonClick" Tag="Both"/>
-                                            <Button Content="R-18" CornerRadius="6" Padding="12,6" FontSize="12"
+                                            <Button Content="R-18" CornerRadius="6" Padding="16,7" FontSize="12"
                                                     Classes.accent="{Binding R18Type, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=R18}"
                                                     Click="OnR18TypeButtonClick" Tag="R18"/>
-                                            <Button Content="R-18G" CornerRadius="6" Padding="12,6" FontSize="12"
+                                            <Button Content="R-18G" CornerRadius="6" Padding="16,7" FontSize="12"
                                                     Classes.accent="{Binding R18Type, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=R18G}"
                                                     Click="OnR18TypeButtonClick" Tag="R18G"/>
                                         </StackPanel>
@@ -885,6 +906,11 @@
                                 </StackPanel>
                             </Border>
 
+                            <!-- Artist profile images -->
+                            <CheckBox IsChecked="{Binding DownloadAvatarAndBanner, Mode=TwoWay}"
+                                      FontSize="13"
+                                      Content="Download artist avatar and banner when downloading an artist's gallery"/>
+
                             <Grid ColumnDefinitions="*,20,*,20,*">
 
                                 <!-- Concurrency + Overwrite -->
@@ -907,22 +933,27 @@
                                         <TextBlock Text="Max concurrent jobs" FontSize="13"
                                                    Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
                                         <NumericUpDown Minimum="1" Maximum="99" Increment="1" FormatString="0"
+                                                       IsEnabled="{Binding !SafeMode}"
                                                        Value="{Binding MaxConcurrentJobs, Mode=TwoWay}"
                                                        Width="100" HorizontalAlignment="Left"/>
                                         <TextBlock FontSize="12" Foreground="{actipro:ThemeResource DefaultForegroundBrushDisabled}"
-                                                   Text="Jobs running at once — extras queue as pending"/>
+                                                   Text="Jobs running at once — extras queue as pending"
+                                                   IsVisible="{Binding !SafeMode}"/>
+                                        <TextBlock FontSize="12" Foreground="{actipro:ThemeResource DefaultForegroundBrushDisabled}"
+                                                   Text="Overridden by Safe Mode (forced to 1)"
+                                                   IsVisible="{Binding SafeMode}"/>
                                     </StackPanel>
                                     <StackPanel Spacing="6">
                                         <TextBlock Text="Overwrite behavior" FontSize="13"
                                                    Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
-                                        <StackPanel Orientation="Horizontal" Spacing="6">
-                                            <Button Content="Skip" CornerRadius="6" Padding="12,6" FontSize="12"
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <Button Content="Skip" CornerRadius="6" Padding="16,7" FontSize="12"
                                                     Classes.accent="{Binding OverwriteMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=0}"
                                                     Click="OnOverwriteModeButtonClick" Tag="0"/>
-                                            <Button Content="Overwrite" CornerRadius="6" Padding="12,6" FontSize="12"
+                                            <Button Content="Overwrite" CornerRadius="6" Padding="16,7" FontSize="12"
                                                     Classes.accent="{Binding OverwriteMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=1}"
                                                     Click="OnOverwriteModeButtonClick" Tag="1"/>
-                                            <Button Content="Backup" CornerRadius="6" Padding="12,6" FontSize="12"
+                                            <Button Content="Backup" CornerRadius="6" Padding="16,7" FontSize="12"
                                                     Classes.accent="{Binding OverwriteMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=2}"
                                                     Click="OnOverwriteModeButtonClick" Tag="2"/>
                                         </StackPanel>
@@ -1309,6 +1340,14 @@
                                     <StackPanel Spacing="1">
                                         <TextBlock Text="Download failed" FontSize="12"/>
                                         <TextBlock Text="Notify when a job fails or completes with errors." FontSize="11"
+                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushDisabled}"/>
+                                    </StackPanel>
+                                </CheckBox>
+
+                                <CheckBox IsChecked="{Binding NotifyOnDownloadPaused, Mode=TwoWay}" FontSize="12">
+                                    <StackPanel Spacing="1">
+                                        <TextBlock Text="Download paused / resumed" FontSize="12"/>
+                                        <TextBlock Text="Notify when a job is paused or resumed, with progress so far." FontSize="11"
                                                    Foreground="{actipro:ThemeResource DefaultForegroundBrushDisabled}"/>
                                     </StackPanel>
                                 </CheckBox>

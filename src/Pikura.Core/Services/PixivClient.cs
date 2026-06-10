@@ -248,6 +248,13 @@ public sealed partial class PixivClient
         return await GetAjaxAsync<PixivUserInfo>(url, ct).ConfigureAwait(false);
     }
 
+    /// <summary>GET /ajax/user/{id}?full=1 — includes background/banner URL.</summary>
+    public async Task<PixivUserInfo?> GetArtistFullAsync(string userId, CancellationToken ct = default)
+    {
+        var url = $"{BaseUrl}/ajax/user/{userId}?full=1&lang={_settings.Current.Locale}";
+        return await GetAjaxAsync<PixivUserInfo>(url, ct).ConfigureAwait(false);
+    }
+
     /// <summary>
     /// Best-effort artist search via <c>/ajax/search/users/{keyword}</c>. Pixiv has
     /// changed this endpoint repeatedly; if it 404s or shape-mismatches, returns empty.
@@ -500,29 +507,86 @@ public sealed partial class PixivClient
     private async Task<T?> GetAjaxAsync<T>(string url, CancellationToken ct, string? referer = null)
     {
         var client = _httpFactory.GetClient();
-        using var req = new HttpRequestMessage(HttpMethod.Get, url);
-        req.Headers.TryAddWithoutValidation("Referer", referer ?? BaseUrl + "/");
-        req.Headers.TryAddWithoutValidation("Accept", "application/json");
-        req.Headers.TryAddWithoutValidation("x-user-id", _settings.Current.UserId ?? string.Empty);
+        var backoffSeconds = new[] { 5, 10, 20, 60 };
+        var jitter = Random.Shared;
+        var safeMode = _settings.Current.SafeMode;
+        int attempt = 0;
 
-        using var resp = await client.SendAsync(req, ct).ConfigureAwait(false);
-        if (!resp.IsSuccessStatusCode)
+        while (true)
         {
-            _logger.LogWarning("Pixiv {Url} -> {Code}", url, resp.StatusCode);
-            await WriteDiagAsync(url, $"HTTP {(int)resp.StatusCode} {resp.StatusCode}", ct);
-            return default;
+            ct.ThrowIfCancellationRequested();
+
+            using var req = new HttpRequestMessage(HttpMethod.Get, url);
+            req.Headers.TryAddWithoutValidation("Referer", referer ?? BaseUrl + "/");
+            req.Headers.TryAddWithoutValidation("Accept", "application/json");
+            req.Headers.TryAddWithoutValidation("x-user-id", _settings.Current.UserId ?? string.Empty);
+
+            HttpResponseMessage resp;
+            try
+            {
+                resp = await client.SendAsync(req, ct).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Pixiv {Url} network request failed", url);
+                throw;
+            }
+
+            using (resp)
+            {
+                var status = (int)resp.StatusCode;
+                var isRateLimited = status == 429 || status == 503;
+
+                if (isRateLimited && safeMode && attempt < backoffSeconds.Length)
+                {
+                    var retryAfter = resp.Headers.RetryAfter;
+                    TimeSpan wait;
+                    if (retryAfter?.Delta is { } delta)
+                    {
+                        wait = delta;
+                    }
+                    else if (retryAfter?.Date is { } date)
+                    {
+                        wait = date - DateTimeOffset.UtcNow;
+                        if (wait < TimeSpan.Zero) wait = TimeSpan.FromSeconds(backoffSeconds[attempt]);
+                    }
+                    else
+                    {
+                        var baseSec = backoffSeconds[attempt];
+                        var jitterFactor = 0.75 + (jitter.NextDouble() * 0.5);
+                        wait = TimeSpan.FromSeconds(baseSec * jitterFactor);
+                    }
+
+                    if (wait > TimeSpan.FromMinutes(5)) wait = TimeSpan.FromMinutes(5);
+
+                    _logger.LogWarning("SafeMode: HTTP {Status} from {Url} — backing off {Seconds:F1}s (attempt {Attempt}/{TotalAttempts})",
+                        status, url, wait.TotalSeconds, attempt + 1, backoffSeconds.Length);
+
+                    await Task.Delay(wait, ct).ConfigureAwait(false);
+                    attempt++;
+                    continue;
+                }
+
+                if (!resp.IsSuccessStatusCode)
+                {
+                    _logger.LogWarning("Pixiv {Url} -> {Code}", url, resp.StatusCode);
+                    await WriteDiagAsync(url, $"HTTP {(int)resp.StatusCode} {resp.StatusCode}", ct);
+                    throw new HttpRequestException($"Pixiv API returned HTTP {(int)resp.StatusCode} {resp.StatusCode} for {url}", null, resp.StatusCode);
+                }
+
+                var body = await resp.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                PixivAjaxResponse<T>? envelope;
+                try { envelope = System.Text.Json.JsonSerializer.Deserialize<PixivAjaxResponse<T>>(body, JsonOpts); }
+                catch (Exception ex) { _logger.LogWarning(ex, "Pixiv {Url} JSON parse failed", url); throw; }
+                if (envelope is null || envelope.Error)
+                {
+                    _logger.LogWarning("Pixiv {Url} error: {Msg}", url, envelope?.Message);
+                    await WriteDiagAsync(url, $"error=true msg={envelope?.Message}\nBody={body[..Math.Min(500, body.Length)]}", ct);
+                    throw new InvalidOperationException($"Pixiv API error: {envelope?.Message ?? "Unknown error"}");
+                }
+                return envelope.Body;
+            }
         }
-        var body = await resp.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
-        PixivAjaxResponse<T>? envelope;
-        try { envelope = System.Text.Json.JsonSerializer.Deserialize<PixivAjaxResponse<T>>(body, JsonOpts); }
-        catch (Exception ex) { _logger.LogWarning(ex, "Pixiv {Url} JSON parse failed", url); return default; }
-        if (envelope is null || envelope.Error)
-        {
-            _logger.LogWarning("Pixiv {Url} error: {Msg}", url, envelope?.Message);
-            await WriteDiagAsync(url, $"error=true msg={envelope?.Message}\nBody={body[..Math.Min(500, body.Length)]}", ct);
-            return default;
-        }
-        return envelope.Body;
     }
 
     /// <summary>

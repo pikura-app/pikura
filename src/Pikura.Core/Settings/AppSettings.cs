@@ -161,6 +161,9 @@ public sealed class AppSettings
 
     #region Download Control
 
+    /// <summary>When true, also saves the artist's avatar and banner/background image to their folder.</summary>
+    public bool DownloadAvatarAndBanner { get; set; } = false;
+
     /// <summary>Overwrite behavior: 0=skip, 1=overwrite, 2=backup old file.</summary>
     public int OverwriteMode { get; set; } = 0; // 0=skip, 1=overwrite, 2=backup
 
@@ -416,6 +419,9 @@ public sealed class AppSettings
     /// <summary>When true, show a tray notification when a download job fails.</summary>
     public bool NotifyOnDownloadFailed { get; set; } = true;
 
+    /// <summary>When true, show a tray notification when a download job is paused or resumed.</summary>
+    public bool NotifyOnDownloadPaused { get; set; } = true;
+
     #endregion
 
     #region Discover UI state
@@ -468,6 +474,16 @@ public sealed class AppSettings
 
     /// <summary>R-18 toggle state in Bookmarks (persisted).</summary>
     public bool BookmarksShowR18 { get; set; } = false;
+
+    #endregion
+
+    #region Gallery Viewer Keyboard Navigation
+
+    /// <summary>When true, arrow keys navigate between artworks in the gallery while the inline viewer is open.</summary>
+    public bool GalleryKeyboardNavEnabled { get; set; } = true;
+
+    /// <summary>When true, arrow keys navigate between artworks while in the fullscreen viewer window.</summary>
+    public bool FullscreenKeyboardNavEnabled { get; set; } = true;
 
     #endregion
 

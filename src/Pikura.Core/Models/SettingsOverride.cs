@@ -86,6 +86,9 @@ public sealed class SettingsOverride
     /// <summary>Backup existing file before overwrite.</summary>
     public bool? BackupOldFile { get; set; }
 
+    /// <summary>Also save the artist's avatar and banner to their folder.</summary>
+    public bool? DownloadAvatarAndBanner { get; set; }
+
     #endregion
 
     #region Limits & Filtering
@@ -200,6 +203,7 @@ public sealed class SettingsOverride
             SeparateR18Folder = SeparateR18Folder ?? baseSettings.SeparateR18Folder,
             OverwriteMode = OverwriteMode ?? baseSettings.OverwriteMode,
             BackupOldFile = BackupOldFile ?? baseSettings.BackupOldFile,
+            DownloadAvatarAndBanner = DownloadAvatarAndBanner ?? baseSettings.DownloadAvatarAndBanner,
             MaxConcurrentDownloads = MaxConcurrentDownloads ?? baseSettings.MaxConcurrentDownloads,
             MinFileSizeKB = MinFileSizeKB ?? baseSettings.MinFileSizeKB,
             MaxFileSizeKB = MaxFileSizeKB ?? baseSettings.MaxFileSizeKB,
@@ -251,6 +255,7 @@ public sealed class SettingsOverride
             SeparateR18Folder = global.SeparateR18Folder,
             OverwriteMode = global.OverwriteMode,
             BackupOldFile = global.BackupOldFile,
+            DownloadAvatarAndBanner = global.DownloadAvatarAndBanner,
             MaxConcurrentDownloads = global.MaxConcurrentDownloads,
             MinFileSizeKB = global.MinFileSizeKB,
             MaxFileSizeKB = global.MaxFileSizeKB,

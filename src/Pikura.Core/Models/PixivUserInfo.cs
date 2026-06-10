@@ -11,6 +11,14 @@ public sealed record PixivUserInfo
     [JsonPropertyName("imageBig")] public string? ImageBigUrl { get; init; }
     [JsonPropertyName("isFollowed")] public bool IsFollowed { get; init; }
     [JsonPropertyName("comment")] public string? Comment { get; init; }
+    /// <summary>Profile background/banner image URL (only present with ?full=1).</summary>
+    [JsonPropertyName("background")] public PixivUserBackground? Background { get; init; }
+}
+
+public sealed record PixivUserBackground
+{
+    [JsonPropertyName("url")] public string? Url { get; init; }
+    [JsonPropertyName("isPrivate")] public bool IsPrivate { get; init; }
 }
 
 /// <summary>
