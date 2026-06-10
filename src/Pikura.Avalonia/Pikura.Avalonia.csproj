@@ -11,7 +11,7 @@
     <Product>Pikura</Product>
     <Company>mrplusultra</Company>
     <Copyright>© 2026 mrplusultra</Copyright>
-    <Version>1.7.5</Version>
+    <Version>1.8.0</Version>
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
     <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
   </PropertyGroup>
@@ -32,7 +32,6 @@
     <PackageReference Include="Avalonia.Controls.DataGrid" Version="12.0.0" />
     <PackageReference Include="Avalonia.Controls.WebView" Version="12.0.0" />
     <PackageReference Include="Avalonia.Controls.ColorPicker" Version="12.0.3" />
-    <PackageReference Include="Avalonia.BuildServices" Version="11.3.2" />
     <PackageReference Include="Xaml.Behaviors.Avalonia" Version="12.0.0" />
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2739.15" />
     <PackageReference Include="ActiproSoftware.Controls.Avalonia" Version="26.1.0" />

@@ -97,9 +97,10 @@ public partial class MainWindowViewModel : ViewModelBase
             if (string.IsNullOrEmpty(lastSeen)) return;
             if (UpdateCheckService.CompareSemVer(current, lastSeen) <= 0) return;
 
-            // Fetch release notes for the current version tag
+            // Fetch release notes for the current version tag; fall back to local notes
+            // when the GitHub release tag doesn't exist yet (e.g. freshly bumped version).
             var notes = await _updateCheck.FetchReleaseNotesAsync(current).ConfigureAwait(false);
-            if (notes is null) return;
+            notes ??= GetLocalReleaseNotes(current);
 
             await Dispatcher.UIThread.InvokeAsync(() =>
             {
@@ -439,4 +440,37 @@ public partial class MainWindowViewModel : ViewModelBase
     }
 
     public bool IsConfigured => _settingsService.Current.IsConfigured;
+
+    private static UpdateInfo? GetLocalReleaseNotes(string version) => version switch
+    {
+        "1.8.0" => new UpdateInfo(
+            "1.8.0",
+            "Pikura v1.8.0",
+            """
+            ## 1.8.0
+
+            ### Downloads
+            - **Download artist avatar and banner** — new option in Settings → Advanced to save `avatar.jpg` and `banner.jpg` to the artist's folder alongside their artworks
+            - **Live settings for running jobs** — changes to Safe Mode, delay between downloads, retry count, and retry delay now apply immediately to in-progress jobs without restarting
+            - **DownloadDelaySeconds now live** — was previously read once at job start from a snapshot; now always reads the current global setting
+
+            ### Inline Artwork Viewer
+            - **HTTP 429 error panel** — when Pixiv rate-limits an image load, an error message with a Retry button is shown instead of a blank viewer
+            - **Retry button** — click to reload the current artwork page without navigating away
+
+            ### Fullscreen Viewer
+            - **Full-resolution images on keyboard navigation** — pressing arrow keys to navigate between artworks now correctly loads the full-size original image for each artwork
+            - **Canvas state reset on navigation** — scale, position, and image dimensions are cleared when moving to a new artwork, preventing stale content from flashing
+
+            ### Settings UI
+            - **R-18 Content mode and Type filter buttons** — improved spacing and padding for a cleaner, easier-to-click look
+            - **Overwrite behavior buttons** — matching spacing improvements
+            - **Blacklist renamed to Blocklist** — section header updated across the Settings panel
+            - **Blocklist Add buttons** — improved spacing between the text input and Add button in all three blocklist columns (Tags, Titles, Member IDs)
+            - **Download artist avatar and banner checkbox** — added to the Download Behavior section in Advanced settings
+            """,
+            "https://github.com/pikura-app/pikura/releases/latest",
+            null),
+        _ => null,
+    };
 }
