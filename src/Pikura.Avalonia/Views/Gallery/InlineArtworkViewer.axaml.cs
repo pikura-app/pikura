@@ -68,12 +68,21 @@ public partial class InlineArtworkViewer : UserControl
         if (change.Property == IsExpandedProperty)
             ApplyExpandedState((bool)change.NewValue!);
 
-        // When this viewer instance becomes visible (e.g. expand to full-screen switches
-        // from GallerySideViewer to GalleryFullViewer), re-trigger the load.
-        // LoadCardAsync bails early when !IsEffectivelyVisible, so the full viewer ends
-        // up blank if InlineViewerCard was already set before it became visible.
-        if (change.Property == IsVisibleProperty && change.NewValue is true)
-            _ = LoadCardAsync(VM?.InlineViewerCard);
+        // When own IsVisible flips true (e.g. GalleryFullViewer shown via IsViewerExpanded binding)
+        // and also when IsExpanded changes (side↔full switch), reload the card.
+        // Post to UI dispatcher to debounce rapid layout passes that fire multiple notifications.
+        if ((change.Property == IsVisibleProperty || change.Property == IsExpandedProperty)
+            && change.NewValue is true)
+        {
+            Dispatcher.UIThread.Post(() =>
+            {
+                if (!IsEffectivelyVisible) return;
+                _loadedCardId = null;
+                _ = LoadCardAsync(VM?.InlineViewerCard);
+            });
+        }
+        if (change.Property == IsVisibleProperty && change.NewValue is false)
+            _loadedCardId = null;
     }
 
     private void ApplyExpandedState(bool expanded)
@@ -156,6 +165,81 @@ public partial class InlineArtworkViewer : UserControl
         };
 
         DataContextChanged += OnDataContextChanged;
+    }
+
+    /// <summary>
+    /// Fired when this control (re-)enters the visual tree. Reload the current card so
+    /// switching back to a gallery section that hosts this viewer shows content.
+    /// </summary>
+    protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        base.OnAttachedToVisualTree(e);
+        SubscribeToAncestorVisibility();
+        if (IsEffectivelyVisible)
+            _ = LoadCardAsync(VM?.InlineViewerCard);
+        if (TopLevel.GetTopLevel(this) is { } tl)
+            tl.AddHandler(KeyDownEvent, OnViewerKeyDown, RoutingStrategies.Tunnel);
+    }
+
+    protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        base.OnDetachedFromVisualTree(e);
+        if (TopLevel.GetTopLevel(this) is { } tl)
+            tl.RemoveHandler(KeyDownEvent, OnViewerKeyDown);
+        UnsubscribeAncestorVisibility();
+        _loadedCardId = null;
+    }
+
+    private void OnViewerKeyDown(object? sender, KeyEventArgs e)
+    {
+        // Only the visible instance should handle keys
+        if (!IsEffectivelyVisible) return;
+        if (VM?.InlineViewerCard == null) return;
+        if (e.Key != Key.Left && e.Key != Key.Right) return;
+        if (!AppServices.Get<Pikura.Core.Settings.SettingsService>().Current.GalleryKeyboardNavEnabled) return;
+        // Don't intercept when a text input has focus
+        if (TopLevel.GetTopLevel(this)?.FocusManager?.GetFocusedElement() is TextBox or NumericUpDown) return;
+
+        if (e.Key == Key.Left)
+            NavigatePrevWithPages();
+        else
+            NavigateNextWithPages();
+        e.Handled = true;
+    }
+
+    private readonly List<(AvaloniaObject obj, EventHandler<AvaloniaPropertyChangedEventArgs> handler)> _ancestorSubs = [];
+
+    private void SubscribeToAncestorVisibility()
+    {
+        UnsubscribeAncestorVisibility();
+        Visual? current = this.GetVisualParent();
+        while (current is not null)
+        {
+            var captured = current;
+            EventHandler<AvaloniaPropertyChangedEventArgs> handler = (_, e) =>
+            {
+                if (e.Property != IsVisibleProperty) return;
+                if (e.NewValue is true)
+                    Dispatcher.UIThread.Post(() =>
+                    {
+                        if (!IsEffectivelyVisible) return;
+                        _loadedCardId = null;
+                        _ = LoadCardAsync(VM?.InlineViewerCard);
+                    });
+                else if (e.NewValue is false)
+                    _loadedCardId = null;
+            };
+            captured.PropertyChanged += handler;
+            _ancestorSubs.Add((captured, handler));
+            current = current.GetVisualParent();
+        }
+    }
+
+    private void UnsubscribeAncestorVisibility()
+    {
+        foreach (var (obj, handler) in _ancestorSubs)
+            obj.PropertyChanged -= handler;
+        _ancestorSubs.Clear();
     }
 
     private GalleryViewModel? VM => DataContext as GalleryViewModel;
@@ -279,6 +363,7 @@ public partial class InlineArtworkViewer : UserControl
             if (ViewerImage != null) { ViewerImage.Source = null; ViewerImage.IsVisible = false; }
             if (UgoiraImage != null) { UgoiraImage.SourcePath = null; UgoiraImage.IsVisible = false; }
             if (LoadingPanel != null) LoadingPanel.IsVisible = false;
+            if (ErrorPanel != null) ErrorPanel.IsVisible = false;
         });
     }
 
@@ -379,12 +464,20 @@ public partial class InlineArtworkViewer : UserControl
             }
         }
         catch (OperationCanceledException) { /* expected on rapid switch */ }
+        catch (System.Net.Http.HttpRequestException httpEx)
+            when ((int?)httpEx.StatusCode == 429)
+        {
+            System.Diagnostics.Debug.WriteLine(
+                $"[InlineArtworkViewer] LoadCardAsync({card.Id}) rate-limited (429)");
+            if (_currentCard?.Id == card.Id)
+                SetError("Rate limited by Pixiv (HTTP 429).\nWait a moment then click Retry,\nor enable Safe Mode in Settings.");
+        }
         catch (Exception ex)
         {
-            // Surface failures — silent swallowing here previously masked real bugs
-            // (locale-broken ffmpeg encodes, network errors, etc.) leaving the UI blank.
             System.Diagnostics.Debug.WriteLine(
                 $"[InlineArtworkViewer] LoadCardAsync({card.Id}) failed: {ex.GetType().Name}: {ex.Message}\n{ex.StackTrace}");
+            if (_currentCard?.Id == card.Id)
+                SetError($"Failed to load image.\n{ex.Message}");
         }
         finally
         {
@@ -452,12 +545,17 @@ public partial class InlineArtworkViewer : UserControl
                     if (ct.IsCancellationRequested) { bmp.Dispose(); return; }
                     ViewerImage.Source = bmp;
                     ResetZoom();
+                    // Clear loading state now that the bitmap is applied — avoids the
+                    // blank-frame race where SetLoading(false) ran before Source was set.
+                    SetLoading(false);
                 });
 
                 // Eagerly upgrade to full-res Original in the background so the viewer
                 // always displays the highest quality image, not just when zoomed in.
                 if (!string.IsNullOrEmpty(_currentOriginalUrl) && !_fullResLoaded)
                     _ = LoadFullResAsync(_currentOriginalUrl!);
+
+                return; // SetLoading already called above
             }
         }
         SetLoading(false);
@@ -469,10 +567,31 @@ public partial class InlineArtworkViewer : UserControl
         {
             var hasCard = VM?.InlineViewerCard != null;
             if (LoadingPanel != null) LoadingPanel.IsVisible = loading && hasCard;
+            if (ErrorPanel != null && loading) ErrorPanel.IsVisible = false;
             var isUgoira = _currentCard?.IllustType == 2;
             if (ViewerImage != null) ViewerImage.IsVisible = !loading && hasCard && !isUgoira;
             if (UgoiraImage != null) UgoiraImage.IsVisible = !loading && hasCard && isUgoira;
         });
+    }
+
+    private void SetError(string message)
+    {
+        Dispatcher.UIThread.InvokeAsync(() =>
+        {
+            if (LoadingPanel != null) LoadingPanel.IsVisible = false;
+            if (ErrorPanel != null)
+            {
+                ErrorPanel.IsVisible = true;
+                if (ErrorText != null) ErrorText.Text = message;
+            }
+        });
+    }
+
+    private void OnRetryLoad(object? sender, RoutedEventArgs e)
+    {
+        if (ErrorPanel != null) ErrorPanel.IsVisible = false;
+        _loadedCardId = null;
+        _ = LoadCardAsync(VM?.InlineViewerCard);
     }
 
     private async Task<bool> LoadUgoiraAsync(string artworkId, CancellationToken ct)
@@ -792,6 +911,15 @@ if (result != null && presetWindow.DownloadClicked)
         await viewer.ShowDialog(window);
     }
 
+    private async void OnFullscreen(object? sender, RoutedEventArgs e)
+    {
+        if (_currentCard == null || VM == null) return;
+        var window = TopLevel.GetTopLevel(this) as Window;
+        if (window == null) return;
+        var viewer = new FullscreenViewerWindow(_currentCard.Artwork, VM);
+        await viewer.ShowDialog(window);
+    }
+
     private void OnOpenInPixiv(object? sender, RoutedEventArgs e)
     {
         if (_currentCard == null) return;
@@ -843,6 +971,37 @@ if (result != null && presetWindow.DownloadClicked)
         RaiseEvent(args);
         if (!args.Handled && VM != null)
             VM.IsViewerExpanded = !VM.IsViewerExpanded;
+    }
+
+    public void NavigatePrev() => OnPrevArtwork(null, new RoutedEventArgs());
+    public void NavigateNext() => OnNextArtwork(null, new RoutedEventArgs());
+
+    /// <summary>
+    /// Keyboard-aware ← navigation: steps back one page within a multi-page artwork first;
+    /// only moves to the previous artwork in the list when already on page 0.
+    /// Falls back to card.PageCount when _pages hasn't finished loading yet.
+    /// </summary>
+    public void NavigatePrevWithPages()
+    {
+        var pageCount = _pages.Count > 0 ? _pages.Count : (_currentCard?.PageCount ?? 1);
+        if (pageCount > 1 && _currentPageIndex > 0)
+            OnPrevPage(null, new RoutedEventArgs());
+        else
+            OnPrevArtwork(null, new RoutedEventArgs());
+    }
+
+    /// <summary>
+    /// Keyboard-aware → navigation: steps forward one page within a multi-page artwork first;
+    /// only moves to the next artwork in the list when already on the last page.
+    /// Falls back to card.PageCount when _pages hasn't finished loading yet.
+    /// </summary>
+    public void NavigateNextWithPages()
+    {
+        var pageCount = _pages.Count > 0 ? _pages.Count : (_currentCard?.PageCount ?? 1);
+        if (pageCount > 1 && _currentPageIndex < pageCount - 1)
+            OnNextPage(null, new RoutedEventArgs());
+        else
+            OnNextArtwork(null, new RoutedEventArgs());
     }
 
     private void OnPrevArtwork(object? sender, RoutedEventArgs e)

@@ -45,6 +45,15 @@
                         </StackPanel>
                     </Button>
                     <Button CornerRadius="6" Padding="10,5" FontSize="12"
+                            Classes="accent"
+                            Click="OnFullscreen"
+                            ToolTip.Tip="Open in fullscreen window (F11)">
+                        <StackPanel Orientation="Horizontal" Spacing="5">
+                            <TextBlock Text="&#x26F6;" FontSize="13" VerticalAlignment="Center"/>
+                            <TextBlock Text="Fullscreen" FontSize="11" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Button CornerRadius="6" Padding="10,5" FontSize="12"
                             Click="OnCloseAllClicked"
                             ToolTip.Tip="Close all tabs">
                         <StackPanel Orientation="Horizontal" Spacing="5">
@@ -256,6 +265,16 @@
                     <TextBlock Text="Loading…" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}" HorizontalAlignment="Center"/>
                 </StackPanel>
 
+                <!-- Load error panel (e.g. HTTP 429 rate limit) -->
+                <StackPanel Name="ErrorPanel" HorizontalAlignment="Center" VerticalAlignment="Center"
+                            Spacing="10" IsVisible="False">
+                    <TextBlock Name="ErrorText" FontSize="13" TextAlignment="Center"
+                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                               HorizontalAlignment="Center" TextWrapping="Wrap" MaxWidth="300"/>
+                    <Button Name="RetryBtn" Content="↺ Retry" HorizontalAlignment="Center"
+                            CornerRadius="6" Padding="16,6" Click="OnRetryLoad"/>
+                </StackPanel>
+
                 <!-- The actual image, transformed by code-behind -->
                 <Image Name="ViewerImage"
                        Stretch="Uniform"
@@ -286,6 +305,7 @@
                                 </MenuItem.Header>
                             </MenuItem>
                             <Separator/>
+                            <MenuItem Header="&#9974; Fullscreen (F11)" Click="OnFullscreen"/>
                             <MenuItem Header="Open in popup window" Click="OnOpenPopup"/>
                             <MenuItem Header="🌐 Open artwork on Pixiv" Click="OnOpenInPixiv"/>
                             <Separator/>
