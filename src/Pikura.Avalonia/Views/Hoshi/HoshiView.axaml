@@ -199,46 +199,81 @@
             <!-- Chat messages -->
             <ScrollViewer Grid.Row="2" Name="ChatScroll"
                           VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                <ItemsControl Name="MessagesList" Margin="12,8,12,12" ItemsSource="{Binding Messages}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate x:DataType="vm:AiChatMessage">
-                            <Grid ColumnDefinitions="Auto,*" Margin="0,4"
-                                  IsVisible="{Binding Content, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
-                                <Border Grid.Column="0" Padding="6,2" CornerRadius="4" Margin="0,2,8,0"
-                                        VerticalAlignment="Top"
-                                        Background="{actipro:ThemeResource Container2BackgroundBrush}">
-                                    <TextBlock Text="{Binding Role}" FontSize="10" FontWeight="SemiBold"
-                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
-                                </Border>
-                                <Border Grid.Column="1" Padding="10,8" CornerRadius="8"
-                                        Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                                        BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
-                                        BorderThickness="1">
-                                    <StackPanel Spacing="8">
-                                        <!-- Image thumbnail (if present) -->
-                                        <Border Name="MessageImage" Width="200" Height="150" CornerRadius="6"
-                                                ClipToBounds="True"
-                                                Background="{actipro:ThemeResource Container3BackgroundBrush}"
-                                                IsVisible="{Binding HasImage}">
-                                            <Image Stretch="UniformToFill">
-                                                <Image.Source>
-                                                    <Binding Path="ImageBytes">
-                                                        <Binding.Converter>
-                                                            <conv:BytesToImageConverter/>
-                                                        </Binding.Converter>
-                                                    </Binding>
-                                                </Image.Source>
-                                            </Image>
-                                        </Border>
-                                        <!-- Message text -->
-                                        <ctrl:LinkTextBlock LinkText="{Binding Content}" TextWrapping="Wrap" FontSize="12"
-                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrush}"/>
-                                    </StackPanel>
-                                </Border>
-                            </Grid>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
+                <StackPanel>
+                    <ItemsControl Name="MessagesList" Margin="12,8,12,12" ItemsSource="{Binding Messages}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:AiChatMessage">
+                                <Grid ColumnDefinitions="Auto,*" Margin="0,4"
+                                      IsVisible="{Binding Content, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+                                    <Border Grid.Column="0" Padding="6,2" CornerRadius="4" Margin="0,2,8,0"
+                                            VerticalAlignment="Top"
+                                            Background="{actipro:ThemeResource Container2BackgroundBrush}">
+                                        <TextBlock Text="{Binding Role}" FontSize="10" FontWeight="SemiBold"
+                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                    </Border>
+                                    <Border Grid.Column="1" Padding="10,8" CornerRadius="8"
+                                            Background="{actipro:ThemeResource Container1BackgroundBrush}"
+                                            BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                                            BorderThickness="1">
+                                        <StackPanel Spacing="8">
+                                            <!-- Image thumbnail (if present) -->
+                                            <Border Name="MessageImage" Width="200" Height="150" CornerRadius="6"
+                                                    ClipToBounds="True"
+                                                    Background="{actipro:ThemeResource Container3BackgroundBrush}"
+                                                    IsVisible="{Binding HasImage}">
+                                                <Image Stretch="UniformToFill">
+                                                    <Image.Source>
+                                                        <Binding Path="ImageBytes">
+                                                            <Binding.Converter>
+                                                                <conv:BytesToImageConverter/>
+                                                            </Binding.Converter>
+                                                        </Binding>
+                                                    </Image.Source>
+                                                </Image>
+                                            </Border>
+                                            <!-- Message text -->
+                                            <ctrl:LinkTextBlock LinkText="{Binding Content}" TextWrapping="Wrap" FontSize="12"
+                                                       Foreground="{actipro:ThemeResource DefaultForegroundBrush}"/>
+                                        </StackPanel>
+                                    </Border>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <StackPanel HorizontalAlignment="Center" Margin="0,8"
+                                IsVisible="{Binding IsThinking}">
+                        <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
+                                CornerRadius="12" Padding="12,6"
+                                BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                                BorderThickness="1">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <TextBlock Text="&#10022;" FontSize="10" VerticalAlignment="Center"
+                                           Foreground="#FFD6BAFF">
+                                    <TextBlock.Styles>
+                                        <Style Selector="TextBlock">
+                                            <Style.Animations>
+                                                <Animation Duration="0:0:1.2" IterationCount="INFINITE">
+                                                    <KeyFrame Cue="0%">
+                                                        <Setter Property="Opacity" Value="1"/>
+                                                    </KeyFrame>
+                                                    <KeyFrame Cue="50%">
+                                                        <Setter Property="Opacity" Value="0.3"/>
+                                                    </KeyFrame>
+                                                    <KeyFrame Cue="100%">
+                                                        <Setter Property="Opacity" Value="1"/>
+                                                    </KeyFrame>
+                                                </Animation>
+                                            </Style.Animations>
+                                        </Style>
+                                    </TextBlock.Styles>
+                                </TextBlock>
+                                <TextBlock Text="Hoshi is thinking…" FontSize="11"
+                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                           FontStyle="Italic" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </StackPanel>
             </ScrollViewer>
 
             <!-- Quick actions + input -->

@@ -1,7 +1,9 @@
 using System;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
+using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Pikura.Core.Models;
 using CommunityToolkit.Mvvm.Input;
 
 namespace Pikura.Avalonia.ViewModels;
@@ -101,7 +103,15 @@ public sealed class HistoryTabGrouping
         _groups = new List<HistoryGroupViewModel>();
         HistoryGroupViewModel? current = null;
 
-        foreach (var job in _source)
+        // Sort by grouping date descending so jobs with the same date are contiguous
+        // (runtime insertions at position 0 can otherwise create duplicate groups).
+        var sorted = _source.OrderByDescending(job =>
+        {
+            var dt = _useCompletedDate ? (job.Job.CompletedAt ?? job.Job.CreatedAt) : job.Job.CreatedAt;
+            return dt == default ? DateTime.Now : dt;
+        });
+
+        foreach (var job in sorted)
         {
             var dt = _useCompletedDate ? (job.Job.CompletedAt ?? job.Job.CreatedAt) : job.Job.CreatedAt;
             var local = (dt == default ? DateTime.Now : dt.ToLocalTime()).Date;
@@ -122,6 +132,118 @@ public sealed class HistoryTabGrouping
     {
         if (g.IsExpanded) _collapsed.Remove(g.Date);
         else _collapsed.Add(g.Date);
+        RebuildFlat();
+    }
+
+    private void RebuildFlat()
+    {
+        View.Clear();
+        foreach (var g in _groups)
+        {
+            View.Add(g);
+            if (g.IsExpanded)
+                foreach (var j in g.Jobs)
+                    View.Add(j);
+        }
+    }
+}
+
+/// <summary>A status-group header for the Active tab (Running, Paused, Queued).</summary>
+public partial class ActiveGroupViewModel : ObservableObject
+{
+    public string Label { get; }
+    public string StatusKey { get; }
+    public ObservableCollection<DownloadJobViewModel> Jobs { get; } = new();
+
+    [ObservableProperty] private bool _isExpanded = true;
+
+    public Action<ActiveGroupViewModel>? OnToggleChanged;
+    private bool _silent;
+
+    public ActiveGroupViewModel(string label, string statusKey)
+    {
+        Label = label;
+        StatusKey = statusKey;
+    }
+
+    public int Count => Jobs.Count;
+    public string CountText => $"{Count} job{(Count == 1 ? "" : "s")}";
+    public string Chevron => IsExpanded ? "\u25BE" : "\u25B8";
+
+    public void SetExpandedSilently(bool value)
+    {
+        _silent = true;
+        IsExpanded = value;
+        _silent = false;
+    }
+
+    partial void OnIsExpandedChanged(bool value)
+    {
+        OnPropertyChanged(nameof(Chevron));
+        if (!_silent) OnToggleChanged?.Invoke(this);
+    }
+
+    [RelayCommand]
+    private void Toggle() => IsExpanded = !IsExpanded;
+}
+
+/// <summary>Derives a flat view from active jobs grouped by status (Running, Paused, Pending).</summary>
+public sealed class ActiveTabGrouping
+{
+    public ObservableCollection<object> View { get; } = new();
+
+    private readonly ObservableCollection<DownloadJobViewModel> _source;
+    private readonly HashSet<string> _collapsed = new();
+    private List<ActiveGroupViewModel> _groups = new();
+
+    public ActiveTabGrouping(ObservableCollection<DownloadJobViewModel> source)
+    {
+        _source = source;
+    }
+
+    public void Regroup()
+    {
+        _groups = new List<ActiveGroupViewModel>();
+        // Order: Running (0), Paused (1), Pending (2)
+        var ordered = _source.OrderBy(j => j.Job.Status switch
+        {
+            JobStatus.Running => 0,
+            JobStatus.Paused => 1,
+            _ => 2
+        }).ThenBy(j => j.QueuePosition);
+
+        ActiveGroupViewModel? current = null;
+        foreach (var job in ordered)
+        {
+            var key = job.Job.Status switch
+            {
+                JobStatus.Running => "running",
+                JobStatus.Paused => "paused",
+                _ => "pending"
+            };
+            var label = job.Job.Status switch
+            {
+                JobStatus.Running => "▶ Running",
+                JobStatus.Paused => "⏸ Paused",
+                _ => "⏳ Queued"
+            };
+
+            if (current == null || current.StatusKey != key)
+            {
+                current = new ActiveGroupViewModel(label, key) { OnToggleChanged = OnGroupToggled };
+                current.SetExpandedSilently(!_collapsed.Contains(key));
+                _groups.Add(current);
+            }
+            current.Jobs.Add(job);
+        }
+
+        RebuildFlat();
+    }
+
+    private void OnGroupToggled(ActiveGroupViewModel g)
+    {
+        if (g.IsExpanded) _collapsed.Remove(g.StatusKey);
+        else _collapsed.Add(g.StatusKey);
         RebuildFlat();
     }
 

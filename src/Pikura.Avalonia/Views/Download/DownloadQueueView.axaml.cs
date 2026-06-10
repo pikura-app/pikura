@@ -194,7 +194,7 @@ public partial class DownloadQueueView : UserControl
             VerticalAlignment = VerticalAlignment.Center
         };
 
-        if (job.Status == JobStatus.Pending || job.Status == JobStatus.Queued || job.Status == JobStatus.Paused)
+        if (job.Status == JobStatus.Pending || job.Status == JobStatus.Paused)
         {
             var startBtn = new Button
             {
@@ -228,7 +228,7 @@ public partial class DownloadQueueView : UserControl
             btnPanel.Children.Add(pauseBtn);
         }
 
-        if (job.Status == JobStatus.Running || job.Status == JobStatus.Pending || job.Status == JobStatus.Queued || job.Status == JobStatus.Paused)
+        if (job.Status == JobStatus.Running || job.Status == JobStatus.Pending || job.Status == JobStatus.Paused)
         {
             var cancelBtn = new Button
             {
@@ -252,7 +252,7 @@ public partial class DownloadQueueView : UserControl
         }
 
         // Right-click reorder menu for active/pending/paused jobs
-        var isReorderable = job.Status is JobStatus.Pending or JobStatus.Queued or JobStatus.Paused or JobStatus.Running;
+        var isReorderable = job.Status is JobStatus.Pending or JobStatus.Paused or JobStatus.Running;
         if (isReorderable)
         {
             var menu = new ContextMenu();

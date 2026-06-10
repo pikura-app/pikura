@@ -65,6 +65,12 @@ public partial class App : Application
             var dialogService = AppServices.Get<DialogService>();
             dialogService.Initialize(desktop.MainWindow);
 
+            // Gracefully pause any running downloads on shutdown so their persisted
+            // per-artwork progress can be resumed on next launch instead of being
+            // cancelled as orphans. Run off the UI thread to avoid sync-over-async
+            // reentrancy during shutdown.
+            desktop.ShutdownRequested += OnShutdownRequested;
+
             var accessibilityService = AppServices.Get<AccessibilityService>();
 
             // Eagerly construct HistoryViewModel synchronously so it subscribes to
@@ -77,6 +83,15 @@ public partial class App : Application
             {
                 await Task.Delay(200); // let window finish initializing
                 try { await historyVm.ReloadAsync(); } catch { }
+                // Recover any jobs left in Running state from a hard kill (→ Paused),
+                // then auto-start Pending jobs up to the concurrent-job limit.
+                try
+                {
+                    var coordinator = AppServices.Get<DownloadCoordinator>();
+                    await coordinator.StartupRecoveryAsync();
+                    await historyVm.ReloadAsync(); // refresh UI after recovery
+                }
+                catch { }
             });
 
             // Auto-validate existing session cookie in background (shared with WPF app)
@@ -213,6 +228,17 @@ public partial class App : Application
     {
         _crashService?.GenerateCrashReport(e.Exception, "UI Thread - Dispatcher exception");
         e.Handled = true; // Prevent app crash, but log it
+    }
+
+    private void OnShutdownRequested(object? sender, ShutdownRequestedEventArgs e)
+    {
+        try
+        {
+            var coordinator = AppServices.Get<DownloadCoordinator>();
+            // Off the UI thread to avoid sync-over-async reentrancy while shutting down.
+            Task.Run(() => coordinator.PauseAllRunningForShutdownAsync()).GetAwaiter().GetResult();
+        }
+        catch { /* best-effort: startup recovery will re-pause any orphans */ }
     }
 
     private void OnTrayIconClicked(object? sender, EventArgs e) => ShowMainWindow();

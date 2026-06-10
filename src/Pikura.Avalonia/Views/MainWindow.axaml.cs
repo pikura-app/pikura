@@ -346,19 +346,22 @@ public partial class MainWindow : Window
         }
     }
 
-    private async void HistoryButton_Click(object? sender, RoutedEventArgs e)
+    private async void JobsButton_Click(object? sender, RoutedEventArgs e)
     {
         try
         {
             var vm = AppServices.Get<HistoryViewModel>();
+            var isFirstLoad = _historyView == null;
             _historyView ??= new History.HistoryView { DataContext = vm };
             MainContentControl.Content = _historyView;
-            SetSectionTitle("History");
-            await vm.ReloadAsync();
+            SetSectionTitle("Jobs");
+            // Only reload on first visit to prevent re-render flicker when switching tabs
+            if (isFirstLoad)
+                await vm.ReloadAsync();
         }
         catch (Exception ex)
         {
-            MainContentControl.Content = new TextBlock { Text = $"History — error: {ex.Message}", FontSize = 18, Foreground = Brush.Parse("#9CA3AF"), VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center };
+            MainContentControl.Content = new TextBlock { Text = $"Jobs — error: {ex.Message}", FontSize = 18, Foreground = Brush.Parse("#9CA3AF"), VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center };
         }
     }
 

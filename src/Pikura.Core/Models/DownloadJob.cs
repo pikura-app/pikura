@@ -17,13 +17,12 @@ public enum DownloadJobType
 /// <summary>Status of a download job.</summary>
 public enum JobStatus
 {
-    Pending   = 0,
-    Running   = 1,
-    Paused    = 2,
-    Completed = 3,
-    Failed    = 4,
-    Cancelled = 5,
-    Queued    = 10,  // waiting for a concurrent slot; added in 1.7.2 — high value avoids shifting existing DB rows
+    Pending   = 0,  // Ready to run, waiting for concurrent slot
+    Running   = 1,  // Actively executing
+    Paused    = 2,  // User-paused, can be resumed
+    Completed = 3,  // Finished successfully
+    Failed    = 4,  // Finished with errors
+    Cancelled = 5,  // Cancelled by user
 }
 
 /// <summary>Type of download target.</summary>
@@ -103,6 +102,9 @@ public sealed class DownloadJob
 
     /// <summary>Local folder where downloaded files were saved. Null for coordinator jobs (folder is per-target).</summary>
     public string? OutputFolder { get; set; }
+
+    /// <summary>Display order for pending/paused/running jobs (lower = first).</summary>
+    public int SortOrder { get; set; }
 
     #endregion
 }
@@ -192,8 +194,17 @@ public sealed class DownloadTarget
     /// <summary>Number of items successfully downloaded.</summary>
     public int DownloadedItems { get; set; }
 
+    /// <summary>Total bytes successfully downloaded for this target.</summary>
+    public long DownloadedBytes { get; set; }
+
     /// <summary>Timestamp when this target was processed.</summary>
     public DateTime? ProcessedAt { get; set; }
+
+    /// <summary>
+    /// Artwork IDs already successfully downloaded for this artist target.
+    /// Used to skip already-finished artworks when resuming after pause.
+    /// </summary>
+    public List<string> CompletedArtworkIds { get; set; } = new();
 
     #endregion
 

@@ -1,4 +1,4 @@
-<UserControl xmlns="https://github.com/avaloniaui"
+﻿<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:actipro="http://schemas.actiprosoftware.com/avaloniaui"
              xmlns:vm="using:Pikura.Avalonia.ViewModels"
@@ -32,6 +32,42 @@
         <Style Selector="ListBox.history ListBoxItem:pointerover /template/ ContentPresenter">
             <Setter Property="Background" Value="Transparent"/>
         </Style>
+
+        <!-- Job card hover lift + drag feedback -->
+        <Style Selector="Border.jobCard">
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        <Style Selector="Border.jobCard:pointerover">
+            <Setter Property="RenderTransform" Value="translateY(-1px)"/>
+            <Setter Property="BorderBrush" Value="{actipro:ThemeResource ControlBackgroundBrushSolidAccent}"/>
+        </Style>
+        <!-- Drag grip fades in on hover -->
+        <Style Selector="Border.jobCard:pointerover TextBlock#DragGrip">
+            <Setter Property="Opacity" Value="0.5"/>
+        </Style>
+
+        <!-- Compact mode: hide detailed info -->
+        <Style Selector="Border.jobCard.compact TextBlock#CurrentArtistLabel">
+            <Setter Property="IsVisible" Value="False"/>
+        </Style>
+        <Style Selector="Border.jobCard.compact TextBlock#CurrentFileLabel">
+            <Setter Property="IsVisible" Value="False"/>
+        </Style>
+        <Style Selector="Border.jobCard.compact TextBlock#SpeedText">
+            <Setter Property="IsVisible" Value="False"/>
+        </Style>
+        <Style Selector="Border.jobCard.compact TextBlock#EtaText">
+            <Setter Property="IsVisible" Value="False"/>
+        </Style>
+        <Style Selector="Border.jobCard.compact ProgressBar#FileProgress">
+            <Setter Property="IsVisible" Value="False"/>
+        </Style>
+        <!-- While dragging: code-behind drives RenderTransform/ZIndex for 1:1 cursor
+             follow; here we only add a subtle translucency + shadow for the lift. -->
+        <Style Selector="Border.jobCard.dragging">
+            <Setter Property="Opacity" Value="0.9"/>
+            <Setter Property="BoxShadow" Value="0 8 24 0 #55000000"/>
+        </Style>
     </UserControl.Styles>
 
     <Grid RowDefinitions="Auto,*">
@@ -41,10 +77,13 @@
                 BorderThickness="0,0,0,1" Padding="16,10"
                 Margin="0,32,0,0">
             <Grid ColumnDefinitions="*,Auto">
-                <StackPanel Grid.Column="0" Orientation="Vertical" Spacing="2" VerticalAlignment="Center">
-                    <TextBlock Text="📜 History" FontWeight="SemiBold" FontSize="16"/>
-                    <TextBlock Text="View active and archived downloads"
-                               FontSize="11" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                    <TextBlock Text="&#128451;" FontSize="20" VerticalAlignment="Center"/>
+                    <StackPanel Orientation="Vertical" Spacing="2" VerticalAlignment="Center">
+                        <TextBlock Text="Jobs" FontWeight="SemiBold" FontSize="18"/>
+                        <TextBlock Text="Active and completed downloads"
+                                   FontSize="11" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                    </StackPanel>
                 </StackPanel>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
                     <Button Content="🔄 Refresh"
@@ -76,28 +115,63 @@
                 <Grid RowDefinitions="Auto,*">
                     <Border Grid.Row="0" Padding="16,8" BorderBrush="{actipro:ThemeResource Container2BorderBrush}" BorderThickness="0,0,0,1">
                         <DockPanel LastChildFill="False">
-                            <TextBlock DockPanel.Dock="Left" Text="{Binding ActiveJobs.Count, StringFormat='{}{0} active'}"
-                                       FontSize="12" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}" VerticalAlignment="Center"/>
-                            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="6"
-                                        IsVisible="{Binding ActiveJobs.Count}">
-                                <Button Content="⏸ Pause All"
-                                        Command="{Binding PauseAllCommand}"
-                                        CornerRadius="6" Padding="10,6" FontSize="12"/>
-                                <Button Content="▶ Resume All"
-                                        Command="{Binding ResumeAllCommand}"
-                                        CornerRadius="6" Padding="10,6" FontSize="12" Classes="accent"/>
+                            <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding ActiveSummary}"
+                                           FontSize="12" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}" VerticalAlignment="Center"/>
+                            </StackPanel>
+                            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="6">
+                                <StackPanel Orientation="Horizontal" Spacing="2"
+                                            IsVisible="{Binding ActiveJobs.Count}">
+                                    <Button CornerRadius="6,0,0,6" Padding="8,6" FontSize="12" ToolTip.Tip="Card view"
+                                            Classes.accent="{Binding !ActiveListView}"
+                                            Command="{Binding SetActiveListViewCommand}" CommandParameter="false">
+                                        <TextBlock Text="&#x229E;"/>
+                                    </Button>
+                                    <Button CornerRadius="0,6,6,0" Padding="8,6" FontSize="12" ToolTip.Tip="List view"
+                                            Classes.accent="{Binding ActiveListView}"
+                                            Command="{Binding SetActiveListViewCommand}" CommandParameter="true">
+                                        <TextBlock Text="&#x2630;"/>
+                                    </Button>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Spacing="6"
+                                            IsVisible="{Binding ActiveJobs.Count}">
+                                    <Button Content="⏸ Pause All"
+                                            Command="{Binding PauseAllCommand}"
+                                            CornerRadius="6" Padding="10,6" FontSize="12"/>
+                                    <Button Content="▶ Resume All"
+                                            Command="{Binding ResumeAllCommand}"
+                                            CornerRadius="6" Padding="10,6" FontSize="12" Classes="accent"/>
+                                </StackPanel>
                             </StackPanel>
                         </DockPanel>
                     </Border>
                     <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
                         <StackPanel Margin="16,12">
-                            <ItemsControl x:Name="ActiveJobsList" ItemsSource="{Binding ActiveJobs}">
-                                <ItemsControl.ItemTemplate>
+                            <ListBox x:Name="ActiveJobsList" Classes="history" ItemsSource="{Binding ActiveJobs}"
+                                     IsVisible="{Binding !ActiveListView}">
+                                <!-- Non-virtualizing panel: the active queue is small, and a stable
+                                     1:1 mapping between realized containers and items is required for
+                                     the drag-to-reorder logic in the code-behind to work reliably. -->
+                                <ListBox.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel Orientation="Vertical"/>
+                                    </ItemsPanelTemplate>
+                                </ListBox.ItemsPanel>
+                                <ListBox.DataTemplates>
                                     <DataTemplate DataType="vm:DownloadJobViewModel">
-                                        <Border Background="{actipro:ThemeResource Container3BackgroundBrush}"
+                                        <Border Classes="jobCard"
+                                                Background="{actipro:ThemeResource Container3BackgroundBrush}"
                                                 BorderBrush="{actipro:ThemeResource Container3BorderBrush}"
-                                                BorderThickness="1" CornerRadius="6" Margin="0,0,0,6"
-                                                ClipToBounds="True">
+                                                BorderThickness="1" CornerRadius="8" Margin="0,0,0,10"
+                                                Padding="6,10,12,10"
+                                                ClipToBounds="True"
+                                                RenderTransform="none">
+                                            <Border.Transitions>
+                                                <Transitions>
+                                                    <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.18" Easing="CubicEaseOut"/>
+                                                    <DoubleTransition Property="Opacity" Duration="0:0:0.18"/>
+                                                </Transitions>
+                                            </Border.Transitions>
                                             <Border.ContextMenu>
                                                 <ContextMenu>
                                                     <MenuItem Header="⏸ Pause"
@@ -114,88 +188,184 @@
                                                     <MenuItem Header="↑ Move Up"         Command="{Binding MoveUpCommand}"/>
                                                     <MenuItem Header="↓ Move Down"       Command="{Binding MoveDownCommand}"/>
                                                     <MenuItem Header="⬇ Move to Bottom"  Command="{Binding MoveToBottomCommand}"/>
+                                                    <Separator/>
+                                                    <MenuItem Header="🗑 Remove from Queue"
+                                                              Command="{Binding $parent[ListBox].DataContext.RemoveActiveJobCommand}"
+                                                              CommandParameter="{Binding}"/>
                                                 </ContextMenu>
                                             </Border.ContextMenu>
-                                            <Grid ColumnDefinitions="Auto,*,Auto">
-                                                <Grid Grid.Column="0" Width="64" Height="64">
-                                                    <Border CornerRadius="5,0,0,5" ClipToBounds="True"
-                                                            Background="{actipro:ThemeResource Container2BackgroundBrush}">
-                                                        <Panel>
-                                                            <Image Source="{Binding Thumbnail}" Stretch="UniformToFill" IsVisible="{Binding HasThumbnail}"/>
-                                                            <ProgressBar IsIndeterminate="True" Height="3" VerticalAlignment="Bottom" IsVisible="{Binding !HasThumbnail}"/>
-                                                        </Panel>
-                                                    </Border>
-                                                    <!-- Queue position badge -->
-                                                    <Border VerticalAlignment="Top" HorizontalAlignment="Left"
-                                                            Background="#CC000000" CornerRadius="0,0,4,0"
-                                                            Padding="5,2" IsHitTestVisible="False">
-                                                        <TextBlock Text="{Binding QueuePosition}" FontSize="10"
-                                                                   FontWeight="Bold" Foreground="White"/>
-                                                    </Border>
-                                                </Grid>
-                                                <Grid Grid.Column="1" ColumnDefinitions="Auto,*" Margin="10,6,10,6">
-                                                    <Border Grid.Column="0" Width="48" Height="48"
-                                                            CornerRadius="4" ClipToBounds="True" Margin="0,0,8,0"
-                                                            Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                                                            IsVisible="{Binding HasCurrentFile}">
-                                                        <Panel>
-                                                            <Image Source="{Binding CurrentFileThumbnail}" Stretch="UniformToFill"
-                                                                   IsVisible="{Binding CurrentFileThumbnail, Converter={x:Static ObjectConverters.IsNotNull}}"/>
-                                                            <ProgressBar IsIndeterminate="True" Height="3" VerticalAlignment="Bottom"
-                                                                         IsVisible="{Binding CurrentFileThumbnail, Converter={x:Static ObjectConverters.IsNull}}"/>
-                                                        </Panel>
-                                                    </Border>
-                                                    <StackPanel Grid.Column="1" Spacing="3" VerticalAlignment="Center">
-                                                        <TextBlock Text="{Binding Job.Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" MaxLines="1"/>
-                                                        <TextBlock Text="{Binding CurrentArtist}" FontSize="11"
-                                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
-                                                                   IsVisible="{Binding CurrentArtist, Converter={x:Static ObjectConverters.IsNotNull}}"
-                                                                   TextTrimming="CharacterEllipsis" MaxLines="1"/>
-                                                        <TextBlock Text="{Binding CurrentFileLabel}" FontSize="11"
-                                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushSecondary}"
-                                                                   IsVisible="{Binding HasCurrentFile}"
-                                                                   TextTrimming="CharacterEllipsis" MaxLines="1"/>
-                                                        <ProgressBar Value="{Binding ProgressPercent}" Maximum="100" Height="4" CornerRadius="2" Margin="0,2,0,0"/>
-                                                        <ProgressBar Value="{Binding CurrentFilePct}" Maximum="100" Height="3" CornerRadius="2"
-                                                                     IsVisible="{Binding HasCurrentFile}" Opacity="0.6"/>
+                                            <Grid ColumnDefinitions="Auto,Auto,*,Auto">
+                                                <!-- Queue position + drag handle -->
+                                                <Border Grid.Column="0" Width="32" Background="Transparent"
+                                                        VerticalAlignment="Stretch" HorizontalAlignment="Center">
+                                                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="4">
+                                                        <TextBlock Text="{Binding QueuePosition}" FontSize="12" FontWeight="SemiBold"
+                                                                   HorizontalAlignment="Center"
+                                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                        <TextBlock Name="DragGrip" Text="&#x22EE;&#x22EE;" FontSize="10"
+                                                                   Opacity="0" VerticalAlignment="Center"
+                                                                   HorizontalAlignment="Center"
+                                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
                                                     </StackPanel>
-                                                </Grid>
-                                                <StackPanel Grid.Column="2" Spacing="6" Margin="0,0,14,0" VerticalAlignment="Center" HorizontalAlignment="Right" MinWidth="90">
-                                                    <TextBlock Text="{Binding StatusText}" FontSize="12" HorizontalAlignment="Right" FontWeight="Medium"/>
+                                                </Border>
+                                                <!-- Artist / artwork thumbnail -->
+                                                <Border Grid.Column="1" Width="96" Height="96" CornerRadius="10" ClipToBounds="True"
+                                                        Margin="2,0,14,0" VerticalAlignment="Center"
+                                                        BorderThickness="1"
+                                                        BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                                                        Background="{actipro:ThemeResource Container2BackgroundBrush}">
+                                                    <Panel>
+                                                        <TextBlock Text="&#128444;" FontSize="34" Opacity="0.35"
+                                                                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                                   IsVisible="{Binding !HasAnyThumbnail}"/>
+                                                        <Image Source="{Binding CurrentFileThumbnail}" Stretch="UniformToFill"
+                                                               IsVisible="{Binding CurrentFileThumbnail, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+                                                        <Image Source="{Binding Thumbnail}" Stretch="UniformToFill">
+                                                            <Image.IsVisible>
+                                                                <MultiBinding Converter="{x:Static BoolConverters.And}">
+                                                                    <Binding Path="HasThumbnail"/>
+                                                                    <Binding Path="CurrentFileThumbnail" Converter="{x:Static ObjectConverters.IsNull}"/>
+                                                                </MultiBinding>
+                                                            </Image.IsVisible>
+                                                        </Image>
+                                                    </Panel>
+                                                </Border>
+                                                <!-- Info column -->
+                                                <StackPanel Grid.Column="2" Spacing="3" VerticalAlignment="Center" Margin="0,8,0,8">
+                                                    <TextBlock Text="{Binding Job.Name}" FontWeight="SemiBold" FontSize="15" TextTrimming="CharacterEllipsis" MaxLines="1"/>
+                                                    <StackPanel x:Name="CurrentArtistLabel" Orientation="Horizontal" Spacing="4"
+                                                                IsVisible="{Binding CurrentArtist, Converter={x:Static ObjectConverters.IsNotNull}}">
+                                                        <TextBlock Text="&#x25B6;" FontSize="10" Foreground="DodgerBlue" VerticalAlignment="Center"/>
+                                                        <TextBlock Text="{Binding CurrentArtist}" FontSize="12" FontWeight="SemiBold"
+                                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushSecondary}"
+                                                                   TextTrimming="CharacterEllipsis" MaxLines="1"/>
+                                                    </StackPanel>
+                                                    <TextBlock x:Name="CurrentFileLabel" Text="{Binding CurrentFileLabel}" FontSize="12"
+                                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushSecondary}"
+                                                               IsVisible="{Binding HasCurrentFile}"
+                                                               TextTrimming="CharacterEllipsis" MaxLines="1"/>
+                                                    <!-- "Preparing…" hint only while actively enumerating (Running + no total yet) -->
+                                                    <TextBlock Text="Preparing… (fetching artwork list)" FontSize="12"
+                                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                                               IsVisible="{Binding IsPreparing}"/>
+                                                    <ProgressBar Value="{Binding ProgressPercent}" Maximum="100" Height="5" CornerRadius="3" Margin="0,3,0,0"
+                                                                 IsIndeterminate="{Binding IsPreparing}"/>
+                                                    <ProgressBar x:Name="FileProgress" Value="{Binding CurrentFilePct}" Maximum="100" Height="3" CornerRadius="2"
+                                                                 IsVisible="{Binding HasCurrentFile}" Opacity="0.6"/>
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="3" Spacing="4" Margin="10,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Right">
+                                                    <!-- Status badge (auto-width so "▶ Running"/"⏸ Paused" aren't clipped) -->
+                                                    <Border CornerRadius="4" Padding="8,3" HorizontalAlignment="Right"
+                                                            Background="{Binding StatusAccentColor}">
+                                                        <TextBlock Text="{Binding StatusText}" FontSize="11" FontWeight="SemiBold"
+                                                                   Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    </Border>
+                                                    <TextBlock FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Right"
+                                                               Foreground="{actipro:ThemeResource DefaultForegroundBrush}"
+                                                               IsVisible="{Binding ProgressPercent}"
+                                                               Text="{Binding ProgressPercent, StringFormat='{}{0:0}%'}"/>
                                                     <TextBlock FontSize="11" HorizontalAlignment="Right"
                                                                Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
-                                                               IsVisible="{Binding TotalCount}">
-                                                        <TextBlock.Text>
-                                                            <MultiBinding StringFormat="{}{0} / {1}">
-                                                                <Binding Path="CompletedCount"/>
-                                                                <Binding Path="TotalCount"/>
-                                                            </MultiBinding>
-                                                        </TextBlock.Text>
-                                                    </TextBlock>
-                                                    <StackPanel Spacing="5" Margin="0,4,0,0">
-                                                        <Button Content="⏸ Pause" Command="{Binding PauseCommand}"
+                                                               Text="{Binding TargetSummaryText}"/>
+                                                    <TextBlock FontSize="11" HorizontalAlignment="Right"
+                                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                                               Text="{Binding DownloadedSizeText}"
+                                                               IsVisible="{Binding DownloadedSizeText, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+                                                    <TextBlock x:Name="SpeedText" Text="{Binding SpeedText}" FontSize="11" HorizontalAlignment="Right"
+                                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                                               IsVisible="{Binding SpeedText, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+                                                    <TextBlock x:Name="EtaText" Text="{Binding EtaText}" FontSize="11" HorizontalAlignment="Right"
+                                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                                               IsVisible="{Binding EtaText, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+                                                    <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Right">
+                                                        <!-- Play/Pause toggle button -->
+                                                        <Button CornerRadius="6" Padding="8,3" FontSize="12"
                                                                 IsVisible="{Binding IsPausable}"
-                                                                CornerRadius="6" Padding="10,5" FontSize="11"
-                                                                HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
-                                                        <Button Content="▶ Resume" Command="{Binding ResumeCommand}"
+                                                                Command="{Binding PauseCommand}"
+                                                                ToolTip.Tip="Pause">
+                                                            <TextBlock Text="&#x23F8;" FontSize="14"/>
+                                                        </Button>
+                                                        <Button CornerRadius="6" Padding="8,3" FontSize="12"
                                                                 IsVisible="{Binding IsResumable}"
-                                                                CornerRadius="6" Padding="10,5" FontSize="11"
-                                                                HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
-                                                                Classes="accent"/>
-                                                        <Button Content="✖ Cancel" Command="{Binding CancelCommand}"
-                                                                IsVisible="{Binding IsCancellable}"
-                                                                CornerRadius="6" Padding="10,5" FontSize="11"
-                                                                HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
+                                                                Command="{Binding ResumeCommand}"
+                                                                ToolTip.Tip="Resume" Classes="accent">
+                                                            <TextBlock Text="&#x25B6;" FontSize="14"/>
+                                                        </Button>
+                                                        <Button Content="&#x22EF;" CornerRadius="6" Padding="8,3" FontSize="14"
+                                                                ToolTip.Tip="Actions">
+                                                        <Button.Flyout>
+                                                            <MenuFlyout>
+                                                                <MenuItem Header="⏸ Pause" Command="{Binding PauseCommand}" IsVisible="{Binding IsPausable}"/>
+                                                                <MenuItem Header="▶ Resume" Command="{Binding ResumeCommand}" IsVisible="{Binding IsResumable}"/>
+                                                                <MenuItem Header="✖ Cancel" Command="{Binding CancelCommand}" IsVisible="{Binding IsCancellable}"/>
+                                                                <Separator/>
+                                                                <MenuItem Header="⬆ Move to Top"    Command="{Binding MoveToTopCommand}"/>
+                                                                <MenuItem Header="↑ Move Up"         Command="{Binding MoveUpCommand}"/>
+                                                                <MenuItem Header="↓ Move Down"       Command="{Binding MoveDownCommand}"/>
+                                                                <MenuItem Header="⬇ Move to Bottom"  Command="{Binding MoveToBottomCommand}"/>
+                                                                <Separator/>
+                                                                <MenuItem Header="🗑 Remove from Queue"
+                                                                          Command="{Binding $parent[ListBox].DataContext.RemoveActiveJobCommand}"
+                                                                          CommandParameter="{Binding}"/>
+                                                            </MenuFlyout>
+                                                        </Button.Flyout>
+                                                    </Button>
                                                     </StackPanel>
                                                 </StackPanel>
                                             </Grid>
                                         </Border>
                                     </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                            <TextBlock Text="No active downloads" FontSize="13"
-                                       Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
-                                       IsVisible="{Binding !ActiveJobs.Count}"/>
+                                </ListBox.DataTemplates>
+                            </ListBox>
+                            <!-- List view for Active tab -->
+                            <ListBox Classes="history" ItemsSource="{Binding ActiveJobs}"
+                                     IsVisible="{Binding ActiveListView}">
+                                <ListBox.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel Orientation="Vertical"/>
+                                    </ItemsPanelTemplate>
+                                </ListBox.ItemsPanel>
+                                <ListBox.DataTemplates>
+                                    <DataTemplate DataType="vm:DownloadJobViewModel">
+                                        <Border Background="{actipro:ThemeResource Container3BackgroundBrush}"
+                                                BorderBrush="{actipro:ThemeResource Container3BorderBrush}"
+                                                BorderThickness="1" CornerRadius="6" Margin="0,0,0,4" Padding="10,8,12,8">
+                                            <Grid ColumnDefinitions="*,Auto,Auto">
+                                                <StackPanel Grid.Column="0" Spacing="2" VerticalAlignment="Center">
+                                                    <TextBlock Text="{Binding Job.Name}" FontWeight="SemiBold" FontSize="13" TextTrimming="CharacterEllipsis" MaxLines="1"/>
+                                                    <TextBlock Text="{Binding TargetSummaryText}" FontSize="11" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                </StackPanel>
+                                                <Border Grid.Column="1" CornerRadius="4" Padding="6,2" Margin="10,0" HorizontalAlignment="Right" VerticalAlignment="Center"
+                                                        Background="{Binding StatusAccentColor}">
+                                                    <TextBlock Text="{Binding StatusText}" FontSize="11" FontWeight="SemiBold" Foreground="White"/>
+                                                </Border>
+                                                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                                                    <Button CornerRadius="6" Padding="6,3" FontSize="12"
+                                                            IsVisible="{Binding IsPausable}" Command="{Binding PauseCommand}" ToolTip.Tip="Pause">
+                                                        <TextBlock Text="&#x23F8;" FontSize="12"/>
+                                                    </Button>
+                                                    <Button CornerRadius="6" Padding="6,3" FontSize="12" Classes="accent"
+                                                            IsVisible="{Binding IsResumable}" Command="{Binding ResumeCommand}" ToolTip.Tip="Resume">
+                                                        <TextBlock Text="&#x25B6;" FontSize="12"/>
+                                                    </Button>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ListBox.DataTemplates>
+                            </ListBox>
+                            <StackPanel IsVisible="{Binding !ActiveJobs.Count}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"
+                                       Spacing="8" Margin="0,-40,0,0">
+                                <TextBlock Text="&#128203;" FontSize="48" Opacity="0.3" HorizontalAlignment="Center"/>
+                                <TextBlock Text="No active downloads" FontSize="15" FontWeight="SemiBold"
+                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushSecondary}"
+                                           HorizontalAlignment="Center"/>
+                                <TextBlock Text="Queue a job from Gallery or Discover to get started"
+                                           FontSize="12"
+                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                           HorizontalAlignment="Center"/>
+                            </StackPanel>
                         </StackPanel>
                     </ScrollViewer>
                 </Grid>
@@ -218,14 +388,67 @@
                         <DockPanel LastChildFill="False">
                             <TextBlock DockPanel.Dock="Left" Text="{Binding CompletedJobs.Count, StringFormat='{}{0} jobs'}"
                                        FontSize="12" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}" VerticalAlignment="Center"/>
-                            <Button DockPanel.Dock="Right" Content="🗑 Clear All"
-                                    Command="{Binding ClearCompletedCommand}"
-                                    IsVisible="{Binding CompletedJobs.Count}"
-                                    CornerRadius="6" Padding="10,4" FontSize="11"/>
+                            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="6">
+                                <StackPanel Orientation="Horizontal" Spacing="2">
+                                    <Button CornerRadius="6,0,0,6" Padding="7,4" FontSize="11" ToolTip.Tip="Card view"
+                                            Classes.accent="{Binding !CompletedListView}"
+                                            Command="{Binding SetCompletedListViewCommand}" CommandParameter="false">
+                                        <TextBlock Text="&#x229E;"/>
+                                    </Button>
+                                    <Button CornerRadius="0,6,6,0" Padding="7,4" FontSize="11" ToolTip.Tip="List view"
+                                            Classes.accent="{Binding CompletedListView}"
+                                            Command="{Binding SetCompletedListViewCommand}" CommandParameter="true">
+                                        <TextBlock Text="&#x2630;"/>
+                                    </Button>
+                                </StackPanel>
+                                <Button Content="🗑 Clear All"
+                                        Command="{Binding ClearCompletedCommand}"
+                                        IsVisible="{Binding CompletedJobs.Count}"
+                                        CornerRadius="6" Padding="10,4" FontSize="11"/>
+                            </StackPanel>
                         </DockPanel>
                     </Border>
                     <Panel Grid.Row="1">
+                        <!-- List view for Completed tab -->
+                        <ListBox Classes="history" ItemsSource="{Binding CompletedJobs}"
+                                 IsVisible="{Binding CompletedListView}"
+                                 Padding="16,12" Background="Transparent"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                 ScrollViewer.VerticalScrollBarVisibility="Auto">
+                            <ListBox.DataTemplates>
+                                <DataTemplate DataType="vm:DownloadJobViewModel">
+                                    <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
+                                            BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                                            BorderThickness="1" CornerRadius="6" Margin="0,0,0,4" Padding="12,8,12,8">
+                                        <Grid ColumnDefinitions="*,Auto,Auto">
+                                            <StackPanel Grid.Column="0" Spacing="2" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding Job.Name}" FontWeight="SemiBold" FontSize="13" TextTrimming="CharacterEllipsis" MaxLines="1"/>
+                                                <TextBlock FontSize="11" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}">
+                                                    <TextBlock.Text>
+                                                        <MultiBinding StringFormat="{}{0} • {1:MMM d, yyyy HH:mm}">
+                                                            <Binding Path="TypeLabel"/>
+                                                            <Binding Path="Job.CompletedAt"/>
+                                                        </MultiBinding>
+                                                    </TextBlock.Text>
+                                                </TextBlock>
+                                                <TextBlock Text="{Binding ResultSummary}" FontSize="11" Foreground="{actipro:ThemeResource DefaultForegroundBrushSecondary}"/>
+                                            </StackPanel>
+                                            <TextBlock Grid.Column="1" Text="{Binding StatusText}" FontSize="12" FontWeight="SemiBold"
+                                                       Margin="12,0" VerticalAlignment="Center"/>
+                                            <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                                                <Button Content="📂" CornerRadius="6" Padding="8,4" FontSize="12"
+                                                        IsVisible="{Binding HasOutputFolder}" Command="{Binding OpenFolderCommand}" ToolTip.Tip="Open Folder"/>
+                                                <Button Content="✖" CornerRadius="6" Padding="8,4" FontSize="12"
+                                                        Command="{Binding $parent[ListBox].DataContext.RemoveJobCommand}"
+                                                        CommandParameter="{Binding}" ToolTip.Tip="Remove"/>
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ListBox.DataTemplates>
+                        </ListBox>
                         <ListBox Classes="history" ItemsSource="{Binding CompletedView}"
+                                 IsVisible="{Binding !CompletedListView}"
                                  Padding="16,12" Background="Transparent"
                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                  ScrollViewer.VerticalScrollBarVisibility="Auto">
@@ -250,15 +473,24 @@
                                 <DataTemplate DataType="vm:DownloadJobViewModel">
                                     <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
                                             BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
-                                            BorderThickness="1" CornerRadius="6" Margin="0,0,0,8" ClipToBounds="True">
+                                            BorderThickness="1" CornerRadius="6" Margin="0,0,0,8"
+                                            Padding="10,10,12,10" ClipToBounds="True">
                                         <Grid ColumnDefinitions="Auto,*,Auto">
-                                            <Border Grid.Column="0" Width="72" Height="72" CornerRadius="5,0,0,5" ClipToBounds="True"
+                                            <Border Grid.Column="0" Width="96" Height="96" CornerRadius="10" ClipToBounds="True"
+                                                    VerticalAlignment="Center" Margin="0,0,14,0"
+                                                    BorderThickness="1"
+                                                    BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
                                                     Background="{actipro:ThemeResource Container3BackgroundBrush}">
-                                                <Image Source="{Binding Thumbnail}" Stretch="UniformToFill" IsVisible="{Binding HasThumbnail}"/>
+                                                <Panel>
+                                                    <TextBlock Text="&#128444;" FontSize="34" Opacity="0.35"
+                                                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                               IsVisible="{Binding !HasThumbnail}"/>
+                                                    <Image Source="{Binding Thumbnail}" Stretch="UniformToFill" IsVisible="{Binding HasThumbnail}"/>
+                                                </Panel>
                                             </Border>
-                                            <StackPanel Grid.Column="1" Spacing="3" Margin="12,0,12,0" VerticalAlignment="Center">
-                                                <TextBlock Text="{Binding Job.Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" MaxLines="1"/>
-                                                <TextBlock FontSize="11" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}">
+                                            <StackPanel Grid.Column="1" Spacing="4" Margin="0,0,16,0" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding Job.Name}" FontWeight="SemiBold" FontSize="15" TextTrimming="CharacterEllipsis" MaxLines="1"/>
+                                                <TextBlock FontSize="12" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}">
                                                     <TextBlock.Text>
                                                         <MultiBinding StringFormat="{}{0} • {1:MMM d, yyyy HH:mm}">
                                                             <Binding Path="TypeLabel"/>
@@ -266,21 +498,27 @@
                                                         </MultiBinding>
                                                     </TextBlock.Text>
                                                 </TextBlock>
-                                                <TextBlock Text="{Binding ArtistInfo}" FontSize="11"
+                                                <TextBlock Text="{Binding ArtistInfo}" FontSize="12"
                                                            Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
                                                            IsVisible="{Binding HasArtistInfo}" TextTrimming="CharacterEllipsis" MaxLines="1"/>
-                                                <TextBlock Text="{Binding ResultSummary}" FontSize="11"
-                                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                <TextBlock Text="{Binding ResultSummary}" FontSize="12" FontWeight="SemiBold"
+                                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushSecondary}"/>
+                                                <TextBlock FontSize="11"
+                                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                                           Text="{Binding DownloadedSizeText}"
+                                                           IsVisible="{Binding DownloadedSizeText, Converter={x:Static ObjectConverters.IsNotNull}}"/>
                                             </StackPanel>
-                                            <StackPanel Grid.Column="2" Spacing="4" Margin="0,0,12,0" VerticalAlignment="Center">
-                                                <TextBlock Text="{Binding StatusText}" FontSize="12" HorizontalAlignment="Right"/>
+                                            <StackPanel Grid.Column="2" Spacing="8" Margin="0,0,4,0" VerticalAlignment="Center" MinWidth="130">
+                                                <TextBlock Text="{Binding StatusText}" FontSize="13" FontWeight="SemiBold" HorizontalAlignment="Right" Margin="0,0,0,2"/>
                                                 <Button Content="📂 Open Folder" Command="{Binding OpenFolderCommand}"
                                                         IsVisible="{Binding HasOutputFolder}"
-                                                        CornerRadius="6" Padding="8,4" FontSize="11"/>
+                                                        HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                                                        CornerRadius="6" Padding="12,7" FontSize="12"/>
                                                 <Button Content="✖ Remove"
                                                         Command="{Binding $parent[ListBox].DataContext.RemoveJobCommand}"
                                                         CommandParameter="{Binding}"
-                                                        CornerRadius="6" Padding="8,4" FontSize="11"/>
+                                                        HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                                                        CornerRadius="6" Padding="12,7" FontSize="12"/>
                                             </StackPanel>
                                         </Grid>
                                     </Border>
@@ -312,12 +550,24 @@
                         <DockPanel LastChildFill="False">
                             <TextBlock DockPanel.Dock="Left" Text="{Binding FailedJobs.Count, StringFormat='{}{0} jobs'}"
                                        FontSize="12" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}" VerticalAlignment="Center"/>
-                            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="8">
-                                <Button Content="� Retry All"
+                            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="6">
+                                <StackPanel Orientation="Horizontal" Spacing="2">
+                                    <Button CornerRadius="6,0,0,6" Padding="7,4" FontSize="11" ToolTip.Tip="Card view"
+                                            Classes.accent="{Binding !FailedListView}"
+                                            Command="{Binding SetFailedListViewCommand}" CommandParameter="false">
+                                        <TextBlock Text="&#x229E;"/>
+                                    </Button>
+                                    <Button CornerRadius="0,6,6,0" Padding="7,4" FontSize="11" ToolTip.Tip="List view"
+                                            Classes.accent="{Binding FailedListView}"
+                                            Command="{Binding SetFailedListViewCommand}" CommandParameter="true">
+                                        <TextBlock Text="&#x2630;"/>
+                                    </Button>
+                                </StackPanel>
+                                <Button Content="&#x1F504; Retry All"
                                         Command="{Binding RetryAllFailedCommand}"
                                         IsVisible="{Binding FailedJobs.Count}"
                                         CornerRadius="6" Padding="10,4" FontSize="11" Classes="accent"/>
-                                <Button Content="🗑 Clear All"
+                                <Button Content="&#x1F5D1; Clear All"
                                         Command="{Binding ClearFailedCommand}"
                                         IsVisible="{Binding FailedJobs.Count}"
                                         CornerRadius="6" Padding="10,4" FontSize="11"/>
@@ -325,7 +575,47 @@
                         </DockPanel>
                     </Border>
                     <Panel Grid.Row="1">
+                        <!-- List view for Failed tab -->
+                        <ListBox Classes="history" ItemsSource="{Binding FailedJobs}"
+                                 IsVisible="{Binding FailedListView}"
+                                 Padding="16,12" Background="Transparent"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                 ScrollViewer.VerticalScrollBarVisibility="Auto">
+                            <ListBox.DataTemplates>
+                                <DataTemplate DataType="vm:DownloadJobViewModel">
+                                    <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
+                                            BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                                            BorderThickness="1" CornerRadius="6" Margin="0,0,0,4" Padding="12,8,12,8">
+                                        <Grid ColumnDefinitions="*,Auto,Auto">
+                                            <StackPanel Grid.Column="0" Spacing="2" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding Job.Name}" FontWeight="SemiBold" FontSize="13" TextTrimming="CharacterEllipsis" MaxLines="1"/>
+                                                <TextBlock FontSize="11" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}">
+                                                    <TextBlock.Text>
+                                                        <MultiBinding StringFormat="{}{0} • {1:MMM d, yyyy HH:mm}">
+                                                            <Binding Path="TypeLabel"/>
+                                                            <Binding Path="Job.CompletedAt"/>
+                                                        </MultiBinding>
+                                                    </TextBlock.Text>
+                                                </TextBlock>
+                                                <TextBlock Text="{Binding ResultSummary}" FontSize="11" FontWeight="SemiBold" Foreground="OrangeRed"/>
+                                            </StackPanel>
+                                            <TextBlock Grid.Column="1" Text="{Binding StatusText}" FontSize="12" FontWeight="SemiBold"
+                                                       Foreground="OrangeRed" Margin="12,0" VerticalAlignment="Center"/>
+                                            <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                                                <Button Content="&#x1F504;" CornerRadius="6" Padding="8,4" FontSize="12" Classes="accent"
+                                                        Command="{Binding $parent[ListBox].DataContext.RetryJobCommand}"
+                                                        CommandParameter="{Binding}" ToolTip.Tip="Retry"/>
+                                                <Button Content="✖" CornerRadius="6" Padding="8,4" FontSize="12"
+                                                        Command="{Binding $parent[ListBox].DataContext.RemoveJobCommand}"
+                                                        CommandParameter="{Binding}" ToolTip.Tip="Remove"/>
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ListBox.DataTemplates>
+                        </ListBox>
                         <ListBox Classes="history" ItemsSource="{Binding FailedView}"
+                                 IsVisible="{Binding !FailedListView}"
                                  Padding="16,12" Background="Transparent"
                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                  ScrollViewer.VerticalScrollBarVisibility="Auto">
@@ -350,15 +640,24 @@
                                 <DataTemplate DataType="vm:DownloadJobViewModel">
                                     <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
                                             BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
-                                            BorderThickness="1" CornerRadius="6" Margin="0,0,0,8" ClipToBounds="True">
+                                            BorderThickness="1" CornerRadius="6" Margin="0,0,0,8"
+                                            Padding="10,10,12,10" ClipToBounds="True">
                                         <Grid ColumnDefinitions="Auto,*,Auto">
-                                            <Border Grid.Column="0" Width="72" Height="72" CornerRadius="5,0,0,5" ClipToBounds="True"
+                                            <Border Grid.Column="0" Width="96" Height="96" CornerRadius="10" ClipToBounds="True"
+                                                    VerticalAlignment="Center" Margin="0,0,14,0"
+                                                    BorderThickness="1"
+                                                    BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
                                                     Background="{actipro:ThemeResource Container3BackgroundBrush}">
-                                                <Image Source="{Binding Thumbnail}" Stretch="UniformToFill" IsVisible="{Binding HasThumbnail}"/>
+                                                <Panel>
+                                                    <TextBlock Text="&#128444;" FontSize="34" Opacity="0.35"
+                                                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                               IsVisible="{Binding !HasThumbnail}"/>
+                                                    <Image Source="{Binding Thumbnail}" Stretch="UniformToFill" IsVisible="{Binding HasThumbnail}"/>
+                                                </Panel>
                                             </Border>
-                                            <StackPanel Grid.Column="1" Spacing="3" Margin="12,0,12,0" VerticalAlignment="Center">
-                                                <TextBlock Text="{Binding Job.Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" MaxLines="1"/>
-                                                <TextBlock FontSize="11" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}">
+                                            <StackPanel Grid.Column="1" Spacing="4" Margin="0,0,16,0" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding Job.Name}" FontWeight="SemiBold" FontSize="15" TextTrimming="CharacterEllipsis" MaxLines="1"/>
+                                                <TextBlock FontSize="12" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}">
                                                     <TextBlock.Text>
                                                         <MultiBinding StringFormat="{}{0} • {1:MMM d, yyyy HH:mm}">
                                                             <Binding Path="TypeLabel"/>
@@ -366,21 +665,27 @@
                                                         </MultiBinding>
                                                     </TextBlock.Text>
                                                 </TextBlock>
-                                                <TextBlock Text="{Binding ArtistInfo}" FontSize="11"
+                                                <TextBlock Text="{Binding ArtistInfo}" FontSize="12"
                                                            Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
                                                            IsVisible="{Binding HasArtistInfo}" TextTrimming="CharacterEllipsis" MaxLines="1"/>
-                                                <TextBlock Text="{Binding ResultSummary}" FontSize="11" Foreground="OrangeRed"/>
+                                                <TextBlock Text="{Binding ResultSummary}" FontSize="12" FontWeight="SemiBold" Foreground="OrangeRed"/>
+                                                <TextBlock FontSize="11"
+                                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                                           Text="{Binding DownloadedSizeText}"
+                                                           IsVisible="{Binding DownloadedSizeText, Converter={x:Static ObjectConverters.IsNotNull}}"/>
                                             </StackPanel>
-                                            <StackPanel Grid.Column="2" Spacing="4" Margin="0,0,12,0" VerticalAlignment="Center">
-                                                <TextBlock Text="{Binding StatusText}" FontSize="12" HorizontalAlignment="Right" Foreground="OrangeRed"/>
+                                            <StackPanel Grid.Column="2" Spacing="8" Margin="0,0,4,0" VerticalAlignment="Center" MinWidth="130">
+                                                <TextBlock Text="{Binding StatusText}" FontSize="13" FontWeight="SemiBold" HorizontalAlignment="Right" Margin="0,0,0,2" Foreground="OrangeRed"/>
                                                 <Button Content="🔄 Retry"
                                                         Command="{Binding $parent[ListBox].DataContext.RetryJobCommand}"
                                                         CommandParameter="{Binding}"
-                                                        CornerRadius="6" Padding="8,4" FontSize="11" Classes="accent"/>
+                                                        HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                                                        CornerRadius="6" Padding="12,7" FontSize="12" Classes="accent"/>
                                                 <Button Content="✖ Remove"
                                                         Command="{Binding $parent[ListBox].DataContext.RemoveJobCommand}"
                                                         CommandParameter="{Binding}"
-                                                        CornerRadius="6" Padding="8,4" FontSize="11"/>
+                                                        HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                                                        CornerRadius="6" Padding="12,7" FontSize="12"/>
                                             </StackPanel>
                                         </Grid>
                                     </Border>
@@ -412,14 +717,69 @@
                         <DockPanel LastChildFill="False">
                             <TextBlock DockPanel.Dock="Left" Text="{Binding CancelledJobs.Count, StringFormat='{}{0} jobs'}"
                                        FontSize="12" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}" VerticalAlignment="Center"/>
-                            <Button DockPanel.Dock="Right" Content="🗑 Clear All"
-                                    Command="{Binding ClearCancelledCommand}"
-                                    IsVisible="{Binding CancelledJobs.Count}"
-                                    CornerRadius="6" Padding="10,4" FontSize="11"/>
+                            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="6">
+                                <StackPanel Orientation="Horizontal" Spacing="2">
+                                    <Button CornerRadius="6,0,0,6" Padding="7,4" FontSize="11" ToolTip.Tip="Card view"
+                                            Classes.accent="{Binding !CancelledListView}"
+                                            Command="{Binding SetCancelledListViewCommand}" CommandParameter="false">
+                                        <TextBlock Text="&#x229E;"/>
+                                    </Button>
+                                    <Button CornerRadius="0,6,6,0" Padding="7,4" FontSize="11" ToolTip.Tip="List view"
+                                            Classes.accent="{Binding CancelledListView}"
+                                            Command="{Binding SetCancelledListViewCommand}" CommandParameter="true">
+                                        <TextBlock Text="&#x2630;"/>
+                                    </Button>
+                                </StackPanel>
+                                <Button Content="🗑 Clear All"
+                                        Command="{Binding ClearCancelledCommand}"
+                                        IsVisible="{Binding CancelledJobs.Count}"
+                                        CornerRadius="6" Padding="10,4" FontSize="11"/>
+                            </StackPanel>
                         </DockPanel>
                     </Border>
                     <Panel Grid.Row="1">
+                        <!-- List view for Cancelled tab -->
+                        <ListBox Classes="history" ItemsSource="{Binding CancelledJobs}"
+                                 IsVisible="{Binding CancelledListView}"
+                                 Padding="16,12" Background="Transparent"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                 ScrollViewer.VerticalScrollBarVisibility="Auto">
+                            <ListBox.DataTemplates>
+                                <DataTemplate DataType="vm:DownloadJobViewModel">
+                                    <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
+                                            BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                                            BorderThickness="1" CornerRadius="6" Margin="0,0,0,4" Padding="12,8,12,8">
+                                        <Grid ColumnDefinitions="*,Auto,Auto">
+                                            <StackPanel Grid.Column="0" Spacing="2" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding Job.Name}" FontWeight="SemiBold" FontSize="13" TextTrimming="CharacterEllipsis" MaxLines="1"/>
+                                                <TextBlock FontSize="11" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}">
+                                                    <TextBlock.Text>
+                                                        <MultiBinding StringFormat="{}{0} &#x2022; {1:MMM d, yyyy HH:mm}">
+                                                            <Binding Path="TypeLabel"/>
+                                                            <Binding Path="Job.CompletedAt"/>
+                                                        </MultiBinding>
+                                                    </TextBlock.Text>
+                                                </TextBlock>
+                                                <TextBlock Text="{Binding ResultSummary}" FontSize="11" Foreground="{actipro:ThemeResource DefaultForegroundBrushSecondary}"/>
+                                            </StackPanel>
+                                            <TextBlock Grid.Column="1" Text="{Binding StatusText}" FontSize="12" FontWeight="SemiBold"
+                                                       Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                                       Margin="12,0" VerticalAlignment="Center"/>
+                                            <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                                                <Button Content="&#x1F504;" CornerRadius="6" Padding="8,4" FontSize="12" Classes="accent"
+                                                        Command="{Binding $parent[ListBox].DataContext.RetryJobCommand}"
+                                                        CommandParameter="{Binding}" ToolTip.Tip="Retry"/>
+                                                <Button Content="&#x2716;" CornerRadius="6" Padding="8,4" FontSize="12"
+                                                        Command="{Binding $parent[ListBox].DataContext.RemoveJobCommand}"
+                                                        CommandParameter="{Binding}" ToolTip.Tip="Remove"/>
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ListBox.DataTemplates>
+                        </ListBox>
                         <ListBox Classes="history" ItemsSource="{Binding CancelledView}"
+                                 IsVisible="{Binding !CancelledListView}"
                                  Padding="16,12" Background="Transparent"
                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                  ScrollViewer.VerticalScrollBarVisibility="Auto">
@@ -444,15 +804,24 @@
                                 <DataTemplate DataType="vm:DownloadJobViewModel">
                                     <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
                                             BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
-                                            BorderThickness="1" CornerRadius="6" Margin="0,0,0,8" ClipToBounds="True">
+                                            BorderThickness="1" CornerRadius="6" Margin="0,0,0,8"
+                                            Padding="10,10,12,10" ClipToBounds="True">
                                         <Grid ColumnDefinitions="Auto,*,Auto">
-                                            <Border Grid.Column="0" Width="72" Height="72" CornerRadius="5,0,0,5" ClipToBounds="True"
+                                            <Border Grid.Column="0" Width="96" Height="96" CornerRadius="10" ClipToBounds="True"
+                                                    VerticalAlignment="Center" Margin="0,0,14,0"
+                                                    BorderThickness="1"
+                                                    BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
                                                     Background="{actipro:ThemeResource Container3BackgroundBrush}">
-                                                <Image Source="{Binding Thumbnail}" Stretch="UniformToFill" IsVisible="{Binding HasThumbnail}"/>
+                                                <Panel>
+                                                    <TextBlock Text="&#128444;" FontSize="34" Opacity="0.35"
+                                                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                               IsVisible="{Binding !HasThumbnail}"/>
+                                                    <Image Source="{Binding Thumbnail}" Stretch="UniformToFill" IsVisible="{Binding HasThumbnail}"/>
+                                                </Panel>
                                             </Border>
-                                            <StackPanel Grid.Column="1" Spacing="3" Margin="12,0,12,0" VerticalAlignment="Center">
-                                                <TextBlock Text="{Binding Job.Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" MaxLines="1"/>
-                                                <TextBlock FontSize="11" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}">
+                                            <StackPanel Grid.Column="1" Spacing="4" Margin="0,0,16,0" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding Job.Name}" FontWeight="SemiBold" FontSize="15" TextTrimming="CharacterEllipsis" MaxLines="1"/>
+                                                <TextBlock FontSize="12" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}">
                                                     <TextBlock.Text>
                                                         <MultiBinding StringFormat="{}{0} • {1:MMM d, yyyy HH:mm}">
                                                             <Binding Path="TypeLabel"/>
@@ -460,23 +829,29 @@
                                                         </MultiBinding>
                                                     </TextBlock.Text>
                                                 </TextBlock>
-                                                <TextBlock Text="{Binding ArtistInfo}" FontSize="11"
+                                                <TextBlock Text="{Binding ArtistInfo}" FontSize="12"
                                                            Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
                                                            IsVisible="{Binding HasArtistInfo}" TextTrimming="CharacterEllipsis" MaxLines="1"/>
-                                                <TextBlock Text="{Binding ResultSummary}" FontSize="11"
-                                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                <TextBlock Text="{Binding ResultSummary}" FontSize="12" FontWeight="SemiBold"
+                                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushSecondary}"/>
+                                                <TextBlock FontSize="11"
+                                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                                           Text="{Binding DownloadedSizeText}"
+                                                           IsVisible="{Binding DownloadedSizeText, Converter={x:Static ObjectConverters.IsNotNull}}"/>
                                             </StackPanel>
-                                            <StackPanel Grid.Column="2" Spacing="4" Margin="0,0,12,0" VerticalAlignment="Center">
-                                                <TextBlock Text="{Binding StatusText}" FontSize="12" HorizontalAlignment="Right"
+                                            <StackPanel Grid.Column="2" Spacing="8" Margin="0,0,4,0" VerticalAlignment="Center" MinWidth="130">
+                                                <TextBlock Text="{Binding StatusText}" FontSize="13" FontWeight="SemiBold" HorizontalAlignment="Right" Margin="0,0,0,2"
                                                            Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
                                                 <Button Content="🔄 Retry"
                                                         Command="{Binding $parent[ListBox].DataContext.RetryJobCommand}"
                                                         CommandParameter="{Binding}"
-                                                        CornerRadius="6" Padding="8,4" FontSize="11" Classes="accent"/>
+                                                        HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                                                        CornerRadius="6" Padding="12,7" FontSize="12" Classes="accent"/>
                                                 <Button Content="✖ Remove"
                                                         Command="{Binding $parent[ListBox].DataContext.RemoveJobCommand}"
                                                         CommandParameter="{Binding}"
-                                                        CornerRadius="6" Padding="8,4" FontSize="11"/>
+                                                        HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                                                        CornerRadius="6" Padding="12,7" FontSize="12"/>
                                             </StackPanel>
                                         </Grid>
                                     </Border>

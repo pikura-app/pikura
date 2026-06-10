@@ -96,6 +96,8 @@ public sealed class DownloadJobRepository : IDisposable
             "ALTER TABLE download_targets ADD COLUMN user_id TEXT",
             "ALTER TABLE download_jobs ADD COLUMN owner_user_id TEXT",
             "ALTER TABLE download_jobs ADD COLUMN sort_order INTEGER DEFAULT 0",
+            "ALTER TABLE download_targets ADD COLUMN completed_artwork_ids TEXT",
+            "ALTER TABLE download_targets ADD COLUMN downloaded_bytes INTEGER DEFAULT 0",
         };
         foreach (var migration in migrations)
         {
@@ -126,7 +128,7 @@ public sealed class DownloadJobRepository : IDisposable
         await connection.OpenAsync(ct);
 
         var sql = @"
-            SELECT id, name, type, status, settings_json, created_at, started_at, completed_at, last_retried_at, error_message, retry_count, output_folder
+            SELECT id, name, type, status, settings_json, created_at, started_at, completed_at, last_retried_at, error_message, retry_count, output_folder, sort_order
             FROM download_jobs
             WHERE id = @id";
 
@@ -142,21 +144,21 @@ public sealed class DownloadJobRepository : IDisposable
         return job;
     }
 
-    /// <summary>Returns all running/pending jobs regardless of which account owns them.</summary>
+    /// <summary>Returns all running/pending/paused jobs regardless of which account owns them.</summary>
     public async Task<List<DownloadJob>> GetAllActiveJobsAsync(CancellationToken ct = default)
     {
         using var connection = CreateConnection();
         await connection.OpenAsync(ct);
 
         var sql = @"
-            SELECT id, name, type, status, settings_json, created_at, started_at, completed_at, last_retried_at, error_message, retry_count, output_folder
+            SELECT id, name, type, status, settings_json, created_at, started_at, completed_at, last_retried_at, error_message, retry_count, output_folder, sort_order
             FROM download_jobs
-            WHERE status IN (@queued, @pending, @running)
+            WHERE status IN (@pending, @running, @paused)
             ORDER BY sort_order ASC, created_at DESC";
         using var cmd = new SqliteCommand(sql, connection);
-        cmd.Parameters.AddWithValue("@queued",   (int)JobStatus.Queued);
         cmd.Parameters.AddWithValue("@pending",  (int)JobStatus.Pending);
         cmd.Parameters.AddWithValue("@running",  (int)JobStatus.Running);
+        cmd.Parameters.AddWithValue("@paused",   (int)JobStatus.Paused);
 
         var jobs = new List<DownloadJob>();
         using var reader = await cmd.ExecuteReaderAsync(ct);
@@ -178,7 +180,7 @@ public sealed class DownloadJobRepository : IDisposable
         await connection.OpenAsync(ct);
 
         var sql = @"
-            SELECT id, name, type, status, settings_json, created_at, started_at, completed_at, last_retried_at, error_message, retry_count, output_folder
+            SELECT id, name, type, status, settings_json, created_at, started_at, completed_at, last_retried_at, error_message, retry_count, output_folder, sort_order
             FROM download_jobs
             WHERE (owner_user_id = @uid OR owner_user_id IS NULL)";
 
@@ -226,9 +228,13 @@ public sealed class DownloadJobRepository : IDisposable
         try
         {
             // Upsert job
+            // sort_order is set on INSERT only. It is deliberately omitted from the
+            // ON CONFLICT UPDATE so that drag/Move reorders (persisted directly via
+            // UpdateSortOrderAsync) are never clobbered by an in-flight SaveJobAsync
+            // call (e.g. when the output folder is captured mid-download).
             var upsertJob = @"
-                INSERT INTO download_jobs (id, name, type, status, settings_json, created_at, started_at, completed_at, last_retried_at, error_message, retry_count, output_folder, owner_user_id)
-                VALUES (@id, @name, @type, @status, @settings, @createdAt, @startedAt, @completedAt, @lastRetriedAt, @error, @retryCount, @outputFolder, @ownerUserId)
+                INSERT INTO download_jobs (id, name, type, status, settings_json, created_at, started_at, completed_at, last_retried_at, error_message, retry_count, output_folder, owner_user_id, sort_order)
+                VALUES (@id, @name, @type, @status, @settings, @createdAt, @startedAt, @completedAt, @lastRetriedAt, @error, @retryCount, @outputFolder, @ownerUserId, @sortOrder)
                 ON CONFLICT(id) DO UPDATE SET
                     name = @name,
                     type = @type,
@@ -256,6 +262,7 @@ public sealed class DownloadJobRepository : IDisposable
                 cmd.Parameters.AddWithValue("@retryCount", job.RetryCount);
                 cmd.Parameters.AddWithValue("@outputFolder", job.OutputFolder ?? (object)DBNull.Value);
                 cmd.Parameters.AddWithValue("@ownerUserId", _activeUserId ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@sortOrder", job.SortOrder);
                 await cmd.ExecuteNonQueryAsync(ct);
             }
 
@@ -271,9 +278,9 @@ public sealed class DownloadJobRepository : IDisposable
             {
                 var insertTarget = @"
                     INSERT INTO download_targets
-                    (id, job_id, target_id, name, thumbnail_url, user_name, user_id, type, page_range, custom_settings_json, status, error_message, found_items, downloaded_items, processed_at)
+                    (id, job_id, target_id, name, thumbnail_url, user_name, user_id, type, page_range, custom_settings_json, status, error_message, found_items, downloaded_items, downloaded_bytes, processed_at)
                     VALUES
-                    (@id, @jobId, @targetId, @name, @thumbnailUrl, @userName, @userId, @type, @pageRange, @customSettings, @status, @error, @foundItems, @downloadedItems, @processedAt)";
+                    (@id, @jobId, @targetId, @name, @thumbnailUrl, @userName, @userId, @type, @pageRange, @customSettings, @status, @error, @foundItems, @downloadedItems, @downloadedBytes, @processedAt)";
 
                 using var cmd = new SqliteCommand(insertTarget, connection, (SqliteTransaction)transaction);
                 cmd.Parameters.AddWithValue("@id", target.Id.ToString());
@@ -290,6 +297,7 @@ public sealed class DownloadJobRepository : IDisposable
                 cmd.Parameters.AddWithValue("@error", target.ErrorMessage ?? (object)DBNull.Value);
                 cmd.Parameters.AddWithValue("@foundItems", target.FoundItems);
                 cmd.Parameters.AddWithValue("@downloadedItems", target.DownloadedItems);
+                cmd.Parameters.AddWithValue("@downloadedBytes", target.DownloadedBytes);
                 cmd.Parameters.AddWithValue("@processedAt", target.ProcessedAt?.ToString("O") ?? (object)DBNull.Value);
                 await cmd.ExecuteNonQueryAsync(ct);
             }
@@ -344,9 +352,10 @@ public sealed class DownloadJobRepository : IDisposable
     }
 
     /// <summary>
-    /// Marks all jobs that were left in Running/Pending state from a previous app session
-    /// as Cancelled. Downloads happen in-process and cannot survive an app restart, so any
-    /// such jobs are zombies. Should be called once on startup.
+    /// Marks all jobs that were left in Running state from a previous app session
+    /// as Cancelled. Only Running jobs are cancelled since they were actively executing.
+    /// Pending and Paused jobs are left intact so they can start/resume on next launch.
+    /// Should be called once on startup.
     /// </summary>
     public async Task<int> MarkOrphanedJobsAsCancelledAsync(CancellationToken ct = default)
     {
@@ -358,21 +367,61 @@ public sealed class DownloadJobRepository : IDisposable
             SET status = @cancelled,
                 completed_at = @now,
                 error_message = COALESCE(error_message, 'Abandoned: app restarted while running')
-            WHERE status IN (@running, @pending, @queued)";
+            WHERE status = @running";
 
         using var cmd = new SqliteCommand(sql, connection);
         cmd.Parameters.AddWithValue("@cancelled", (int)JobStatus.Cancelled);
         cmd.Parameters.AddWithValue("@running",   (int)JobStatus.Running);
-        cmd.Parameters.AddWithValue("@pending",   (int)JobStatus.Pending);
-        cmd.Parameters.AddWithValue("@queued",    (int)JobStatus.Queued);
         cmd.Parameters.AddWithValue("@now", DateTime.UtcNow.ToString("O"));
 
         var rows = await cmd.ExecuteNonQueryAsync(ct);
         if (rows > 0)
         {
-            _logger.LogInformation("Marked {Count} orphaned (Running/Pending) jobs as Cancelled on startup", rows);
+            _logger.LogInformation("Marked {Count} orphaned Running jobs as Cancelled on startup", rows);
         }
         return rows;
+    }
+
+    /// <summary>
+    /// Recovers jobs left in Running state from a previous session by converting them to
+    /// Paused (so progress is preserved and they can be resumed), and resets any Running
+    /// targets back to Pending. Pending jobs are left untouched so they remain in the queue.
+    /// Should be called once on startup.
+    /// </summary>
+    public async Task<int> RecoverInterruptedJobsAsync(CancellationToken ct = default)
+    {
+        using var connection = CreateConnection();
+        await connection.OpenAsync(ct);
+        using var transaction = (SqliteTransaction)await connection.BeginTransactionAsync(ct);
+        try
+        {
+            int rows;
+            using (var cmd = new SqliteCommand(
+                "UPDATE download_jobs SET status = @paused WHERE status = @running",
+                connection, transaction))
+            {
+                cmd.Parameters.AddWithValue("@paused", (int)JobStatus.Paused);
+                cmd.Parameters.AddWithValue("@running", (int)JobStatus.Running);
+                rows = await cmd.ExecuteNonQueryAsync(ct);
+            }
+            using (var cmd = new SqliteCommand(
+                "UPDATE download_targets SET status = @pending WHERE status = @running",
+                connection, transaction))
+            {
+                cmd.Parameters.AddWithValue("@pending", (int)TargetStatus.Pending);
+                cmd.Parameters.AddWithValue("@running", (int)TargetStatus.Running);
+                await cmd.ExecuteNonQueryAsync(ct);
+            }
+            await transaction.CommitAsync(ct);
+            if (rows > 0)
+                _logger.LogInformation("Recovered {Count} interrupted Running job(s) as Paused on startup", rows);
+            return rows;
+        }
+        catch
+        {
+            await transaction.RollbackAsync(ct);
+            throw;
+        }
     }
 
     public async Task UpdateSortOrderAsync(Guid id, int sortOrder, CancellationToken ct = default)
@@ -405,11 +454,36 @@ public sealed class DownloadJobRepository : IDisposable
 
     #region Target Operations
 
+    /// <summary>Atomically adds bytes to the running downloaded_bytes total for a target.</summary>
+    public async Task AddBytesAsync(Guid targetId, long bytes, CancellationToken ct = default)
+    {
+        using var connection = CreateConnection();
+        await connection.OpenAsync(ct);
+        var sql = "UPDATE download_targets SET downloaded_bytes = downloaded_bytes + @bytes WHERE id = @id";
+        using var cmd = new SqliteCommand(sql, connection);
+        cmd.Parameters.AddWithValue("@bytes", bytes);
+        cmd.Parameters.AddWithValue("@id", targetId.ToString());
+        await cmd.ExecuteNonQueryAsync(ct);
+    }
+
+    /// <summary>Persists the total found-items count without changing any other target field.</summary>
+    public async Task UpdateFoundItemsAsync(Guid targetId, int foundItems, CancellationToken ct = default)
+    {
+        using var connection = CreateConnection();
+        await connection.OpenAsync(ct);
+        var sql = "UPDATE download_targets SET found_items = @found WHERE id = @id";
+        using var cmd = new SqliteCommand(sql, connection);
+        cmd.Parameters.AddWithValue("@found", foundItems);
+        cmd.Parameters.AddWithValue("@id", targetId.ToString());
+        await cmd.ExecuteNonQueryAsync(ct);
+    }
+
     public async Task UpdateTargetStatusAsync(
         Guid targetId,
         TargetStatus status,
         int foundItems = 0,
         int downloadedItems = 0,
+        long addBytes = 0,
         string? errorMessage = null,
         CancellationToken ct = default)
     {
@@ -421,6 +495,7 @@ public sealed class DownloadJobRepository : IDisposable
             SET status = @status,
                 found_items = @foundItems,
                 downloaded_items = @downloadedItems,
+                downloaded_bytes = downloaded_bytes + @addBytes,
                 error_message = @error,
                 processed_at = @now
             WHERE id = @id";
@@ -430,9 +505,41 @@ public sealed class DownloadJobRepository : IDisposable
         cmd.Parameters.AddWithValue("@status", (int)status);
         cmd.Parameters.AddWithValue("@foundItems", foundItems);
         cmd.Parameters.AddWithValue("@downloadedItems", downloadedItems);
+        cmd.Parameters.AddWithValue("@addBytes", addBytes);
         cmd.Parameters.AddWithValue("@error", errorMessage ?? (object)DBNull.Value);
         cmd.Parameters.AddWithValue("@now", DateTime.UtcNow.ToString("O"));
         await cmd.ExecuteNonQueryAsync(ct);
+    }
+
+    /// <summary>
+    /// Appends an artwork ID to the target's completed-artwork checkpoint list.
+    /// Used by DownloadArtistAsync so pause/resume doesn't re-download already-finished artworks.
+    /// </summary>
+    public async Task AppendCompletedArtworkIdAsync(Guid targetId, string artworkId, CancellationToken ct = default)
+    {
+        using var connection = CreateConnection();
+        await connection.OpenAsync(ct);
+
+        // Read current list, append, write back
+        string? current = null;
+        using (var readCmd = new SqliteCommand("SELECT completed_artwork_ids FROM download_targets WHERE id = @id", connection))
+        {
+            readCmd.Parameters.AddWithValue("@id", targetId.ToString());
+            var result = await readCmd.ExecuteScalarAsync(ct);
+            current = result as string;
+        }
+
+        var ids = string.IsNullOrEmpty(current)
+            ? new List<string>()
+            : JsonSerializer.Deserialize<List<string>>(current) ?? new List<string>();
+        if (!ids.Contains(artworkId))
+            ids.Add(artworkId);
+
+        using var writeCmd = new SqliteCommand(
+            "UPDATE download_targets SET completed_artwork_ids = @ids WHERE id = @id", connection);
+        writeCmd.Parameters.AddWithValue("@ids", JsonSerializer.Serialize(ids));
+        writeCmd.Parameters.AddWithValue("@id", targetId.ToString());
+        await writeCmd.ExecuteNonQueryAsync(ct);
     }
 
     #endregion
@@ -460,13 +567,14 @@ public sealed class DownloadJobRepository : IDisposable
             ErrorMessage = reader.IsDBNull("error_message") ? null : reader.GetString("error_message"),
             RetryCount = reader.GetInt32("retry_count"),
             OutputFolder = reader.IsDBNull("output_folder") ? null : reader.GetString("output_folder"),
+            SortOrder = reader.IsDBNull("sort_order") ? 0 : reader.GetInt32("sort_order"),
         };
     }
 
     private async Task<List<DownloadTarget>> GetTargetsForJobAsync(Guid jobId, SqliteConnection connection, CancellationToken ct)
     {
         var sql = @"
-            SELECT id, job_id, target_id, name, thumbnail_url, user_name, user_id, type, page_range, custom_settings_json, status, error_message, found_items, downloaded_items, processed_at
+            SELECT id, job_id, target_id, name, thumbnail_url, user_name, user_id, type, page_range, custom_settings_json, status, error_message, found_items, downloaded_items, downloaded_bytes, processed_at, completed_artwork_ids
             FROM download_targets
             WHERE job_id = @jobId
             ORDER BY id";
@@ -487,6 +595,11 @@ public sealed class DownloadJobRepository : IDisposable
                 customSettings = JsonSerializer.Deserialize<SettingsOverride>(customSettingsJson);
             }
 
+            var completedIdsRaw = reader.IsDBNull("completed_artwork_ids") ? null : reader.GetString("completed_artwork_ids");
+            var completedIds = string.IsNullOrEmpty(completedIdsRaw)
+                ? new List<string>()
+                : JsonSerializer.Deserialize<List<string>>(completedIdsRaw) ?? new List<string>();
+
             targets.Add(new DownloadTarget
             {
                 Id = Guid.Parse(reader.GetString("id")),
@@ -503,7 +616,9 @@ public sealed class DownloadJobRepository : IDisposable
                 ErrorMessage = reader.IsDBNull("error_message") ? null : reader.GetString("error_message"),
                 FoundItems = reader.GetInt32("found_items"),
                 DownloadedItems = reader.GetInt32("downloaded_items"),
+                DownloadedBytes = reader.IsDBNull("downloaded_bytes") ? 0 : reader.GetInt64("downloaded_bytes"),
                 ProcessedAt = reader.IsDBNull("processed_at") ? null : DateTime.Parse(reader.GetString("processed_at")),
+                CompletedArtworkIds = completedIds,
             });
         }
 

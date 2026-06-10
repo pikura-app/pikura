@@ -35,6 +35,7 @@ public partial class DownloadByArtistViewModel : ViewModelBase
     private readonly DownloadPresetRepository _presetRepository;
     private readonly ArtistSettingsRepository _artistSettingsRepository;
     private readonly GalleryViewModel _galleryVm;
+    private readonly NotificationService _notificationService;
 
     [ObservableProperty] private bool _isLoading;
     [ObservableProperty] private string _statusMessage = "Ready";
@@ -293,7 +294,8 @@ public partial class DownloadByArtistViewModel : ViewModelBase
         FilePickerService filePicker,
         DownloadPresetRepository presetRepository,
         ArtistSettingsRepository artistSettingsRepository,
-        GalleryViewModel galleryVm)
+        GalleryViewModel galleryVm,
+        NotificationService notificationService)
     {
         _client = client;
         _downloadService = downloadService;
@@ -304,6 +306,7 @@ public partial class DownloadByArtistViewModel : ViewModelBase
         _presetRepository = presetRepository;
         _artistSettingsRepository = artistSettingsRepository;
         _galleryVm = galleryVm;
+        _notificationService = notificationService;
 
         // Initialize custom settings from global
         CustomSettings = SettingsOverride.FromGlobalSettings(settingsService.Current);
@@ -716,8 +719,13 @@ public partial class DownloadByArtistViewModel : ViewModelBase
                 Name = a.UserName,
                 Type = TargetType.Artist,
                 PageRange = UsePerArtistPageRanges ? a.PageRange : DefaultPageRange,
-                CustomSettings = a.CustomSettings
+                CustomSettings = a.CustomSettings,
+                ThumbnailUrl = a.ProfileImageUrl,
+                UserName = a.UserName,
+                UserId = a.UserId
             }).ToList();
+
+            Logger.LogInformation("Created {TargetCount} targets from {ArtistCount} selected artists", targets.Count, SelectedArtists.Count);
 
             // Determine settings override
             var settingsOverride = UseGlobalSettings
@@ -803,21 +811,34 @@ public partial class DownloadByArtistViewModel : ViewModelBase
                 Name = a.UserName,
                 Type = TargetType.Artist,
                 PageRange = UsePerArtistPageRanges ? a.PageRange : DefaultPageRange,
-                CustomSettings = a.CustomSettings
+                CustomSettings = a.CustomSettings,
+                ThumbnailUrl = a.ProfileImageUrl,
+                UserName = a.UserName
             }).ToList();
 
             var settingsOverride = UseGlobalSettings
                 ? new SettingsOverride { UseGlobalSettings = true }
                 : CustomSettings;
 
-            await _coordinator.CreateJobAsync(
+            var job = await _coordinator.CreateJobAsync(
                 DownloadJobType.Artist,
                 BuildArtistJobName(SelectedArtists),
                 targets,
                 settingsOverride,
-                startImmediately: false);
+                startImmediately: true);
 
-            StatusMessage = $"Added {SelectedArtists.Count} artists to queue";
+            var started = job.Status == JobStatus.Running;
+            StatusMessage = started
+                ? $"Started downloading {SelectedArtists.Count} artists"
+                : $"Added {SelectedArtists.Count} artists to queue";
+
+            _notificationService.ShowNotification(
+                started ? "Download Started" : "Added to Queue",
+                started
+                    ? $"{SelectedArtists.Count} artist{(SelectedArtists.Count == 1 ? "" : "s")} started downloading"
+                    : $"{SelectedArtists.Count} artist{(SelectedArtists.Count == 1 ? "" : "s")} queued — will start when a slot is free",
+                NotificationType.Info,
+                SelectedArtists.FirstOrDefault()?.ProfileImageUrl);
         }
         catch (Exception ex)
         {

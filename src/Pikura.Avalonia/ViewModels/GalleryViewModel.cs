@@ -484,7 +484,7 @@ public partial class GalleryViewModel : ViewModelBase
                 {
                     // Placeholder queue jobs: delete outright
                     if (j.Name != null && j.Name.StartsWith("(Queued) ")
-                        && j.Status is JobStatus.Queued or JobStatus.Pending)
+                        && j.Status == JobStatus.Pending)
                     {
                         try { await _coordinator.DeleteJobAsync(j.Id); } catch { }
                         continue;
@@ -492,7 +492,7 @@ public partial class GalleryViewModel : ViewModelBase
                     // Real jobs left in active state from a prior session — mark
                     // as Cancelled so the user can see what was interrupted but
                     // they no longer occupy concurrency slots.
-                    if (j.Status is JobStatus.Queued or JobStatus.Pending or JobStatus.Running)
+                    if (j.Status is JobStatus.Pending or JobStatus.Running)
                     {
                         try
                         {
@@ -630,12 +630,10 @@ public partial class GalleryViewModel : ViewModelBase
         {
             if (string.IsNullOrEmpty(q))
             {
-                // No filter active — append only the artists that aren't already in the list.
-                // This avoids a full clear+repopulate flash during streaming load/refresh.
-                var alreadyShown = FilteredArtists.ToHashSet();
+                // Filter cleared — full rebuild to ensure no stale filtered subset remains.
+                FilteredArtists.Clear();
                 foreach (var a in Artists)
-                    if (!alreadyShown.Contains(a))
-                        FilteredArtists.Add(a);
+                    FilteredArtists.Add(a);
             }
             else
             {
@@ -1272,7 +1270,7 @@ public partial class GalleryViewModel : ViewModelBase
             
             var seen = new HashSet<string>();
             var seenLock = new object();
-            const int limit = 48;
+            const int limit = 96;
             var realTotal = 0;
 
             // Parallel: load first page of public + private to get totals
@@ -1410,53 +1408,57 @@ public partial class GalleryViewModel : ViewModelBase
             }
 
             {
-                // Sequential page-by-page fetch with deduplication.
-                // Pixiv's offset-based API has unstable ordering — if artists are
-                // followed/unfollowed mid-fetch, pages shift and parallel requests
-                // miss some artists entirely while duplicating others. Sequential
-                // fetch with the shared 'seen' set handles this correctly.
                 var hiddenCapture = hidden;
-                var totalBound = first.Total > 0 ? Math.Min(first.Total, 5000) : 5000;
-                Logger.LogInformation("[FollowedArtists] Sequential fetch hidden={Hidden}: up to offset {End} (step {Limit})",
-                    hiddenCapture, totalBound, limit);
-                tasks.Add(Task.Run(async () =>
+                if (first.Total > 0)
                 {
-                    // Step by 7/8 of the page size to reduce overlap even more with larger pages.
-                    // Pixiv's list drifts as artists are followed/unfollowed mid-fetch —
-                    // a full-step advance can skip artists that shifted into the gap.
-                    // Overlapping windows ensure every artist appears in at least one
-                    // page. The shared dedup set discards the duplicates cheaply.
-                    var step = Math.Max(1, limit * 7 / 8);
-                    int offset = limit;
-                    int consecutiveEmpty = 0;
-                    while (offset < totalBound + limit) // fetch one window past Total to catch tail drift
+                    // Total is known — issue all remaining pages in parallel for maximum speed.
+                    // The shared 'seen' set handles any duplicates from list drift.
+                    var totalBound = Math.Min(first.Total, 5000);
+                    var offsets = Enumerable.Range(1, (int)Math.Ceiling((totalBound - limit) / (double)limit) + 1)
+                        .Select(i => i * limit)
+                        .Where(o => o < totalBound + limit)
+                        .ToList();
+                    Logger.LogInformation("[FollowedArtists] Parallel fetch hidden={Hidden}: {PageCount} pages for total={Total}",
+                        hiddenCapture, offsets.Count, totalBound);
+                    tasks.Add(Task.WhenAll(offsets.Select(offset => Task.Run(async () =>
                     {
-                        FollowingResponseBody? page;
                         try
                         {
-                            page = await _pixivClient.GetFollowedArtistsAsync(userId, offset, limit, hiddenCapture);
+                            var page = await _pixivClient.GetFollowedArtistsAsync(userId, offset, limit, hiddenCapture);
+                            if (page?.Users?.Count > 0)
+                                await AddBatchAsync(page.Users);
                         }
                         catch (Exception ex)
                         {
                             Logger.LogDebug(ex, "Followed-artists fetch failed at offset {Off}", offset);
-                            break;
                         }
-
-                        Logger.LogInformation("[FollowedArtists] Page hidden={Hidden} offset={Off}: Total={Total} Users={Count}",
-                            hiddenCapture, offset, page?.Total ?? -1, page?.Users?.Count ?? -1);
-
-                        if (page?.Users == null || page.Users.Count == 0)
+                    }))));
+                }
+                else
+                {
+                    // Total unknown — sequential discovery walk until empty page.
+                    tasks.Add(Task.Run(async () =>
+                    {
+                        int offset = limit;
+                        int consecutiveEmpty = 0;
+                        while (offset < 5000)
                         {
-                            if (++consecutiveEmpty >= 2) break; // two empty windows in a row = truly done
+                            FollowingResponseBody? page;
+                            try { page = await _pixivClient.GetFollowedArtistsAsync(userId, offset, limit, hiddenCapture); }
+                            catch (Exception ex) { Logger.LogDebug(ex, "Followed-artists fetch failed at offset {Off}", offset); break; }
+                            if (page?.Users == null || page.Users.Count == 0)
+                            {
+                                if (++consecutiveEmpty >= 2) break;
+                            }
+                            else
+                            {
+                                consecutiveEmpty = 0;
+                                await AddBatchAsync(page.Users);
+                            }
+                            offset += limit;
                         }
-                        else
-                        {
-                            consecutiveEmpty = 0;
-                            await AddBatchAsync(page.Users);
-                        }
-                        offset += step;
-                    }
-                }));
+                    }));
+                }
             }
         }
 

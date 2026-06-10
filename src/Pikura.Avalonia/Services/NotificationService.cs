@@ -349,6 +349,26 @@ public class NotificationService
         ShowNotification(title, message, NotificationType.Error, thumbnailUrl);
     }
 
+    public void ShowJobPausedNotification(string jobName, int completed, int total, string? thumbnailUrl = null)
+    {
+        var title   = "⏸ Download paused";
+        var message = total > 0
+            ? $"{jobName}\n{completed}/{total} artwork{(total == 1 ? "" : "s")} downloaded so far"
+            : $"{jobName}\nPaused";
+        _lastNotification = new NotificationClickedEventArgs(title, message, null, null, NotificationType.Info);
+        ShowNotification(title, message, NotificationType.Info, thumbnailUrl);
+    }
+
+    public void ShowJobResumedNotification(string jobName, int completed, int total, string? thumbnailUrl = null)
+    {
+        var title   = "▶ Download resumed";
+        var message = total > 0
+            ? $"{jobName}\nResuming from {completed}/{total} artwork{(total == 1 ? "" : "s")}"
+            : $"{jobName}\nResuming";
+        _lastNotification = new NotificationClickedEventArgs(title, message, null, null, NotificationType.Info);
+        ShowNotification(title, message, NotificationType.Info, thumbnailUrl);
+    }
+
     /// <summary>
     /// Shows a notification when a download job completes.
     /// </summary>
@@ -356,8 +376,8 @@ public class NotificationService
     {
         var title = failed > 0 ? "⚠️ Download completed with errors" : "✅ Download complete";
         var message = failed > 0
-            ? $"{jobName}\n{succeeded} succeeded · {failed} failed"
-            : $"{jobName}\n{succeeded} file{(succeeded == 1 ? "" : "s")} downloaded";
+            ? $"{jobName}\n{succeeded} artwork{(succeeded == 1 ? "" : "s")} · {failed} failed"
+            : $"{jobName}\n{succeeded} artwork{(succeeded == 1 ? "" : "s")} downloaded";
         var type = failed > 0 ? NotificationType.Warning : NotificationType.Success;
         var url = firstArtworkId != null ? $"https://www.pixiv.net/en/artworks/{firstArtworkId}" : null;
 

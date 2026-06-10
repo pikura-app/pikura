@@ -299,18 +299,19 @@ public static class AppServices
             var notificationService = Get<NotificationService>();
             var monitorService = Get<ArtistMonitorService>();
 
-            // Clean up orphaned jobs from prior session BEFORE HistoryViewModel loads.
-            // Downloads run in-process — any "Running" or "Pending" jobs in the DB at startup
-            // are zombies from a crashed/closed previous session. Marking them Cancelled
-            // prevents them from clogging the Active Downloads tab on every restart.
+            // Reconcile jobs from a prior session BEFORE HistoryViewModel loads.
+            // Downloads run in-process, so a job left "Running" in the DB is from a
+            // crash/force-kill (the graceful shutdown hook pauses cleanly). Convert
+            // those to Paused so their persisted progress can be resumed; Queued and
+            // Pending jobs are left intact so they remain in the queue.
             try
             {
                 var jobRepo = Get<DownloadJobRepository>();
-                jobRepo.MarkOrphanedJobsAsCancelledAsync().GetAwaiter().GetResult();
+                jobRepo.RecoverInterruptedJobsAsync().GetAwaiter().GetResult();
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Failed to clean up orphaned jobs: {ex.Message}");
+                Debug.WriteLine($"Failed to recover interrupted jobs: {ex.Message}");
             }
 
             // Eagerly construct HistoryViewModel so it subscribes to JobStarted/JobCompleted
@@ -322,23 +323,47 @@ public static class AppServices
             coordinator.JobStarted += (sender, e) =>
             {
                 var settings = Get<SettingsService>();
-                if (!settings.Current.NotifyOnDownloadStarted) return;
                 var thumb = e.Job.Targets.FirstOrDefault()?.ThumbnailUrl;
-                notificationService.ShowJobStartedNotification(e.Job.Name, e.Job.Targets.Count, thumb);
+
+                // Distinguish a fresh start from a resume: a resumed job already
+                // has persisted per-artwork progress (or completed targets) from a
+                // prior paused run. Resume uses the pause/resume notification toggle.
+                var downloaded = e.Job.Targets.Sum(t => t.DownloadedItems > 0 ? t.DownloadedItems : t.CompletedArtworkIds.Count);
+                var found      = e.Job.Targets.Sum(t => t.FoundItems > 0 ? t.FoundItems : t.DownloadedItems);
+                var isResume   = downloaded > 0 || e.Job.Targets.Any(t => t.Status == TargetStatus.Completed);
+
+                if (isResume)
+                {
+                    if (settings.Current.NotifyOnDownloadPaused)
+                        notificationService.ShowJobResumedNotification(e.Job.Name, downloaded, found, thumb);
+                }
+                else if (settings.Current.NotifyOnDownloadStarted)
+                {
+                    notificationService.ShowJobStartedNotification(e.Job.Name, e.Job.Targets.Count, thumb);
+                }
             };
 
             // Download completion notifications (gated on user setting)
             coordinator.JobCompleted += (sender, e) =>
             {
                 var settings = Get<SettingsService>();
-                var succeeded = e.Job.CompletedItems;
+                // Use per-artwork counts so notifications match what History shows.
+                // DownloadedItems is written on target completion; CompletedArtworkIds
+                // is the mid-run fallback for paused/in-progress targets.
+                var succeededArtworks = e.Job.Targets.Sum(t => t.DownloadedItems > 0 ? t.DownloadedItems : t.CompletedArtworkIds.Count);
+                var succeeded = succeededArtworks;
                 var failed    = e.Job.FailedItems;
                 var thumb     = e.Job.Targets.FirstOrDefault()?.ThumbnailUrl;
                 var firstArtworkId = e.Job.Targets.FirstOrDefault()?.TargetId;
 
-                if (failed > 0 && e.Job.Status == JobStatus.Failed && settings.Current.NotifyOnDownloadFailed)
+                var pausedDownloaded = e.Job.Targets.Sum(t => t.DownloadedItems > 0 ? t.DownloadedItems : t.CompletedArtworkIds.Count);
+                var pausedFound      = e.Job.Targets.Sum(t => t.FoundItems > 0 ? t.FoundItems : t.DownloadedItems);
+
+                if (e.Job.Status == JobStatus.Paused && settings.Current.NotifyOnDownloadPaused)
+                    notificationService.ShowJobPausedNotification(e.Job.Name, pausedDownloaded, pausedFound, thumb);
+                else if (failed > 0 && e.Job.Status == JobStatus.Failed && settings.Current.NotifyOnDownloadFailed)
                     notificationService.ShowJobFailedNotification(e.Job.Name, e.Job.ErrorMessage, thumb);
-                else if (settings.Current.NotifyOnDownloadComplete)
+                else if (e.Job.Status == JobStatus.Completed && settings.Current.NotifyOnDownloadComplete)
                     notificationService.ShowJobCompletedNotification(e.Job.Name, succeeded, failed, firstArtworkId, thumb);
             };
 

@@ -119,10 +119,10 @@
                                     <TextBlock Text="Batch"/>
                                 </StackPanel>
                             </Button>
-                            <Button Classes="nav" Click="HistoryButton_Click">
+                            <Button Classes="nav" Click="JobsButton_Click">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <TextBlock Text="🕐" FontSize="15" Width="18" TextAlignment="Center"/>
-                                    <TextBlock Text="History"/>
+                                    <TextBlock Text="&#128451;" FontSize="15" Width="18" TextAlignment="Center"/>
+                                    <TextBlock Text="Jobs"/>
                                 </StackPanel>
                             </Button>
 
