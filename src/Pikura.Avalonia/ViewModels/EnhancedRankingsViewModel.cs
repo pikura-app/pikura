@@ -63,6 +63,7 @@ public partial class EnhancedRankingsViewModel : ViewModelBase
             _favoritesService.Add(card.ToPreview());
     }
     public GalleryViewModel GalleryVm => Pikura.Avalonia.Services.AppServices.Get<GalleryViewModel>();
+    public string ViewerSourceKey => $"Rankings:{SelectedMode}:{SelectedContent}:{RankingDate}:{ShowR18}:{TagFilter}:{UsePagination}:{GalleryCurrentPage}";
 
     // Public accessor for settings service (used by view for blur checking)
     public Pikura.Core.Settings.SettingsService SettingsService => _settingsService;
@@ -457,6 +458,10 @@ public partial class EnhancedRankingsViewModel : ViewModelBase
 
             // Sync to FilteredItems for pagination display
             UpdateFilteredItems();
+            var viewerCards = FilteredItems
+                .Select(c => new ArtworkCardViewModel(c.ToPreview()) { ViewerPosition = c.Rank })
+                .ToList();
+            GalleryVm.SyncViewerTabs(ViewerSourceKey, viewerCards, UsePagination ? viewerCards.Count : TotalItems);
 
             StatusMessage = $"#{Items[0].Rank}–#{Items[^1].Rank} of {TotalItems:N0}  ·  {effectiveMode}  ·  {RankingDate}";
         }

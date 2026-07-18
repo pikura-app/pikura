@@ -1,3 +1,23 @@
+## Pikura 1.8.1
+
+Inline viewer navigation and tab-state improvements across Gallery, Rankings, Discover, and Bookmarks.
+
+### New Features
+- **First and last artwork controls** — Added `<<` and `>>` buttons for immediate navigation to the beginning or end of the active tab's artwork list.
+- **Jump to artwork** — Enter an artwork position and press Enter to navigate directly to it.
+
+### Improvements
+- **Section-specific navigation totals** — Each viewer tab now keeps the artwork list and total from the section that opened it instead of inheriting Gallery's initial batch count.
+- **End-of-list navigation** — Advancing from the last loaded artwork now loads more and continues to the next artwork automatically when more results are available.
+
+### Fixes
+- **Tabs preserved when filtering** — Applying tag filters or starting tag searches no longer closes existing viewer tabs.
+- **Incorrect repeated `96 / 96` counters** — Reused tabs now update their source correctly, preventing Gallery synchronization from replacing Rankings, Discover, or Bookmarks navigation lists.
+- **Rankings counters** — Rankings viewer tabs display and jump by the actual rank number instead of the filtered-list index.
+- **Backward navigation after reaching the end** — Previous-artwork navigation now consistently uses the active tab's retained list.
+
+---
+
 ## Pikura 1.8.0
 
 Live settings, artist profile image downloads, 429 error recovery, and UI polish.

@@ -164,7 +164,17 @@ public partial class BookmarksView : UserControl
             _ => VM.FilteredFavorites.ToList(),
         };
         var target = list.FirstOrDefault(c => c.Id == card.Id) ?? card;
-        VM.GalleryVm.OpenInViewer(target, list, source: "Bookmarks");
+        Func<System.Threading.Tasks.Task<IReadOnlyList<ArtworkCardViewModel>>>? loadMore = null;
+        if (VM.SelectedTabIndex != 2)
+        {
+            loadMore = async () =>
+            {
+                await VM.LoadMoreAsync();
+                return VM.SelectedTabIndex == 0 ? VM.FilteredPublic.ToList() : VM.FilteredPrivate.ToList();
+            };
+        }
+        var total = VM.SelectedTabIndex == 2 ? list.Count : Math.Max(VM.TotalCount, list.Count);
+        VM.GalleryVm.OpenInViewer(target, list, total, loadMore, VM.ViewerSourceKey);
         VM.ShowPreview = true;
     }
 
@@ -193,7 +203,24 @@ public partial class BookmarksView : UserControl
     private void OnContextOpenInNewTab(object? sender, RoutedEventArgs e)
     {
         if (GetCard(sender) is not { } card || VM == null) return;
-        VM.GalleryVm.OpenInNewTab(card, source: "Bookmarks");
+        var list = VM.SelectedTabIndex switch
+        {
+            0 => VM.FilteredPublic.ToList(),
+            1 => VM.FilteredPrivate.ToList(),
+            _ => VM.FilteredFavorites.ToList(),
+        };
+        var target = list.FirstOrDefault(c => c.Id == card.Id) ?? card;
+        Func<System.Threading.Tasks.Task<IReadOnlyList<ArtworkCardViewModel>>>? loadMore = null;
+        if (VM.SelectedTabIndex != 2)
+        {
+            loadMore = async () =>
+            {
+                await VM.LoadMoreAsync();
+                return VM.SelectedTabIndex == 0 ? VM.FilteredPublic.ToList() : VM.FilteredPrivate.ToList();
+            };
+        }
+        var total = VM.SelectedTabIndex == 2 ? list.Count : Math.Max(VM.TotalCount, list.Count);
+        VM.GalleryVm.OpenInNewTab(target, list, total, loadMore, VM.ViewerSourceKey);
     }
 
     private async void OnContextOpenPopup(object? sender, RoutedEventArgs e)

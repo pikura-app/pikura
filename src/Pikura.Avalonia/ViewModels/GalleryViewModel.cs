@@ -38,7 +38,7 @@ public partial class ViewerTab : ObservableObject
     public Func<Task<IReadOnlyList<ArtworkCardViewModel>>>? LoadMoreAsync { get; set; }
 
     /// <summary>Which section opened this tab ("Gallery", "Discover", "Rankings", etc.). Informational only — tabs are global across all sections.</summary>
-    public string Source { get; init; } = "Gallery";
+    public string Source { get; set; } = "Gallery";
 
     public ViewerTab(ArtworkCardViewModel card, IReadOnlyList<ArtworkCardViewModel>? navList = null,
         int totalCount = 0, Func<Task<IReadOnlyList<ArtworkCardViewModel>>>? loadMoreAsync = null,
@@ -77,6 +77,7 @@ public partial class GalleryViewModel : ViewModelBase
     private List<string> _currentArtistAllIds = [];
     private int _currentArtistLoadedCount;
     private CancellationTokenSource? _artworkLoadCts;
+    private Task _artistLoadTask = Task.CompletedTask;
     // Cache: artistUserId -> loaded card list (avoids re-fetching on back navigation)
     private readonly Dictionary<string, (List<ArtworkCardViewModel> Cards, List<string> AllIds, int TotalIds, int LoadedCount, bool CanMore)> _artworkCache = [];
     private const int PageSize = 48;
@@ -222,6 +223,10 @@ public partial class GalleryViewModel : ViewModelBase
 
     /// <summary>Tracks which section last opened the inline viewer so other sections don't show stale tabs.</summary>
     public string ViewerSource { get; private set; } = string.Empty;
+
+    private string CurrentGalleryViewerSource => SelectedArtist == null
+        ? "Gallery"
+        : $"Gallery:{SelectedArtist.UserId}:{ShowR18}:{TagIncludeFilter}:{TagExcludeFilter}:{DateFrom:O}:{DateTo:O}:{SortMode}";
 
     /// <summary>The single global tab collection — every section shows the same tabs.</summary>
     public ObservableCollection<ViewerTab> ViewerTabs { get; } = [];
@@ -899,12 +904,17 @@ public partial class GalleryViewModel : ViewModelBase
     [RelayCommand]
     public async Task LoadArtistByIdAsync(string userId)
     {
+        IsIdSearchMode = false;
+        IsRecentFeedActive = false;
         // First, check if already in followed artists list — if so, just select
         var existing = Artists.FirstOrDefault(a => a.UserId == userId);
         if (existing != null)
         {
-            SelectedArtist = existing;
-            StatusMessage = $"Loaded artist {existing.Name}";
+            if (SelectedArtist?.UserId != existing.UserId)
+                SelectedArtist = existing;
+            else
+                _artistLoadTask = LoadArtistArtworksAsync(existing);
+            await _artistLoadTask;
             return;
         }
 
@@ -923,6 +933,7 @@ public partial class GalleryViewModel : ViewModelBase
         ShowSearchInfo = true;
         SearchInfoText = $"Viewing: {transient.Name} (not followed)";
         SelectedArtist = transient;
+        await _artistLoadTask;
     }
 
     private async Task LoadArtworkByIdAsync(string artworkId)
@@ -1593,14 +1604,9 @@ public partial class GalleryViewModel : ViewModelBase
     /// </summary>
     private void SyncViewerTabNavList()
     {
-        if (SelectedViewerTab is not { } tab) return;
-        if (tab.Source != "Gallery") return;
+        if (SelectedArtist == null) return;
         var current = FilteredArtworks.ToList();
-        tab.NavList.Clear();
-        foreach (var c in current) tab.NavList.Add(c);
-        tab.TotalCount = ArtworksTotal > current.Count ? ArtworksTotal : current.Count;
-        _navListVersion++;
-        OnPropertyChanged(nameof(NavListVersion));
+        SyncViewerTabs(CurrentGalleryViewerSource, current, ArtworksTotal);
     }
 
     [RelayCommand]
@@ -1667,9 +1673,15 @@ public partial class GalleryViewModel : ViewModelBase
         int totalCount = 0, Func<Task<IReadOnlyList<ArtworkCardViewModel>>>? loadMoreAsync = null,
         string source = "Gallery")
     {
+        if (source == "Gallery" && SelectedArtist != null)
+            source = CurrentGalleryViewerSource;
         var list = navList ?? FilteredArtworks.ToList();
         // Total is the actual count of navigable items (not the artist's announced catalogue size)
-        int total = totalCount > 0 ? totalCount : list.Count;
+        int total = totalCount > 0
+            ? totalCount
+            : navList == null && source.StartsWith("Gallery:", StringComparison.Ordinal) && ArtworksTotal > list.Count
+                ? ArtworksTotal
+                : list.Count;
         Func<Task<IReadOnlyList<ArtworkCardViewModel>>>? loadMore = loadMoreAsync;
         if (loadMore == null && navList == null && CanLoadMore)
         {
@@ -1690,6 +1702,7 @@ public partial class GalleryViewModel : ViewModelBase
             foreach (var c in list) active.NavList.Add(c);
             active.TotalCount = total;          // refresh counter to match new nav list
             active.LoadMoreAsync = loadMore;    // refresh load-more callback for new context
+            active.Source = source;
             active.NavigateTo(card);
             InlineViewerCard = card;
         }
@@ -1705,16 +1718,35 @@ public partial class GalleryViewModel : ViewModelBase
     /// <summary>Returns true if any open tab was opened from the given source section.</summary>
     public bool HasTabsFromSource(string source) => ViewerTabs.Any(t => t.Source == source);
 
+    public void SyncViewerTabs(string source, IReadOnlyList<ArtworkCardViewModel> cards, int totalCount = 0)
+    {
+        foreach (var tab in ViewerTabs.Where(t => t.Source == source))
+        {
+            var existingIds = new HashSet<string>(tab.NavList.Select(c => c.Id));
+            foreach (var card in cards)
+                if (existingIds.Add(card.Id)) tab.NavList.Add(card);
+            tab.TotalCount = Math.Max(tab.TotalCount, Math.Max(totalCount, tab.NavList.Count));
+        }
+        _navListVersion++;
+        OnPropertyChanged(nameof(NavListVersion));
+    }
+
     public void OpenInNewTab(ArtworkCardViewModel card, IReadOnlyList<ArtworkCardViewModel>? navList = null,
         int totalCount = 0, Func<Task<IReadOnlyList<ArtworkCardViewModel>>>? loadMoreAsync = null,
         string source = "Gallery")
     {
+        if (source == "Gallery" && SelectedArtist != null)
+            source = CurrentGalleryViewerSource;
         ViewerSource = source;
         // Snapshot filtered artworks so navigating to another artist doesn't mutate this tab's list
         var list = navList ?? FilteredArtworks.ToList();
 
         // Total is the actual count of navigable items (not the artist's announced catalogue size)
-        int total = totalCount > 0 ? totalCount : list.Count;
+        int total = totalCount > 0
+            ? totalCount
+            : navList == null && source.StartsWith("Gallery:", StringComparison.Ordinal) && ArtworksTotal > list.Count
+                ? ArtworksTotal
+                : list.Count;
         Func<Task<IReadOnlyList<ArtworkCardViewModel>>>? loadMore = loadMoreAsync;
         if (loadMore == null && navList == null && CanLoadMore)
         {
@@ -1824,7 +1856,7 @@ public partial class GalleryViewModel : ViewModelBase
         if (value != null)
         {
             IsRecentFeedActive = false;
-            _ = LoadArtistArtworksAsync(value);
+            _artistLoadTask = LoadArtistArtworksAsync(value);
         }
     }
 
@@ -1907,6 +1939,7 @@ public partial class GalleryViewModel : ViewModelBase
             await LoadArtworkPageAsync(artist, append: false, ct);
             ct.ThrowIfCancellationRequested();
             IsLoading = false;
+            UpdateArtworkCountStatus();
 
             // Continue loading page 2 in the background. The cache is updated only
             // after both pages finish so that revisits restore the full 96-card view.
@@ -1931,7 +1964,12 @@ public partial class GalleryViewModel : ViewModelBase
         finally
         {
             if (!ct.IsCancellationRequested)
+            {
                 IsLoading = false;
+                if (SelectedArtist?.UserId == artist.UserId
+                    && StatusMessage.StartsWith("Loading ", StringComparison.Ordinal))
+                    UpdateArtworkCountStatus();
+            }
         }
     }
 
@@ -2611,6 +2649,7 @@ public partial class ArtworkCardViewModel : ObservableObject
     public string DateLabel => HasDate ? DateCreated.ToString("MMM d, yyyy") : string.Empty;
     public int BookmarkCount { get; }
     public int LikeCount { get; }
+    public int? ViewerPosition { get; set; }
     /// <summary>Height for natural mode: CardSize * AspectRatio.</summary>
     public double NaturalHeight(double width) => width * AspectRatio;
 

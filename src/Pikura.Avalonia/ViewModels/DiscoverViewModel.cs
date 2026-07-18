@@ -478,6 +478,7 @@ public partial class DiscoverViewModel : ViewModelBase
                 : "No new recommendations this round — try again.";
             OnPropertyChanged(nameof(HasRecommendedWorks));
             UpdateFilteredWorks();
+            GalleryVm.SyncViewerTabs("Discover:Works", FilteredWorks.ToList());
         }
         catch (OperationCanceledException) { }
         catch (Exception ex) { Logger.LogError(ex, "Failed to load more works"); }

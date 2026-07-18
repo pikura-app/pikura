@@ -282,8 +282,6 @@ public partial class InlineArtworkViewer : UserControl
         }
         if (e.PropertyName == nameof(GalleryViewModel.SelectedViewerTab))
         {
-            // Invalidate current card so LoadCardAsync always reloads when switching tabs
-            _currentCard = null;
             _ = LoadCardAsync(VM?.InlineViewerCard);
             UpdateTabHighlight();
             UpdateArtistButtonVisibility();
@@ -380,7 +378,14 @@ public partial class InlineArtworkViewer : UserControl
         // We must NOT dedupe on _currentCard alone — _currentCard is set
         // immediately when a load starts but a cancelled load leaves it set
         // without ever producing content, blocking legitimate retries.
-        if (_currentCard?.Id == card.Id && _loadedCardId == card.Id) return;
+        if (_currentCard?.Id == card.Id)
+        {
+            if (_loadedCardId == card.Id
+                && (ViewerImage?.Source != null || UgoiraImage?.SourcePath != null))
+                return;
+            if (_loadCts is { IsCancellationRequested: false })
+                return;
+        }
 
         // Cancel any in-flight load and start fresh
         _loadCts?.Cancel();
@@ -459,8 +464,7 @@ public partial class InlineArtworkViewer : UserControl
                 if (ct.IsCancellationRequested) return;
                 _pages = pages;
                 UpdatePageIndicator();
-                await RenderPageAsync(_currentPageIndex, ct);
-                succeeded = true;
+                succeeded = await RenderPageAsync(_currentPageIndex, ct);
             }
         }
         catch (OperationCanceledException) { /* expected on rapid switch */ }
@@ -483,18 +487,22 @@ public partial class InlineArtworkViewer : UserControl
         {
             // Clear loading state only if we're still the current card.
             // If a newer load started (different card OR null), it owns the loading state.
-            if (_currentCard?.Id == card.Id)
+            if (ReferenceEquals(_loadCts, cts))
             {
                 if (succeeded) _loadedCardId = card.Id;
+                else _loadedCardId = null;
+                _loadCts = null;
+                cts.Dispose();
                 SetLoading(false);
             }
         }
     }
 
-    private async Task RenderPageAsync(int index, CancellationToken ct = default)
+    private async Task<bool> RenderPageAsync(int index, CancellationToken ct = default)
     {
-        if (_pages.Count == 0 || index < 0 || index >= _pages.Count) return;
+        if (_pages.Count == 0 || index < 0 || index >= _pages.Count) return false;
         SetLoading(true);
+        var displayed = false;
 
         _fullResLoaded = false;
         _currentOriginalUrl = _pages[index].Urls.Original;
@@ -509,6 +517,7 @@ public partial class InlineArtworkViewer : UserControl
                 if (ct.IsCancellationRequested) return;
                 ViewerImage.Source = thumb;
                 ViewerImage.IsVisible = true;
+                displayed = true;
                 if (LoadingPanel != null) LoadingPanel.IsVisible = false;
                 ResetZoom();
             });
@@ -519,8 +528,8 @@ public partial class InlineArtworkViewer : UserControl
 
         if (!string.IsNullOrEmpty(url))
         {
-            var bytes = await _imageLoader.FetchBytesAsync(url);
-            if (ct.IsCancellationRequested) return;
+            var bytes = await _imageLoader.FetchBytesAsync(url, ct);
+            if (ct.IsCancellationRequested) return false;
             if (bytes != null)
             {
                 // Store for AI vision queries
@@ -538,12 +547,15 @@ public partial class InlineArtworkViewer : UserControl
                     catch { return null; }
                 }, ct);
 
-                if (bmp == null || ct.IsCancellationRequested) return;
+                if (bmp == null || ct.IsCancellationRequested) return displayed;
 
                 await Dispatcher.UIThread.InvokeAsync(() =>
                 {
                     if (ct.IsCancellationRequested) { bmp.Dispose(); return; }
                     ViewerImage.Source = bmp;
+                    ViewerImage.IsVisible = true;
+                    if (ErrorPanel != null) ErrorPanel.IsVisible = false;
+                    displayed = true;
                     ResetZoom();
                     // Clear loading state now that the bitmap is applied — avoids the
                     // blank-frame race where SetLoading(false) ran before Source was set.
@@ -555,10 +567,13 @@ public partial class InlineArtworkViewer : UserControl
                 if (!string.IsNullOrEmpty(_currentOriginalUrl) && !_fullResLoaded)
                     _ = LoadFullResAsync(_currentOriginalUrl!);
 
-                return; // SetLoading already called above
+                return true; // SetLoading already called above
             }
         }
         SetLoading(false);
+        if (!displayed && !ct.IsCancellationRequested)
+            SetError("Failed to load image.\nClick Retry to try again.");
+        return displayed;
     }
 
     private void SetLoading(bool loading)
@@ -1006,47 +1021,85 @@ if (result != null && presetWindow.DownloadClicked)
 
     private void OnPrevArtwork(object? sender, RoutedEventArgs e)
     {
-        if (VM == null || _currentCard == null) return;
+        if (_currentCard == null) return;
         var list = NavList();
         var idx = IndexOfById(list, _currentCard.Id);
-        if (idx <= 0) return;
-        var next = list[idx - 1];
-        if (VM.SelectedViewerTab is { } tab)
-        {
-            tab.NavigateTo(next);
-            _currentCard = null; // force reload
-            _ = LoadCardAsync(next);
-            VM.InlineViewerCard = next;
-        }
-        else
-            VM.OpenInlineViewer(next);
+        if (idx > 0) NavigateToArtwork(list[idx - 1]);
     }
 
-    private void OnNextArtwork(object? sender, RoutedEventArgs e)
+    private async void OnNextArtwork(object? sender, RoutedEventArgs e)
     {
-        if (VM == null || _currentCard == null) return;
+        if (_currentCard == null) return;
         var list = NavList();
         var idx = IndexOfById(list, _currentCard.Id);
         if (idx < 0) return;
 
-        // If we're at the end of the loaded list but more exist, trigger a background load
-        if (idx >= list.Count - 1)
+        if (idx >= list.Count - 1 && VM?.SelectedViewerTab is { LoadMoreAsync: not null } loadTab)
         {
-            if (VM.SelectedViewerTab is { LoadMoreAsync: not null } loadTab)
-                _ = LoadMoreIntoTabAsync(loadTab);
-            return;
+            await LoadMoreIntoTabAsync(loadTab);
+            list = NavList();
+            idx = IndexOfById(list, _currentCard.Id);
         }
 
-        var next = list[idx + 1];
-        if (VM.SelectedViewerTab is { } tab)
+        if (idx >= 0 && idx < list.Count - 1)
+            NavigateToArtwork(list[idx + 1]);
+    }
+
+    private void OnFirstArtwork(object? sender, RoutedEventArgs e)
+    {
+        var list = NavList();
+        if (list.Count > 0) NavigateToArtwork(list[0]);
+    }
+
+    private async void OnLastArtwork(object? sender, RoutedEventArgs e)
+    {
+        if (VM?.SelectedViewerTab is { LoadMoreAsync: not null } tab)
+            await LoadToPositionAsync(tab, tab.TotalCount);
+
+        var list = NavList();
+        if (list.Count > 0) NavigateToArtwork(list[^1]);
+    }
+
+    private async void OnArtworkJumpKeyDown(object? sender, KeyEventArgs e)
+    {
+        if (e.Key != Key.Enter || sender is not TextBox box) return;
+        e.Handled = true;
+        if (!int.TryParse(box.Text, out var position) || position < 1) return;
+
+        if (VM?.SelectedViewerTab is { LoadMoreAsync: not null } tab)
+            await LoadToPositionAsync(tab, position);
+
+        var list = NavList();
+        var target = list.FirstOrDefault(c => c.ViewerPosition == position)
+                     ?? (position <= list.Count ? list[position - 1] : null);
+        if (target != null)
         {
-            tab.NavigateTo(next);
-            _currentCard = null;
-            _ = LoadCardAsync(next);
-            VM.InlineViewerCard = next;
+            NavigateToArtwork(target);
+            box.Text = string.Empty;
         }
-        else
-            VM.OpenInlineViewer(next);
+    }
+
+    private async Task LoadToPositionAsync(ViewerTab tab, int position)
+    {
+        var target = tab.TotalCount > 0 ? Math.Min(position, tab.TotalCount) : position;
+        bool HasReachedTarget() => tab.NavList.Any(c => c.ViewerPosition == target)
+            || (tab.NavList.All(c => c.ViewerPosition == null) && tab.NavList.Count >= target)
+            || tab.NavList.Max(c => c.ViewerPosition ?? 0) >= target;
+        while (!HasReachedTarget())
+        {
+            var before = tab.NavList.Count;
+            await LoadMoreIntoTabAsync(tab);
+            if (tab.NavList.Count == before) break;
+        }
+    }
+
+    private void NavigateToArtwork(ArtworkCardViewModel card)
+    {
+        if (VM == null) return;
+        if (VM.SelectedViewerTab is { } tab)
+            tab.NavigateTo(card);
+        _currentCard = null;
+        VM.InlineViewerCard = card;
     }
 
     private async Task LoadMoreIntoTabAsync(ViewerTab tab)
@@ -1056,10 +1109,10 @@ if (result != null && presetWindow.DownloadClicked)
         try
         {
             var newCards = await tab.LoadMoreAsync();
-            // Extend the tab's nav list with any cards not already present
             var existingIds = new System.Collections.Generic.HashSet<string>(tab.NavList.Select(c => c.Id));
             foreach (var c in newCards)
                 if (existingIds.Add(c.Id)) tab.NavList.Add(c);
+            tab.TotalCount = Math.Max(tab.TotalCount, tab.NavList.Count);
             UpdateArtworkCounter();
         }
         catch { }
@@ -1082,18 +1135,23 @@ if (result != null && presetWindow.DownloadClicked)
             if (idx < 0)
             {
                 ArtworkCounterLabel.Text = "";
+                if (FirstArtworkBtn != null) FirstArtworkBtn.IsEnabled = false;
                 if (PrevArtworkBtn != null) PrevArtworkBtn.IsEnabled = false;
                 if (NextArtworkBtn != null) NextArtworkBtn.IsEnabled = false;
+                if (LastArtworkBtn != null) LastArtworkBtn.IsEnabled = false;
                 return;
             }
             // Use the tab's true total (full artist catalogue) if available
             var tab = VM.SelectedViewerTab;
             var total = (tab != null && tab.TotalCount > list.Count) ? tab.TotalCount : list.Count;
-            ArtworkCounterLabel.Text = $"{idx + 1} / {total}";
+            var position = _currentCard.ViewerPosition ?? idx + 1;
+            ArtworkCounterLabel.Text = $"{position} / {total}";
+            if (FirstArtworkBtn != null) FirstArtworkBtn.IsEnabled = idx > 0;
             if (PrevArtworkBtn != null) PrevArtworkBtn.IsEnabled = idx > 0;
             // Can go next if not at loaded end, or if more can be loaded from source
-            var canGoNext = idx < list.Count - 1 || (tab?.LoadMoreAsync != null);
+            var canGoNext = idx < list.Count - 1 || (tab?.LoadMoreAsync != null && idx + 1 < total);
             if (NextArtworkBtn != null) NextArtworkBtn.IsEnabled = canGoNext;
+            if (LastArtworkBtn != null) LastArtworkBtn.IsEnabled = idx + 1 < total;
         });
     }
 
@@ -1103,7 +1161,7 @@ if (result != null && presetWindow.DownloadClicked)
         NavigateToArtistGallery(_currentCard.UserId);
     }
 
-    private void NavigateToArtistGallery(string userId)
+    private async void NavigateToArtistGallery(string userId)
     {
         // Navigate to Gallery tab and load the artist — keep existing tabs open
         var mainWindow = TopLevel.GetTopLevel(this) as Pikura.Avalonia.Views.MainWindow;
@@ -1112,7 +1170,7 @@ if (result != null && presetWindow.DownloadClicked)
         if (galleryVm.ViewerTabs.Count == 0)
             galleryVm.CloseInlineViewer();
         mainWindow?.LoadGalleryView();
-        _ = galleryVm.LoadArtistByIdCommand.ExecuteAsync(userId);
+        await galleryVm.LoadArtistByIdCommand.ExecuteAsync(userId);
     }
 
     private void OnFollowToggleClicked(object? sender, RoutedEventArgs e)
@@ -1232,14 +1290,12 @@ if (result != null && presetWindow.DownloadClicked)
         if (isShiftPressed)
         {
             // Global Pixiv search
-            vm.CloseInlineViewer();
             if (vm.SearchByTagCommand.CanExecute(tag))
                 _ = vm.SearchByTagCommand.ExecuteAsync(tag);
         }
         else
         {
             // Filter within current artist's gallery
-            vm.CloseInlineViewer();
             vm.TagIncludeFilter = tag;
             vm.ShowFilters = true;
         }
@@ -1273,7 +1329,6 @@ if (result != null && presetWindow.DownloadClicked)
             if (vm == null) return;
             if (TopLevel.GetTopLevel(this) is Pikura.Avalonia.Views.MainWindow main)
                 main.LoadGalleryView();
-            vm.CloseInlineViewer();
             vm.TagIncludeFilter = tag;
             vm.ShowFilters = true;
         };
@@ -1286,7 +1341,6 @@ if (result != null && presetWindow.DownloadClicked)
             if (vm == null) return;
             if (TopLevel.GetTopLevel(this) is Pikura.Avalonia.Views.MainWindow main)
                 main.LoadGalleryView();
-            vm.CloseInlineViewer();
             if (vm.SearchByTagCommand.CanExecute(tag))
                 _ = vm.SearchByTagCommand.ExecuteAsync(tag);
         };
@@ -1355,7 +1409,6 @@ if (result != null && presetWindow.DownloadClicked)
         var vm = VM ?? AppServices.Get<GalleryViewModel>();
         if (vm == null) return;
 
-        vm.CloseInlineViewer();
         vm.TagIncludeFilter = tag;
         vm.ShowFilters = true;
     }

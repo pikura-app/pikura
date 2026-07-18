@@ -12,9 +12,11 @@ using Pikura.Avalonia.Views.Dialogs;
 using Pikura.Avalonia.Views.Gallery;
 using Pikura.Core.Models;
 using Pikura.Core.Settings;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Pikura.Avalonia.Views.Discover;
 
@@ -188,12 +190,22 @@ public partial class DiscoverView : UserControl
         var galleryVm = VM.GalleryVm;
         var src = VM.IsWorksTab ? VM.FilteredWorks.ToList() : VM.FilteredArtistWorks.ToList();
         var target = src.FirstOrDefault(c => c.Id == card.Id) ?? card;
+        var source = VM.IsWorksTab ? "Discover:Works" : $"Discover:Artist:{VM.SelectedUser?.UserId}";
+        Func<Task<IReadOnlyList<ArtworkCardViewModel>>>? loadMore = null;
+        if (VM.IsWorksTab)
+        {
+            loadMore = async () =>
+            {
+                await VM.LoadMoreWorksAsync();
+                return VM.FilteredWorks.ToList();
+            };
+        }
 
         // Ensure all viewers have the right DataContext
         foreach (var v in AllViewers())
             if (v != null && v.DataContext != galleryVm) v.DataContext = galleryVm;
 
-        galleryVm.OpenInViewer(target, src, source: "Discover");
+        galleryVm.OpenInViewer(target, src, loadMoreAsync: loadMore, source: source);
         if (fullScreen)
             VM.IsViewerExpanded = true;
         else
@@ -350,7 +362,19 @@ public partial class DiscoverView : UserControl
     private void OnContextOpenInNewTab(object? sender, RoutedEventArgs e)
     {
         if (GetCardFromMenu(sender) is not { } card || VM == null) return;
-        VM.GalleryVm.OpenInNewTab(card, source: "Discover");
+        var list = VM.IsWorksTab ? VM.FilteredWorks.ToList() : VM.FilteredArtistWorks.ToList();
+        var target = list.FirstOrDefault(c => c.Id == card.Id) ?? card;
+        var source = VM.IsWorksTab ? "Discover:Works" : $"Discover:Artist:{VM.SelectedUser?.UserId}";
+        Func<Task<IReadOnlyList<ArtworkCardViewModel>>>? loadMore = null;
+        if (VM.IsWorksTab)
+        {
+            loadMore = async () =>
+            {
+                await VM.LoadMoreWorksAsync();
+                return VM.FilteredWorks.ToList();
+            };
+        }
+        VM.GalleryVm.OpenInNewTab(target, list, loadMoreAsync: loadMore, source: source);
     }
 
     private async void OnContextOpenPopup(object? sender, RoutedEventArgs e)

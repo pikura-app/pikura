@@ -21,6 +21,18 @@ public partial class EnhancedRankingsView : UserControl
 
     private double _lastSidePanelWidth = 520; // remembered between toggles
 
+    private string RankingViewerSource => VM?.ViewerSourceKey ?? "Rankings";
+
+    private static ArtworkCardViewModel ToViewerCard(RankingCardViewModel card)
+        => new(card.ToPreview()) { ViewerPosition = card.Rank };
+
+    private async System.Threading.Tasks.Task<IReadOnlyList<ArtworkCardViewModel>> LoadMoreRankingCardsAsync()
+    {
+        if (VM == null) return [];
+        await VM.LoadMoreAsync();
+        return VM.FilteredItems.Select(ToViewerCard).ToList();
+    }
+
     public EnhancedRankingsView()
     {
         try
@@ -251,17 +263,19 @@ public partial class EnhancedRankingsView : UserControl
         try
         {
             var galleryVm = AppServices.Get<GalleryViewModel>();
-            // Build (or rebuild) a navigation list spanning every loaded ranking entry.
-            _navCache = new System.Collections.Generic.List<ArtworkCardViewModel>(VM.Items.Count);
+            // Build (or rebuild) a navigation list spanning the currently displayed ranking entries.
+            _navCache = new System.Collections.Generic.List<ArtworkCardViewModel>(VM.FilteredItems.Count);
             ArtworkCardViewModel? selected = null;
-            foreach (var c in VM.Items)
+            foreach (var c in VM.FilteredItems)
             {
-                var vmCard = new ArtworkCardViewModel(c.ToPreview());
+                var vmCard = ToViewerCard(c);
                 _navCache.Add(vmCard);
                 if (c.Id == card.Id) selected = vmCard;
             }
             galleryVm.InlineViewerCardList = _navCache;
-            galleryVm.OpenInViewer(selected ?? _navCache[0], _navCache, source: "Rankings");
+            var total = VM.UsePagination ? _navCache.Count : Math.Max(VM.TotalItems, _navCache.Count);
+            galleryVm.OpenInViewer(selected ?? _navCache[0], _navCache, total,
+                VM.UsePagination ? null : LoadMoreRankingCardsAsync, RankingViewerSource);
             // Open the side panel (same as Gallery/Discover single-click behaviour)
             VM.ShowPreview = true;
         }
@@ -296,12 +310,14 @@ public partial class EnhancedRankingsView : UserControl
         {
             var galleryVm = AppServices.Get<GalleryViewModel>();
             // Build nav list from all loaded ranking items so prev/next works within the ranking
-            var navList = VM?.Items
-                .Select(c => new ArtworkCardViewModel(c.ToPreview()))
+            var navList = VM?.FilteredItems
+                .Select(ToViewerCard)
                 .ToList() as IReadOnlyList<ArtworkCardViewModel>;
             var vmCard = navList?.FirstOrDefault(c => c.Id == card.Id)
-                         ?? new ArtworkCardViewModel(card.ToPreview());
-            galleryVm.OpenInNewTab(vmCard, navList, source: "Rankings");
+                         ?? ToViewerCard(card);
+            var total = VM?.UsePagination == true ? navList?.Count ?? 0 : Math.Max(VM?.TotalItems ?? 0, navList?.Count ?? 0);
+            galleryVm.OpenInNewTab(vmCard, navList, total,
+                VM?.UsePagination == true ? null : LoadMoreRankingCardsAsync, RankingViewerSource);
         }
         catch { /* non-fatal */ }
     }

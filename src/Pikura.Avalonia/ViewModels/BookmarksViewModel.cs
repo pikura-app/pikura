@@ -76,6 +76,7 @@ public partial class BookmarksViewModel : ViewModelBase
     public double FixedCardTotalHeight => CardSize;
     public bool ShowR18Buttons => _settingsService.Current.R18Mode != R18Mode.Off;
     public GalleryViewModel GalleryVm { get; }
+    public string ViewerSourceKey => $"Bookmarks:{SelectedTabIndex}:{ShowR18}:{TagFilter}:{FolderFilter}";
     public bool HasTabs => GalleryVm.HasTabs;
     [ObservableProperty] private bool _isViewerExpanded;
     partial void OnIsViewerExpandedChanged(bool v) { OnPropertyChanged(nameof(IsViewerFullScreen)); OnPropertyChanged(nameof(ShowGridLayer)); OnPropertyChanged(nameof(PublicTabVisible)); OnPropertyChanged(nameof(PrivateTabVisible)); OnPropertyChanged(nameof(FavoritesTabVisible)); }
@@ -333,6 +334,7 @@ public partial class BookmarksViewModel : ViewModelBase
     public async Task LoadMoreAsync()
     {
         if (!CanLoadMore || IsLoading) return;
+        var source = ViewerSourceKey;
         var isPrivate = SelectedTabIndex == 1;
 
         var self = await _pixivClient.ResolveSelfAsync();
@@ -353,6 +355,8 @@ public partial class BookmarksViewModel : ViewModelBase
         {
             IsLoading = false;
             UpdateFiltered();
+            var list = isPrivate ? FilteredPrivate.ToList() : FilteredPublic.ToList();
+            GalleryVm.SyncViewerTabs(source, list, TotalCount);
         }
     }
 

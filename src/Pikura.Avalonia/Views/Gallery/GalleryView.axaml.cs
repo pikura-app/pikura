@@ -298,14 +298,14 @@ public partial class GalleryView : UserControl
     private void OnContextOpenSidePanel(object? sender, RoutedEventArgs e)
     {
         if (GetCardFromMenu(sender) is not { } card || VM == null) return;
-        VM.OpenInViewer(card, VM.FilteredArtworks.ToList(), source: "Gallery");
+        VM.OpenInViewer(card);
         VM.ShowPreview = true;
     }
 
     private void OnContextOpenFullScreen(object? sender, RoutedEventArgs e)
     {
         if (GetCardFromMenu(sender) is not { } card || VM == null) return;
-        VM.OpenInViewer(card, VM.FilteredArtworks.ToList(), source: "Gallery");
+        VM.OpenInViewer(card);
         VM.IsViewerExpanded = true;
     }
 

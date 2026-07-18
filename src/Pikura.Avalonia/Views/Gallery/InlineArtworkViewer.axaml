@@ -139,6 +139,14 @@
                     <TextBlock Name="ArtworkCounterLabel" FontSize="11"
                                Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
                                VerticalAlignment="Center"/>
+                    <TextBox Name="ArtworkJumpBox" Width="52" Height="28" Padding="6,3"
+                             FontSize="11" TextAlignment="Center" VerticalContentAlignment="Center"
+                             PlaceholderText="#" KeyDown="OnArtworkJumpKeyDown"
+                             ToolTip.Tip="Enter an artwork position and press Enter"/>
+                    <Button Name="FirstArtworkBtn" CornerRadius="6" Padding="7,4" FontSize="12"
+                            Click="OnFirstArtwork" ToolTip.Tip="First artwork">
+                        <TextBlock Text="&#x276E;&#x276E;" FontSize="12"/>
+                    </Button>
                     <Button Name="PrevArtworkBtn" CornerRadius="6" Padding="8,4" FontSize="12"
                             Click="OnPrevArtwork" ToolTip.Tip="Previous artwork">
                         <TextBlock Text="&#x276E;" FontSize="13"/>
@@ -146,6 +154,10 @@
                     <Button Name="NextArtworkBtn" CornerRadius="6" Padding="8,4" FontSize="12"
                             Click="OnNextArtwork" ToolTip.Tip="Next artwork">
                         <TextBlock Text="&#x276F;" FontSize="13"/>
+                    </Button>
+                    <Button Name="LastArtworkBtn" CornerRadius="6" Padding="7,4" FontSize="12"
+                            Click="OnLastArtwork" ToolTip.Tip="Last artwork">
+                        <TextBlock Text="&#x276F;&#x276F;" FontSize="12"/>
                     </Button>
                 </StackPanel>
             </Grid>
