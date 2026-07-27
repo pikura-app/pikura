@@ -32,6 +32,9 @@ public partial class DownloadPresetWindow : Window
     private List<PresetViewModel> _presets = new();
     private int _currentImageIndex = 0;
     private int _currentPageIndex = 0;
+    private Dictionary<int, int> _rememberedPageIndex = new();
+    private Dictionary<(int artworkIndex, int pageIndex), ImageEditPreset> _perPagePresets = new();
+    private HashSet<int> _selectedArtworkApplyIndices = new();
     private SKBitmap? _currentOriginalBitmap;
     private ImageEditPreset _currentPreset;
     private CancellationTokenSource? _previewDebounceCts;
@@ -53,6 +56,11 @@ public partial class DownloadPresetWindow : Window
 
     public ImageEditPreset? SelectedPreset { get; private set; }
     public bool DownloadClicked { get; private set; }
+    /// <summary>
+    /// Per-page preset overrides. Key is (artworkIndex, pageIndex).
+    /// Pages without an entry use SelectedPreset as fallback.
+    /// </summary>
+    public IReadOnlyDictionary<(int artworkIndex, int pageIndex), ImageEditPreset> PerPagePresets => _perPagePresets;
 
     public DownloadPresetWindow()
     {
@@ -170,20 +178,42 @@ public partial class DownloadPresetWindow : Window
             return;
         }
 
+        var artwork = GetCurrentArtwork();
         switch (e.Key)
         {
             case global::Avalonia.Input.Key.Left:
             case global::Avalonia.Input.Key.PageUp:
                 e.Handled = true;
-                OnPrevImageClick(sender, new RoutedEventArgs());
+                // Navigate pages within the current artwork first
+                if (artwork != null && artwork.PageCount > 1 && _currentPageIndex > 0)
+                {
+                    _currentPageIndex--;
+                    StopUgoiraPlayback();
+                    await LoadCurrentImageAsync();
+                    UpdateSelectedCount();
+                }
+                else
+                {
+                    OnPrevImageClick(sender, new RoutedEventArgs());
+                }
                 break;
             case global::Avalonia.Input.Key.Right:
             case global::Avalonia.Input.Key.PageDown:
                 e.Handled = true;
-                OnNextImageClick(sender, new RoutedEventArgs());
+                // Navigate pages within the current artwork first
+                if (artwork != null && artwork.PageCount > 1 && _currentPageIndex < artwork.PageCount - 1)
+                {
+                    _currentPageIndex++;
+                    StopUgoiraPlayback();
+                    await LoadCurrentImageAsync();
+                    UpdateSelectedCount();
+                }
+                else
+                {
+                    OnNextImageClick(sender, new RoutedEventArgs());
+                }
                 break;
         }
-        await Task.CompletedTask;
     }
 
     public DownloadPresetWindow(
@@ -202,6 +232,9 @@ public partial class DownloadPresetWindow : Window
 
         // Initialize presets list
         InitializePresets(customPresets);
+
+        // Build the selected-artworks checklist for per-artwork preset application
+        PopulateApplyToArtworksList();
 
         // Update UI
         UpdateSelectedCount();
@@ -269,13 +302,11 @@ public partial class DownloadPresetWindow : Window
                 MultiPageInfoText.Text = $"{totalPages} total pages across {count} submissions";
                 MultiPageInfoText.IsVisible = true;
             }
-            MultiPageOptions.IsVisible = true;
         }
         else
         {
             if (MultiPageInfoText != null)
                 MultiPageInfoText.IsVisible = false;
-            MultiPageOptions.IsVisible = false;
         }
 
         // Note: Ugoira handling is now automatic in Custom Edit - no separate button needed
@@ -345,6 +376,8 @@ public partial class DownloadPresetWindow : Window
             PrevImageButton.IsEnabled = false;
             NextImageButton.IsEnabled = false;
         }
+
+        UpdateAppliedStatus();
     }
 
     private ArtworkPreview? GetCurrentArtwork()
@@ -843,9 +876,11 @@ public partial class DownloadPresetWindow : Window
         // TOP BUTTONS: Navigate between submissions only (NOT pages within submission)
         if (_currentImageIndex > 0)
         {
+            // Remember current page for this artwork
+            _rememberedPageIndex[_currentImageIndex] = _currentPageIndex;
             _currentImageIndex--;
-            // Reset to first page of the new submission
-            _currentPageIndex = 0;
+            // Restore remembered page or start at 0
+            _currentPageIndex = _rememberedPageIndex.GetValueOrDefault(_currentImageIndex, 0);
             // Reset preview flag so spinner shows for new submission
             _hasInitialPreview = false;
             await LoadCurrentImageAsync();
@@ -858,9 +893,11 @@ public partial class DownloadPresetWindow : Window
         // TOP BUTTONS: Navigate between submissions only (NOT pages within submission)
         if (_currentImageIndex < _selectedArtworks.Count - 1)
         {
+            // Remember current page for this artwork
+            _rememberedPageIndex[_currentImageIndex] = _currentPageIndex;
             _currentImageIndex++;
-            // Reset to first page of the new submission
-            _currentPageIndex = 0;
+            // Restore remembered page or start at 0
+            _currentPageIndex = _rememberedPageIndex.GetValueOrDefault(_currentImageIndex, 0);
             // Reset preview flag so spinner shows for new submission
             _hasInitialPreview = false;
             await LoadCurrentImageAsync();
@@ -905,17 +942,21 @@ public partial class DownloadPresetWindow : Window
         if (artwork.PageCount > 1 && _currentPageIndex > 0)
         {
             _currentPageIndex--;
-            // Stop any playing animation before navigating
-            if (UgoiraPlayer != null)
-            {
-                UgoiraPlayer.IsVisible = false;
-                UgoiraPlayer.IsPlaying = false;
-                UgoiraPlayer.SourcePath = null;
-            }
-            if (PreviewImage != null) PreviewImage.IsVisible = true;
+            StopUgoiraPlayback();
             await LoadCurrentImageAsync();
             UpdateSelectedCount();
         }
+    }
+
+    private void StopUgoiraPlayback()
+    {
+        if (UgoiraPlayer != null)
+        {
+            UgoiraPlayer.IsVisible = false;
+            UgoiraPlayer.IsPlaying = false;
+            UgoiraPlayer.SourcePath = null;
+        }
+        if (PreviewImage != null) PreviewImage.IsVisible = true;
     }
 
     private async void OnRightNavClick(object? sender, PointerPressedEventArgs e)
@@ -927,15 +968,9 @@ public partial class DownloadPresetWindow : Window
         if (artwork.PageCount > 1 && _currentPageIndex < artwork.PageCount - 1)
         {
             _currentPageIndex++;
-            // Stop any playing animation before navigating
-            if (UgoiraPlayer != null)
-            {
-                UgoiraPlayer.IsVisible = false;
-                UgoiraPlayer.IsPlaying = false;
-                UgoiraPlayer.SourcePath = null;
-            }
-            if (PreviewImage != null) PreviewImage.IsVisible = true;
+            StopUgoiraPlayback();
             await LoadCurrentImageAsync();
+            UpdateSelectedCount();
         }
     }
 
@@ -1069,30 +1104,12 @@ public partial class DownloadPresetWindow : Window
         }
     }
 
-    private void OnMultiPageOptionChanged(object? sender, RoutedEventArgs e)
+    private void OnDownloadScopeChanged(object? sender, SelectionChangedEventArgs e)
     {
-        // Mutual exclusion: only one checkbox can be checked at a time
-        var changedCheck = sender as CheckBox;
-        if (changedCheck?.IsChecked == true)
+        // Show/hide the pages textbox only when "Selected pages" is chosen
+        if (SelectedPagesTextBox != null && DownloadScopeComboBox != null)
         {
-            // Uncheck all others
-            if (changedCheck != ApplyToAllPagesCheck) ApplyToAllPagesCheck.IsChecked = false;
-            if (changedCheck != CurrentPageOnlyCheck) CurrentPageOnlyCheck.IsChecked = false;
-            if (changedCheck != SelectedOnlyCheck) SelectedOnlyCheck.IsChecked = false;
-        }
-
-        // If none checked, default to ApplyToAllPages
-        if (ApplyToAllPagesCheck.IsChecked != true &&
-            CurrentPageOnlyCheck.IsChecked != true &&
-            SelectedOnlyCheck.IsChecked != true)
-        {
-            ApplyToAllPagesCheck.IsChecked = true;
-        }
-
-        // Show/hide the pages textbox based on SelectedOnlyCheck
-        if (SelectedPagesTextBox != null)
-        {
-            SelectedPagesTextBox.IsVisible = SelectedOnlyCheck.IsChecked == true;
+            SelectedPagesTextBox.IsVisible = DownloadScopeComboBox.SelectedIndex == 3;
         }
     }
 
@@ -1338,33 +1355,334 @@ public partial class DownloadPresetWindow : Window
         return result;
     }
 
+    private void OnApplyToPageClick(object? sender, RoutedEventArgs e)
+    {
+        var artwork = GetCurrentArtwork();
+        if (artwork == null) return;
+
+        var clone = CloneCurrentPreset();
+        _perPagePresets[(_currentImageIndex, _currentPageIndex)] = clone;
+        UpdateAppliedStatus();
+    }
+
+    private void OnApplyToSelectedPagesClick(object? sender, RoutedEventArgs e)
+    {
+        var artwork = GetCurrentArtwork();
+        if (artwork == null) return;
+
+        PopulatePagePicker(artwork.PageCount);
+        (ApplyToSelectedPagesButton?.Flyout as Flyout)?.ShowAt(ApplyToSelectedPagesButton);
+    }
+
+    private bool _isUpdatingPagePickerText;
+
+    private void PopulatePagePicker(int pageCount)
+    {
+        if (PagePickerPanel == null) return;
+
+        PagePickerPanel.Children.Clear();
+        if (pageCount <= 1) return;
+
+        var existingSelection = ParseSelectedPages(SelectedPagesTextBox?.Text ?? "", pageCount);
+
+        if (PagePickerTextBox != null)
+        {
+            _isUpdatingPagePickerText = true;
+            PagePickerTextBox.Text = existingSelection.Count > 0
+                ? string.Join(",", existingSelection.Select(p => p + 1))
+                : "";
+            _isUpdatingPagePickerText = false;
+        }
+
+        for (int i = 0; i < pageCount; i++)
+        {
+            var checkBox = new CheckBox
+            {
+                Content = $"{i + 1}",
+                FontSize = 12,
+                Margin = new global::Avalonia.Thickness(4, 2, 4, 2),
+                IsChecked = existingSelection.Contains(i),
+                Tag = i
+            };
+            checkBox.IsCheckedChanged += OnPagePickerCheckChanged;
+            PagePickerPanel.Children.Add(checkBox);
+        }
+    }
+
+    private void OnPagePickerTextChanged(object? sender, TextChangedEventArgs e)
+    {
+        if (_isUpdatingPagePickerText || PagePickerTextBox == null || PagePickerPanel == null) return;
+
+        var artwork = GetCurrentArtwork();
+        if (artwork == null) return;
+
+        var parsed = ParseSelectedPages(PagePickerTextBox.Text, artwork.PageCount);
+        _isUpdatingPagePickerText = true;
+        foreach (var child in PagePickerPanel.Children)
+        {
+            if (child is CheckBox { Tag: int pageIndex } cb)
+                cb.IsChecked = parsed.Contains(pageIndex);
+        }
+        _isUpdatingPagePickerText = false;
+    }
+
+    private void OnPagePickerCheckChanged(object? sender, RoutedEventArgs e)
+    {
+        if (_isUpdatingPagePickerText || PagePickerTextBox == null || PagePickerPanel == null) return;
+
+        var selected = PagePickerPanel.Children
+            .OfType<CheckBox>()
+            .Where(cb => cb.IsChecked == true)
+            .Select(cb => (int)(cb.Tag ?? 0))
+            .OrderBy(i => i)
+            .Select(i => i + 1);
+
+        _isUpdatingPagePickerText = true;
+        PagePickerTextBox.Text = string.Join(",", selected);
+        _isUpdatingPagePickerText = false;
+    }
+
+    private void OnPagePickerAllClick(object? sender, RoutedEventArgs e)
+    {
+        if (PagePickerPanel == null) return;
+        foreach (var child in PagePickerPanel.Children)
+        {
+            if (child is CheckBox cb) cb.IsChecked = true;
+        }
+    }
+
+    private void OnPagePickerNoneClick(object? sender, RoutedEventArgs e)
+    {
+        if (PagePickerPanel == null) return;
+        foreach (var child in PagePickerPanel.Children)
+        {
+            if (child is CheckBox cb) cb.IsChecked = false;
+        }
+    }
+
+    private void OnPagePickerInvertClick(object? sender, RoutedEventArgs e)
+    {
+        if (PagePickerPanel == null) return;
+        foreach (var child in PagePickerPanel.Children)
+        {
+            if (child is CheckBox cb) cb.IsChecked = !(cb.IsChecked ?? false);
+        }
+    }
+
+    private void OnPagePickerApplyClick(object? sender, RoutedEventArgs e)
+    {
+        var artwork = GetCurrentArtwork();
+        if (artwork == null || PagePickerTextBox == null) return;
+
+        var selectedPages = ParseSelectedPages(PagePickerTextBox.Text, artwork.PageCount);
+        if (selectedPages.Count == 0)
+        {
+            _dialogService?.ShowMessageAsync("Apply to Selected Pages", "No pages selected.");
+            return;
+        }
+
+        // Update the shared textbox so download scope also sees the selection
+        if (SelectedPagesTextBox != null)
+        {
+            SelectedPagesTextBox.Text = string.Join(",", selectedPages.Select(p => p + 1));
+        }
+
+        var clone = CloneCurrentPreset();
+        foreach (var p in selectedPages)
+        {
+            _perPagePresets[(_currentImageIndex, p)] = clone;
+        }
+        UpdateAppliedStatus();
+        (ApplyToSelectedPagesButton?.Flyout as Flyout)?.Hide();
+    }
+
+    private void OnApplyToArtworkClick(object? sender, RoutedEventArgs e)
+    {
+        var artwork = GetCurrentArtwork();
+        if (artwork == null) return;
+
+        for (int p = 0; p < artwork.PageCount; p++)
+        {
+            _perPagePresets[(_currentImageIndex, p)] = CloneCurrentPreset();
+        }
+        UpdateAppliedStatus();
+    }
+
+    private void OnApplyToSelectedArtworksClick(object? sender, RoutedEventArgs e)
+    {
+        if (_selectedArtworkApplyIndices.Count == 0)
+        {
+            _dialogService?.ShowMessageAsync("Apply to Selected Artworks", "No artworks are selected. Check at least one artwork in the list.");
+            return;
+        }
+
+        foreach (var artIndex in _selectedArtworkApplyIndices)
+        {
+            if (artIndex < 0 || artIndex >= _selectedArtworks.Count) continue;
+            var art = _selectedArtworks[artIndex];
+            for (int p = 0; p < art.PageCount; p++)
+            {
+                _perPagePresets[(artIndex, p)] = CloneCurrentPreset();
+            }
+        }
+        UpdateAppliedStatus();
+    }
+
+    private void OnApplyToAllClick(object? sender, RoutedEventArgs e)
+    {
+        for (int i = 0; i < _selectedArtworks.Count; i++)
+        {
+            var art = _selectedArtworks[i];
+            for (int p = 0; p < art.PageCount; p++)
+            {
+                _perPagePresets[(i, p)] = CloneCurrentPreset();
+            }
+        }
+        UpdateAppliedStatus();
+    }
+
+    private void PopulateApplyToArtworksList()
+    {
+        if (ApplyToArtworksStack == null) return;
+
+        ApplyToArtworksStack.Children.Clear();
+
+        for (int i = 0; i < _selectedArtworks.Count; i++)
+        {
+            var artwork = _selectedArtworks[i];
+            var checkBox = new CheckBox
+            {
+                Content = $"{(i + 1)}. {(string.IsNullOrEmpty(artwork.Title) ? "Untitled" : artwork.Title)}  ({artwork.PageCount} page{(artwork.PageCount != 1 ? "s" : "")})",
+                FontSize = 11,
+                IsChecked = _selectedArtworkApplyIndices.Contains(i),
+                Tag = i
+            };
+            checkBox.IsCheckedChanged += (s, e) =>
+            {
+                if (s is CheckBox cb && cb.Tag is int idx)
+                {
+                    if (cb.IsChecked == true)
+                        _selectedArtworkApplyIndices.Add(idx);
+                    else
+                        _selectedArtworkApplyIndices.Remove(idx);
+                }
+            };
+            ApplyToArtworksStack.Children.Add(checkBox);
+        }
+    }
+
+    private ImageEditPreset CloneCurrentPreset()
+    {
+        return new ImageEditPreset
+        {
+            Id = Guid.NewGuid(),
+            Name = _currentPreset.Name,
+            IsBuiltIn = false,
+            DevicePreset = _currentPreset.DevicePreset,
+            ResizeSettings = new ResizeSettings
+            {
+                Mode = _currentPreset.ResizeSettings.Mode,
+                OutputFormat = _currentPreset.ResizeSettings.OutputFormat,
+                JpegQuality = _currentPreset.ResizeSettings.JpegQuality,
+                IsPortrait = _currentPreset.ResizeSettings.IsPortrait,
+                CropOffsetX = _currentPreset.ResizeSettings.CropOffsetX,
+                CropOffsetY = _currentPreset.ResizeSettings.CropOffsetY
+            },
+            Adjustments = new ImageAdjustments
+            {
+                Brightness = _currentPreset.Adjustments.Brightness,
+                Contrast = _currentPreset.Adjustments.Contrast,
+                Saturation = _currentPreset.Adjustments.Saturation,
+                HueRotation = _currentPreset.Adjustments.HueRotation,
+                Temperature = _currentPreset.Adjustments.Temperature,
+                Tint = _currentPreset.Adjustments.Tint,
+                Highlights = _currentPreset.Adjustments.Highlights,
+                Shadows = _currentPreset.Adjustments.Shadows,
+                Sharpness = _currentPreset.Adjustments.Sharpness,
+                BlurRadius = _currentPreset.Adjustments.BlurRadius,
+                VignetteIntensity = _currentPreset.Adjustments.VignetteIntensity,
+                VignetteRadius = _currentPreset.Adjustments.VignetteRadius,
+                ColorOverlayHex = _currentPreset.Adjustments.ColorOverlayHex,
+                ColorOverlayOpacity = _currentPreset.Adjustments.ColorOverlayOpacity,
+                Opacity = _currentPreset.Adjustments.Opacity
+            },
+            CropRegion = _currentPreset.CropRegion,
+            UgoiraMode = _currentPreset.UgoiraMode,
+            UgoiraFormats = _currentPreset.UgoiraFormats?.ToList(),
+            SaveUgoiraFrames = _currentPreset.SaveUgoiraFrames,
+            UgoiraFramesOnly = _currentPreset.UgoiraFramesOnly,
+            SaveAsNew = SaveAsNewRadio.IsChecked == true,
+            ApplyToAllPages = false,
+            DownloadOnlyPagesWithPresets = false,
+            SelectedPageIndices = null,
+            AlsoDownloadUnprocessed = AlsoDownloadUnprocessedCheck?.IsChecked == true
+        };
+    }
+
+    private void UpdateAppliedStatus()
+    {
+        if (AppliedPresetStatus == null) return;
+
+        var appliedCount = _perPagePresets.Count;
+        var totalPages = _selectedArtworks.Sum(a => a.PageCount);
+
+        if (appliedCount > 0)
+        {
+            var currentHasPreset = _perPagePresets.ContainsKey((_currentImageIndex, _currentPageIndex));
+            var statusParts = new List<string>();
+            statusParts.Add($"{appliedCount}/{totalPages} pages have presets applied");
+            if (currentHasPreset)
+                statusParts.Add($"Current page: \"{_perPagePresets[(_currentImageIndex, _currentPageIndex)].Name}\"");
+            AppliedPresetStatus.Text = string.Join(" | ", statusParts);
+            AppliedPresetStatus.IsVisible = true;
+        }
+        else
+        {
+            AppliedPresetStatus.IsVisible = false;
+        }
+    }
+
     private void OnDownloadClick(object? sender, RoutedEventArgs e)
     {
         // Update preset with current options
         _currentPreset.SaveAsNew = SaveAsNewRadio.IsChecked == true;
         _currentPreset.AlsoDownloadUnprocessed = AlsoDownloadUnprocessedCheck?.IsChecked == true;
-        _currentPreset.ApplyToAllPages = ApplyToAllPagesCheck.IsChecked == true;
 
-        // Handle page selection options
-        if (CurrentPageOnlyCheck.IsChecked == true)
+        var scopeIndex = DownloadScopeComboBox?.SelectedIndex ?? 0;
+
+        // Handle download scope
+        switch (scopeIndex)
         {
-            // Only current page
-            _currentPreset.SelectedPageIndices = new List<int> { _currentPageIndex };
-        }
-        else if (SelectedOnlyCheck.IsChecked == true && SelectedPagesTextBox != null)
-        {
-            // Parse selected pages from textbox
-            var currentArtwork = GetCurrentArtwork();
-            if (currentArtwork != null)
-            {
-                var selectedIndices = ParseSelectedPages(SelectedPagesTextBox.Text, currentArtwork.PageCount);
-                _currentPreset.SelectedPageIndices = selectedIndices;
-            }
-        }
-        else
-        {
-            // Apply to all pages
-            _currentPreset.SelectedPageIndices = null;
+            case 0: // All pages
+                _currentPreset.ApplyToAllPages = true;
+                _currentPreset.DownloadOnlyPagesWithPresets = false;
+                _currentPreset.SelectedPageIndices = null;
+                break;
+            case 1: // Pages with presets only
+                _currentPreset.ApplyToAllPages = false;
+                _currentPreset.DownloadOnlyPagesWithPresets = true;
+                _currentPreset.SelectedPageIndices = null;
+                break;
+            case 2: // Current page only
+                _currentPreset.ApplyToAllPages = false;
+                _currentPreset.DownloadOnlyPagesWithPresets = false;
+                _currentPreset.SelectedPageIndices = new List<int> { _currentPageIndex };
+                break;
+            case 3: // Selected pages
+                _currentPreset.ApplyToAllPages = false;
+                _currentPreset.DownloadOnlyPagesWithPresets = false;
+                var currentArtwork = GetCurrentArtwork();
+                if (currentArtwork != null && SelectedPagesTextBox != null)
+                {
+                    _currentPreset.SelectedPageIndices = ParseSelectedPages(
+                        SelectedPagesTextBox.Text, currentArtwork.PageCount);
+                }
+                break;
+            default:
+                _currentPreset.ApplyToAllPages = true;
+                _currentPreset.DownloadOnlyPagesWithPresets = false;
+                _currentPreset.SelectedPageIndices = null;
+                break;
         }
 
         // Capture custom folder from textbox (user may type path instead of browsing)
@@ -1427,6 +1745,13 @@ public partial class DownloadPresetWindow : Window
 
         SelectedPreset = _currentPreset;
         DownloadClicked = true;
+
+        // If any per-page overrides were applied, attach them to the result preset.
+        if (_perPagePresets.Count > 0)
+        {
+            _currentPreset.PerPagePresets = new Dictionary<(int ArtworkIndex, int PageIndex), ImageEditPreset>(_perPagePresets);
+        }
+
         Close(_currentPreset);
     }
 

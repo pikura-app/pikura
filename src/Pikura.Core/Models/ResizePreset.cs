@@ -350,6 +350,17 @@ public class ImageEditPreset
     /// If null/empty, all pages are processed (fallback).
     /// </summary>
     public List<int>? SelectedPageIndices { get; set; }
+    /// <summary>
+    /// When true, only pages that have an explicit per-page preset are downloaded/processed.
+    /// This is computed per artwork using PerPagePresets and the batch artwork index.
+    /// </summary>
+    public bool DownloadOnlyPagesWithPresets { get; set; } = false;
+    /// <summary>
+    /// Per-artwork/per-page preset overrides used by the batch download preset dialog.
+    /// Key: (artwork index among selected artworks, page index within that artwork) -> override preset.
+    /// Entries without a matching override use this preset as fallback.
+    /// </summary>
+    public Dictionary<(int ArtworkIndex, int PageIndex), ImageEditPreset>? PerPagePresets { get; set; }
     public string? CustomOutputFolder { get; set; }
     /// <summary>
     /// When true, downloads an unprocessed copy alongside any processed versions.

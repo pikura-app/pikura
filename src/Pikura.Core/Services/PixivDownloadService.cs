@@ -132,10 +132,33 @@ public sealed class PixivDownloadService
         ArtworkPreview artwork,
         IProgress<DownloadProgress>? progress = null,
         CancellationToken ct = default,
-        SettingsOverride? overrideSettings = null)
+        SettingsOverride? overrideSettings = null,
+        int batchArtworkIndex = -1)
     {
-        // null = "all pages"
-        return DownloadArtworkPagesAsync(artwork, pageIndexes: null, progress, ct, overrideSettings);
+        var preset = overrideSettings?.ImagePreset;
+        IReadOnlyCollection<int>? pageIndexes = null;
+
+        if (batchArtworkIndex >= 0 &&
+            preset?.DownloadOnlyPagesWithPresets == true &&
+            preset.PerPagePresets != null)
+        {
+            pageIndexes = preset.PerPagePresets
+                .Where(kvp => kvp.Key.ArtworkIndex == batchArtworkIndex)
+                .Select(kvp => kvp.Key.PageIndex)
+                .Distinct()
+                .OrderBy(i => i)
+                .ToList();
+        }
+        else if (preset?.SelectedPageIndices is { Count: > 0 } selectedIndices)
+        {
+            pageIndexes = selectedIndices
+                .Where(i => i >= 0 && i < artwork.PageCount)
+                .Distinct()
+                .OrderBy(i => i)
+                .ToList();
+        }
+
+        return DownloadArtworkPagesAsync(artwork, pageIndexes, progress, ct, overrideSettings, batchArtworkIndex);
     }
 
     /// <summary>
@@ -149,7 +172,8 @@ public sealed class PixivDownloadService
         IReadOnlyCollection<int>? pageIndexes,
         IProgress<DownloadProgress>? progress = null,
         CancellationToken ct = default,
-        SettingsOverride? overrideSettings = null)
+        SettingsOverride? overrideSettings = null,
+        int batchArtworkIndex = -1)
     {
         Diag($"=== START artwork {artwork.Id} title='{artwork.Title}' previewPageCount={artwork.PageCount} requestedPages={(pageIndexes is null ? "ALL" : string.Join(",", pageIndexes))}");
 
@@ -423,6 +447,14 @@ public sealed class PixivDownloadService
 
                 // Apply preset post-processing if specified (resize, color adjustments, format conversion)
                 var preset = ovr?.ImagePreset;
+                if (batchArtworkIndex >= 0 && preset?.PerPagePresets != null)
+                {
+                    if (preset.PerPagePresets.TryGetValue((batchArtworkIndex, i), out var pagePreset))
+                    {
+                        preset = pagePreset;
+                        Diag($"  page[{i}] using per-page preset '{preset.Name}' for artwork[{batchArtworkIndex}]");
+                    }
+                }
                 bool needsResize = preset != null
                     && preset.DevicePreset != DevicePreset.Original
                     && preset.DevicePreset != DevicePreset.None;

@@ -267,7 +267,7 @@
                 BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
                 BorderThickness="1,0,0,0"
                 Padding="16">
-            <Grid RowDefinitions="Auto,*,Auto,Auto" RowSpacing="16">
+            <Grid RowDefinitions="Auto,*,Auto,Auto,Auto" RowSpacing="16">
                 <TextBlock Grid.Row="0" Text="Output Options" FontSize="16" FontWeight="Bold"/>
 
                 <!-- Output Options -->
@@ -337,26 +337,6 @@
                                           IsEnabled="{Binding #UgoiraSaveFramesCheck.IsChecked}"
                                           ToolTip.Tip="Download only the individual frames without creating MP4/GIF animation"/>
                             </StackPanel>
-                        </StackPanel>
-
-                        <!-- Multi-page Options -->
-                        <StackPanel x:Name="MultiPageOptions" Spacing="4" IsVisible="False">
-                            <TextBlock Text="Multi-page Options" FontWeight="SemiBold"/>
-                            <CheckBox x:Name="ApplyToAllPagesCheck"
-                                      Content="Apply to all pages"
-                                      IsChecked="True"
-                                      IsCheckedChanged="OnMultiPageOptionChanged"/>
-                            <CheckBox x:Name="CurrentPageOnlyCheck"
-                                      Content="Current page only"
-                                      IsChecked="False"
-                                      IsCheckedChanged="OnMultiPageOptionChanged"/>
-                            <CheckBox x:Name="SelectedOnlyCheck"
-                                      Content="Selected pages only"
-                                      IsChecked="False"
-                                      IsCheckedChanged="OnMultiPageOptionChanged"/>
-                            <TextBox x:Name="SelectedPagesTextBox"
-                                     PlaceholderText="e.g., 1,3,5 or 1-3,6 or 5-6"
-                                     IsVisible="False"/>
                         </StackPanel>
 
                         <!-- Batch Mode (for multi-selection) -->
@@ -434,8 +414,135 @@
                     </StackPanel>
                 </Border>
 
+                <!-- Apply Buttons -->
+                <StackPanel Grid.Row="3" Spacing="6">
+                    <Grid ColumnDefinitions="*,4,*" RowDefinitions="Auto,4,Auto">
+                        <Button x:Name="ApplyToPageButton"
+                                Grid.Row="0" Grid.Column="0"
+                                Content="Page"
+                                HorizontalAlignment="Stretch"
+                                Height="34"
+                                FontSize="12"
+                                Click="OnApplyToPageClick"
+                                ToolTip.Tip="Apply current preset to this page only"/>
+                        <Button x:Name="ApplyToSelectedPagesButton"
+                                Grid.Row="0" Grid.Column="2"
+                                Content="Selected Pages"
+                                HorizontalAlignment="Stretch"
+                                Height="34"
+                                FontSize="12"
+                                Click="OnApplyToSelectedPagesClick"
+                                ToolTip.Tip="Apply current preset to a selected set of pages">
+                            <Button.Flyout>
+                                <Flyout Placement="BottomEdgeAlignedRight"
+                                        ShowMode="TransientWithDismissOnPointerMoveAway">
+                                    <Border Background="{actipro:ThemeResource Container3BackgroundBrush}"
+                                            BorderBrush="{actipro:ThemeResource Container3BorderBrush}"
+                                            BorderThickness="1"
+                                            CornerRadius="6"
+                                            Padding="12"
+                                            Width="280">
+                                        <StackPanel Spacing="10">
+                                            <TextBlock Text="Select pages to apply preset"
+                                                       FontWeight="SemiBold"
+                                                       FontSize="13"/>
+                                            <TextBox x:Name="PagePickerTextBox"
+                                                     Watermark="e.g. 1,3 or 1-4 or 1,2,4"
+                                                     FontSize="12"
+                                                     TextChanged="OnPagePickerTextChanged"/>
+                                            <WrapPanel x:Name="PagePickerPanel"
+                                                       Orientation="Horizontal"
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Top"/>
+                                            <Grid ColumnDefinitions="*,4,*,4,*">
+                                                <Button Grid.Column="0"
+                                                        Content="All"
+                                                        HorizontalAlignment="Stretch"
+                                                        FontSize="11"
+                                                        Click="OnPagePickerAllClick"/>
+                                                <Button Grid.Column="2"
+                                                        Content="None"
+                                                        HorizontalAlignment="Stretch"
+                                                        FontSize="11"
+                                                        Click="OnPagePickerNoneClick"/>
+                                                <Button Grid.Column="4"
+                                                        Content="Invert"
+                                                        HorizontalAlignment="Stretch"
+                                                        FontSize="11"
+                                                        Click="OnPagePickerInvertClick"/>
+                                            </Grid>
+                                            <Button x:Name="PagePickerApplyButton"
+                                                    Content="Apply Preset"
+                                                    HorizontalAlignment="Stretch"
+                                                    Classes="accent"
+                                                    Height="34"
+                                                    Click="OnPagePickerApplyClick"/>
+                                        </StackPanel>
+                                    </Border>
+                                </Flyout>
+                            </Button.Flyout>
+                        </Button>
+                        <Button x:Name="ApplyToArtworkButton"
+                                Grid.Row="2" Grid.Column="0"
+                                Content="Artwork"
+                                HorizontalAlignment="Stretch"
+                                Height="34"
+                                FontSize="12"
+                                Click="OnApplyToArtworkClick"
+                                ToolTip.Tip="Apply current preset to all pages of the current artwork"/>
+                        <Button x:Name="ApplyToAllButton"
+                                Grid.Row="2" Grid.Column="2"
+                                Content="All"
+                                HorizontalAlignment="Stretch"
+                                Height="34"
+                                FontSize="12"
+                                Click="OnApplyToAllClick"
+                                ToolTip.Tip="Apply current preset to all pages of all artworks"/>
+                    </Grid>
+                    <Button x:Name="ApplyToSelectedArtworksButton"
+                            Content="Apply to Selected Artworks"
+                            HorizontalAlignment="Stretch"
+                            Height="34"
+                            FontSize="12"
+                            Click="OnApplyToSelectedArtworksClick"
+                            ToolTip.Tip="Apply current preset to checked artworks in the list below"/>
+                    <Border x:Name="ApplyToArtworksPanel"
+                            Background="{actipro:ThemeResource Container3BackgroundBrush}"
+                            BorderBrush="{actipro:ThemeResource Container3BorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="6"
+                            Padding="8"
+                            IsVisible="True"
+                            MaxHeight="140">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel x:Name="ApplyToArtworksStack" Spacing="4"/>
+                        </ScrollViewer>
+                    </Border>
+                    <TextBlock x:Name="AppliedPresetStatus"
+                               Text=""
+                               FontSize="11"
+                               TextWrapping="Wrap"
+                               HorizontalAlignment="Center"
+                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                               IsVisible="False"/>
+                </StackPanel>
+
                 <!-- Action Buttons -->
-                <StackPanel Grid.Row="3" Spacing="8">
+                <StackPanel Grid.Row="4" Spacing="8">
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="Download Scope" FontWeight="SemiBold"/>
+                        <ComboBox x:Name="DownloadScopeComboBox"
+                                  SelectedIndex="0"
+                                  SelectionChanged="OnDownloadScopeChanged">
+                            <ComboBoxItem Content="All pages"/>
+                            <ComboBoxItem Content="Pages with presets only"/>
+                            <ComboBoxItem Content="Current page only"/>
+                            <ComboBoxItem Content="Selected pages"/>
+                        </ComboBox>
+                        <TextBox x:Name="SelectedPagesTextBox"
+                                 PlaceholderText="e.g., 1,3,5 or 1-3,6 or 5-6"
+                                 IsVisible="False"/>
+                    </StackPanel>
                     <Button x:Name="DownloadButton"
                             Content="⬇ Download"
                             HorizontalAlignment="Stretch"

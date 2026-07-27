@@ -2308,7 +2308,7 @@ public partial class GalleryViewModel : ViewModelBase
                         CurrentBytesSoFar: p.BytesSoFar,
                         CurrentTotalBytes: p.TotalBytes));
                 });
-                var files = await _downloader.DownloadArtworkAsync(card.Artwork, progress, ct, overrideSettings: acctOverride);
+                var files = await _downloader.DownloadArtworkAsync(card.Artwork, progress, ct, overrideSettings: acctOverride, batchArtworkIndex: idx);
                 Interlocked.Increment(ref done);
                 targets[idx].Status = TargetStatus.Completed;
                 targets[idx].DownloadedItems = files.Count;
@@ -2471,7 +2471,7 @@ public partial class GalleryViewModel : ViewModelBase
                         CurrentBytesSoFar: p.BytesSoFar,
                         CurrentTotalBytes: p.TotalBytes));
                 });
-                var files = await _downloader.DownloadArtworkAsync(card.Artwork, progress, ct, overrideSettings: acctOverride);
+                var files = await _downloader.DownloadArtworkAsync(card.Artwork, progress, ct, overrideSettings: acctOverride, batchArtworkIndex: idx);
                 Interlocked.Increment(ref done);
                 targets[idx].Status = TargetStatus.Completed;
                 targets[idx].DownloadedItems = files.Count;
