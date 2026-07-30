@@ -1648,13 +1648,13 @@ if (result != null && presetWindow.DownloadClicked)
 
     private async void OnOpenArtworkFromChat(object? sender, RoutedEventArgs e)
     {
-        if (sender is not Button { Tag: string artworkId }) return;
+        if (sender is not Button { DataContext: AiChatMessage msg } || string.IsNullOrEmpty(msg.ArtworkId)) return;
         try
         {
             var mainWindow = TopLevel.GetTopLevel(this) as Pikura.Avalonia.Views.MainWindow;
             var galleryVm  = AppServices.Get<GalleryViewModel>();
             mainWindow?.LoadGalleryView();
-            await galleryVm.OpenArtworkByIdInNewTabAsync(artworkId);
+            await galleryVm.OpenArtworkByIdInNewTabAsync(msg.ArtworkId);
         }
         catch (Exception ex)
         {
@@ -1663,12 +1663,21 @@ if (result != null && presetWindow.DownloadClicked)
         }
     }
 
-    private void OnOpenUrlFromChat(object? sender, RoutedEventArgs e)
+    private async void OnOpenUrlFromChat(object? sender, RoutedEventArgs e)
     {
-        if (sender is not Button { Tag: string url }) return;
+        if (sender is not Button { DataContext: AiChatMessage msg } || string.IsNullOrEmpty(msg.PixivUrl)) return;
         try
         {
-            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(url) { UseShellExecute = true });
+            var url = new Uri(msg.PixivUrl);
+            var launcher = TopLevel.GetTopLevel(this)?.Launcher;
+            if (launcher != null)
+            {
+                await launcher.LaunchUriAsync(url);
+            }
+            else
+            {
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(msg.PixivUrl) { UseShellExecute = true });
+            }
         }
         catch (Exception ex)
         {
@@ -1679,13 +1688,13 @@ if (result != null && presetWindow.DownloadClicked)
 
     private async void OnOpenArtistFromChat(object? sender, RoutedEventArgs e)
     {
-        if (sender is not Button { Tag: string artistId }) return;
+        if (sender is not Button { DataContext: AiChatMessage msg } || string.IsNullOrEmpty(msg.ArtistId)) return;
         try
         {
             var mainWindow = TopLevel.GetTopLevel(this) as Pikura.Avalonia.Views.MainWindow;
             var galleryVm  = AppServices.Get<GalleryViewModel>();
             mainWindow?.LoadGalleryView();
-            await galleryVm.LoadArtistByIdCommand.ExecuteAsync(artistId);
+            await galleryVm.LoadArtistByIdCommand.ExecuteAsync(msg.ArtistId);
         }
         catch (Exception ex)
         {

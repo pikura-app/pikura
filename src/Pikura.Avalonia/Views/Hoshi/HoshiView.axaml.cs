@@ -102,7 +102,11 @@ public partial class HoshiView : UserControl
     }
 
     /// <summary>The Pixiv artwork ID associated with the current chat context, if any.</summary>
-    private string? GetCurrentArtworkId() => VM?.CurrentCard?.Id ?? VM?.CurrentSession?.PixivArtworkId;
+    /// <remarks>
+    /// Prefer the session's own artwork ID so switching between saved sessions doesn't keep
+    /// using a stale card from the previous session/viewer.
+    /// </remarks>
+    private string? GetCurrentArtworkId() => VM?.CurrentSession?.PixivArtworkId ?? VM?.CurrentCard?.Id;
 
     private void OnMessagesChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
     {
@@ -410,17 +414,17 @@ public partial class HoshiView : UserControl
 
     /// <summary>
     /// Opens a recommended/similar artwork result in a new Gallery viewer tab.
-    /// The artwork ID is passed via the button's Tag property.
+    /// The artwork ID is read from the message's DataContext so it can't be lost by a stale Tag binding.
     /// </summary>
     private async void OnOpenArtworkFromChat(object? sender, RoutedEventArgs e)
     {
-        if (sender is not Button { Tag: string artworkId }) return;
+        if (sender is not Button { DataContext: AiChatMessage msg } || string.IsNullOrEmpty(msg.ArtworkId)) return;
         try
         {
             var mainWindow = TopLevel.GetTopLevel(this) as Pikura.Avalonia.Views.MainWindow;
             var galleryVm  = AppServices.Get<GalleryViewModel>();
             mainWindow?.LoadGalleryView();
-            await galleryVm.OpenArtworkByIdInNewTabAsync(artworkId);
+            await galleryVm.OpenArtworkByIdInNewTabAsync(msg.ArtworkId);
         }
         catch (Exception ex)
         {
@@ -430,14 +434,23 @@ public partial class HoshiView : UserControl
 
     /// <summary>
     /// Opens a Pixiv URL (artwork or artist) from a chat result in the default browser.
-    /// The URL is passed via the button's Tag property.
+    /// The URL is read from the message's DataContext so it can't be lost by a stale Tag binding.
     /// </summary>
-    private void OnOpenUrlFromChat(object? sender, RoutedEventArgs e)
+    private async void OnOpenUrlFromChat(object? sender, RoutedEventArgs e)
     {
-        if (sender is not Button { Tag: string url }) return;
+        if (sender is not Button { DataContext: AiChatMessage msg } || string.IsNullOrEmpty(msg.PixivUrl)) return;
         try
         {
-            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(url) { UseShellExecute = true });
+            var url = new Uri(msg.PixivUrl);
+            var launcher = TopLevel.GetTopLevel(this)?.Launcher;
+            if (launcher != null)
+            {
+                await launcher.LaunchUriAsync(url);
+            }
+            else
+            {
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(msg.PixivUrl) { UseShellExecute = true });
+            }
         }
         catch (Exception ex)
         {
@@ -447,17 +460,17 @@ public partial class HoshiView : UserControl
 
     /// <summary>
     /// Navigates to an artist's gallery from a recommended-artists result.
-    /// The artist ID is passed via the button's Tag property.
+    /// The artist ID is read from the message's DataContext so it can't be lost by a stale Tag binding.
     /// </summary>
     private async void OnOpenArtistFromChat(object? sender, RoutedEventArgs e)
     {
-        if (sender is not Button { Tag: string artistId }) return;
+        if (sender is not Button { DataContext: AiChatMessage msg } || string.IsNullOrEmpty(msg.ArtistId)) return;
         try
         {
             var mainWindow = TopLevel.GetTopLevel(this) as Pikura.Avalonia.Views.MainWindow;
             var galleryVm  = AppServices.Get<GalleryViewModel>();
             mainWindow?.LoadGalleryView();
-            await galleryVm.LoadArtistByIdCommand.ExecuteAsync(artistId);
+            await galleryVm.LoadArtistByIdCommand.ExecuteAsync(msg.ArtistId);
         }
         catch (Exception ex)
         {
