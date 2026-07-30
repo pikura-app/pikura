@@ -1654,11 +1654,25 @@ if (result != null && presetWindow.DownloadClicked)
             var mainWindow = TopLevel.GetTopLevel(this) as Pikura.Avalonia.Views.MainWindow;
             var galleryVm  = AppServices.Get<GalleryViewModel>();
             mainWindow?.LoadGalleryView();
-            await galleryVm.LoadArtworkByIdCommand.ExecuteAsync(artworkId);
+            await galleryVm.OpenArtworkByIdInNewTabAsync(artworkId);
         }
         catch (Exception ex)
         {
             _aiVm.Messages.Add(new AiChatMessage { Role = "system", Content = $"✗ Could not open artwork: {ex.Message}" });
+            RefreshAiMessages();
+        }
+    }
+
+    private void OnOpenUrlFromChat(object? sender, RoutedEventArgs e)
+    {
+        if (sender is not Button { Tag: string url }) return;
+        try
+        {
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(url) { UseShellExecute = true });
+        }
+        catch (Exception ex)
+        {
+            _aiVm.Messages.Add(new AiChatMessage { Role = "system", Content = $"✗ Could not open URL: {ex.Message}" });
             RefreshAiMessages();
         }
     }

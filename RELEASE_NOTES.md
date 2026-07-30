@@ -29,7 +29,8 @@ Local ONNX anime image tagger and a curated recommended-model catalog for Hoshi 
 - **"Similar Art" / "Similar Artists" no longer misfire into each other** (a shared keyword-matching bug), and results are now shuffled/rotated across a larger pool instead of always returning the same picks.
 - **Local Favorites star badge** repositioned to sit consistently at the top-right of a card (was overlapping the selection checkbox in one layout, and floating in an empty gap in others) and now renders as a proper vector icon instead of a plain glyph.
 - **Windows Aero Snap / Snap Layouts / maximize no longer clip window edges** (Avalonia 12.0.3 → 12.1.0 upgrade, plus removal of a redundant legacy resize handler that was fighting the OS's native resize frame).
-- **"View Artwork" from a Hoshi chat result** now correctly opens the inline viewer regardless of which tab (Gallery, Discover, Bookmarks, Rankings) it was triggered from.
+- **"View Artwork" from a Hoshi chat result** now opens the artwork in a **new viewer tab** instead of silently doing nothing, and works for both the full Hoshi tab and the compact inline-viewer Hoshi panel.
+- **"Open URL" quick action** added to Hoshi chat results — opens the artwork or artist Pixiv page directly in the default browser.
 - **"Hoshi is thinking…" indicator** now also shows in the inline viewer's compact Hoshi panel, not just the full Hoshi tab, so it's clear a request is actually in progress.
 
 ### Fixes
@@ -38,6 +39,7 @@ Local ONNX anime image tagger and a curated recommended-model catalog for Hoshi 
 - **App no longer hangs indefinitely when closing the main window** — fixed a UI-thread deadlock in the session-save-on-exit path.
 - **Local-favorite thumbnails permanently failing to load** for artworks added via a Hoshi "Open" action (wrong Pixiv API field mapping) — existing broken entries are now automatically repaired the next time Local Favorites loads.
 - **Followed-artists list fetch no longer fires unbounded concurrent requests** at every startup; it's now throttled and scaled to the device's capability.
+- **Hoshi session duplication** now preserves the linked Pixiv artwork ID, so the top "View Artwork" button stays available on copied sessions.
 
 ---
 

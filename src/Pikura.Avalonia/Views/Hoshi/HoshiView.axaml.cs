@@ -405,12 +405,11 @@ public partial class HoshiView : UserControl
         var mainWindow = TopLevel.GetTopLevel(this) as Pikura.Avalonia.Views.MainWindow;
         var galleryVm = AppServices.Get<GalleryViewModel>();
         mainWindow?.LoadGalleryView();
-        galleryVm.IdSearchQuery = artworkId;
-        await galleryVm.SearchByIdCommand.ExecuteAsync(null);
+        await galleryVm.OpenArtworkByIdInNewTabAsync(artworkId);
     }
 
     /// <summary>
-    /// Opens a recommended/similar artwork result in the Gallery inline viewer.
+    /// Opens a recommended/similar artwork result in a new Gallery viewer tab.
     /// The artwork ID is passed via the button's Tag property.
     /// </summary>
     private async void OnOpenArtworkFromChat(object? sender, RoutedEventArgs e)
@@ -421,11 +420,28 @@ public partial class HoshiView : UserControl
             var mainWindow = TopLevel.GetTopLevel(this) as Pikura.Avalonia.Views.MainWindow;
             var galleryVm  = AppServices.Get<GalleryViewModel>();
             mainWindow?.LoadGalleryView();
-            await galleryVm.LoadArtworkByIdCommand.ExecuteAsync(artworkId);
+            await galleryVm.OpenArtworkByIdInNewTabAsync(artworkId);
         }
         catch (Exception ex)
         {
             VM?.Messages.Add(new AiChatMessage { Role = "system", Content = $"✗ Could not open artwork: {ex.Message}" });
+        }
+    }
+
+    /// <summary>
+    /// Opens a Pixiv URL (artwork or artist) from a chat result in the default browser.
+    /// The URL is passed via the button's Tag property.
+    /// </summary>
+    private void OnOpenUrlFromChat(object? sender, RoutedEventArgs e)
+    {
+        if (sender is not Button { Tag: string url }) return;
+        try
+        {
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(url) { UseShellExecute = true });
+        }
+        catch (Exception ex)
+        {
+            VM?.Messages.Add(new AiChatMessage { Role = "system", Content = $"✗ Could not open URL: {ex.Message}" });
         }
     }
 

@@ -254,14 +254,21 @@
                                             <!-- Quick actions for artwork/artist results -->
                                             <StackPanel Orientation="Horizontal" Spacing="6"
                                                         IsVisible="{Binding HasAnyAction}">
-                                                <Button Content="🖼 Open" Padding="6,2" FontSize="10" CornerRadius="4"
+                                                <Button Content="🖼 View Artwork" Padding="6,2" FontSize="10" CornerRadius="4"
                                                         IsVisible="{Binding HasArtworkAction}"
                                                         Click="OnOpenArtworkFromChat"
-                                                        Tag="{Binding ArtworkId}"/>
+                                                        Tag="{Binding ArtworkId}"
+                                                        ToolTip.Tip="Open this artwork in a new viewer tab"/>
                                                 <Button Content="👤 Gallery" Padding="6,2" FontSize="10" CornerRadius="4"
                                                         IsVisible="{Binding HasArtistAction}"
                                                         Click="OnOpenArtistFromChat"
-                                                        Tag="{Binding ArtistId}"/>
+                                                        Tag="{Binding ArtistId}"
+                                                        ToolTip.Tip="Open this artist's gallery"/>
+                                                <Button Content="🌐 Open URL" Padding="6,2" FontSize="10" CornerRadius="4"
+                                                        IsVisible="{Binding HasUrlAction}"
+                                                        Click="OnOpenUrlFromChat"
+                                                        Tag="{Binding PixivUrl}"
+                                                        ToolTip.Tip="Open this Pixiv page in your browser"/>
                                             </StackPanel>
                                         </StackPanel>
                                     </Border>

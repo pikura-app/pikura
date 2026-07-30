@@ -160,6 +160,7 @@ public sealed class HoshiSessionService
         {
             Title = source.Title + " (copy)",
             ImageSource = source.ImageSource,
+            PixivArtworkId = source.PixivArtworkId,
             ImageBytes  = source.ImageBytes?.ToArray(),
             Messages    = source.Messages.Select(m => new PersistedMessage
             {

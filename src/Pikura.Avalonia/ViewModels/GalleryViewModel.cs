@@ -942,8 +942,41 @@ public partial class GalleryViewModel : ViewModelBase
     [RelayCommand]
     public async Task LoadArtworkByIdAsync(string artworkId)
     {
+        var card = await BuildCardForArtworkAsync(artworkId);
+        if (card == null) return;
+
+        OpenInlineViewer(card);
+        // This command is the entry point for "show this specific artwork" requests that can
+        // originate from anywhere (Hoshi chat's "Open" button, an AI-recommended result, etc.),
+        // including tabs other than Gallery — those callers first switch MainContentControl to
+        // the Gallery view, then call this. But GalleryView's side viewer visibility is gated by
+        // ShowPreview, which was never flipped on here, so the artwork loaded into
+        // InlineViewerCard with nothing on screen to display it if the panel wasn't already
+        // open (e.g. arriving fresh from Discover/Bookmarks/Rankings).
+        ShowPreview = true;
+        StatusMessage = $"Viewing artwork {artworkId}";
+    }
+
+    /// <summary>
+    /// Fetches an artwork by ID and opens it in a new viewer tab. Used by Hoshi chat
+    /// quick actions so each artwork opens in its own tab rather than replacing the
+    /// current one.
+    /// </summary>
+    public async Task OpenArtworkByIdInNewTabAsync(string artworkId)
+    {
+        var card = await BuildCardForArtworkAsync(artworkId);
+        if (card == null) return;
+
+        var list = new List<ArtworkCardViewModel> { card };
+        OpenInNewTab(card, list, list.Count, null, "Hoshi");
+        ShowPreview = true;
+        StatusMessage = $"Opened artwork {artworkId} in a new tab";
+    }
+
+    private async Task<ArtworkCardViewModel?> BuildCardForArtworkAsync(string artworkId)
+    {
         var b = await _pixivClient.GetArtworkDetailAsync(artworkId);
-        if (b == null) { StatusMessage = $"Artwork {artworkId} not found."; return; }
+        if (b == null) { StatusMessage = $"Artwork {artworkId} not found."; return null; }
         var preview = new ArtworkPreview
         {
             Id = b.IllustId ?? artworkId,
@@ -964,16 +997,7 @@ public partial class GalleryViewModel : ViewModelBase
         };
         var vm = new ArtworkCardViewModel(preview) { IsFollowed = IsArtistFollowed(preview.UserId) };
         _ = vm.LoadThumbnailAsync(_imageLoader);
-        OpenInlineViewer(vm);
-        // This command is the entry point for "show this specific artwork" requests that can
-        // originate from anywhere (Hoshi chat's "Open" button, an AI-recommended result, etc.),
-        // including tabs other than Gallery — those callers first switch MainContentControl to
-        // the Gallery view, then call this. But GalleryView's side viewer visibility is gated by
-        // ShowPreview, which was never flipped on here, so the artwork loaded into
-        // InlineViewerCard with nothing on screen to display it if the panel wasn't already
-        // open (e.g. arriving fresh from Discover/Bookmarks/Rankings).
-        ShowPreview = true;
-        StatusMessage = $"Viewing artwork {artworkId}";
+        return vm;
     }
 
     /// <summary>

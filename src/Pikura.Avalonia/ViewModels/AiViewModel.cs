@@ -48,6 +48,13 @@ public partial class AiChatMessage : ObservableObject
     public bool HasArtworkAction => !string.IsNullOrEmpty(ArtworkId);
     public bool HasArtistAction  => !string.IsNullOrEmpty(ArtistId);
     public bool HasAnyAction     => HasArtworkAction || HasArtistAction;
+    public bool HasUrlAction     => !string.IsNullOrEmpty(PixivUrl);
+
+    /// <summary>Pixiv URL for the quick-action "Open URL" button.</summary>
+    public string? PixivUrl =>
+        !string.IsNullOrEmpty(ArtworkId) ? $"https://www.pixiv.net/artworks/{ArtworkId}" :
+        !string.IsNullOrEmpty(ArtistId)  ? $"https://www.pixiv.net/users/{ArtistId}" :
+        null;
 
     /// <summary>Label shown on the message bubble — "You" / "Hoshi" / "System" instead of the raw role string.</summary>
     public string DisplayName => Role switch
