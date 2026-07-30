@@ -106,6 +106,10 @@ public static class AppServices
                 // AI assistant (Ollama)
                 services.AddSingleton<HoshiSessionService>();
                 services.AddSingleton<OllamaService>();
+
+                // Local ONNX anime image tagger
+                services.AddSingleton<AnimeTaggerService>(provider =>
+                    new AnimeTaggerService(provider.GetRequiredService<ILogger<AnimeTaggerService>>()));
                 services.AddSingleton<Pikura.Avalonia.ViewModels.AiViewModel>(provider =>
                     new Pikura.Avalonia.ViewModels.AiViewModel(
                         provider.GetRequiredService<OllamaService>(),
@@ -117,7 +121,8 @@ public static class AppServices
                         provider.GetRequiredService<PixivClient>(),
                         provider.GetRequiredService<PixivImageLoader>(),
                         provider.GetRequiredService<SettingsService>(),
-                        provider.GetRequiredService<ImageLookupService>()));
+                        provider.GetRequiredService<ImageLookupService>(),
+                        provider.GetRequiredService<AnimeTaggerService>()));
 
                 // Update check
                 services.AddSingleton<UpdateCheckService>();
@@ -155,11 +160,21 @@ public static class AppServices
                         provider.GetRequiredService<DownloadJobRepository>(),
                         provider.GetRequiredService<DownloadCoordinator>(),
                         provider.GetRequiredService<AccountService>(),
+                        provider.GetRequiredService<Pikura.Core.Services.DeviceCapabilityService>(),
                         provider.GetRequiredService<ILogger<GalleryViewModel>>()));
                 services.AddTransient<ArtworkDetailViewModel>();
                 services.AddTransient<RankingsViewModel>();
                 services.AddSingleton<EnhancedRankingsViewModel>();
-                services.AddTransient<SettingsViewModel>();
+                services.AddTransient<SettingsViewModel>(provider =>
+                    new SettingsViewModel(
+                        provider.GetRequiredService<SettingsService>(),
+                        provider.GetRequiredService<DialogService>(),
+                        provider.GetRequiredService<PixivClient>(),
+                        provider.GetRequiredService<FilePickerService>(),
+                        provider.GetRequiredService<OllamaService>(),
+                        provider.GetRequiredService<AnimeTaggerService>(),
+                        provider.GetRequiredService<AccountService>(),
+                        provider.GetRequiredService<FfmpegService>()));
                 services.AddSingleton<AnalyticsViewModel>();
                 services.AddTransient<DownloadsViewModel>();
                 services.AddSingleton<DownloadByArtistViewModel>();

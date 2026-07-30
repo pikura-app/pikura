@@ -356,6 +356,20 @@ public class ImageEditPreset
     /// </summary>
     public bool DownloadOnlyPagesWithPresets { get; set; } = false;
     /// <summary>
+    /// When true, all selected artworks are downloaded. When false, only SelectedArtworkIndices are downloaded.
+    /// </summary>
+    public bool DownloadAllArtworks { get; set; } = true;
+    /// <summary>
+    /// When DownloadAllArtworks is false, this contains the 0-based indices of selected artworks to download.
+    /// If null/empty, only the current artwork is downloaded.
+    /// </summary>
+    public List<int>? SelectedArtworkIndices { get; set; }
+    /// <summary>
+    /// Per-artwork page selections. Key: artwork index. Value: 0-based page indices (null = all pages).
+    /// Used by advanced artwork:page download filters.
+    /// </summary>
+    public Dictionary<int, List<int>?>? ArtworkPageSelections { get; set; }
+    /// <summary>
     /// Per-artwork/per-page preset overrides used by the batch download preset dialog.
     /// Key: (artwork index among selected artworks, page index within that artwork) -> override preset.
     /// Entries without a matching override use this preset as fallback.

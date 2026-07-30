@@ -359,7 +359,7 @@
             <Grid RowDefinitions="Auto,*,Auto">
 
                 <!-- Header -->
-                <Grid Grid.Row="0" ColumnDefinitions="*,Auto,Auto,Auto,Auto,Auto"
+                <Grid Grid.Row="0" ColumnDefinitions="Auto,*"
                       Background="{actipro:ThemeResource Container2BackgroundBrush}"
                       Margin="0,0,0,0">
                     <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="6"
@@ -369,29 +369,58 @@
                         <TextBlock Name="AiStatusLabel" FontSize="10"
                                    Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
                                    VerticalAlignment="Center"/>
+                        <Button Content="⤢ Full View" Name="AiFullViewBtn" Click="OnAiFullViewClicked"
+                                CornerRadius="4" Padding="7,3" FontSize="10"
+                                ToolTip.Tip="Continue this chat in the full Hoshi tab"/>
                     </StackPanel>
-                    <!-- Quick action buttons -->
-                    <Button Grid.Column="1" Content="👁 Describe" CornerRadius="4" Padding="7,3" FontSize="10"
-                            Margin="0,4,4,4" Name="AiDescribeBtn" Click="OnAiDescribeClicked"
-                            ToolTip.Tip="Describe this image"/>
-                    <Button Grid.Column="2" Content="🏷 Tags" CornerRadius="4" Padding="7,3" FontSize="10"
-                            Margin="0,4,4,4" Name="AiTagsBtn" Click="OnAiTagsClicked"
-                            ToolTip.Tip="Suggest tags"/>
-                    <Button Grid.Column="3" Content="⭐ Fav" CornerRadius="4" Padding="7,3" FontSize="10"
-                            Margin="0,4,4,4" Name="AiFavBtn" Click="OnAiFavClicked"
-                            ToolTip.Tip="Add to local favorites"/>
-                    <Button Grid.Column="4" Content="↓ DL" CornerRadius="4" Padding="7,3" FontSize="10"
-                            Margin="0,4,4,4" Name="AiDlBtn" Click="OnAiDlClicked"
-                            ToolTip.Tip="Download this artwork"/>
-                    <Button Grid.Column="5" Content="🗑 Clear" CornerRadius="4" Padding="7,3" FontSize="10"
-                            Margin="0,4,8,4" Name="AiClearBtn" Click="OnAiClearClicked"
-                            ToolTip.Tip="Clear chat history"/>
+                    <!-- Quick action buttons — wraps to a second line rather than clipping
+                         when the inline viewer is narrow. -->
+                    <WrapPanel Grid.Column="1" HorizontalAlignment="Right">
+                        <WrapPanel.Styles>
+                            <Style Selector="Button, SplitButton">
+                                <Setter Property="CornerRadius" Value="4"/>
+                                <Setter Property="Padding" Value="7,3"/>
+                                <Setter Property="FontSize" Value="10"/>
+                                <Setter Property="Margin" Value="0,4,4,4"/>
+                            </Style>
+                        </WrapPanel.Styles>
+                        <!-- Single-page submissions get a plain button; the "all pages" dropdown
+                             only appears once a multi-page submission is actually detected
+                             (toggled in code-behind — this control's DataContext is
+                             GalleryViewModel, not AiViewModel, so it can't bind directly). -->
+                        <Button Content="👁 Describe" Name="AiDescribeBtn" Click="OnAiDescribeClicked"
+                                ToolTip.Tip="Describe this image"/>
+                        <SplitButton Content="👁 Describe" Name="AiDescribeSplitBtn" Click="OnAiDescribeClicked"
+                                IsVisible="False"
+                                ToolTip.Tip="Describe this image. Use the arrow to describe all pages.">
+                            <SplitButton.Flyout>
+                                <MenuFlyout Placement="BottomEdgeAlignedLeft">
+                                    <MenuItem Header="👁 Describe current page" Click="OnAiDescribeClicked"/>
+                                    <MenuItem Header="📚 Describe all pages" Click="OnAiAllPagesClicked"
+                                              ToolTip.Tip="Describes every page of a multi-page submission, not just the one you're viewing"/>
+                                </MenuFlyout>
+                            </SplitButton.Flyout>
+                        </SplitButton>
+                        <Button Content="🏷 Tags" Name="AiTagsBtn" Click="OnAiTagsClicked"
+                                ToolTip.Tip="Suggest tags"/>
+                        <Button Content="🖼 Similar Art" Name="AiSimilarArtBtn" Click="OnAiSimilarArtClicked"
+                                ToolTip.Tip="Recommend artworks similar to this image"/>
+                        <Button Content="🧑‍🎨 Similar Artists" Name="AiSimilarArtistsBtn" Click="OnAiSimilarArtistsClicked"
+                                ToolTip.Tip="Recommend artists with a similar style"/>
+                        <Button Content="⭐ Fav" Name="AiFavBtn" Click="OnAiFavClicked"
+                                ToolTip.Tip="Add to local favorites"/>
+                        <Button Content="↓ DL" Name="AiDlBtn" Click="OnAiDlClicked"
+                                ToolTip.Tip="Download this artwork"/>
+                        <Button Content="🗑 Clear" Name="AiClearBtn" Click="OnAiClearClicked" Margin="0,4,8,4"
+                                ToolTip.Tip="Clear chat history"/>
+                    </WrapPanel>
                 </Grid>
 
                 <!-- Message list -->
                 <ScrollViewer Grid.Row="1" Name="AiScrollViewer"
                               HorizontalScrollBarVisibility="Disabled"
                               VerticalScrollBarVisibility="Auto">
+                  <StackPanel>
                     <ItemsControl Name="AiMessagesList" Margin="8,6,8,8">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
@@ -419,9 +448,22 @@
                                             Padding="10,7" Margin="0,0,50,0"
                                             HorizontalAlignment="Left"
                                             MaxWidth="380">
-                                        <ctrl:LinkTextBlock LinkText="{Binding Content}" FontSize="11"
-                                                   TextWrapping="Wrap"
-                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrush}"/>
+                                        <StackPanel Spacing="6">
+                                            <ctrl:LinkTextBlock LinkText="{Binding Content}" FontSize="11"
+                                                       TextWrapping="Wrap"
+                                                       Foreground="{actipro:ThemeResource DefaultForegroundBrush}"/>
+                                            <StackPanel Orientation="Horizontal" Spacing="6"
+                                                        IsVisible="{Binding HasAnyAction}">
+                                                <Button Content="🖼 Open" Padding="5,2" FontSize="10" CornerRadius="4"
+                                                        IsVisible="{Binding HasArtworkAction}"
+                                                        Click="OnOpenArtworkFromChat"
+                                                        Tag="{Binding ArtworkId}"/>
+                                                <Button Content="👤 Gallery" Padding="5,2" FontSize="10" CornerRadius="4"
+                                                        IsVisible="{Binding HasArtistAction}"
+                                                        Click="OnOpenArtistFromChat"
+                                                        Tag="{Binding ArtistId}"/>
+                                            </StackPanel>
+                                        </StackPanel>
                                     </Border>
                                     <!-- System note -->
                                     <Border IsVisible="{Binding IsSystem}"
@@ -435,6 +477,42 @@
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
+                    <!-- "Hoshi is thinking…" indicator — this control's DataContext is
+                         GalleryViewModel, not AiViewModel, so IsVisible is toggled in
+                         code-behind (see UpdateThinkingIndicator) instead of a direct binding. -->
+                    <StackPanel HorizontalAlignment="Center" Margin="0,8" Name="AiThinkingIndicator" IsVisible="False">
+                        <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
+                                CornerRadius="12" Padding="12,6"
+                                BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                                BorderThickness="1">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <TextBlock Text="&#10022;" FontSize="10" VerticalAlignment="Center"
+                                           Foreground="#FFD6BAFF">
+                                    <TextBlock.Styles>
+                                        <Style Selector="TextBlock">
+                                            <Style.Animations>
+                                                <Animation Duration="0:0:1.2" IterationCount="INFINITE">
+                                                    <KeyFrame Cue="0%">
+                                                        <Setter Property="Opacity" Value="1"/>
+                                                    </KeyFrame>
+                                                    <KeyFrame Cue="50%">
+                                                        <Setter Property="Opacity" Value="0.3"/>
+                                                    </KeyFrame>
+                                                    <KeyFrame Cue="100%">
+                                                        <Setter Property="Opacity" Value="1"/>
+                                                    </KeyFrame>
+                                                </Animation>
+                                            </Style.Animations>
+                                        </Style>
+                                    </TextBlock.Styles>
+                                </TextBlock>
+                                <TextBlock Text="Hoshi is thinking…" FontSize="11"
+                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                           FontStyle="Italic" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                  </StackPanel>
                 </ScrollViewer>
 
                 <!-- Input row -->

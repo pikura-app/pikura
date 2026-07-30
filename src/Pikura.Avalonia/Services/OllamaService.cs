@@ -147,7 +147,12 @@ public sealed class OllamaService : IDisposable
         var visionModel = GetVisionModel();
         _client!.SelectedModel = visionModel;
         var visionChat = new Chat(_client);
-        var imageB64 = Convert.ToBase64String(ResizeForVision(imageBytes));
+        // async IAsyncEnumerable methods run synchronously up to the first `await` on whatever
+        // thread calls MoveNextAsync — for a UI-triggered SendAsync that's the UI thread. Decoding
+        // and re-encoding a full-size Pixiv image (up to ~5000x7000px) on that thread could
+        // freeze/hang the window for a moment before the first token streams back, which read as
+        // an "almost crash". Push it to a background thread so the UI never blocks on it.
+        var imageB64 = Convert.ToBase64String(await Task.Run(() => ResizeForVision(imageBytes), ct).ConfigureAwait(false));
         await foreach (var token in visionChat.SendAsync(userMessage, [imageB64], ct).ConfigureAwait(false))
         {
             if (!string.IsNullOrEmpty(token))
@@ -193,7 +198,7 @@ public sealed class OllamaService : IDisposable
     // ── Model management (public API for settings UI) ────────────────────────
 
     /// <summary>Info about an installed Ollama model.</summary>
-    public sealed record InstalledModel(string Name, long SizeBytes, DateTime ModifiedAt);
+    public sealed record InstalledModel(string Name, long SizeBytes, DateTime ModifiedAt, bool SupportsVision);
 
     /// <summary>Progress info while pulling a model.</summary>
     public sealed record ModelPullProgress(string Status, long Completed, long Total)
@@ -211,16 +216,35 @@ public sealed class OllamaService : IDisposable
         await EnsureOllamaRunningAsync(ct);
     }
 
-    /// <summary>Lists installed Ollama models on the local machine.</summary>
+    /// <summary>Lists installed Ollama models on the local machine, including whether each supports vision input.</summary>
     public async Task<IReadOnlyList<InstalledModel>> ListInstalledModelsAsync(CancellationToken ct = default)
     {
         await EnsureClientAvailableAsync(ct);
         var models = await _client!.ListLocalModelsAsync(ct);
-        return models
-            .Select(m => new InstalledModel(
-                m.Name ?? "",
-                m.Size,
-                m.ModifiedAt))
+
+        // Query capabilities (completion/vision/tools/...) for each model in parallel so the
+        // Text/Vision dropdowns can be filtered to models that actually support each mode.
+        var withCapabilities = await Task.WhenAll(models.Select(async m =>
+        {
+            bool supportsVision = false;
+            try
+            {
+                var info = await _client!.ShowModelAsync(new OllamaSharp.Models.ShowModelRequest { Model = m.Name }, ct);
+                supportsVision = info?.Capabilities?.Contains("vision", StringComparer.OrdinalIgnoreCase) == true;
+            }
+            catch
+            {
+                // Fall back to a name-based heuristic if /api/show fails for this model.
+                supportsVision = m.Name is { } n && (
+                    n.Contains("llava", StringComparison.OrdinalIgnoreCase) ||
+                    n.Contains("moondream", StringComparison.OrdinalIgnoreCase) ||
+                    n.Contains("vision", StringComparison.OrdinalIgnoreCase) ||
+                    n.Contains("-vl", StringComparison.OrdinalIgnoreCase));
+            }
+            return new InstalledModel(m.Name ?? "", m.Size, m.ModifiedAt, supportsVision);
+        }));
+
+        return withCapabilities
             .OrderBy(m => m.Name, StringComparer.OrdinalIgnoreCase)
             .ToList();
     }

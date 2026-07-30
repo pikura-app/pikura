@@ -236,6 +236,9 @@ public partial class DownloadPresetWindow : Window
         // Build the selected-artworks checklist for per-artwork preset application
         PopulateApplyToArtworksList();
 
+        // Initialize the download artwork selection controls
+        InitializeDownloadArtworksSelection();
+
         // Update UI
         UpdateSelectedCount();
         _ = LoadCurrentImageAsync();
@@ -1113,6 +1116,107 @@ public partial class DownloadPresetWindow : Window
         }
     }
 
+    private void InitializeDownloadArtworksSelection()
+    {
+        if (DownloadArtworksComboBox == null) return;
+
+        DownloadArtworksComboBox.Items.Clear();
+        DownloadArtworksComboBox.Items.Add(new ComboBoxItem { Content = "Current artwork only" });
+
+        if (_selectedArtworks.Count > 1)
+        {
+            DownloadArtworksComboBox.Items.Add(new ComboBoxItem { Content = "All selected artworks" });
+            DownloadArtworksComboBox.Items.Add(new ComboBoxItem { Content = "Selected artworks" });
+        }
+
+        DownloadArtworksComboBox.SelectedIndex = _selectedArtworks.Count > 1 ? 1 : 0;
+        OnDownloadArtworksChanged(DownloadArtworksComboBox, new SelectionChangedEventArgs(null, Array.Empty<object>(), Array.Empty<object>()));
+    }
+
+    private void OnDownloadArtworksChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        if (DownloadArtworksComboBox == null || DownloadArtworksTextBox == null) return;
+
+        var selected = DownloadArtworksComboBox.SelectedItem as ComboBoxItem;
+        var text = selected?.Content?.ToString() ?? "";
+        DownloadArtworksTextBox.IsVisible = text == "Selected artworks";
+    }
+
+    /// <summary>
+    /// Parses simple artwork selection text (e.g., "1,3,5" or "1-3") into 0-based artwork indices.
+    /// Stops at the first colon if advanced artwork:page syntax is present.
+    /// </summary>
+    private List<int> ParseSelectedArtworks(string input, int totalArtworks)
+    {
+        var result = new List<int>();
+        if (string.IsNullOrWhiteSpace(input) || totalArtworks <= 0) return result;
+
+        var simplePart = input.Split(':', StringSplitOptions.RemoveEmptyEntries)[0].Trim();
+        simplePart = System.Text.RegularExpressions.Regex.Replace(simplePart, @"(?i)\bartwork\s*", "").Trim();
+
+        var parts = simplePart.Split(',', StringSplitOptions.RemoveEmptyEntries);
+        foreach (var part in parts)
+        {
+            var trimmed = part.Trim();
+            if (string.IsNullOrEmpty(trimmed)) continue;
+
+            if (trimmed.Contains('-'))
+            {
+                var rangeParts = trimmed.Split('-');
+                if (rangeParts.Length == 2 &&
+                    int.TryParse(rangeParts[0].Trim(), out var start) &&
+                    int.TryParse(rangeParts[1].Trim(), out var end))
+                {
+                    start = Math.Max(1, Math.Min(start, totalArtworks));
+                    end = Math.Max(1, Math.Min(end, totalArtworks));
+                    for (var i = start; i <= end; i++)
+                        result.Add(i - 1);
+                }
+            }
+            else if (int.TryParse(trimmed, out var num))
+            {
+                num = Math.Max(1, Math.Min(num, totalArtworks));
+                result.Add(num - 1);
+            }
+        }
+
+        return result.Distinct().OrderBy(i => i).ToList();
+    }
+
+    /// <summary>
+    /// Parses advanced artwork:page selection syntax.
+    /// Examples: "1-3:1-2,5" or "artwork 1-3: page 1-2,5; artwork 6: page 3".
+    /// Returns a dictionary of artwork index -> page indices (null means all pages).
+    /// </summary>
+    private Dictionary<int, List<int>?> ParseArtworkPageSelections(string input, int totalArtworks)
+    {
+        var result = new Dictionary<int, List<int>?>();
+        if (string.IsNullOrWhiteSpace(input) || totalArtworks <= 0 || !input.Contains(':')) return result;
+
+        var groups = input.Split(';', StringSplitOptions.RemoveEmptyEntries);
+        foreach (var group in groups)
+        {
+            var trimmedGroup = group.Trim();
+            if (!trimmedGroup.Contains(':')) continue;
+
+            var parts = trimmedGroup.Split(':', 2);
+            var artworkPart = System.Text.RegularExpressions.Regex.Replace(parts[0].Trim(), @"(?i)\bartwork\s*", "").Trim();
+            var pagePart = System.Text.RegularExpressions.Regex.Replace(parts[1].Trim(), @"(?i)\bpage\s*", "").Trim();
+
+            var artworkIndices = ParseSelectedArtworks(artworkPart, totalArtworks);
+            var pageIndices = ParseSelectedPages(pagePart, totalArtworks);
+
+            foreach (var artIndex in artworkIndices)
+            {
+                var maxPages = artIndex < _selectedArtworks.Count ? _selectedArtworks[artIndex].PageCount : 1;
+                var clampedPages = pageIndices.Where(p => p >= 0 && p < maxPages).ToList();
+                result[artIndex] = clampedPages.Count > 0 ? clampedPages : null;
+            }
+        }
+
+        return result;
+    }
+
     /// <summary>
     /// Parses the selected pages text (e.g., "1,3,5" or "1-3,6") into a list of 0-based page indices.
     /// </summary>
@@ -1682,6 +1786,35 @@ public partial class DownloadPresetWindow : Window
                 _currentPreset.ApplyToAllPages = true;
                 _currentPreset.DownloadOnlyPagesWithPresets = false;
                 _currentPreset.SelectedPageIndices = null;
+                break;
+        }
+
+        // Handle artwork download selection
+        var artworkModeText = (DownloadArtworksComboBox?.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "";
+        switch (artworkModeText)
+        {
+            case "Current artwork only":
+                _currentPreset.DownloadAllArtworks = false;
+                _currentPreset.SelectedArtworkIndices = new List<int> { _currentImageIndex };
+                _currentPreset.ArtworkPageSelections = null;
+                break;
+            case "All selected artworks":
+                _currentPreset.DownloadAllArtworks = true;
+                _currentPreset.SelectedArtworkIndices = null;
+                _currentPreset.ArtworkPageSelections = null;
+                break;
+            case "Selected artworks":
+                _currentPreset.DownloadAllArtworks = false;
+                var artworkInput = DownloadArtworksTextBox?.Text ?? "";
+                _currentPreset.SelectedArtworkIndices = ParseSelectedArtworks(artworkInput, _selectedArtworks.Count);
+                _currentPreset.ArtworkPageSelections = artworkInput.Contains(':')
+                    ? ParseArtworkPageSelections(artworkInput, _selectedArtworks.Count)
+                    : null;
+                break;
+            default:
+                _currentPreset.DownloadAllArtworks = true;
+                _currentPreset.SelectedArtworkIndices = null;
+                _currentPreset.ArtworkPageSelections = null;
                 break;
         }
 

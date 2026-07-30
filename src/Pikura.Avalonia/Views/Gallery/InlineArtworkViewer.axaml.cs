@@ -148,8 +148,15 @@ public partial class InlineArtworkViewer : UserControl
             if (e.PropertyName == nameof(AiViewModel.StatusText) && AiStatusLabel != null)
                 Dispatcher.UIThread.Post(() => AiStatusLabel.Text = _aiVm.StatusText);
             if (e.PropertyName == nameof(AiViewModel.IsThinking))
+            {
                 RefreshAiMessages();
+                Dispatcher.UIThread.Post(UpdateThinkingIndicator);
+            }
+            if (e.PropertyName == nameof(AiViewModel.IsCurrentSubmissionMultiPage))
+                Dispatcher.UIThread.Post(UpdateDescribeButtonVisibility);
         };
+        UpdateDescribeButtonVisibility();
+        UpdateThinkingIndicator();
         // On new message: hook content streaming for auto-scroll, then refresh
         _aiVm.Messages.CollectionChanged += (_, e) =>
         {
@@ -405,7 +412,11 @@ public partial class InlineArtworkViewer : UserControl
 
         _currentCard = card;
         _aiVm.CurrentImageBytes = null;
-        _aiVm.SwitchToArtworkSession(card);
+        // Capture the resolved session by value — if the user switches to another
+        // artwork before the fetches below complete, late-arriving bytes must still
+        // land on THIS session (not whatever session happens to be "current" later),
+        // otherwise the image silently never gets persisted for this artwork.
+        var session = _aiVm.SwitchToArtworkSession(card);
 
         // Seed Hoshi's vision bytes with the *thumbnail* immediately so the user
         // can hit "Describe"/"Tags" the moment the card opens — without this seed
@@ -414,22 +425,20 @@ public partial class InlineArtworkViewer : UserControl
         // ability to see the image." The Regular fetch in RenderPageAsync will
         // upgrade these bytes when it lands.
         var thumbUrl = card.ThumbnailUrl;
-        if (!string.IsNullOrEmpty(thumbUrl))
+        if (!string.IsNullOrEmpty(thumbUrl) && session != null)
         {
             _ = Task.Run(async () =>
             {
                 try
                 {
                     var thumbBytes = await _imageLoader.FetchBytesAsync(thumbUrl, ct);
-                    if (ct.IsCancellationRequested || thumbBytes is null) return;
-                    // Don't clobber a higher-res Regular that already arrived.
-                    if (_aiVm.CurrentImageBytes is { Length: > 0 }) return;
-                    if (_currentCard?.Id != card.Id) return;
+                    if (thumbBytes is null) return;
+                    // Don't clobber a higher-res Regular that already arrived for this session.
+                    if (session.ImageBytes is { Length: > 0 }) return;
                     await Dispatcher.UIThread.InvokeAsync(() =>
                     {
-                        if (_currentCard?.Id == card.Id
-                            && _aiVm.CurrentImageBytes is not { Length: > 0 })
-                            _aiVm.CurrentImageBytes = thumbBytes;
+                        if (session.ImageBytes is not { Length: > 0 })
+                            _aiVm.SetSessionImageBytes(session, thumbBytes);
                     });
                 }
                 catch (OperationCanceledException) { /* card switched */ }
@@ -464,7 +473,7 @@ public partial class InlineArtworkViewer : UserControl
                 if (ct.IsCancellationRequested) return;
                 _pages = pages;
                 UpdatePageIndicator();
-                succeeded = await RenderPageAsync(_currentPageIndex, ct);
+                succeeded = await RenderPageAsync(_currentPageIndex, ct, session);
             }
         }
         catch (OperationCanceledException) { /* expected on rapid switch */ }
@@ -498,8 +507,9 @@ public partial class InlineArtworkViewer : UserControl
         }
     }
 
-    private async Task<bool> RenderPageAsync(int index, CancellationToken ct = default)
+    private async Task<bool> RenderPageAsync(int index, CancellationToken ct = default, HoshiSession? session = null)
     {
+        session ??= _aiVm.CurrentSession;
         if (_pages.Count == 0 || index < 0 || index >= _pages.Count) return false;
         SetLoading(true);
         var displayed = false;
@@ -529,11 +539,16 @@ public partial class InlineArtworkViewer : UserControl
         if (!string.IsNullOrEmpty(url))
         {
             var bytes = await _imageLoader.FetchBytesAsync(url, ct);
-            if (ct.IsCancellationRequested) return false;
             if (bytes != null)
             {
-                // Store for AI vision queries
-                _aiVm.CurrentImageBytes = bytes;
+                // Upgrade the session's vision bytes to this higher-res Regular image
+                // (the thumbnail seed in LoadCardAsync only covers the moment before
+                // this fetch lands). Persist directly to the captured session so a
+                // late-arriving fetch can't corrupt whatever session is "current" now.
+                if (session != null)
+                    _aiVm.SetSessionImageBytes(session, bytes);
+
+                if (ct.IsCancellationRequested) return false;
 
                 // Decode off the UI thread — large Regular images can take 50–200 ms
                 // to decode and would otherwise freeze scrolling/typing during the swap.
@@ -1284,6 +1299,11 @@ if (result != null && presetWindow.DownloadClicked)
         if (TopLevel.GetTopLevel(this) is Pikura.Avalonia.Views.MainWindow main)
             main.LoadGalleryView();
 
+        // Collapse the fullscreen viewer so the filtered/searched grid underneath
+        // is actually visible — otherwise the filter is applied but hidden behind
+        // the viewer overlay and the click appears to do nothing.
+        vm.IsViewerExpanded = false;
+
         // Shift+click = global Pixiv search; regular click = filter within current artist
         bool isShiftPressed = (e.KeyModifiers & KeyModifiers.Shift) == KeyModifiers.Shift;
 
@@ -1329,6 +1349,7 @@ if (result != null && presetWindow.DownloadClicked)
             if (vm == null) return;
             if (TopLevel.GetTopLevel(this) is Pikura.Avalonia.Views.MainWindow main)
                 main.LoadGalleryView();
+            vm.IsViewerExpanded = false;
             vm.TagIncludeFilter = tag;
             vm.ShowFilters = true;
         };
@@ -1341,6 +1362,7 @@ if (result != null && presetWindow.DownloadClicked)
             if (vm == null) return;
             if (TopLevel.GetTopLevel(this) is Pikura.Avalonia.Views.MainWindow main)
                 main.LoadGalleryView();
+            vm.IsViewerExpanded = false;
             if (vm.SearchByTagCommand.CanExecute(tag))
                 _ = vm.SearchByTagCommand.ExecuteAsync(tag);
         };
@@ -1552,11 +1574,55 @@ if (result != null && presetWindow.DownloadClicked)
         await _aiVm.SendAsync();
     }
 
+    private void OnAiFullViewClicked(object? sender, RoutedEventArgs e)
+    {
+        // AiViewModel is a singleton shared with the standalone Hoshi tab, so switching there
+        // just re-hosts the exact same session/messages in the bigger view — nothing to copy.
+        var mainWindow = TopLevel.GetTopLevel(this) as Pikura.Avalonia.Views.MainWindow;
+        mainWindow?.LoadHoshiView();
+    }
+
+    /// <summary>
+    /// Swaps between the plain "Describe" button and the "Describe" dropdown (with the
+    /// "all pages" option) based on whether the open submission actually has more than one
+    /// page. This control's DataContext is GalleryViewModel, not AiViewModel, so it can't bind
+    /// to AiViewModel.IsCurrentSubmissionMultiPage directly — toggled here instead.
+    /// </summary>
+    private void UpdateDescribeButtonVisibility()
+    {
+        var isMultiPage = _aiVm.IsCurrentSubmissionMultiPage;
+        if (AiDescribeBtn != null) AiDescribeBtn.IsVisible = !isMultiPage;
+        if (AiDescribeSplitBtn != null) AiDescribeSplitBtn.IsVisible = isMultiPage;
+    }
+
+    /// <summary>
+    /// Shows/hides the "Hoshi is thinking…" bubble so it's obvious a request (Describe, Tags,
+    /// Similar Art, etc.) is actually in flight instead of the panel just looking stuck —
+    /// this control's DataContext is GalleryViewModel, not AiViewModel, so it can't bind to
+    /// AiViewModel.IsThinking directly.
+    /// </summary>
+    private void UpdateThinkingIndicator()
+    {
+        if (AiThinkingIndicator == null) return;
+        AiThinkingIndicator.IsVisible = _aiVm.IsThinking;
+        if (_aiVm.IsThinking)
+            ScrollToBottomDeferred();
+    }
+
     private async void OnAiDescribeClicked(object? sender, RoutedEventArgs e)
         => await _aiVm.DescribeImageAsync();
 
     private async void OnAiTagsClicked(object? sender, RoutedEventArgs e)
         => await _aiVm.SuggestTagsAsync();
+
+    private async void OnAiAllPagesClicked(object? sender, RoutedEventArgs e)
+        => await _aiVm.DescribeAllPagesCommand.ExecuteAsync(null);
+
+    private async void OnAiSimilarArtClicked(object? sender, RoutedEventArgs e)
+        => await _aiVm.FindSimilarArtworksCommand.ExecuteAsync(null);
+
+    private async void OnAiSimilarArtistsClicked(object? sender, RoutedEventArgs e)
+        => await _aiVm.FindSimilarArtistsCommand.ExecuteAsync(null);
 
     private void OnAiFavClicked(object? sender, RoutedEventArgs e)
     {
@@ -1579,4 +1645,38 @@ if (result != null && presetWindow.DownloadClicked)
 
     private void OnAiClearClicked(object? sender, RoutedEventArgs e)
         => _aiVm.ClearChat();
+
+    private async void OnOpenArtworkFromChat(object? sender, RoutedEventArgs e)
+    {
+        if (sender is not Button { Tag: string artworkId }) return;
+        try
+        {
+            var mainWindow = TopLevel.GetTopLevel(this) as Pikura.Avalonia.Views.MainWindow;
+            var galleryVm  = AppServices.Get<GalleryViewModel>();
+            mainWindow?.LoadGalleryView();
+            await galleryVm.LoadArtworkByIdCommand.ExecuteAsync(artworkId);
+        }
+        catch (Exception ex)
+        {
+            _aiVm.Messages.Add(new AiChatMessage { Role = "system", Content = $"✗ Could not open artwork: {ex.Message}" });
+            RefreshAiMessages();
+        }
+    }
+
+    private async void OnOpenArtistFromChat(object? sender, RoutedEventArgs e)
+    {
+        if (sender is not Button { Tag: string artistId }) return;
+        try
+        {
+            var mainWindow = TopLevel.GetTopLevel(this) as Pikura.Avalonia.Views.MainWindow;
+            var galleryVm  = AppServices.Get<GalleryViewModel>();
+            mainWindow?.LoadGalleryView();
+            await galleryVm.LoadArtistByIdCommand.ExecuteAsync(artistId);
+        }
+        catch (Exception ex)
+        {
+            _aiVm.Messages.Add(new AiChatMessage { Role = "system", Content = $"✗ Could not open artist gallery: {ex.Message}" });
+            RefreshAiMessages();
+        }
+    }
 }

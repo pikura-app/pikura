@@ -536,6 +536,21 @@ public sealed class AppSettings
     /// <summary>When true, Hoshi AI is enabled by default on startup.</summary>
     public bool HoshiEnabled { get; set; } = false;
 
+    /// <summary>When true, use the local ONNX anime tagger for image tagging.</summary>
+    public bool HoshiUseAnimeTagger { get; set; } = false;
+
+    /// <summary>Key of the active ONNX anime tagger model (matches KnownAnimeTaggerModels).</summary>
+    public string HoshiAnimeTaggerModel { get; set; } = "wd-swinv2-tagger-v3";
+
+    /// <summary>Confidence threshold for anime tagger predictions.</summary>
+    public double HoshiAnimeTaggerThreshold { get; set; } = 0.35;
+
+    /// <summary>Maximum number of tags returned by the anime tagger.</summary>
+    public int HoshiAnimeTaggerMaxTags { get; set; } = 50;
+
+    /// <summary>When true, automatically tag downloaded images with the anime tagger.</summary>
+    public bool HoshiAnimeTaggerAutoTagDownloads { get; set; } = false;
+
     #endregion
 
     #region Diagnostics

@@ -1,3 +1,4 @@
+using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -9,6 +10,7 @@ using Pikura.Core.Models;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,10 +23,43 @@ public partial class AiChatMessage : ObservableObject
     public string Role { get; init; } = "user";      // "user" | "assistant" | "system"
     [ObservableProperty] private string _content = string.Empty;
     public byte[]? ImageBytes { get; init; }         // Optional image to display inline
+    public Bitmap? ImageSource
+    {
+        get
+        {
+            // Always create a fresh bitmap from the stored bytes. This avoids the thumbnail
+            // disappearing when the chat control is detached and re-attached (Avalonia disposes
+            // the previous Bitmap when the visual leaves the tree, so a cached one would stay dead).
+            if (ImageBytes is { Length: > 0 })
+            {
+                try { using var ms = new MemoryStream(ImageBytes); return new Bitmap(ms); }
+                catch { /* best-effort: leave null if bytes are invalid */ }
+            }
+            return null;
+        }
+    }
+
+    public string? ArtworkId { get; init; }           // For "Open in viewer" quick action
+    public string? ArtistId  { get; init; }           // For "Go to gallery" quick action
     public bool IsUser      => Role == "user";
     public bool IsAssistant => Role == "assistant";
     public bool IsSystem    => Role == "system";
     public bool HasImage    => ImageBytes != null && ImageBytes.Length > 0;
+    public bool HasArtworkAction => !string.IsNullOrEmpty(ArtworkId);
+    public bool HasArtistAction  => !string.IsNullOrEmpty(ArtistId);
+    public bool HasAnyAction     => HasArtworkAction || HasArtistAction;
+
+    /// <summary>Label shown on the message bubble — "You" / "Hoshi" / "System" instead of the raw role string.</summary>
+    public string DisplayName => Role switch
+    {
+        "user" => "You",
+        "assistant" => "Hoshi",
+        _ => "System",
+    };
+
+    /// <summary>Right-aligns your own messages and left-aligns Hoshi's/system messages, mirroring a normal chat layout.</summary>
+    public global::Avalonia.Layout.HorizontalAlignment BubbleAlignment =>
+        IsUser ? global::Avalonia.Layout.HorizontalAlignment.Right : global::Avalonia.Layout.HorizontalAlignment.Left;
 }
 
 /// <summary>
@@ -43,6 +78,7 @@ public partial class AiViewModel : ObservableObject
     private readonly PixivImageLoader _imageLoader;
     private readonly SettingsService _settings;
     private readonly ImageLookupService _imageLookup;
+    private readonly AnimeTaggerService _tagger;
 
     [ObservableProperty] private bool _isPanelOpen;
     [ObservableProperty] private bool _isEnabled;
@@ -52,7 +88,12 @@ public partial class AiViewModel : ObservableObject
     [ObservableProperty] private bool _isModelReady;
 
     /// <summary>The artwork card currently in the viewer — set by the host (inline viewer flow).</summary>
-    public ArtworkCardViewModel? CurrentCard { get; set; }
+    [ObservableProperty] private ArtworkCardViewModel? _currentCard;
+    partial void OnCurrentCardChanged(ArtworkCardViewModel? value) => OnPropertyChanged(nameof(IsCurrentSubmissionMultiPage));
+
+    /// <summary>True when the open artwork has more than one page — used to show the
+    /// "Describe all pages" option only when there's actually more than one page to describe.</summary>
+    public bool IsCurrentSubmissionMultiPage => CurrentCard is { PageCount: > 1 };
     /// <summary>
     /// The current page thumbnail bytes used for vision queries.
     /// When a standalone session is active, this mirrors the session's image bytes.
@@ -95,6 +136,19 @@ public partial class AiViewModel : ObservableObject
     private bool _nextSendWithImage;              // true = next SendAsync attaches image bytes
     private bool _sessionAutoNamed;               // true = session title was already auto-set
     private bool _suppressSave;                   // true during LoadSession to avoid saving []
+    // Tracks the artist most recently discussed (via "who is the artist" or a recommended-artists
+    // list) so follow-up questions like "what is their artist id" or "show more from them" resolve
+    // without the user having to repeat the artist's name.
+    private string? _lastMentionedArtistId;
+    private string? _lastMentionedArtistName;
+
+    // Tracks which artwork/artist results the Similar Art / Similar Artists buttons have
+    // already shown for the current seed image, so repeated clicks surface fresh picks from
+    // the recommendation pool instead of the same top-5 every time. Reset whenever the seed
+    // (i.e. the artwork being viewed) changes.
+    private string? _lastSimilarSeedId;
+    private readonly HashSet<string> _shownSimilarWorkIds = new();
+    private readonly HashSet<string> _shownSimilarArtistIds = new();
 
     public AiViewModel(
         OllamaService ollama,
@@ -106,7 +160,8 @@ public partial class AiViewModel : ObservableObject
         PixivClient pixiv,
         PixivImageLoader imageLoader,
         SettingsService settings,
-        ImageLookupService imageLookup)
+        ImageLookupService imageLookup,
+        AnimeTaggerService tagger)
     {
         _ollama        = ollama;
         _favorites     = favorites;
@@ -118,6 +173,7 @@ public partial class AiViewModel : ObservableObject
         _imageLoader   = imageLoader;
         _settings      = settings;
         _imageLookup   = imageLookup;
+        _tagger        = tagger;
 
         _ollama.StateChanged += (_, _) => Dispatcher.UIThread.Post(SyncOllamaState);
         SyncOllamaState();
@@ -171,6 +227,12 @@ public partial class AiViewModel : ObservableObject
                 OnPropertyChanged(nameof(GroupedSessions));
             });
         };
+
+        // Restore the most recently active session (image + full chat history) so it
+        // survives an app restart instead of only reappearing once the user re-opens
+        // the same artwork. Sessions are already sorted most-recent-first.
+        if (_sessions.Sessions.Count > 0)
+            LoadSession(_sessions.Sessions[0]);
     }
 
     // ── Sessions ──────────────────────────────────────────────────────────────
@@ -187,19 +249,36 @@ public partial class AiViewModel : ObservableObject
     /// Switches to the existing session for <paramref name="artworkId"/>, or creates a new one.
     /// Called whenever the inline viewer loads a new artwork / tab.
     /// </summary>
-    public void SwitchToArtworkSession(ArtworkCardViewModel card)
+    public HoshiSession? SwitchToArtworkSession(ArtworkCardViewModel card)
     {
         // Always track the current card so intents (identify, info, etc.) work even when disabled
         CurrentCard = card;
 
         // Only create/restore session if Hoshi is enabled
         if (!IsEnabled)
-            return;
+            return null;
+
+        // If the active session is still "blank" (freshly started via "+ New" — no artwork
+        // attached and no messages yet), attach THIS artwork to it instead of switching to a
+        // different per-artwork session. This lets the user click "+ New" then click an image
+        // to start a session for that image, rather than always auto-creating one per artwork.
+        if (CurrentSession is { PixivArtworkId: null or "" } pinned && Messages.Count == 0)
+        {
+            pinned.PixivArtworkId = card.Id;
+            pinned.ImageSource = $"pixiv:{card.Id}";
+            if (!_sessionAutoNamed || pinned.Title == "New chat")
+            {
+                pinned.Title = card.Title;
+                _sessionAutoNamed = true;
+            }
+            _ = _sessions.SaveAsync(pinned);
+            return pinned;
+        }
 
         // Save the current session before switching
         if (CurrentSession is { } prev)
         {
-            prev.Messages = Messages.Select(m => new PersistedMessage { Role = m.Role, Content = m.Content }).ToList();
+            prev.Messages = Messages.Select(ToPersistedMessage).ToList();
             _ = _sessions.SaveAsync(prev);
         }
 
@@ -208,6 +287,7 @@ public partial class AiViewModel : ObservableObject
         if (existing != null)
         {
             LoadSession(existing);
+            return existing;
         }
         else
         {
@@ -225,6 +305,28 @@ public partial class AiViewModel : ObservableObject
             }
             finally { _suppressSave = false; }
             _ = _sessions.SaveAsync(s);
+            return s;
+        }
+    }
+
+    /// <summary>
+    /// Persists image bytes directly to <paramref name="session"/>, even if the user has
+    /// since switched to a different artwork before the fetch that produced these bytes
+    /// completed. Without this, a late-arriving image fetch would otherwise be dropped
+    /// (session never gets an image) or — worse — get written into whatever session
+    /// happens to be "current" by the time the fetch resolves, corrupting an unrelated
+    /// session's image. Also updates the live <see cref="CurrentImageBytes"/> when
+    /// <paramref name="session"/> is still the active one, so the viewer stays in sync.
+    /// </summary>
+    public void SetSessionImageBytes(HoshiSession session, byte[] bytes)
+    {
+        session.ImageBytes = bytes;
+        _ = _sessions.SaveAsync(session);
+        if (ReferenceEquals(CurrentSession, session))
+        {
+            _currentImageBytes = bytes;
+            OnPropertyChanged(nameof(CurrentImageBytes));
+            OnPropertyChanged(nameof(HasImage));
         }
     }
 
@@ -238,7 +340,7 @@ public partial class AiViewModel : ObservableObject
             _sessionAutoNamed = session.Messages.Count > 0 || session.Title != "New chat";
             Messages.Clear();
             foreach (var m in session.Messages)
-                Messages.Add(new AiChatMessage { Role = m.Role, Content = m.Content });
+                Messages.Add(ToAiChatMessage(m));
             CurrentImageBytes = session.ImageBytes;
             // Reset Ollama conversation history so the model starts fresh for this session
             _ollama.ClearHistory();
@@ -246,14 +348,44 @@ public partial class AiViewModel : ObservableObject
         finally { _suppressSave = false; }
     }
 
+    private static PersistedMessage ToPersistedMessage(AiChatMessage msg)
+    {
+        var pm = new PersistedMessage
+        {
+            Role = msg.Role,
+            Content = msg.Content,
+            ArtworkId = msg.ArtworkId,
+            ArtistId = msg.ArtistId
+        };
+        if (msg.ImageBytes is { Length: > 0 } bytes)
+            pm.ImageBase64 = Convert.ToBase64String(bytes);
+        return pm;
+    }
+
+    private static AiChatMessage ToAiChatMessage(PersistedMessage m)
+    {
+        try
+        {
+            return new AiChatMessage
+            {
+                Role = m.Role,
+                Content = m.Content,
+                ArtworkId = m.ArtworkId,
+                ArtistId = m.ArtistId,
+                ImageBytes = string.IsNullOrEmpty(m.ImageBase64) ? null : Convert.FromBase64String(m.ImageBase64)
+            };
+        }
+        catch
+        {
+            // corrupt base64 — return message without image
+            return new AiChatMessage { Role = m.Role, Content = m.Content, ArtworkId = m.ArtworkId, ArtistId = m.ArtistId };
+        }
+    }
+
     private void PersistCurrentSession()
     {
         if (CurrentSession is not { } s) return;
-        s.Messages = Messages.Select(m => new PersistedMessage
-        {
-            Role = m.Role,
-            Content = m.Content
-        }).ToList();
+        s.Messages = Messages.Select(ToPersistedMessage).ToList();
         _ = _sessions.SaveAsync(s);
     }
 
@@ -262,11 +394,7 @@ public partial class AiViewModel : ObservableObject
     {
         if (CurrentSession is { } s)
         {
-            s.Messages = Messages.Select(m => new PersistedMessage
-            {
-                Role = m.Role,
-                Content = m.Content
-            }).ToList();
+            s.Messages = Messages.Select(ToPersistedMessage).ToList();
             await _sessions.SaveAsync(s);
         }
     }
@@ -276,6 +404,13 @@ public partial class AiViewModel : ObservableObject
     {
         // Save the current session to prevent data loss
         await SaveCurrentSessionAsync();
+    }
+
+    /// <summary>Cancels any in-flight AI generation request.</summary>
+    public void CancelPending()
+    {
+        try { _cts?.Cancel(); }
+        catch (ObjectDisposedException) { }
     }
 
     /// <summary>Updates the current session's image and persists.</summary>
@@ -386,10 +521,143 @@ public partial class AiViewModel : ObservableObject
     [RelayCommand]
     public void TogglePanel() => IsPanelOpen = IsEnabled && !IsPanelOpen;
 
+    // ── Similar Art / Similar Artists quick actions ──────────────────────────
+    // These are wired directly from the Hoshi toolbar buttons rather than routed through
+    // SendAsync's free-text intent parser (TryHandleIntentAsync). That parser matches on
+    // loose keyword co-occurrence (e.g. "artist" + "similar" anywhere in the message), so
+    // the "Similar Art" prompt — which mentions "artists" only as an aside ("titles or
+    // artists if you can") — was misclassified as a "Similar Artists" request. Calling the
+    // underlying fetch directly avoids that ambiguity entirely.
+
+    [RelayCommand]
+    public async Task FindSimilarArtworksAsync()
+    {
+        if (IsThinking) return;
+        AddUserMessage("Find artworks similar to this image");
+        await RunRelatedFetchAsync(wantArtists: false);
+    }
+
+    [RelayCommand]
+    public async Task FindSimilarArtistsAsync()
+    {
+        if (IsThinking) return;
+        AddUserMessage("Find artists with a similar style to this image");
+        await RunRelatedFetchAsync(wantArtists: true);
+    }
+
+    private async Task RunRelatedFetchAsync(bool wantArtists)
+    {
+        var seedId = CurrentCard?.Id ?? CurrentSession?.PixivArtworkId;
+        if (string.IsNullOrEmpty(seedId))
+        {
+            AddAssistantMessage($"⚠ Open an artwork first — I need a starting point to find similar {(wantArtists ? "artists" : "artworks")}.");
+            return;
+        }
+
+        // A new seed image means "start over" — clear what we've already shown so the
+        // exclusion logic below doesn't bleed between unrelated artworks.
+        if (seedId != _lastSimilarSeedId)
+        {
+            _lastSimilarSeedId = seedId;
+            _shownSimilarWorkIds.Clear();
+            _shownSimilarArtistIds.Clear();
+        }
+
+        _cts?.Cancel();
+        _cts?.Dispose();
+        _cts = new CancellationTokenSource();
+        var ct = _cts.Token;
+        IsThinking = true;
+        try
+        {
+            AddAssistantMessage(wantArtists ? "Finding artists with similar work…" : "Finding similar artworks…");
+            // Pull a larger pool than we'll show (Pixiv caps this endpoint at 180) so repeated
+            // clicks have real variety to draw from instead of re-deriving the same top-5 from
+            // a tiny 24-item response.
+            var related = await _pixiv.GetRelatedWorksAsync(seedId, 90, ct);
+            var illusts = related?.Illusts ?? [];
+            if (illusts.Count == 0)
+            {
+                AddAssistantMessage("⚠ No related results found.");
+                return;
+            }
+
+            if (wantArtists)
+            {
+                var candidates = illusts
+                    .Where(i => !string.IsNullOrEmpty(i.UserId) && i.UserId != CurrentCard?.UserId)
+                    .GroupBy(i => i.UserId)
+                    .Select(g => g.First())
+                    .ToList();
+
+                if (candidates.Count == 0)
+                {
+                    AddAssistantMessage("⚠ No other artists found among related works.");
+                    return;
+                }
+
+                var artists = PickUnseenAndShuffle(candidates, i => i.UserId!, _shownSimilarArtistIds, 5);
+                await PostArtistsAsync(artists, ct);
+            }
+            else
+            {
+                var candidates = illusts.Where(i => !string.IsNullOrEmpty(i.Id)).ToList();
+                var picked = PickUnseenAndShuffle(candidates, i => i.Id!, _shownSimilarWorkIds, 5);
+                var works = picked.Select(i => i.ToArtworkPreview()).ToList();
+                await PostWorksAsync(works);
+            }
+        }
+        catch (OperationCanceledException) { /* cancelled by a newer request */ }
+        catch (Exception ex)
+        {
+            AddSystemMessage($"✗ Failed to fetch related results: {ex.Message}");
+        }
+        finally
+        {
+            IsThinking = false;
+        }
+    }
+
+    /// <summary>
+    /// Randomly picks up to <paramref name="count"/> items from <paramref name="candidates"/>,
+    /// preferring ones not already recorded in <paramref name="seen"/> so repeated calls (e.g.
+    /// mashing the "Similar Art"/"Similar Artists" button) surface new results instead of the
+    /// same top-N every time. Once every candidate has been shown at least once, <paramref
+    /// name="seen"/> is reset so the pool becomes fully eligible again rather than going stale.
+    /// </summary>
+    private static List<T> PickUnseenAndShuffle<T>(
+        List<T> candidates, Func<T, string> idSelector, HashSet<string> seen, int count)
+    {
+        var unseen = candidates.Where(c => !seen.Contains(idSelector(c))).ToList();
+        if (unseen.Count == 0)
+        {
+            seen.Clear();
+            unseen = candidates;
+        }
+
+        var picked = unseen.OrderBy(_ => Random.Shared.Next()).Take(count).ToList();
+
+        // If there weren't enough fresh items to fill the batch, top up with already-seen ones
+        // (still shuffled) rather than showing fewer results than requested.
+        if (picked.Count < count)
+        {
+            var pickedIds = picked.Select(idSelector).ToHashSet();
+            var extra = candidates
+                .Where(c => !pickedIds.Contains(idSelector(c)))
+                .OrderBy(_ => Random.Shared.Next())
+                .Take(count - picked.Count);
+            picked.AddRange(extra);
+        }
+
+        foreach (var p in picked) seen.Add(idSelector(p));
+        return picked;
+    }
+
     // ── Send message ─────────────────────────────────────────────────────────
     [RelayCommand(CanExecute = nameof(CanSend))]
     public async Task SendAsync()
     {
+        if (IsThinking) return; // ignore re-entrant calls (e.g. double-clicking a quick-action button)
         var text = InputText.Trim();
         if (string.IsNullOrEmpty(text)) return;
 
@@ -470,16 +738,29 @@ public partial class AiViewModel : ObservableObject
                 ? _ollama.ChatWithImageAsync(text, CurrentImageBytes!, ct)
                 : _ollama.ChatAsync(text, ct);
 
-            await foreach (var chunk in stream.WithCancellation(ct))
+            // Coalesce rapid token arrivals instead of round-tripping to the UI thread (and
+            // re-triggering LinkTextBlock's markdown/link rebuild) on every single token — a
+            // fast local model can emit dozens of tokens/sec, and dispatching each one
+            // individually was a real source of UI stutter during long streamed responses
+            // (e.g. Describe), which read as the app "almost crashing". Flushing at most every
+            // ~40ms keeps the response feeling live while cutting UI work by an order of
+            // magnitude for fast streams.
+            var pending = new System.Text.StringBuilder();
+            var lastFlush = System.Diagnostics.Stopwatch.StartNew();
+            const int flushIntervalMs = 40;
+
+            async Task FlushAsync(bool force = false)
             {
-                if (ct.IsCancellationRequested) break;
-                // Marshal collection + content writes to the UI thread —
-                // OllamaSharp's stream continuations resume on the thread pool
-                // and ObservableCollection / Avalonia bindings need UI-thread
-                // affinity for the list to update reliably.
+                if (pending.Length == 0) return;
+                if (!force && lastFlush.ElapsedMilliseconds < flushIntervalMs) return;
+
+                var toAppend = pending.ToString();
+                pending.Clear();
+                lastFlush.Restart();
+
                 if (assistantMsg == null)
                 {
-                    var msg = new AiChatMessage { Role = "assistant", Content = chunk };
+                    var msg = new AiChatMessage { Role = "assistant", Content = toAppend };
                     assistantMsg = msg;
                     if (Dispatcher.UIThread.CheckAccess())
                         Messages.Add(msg);
@@ -489,13 +770,20 @@ public partial class AiViewModel : ObservableObject
                 else
                 {
                     var captured = assistantMsg;
-                    var localChunk = chunk;
                     if (Dispatcher.UIThread.CheckAccess())
-                        captured.Content += localChunk;
+                        captured.Content += toAppend;
                     else
-                        await Dispatcher.UIThread.InvokeAsync(() => captured.Content += localChunk);
+                        await Dispatcher.UIThread.InvokeAsync(() => captured.Content += toAppend);
                 }
             }
+
+            await foreach (var chunk in stream.WithCancellation(ct))
+            {
+                if (ct.IsCancellationRequested) break;
+                pending.Append(chunk);
+                await FlushAsync();
+            }
+            await FlushAsync(force: true);
 
             // If model returned nothing, show a fallback
             if (assistantMsg == null && !ct.IsCancellationRequested)
@@ -520,18 +808,61 @@ public partial class AiViewModel : ObservableObject
     public void RequestImageSend() => _nextSendWithImage = true;
 
     // Helper methods for image fetching intents
-    private async Task<ArtworkCardViewModel?> FetchArtworkByIdAsync(string id)
+    private async Task<ArtworkCardViewModel?> FetchArtworkByIdAsync(string id, CancellationToken ct = default)
     {
         if (!ulong.TryParse(id, out var artworkId))
             return null;
 
-        // Use the existing metadata fetching method
-        var metadata = await _pixiv.GetArtworksMetadataAsync(null, new List<string> { artworkId.ToString() });
-        if (!metadata.TryGetValue(artworkId.ToString(), out var preview))
-            return null;
-        
-        var card = new ArtworkCardViewModel(preview);
-        return card;
+        // Use the single-artwork endpoint (/ajax/illust/{id}) — it doesn't require a userId,
+        // unlike GetArtworksMetadataAsync which needs one in the URL path and 404s without it.
+        var b = await _pixiv.GetArtworkDetailAsync(artworkId.ToString(), ct);
+        if (b == null) return null;
+
+        var preview = new ArtworkPreview
+        {
+            Id = b.IllustId ?? artworkId.ToString(),
+            Title = b.IllustTitle ?? artworkId.ToString(),
+            UserName = b.UserName ?? string.Empty,
+            UserId = b.UserId ?? string.Empty,
+            ThumbnailUrl = b.ThumbnailUrl,
+            PageCount = b.PageCount > 0 ? b.PageCount : 1,
+            IllustType = b.IllustType,
+            XRestrict = b.XRestrict,
+            AiType = b.AiType,
+            Width = b.Width,
+            Height = b.Height,
+            BookmarkCount = b.BookmarkCount,
+            LikeCount = b.LikeCount,
+            ViewCount = b.ViewCount,
+            Tags = b.Tags?.Tags?.Select(t => t.Tag ?? string.Empty).ToList() ?? []
+        };
+        return new ArtworkCardViewModel(preview);
+    }
+
+    /// <summary>
+    /// Resolves the artwork that best represents the current chat context.
+    /// Prefers the currently viewed card, then the most recent assistant message
+    /// that references an artwork, then the session's stored Pixiv artwork ID.
+    /// </summary>
+    internal async Task<ArtworkCardViewModel?> ResolveContextArtworkAsync(CancellationToken ct = default)
+    {
+        if (CurrentCard is { } card)
+            return card;
+
+        var lastArtworkMsg = Messages.LastOrDefault(m => m.IsAssistant && !string.IsNullOrEmpty(m.ArtworkId));
+        if (lastArtworkMsg != null)
+        {
+            try { return await FetchArtworkByIdAsync(lastArtworkMsg.ArtworkId!, ct); }
+            catch { /* fall through */ }
+        }
+
+        if (CurrentSession?.PixivArtworkId is { Length: > 0 } sessionId)
+        {
+            try { return await FetchArtworkByIdAsync(sessionId, ct); }
+            catch { /* fall through */ }
+        }
+
+        return null;
     }
 
     private async Task<ArtworkCardViewModel?> FetchRandomByArtistAsync(string artistIdentifier, bool useRecent = false)
@@ -598,9 +929,181 @@ public partial class AiViewModel : ObservableObject
     public async Task SuggestTagsAsync()
     {
         if (!await EnsureImageBytesAsync()) return;
+
+        // Prefer the local ONNX tagger if enabled and installed; it produces much better
+        // Danbooru-style tags than a general-purpose LLM.
+        if (_settings.Current.HoshiUseAnimeTagger)
+        {
+            var model = KnownAnimeTaggerModels.GetByKey(_settings.Current.HoshiAnimeTaggerModel)
+                ?? KnownAnimeTaggerModels.WdSwinV2TaggerV3;
+
+            if (AnimeTaggerService.IsModelInstalled(model))
+            {
+                await GenerateTagsWithTaggerAsync(model);
+                return;
+            }
+
+            StatusText = "Anime tagger model is not installed. Install it in Settings → Hoshi AI.";
+            // Fall through to the LLM fallback so the user still gets some result.
+        }
+
         _nextSendWithImage = true;
         InputText = "Suggest Pixiv-style tags for this image. Include both Japanese and English tags (Pixiv tags are usually Japanese). Example format: アニメ (anime), 女の子 (girl), ポートレート (portrait), 金髪 (blonde hair), 夕日 (sunset).";
         await SendAsync();
+    }
+
+    private async Task GenerateTagsWithTaggerAsync(TaggerModelInfo model)
+    {
+        IsThinking = true;
+        StatusText = "Running anime tagger…";
+        try
+        {
+            var result = await _tagger.TagImageAsync(
+                CurrentImageBytes!,
+                model,
+                _settings.Current.HoshiAnimeTaggerThreshold,
+                _settings.Current.HoshiAnimeTaggerMaxTags);
+
+            var sb = new System.Text.StringBuilder();
+            sb.AppendLine("**Danbooru-style tags**");
+            sb.AppendLine();
+            if (result.Character.Count > 0)
+                sb.AppendLine($"Character: {string.Join(", ", result.Character.Select(t => t.Name))}");
+            if (result.Copyright.Count > 0)
+                sb.AppendLine($"Copyright: {string.Join(", ", result.Copyright.Select(t => t.Name))}");
+            if (result.Artist.Count > 0)
+                sb.AppendLine($"Artist: {string.Join(", ", result.Artist.Select(t => t.Name))}");
+            if (result.General.Count > 0)
+                sb.AppendLine($"General: {string.Join(", ", result.General.Select(t => t.Name))}");
+            if (result.Meta.Count > 0)
+                sb.AppendLine($"Meta: {string.Join(", ", result.Meta.Select(t => t.Name))}");
+
+            var tagText = sb.ToString().Trim();
+
+            Messages.Add(new AiChatMessage
+            {
+                Role = "user",
+                Content = "Suggest tags for this image.",
+                ImageBytes = CurrentImageBytes
+            });
+            Messages.Add(new AiChatMessage
+            {
+                Role = "assistant",
+                Content = tagText
+            });
+            PersistCurrentSession();
+        }
+        catch (Exception ex)
+        {
+            // Surface the failure in the chat itself — StatusText alone isn't enough since the
+            // finally block below resets it right after, making tagger errors invisible otherwise.
+            AddSystemMessage($"✗ Anime tagger failed: {ex.Message}");
+        }
+        finally
+        {
+            IsThinking = false;
+            StatusText = IsModelReady ? "Ready" : "Hoshi is off";
+        }
+    }
+
+    /// <summary>
+    /// Runs the vision model over every page of a multi-page submission, instead of just the
+    /// currently-displayed one. Local vision models (moondream, etc. via Ollama) only accept a
+    /// single image per query, so this fetches each page individually and posts one bubble per
+    /// page — there's no way to hand the model all pages "at once" the way a person would flip
+    /// through them, but this at least covers pages the user hasn't manually navigated to.
+    /// </summary>
+    [RelayCommand]
+    public async Task DescribeAllPagesAsync()
+    {
+        if (IsThinking) return;
+        var card = CurrentCard;
+        if (card == null)
+        {
+            AddAssistantMessage("⚠ Open an artwork first — I need to know which submission's pages to describe.");
+            return;
+        }
+
+        if (card.PageCount <= 1)
+        {
+            // Nothing to page through — same as the regular Describe action.
+            await DescribeImageAsync();
+            return;
+        }
+
+        AddUserMessage($"Describe all {card.PageCount} pages of this submission");
+
+        _cts?.Cancel();
+        _cts?.Dispose();
+        _cts = new CancellationTokenSource();
+        var ct = _cts.Token;
+        IsThinking = true;
+        try
+        {
+            if (!_ollama.IsReady)
+            {
+                AddSystemMessage("⚠ Hoshi isn't ready yet — enable it in Settings first.");
+                return;
+            }
+
+            var pages = await _pixiv.GetArtworkPagesAsync(card.Id, ct);
+            if (pages.Count == 0)
+            {
+                AddAssistantMessage("⚠ Could not load this submission's pages.");
+                return;
+            }
+
+            // Cap how many pages actually go through the vision model — a long manga
+            // chapter would otherwise take minutes and flood the chat with results.
+            const int maxPages = 10;
+            var toDescribe = pages.Take(maxPages).ToList();
+            AddAssistantMessage(pages.Count > maxPages
+                ? $"Describing the first {maxPages} of {pages.Count} pages…"
+                : $"Describing all {pages.Count} pages…");
+
+            for (int i = 0; i < toDescribe.Count; i++)
+            {
+                ct.ThrowIfCancellationRequested();
+                var page = toDescribe[i];
+                var url = page.Urls.Regular ?? page.Urls.Small ?? page.Urls.Original ?? page.Urls.ThumbMini;
+                if (string.IsNullOrEmpty(url)) continue;
+
+                byte[]? bytes;
+                try { bytes = await _imageLoader.FetchBytesAsync(url, ct); }
+                catch { bytes = null; }
+                if (bytes is not { Length: > 0 })
+                {
+                    AddSystemMessage($"✗ Page {i + 1}: could not load image.");
+                    continue;
+                }
+
+                var sb = new System.Text.StringBuilder();
+                await foreach (var chunk in _ollama.ChatWithImageAsync(
+                    "Describe this image in detail. Include the art style, subject, mood, and any notable elements.",
+                    bytes, ct))
+                {
+                    sb.Append(chunk);
+                }
+
+                var msg = new AiChatMessage
+                {
+                    Role = "assistant",
+                    Content = $"**Page {i + 1}/{pages.Count}**\n{sb}",
+                    ImageBytes = bytes
+                };
+                await Dispatcher.UIThread.InvokeAsync(() => Messages.Add(msg));
+            }
+            PersistCurrentSession();
+        }
+        catch (OperationCanceledException) { /* cancelled by a newer request */ }
+        catch (Exception ex)
+        {
+            AddSystemMessage($"✗ Failed to describe pages: {ex.Message}");
+        }
+        finally
+        {
+            IsThinking = false;
+        }
     }
 
     [RelayCommand]
@@ -663,7 +1166,7 @@ public partial class AiViewModel : ObservableObject
     /// </summary>
     public async Task DownloadArtworkWithJobAsync(ArtworkCardViewModel card, CancellationToken ct = default)
     {
-        AddAssistantMessage($"⏳ Downloading \"{card.Title}\"…");
+        AddAssistantMessage($"⏳ Downloading {card.Title}…");
 
         var target = new DownloadTarget
         {
@@ -699,13 +1202,13 @@ public partial class AiViewModel : ObservableObject
 
             if (paths.Count == 0)
             {
-                AddAssistantMessage($"⚠ No files were downloaded for \"{card.Title}\".");
+                AddAssistantMessage($"⚠ No files were downloaded for {card.Title}.");
             }
             else
             {
                 var folder = job.OutputFolder ?? "(unknown)";
                 var fileWord = paths.Count == 1 ? "file" : "files";
-                AddAssistantMessage($"✓ Downloaded {paths.Count} {fileWord} for \"{card.Title}\"\nSaved to: {folder}");
+                AddAssistantMessage($"✓ Downloaded {paths.Count} {fileWord} for {card.Title}\nSaved to: {folder}");
             }
         }
         catch (OperationCanceledException)
@@ -718,7 +1221,7 @@ public partial class AiViewModel : ObservableObject
             target.Status = TargetStatus.Failed;
             target.ErrorMessage = ex.Message;
             job.Status = JobStatus.Failed;
-            AddSystemMessage($"✗ Download failed for \"{card.Title}\": {ex.Message}");
+            AddSystemMessage($"✗ Download failed for {card.Title}: {ex.Message}");
         }
         finally
         {
@@ -737,31 +1240,15 @@ public partial class AiViewModel : ObservableObject
         // Download
         if (lower.Contains("download"))
         {
-            ArtworkCardViewModel? card = CurrentCard;
-            
-            // If no current card, try to find the most recent artwork from messages
-            if (card == null)
-            {
-                var lastImageMsg = Messages.LastOrDefault(m => m.HasImage && m.IsAssistant);
-                if (lastImageMsg != null)
-                {
-                    // Try to extract artwork info from the message content
-                    // This is a simple approach - in a real implementation we might store the artwork reference
-                    AddAssistantMessage("⚠ No image selected for download. Please select an image first or use a specific image ID.");
-                    return true;
-                }
-            }
-            
+            var card = await ResolveContextArtworkAsync(ct);
             if (card != null)
             {
                 await DownloadArtworkWithJobAsync(card, ct);
                 return true;
             }
-            else
-            {
-                AddAssistantMessage("⚠ No image available to download. Please fetch an image first using commands like 'show image by ID', 'random artwork', or 'random artist [name]'.");
-                return true;
-            }
+
+            AddAssistantMessage("⚠ No image available to download. Please fetch an image first using commands like 'show image by ID', 'random artwork', or 'random artist [name]'.");
+            return true;
         }
 
         // Add to favorites
@@ -770,11 +1257,11 @@ public partial class AiViewModel : ObservableObject
             if (!_favorites.IsFavorite(CurrentCard.Id))
             {
                 _favorites.Add(CurrentCard.Artwork);
-                AddAssistantMessage($"Added \"{CurrentCard.Title}\" to local favorites ★");
+                AddAssistantMessage($"Added {CurrentCard.Title} to local favorites ★");
             }
             else
             {
-                AddAssistantMessage($"\"{CurrentCard.Title}\" is already in your local favorites.");
+                AddAssistantMessage($"{CurrentCard.Title} is already in your local favorites.");
             }
             return true;
         }
@@ -785,11 +1272,11 @@ public partial class AiViewModel : ObservableObject
             if (_favorites.IsFavorite(CurrentCard.Id))
             {
                 _favorites.Remove(CurrentCard.Id);
-                AddAssistantMessage($"Removed \"{CurrentCard.Title}\" from local favorites.");
+                AddAssistantMessage($"Removed {CurrentCard.Title} from local favorites.");
             }
             else
             {
-                AddAssistantMessage($"\"{CurrentCard.Title}\" is not in your favorites.");
+                AddAssistantMessage($"{CurrentCard.Title} is not in your favorites.");
             }
             return true;
         }
@@ -806,7 +1293,7 @@ public partial class AiViewModel : ObservableObject
                     if (!_favorites.IsFavorite(CurrentCard.Id))
                         _favorites.Add(CurrentCard.Artwork);
                     _favorites.SetFolder(CurrentCard.Id, folder);
-                    AddAssistantMessage($"Moved \"{CurrentCard.Title}\" to folder \"{folder}\".");
+                    AddAssistantMessage($"Moved {CurrentCard.Title} to folder \"{folder}\".");
                     return true;
                 }
             }
@@ -838,14 +1325,14 @@ public partial class AiViewModel : ObservableObject
                             var msg = new AiChatMessage 
                             { 
                                 Role = "assistant", 
-                                Content = $"✓ Found: \"{card.Title}\" by {card.UserName}",
+                                Content = $"✓ Found: {card.Title} by {card.UserName}",
                                 ImageBytes = bytes
                             };
                             Messages.Add(msg);
                         }
                         else
                         {
-                            AddAssistantMessage($"✓ Found: \"{card.Title}\" by {card.UserName}");
+                            AddAssistantMessage($"✓ Found: {card.Title} by {card.UserName}");
                         }
                     }
                     else
@@ -889,14 +1376,14 @@ public partial class AiViewModel : ObservableObject
                             var msg = new AiChatMessage 
                             { 
                                 Role = "assistant", 
-                                Content = $"✓ Found: \"{card.Title}\" by {card.UserName}",
+                                Content = $"✓ Found: {card.Title} by {card.UserName}",
                                 ImageBytes = bytes
                             };
                             Messages.Add(msg);
                         }
                         else
                         {
-                            AddAssistantMessage($"✓ Found: \"{card.Title}\" by {card.UserName}");
+                            AddAssistantMessage($"✓ Found: {card.Title} by {card.UserName}");
                         }
                     }
                     else
@@ -919,13 +1406,28 @@ public partial class AiViewModel : ObservableObject
         var isDateQ     = (lower.Contains("when") && (lower.Contains("upload") || lower.Contains("post") || lower.Contains("publish") || lower.Contains("release") || lower.Contains("made") || lower.Contains("create"))) || lower.Contains("upload date") || lower.Contains("posted date") || lower.Contains("release date");
         var isStatsQ    = (lower.Contains("how many") && (lower.Contains("view") || lower.Contains("like") || lower.Contains("bookmark"))) || lower.Contains("view count") || lower.Contains("like count") || lower.Contains("bookmark count") || (lower.Contains("how popular"));
         var isTagQ      = (lower.Contains("what") && lower.Contains("tag")) || lower.Contains("list the tag") || lower.Contains("show the tag") || lower.Contains("what are the tag");
+        // Vision models have no access to Pixiv's actual metadata — asking them "what is the
+        // title" just makes them hallucinate something from the pixels (e.g. a stray number).
+        // Pull it from the API like every other metadata question here instead.
+        var isTitleQ    = lower.Contains("title") || lower.Contains("what is this called") || lower.Contains("what's this called") || lower.Contains("artwork name") || lower.Contains("name of this artwork") || lower.Contains("name of the artwork") || lower.Contains("what is it called");
         var isAboutQ    = lower.Contains("tell me about") || lower.StartsWith("info ") || lower == "info" || lower.StartsWith("about this") || lower.Contains("artwork info") || lower.Contains("artwork detail") || lower.Contains("pixiv info");
-        // Resolve a card for the metadata query: use CurrentCard, or recover from session's stored artwork ID
-        ArtworkCardViewModel? metaCardResolved = CurrentCard;
-        if (metaCardResolved == null && CurrentSession?.PixivArtworkId is { Length: > 0 } sessionArtworkId)
-            metaCardResolved = await FetchArtworkByIdAsync(sessionArtworkId);
+        var looksLikeMetaQ = isArtistQ || isDateQ || isStatsQ || isTagQ || isTitleQ || isAboutQ;
 
-        var isPixivMetaQ = (isArtistQ || isDateQ || isStatsQ || isTagQ || isAboutQ) && metaCardResolved != null;
+        // Resolve a card for the metadata query: use CurrentCard, or recover from session's stored
+        // artwork ID — but only when the message actually looks like a metadata question. Doing this
+        // unconditionally on every message (even "hello") wastes a network call, and if it ever fails
+        // (deleted artwork, network hiccup) would otherwise surface as an unrelated chat error.
+        ArtworkCardViewModel? metaCardResolved = CurrentCard;
+        if (looksLikeMetaQ && metaCardResolved == null && CurrentSession?.PixivArtworkId is { Length: > 0 } sessionArtworkId)
+        {
+            // Best-effort only — swallow failures (deleted artwork, network hiccup, etc.) so an
+            // unrelated Pixiv lookup error never surfaces as a chat error for a question the user
+            // didn't ask. AiViewModel has no ILogger, so this is intentionally silent.
+            try { metaCardResolved = await FetchArtworkByIdAsync(sessionArtworkId); }
+            catch { /* ignore */ }
+        }
+
+        var isPixivMetaQ = looksLikeMetaQ && metaCardResolved != null;
 
         if (isPixivMetaQ && metaCardResolved is { } metaCard)
         {
@@ -952,6 +1454,11 @@ public partial class AiViewModel : ObservableObject
                     PixivUserInfo? artistInfo = null;
                     if (!string.IsNullOrEmpty(artistUserId))
                         artistInfo = await _pixiv.GetArtistAsync(artistUserId, ct);
+
+                    // Remember this artist so follow-ups like "what is their artist id" or
+                    // "show more from them" resolve without re-asking who the artist is.
+                    _lastMentionedArtistId   = artistUserId;
+                    _lastMentionedArtistName = body.UserName ?? metaCard.UserName;
 
                     // Build response from what the user actually asked
                     var sb = new System.Text.StringBuilder();
@@ -1017,6 +1524,11 @@ public partial class AiViewModel : ObservableObject
                         else
                             sb.AppendLine("🏷 No tags found.");
                     }
+                    else if (isTitleQ)
+                    {
+                        sb.AppendLine($"📌 **Title:** {body.IllustTitle ?? metaCard.Title}");
+                        sb.AppendLine($"🔗 pixiv.net/artworks/{metaCard.Id}");
+                    }
 
                     placeholder.Content = sb.ToString().TrimEnd();
 
@@ -1029,6 +1541,118 @@ public partial class AiViewModel : ObservableObject
                 placeholder.Content = $"⚠ API error: {ex.Message}";
                 return true;
             }
+        }
+
+        // ── Related artworks / artists, and context follow-ups ──────────────────
+        // These reuse whatever artist/artwork was last discussed in this chat (tracked via
+        // _lastMentionedArtistId/Name) so "what is their artist id" or "show more from them"
+        // work without repeating the artist's name.
+        var isRecommendedArtistsQ = lower.Contains("artist") &&
+            (lower.Contains("recommended") || lower.Contains("similar") || lower.Contains("other"));
+        var isRecommendedWorksQ = !isRecommendedArtistsQ &&
+            (lower.Contains("similar") || lower.Contains("recommended") || lower.Contains("related")) &&
+            (lower.Contains("image") || lower.Contains("artwork") || lower.Contains("work") || lower.Contains("picture"));
+        var isMoreByArtistQ = !isRecommendedArtistsQ && !isRecommendedWorksQ &&
+            (lower.Contains("other work") || lower.Contains("more work") || lower.Contains("works by") || lower.Contains("more from"));
+        var isArtistIdFollowUpQ = lower.Contains("artist id") ||
+            ((lower.Contains("their") || lower.Contains("his") || lower.Contains("her")) && lower.Contains("id"));
+        var isLinkFollowUpQ = !isRecommendedWorksQ && !isMoreByArtistQ &&
+            (lower.Contains("link") || (lower.Contains("url") && lower.Contains("pixiv")));
+
+        if (isRecommendedArtistsQ || isRecommendedWorksQ || isMoreByArtistQ || isArtistIdFollowUpQ || isLinkFollowUpQ)
+        {
+            var seedId = CurrentCard?.Id ?? CurrentSession?.PixivArtworkId;
+
+            if (isArtistIdFollowUpQ)
+            {
+                var id   = _lastMentionedArtistId   ?? CurrentCard?.UserId;
+                var name = _lastMentionedArtistName ?? CurrentCard?.UserName;
+                AddAssistantMessage(id is { Length: > 0 }
+                    ? $"🆔 **{name ?? "Artist"}'s** user ID is **{id}**.\n🔗 pixiv.net/users/{id}"
+                    : "⚠ I don't have an artist in context yet — ask about an artwork's artist first, or open one in the viewer.");
+                return true;
+            }
+
+            if (isLinkFollowUpQ)
+            {
+                AddAssistantMessage(seedId is { Length: > 0 }
+                    ? $"🔗 https://www.pixiv.net/artworks/{seedId}"
+                    : "⚠ No artwork loaded to link to.");
+                return true;
+            }
+
+            if (isMoreByArtistQ)
+            {
+                var artistId = _lastMentionedArtistId ?? CurrentCard?.UserId;
+                if (string.IsNullOrEmpty(artistId))
+                {
+                    AddAssistantMessage("⚠ I don't know which artist you mean yet — ask \"who is the artist\" first, or open an artwork.");
+                    return true;
+                }
+                AddAssistantMessage("Fetching more works by this artist…");
+                try
+                {
+                    var resp = await _pixiv.GetUserIllustsAsync(artistId, 0, 24, ct);
+                    var works = resp?.Illusts?.Take(5).ToList() ?? [];
+                    if (works.Count == 0)
+                        AddAssistantMessage("⚠ No other works found for this artist.");
+                    else
+                        await PostWorksAsync(works);
+                }
+                catch (Exception ex)
+                {
+                    AddSystemMessage($"✗ Failed to fetch artist's works: {ex.Message}");
+                }
+                return true;
+            }
+
+            // Recommended works / recommended artists both derive from the related-works feed
+            if (string.IsNullOrEmpty(seedId))
+            {
+                AddAssistantMessage("⚠ Open an artwork first — I need a starting point to find similar works or artists.");
+                return true;
+            }
+
+            AddAssistantMessage(isRecommendedArtistsQ ? "Finding artists with similar work…" : "Finding similar artworks…");
+            try
+            {
+                var related = await _pixiv.GetRelatedWorksAsync(seedId, 24, ct);
+                var illusts = related?.Illusts ?? [];
+                if (illusts.Count == 0)
+                {
+                    AddAssistantMessage("⚠ No related results found.");
+                    return true;
+                }
+
+                if (isRecommendedArtistsQ)
+                {
+                    var artists = illusts
+                        .Where(i => !string.IsNullOrEmpty(i.UserId) && i.UserId != CurrentCard?.UserId)
+                        .GroupBy(i => i.UserId)
+                        .Select(g => g.First())
+                        .Take(5)
+                        .ToList();
+
+                    if (artists.Count == 0)
+                    {
+                        AddAssistantMessage("⚠ No other artists found among related works.");
+                        return true;
+                    }
+
+                    await PostArtistsAsync(artists, ct);
+                }
+                else
+                {
+                    // Recommended/similar works — one bubble per result, each with its own thumbnail + link
+                    var works = illusts.Take(5).Select(i => i.ToArtworkPreview()).ToList();
+                    await PostWorksAsync(works);
+                }
+            }
+            catch (Exception ex)
+            {
+                AddSystemMessage($"✗ Failed to fetch related results: {ex.Message}");
+            }
+            return true;
         }
 
         // Show random artwork
@@ -1053,14 +1677,14 @@ public partial class AiViewModel : ObservableObject
                         var msg = new AiChatMessage 
                         { 
                             Role = "assistant", 
-                            Content = $"✓ Found: \"{card.Title}\" by {card.UserName}",
+                            Content = $"✓ Found: {card.Title} by {card.UserName}",
                             ImageBytes = bytes
                         };
                         Messages.Add(msg);
                     }
                     else
                     {
-                        AddAssistantMessage($"✓ Found: \"{card.Title}\" by {card.UserName}");
+                        AddAssistantMessage($"✓ Found: {card.Title} by {card.UserName}");
                     }
                 }
                 else
@@ -1204,5 +1828,108 @@ public partial class AiViewModel : ObservableObject
             Messages.Add(msg);
         else
             Dispatcher.UIThread.Post(() => Messages.Add(msg));
+    }
+
+    /// <summary>Posts one chat bubble per artist, each with a profile thumbnail and a
+    /// "Gallery" quick action. Used for "recommended artists" results.</summary>
+    private async Task PostArtistsAsync(IReadOnlyList<RecommendIllustEntry> artists, CancellationToken ct)
+    {
+        var top = artists[0];
+        foreach (var a in artists)
+        {
+            // Fetch public profile so we can show the artist's avatar next to the result.
+            byte[]? bytes = null;
+            string? imageUrl = null;
+            try
+            {
+                var info = await _pixiv.GetArtistAsync(a.UserId!, ct);
+                imageUrl = info?.ImageBigUrl ?? info?.ImageUrl;
+                if (!string.IsNullOrEmpty(imageUrl))
+                    bytes = await _imageLoader.FetchBytesAsync(imageUrl);
+            }
+            catch { /* profile/thumbnail is best-effort — still show text/button if it fails */ }
+
+            var msg = new AiChatMessage
+            {
+                Role = "assistant",
+                Content = $"🎨 **{a.UserName}** (ID: {a.UserId})\n🔗 pixiv.net/users/{a.UserId}",
+                ImageBytes = bytes,
+                ArtistId = a.UserId
+            };
+            if (Dispatcher.UIThread.CheckAccess())
+                Messages.Add(msg);
+            else
+                await Dispatcher.UIThread.InvokeAsync(() => Messages.Add(msg));
+        }
+        PersistCurrentSession();
+
+        // Remember the top one so follow-up questions like "what is their artist id" resolve.
+        _lastMentionedArtistId   = top.UserId;
+        _lastMentionedArtistName = top.UserName;
+    }
+
+    /// <summary>Posts one chat bubble per artwork, each with its own thumbnail and a clickable
+    /// Pixiv link — used for "recommended works", "similar images", and "more from this artist"
+    /// results, so the answer looks like a real result list instead of plain text.</summary>
+    private async Task PostWorksAsync(IReadOnlyList<ArtworkPreview> works)
+    {
+        foreach (var w in works)
+        {
+            byte[]? bytes = null;
+            try { bytes = await _imageLoader.FetchBytesAsync(w.ThumbnailUrl); }
+            catch { /* thumbnail is best-effort — still show the text/link if it fails */ }
+
+            var msg = new AiChatMessage
+            {
+                Role = "assistant",
+                Content = $"**{w.Title}** by {w.UserName}\n🔗 pixiv.net/artworks/{w.Id}",
+                ImageBytes = bytes,
+                ArtworkId = w.Id,
+                ArtistId = w.UserId
+            };
+            if (Dispatcher.UIThread.CheckAccess())
+                Messages.Add(msg);
+            else
+                await Dispatcher.UIThread.InvokeAsync(() => Messages.Add(msg));
+        }
+        PersistCurrentSession();
+    }
+
+    // ── Chat result quick-actions ────────────────────────────────────────────
+    // Bound by the message bubble template to let users jump straight from a
+    // recommended/similar work result into the inline viewer or the artist's gallery.
+
+    // The buttons that trigger these commands are hosted inside ItemsControl item templates,
+    // so binding directly to the ViewModel command is fragile. The views use code-behind
+    // click handlers that first switch to the Gallery view, then call these commands.
+
+    [RelayCommand]
+    public async Task OpenArtworkInViewerAsync(string? artworkId)
+    {
+        if (string.IsNullOrEmpty(artworkId)) return;
+        try
+        {
+            var galleryVm = AppServices.Get<GalleryViewModel>();
+            await galleryVm.LoadArtworkByIdCommand.ExecuteAsync(artworkId);
+        }
+        catch (Exception ex)
+        {
+            AddSystemMessage($"✗ Could not open artwork: {ex.Message}");
+        }
+    }
+
+    [RelayCommand]
+    public async Task GoToArtistGalleryAsync(string? artistId)
+    {
+        if (string.IsNullOrEmpty(artistId)) return;
+        try
+        {
+            var galleryVm = AppServices.Get<GalleryViewModel>();
+            await galleryVm.LoadArtistByIdCommand.ExecuteAsync(artistId);
+        }
+        catch (Exception ex)
+        {
+            AddSystemMessage($"✗ Could not open artist gallery: {ex.Message}");
+        }
     }
 }

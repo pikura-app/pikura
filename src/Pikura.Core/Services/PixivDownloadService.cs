@@ -3,6 +3,7 @@ using Pikura.Core.Http;
 using Pikura.Core.Models;
 using Pikura.Core.Settings;
 using System.Diagnostics;
+using System.Linq;
 using System.Text;
 
 namespace Pikura.Core.Services;
@@ -31,6 +32,7 @@ public sealed class PixivDownloadService
     private readonly ImageResizeService _resizeService;
     private readonly UgoiraService _ugoiraService;
     private readonly FfmpegService _ffmpegService;
+    private readonly AnimeTaggerService? _animeTagger;
     private readonly ILogger<PixivDownloadService> _logger;
 
     // Semaphore to limit concurrent downloads (respects MaxConcurrentDownloads setting).
@@ -60,7 +62,8 @@ public sealed class PixivDownloadService
         ImageResizeService resizeService,
         UgoiraService ugoiraService,
         FfmpegService ffmpegService,
-        ILogger<PixivDownloadService> logger)
+        ILogger<PixivDownloadService> logger,
+        AnimeTaggerService? animeTagger = null)
     {
         _client = client;
         _httpFactory = httpFactory;
@@ -68,6 +71,7 @@ public sealed class PixivDownloadService
         _resizeService = resizeService;
         _ffmpegService = ffmpegService;
         _ugoiraService = ugoiraService;
+        _animeTagger = animeTagger;
         _logger = logger;
 
         // Initialize semaphore based on current settings
@@ -139,6 +143,18 @@ public sealed class PixivDownloadService
         IReadOnlyCollection<int>? pageIndexes = null;
 
         if (batchArtworkIndex >= 0 &&
+            preset?.ArtworkPageSelections != null &&
+            preset.ArtworkPageSelections.TryGetValue(batchArtworkIndex, out var selectedPages))
+        {
+            pageIndexes = selectedPages is { Count: > 0 }
+                ? selectedPages
+                    .Where(i => i >= 0 && i < artwork.PageCount)
+                    .Distinct()
+                    .OrderBy(i => i)
+                    .ToList()
+                : null;
+        }
+        else if (batchArtworkIndex >= 0 &&
             preset?.DownloadOnlyPagesWithPresets == true &&
             preset.PerPagePresets != null)
         {
@@ -462,6 +478,7 @@ public sealed class PixivDownloadService
                 bool needsCrop = preset?.CropRegion != null;
                 bool needsFormatConvert = preset != null
                     && preset.ResizeSettings.OutputFormat != ResizeOutputFormat.KeepOriginal;
+                string finalPath = destPath;
                 if (preset != null && (needsResize || needsAdjustments || needsCrop || needsFormatConvert))
                 {
                     Diag($"  page[{i}] POST-PROCESS with preset '{preset.Name}' (SaveAsNew={preset.SaveAsNew}, CustomFolder={preset.CustomOutputFolder ?? "<null>"})");
@@ -473,6 +490,7 @@ public sealed class PixivDownloadService
                             Diag($"  page[{i}] PROCESSED -> {processedPath}");
                             // If processed file is in a different location, return that path so the user sees it
                             savedFiles.Add(processedPath);
+                            finalPath = processedPath;
 
                             // When SaveAsNew=true, original (unprocessed) at destPath is preserved by ProcessAsync.
                             // Delete it unless user explicitly opted in via AlsoDownloadUnprocessed.
@@ -509,6 +527,9 @@ public sealed class PixivDownloadService
                 {
                     savedFiles.Add(destPath);
                 }
+
+                // Optional: run the local ONNX anime tagger and write a sidecar tags file.
+                await TryAutoTagImageAsync(finalPath, ct).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -1308,5 +1329,53 @@ public sealed class PixivDownloadService
         if (s.CreateUgoiraWebp) formats.Add(UgoiraFormat.WebP);
         if (s.CreateUgoiraApng) formats.Add(UgoiraFormat.Apng);
         return formats;
+    }
+
+    /// <summary>
+    /// When the anime tagger is enabled and the chosen model is installed,
+    /// reads the saved image, runs inference, and writes a sidecar <c>.tags.txt</c> file.
+    /// Any failures are logged and swallowed so they never break a download.
+    /// </summary>
+    private async Task TryAutoTagImageAsync(string imagePath, CancellationToken ct)
+    {
+        try
+        {
+            if (_animeTagger == null) return;
+            var s = _settings.Current;
+            if (!s.HoshiUseAnimeTagger || !s.HoshiAnimeTaggerAutoTagDownloads) return;
+
+            var model = KnownAnimeTaggerModels.GetByKey(s.HoshiAnimeTaggerModel)
+                ?? KnownAnimeTaggerModels.WdSwinV2TaggerV3;
+            if (!AnimeTaggerService.IsModelInstalled(model)) return;
+
+            var bytes = await File.ReadAllBytesAsync(imagePath, ct).ConfigureAwait(false);
+            var result = await _animeTagger.TagImageAsync(
+                bytes,
+                model,
+                s.HoshiAnimeTaggerThreshold,
+                s.HoshiAnimeTaggerMaxTags,
+                ct).ConfigureAwait(false);
+
+            var sb = new StringBuilder();
+            sb.AppendLine($"Tags for {Path.GetFileName(imagePath)}");
+            sb.AppendLine();
+            if (result.Character.Count > 0)
+                sb.AppendLine($"Character: {string.Join(", ", result.Character.Select(t => t.Name))}");
+            if (result.Copyright.Count > 0)
+                sb.AppendLine($"Copyright: {string.Join(", ", result.Copyright.Select(t => t.Name))}");
+            if (result.Artist.Count > 0)
+                sb.AppendLine($"Artist: {string.Join(", ", result.Artist.Select(t => t.Name))}");
+            if (result.General.Count > 0)
+                sb.AppendLine($"General: {string.Join(", ", result.General.Select(t => t.Name))}");
+            if (result.Meta.Count > 0)
+                sb.AppendLine($"Meta: {string.Join(", ", result.Meta.Select(t => t.Name))}");
+
+            var sidecar = imagePath + ".tags.txt";
+            await File.WriteAllTextAsync(sidecar, sb.ToString(), ct).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Auto-tagging failed for {Path}", imagePath);
+        }
     }
 }

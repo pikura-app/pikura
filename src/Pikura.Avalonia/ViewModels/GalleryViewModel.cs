@@ -71,6 +71,7 @@ public partial class GalleryViewModel : ViewModelBase
     private readonly DownloadJobRepository _jobRepository;
     private readonly DownloadCoordinator _coordinator;
     private readonly AccountService? _accountService;
+    private readonly Pikura.Core.Services.DeviceCapabilityService _deviceCapability;
 
     private int _loadingArtistsGuard;
     private bool _suppressArtistChanged;
@@ -449,6 +450,7 @@ public partial class GalleryViewModel : ViewModelBase
         DownloadJobRepository jobRepository,
         DownloadCoordinator coordinator,
         AccountService? accountService = null,
+        Pikura.Core.Services.DeviceCapabilityService? deviceCapability = null,
         ILogger<GalleryViewModel>? logger = null) : base((ILogger?)logger ?? Microsoft.Extensions.Logging.Abstractions.NullLogger.Instance)
     {
         _pixivClient = pixivClient;
@@ -460,6 +462,7 @@ public partial class GalleryViewModel : ViewModelBase
         _jobRepository = jobRepository;
         _coordinator = coordinator;
         _accountService = accountService;
+        _deviceCapability = deviceCapability ?? new Pikura.Core.Services.DeviceCapabilityService();
 
         // Restore persisted gallery UI state
         var s = settingsService.Current;
@@ -936,7 +939,8 @@ public partial class GalleryViewModel : ViewModelBase
         await _artistLoadTask;
     }
 
-    private async Task LoadArtworkByIdAsync(string artworkId)
+    [RelayCommand]
+    public async Task LoadArtworkByIdAsync(string artworkId)
     {
         var b = await _pixivClient.GetArtworkDetailAsync(artworkId);
         if (b == null) { StatusMessage = $"Artwork {artworkId} not found."; return; }
@@ -961,6 +965,14 @@ public partial class GalleryViewModel : ViewModelBase
         var vm = new ArtworkCardViewModel(preview) { IsFollowed = IsArtistFollowed(preview.UserId) };
         _ = vm.LoadThumbnailAsync(_imageLoader);
         OpenInlineViewer(vm);
+        // This command is the entry point for "show this specific artwork" requests that can
+        // originate from anywhere (Hoshi chat's "Open" button, an AI-recommended result, etc.),
+        // including tabs other than Gallery — those callers first switch MainContentControl to
+        // the Gallery view, then call this. But GalleryView's side viewer visibility is gated by
+        // ShowPreview, which was never flipped on here, so the artwork loaded into
+        // InlineViewerCard with nothing on screen to display it if the panel wasn't already
+        // open (e.g. arriving fresh from Discover/Bookmarks/Rankings).
+        ShowPreview = true;
         StatusMessage = $"Viewing artwork {artworkId}";
     }
 
@@ -1397,6 +1409,10 @@ public partial class GalleryViewModel : ViewModelBase
         }
 
         var tasks = new List<Task>();
+        // Shared across both the public and hidden branches below — throttles how many page
+        // requests run at once, scaled to the machine's capability instead of firing every
+        // page unconditionally (previously up to ~50 concurrent requests for a large follow list).
+        using var pageGate = new SemaphoreSlim(_deviceCapability.MaxParallelPageFetches, _deviceCapability.MaxParallelPageFetches);
         for (int idx = 0; idx < firstPages.Length; idx++)
         {
             var first = firstPages[idx];
@@ -1429,10 +1445,11 @@ public partial class GalleryViewModel : ViewModelBase
                         .Select(i => i * limit)
                         .Where(o => o < totalBound + limit)
                         .ToList();
-                    Logger.LogInformation("[FollowedArtists] Parallel fetch hidden={Hidden}: {PageCount} pages for total={Total}",
-                        hiddenCapture, offsets.Count, totalBound);
+                    Logger.LogInformation("[FollowedArtists] Parallel fetch hidden={Hidden}: {PageCount} pages for total={Total} (max {MaxParallel} at once)",
+                        hiddenCapture, offsets.Count, totalBound, _deviceCapability.MaxParallelPageFetches);
                     tasks.Add(Task.WhenAll(offsets.Select(offset => Task.Run(async () =>
                     {
+                        await pageGate.WaitAsync();
                         try
                         {
                             var page = await _pixivClient.GetFollowedArtistsAsync(userId, offset, limit, hiddenCapture);
@@ -1442,6 +1459,10 @@ public partial class GalleryViewModel : ViewModelBase
                         catch (Exception ex)
                         {
                             Logger.LogDebug(ex, "Followed-artists fetch failed at offset {Off}", offset);
+                        }
+                        finally
+                        {
+                            pageGate.Release();
                         }
                     }))));
                 }
@@ -2251,22 +2272,30 @@ public partial class GalleryViewModel : ViewModelBase
             }
         }
 
-        if (approved.Count == 0) { StatusMessage = "All artworks skipped."; return; }
+        // Apply artwork-level selection filter from the preset dialog while preserving
+        // original indices so per-page preset overrides line up correctly.
+        var artworkFilter = preset?.DownloadAllArtworks == false && preset?.SelectedArtworkIndices is { Count: > 0 }
+            ? approved.Select((c, i) => (card: c, originalIdx: i))
+                .Where(x => preset.SelectedArtworkIndices.Contains(x.originalIdx))
+                .ToList()
+            : approved.Select((c, i) => (card: c, originalIdx: i)).ToList();
 
-        var total = approved.Count;
+        if (artworkFilter.Count == 0) { StatusMessage = "No artworks selected for download."; return; }
+
+        var total = artworkFilter.Count;
         var done = 0;
         var failed = 0;
         var maxConcurrent = Math.Max(1, acctOverride.MaxConcurrentDownloads ?? _settingsService.Current.MaxConcurrentDownloads);
         using var gate = new SemaphoreSlim(maxConcurrent, maxConcurrent);
         string? outputFolder = null;
 
-        var targets = approved.Select(c => new DownloadTarget
+        var targets = artworkFilter.Select(x => new DownloadTarget
         {
-            TargetId = c.Id, Name = c.Title, ThumbnailUrl = c.ThumbnailUrl, UserName = c.UserName, UserId = c.UserId, Type = TargetType.Artwork, Status = TargetStatus.Pending
+            TargetId = x.card.Id, Name = x.card.Title, ThumbnailUrl = x.card.ThumbnailUrl, UserName = x.card.UserName, UserId = x.card.UserId, Type = TargetType.Artwork, Status = TargetStatus.Pending
         }).ToList();
 
         var artistPrefix = SelectedArtist != null ? $"{SelectedArtist.Name}: " : "";
-        var jobName = approved.Count == 1 ? $"{artistPrefix}{approved[0].Title}" : $"{artistPrefix}{approved.Count} artworks (with preset)";
+        var jobName = artworkFilter.Count == 1 ? $"{artistPrefix}{artworkFilter[0].card.Title}" : $"{artistPrefix}{artworkFilter.Count} artworks (with preset)";
         var activeJob = await _coordinator.CreateJobAsync(
             DownloadJobType.ImageId, jobName, targets,
             settingsOverride: acctOverride, startImmediately: false,
@@ -2278,8 +2307,10 @@ public partial class GalleryViewModel : ViewModelBase
         await Task.Delay(50);
 
         var ct = cts.Token;
-        var tasks = approved.Select(async (card, idx) =>
+        var tasks = artworkFilter.Select(async (x, idx) =>
         {
+            var card = x.card;
+            var originalIdx = x.originalIdx;
             await gate.WaitAsync(ct);
             try
             {
@@ -2308,7 +2339,7 @@ public partial class GalleryViewModel : ViewModelBase
                         CurrentBytesSoFar: p.BytesSoFar,
                         CurrentTotalBytes: p.TotalBytes));
                 });
-                var files = await _downloader.DownloadArtworkAsync(card.Artwork, progress, ct, overrideSettings: acctOverride, batchArtworkIndex: idx);
+                var files = await _downloader.DownloadArtworkAsync(card.Artwork, progress, ct, overrideSettings: acctOverride, batchArtworkIndex: originalIdx);
                 Interlocked.Increment(ref done);
                 targets[idx].Status = TargetStatus.Completed;
                 targets[idx].DownloadedItems = files.Count;

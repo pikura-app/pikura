@@ -52,4 +52,13 @@ public sealed class PersistedMessage
     public string Role { get; set; } = "user";
     public string Content { get; set; } = string.Empty;
     public DateTime At { get; set; } = DateTime.UtcNow;
+
+    /// <summary>Base64-encoded inline thumbnail (e.g. recommended artwork or artist avatar).</summary>
+    public string? ImageBase64 { get; set; }
+
+    /// <summary>Pixiv artwork ID for the "Open in viewer" quick action.</summary>
+    public string? ArtworkId { get; set; }
+
+    /// <summary>Pixiv artist/user ID for the "Go to gallery" quick action.</summary>
+    public string? ArtistId { get; set; }
 }

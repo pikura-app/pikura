@@ -11,7 +11,7 @@
     <Product>Pikura</Product>
     <Company>mrplusultra</Company>
     <Copyright>© 2026 mrplusultra</Copyright>
-    <Version>1.8.2</Version>
+    <Version>1.8.3</Version>
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
     <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
   </PropertyGroup>
@@ -26,12 +26,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Avalonia" Version="12.0.3" />
-    <PackageReference Include="Avalonia.Desktop" Version="12.0.3" />
-    <PackageReference Include="Avalonia.Fonts.Inter" Version="12.0.3" />
-    <PackageReference Include="Avalonia.Controls.DataGrid" Version="12.0.0" />
-    <PackageReference Include="Avalonia.Controls.WebView" Version="12.0.0" />
-    <PackageReference Include="Avalonia.Controls.ColorPicker" Version="12.0.3" />
+    <PackageReference Include="Avalonia" Version="12.1.0" />
+    <PackageReference Include="Avalonia.Desktop" Version="12.1.0" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="12.1.0" />
+    <PackageReference Include="Avalonia.Controls.DataGrid" Version="12.1.0" />
+    <PackageReference Include="Avalonia.Controls.WebView" Version="12.0.1" />
+    <PackageReference Include="Avalonia.Controls.ColorPicker" Version="12.1.0" />
     <PackageReference Include="Xaml.Behaviors.Avalonia" Version="12.0.0" />
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2739.15" />
     <PackageReference Include="ActiproSoftware.Controls.Avalonia" Version="26.1.0" />
@@ -44,7 +44,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.7" />
     <PackageReference Include="Microsoft.Playwright" Version="1.49.0" />
     <PackageReference Include="OllamaSharp" Version="5.1.15" />
-    <PackageReference Include="SkiaSharp" Version="3.119.4-preview.1.1" />
+    <PackageReference Include="SkiaSharp" Version="3.119.4" />
   </ItemGroup>
 
 </Project>

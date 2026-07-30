@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System;
@@ -420,9 +421,10 @@ public partial class SettingsViewModel : ViewModelBase
 
     // ── Hoshi AI Model Management ────────────────────────────────────────────
     private readonly OllamaService _ollama;
+    private readonly AnimeTaggerService _animeTagger;
     [ObservableProperty] private bool _useCustomHoshiModels;
-    [ObservableProperty] private string _hoshiTextModel = string.Empty;
-    [ObservableProperty] private string _hoshiVisionModel = string.Empty;
+    private string _hoshiTextModel = string.Empty;
+    private string _hoshiVisionModel = string.Empty;
     [ObservableProperty] private string _modelToInstall = string.Empty;
     [ObservableProperty] private bool _isLoadingModels;
     [ObservableProperty] private bool _isPullingModel;
@@ -430,7 +432,38 @@ public partial class SettingsViewModel : ViewModelBase
     [ObservableProperty] private double _modelPullPercent;
     [ObservableProperty] private string _modelManagementError = string.Empty;
     [ObservableProperty] private ObservableCollection<InstalledModelRow> _installedModels = new();
+    /// <summary>Installed Ollama models only — shown in its own list, separate from taggers, to avoid confusion.</summary>
+    [ObservableProperty] private ObservableCollection<InstalledModelRow> _installedOllamaModels = new();
+    /// <summary>Installed ONNX anime tagger models only — shown in its own list, separate from Ollama models.</summary>
+    [ObservableProperty] private ObservableCollection<InstalledModelRow> _installedTaggerModels = new();
+    /// <summary>All installed Ollama models — used for the Text model dropdown.</summary>
+    [ObservableProperty] private ObservableCollection<string> _installedOllamaModelNames = new();
+    /// <summary>Only installed Ollama models that report the "vision" capability — used for the Vision model dropdown.</summary>
+    [ObservableProperty] private ObservableCollection<string> _installedVisionModelNames = new();
+
+    // Anime tagger settings
+    [ObservableProperty] private bool _hoshiUseAnimeTagger;
+    private string _hoshiAnimeTaggerModel = "wd-swinv2-tagger-v3";
+    [ObservableProperty] private double _hoshiAnimeTaggerThreshold = 0.35;
+    [ObservableProperty] private int _hoshiAnimeTaggerMaxTags = 50;
+    [ObservableProperty] private bool _hoshiAnimeTaggerAutoTagDownloads;
+    [ObservableProperty] private bool _isSelectedTaggerModelInstalled;
+    [ObservableProperty] private bool _isInstallingTaggerModel;
+    [ObservableProperty] private string _taggerInstallStatus = string.Empty;
+    [ObservableProperty] private double _taggerInstallPercent;
+    [ObservableProperty] private string _taggerInstallError = string.Empty;
+
+    public ObservableCollection<RecommendedModelRow> RecommendedModels { get; } = new();
+    public IEnumerable<RecommendedModelRow> RecommendedTextModels => RecommendedModels.Where(r => r.Category == "Text / chat");
+    public IEnumerable<RecommendedModelRow> RecommendedVisionModels => RecommendedModels.Where(r => r.Category == "Vision");
+    public IEnumerable<RecommendedModelRow> RecommendedTaggerModels => RecommendedModels.Where(r => r.Category == "Anime tagging");
+    /// <summary>Tagger model keys that are actually installed on disk — used for the model dropdown
+    /// so it only ever offers models you can use right now (mirrors the Ollama text/vision dropdowns).
+    /// Browsing and installing new taggers happens via the chips below instead.</summary>
+    [ObservableProperty] private ObservableCollection<string> _installedTaggerModelNames = new();
+
     private CancellationTokenSource? _modelPullCts;
+    private CancellationTokenSource? _taggerInstallCts;
 
     /// <summary>Default model name used when no custom text model is configured.</summary>
     public string DefaultTextModelName => OllamaService.DefaultTextModel;
@@ -450,6 +483,7 @@ public partial class SettingsViewModel : ViewModelBase
         PixivClient pixivClient,
         FilePickerService filePickerService,
         OllamaService ollama,
+        AnimeTaggerService animeTagger,
         AccountService accountService,
         FfmpegService ffmpegService)
     {
@@ -458,8 +492,12 @@ public partial class SettingsViewModel : ViewModelBase
         _pixivClient = pixivClient;
         _filePickerService = filePickerService;
         _ollama = ollama;
+        _animeTagger = animeTagger;
         _accountService = accountService;
         _ffmpegService = ffmpegService;
+
+        InitializeRecommendedModels();
+        RefreshTaggerInstallState();
 
         LoadSettings();
         LoadAccountSettings();
@@ -627,10 +665,24 @@ public partial class SettingsViewModel : ViewModelBase
         NotifyOnUpdate       = s.NotifyOnUpdate;
         UpdateChannel        = s.UpdateChannel;
 
-        // Hoshi AI model preferences
+        // Hoshi AI model preferences — assign backing fields directly (not through the public
+        // property setters) so loading saved values doesn't trip their "UseCustomHoshiModels = true"
+        // side effect, which would otherwise flip a non-custom (default-model) configuration into
+        // "custom" on every load/restart and persist that incorrect flag right back to disk.
         UseCustomHoshiModels = s.UseCustomHoshiModels;
-        HoshiTextModel = s.HoshiTextModel;
-        HoshiVisionModel = s.HoshiVisionModel;
+        _hoshiTextModel = s.UseCustomHoshiModels ? s.HoshiTextModel : DefaultTextModelName;
+        OnPropertyChanged(nameof(HoshiTextModel));
+        _hoshiVisionModel = s.UseCustomHoshiModels ? s.HoshiVisionModel : DefaultVisionModelName;
+        OnPropertyChanged(nameof(HoshiVisionModel));
+
+        // Anime tagger preferences
+        HoshiUseAnimeTagger = s.HoshiUseAnimeTagger;
+        _hoshiAnimeTaggerModel = s.HoshiAnimeTaggerModel;
+        OnPropertyChanged(nameof(HoshiAnimeTaggerModel));
+        HoshiAnimeTaggerThreshold = s.HoshiAnimeTaggerThreshold;
+        HoshiAnimeTaggerMaxTags = s.HoshiAnimeTaggerMaxTags;
+        HoshiAnimeTaggerAutoTagDownloads = s.HoshiAnimeTaggerAutoTagDownloads;
+        RefreshTaggerInstallState();
     }
 
     [RelayCommand]
@@ -1455,11 +1507,71 @@ public partial class SettingsViewModel : ViewModelBase
     partial void OnUseCustomHoshiModelsChanged(bool value)
         => _settingsService.Update(s => s.UseCustomHoshiModels = value);
 
-    partial void OnHoshiTextModelChanged(string value)
-        => _settingsService.Update(s => s.HoshiTextModel = value ?? string.Empty);
+    /// <summary>
+    /// Custom text model name. Setter ignores blank/whitespace assignments entirely (not just for
+    /// persistence, but for the in-memory field itself) — the Text model ComboBox binds SelectedItem
+    /// directly to this property, and its backing list (InstalledOllamaModelNames) starts empty until
+    /// RefreshInstalledModelsAsync finishes. Avalonia deselects a ComboBox whose SelectedItem doesn't
+    /// match anything in an empty list and pushes an empty value back through the TwoWay binding —
+    /// without this guard, that transient pushback would wipe the saved selection before the list
+    /// populates, and nothing would ever restore it.
+    /// </summary>
+    public string HoshiTextModel
+    {
+        get => _hoshiTextModel;
+        set
+        {
+            if (string.IsNullOrWhiteSpace(value)) return;
+            if (_hoshiTextModel == value) return;
+            _hoshiTextModel = value;
+            OnPropertyChanged();
+            UseCustomHoshiModels = true;
+            _settingsService.Update(s => s.HoshiTextModel = value);
+        }
+    }
 
-    partial void OnHoshiVisionModelChanged(string value)
-        => _settingsService.Update(s => s.HoshiVisionModel = value ?? string.Empty);
+    /// <summary>Custom vision model name. See <see cref="HoshiTextModel"/> for why blanks are ignored.</summary>
+    public string HoshiVisionModel
+    {
+        get => _hoshiVisionModel;
+        set
+        {
+            if (string.IsNullOrWhiteSpace(value)) return;
+            if (_hoshiVisionModel == value) return;
+            _hoshiVisionModel = value;
+            OnPropertyChanged();
+            UseCustomHoshiModels = true;
+            _settingsService.Update(s => s.HoshiVisionModel = value);
+        }
+    }
+
+    partial void OnHoshiUseAnimeTaggerChanged(bool value)
+        => _settingsService.Update(s => s.HoshiUseAnimeTagger = value);
+
+    /// <summary>Active anime tagger model key. See <see cref="HoshiTextModel"/> for why blanks are ignored
+    /// (the Tagger ComboBox has the identical binding pattern against InstalledTaggerModelNames).</summary>
+    public string HoshiAnimeTaggerModel
+    {
+        get => _hoshiAnimeTaggerModel;
+        set
+        {
+            if (string.IsNullOrWhiteSpace(value)) return;
+            if (_hoshiAnimeTaggerModel == value) return;
+            _hoshiAnimeTaggerModel = value;
+            OnPropertyChanged();
+            RefreshSelectedTaggerInstallState();
+            _settingsService.Update(s => s.HoshiAnimeTaggerModel = value);
+        }
+    }
+
+    partial void OnHoshiAnimeTaggerThresholdChanged(double value)
+        => _settingsService.Update(s => s.HoshiAnimeTaggerThreshold = value);
+
+    partial void OnHoshiAnimeTaggerMaxTagsChanged(int value)
+        => _settingsService.Update(s => s.HoshiAnimeTaggerMaxTags = value);
+
+    partial void OnHoshiAnimeTaggerAutoTagDownloadsChanged(bool value)
+        => _settingsService.Update(s => s.HoshiAnimeTaggerAutoTagDownloads = value);
 
     /// <summary>Refresh the list of installed Ollama models. Non-blocking (runs on a background task).</summary>
     [RelayCommand]
@@ -1472,10 +1584,58 @@ public partial class SettingsViewModel : ViewModelBase
         {
             var list = await Task.Run(() => _ollama.ListInstalledModelsAsync());
             InstalledModels.Clear();
+            InstalledOllamaModels.Clear();
+            var ollamaNames = new List<string>();
+            var visionNames = new List<string>();
             foreach (var m in list)
             {
-                InstalledModels.Add(new InstalledModelRow(m.Name, m.SizeBytes, m.ModifiedAt));
+                var row = new InstalledModelRow("Ollama", m.Name, m.SizeBytes, m.ModifiedAt);
+                InstalledModels.Add(row);
+                InstalledOllamaModels.Add(row);
+                ollamaNames.Add(m.Name);
+                if (m.SupportsVision)
+                    visionNames.Add(m.Name);
             }
+
+            // Anime taggers get their own separate list — kept apart from Ollama models to avoid
+            // confusion, since they're a different kind of model (ONNX, not chat/vision).
+            InstalledTaggerModels.Clear();
+            var taggerNames = new List<string>();
+            foreach (var model in KnownAnimeTaggerModels.All.Where(AnimeTaggerService.IsModelInstalled))
+            {
+                long sizeBytes = 0;
+                DateTime modifiedAt = DateTime.MinValue;
+                var dir = AnimeTaggerService.GetModelDirectory(model);
+                if (Directory.Exists(dir))
+                {
+                    var di = new DirectoryInfo(dir);
+                    foreach (var file in di.EnumerateFiles("*", SearchOption.AllDirectories))
+                    {
+                        sizeBytes += file.Length;
+                        if (file.LastWriteTimeUtc > modifiedAt)
+                            modifiedAt = file.LastWriteTimeUtc;
+                    }
+                }
+                var row = new InstalledModelRow("Anime tagger", model.Name, sizeBytes, modifiedAt);
+                InstalledModels.Add(row);
+                InstalledTaggerModels.Add(row);
+                taggerNames.Add(model.Key);
+            }
+
+            // Make sure the currently selected active models appear in the dropdown even if not installed.
+            if (!string.IsNullOrWhiteSpace(HoshiTextModel) && !ollamaNames.Contains(HoshiTextModel))
+                ollamaNames.Add(HoshiTextModel);
+            if (!string.IsNullOrWhiteSpace(HoshiVisionModel) && !visionNames.Contains(HoshiVisionModel))
+                visionNames.Add(HoshiVisionModel);
+            if (!string.IsNullOrWhiteSpace(HoshiAnimeTaggerModel) && !taggerNames.Contains(HoshiAnimeTaggerModel))
+                taggerNames.Add(HoshiAnimeTaggerModel);
+
+            // Sync in place (never Clear()) so ComboBoxes bound to these collections don't
+            // transiently deselect — that would wipe out the Text/Vision/Tagger selection
+            // via the OnHoshi*ModelChanged handlers whenever this refresh runs.
+            SyncNameCollection(InstalledOllamaModelNames, ollamaNames);
+            SyncNameCollection(InstalledVisionModelNames, visionNames);
+            SyncNameCollection(InstalledTaggerModelNames, taggerNames);
         }
         catch (Exception ex)
         {
@@ -1562,23 +1722,35 @@ public partial class SettingsViewModel : ViewModelBase
 
     /// <summary>Uninstalls (deletes) a model.</summary>
     [RelayCommand]
-    private async Task DeleteModelAsync(string? name)
+    private async Task DeleteModelAsync(InstalledModelRow? row)
     {
-        if (string.IsNullOrWhiteSpace(name)) return;
+        if (row == null) return;
         var confirmed = await _dialogService.ShowConfirmationAsync(
             "Uninstall model?",
-            $"Remove \"{name}\" from your machine? You can reinstall it any time.");
+            $"Remove \"{row.Name}\" from your machine? You can reinstall it any time.");
         if (!confirmed) return;
 
         try
         {
-            await Task.Run(() => _ollama.DeleteModelAsync(name));
+            if (row.IsOllama)
+            {
+                await Task.Run(() => _ollama.DeleteModelAsync(row.Name));
+            }
+            else if (row.IsAnimeTagger)
+            {
+                var model = KnownAnimeTaggerModels.All.FirstOrDefault(m => m.Name == row.Name);
+                if (model != null)
+                {
+                    var dir = AnimeTaggerService.GetModelDirectory(model);
+                    await Task.Run(() => { if (Directory.Exists(dir)) Directory.Delete(dir, true); });
+                }
+            }
             await RefreshInstalledModelsAsync();
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "Failed to delete model {Name}", name);
-            ModelManagementError = $"Could not delete {name}: {ex.Message}";
+            Logger.LogError(ex, "Failed to delete model {Name}", row.Name);
+            ModelManagementError = $"Could not delete {row.Name}: {ex.Message}";
         }
     }
 
@@ -1599,6 +1771,172 @@ public partial class SettingsViewModel : ViewModelBase
         HoshiVisionModel = name;
     }
 
+    /// <summary>Sets the active anime tagger model from an installed model row.</summary>
+    [RelayCommand]
+    private void UseModelForTagger(string? name)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return;
+        var model = KnownAnimeTaggerModels.All.FirstOrDefault(m => m.Name == name);
+        if (model == null) return;
+        HoshiUseAnimeTagger = true;
+        HoshiAnimeTaggerModel = model.Key;
+    }
+
+    /// <summary>Populates the unified recommended models list with Ollama and ONNX tagger choices.</summary>
+    private void InitializeRecommendedModels()
+    {
+        RecommendedModels.Clear();
+
+        AddRecommendedOllama("Text / chat", "llama3.2", "Lightweight general-purpose 3B instruction model. Good starting point for chat.");
+        AddRecommendedOllama("Text / chat", "qwen2.5", "Alibaba's Qwen2.5 instruction series with strong multilingual support.");
+        AddRecommendedOllama("Text / chat", "gemma2", "Google's Gemma 2 instruction models.");
+        AddRecommendedOllama("Text / chat", "mistral", "Mistral instruction model with good reasoning.");
+
+        AddRecommendedOllama("Vision", "llava", "Vision-language model that can describe images.");
+        AddRecommendedOllama("Vision", "moondream", "Small vision-language model tuned for short, fast image captions.");
+        AddRecommendedOllama("Vision", "bakllava", "BakLLaVA vision model based on Mistral.");
+        AddRecommendedOllama("Vision", "llava-phi3", "Compact Phi-3 based vision model.");
+        AddRecommendedOllama("Vision", "qwen2.5-vl", "Qwen vision-language model with strong detail recognition.");
+        AddRecommendedOllama("Vision", "gemma4", "Google Gemma 4 vision model.");
+
+        foreach (var model in KnownAnimeTaggerModels.All)
+            RecommendedModels.Add(new RecommendedModelRow(model));
+    }
+
+    private void AddRecommendedOllama(string category, string name, string description)
+        => RecommendedModels.Add(new RecommendedModelRow(category, name, description));
+
+    /// <summary>Installs a recommended model (Ollama or ONNX tagger) from a chip click.</summary>
+    [RelayCommand]
+    private async Task InstallRecommendedModelAsync(RecommendedModelRow? row)
+    {
+        if (row == null) return;
+
+        if (row.IsOllama)
+        {
+            if (string.IsNullOrWhiteSpace(row.OllamaName)) return;
+            ModelToInstall = row.OllamaName.Trim();
+            await PullModelAsync();
+            return;
+        }
+
+        if (row.TaggerModel is { } model)
+            await InstallTaggerModelAsync(row, model);
+    }
+
+    /// <summary>Installs the tagger model currently selected in the Anime tagger section.</summary>
+    [RelayCommand]
+    private async Task InstallSelectedTaggerModelAsync()
+    {
+        var model = KnownAnimeTaggerModels.GetByKey(HoshiAnimeTaggerModel);
+        if (model == null) return;
+
+        var row = RecommendedModels.FirstOrDefault(r => r.TaggerModel?.Key == model.Key);
+        if (row == null) return;
+
+        await InstallTaggerModelAsync(row, model);
+    }
+
+    /// <summary>Refreshes the installed flag on each recommended tagger model row.</summary>
+    private void RefreshTaggerInstallState()
+    {
+        var taggerNames = new List<string>();
+        foreach (var row in RecommendedModels.Where(r => !r.IsOllama && r.TaggerModel != null))
+        {
+            row.IsInstalled = AnimeTaggerService.IsModelInstalled(row.TaggerModel);
+            if (row.IsInstalled)
+                taggerNames.Add(row.TaggerModel!.Key);
+        }
+        if (!string.IsNullOrWhiteSpace(HoshiAnimeTaggerModel) && !taggerNames.Contains(HoshiAnimeTaggerModel))
+            taggerNames.Add(HoshiAnimeTaggerModel);
+        // Sync in place (never Clear()) — this runs on every settings change (e.g. picking a
+        // different Text/Vision model triggers LoadSettings -> RefreshTaggerInstallState), so
+        // clearing the collection would transiently deselect the Tagger ComboBox and wipe it.
+        SyncNameCollection(InstalledTaggerModelNames, taggerNames);
+        RefreshSelectedTaggerInstallState();
+    }
+
+    /// <summary>
+    /// Updates <paramref name="target"/> to contain exactly <paramref name="desired"/> without ever
+    /// clearing it — removes stale entries and appends new ones in place. Avoids the transient
+    /// empty state a Clear()+re-Add() would cause, which deselects any ComboBox bound to it and
+    /// wipes out the underlying saved selection via the OnHoshi*ModelChanged handlers.
+    /// </summary>
+    private static void SyncNameCollection(ObservableCollection<string> target, IReadOnlyList<string> desired)
+    {
+        for (int i = target.Count - 1; i >= 0; i--)
+            if (!desired.Contains(target[i])) target.RemoveAt(i);
+        foreach (var name in desired)
+            if (!target.Contains(name)) target.Add(name);
+    }
+
+    /// <summary>Updates whether the currently selected anime tagger model is installed.</summary>
+    private void RefreshSelectedTaggerInstallState()
+    {
+        var model = KnownAnimeTaggerModels.GetByKey(HoshiAnimeTaggerModel);
+        IsSelectedTaggerModelInstalled = model != null && AnimeTaggerService.IsModelInstalled(model);
+    }
+
+    /// <summary>Downloads an ONNX anime tagger model from Hugging Face.</summary>
+    private async Task InstallTaggerModelAsync(RecommendedModelRow row, TaggerModelInfo model)
+    {
+        IsInstallingTaggerModel = true;
+        TaggerInstallPercent = 0;
+        TaggerInstallStatus = $"Downloading {model.Name}…";
+        TaggerInstallError = string.Empty;
+
+        _taggerInstallCts?.Cancel();
+        _taggerInstallCts?.Dispose();
+        _taggerInstallCts = new CancellationTokenSource();
+        var ct = _taggerInstallCts.Token;
+        row.IsInstalling = true;
+
+        try
+        {
+            var progress = new Progress<double>(p =>
+            {
+                TaggerInstallPercent = p * 100.0;
+                TaggerInstallStatus = $"Downloading {model.Name}… {p:0%}";
+            });
+
+            var ok = await Task.Run(() => _animeTagger.EnsureModelInstalledAsync(model, progress, ct), ct);
+            if (ok)
+            {
+                TaggerInstallStatus = $"Installed {model.Name}";
+                TaggerInstallPercent = 100;
+                RefreshTaggerInstallState();
+            }
+            else
+            {
+                TaggerInstallError = "Download did not complete. Check the log for details.";
+                TaggerInstallStatus = string.Empty;
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            TaggerInstallStatus = "Download cancelled.";
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to install tagger model {Key}", model.Key);
+            TaggerInstallError = $"Download failed: {ex.Message}";
+            TaggerInstallStatus = string.Empty;
+        }
+        finally
+        {
+            IsInstallingTaggerModel = false;
+            if (row != null) row.IsInstalling = false;
+        }
+    }
+
+    /// <summary>Cancels an in-progress tagger model download.</summary>
+    [RelayCommand]
+    private void CancelTaggerInstall()
+    {
+        try { _taggerInstallCts?.Cancel(); }
+        catch { /* ignore */ }
+    }
+
     private static string FormatBytes(long bytes)
     {
         if (bytes <= 0) return "0 B";
@@ -1613,19 +1951,89 @@ public partial class SettingsViewModel : ViewModelBase
 /// <summary>Row in the installed models list shown in Settings.</summary>
 public sealed class InstalledModelRow
 {
+    public string Category { get; }
     public string Name { get; }
     public long SizeBytes { get; }
     public DateTime ModifiedAt { get; }
     public string DisplaySize { get; }
     public string DisplayModified { get; }
+    public bool IsOllama { get; }
+    public bool IsAnimeTagger { get; }
 
-    public InstalledModelRow(string name, long sizeBytes, DateTime modifiedAt)
+    public InstalledModelRow(string category, string name, long sizeBytes, DateTime modifiedAt)
     {
+        Category = category;
         Name = name;
         SizeBytes = sizeBytes;
         ModifiedAt = modifiedAt;
         DisplaySize = FormatBytes(sizeBytes);
         DisplayModified = modifiedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm");
+        IsOllama = category == "Ollama";
+        IsAnimeTagger = category == "Anime tagger";
+    }
+
+    private static string FormatBytes(long bytes)
+    {
+        if (bytes <= 0) return "0 B";
+        string[] units = { "B", "KB", "MB", "GB", "TB" };
+        var order = (int)Math.Floor(Math.Log(bytes, 1024));
+        order = Math.Min(order, units.Length - 1);
+        var value = bytes / Math.Pow(1024, order);
+        return $"{value:0.##} {units[order]}";
+    }
+}
+
+/// <summary>Row in the unified recommended models list (Ollama or ONNX tagger).</summary>
+public sealed partial class RecommendedModelRow : ObservableObject
+{
+    public string Name { get; }
+    public string Category { get; }
+    public string Description { get; }
+    public bool IsOllama { get; }
+    public string? OllamaName { get; }
+    public TaggerModelInfo? TaggerModel { get; }
+    public long? EstimatedBytes { get; }
+
+    [ObservableProperty] private bool _isInstalled;
+    [ObservableProperty] private bool _isInstalling;
+
+    public RecommendedModelRow(TaggerModelInfo model)
+    {
+        Name = model.Name;
+        Category = "Anime tagging";
+        Description = model.Description;
+        TaggerModel = model;
+        EstimatedBytes = model.EstimatedBytes;
+    }
+
+    public RecommendedModelRow(string category, string ollamaName, string description)
+    {
+        Name = ollamaName;
+        Category = category;
+        Description = description;
+        IsOllama = true;
+        OllamaName = ollamaName;
+        EstimatedBytes = null;
+    }
+
+    public string DisplaySize => EstimatedBytes is long b && b > 0 ? FormatBytes(b) : string.Empty;
+
+    public string ToolTipText
+    {
+        get
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine(Category);
+            sb.AppendLine();
+            sb.Append(Description);
+            if (!string.IsNullOrEmpty(DisplaySize))
+            {
+                sb.AppendLine();
+                sb.AppendLine();
+                sb.Append($"Estimated size: {DisplaySize}");
+            }
+            return sb.ToString();
+        }
     }
 
     private static string FormatBytes(long bytes)

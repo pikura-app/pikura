@@ -11,7 +11,8 @@
         Height="950"
         WindowStartupLocation="CenterOwner"
         MinWidth="1100"
-        MinHeight="700">
+        MinHeight="700"
+        CanResize="True">
 
     <Grid ColumnDefinitions="350,*,300">
         <!-- LEFT: Preset Selection -->
@@ -529,6 +530,29 @@
 
                 <!-- Action Buttons -->
                 <StackPanel Grid.Row="4" Spacing="8">
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="Download Artworks" FontWeight="SemiBold"/>
+                        <ComboBox x:Name="DownloadArtworksComboBox"
+                                  SelectionChanged="OnDownloadArtworksChanged">
+                            <ComboBoxItem Content="Current artwork only"/>
+                        </ComboBox>
+                        <TextBox x:Name="DownloadArtworksTextBox"
+                                 Watermark="e.g. 1,3,5 or 1-3:1-2,5; 5:1,3 or artwork 1-3: page 1-2,5; artwork 5: page 1,3"
+                                 FontSize="12"
+                                 IsVisible="False"/>
+                        <Border x:Name="DownloadArtworksPanel"
+                                Background="{actipro:ThemeResource Container3BackgroundBrush}"
+                                BorderBrush="{actipro:ThemeResource Container3BorderBrush}"
+                                BorderThickness="1"
+                                CornerRadius="6"
+                                Padding="8"
+                                IsVisible="False"
+                                MaxHeight="140">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                <StackPanel x:Name="DownloadArtworksStack" Spacing="4"/>
+                            </ScrollViewer>
+                        </Border>
+                    </StackPanel>
                     <StackPanel Spacing="4">
                         <TextBlock Text="Download Scope" FontWeight="SemiBold"/>
                         <ComboBox x:Name="DownloadScopeComboBox"

@@ -18,7 +18,15 @@ public sealed class ArtworkDetailBody
     [JsonPropertyName("illustComment")] public string? IllustComment { get; init; }
     [JsonPropertyName("userId")] public string? UserId { get; init; }
     [JsonPropertyName("userName")] public string? UserName { get; init; }
-    [JsonPropertyName("url")] public string? ThumbnailUrl { get; init; }
+
+    // Pixiv's /ajax/illust/{id} endpoint nests thumbnail URLs under "urls": {mini, thumb,
+    // small, regular, original} — there is no flat top-level "url" string field (that shape
+    // only exists on listing endpoints like /recommend/init or /discovery/artworks). Binding
+    // straight to a top-level "url" here silently produced a null thumbnail for every artwork
+    // opened via this endpoint (e.g. "Open" from a Hoshi similar-art/artist result, or any
+    // other single-artwork lookup), even though the artwork loaded successfully otherwise.
+    [JsonPropertyName("urls")] public ArtworkDetailUrls? Urls { get; init; }
+    public string? ThumbnailUrl => Urls?.Regular ?? Urls?.Small ?? Urls?.Thumb ?? Urls?.Original;
 
     // Stats - these are the key fields we need!
     [JsonPropertyName("bookmarkCount")] public int? BookmarkCount { get; init; }
@@ -39,6 +47,15 @@ public sealed class ArtworkDetailBody
     [JsonPropertyName("pageCount")] public int PageCount { get; init; }
     [JsonPropertyName("width")] public int Width { get; init; }
     [JsonPropertyName("height")] public int Height { get; init; }
+}
+
+public sealed class ArtworkDetailUrls
+{
+    [JsonPropertyName("mini")] public string? Mini { get; init; }
+    [JsonPropertyName("thumb")] public string? Thumb { get; init; }
+    [JsonPropertyName("small")] public string? Small { get; init; }
+    [JsonPropertyName("regular")] public string? Regular { get; init; }
+    [JsonPropertyName("original")] public string? Original { get; init; }
 }
 
 public sealed class ArtworkDetailTags

@@ -68,7 +68,7 @@ public partial class HoshiView : UserControl
 
     private void RefreshImageStrip()
     {
-        if (ImageThumb == null || ImageLabel == null || ImageHint == null || ClearImageBtn == null) return;
+        if (ImageThumb == null || ImageLabel == null || ImageHint == null) return;
         var bytes = VM?.CurrentImageBytes;
         if (bytes is { Length: > 0 })
         {
@@ -80,16 +80,29 @@ public partial class HoshiView : UserControl
             catch { ImageThumb.Source = null; }
             ImageLabel.Text = $"Image attached ({bytes.Length / 1024} KB)";
             ImageHint.Text  = VM?.CurrentSession?.ImageSource ?? "From current artwork";
-            ClearImageBtn.IsVisible = true;
         }
         else
         {
             ImageThumb.Source = null;
             ImageLabel.Text = "No image attached";
             ImageHint.Text  = "Drop an image here, paste with Ctrl+V, or click 📂 Open";
-            ClearImageBtn.IsVisible = false;
         }
+
+        var artworkId = GetCurrentArtworkId();
+        if (ViewArtworkBtn != null)
+            ViewArtworkBtn.IsVisible = !string.IsNullOrEmpty(artworkId);
+
+        // The Open button lets the user attach a local image file. Once a session already has an
+        // image sourced from the inline viewer (a Pixiv artwork), overwriting it via Open would
+        // detach the chat from that artwork's context, so only allow Open on a "blank" session —
+        // one with no image attached yet, or an image that wasn't loaded from the inline viewer.
+        var hasImageFromInlineViewer = bytes is { Length: > 0 } && !string.IsNullOrEmpty(artworkId);
+        if (OpenImageBtn != null)
+            OpenImageBtn.IsVisible = !hasImageFromInlineViewer;
     }
+
+    /// <summary>The Pixiv artwork ID associated with the current chat context, if any.</summary>
+    private string? GetCurrentArtworkId() => VM?.CurrentCard?.Id ?? VM?.CurrentSession?.PixivArtworkId;
 
     private void OnMessagesChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
     {
@@ -176,55 +189,58 @@ public partial class HoshiView : UserControl
     {
         if (VM is not { } vm) return;
         vm.RequestImageSend();
-        vm.InputText = "Describe this image in detail.";
+        vm.InputText = "Describe this image in detail. Include the subject, the art style and technique, and the character(s) — appearance, outfit, expression, and mood.";
         await vm.SendCommand.ExecuteAsync(null);
     }
 
     private async void OnTagsClicked(object? sender, RoutedEventArgs e)
     {
         if (VM is not { } vm) return;
-        vm.RequestImageSend();
-        vm.InputText = "Suggest Pixiv-style tags for this image. Include both Japanese and English tags (Pixiv tags are usually Japanese). Example format: アニメ (anime), 女の子 (girl), ポートレート (portrait), 金髪 (blonde hair), 夕日 (sunset).";
-        await vm.SendCommand.ExecuteAsync(null);
+        await vm.SuggestTagsCommand.ExecuteAsync(null);
     }
 
-    private async void OnStyleClicked(object? sender, RoutedEventArgs e)
+    private async void OnAllPagesClicked(object? sender, RoutedEventArgs e)
     {
         if (VM is not { } vm) return;
-        vm.RequestImageSend();
-        vm.InputText = "What art style is this? Describe the technique and visual characteristics.";
-        await vm.SendCommand.ExecuteAsync(null);
+        await vm.DescribeAllPagesCommand.ExecuteAsync(null);
     }
 
-    private async void OnCharClicked(object? sender, RoutedEventArgs e)
+    private async void OnSimilarArtworksClicked(object? sender, RoutedEventArgs e)
     {
         if (VM is not { } vm) return;
-        vm.RequestImageSend();
-        vm.InputText = "Describe the character(s) in this image — appearance, outfit, expression, mood.";
-        await vm.SendCommand.ExecuteAsync(null);
+        await vm.FindSimilarArtworksCommand.ExecuteAsync(null);
     }
 
-    private void OnFavClicked(object? sender, RoutedEventArgs e)
+    private async void OnSimilarArtistsClicked(object? sender, RoutedEventArgs e)
     {
         if (VM is not { } vm) return;
-        if (vm.CurrentCard == null)
+        await vm.FindSimilarArtistsCommand.ExecuteAsync(null);
+    }
+
+    private async void OnFavClicked(object? sender, RoutedEventArgs e)
+    {
+        if (VM is not { } vm) return;
+        var card = await vm.ResolveContextArtworkAsync();
+        if (card == null)
         {
             vm.Messages.Add(new AiChatMessage { Role = "system", Content = "⚠ No artwork selected — open an artwork in the viewer first." });
             return;
         }
         var favs = AppServices.Get<Pikura.Core.Services.LocalFavoritesService>();
-        favs.Toggle(vm.CurrentCard.Artwork);
-        var isFav = favs.IsFavorite(vm.CurrentCard.Id);
+        favs.Toggle(card.Artwork);
+        var isFav = favs.IsFavorite(card.Id);
         var msg = isFav
-            ? $"Added \"{vm.CurrentCard.Title}\" to local favorites ★"
-            : $"Removed \"{vm.CurrentCard.Title}\" from favorites.";
+            ? $"Added {card.Title} to local favorites ★"
+            : $"Removed {card.Title} from favorites.";
         vm.Messages.Add(new AiChatMessage { Role = "assistant", Content = msg });
     }
 
     private async void OnDlClicked(object? sender, RoutedEventArgs e)
     {
-        Console.Error.WriteLine($"[Hoshi] OnDlClicked: VM={VM != null} CurrentCard={VM?.CurrentCard?.Title ?? "null"}");
-        if (VM is not { CurrentCard: { } card } vm) { Console.Error.WriteLine("[Hoshi] OnDlClicked: bailed — no CurrentCard"); return; }
+        if (VM is not { } vm) return;
+        var card = await vm.ResolveContextArtworkAsync();
+        Console.Error.WriteLine($"[Hoshi] OnDlClicked: VM={VM != null} resolvedCard={card?.Title ?? "null"}");
+        if (card == null) { Console.Error.WriteLine("[Hoshi] OnDlClicked: bailed — no artwork context"); return; }
         await vm.DownloadArtworkWithJobAsync(card);
     }
 
@@ -328,6 +344,15 @@ public partial class HoshiView : UserControl
 
     // ── Image input ───────────────────────────────────────────────────────────
 
+    /// <summary>Pops up a much larger preview of the attached image — the 100x100 strip
+    /// thumbnail is deliberately compact, but too small to make out details on its own.</summary>
+    private void OnImageThumbClicked(object? sender, PointerPressedEventArgs e)
+    {
+        if (ImageThumb.Source == null) return;
+        ImageThumbLarge.Source = ImageThumb.Source;
+        global::Avalonia.Controls.Primitives.FlyoutBase.ShowAttachedFlyout(ImageThumbBorder);
+    }
+
     private async void OnOpenImageClicked(object? sender, RoutedEventArgs e)
     {
         var topLevel = TopLevel.GetTopLevel(this);
@@ -363,11 +388,65 @@ public partial class HoshiView : UserControl
         await LoadImageFromUrlAsync(url.Trim());
     }
 
-    private void OnClearImageClicked(object? sender, RoutedEventArgs e)
+    /// <summary>
+    /// Jumps to the artwork behind the current chat session in the Gallery's inline viewer.
+    /// The Hoshi session/chat history is untouched — it lives independently in the sidebar,
+    /// so navigating away and back preserves it automatically.
+    /// </summary>
+    private async void OnViewArtworkClicked(object? sender, RoutedEventArgs e)
     {
-        if (VM is not { } vm) return;
-        vm.SetSessionImage(null);
-        RefreshImageStrip();
+        var artworkId = GetCurrentArtworkId();
+        if (string.IsNullOrEmpty(artworkId))
+        {
+            VM?.Messages.Add(new AiChatMessage { Role = "system", Content = "⚠ No Pixiv artwork is associated with this session." });
+            return;
+        }
+
+        var mainWindow = TopLevel.GetTopLevel(this) as Pikura.Avalonia.Views.MainWindow;
+        var galleryVm = AppServices.Get<GalleryViewModel>();
+        mainWindow?.LoadGalleryView();
+        galleryVm.IdSearchQuery = artworkId;
+        await galleryVm.SearchByIdCommand.ExecuteAsync(null);
+    }
+
+    /// <summary>
+    /// Opens a recommended/similar artwork result in the Gallery inline viewer.
+    /// The artwork ID is passed via the button's Tag property.
+    /// </summary>
+    private async void OnOpenArtworkFromChat(object? sender, RoutedEventArgs e)
+    {
+        if (sender is not Button { Tag: string artworkId }) return;
+        try
+        {
+            var mainWindow = TopLevel.GetTopLevel(this) as Pikura.Avalonia.Views.MainWindow;
+            var galleryVm  = AppServices.Get<GalleryViewModel>();
+            mainWindow?.LoadGalleryView();
+            await galleryVm.LoadArtworkByIdCommand.ExecuteAsync(artworkId);
+        }
+        catch (Exception ex)
+        {
+            VM?.Messages.Add(new AiChatMessage { Role = "system", Content = $"✗ Could not open artwork: {ex.Message}" });
+        }
+    }
+
+    /// <summary>
+    /// Navigates to an artist's gallery from a recommended-artists result.
+    /// The artist ID is passed via the button's Tag property.
+    /// </summary>
+    private async void OnOpenArtistFromChat(object? sender, RoutedEventArgs e)
+    {
+        if (sender is not Button { Tag: string artistId }) return;
+        try
+        {
+            var mainWindow = TopLevel.GetTopLevel(this) as Pikura.Avalonia.Views.MainWindow;
+            var galleryVm  = AppServices.Get<GalleryViewModel>();
+            mainWindow?.LoadGalleryView();
+            await galleryVm.LoadArtistByIdCommand.ExecuteAsync(artistId);
+        }
+        catch (Exception ex)
+        {
+            VM?.Messages.Add(new AiChatMessage { Role = "system", Content = $"✗ Could not open artist gallery: {ex.Message}" });
+        }
     }
 
     private async void OnRootKeyDown(object? sender, KeyEventArgs e)
@@ -480,9 +559,12 @@ public partial class HoshiView : UserControl
 
     private async Task OnUnloadedAsync()
     {
-        // Save the current session when navigating away from Hoshi
+        // Cancel any in-flight AI generation before saving so the process can shut down cleanly
         if (VM is { } vm)
         {
+            vm.CancelPending();
+
+            // Save the current session when navigating away from Hoshi
             try
             {
                 await vm.OnViewUnloadingAsync();

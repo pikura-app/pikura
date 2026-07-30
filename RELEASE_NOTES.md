@@ -1,3 +1,67 @@
+## Pikura 1.8.3
+
+Local ONNX anime image tagger and a curated recommended-model catalog for Hoshi AI, plus a broad pass of Hoshi AI reliability, UI, and performance fixes.
+
+### New Features
+
+- **Anime image tagger (ONNX)** — new section in Settings → Hoshi AI lets you enable a local Danbooru-style tagger for accurate anime / Pixiv tag prediction. Supports WD SwinV2 Tagger v3, ML-Danbooru Caformer, and PixAI Tagger v0.9.
+- **Curated recommended models** — one-click install chips for Ollama text and vision models, plus install buttons for ONNX anime taggers. Tagger models download from Hugging Face on demand.
+- **Auto-tag downloaded images** — optional setting runs the selected ONNX tagger on every downloaded image and writes a sidecar `<filename>.tags.txt` file with predicted Character, Copyright, Artist, General, and Meta tags.
+- **AI chat tag suggestions prefer the ONNX tagger** — the Hoshi AI panel's *Suggest tags* command uses the local tagger when enabled and installed, falling back to the vision model otherwise.
+- **Hoshi AI in the inline viewer gets Similar Art / Similar Artists** — the compact Hoshi panel embedded in the artwork viewer now has the same recommendation actions as the full Hoshi tab.
+- **Multi-page submission support for Hoshi AI** — a new "Describe all pages" option (via the Describe dropdown, which only appears once a multi-page submission is detected) runs the vision model over every page instead of just the one you're viewing.
+- **"Full View" shortcut** — jump from the inline viewer's compact Hoshi panel straight to the full-size Hoshi tab, continuing the same chat session.
+- **Device-aware performance scaling** — the app now detects available CPU cores and memory at startup and scales image-fetch concurrency, decoded-image cache size, and background fetch parallelism accordingly, instead of assuming a high-end desktop.
+- **Real vector icons for the sidebar navigation**, replacing the emoji-glyph placeholders.
+- **Click-to-enlarge on Hoshi's attached-image thumbnail**, since the compact strip preview is too small to see details on its own.
+
+### Improvements
+
+- **Hoshi AI settings reorganized** into two focused cards: Active models and Model management. All install, refresh, and model-management actions live under Model management.
+- **Unified recommended models list** — Ollama text/vision models and ONNX anime taggers now appear together as chips. Hovering shows each model's category, description, and estimated size.
+- **Active model selectors are now dropdowns** — choose the Ollama text and vision models from the list of installed models instead of typing names.
+- **Tagger settings are conditional** — threshold, max tags, and auto-tag only appear after the selected ONNX tagger model is installed.
+- **Installed models list now includes everything** — Ollama and installed ONNX anime taggers appear together, with category-appropriate actions (use for chat/vision/tagger, uninstall).
+- **AnimeTaggerService tag-list support** now covers CSV, plain-text, and JSON tag files.
+- **Hoshi AI answers artwork-title questions from Pixiv's real metadata** instead of letting the vision model guess from pixels alone (it has no access to the actual title and would otherwise hallucinate).
+- **Smoother streamed chat responses** — tokens are now coalesced into UI updates roughly every 40ms instead of one dispatch per token, fixing stutter during long responses like Describe.
+- **Hoshi's image preprocessing (resize/encode for vision queries) now runs off the UI thread**, so attaching a large image no longer momentarily freezes the window.
+- **"Similar Art" / "Similar Artists" no longer misfire into each other** (a shared keyword-matching bug), and results are now shuffled/rotated across a larger pool instead of always returning the same picks.
+- **Local Favorites star badge** repositioned to sit consistently at the top-right of a card (was overlapping the selection checkbox in one layout, and floating in an empty gap in others) and now renders as a proper vector icon instead of a plain glyph.
+- **Windows Aero Snap / Snap Layouts / maximize no longer clip window edges** (Avalonia 12.0.3 → 12.1.0 upgrade, plus removal of a redundant legacy resize handler that was fighting the OS's native resize frame).
+- **"View Artwork" from a Hoshi chat result** now correctly opens the inline viewer regardless of which tab (Gallery, Discover, Bookmarks, Rankings) it was triggered from.
+- **"Hoshi is thinking…" indicator** now also shows in the inline viewer's compact Hoshi panel, not just the full Hoshi tab, so it's clear a request is actually in progress.
+
+### Fixes
+
+- **Tagger install progress** now reports percent and status correctly during ONNX model downloads.
+- **App no longer hangs indefinitely when closing the main window** — fixed a UI-thread deadlock in the session-save-on-exit path.
+- **Local-favorite thumbnails permanently failing to load** for artworks added via a Hoshi "Open" action (wrong Pixiv API field mapping) — existing broken entries are now automatically repaired the next time Local Favorites loads.
+- **Followed-artists list fetch no longer fires unbounded concurrent requests** at every startup; it's now throttled and scaled to the device's capability.
+
+---
+
+## Pikura 1.8.2
+
+Per-artwork / per-page preset apply controls and batch download scope fixes.
+
+### New Features
+
+- **Per-artwork page selection** — the Download Preset dialog now shows a page-selection text box for each selected artwork so you can choose which pages to download (e.g. `1,3,5-6`; default `all`).
+- **Per-page preset apply** — new Apply buttons in the page picker let you apply the current preset only to selected pages, while a separate button applies it to the whole artwork.
+- **Preset download scope** — choose whether to apply presets to the original image, the processed image, or both.
+
+### Improvements
+
+- **Batch preset lookup correctness** — downloads now use the original artwork index for per-artwork and per-page preset lookups, so presets apply to the correct artworks even after filtering or sorting.
+- **Explicit artwork/page selection parsing** — the manual download-artworks text box now supports strings like `1-3:1-2,5; 5:1,3`.
+
+### Fixes
+
+- **Mismatched preset application on filtered galleries** — `batchArtworkIndex` now references the original index instead of the filtered index.
+
+---
+
 ## Pikura 1.8.1
 
 Inline viewer navigation and tab-state improvements across Gallery, Rankings, Discover, and Bookmarks.

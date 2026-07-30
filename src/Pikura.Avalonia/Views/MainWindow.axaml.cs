@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
@@ -30,6 +31,12 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+
+        // Windows needs a system resize frame for Aero Snap (Win+Arrow / drag-to-edge).
+        // macOS and Linux keep the current borderless custom chrome.
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            WindowDecorations = WindowDecorations.BorderOnly;
+
         Loaded += OnLoaded;
         Closing += OnClosing;
         PropertyChanged += OnWindowPropertyChanged;
@@ -243,6 +250,24 @@ public partial class MainWindow : Window
                 Hide();
                 return;
             }
+
+            // The app is actually exiting now. Hoshi session saves are fire-and-forget
+            // during normal use (streaming chat, image seeding, etc.) — without this
+            // flush, a save still in flight when the process terminates is lost, and
+            // the session looks empty/stale the next time the app starts.
+            //
+            // IMPORTANT: this runs on the UI thread (Closing is a normal event), and
+            // SaveCurrentSessionAsync's awaits (a SemaphoreSlim + File.WriteAllTextAsync)
+            // don't use ConfigureAwait(false) — their continuations want to resume on the
+            // UI thread's synchronization context. Blocking that same thread with
+            // .GetResult() while a continuation is queued for it is a deadlock: the app
+            // just hangs on close instead of exiting. Task.Run escapes the UI thread's
+            // sync context so the save can actually complete before we block on it.
+            try
+            {
+                Task.Run(() => AppServices.Get<AiViewModel>().SaveCurrentSessionAsync()).GetAwaiter().GetResult();
+            }
+            catch { /* best-effort */ }
         }
         catch { }
     }
@@ -401,7 +426,14 @@ public partial class MainWindow : Window
         SetSectionTitle("Artists");
     }
 
-    internal void HoshiButton_Click(object? sender, RoutedEventArgs e)
+    internal void HoshiButton_Click(object? sender, RoutedEventArgs e) => LoadHoshiView();
+
+    /// <summary>
+    /// Switches the main content to the full Hoshi tab. AiViewModel is a singleton (shared with
+    /// the inline viewer's embedded Hoshi panel), so this just re-hosts the same chat session in
+    /// the bigger view — no session transfer needed.
+    /// </summary>
+    public void LoadHoshiView()
     {
         try
         {
@@ -424,6 +456,12 @@ public partial class MainWindow : Window
 
     private void ResizeBorder_PointerPressed(object? sender, PointerPressedEventArgs e)
     {
+        // On Windows the window has a real (invisible) native resize frame via
+        // WindowDecorations.BorderOnly, which owns edge hit-testing, Aero Snap, and Snap
+        // Layouts. Handling resize manually here too raced with that native frame and was
+        // the cause of the right/bottom edge clipping and inexact snapping — so only do the
+        // manual 8px-edge fallback on macOS/Linux, where the window is fully undecorated.
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) return;
         if (!e.GetCurrentPoint(this).Properties.IsLeftButtonPressed) return;
         var pos  = e.GetCurrentPoint(this).Position;
         var w    = Bounds.Width;
@@ -626,6 +664,11 @@ public partial class MainWindow : Window
             var exitItem = new NativeMenuItem("Exit");
             exitItem.Click += (_, _) =>
             {
+                // Unsubscribing OnClosing bypasses the hide-to-tray branch so Exit always
+                // really quits — but that also skips the Hoshi session flush inside it, so
+                // any in-flight fire-and-forget chat save gets lost. Flush it here instead.
+                try { AppServices.Get<AiViewModel>().SaveCurrentSessionAsync().GetAwaiter().GetResult(); }
+                catch { /* best-effort */ }
                 Closing -= OnClosing;
                 Close();
             };

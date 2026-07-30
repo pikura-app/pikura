@@ -13,6 +13,7 @@ public static class ServiceCollectionExtensions
     {
         // Explicit factory so MS DI doesn't try to resolve the optional `string?` parameter.
         services.TryAddSingleton(_ => new SettingsService());
+        services.TryAddSingleton<DeviceCapabilityService>();
         services.TryAddSingleton<PixivHttpClientFactory>();
         services.TryAddSingleton<PixivClient>();
         services.TryAddSingleton<ImageResizeService>();

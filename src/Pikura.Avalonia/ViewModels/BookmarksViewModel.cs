@@ -411,6 +411,7 @@ public partial class BookmarksViewModel : ViewModelBase
             AvailableFolders.Add(f);
 
         var blurR18 = _settingsService.Current.BlurR18Content;
+        var missingThumbnails = new List<string>();
         foreach (var entry in _favoritesService.GetAll())
         {
             var preview = entry.ToArtworkPreview();
@@ -420,7 +421,10 @@ public partial class BookmarksViewModel : ViewModelBase
                 IsLocalFavorite = true,
             };
             LocalFavorites.Add(vm);
-            _ = vm.LoadThumbnailAsync(_imageLoader);
+            if (string.IsNullOrWhiteSpace(preview.ThumbnailUrl))
+                missingThumbnails.Add(vm.Id);
+            else
+                _ = vm.LoadThumbnailAsync(_imageLoader);
         }
 
         StatusMessage = LocalFavorites.Count > 0
@@ -428,6 +432,28 @@ public partial class BookmarksViewModel : ViewModelBase
             : "No local favorites yet — right-click any artwork and choose ★ Add to favorites";
         UpdateFiltered();
         OnPropertyChanged(nameof(HasFavorites));
+
+        // Repair favorites that were saved with no thumbnail (a past bug in the single-artwork
+        // detail lookup left ThumbnailUrl null for artworks opened via a Hoshi "Open" action).
+        // Re-fetch each one's detail once and backfill the URL so it's fixed permanently —
+        // LocalFavoritesService.Changed fires per repair and re-runs this method, which then
+        // picks up the newly-populated URL and loads the thumbnail normally.
+        if (missingThumbnails.Count > 0)
+            _ = RepairMissingThumbnailsAsync(missingThumbnails);
+    }
+
+    private async Task RepairMissingThumbnailsAsync(List<string> artworkIds)
+    {
+        foreach (var id in artworkIds)
+        {
+            try
+            {
+                var detail = await _pixivClient.GetArtworkDetailAsync(id);
+                if (!string.IsNullOrEmpty(detail?.ThumbnailUrl))
+                    _favoritesService.UpdateThumbnailUrl(id, detail.ThumbnailUrl);
+            }
+            catch { /* best-effort repair — leave it blank if the artwork is gone/private now */ }
+        }
     }
 
     public void ToggleFavorite(ArtworkCardViewModel card)

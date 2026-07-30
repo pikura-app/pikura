@@ -163,7 +163,12 @@ public sealed class HoshiSessionService
             ImageBytes  = source.ImageBytes?.ToArray(),
             Messages    = source.Messages.Select(m => new PersistedMessage
             {
-                Role = m.Role, Content = m.Content, At = m.At
+                Role = m.Role,
+                Content = m.Content,
+                At = m.At,
+                ImageBase64 = m.ImageBase64,
+                ArtworkId = m.ArtworkId,
+                ArtistId = m.ArtistId
             }).ToList(),
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,

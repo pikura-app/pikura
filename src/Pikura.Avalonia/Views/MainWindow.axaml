@@ -2,6 +2,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:actipro="http://schemas.actiprosoftware.com/avaloniaui"
         xmlns:vm="using:Pikura.Avalonia.ViewModels"
+        xmlns:chrome="using:Avalonia.Controls.Chrome"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
@@ -12,7 +13,21 @@
         MinWidth="1000" MinHeight="600"
         SystemDecorations="None"
         ExtendClientAreaToDecorationsHint="True"
-        ExtendClientAreaTitleBarHeightHint="-1">
+        ExtendClientAreaTitleBarHeightHint="32">
+
+    <!-- Sidebar nav icons — vector path data (20x20 viewBox), same syntax as an SVG "d"
+         attribute. Rendered via Path below instead of plain-text glyphs. -->
+    <Window.Resources>
+        <StreamGeometry x:Key="GalleryIconGeometry">M2,2 H8 V8 H2 Z M12,2 H18 V8 H12 Z M2,12 H8 V18 H2 Z M12,12 H18 V18 H12 Z</StreamGeometry>
+        <StreamGeometry x:Key="RankingsIconGeometry">M10,1.5 L12.6,7.5 L19,8 L14,12.3 L15.5,18.5 L10,15 L4.5,18.5 L6,12.3 L1,8 L7.4,7.5 Z</StreamGeometry>
+        <StreamGeometry x:Key="DiscoverIconGeometry">M2,10 L18,3 L11,18 L9,12 Z</StreamGeometry>
+        <StreamGeometry x:Key="BookmarksIconGeometry">M5,2 H15 V19 L10,15 L5,19 Z</StreamGeometry>
+        <StreamGeometry x:Key="HoshiIconGeometry">M10,2 C10.6,6 14,9.4 18,10 C14,10.6 10.6,14 10,18 C9.4,14 6,10.6 2,10 C6,9.4 9.4,6 10,2 Z</StreamGeometry>
+        <StreamGeometry x:Key="BatchIconGeometry">M7,1 H13 V9 H17 L10,16 L3,9 H7 Z M2,18 H18 V20 H2 Z</StreamGeometry>
+        <StreamGeometry x:Key="JobsIconGeometry">M2,3 H18 V6 H2 Z M2,9 H18 V12 H2 Z M2,15 H18 V18 H2 Z</StreamGeometry>
+        <StreamGeometry x:Key="AnalyticsIconGeometry">M2,12 H6 V18 H2 Z M8,7 H12 V18 H8 Z M14,2 H18 V18 H14 Z</StreamGeometry>
+        <StreamGeometry x:Key="SettingsIconGeometry">M10,1 L12.3,4.5 L16.4,3.6 L15.5,7.7 L19,10 L15.5,12.3 L16.4,16.4 L12.3,15.5 L10,19 L7.7,15.5 L3.6,16.4 L4.5,12.3 L1,10 L4.5,7.7 L3.6,3.6 L7.7,4.5 Z</StreamGeometry>
+    </Window.Resources>
 
     <Window.Styles>
         <Style Selector="Button.nav">
@@ -85,43 +100,50 @@
                                        Margin="20,4,0,4" LetterSpacing="1.5"/>
                             <Button Classes="nav" Click="GalleryButton_Click">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <TextBlock Text="⊞" FontSize="15" Width="18" TextAlignment="Center"/>
+                                    <Path Data="{StaticResource GalleryIconGeometry}" Width="16" Height="16"
+                                          Stretch="Uniform" Fill="{Binding $parent[Button].Foreground}"/>
                                     <TextBlock Text="Gallery"/>
                                 </StackPanel>
                             </Button>
                             <Button Classes="nav" Click="RankingsButton_Click">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <TextBlock Text="★" FontSize="15" Width="18" TextAlignment="Center"/>
+                                    <Path Data="{StaticResource RankingsIconGeometry}" Width="16" Height="16"
+                                          Stretch="Uniform" Fill="{Binding $parent[Button].Foreground}"/>
                                     <TextBlock Text="Rankings"/>
                                 </StackPanel>
                             </Button>
                             <Button Classes="nav" Click="DiscoverButton_Click">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <TextBlock Text="✨" FontSize="15" Width="18" TextAlignment="Center"/>
+                                    <Path Data="{StaticResource DiscoverIconGeometry}" Width="16" Height="16"
+                                          Stretch="Uniform" Fill="{Binding $parent[Button].Foreground}"/>
                                     <TextBlock Text="Discover"/>
                                 </StackPanel>
                             </Button>
                             <Button Classes="nav" Click="BookmarksButton_Click">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <TextBlock Text="🔖" FontSize="15" Width="18" TextAlignment="Center"/>
+                                    <Path Data="{StaticResource BookmarksIconGeometry}" Width="16" Height="16"
+                                          Stretch="Uniform" Fill="{Binding $parent[Button].Foreground}"/>
                                     <TextBlock Text="Bookmarks"/>
                                 </StackPanel>
                             </Button>
                             <Button Classes="nav" Click="HoshiButton_Click">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <TextBlock Text="✦" FontSize="15" Width="18" TextAlignment="Center"/>
+                                    <Path Data="{StaticResource HoshiIconGeometry}" Width="16" Height="16"
+                                          Stretch="Uniform" Fill="{Binding $parent[Button].Foreground}"/>
                                     <TextBlock Text="Hoshi 星"/>
                                 </StackPanel>
                             </Button>
                                                         <Button Classes="nav" Click="BatchDownloadButton_Click">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <TextBlock Text="📥" FontSize="15" Width="18" TextAlignment="Center"/>
+                                    <Path Data="{StaticResource BatchIconGeometry}" Width="16" Height="16"
+                                          Stretch="Uniform" Fill="{Binding $parent[Button].Foreground}"/>
                                     <TextBlock Text="Batch"/>
                                 </StackPanel>
                             </Button>
                             <Button Classes="nav" Click="JobsButton_Click">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <TextBlock Text="&#128451;" FontSize="15" Width="18" TextAlignment="Center"/>
+                                    <Path Data="{StaticResource JobsIconGeometry}" Width="16" Height="16"
+                                          Stretch="Uniform" Fill="{Binding $parent[Button].Foreground}"/>
                                     <TextBlock Text="Jobs"/>
                                 </StackPanel>
                             </Button>
@@ -133,13 +155,15 @@
                                        Margin="20,4,0,4" LetterSpacing="1.5"/>
                             <Button Classes="nav" Click="AnalyticsButton_Click">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <TextBlock Text="📊" FontSize="15" Width="18" TextAlignment="Center"/>
+                                    <Path Data="{StaticResource AnalyticsIconGeometry}" Width="16" Height="16"
+                                          Stretch="Uniform" Fill="{Binding $parent[Button].Foreground}"/>
                                     <TextBlock Text="Analytics"/>
                                 </StackPanel>
                             </Button>
                             <Button Classes="nav" Click="SettingsButton_Click">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <TextBlock Text="⚙" FontSize="15" Width="18" TextAlignment="Center"/>
+                                    <Path Data="{StaticResource SettingsIconGeometry}" Width="16" Height="16"
+                                          Stretch="Uniform" Fill="{Binding $parent[Button].Foreground}"/>
                                     <TextBlock Text="Settings"/>
                                 </StackPanel>
                             </Button>
@@ -297,7 +321,7 @@
                    Height="32" VerticalAlignment="Top" ZIndex="10"
                    Background="Transparent"
                    IsHitTestVisible="True"
-                   PointerPressed="TitleBar_PointerPressed"/>
+                   chrome:WindowDecorationProperties.ElementRole="TitleBar"/>
 
             <!-- Window caption buttons — ZIndex=20 sits above the draggable panel -->
             <StackPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Top"
@@ -307,13 +331,16 @@
                         ToolTip.Tip="Fullscreen" Click="FullscreenBtn_Click"/>
                 <!-- Minimize -->
                 <Button x:Name="MinimizeBtn" Classes="caption" Content="&#x2014;"
-                        ToolTip.Tip="Minimize" Click="MinimizeBtn_Click"/>
+                        ToolTip.Tip="Minimize" Click="MinimizeBtn_Click"
+                        chrome:WindowDecorationProperties.ElementRole="MinimizeButton"/>
                 <!-- Maximize/Restore -->
                 <Button x:Name="MaximizeBtn" Classes="caption" Content="&#x2610;"
-                        ToolTip.Tip="Maximize" Click="MaximizeBtn_Click"/>
+                        ToolTip.Tip="Maximize" Click="MaximizeBtn_Click"
+                        chrome:WindowDecorationProperties.ElementRole="MaximizeButton"/>
                 <!-- Close -->
                 <Button x:Name="CloseBtn" Classes="caption" Content="&#x2715;"
-                        ToolTip.Tip="Close" Click="CloseBtn_Click"/>
+                        ToolTip.Tip="Close" Click="CloseBtn_Click"
+                        chrome:WindowDecorationProperties.ElementRole="CloseButton"/>
             </StackPanel>
 
             <!-- Hamburger button — always in column 1 so it survives sidebar collapse -->

@@ -117,8 +117,8 @@ public partial class HistoryViewModel : ViewModelBase
 
     private void UpdateQueuePositions()
     {
-        for (int i = 0; i < _activeJobs.Count; i++)
-            _activeJobs[i].QueuePosition = i + 1;
+        for (int i = 0; i < ActiveJobs.Count; i++)
+            ActiveJobs[i].QueuePosition = i + 1;
     }
 
     [RelayCommand]

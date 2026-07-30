@@ -1,28 +1,17 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Pikura.Core.Models;
 
 /// <summary>Response from /ajax/illust/{id}/recommend/init endpoint.</summary>
 public sealed record RecommendIllustsResponse
 {
-    [JsonPropertyName("details")] public Dictionary<string, RecommendDetail>? Details { get; init; }
+    // Pixiv's `details` map values vary wildly (objects, strings, numbers) and we don't
+    // consume them, so keep the whole thing as raw JsonElements to avoid deserialization
+    // failures when the shape changes between artworks.
+    [JsonPropertyName("details")] public Dictionary<string, JsonElement>? Details { get; init; }
     [JsonPropertyName("illusts")] public List<RecommendIllustEntry>? Illusts { get; init; }
     [JsonPropertyName("nextIds")] public List<string>? NextIds { get; init; }
-}
-
-public sealed record RecommendDetail
-{
-    [JsonPropertyName("banditInfo")] public string? BanditInfo { get; init; }
-    [JsonPropertyName("methods")] public List<RecommendMethod>? Methods { get; init; }
-    [JsonPropertyName("recommendListId")] public string? RecommendListId { get; init; }
-    [JsonPropertyName("score")] public double Score { get; init; }
-    [JsonPropertyName("seedIllustIds")] public List<string>? SeedIllustIds { get; init; }
-}
-
-public sealed record RecommendMethod
-{
-    [JsonPropertyName("method")] public string? Method { get; init; }
-    [JsonPropertyName("score")] public double Score { get; init; }
 }
 
 public sealed record RecommendIllustEntry
@@ -40,7 +29,11 @@ public sealed record RecommendIllustEntry
     [JsonPropertyName("likeCount")] public int? LikeCount { get; init; }
     [JsonPropertyName("viewCount")] public int? ViewCount { get; init; }
     [JsonPropertyName("createDate")] public DateTimeOffset? CreateDate { get; init; }
-    [JsonPropertyName("tags")] public List<RecommendTag>? Tags { get; init; }
+    // Pixiv's /recommend/init endpoint returns tags as plain strings (same shape as
+    // /ajax/discovery/artworks' DiscoveryIllust.Tags below) — not {name, translatedName}
+    // objects. The previous List<RecommendTag> typing threw a JsonException on every
+    // response that had any tags at all.
+    [JsonPropertyName("tags")] public List<string>? Tags { get; init; }
     [JsonPropertyName("width")] public int Width { get; init; }
     [JsonPropertyName("height")] public int Height { get; init; }
 
@@ -64,16 +57,10 @@ public sealed record RecommendIllustEntry
         LikeCount = LikeCount,
         ViewCount = ViewCount,
         CreateDate = CreateDate,
-        Tags = Tags?.Select(t => t.Name ?? "").ToList() ?? [],
+        Tags = Tags ?? [],
         Width = Width,
         Height = Height
     };
-}
-
-public sealed record RecommendTag
-{
-    [JsonPropertyName("name")] public string? Name { get; init; }
-    [JsonPropertyName("translatedName")] public string? TranslatedName { get; init; }
 }
 
 /// <summary>Response from /ajax/discovery/artworks endpoint.</summary>

@@ -14,6 +14,9 @@
     <UserControl.Resources>
         <conv:BoolToBlurRadiusConverter x:Key="BoolToBlurRadiusConverter"/>
 
+        <!-- Vector star icon for the "local favorite" card badge (replaces the plain "★" glyph). -->
+        <StreamGeometry x:Key="FavoriteStarGeometry">M10,1.5 L12.6,7.5 L19,8 L14,12.3 L15.5,18.5 L10,15 L4.5,18.5 L6,12.3 L1,8 L7.4,7.5 Z</StreamGeometry>
+
         <!-- ══════════════════════════════════════════════════════════════════
              Shared card badge fragments (reused in all templates below)
              ══════════════════════════════════════════════════════════════════ -->
@@ -94,7 +97,17 @@
                     <!-- Badges -->
                     <Border VerticalAlignment="Bottom" HorizontalAlignment="Left"  Margin="6,0,0,6" Padding="5,2" CornerRadius="4" Background="#BB000000" IsVisible="{Binding IsMultiPage}"    IsHitTestVisible="False"><TextBlock Text="{Binding PageCount, StringFormat='1/{0}'}" FontSize="9" Foreground="White"/></Border>
                     <Border VerticalAlignment="Top"    HorizontalAlignment="Right" Margin="0,6,6,0"  Padding="5,2" CornerRadius="4" Background="#CCDC2626" IsVisible="{Binding IsR18}"          IsHitTestVisible="False"><TextBlock Text="R-18" FontSize="8" Foreground="White" FontWeight="Bold"/></Border>
-                    <Border VerticalAlignment="Top"    HorizontalAlignment="Right" Margin="0,28,6,0" Padding="5,2" CornerRadius="4" Background="#CC8B5CF6" IsVisible="{Binding IsLocalFavorite}" IsHitTestVisible="False"><TextBlock Text="★"    FontSize="9" Foreground="White"/></Border>
+                    <!-- Favorite star — sits at the very top-right normally, and drops below the
+                         R-18 badge only when that badge is also showing, so it's never left
+                         floating in an empty gap or overlapping another badge. -->
+                    <Panel IsVisible="{Binding IsLocalFavorite}" IsHitTestVisible="False">
+                        <Border VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,6,6,0"  Padding="5,3" CornerRadius="4" Background="#CC8B5CF6" IsVisible="{Binding !IsR18}">
+                            <Path Data="{StaticResource FavoriteStarGeometry}" Width="9" Height="9" Stretch="Uniform" Fill="White"/>
+                        </Border>
+                        <Border VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,28,6,0" Padding="5,3" CornerRadius="4" Background="#CC8B5CF6" IsVisible="{Binding IsR18}">
+                            <Path Data="{StaticResource FavoriteStarGeometry}" Width="9" Height="9" Stretch="Uniform" Fill="White"/>
+                        </Border>
+                    </Panel>
                 </Panel>
             </Border>
             <Border Margin="0,0,6,6" IsVisible="{Binding IsSelected}" IsHitTestVisible="False"
@@ -160,7 +173,7 @@
                             </Image>
                             <Border VerticalAlignment="Bottom" HorizontalAlignment="Left"  Margin="6,0,0,6" Padding="5,2" CornerRadius="4" Background="#BB000000" IsVisible="{Binding IsMultiPage}"     IsHitTestVisible="False"><TextBlock Text="{Binding PageCount, StringFormat='1/{0}'}" FontSize="9" Foreground="White"/></Border>
                             <Border VerticalAlignment="Top"    HorizontalAlignment="Left"  Margin="16,6,0,0" Padding="5,2" CornerRadius="4" Background="#CCDC2626" IsVisible="{Binding IsR18}"           IsHitTestVisible="False"><TextBlock Text="R-18" FontSize="8" Foreground="White" FontWeight="Bold"/></Border>
-                            <Border VerticalAlignment="Top"    HorizontalAlignment="Right" Margin="0,6,6,0" Padding="5,2" CornerRadius="4" Background="#CC8B5CF6" IsVisible="{Binding IsLocalFavorite}"  IsHitTestVisible="False"><TextBlock Text="★"    FontSize="9" Foreground="White"/></Border>
+                            <Border VerticalAlignment="Top"    HorizontalAlignment="Right" Margin="0,6,6,0" Padding="5,3" CornerRadius="4" Background="#CC8B5CF6" IsVisible="{Binding IsLocalFavorite}"  IsHitTestVisible="False"><Path Data="{StaticResource FavoriteStarGeometry}" Width="9" Height="9" Stretch="Uniform" Fill="White"/></Border>
                         </Panel>
                     </Border>
                     <!-- Info strip -->
@@ -310,7 +323,15 @@
                     <!-- Badges -->
                     <Border VerticalAlignment="Bottom" HorizontalAlignment="Left"  Margin="6,0,0,6"  Padding="5,2" CornerRadius="4" Background="#BB000000" IsVisible="{Binding IsMultiPage}" IsHitTestVisible="False"><TextBlock Text="{Binding PageCount, StringFormat='1/{0}'}" FontSize="9" Foreground="White"/></Border>
                     <Border VerticalAlignment="Top"    HorizontalAlignment="Right" Margin="0,6,6,0" Padding="5,2" CornerRadius="4" Background="#CCDC2626" IsVisible="{Binding IsR18}"          IsHitTestVisible="False"><TextBlock Text="R-18" FontSize="8" Foreground="White" FontWeight="Bold"/></Border>
-                    <Border VerticalAlignment="Top"    HorizontalAlignment="Right" Margin="0,28,6,0" Padding="5,2" CornerRadius="4" Background="#CC8B5CF6"                                    IsHitTestVisible="False"><TextBlock Text="★"    FontSize="9" Foreground="White"/></Border>
+                    <!-- Every card in this template is already a favorite, so the star always
+                         shows — it just needs to sit right below R-18 when that badge is also
+                         present, instead of always being offset down and leaving an empty gap. -->
+                    <Border VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,6,6,0"  Padding="5,3" CornerRadius="4" Background="#CC8B5CF6" IsVisible="{Binding !IsR18}" IsHitTestVisible="False">
+                        <Path Data="{StaticResource FavoriteStarGeometry}" Width="9" Height="9" Stretch="Uniform" Fill="White"/>
+                    </Border>
+                    <Border VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,28,6,0" Padding="5,3" CornerRadius="4" Background="#CC8B5CF6" IsVisible="{Binding IsR18}" IsHitTestVisible="False">
+                        <Path Data="{StaticResource FavoriteStarGeometry}" Width="9" Height="9" Stretch="Uniform" Fill="White"/>
+                    </Border>
                 </Panel>
             </Border>
             <Border Margin="0,0,6,6" IsVisible="{Binding IsSelected}" IsHitTestVisible="False"
@@ -395,10 +416,17 @@
                                 Background="#BB000000" IsVisible="{Binding IsMultiPage}">
                             <TextBlock Text="{Binding PageCount, StringFormat='1/{0}'}" FontSize="9" Foreground="White"/>
                         </Border>
-                        <Border VerticalAlignment="Top" HorizontalAlignment="Left"
-                                Margin="6,6,0,0" Padding="5,2" CornerRadius="4"
-                                Background="#CC8B5CF6">
-                            <TextBlock Text="★" FontSize="9" Foreground="White"/>
+                        <!-- Moved to top-right (was top-left, directly overlapping the selection
+                             checkbox below) — drops beneath R-18 when that badge is also shown. -->
+                        <Border VerticalAlignment="Top" HorizontalAlignment="Right"
+                                Margin="0,6,6,0" Padding="5,3" CornerRadius="4"
+                                Background="#CC8B5CF6" IsVisible="{Binding !IsR18}">
+                            <Path Data="{StaticResource FavoriteStarGeometry}" Width="9" Height="9" Stretch="Uniform" Fill="White"/>
+                        </Border>
+                        <Border VerticalAlignment="Top" HorizontalAlignment="Right"
+                                Margin="0,28,6,0" Padding="5,3" CornerRadius="4"
+                                Background="#CC8B5CF6" IsVisible="{Binding IsR18}">
+                            <Path Data="{StaticResource FavoriteStarGeometry}" Width="9" Height="9" Stretch="Uniform" Fill="White"/>
                         </Border>
                     </Panel>
                     <!-- Selection checkbox — top-left (always inside card bounds) -->

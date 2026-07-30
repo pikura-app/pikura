@@ -1074,173 +1074,368 @@
                         <Border Background="{actipro:ThemeResource Container1BackgroundBrush}"
                                 BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="28">
-                            <StackPanel Spacing="20">
-                                <TextBlock Text="Active models" FontWeight="SemiBold" FontSize="14"/>
-                                <TextBlock FontSize="12"
-                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
-                                           TextWrapping="Wrap"
-                                           Text="Choose which installed Ollama models Hoshi uses for chat (text) and image understanding (vision). Toggle 'Use custom models' to override the defaults."/>
+                            <StackPanel Spacing="24">
+                                <StackPanel Spacing="6">
+                                    <TextBlock Text="Active models" FontWeight="SemiBold" FontSize="14"/>
+                                    <TextBlock FontSize="12"
+                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                               TextWrapping="Wrap"
+                                               Text="Choose the models Hoshi uses for chat, image understanding, and anime tag prediction."/>
+                                </StackPanel>
 
-                                <CheckBox Content="Use custom models (instead of defaults)"
-                                          IsChecked="{Binding UseCustomHoshiModels}"/>
+                                <!-- Ollama models -->
+                                <StackPanel Spacing="14">
+                                    <TextBlock Text="Ollama" FontWeight="SemiBold" FontSize="13"/>
+                                    <TextBlock FontSize="12"
+                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                               TextWrapping="Wrap"
+                                               Text="Select the installed Ollama models Hoshi uses for chat and image understanding. Install more from Model management."/>
+                                    <!-- Shown while the installed-models list is still loading (e.g. right after
+                                         app startup while Ollama itself is spinning up) so an empty ComboBox
+                                         doesn't read as "my selection got cleared" — it's just still loading. -->
+                                    <TextBlock Text="⏳ Loading your installed Ollama models…" FontSize="12"
+                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                               IsVisible="{Binding IsLoadingModels}"/>
+                                    <Grid ColumnDefinitions="*,20,*" RowDefinitions="Auto,Auto">
+                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Text model" FontSize="13"
+                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}" Margin="0,0,0,5"/>
+                                        <ComboBox Grid.Row="1" Grid.Column="0"
+                                                  ItemsSource="{Binding InstalledOllamaModelNames}"
+                                                  SelectedItem="{Binding HoshiTextModel, Mode=TwoWay}"
+                                                  PlaceholderText="{Binding HoshiTextModel}"
+                                                  CornerRadius="6" FontSize="13" HorizontalAlignment="Stretch"/>
 
-                                <Grid ColumnDefinitions="*,20,*" RowDefinitions="Auto,Auto,Auto,Auto">
-                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Text model" FontSize="13"
-                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}" Margin="0,0,0,5"/>
-                                    <TextBox Grid.Row="1" Grid.Column="0"
-                                             Text="{Binding HoshiTextModel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                             IsEnabled="{Binding UseCustomHoshiModels}"
-                                             CornerRadius="6" FontSize="13"/>
-                                    <TextBlock Grid.Row="2" Grid.Column="0" FontSize="11" Margin="0,4,0,0"
-                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}">
-                                        <Run Text="Default: "/><Run FontWeight="SemiBold" Text="{Binding DefaultTextModelName}"/>
-                                    </TextBlock>
+                                        <TextBlock Grid.Row="0" Grid.Column="2" Text="Vision model" FontSize="13"
+                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}" Margin="0,0,0,5"/>
+                                        <ComboBox Grid.Row="1" Grid.Column="2"
+                                                  ItemsSource="{Binding InstalledVisionModelNames}"
+                                                  SelectedItem="{Binding HoshiVisionModel, Mode=TwoWay}"
+                                                  PlaceholderText="{Binding HoshiVisionModel}"
+                                                  CornerRadius="6" FontSize="13" HorizontalAlignment="Stretch"/>
+                                    </Grid>
+                                </StackPanel>
 
-                                    <TextBlock Grid.Row="0" Grid.Column="2" Text="Vision model" FontSize="13"
-                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}" Margin="0,0,0,5"/>
-                                    <TextBox Grid.Row="1" Grid.Column="2"
-                                             Text="{Binding HoshiVisionModel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                             IsEnabled="{Binding UseCustomHoshiModels}"
-                                             CornerRadius="6" FontSize="13"/>
-                                    <TextBlock Grid.Row="2" Grid.Column="2" FontSize="11" Margin="0,4,0,0"
-                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}">
-                                        <Run Text="Default: "/><Run FontWeight="SemiBold" Text="{Binding DefaultVisionModelName}"/>
-                                    </TextBlock>
-                                </Grid>
+                                <Border Height="1" Background="{actipro:ThemeResource Container1BorderBrush}" Margin="0,0"/>
+
+                                <!-- Anime tagger -->
+                                <StackPanel Spacing="14">
+                                    <TextBlock Text="Anime image tagger (ONNX)" FontWeight="SemiBold" FontSize="13"/>
+                                    <TextBlock FontSize="12"
+                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                               TextWrapping="Wrap"
+                                               Text="Run a local Danbooru-style tagger for accurate anime / Pixiv tag prediction. ONNX models are downloaded on demand."/>
+
+                                    <CheckBox Content="Enable anime tagger"
+                                              IsChecked="{Binding HoshiUseAnimeTagger}"/>
+
+                                    <StackPanel Spacing="14" IsEnabled="{Binding HoshiUseAnimeTagger}">
+                                        <Grid ColumnDefinitions="Auto,12,*" RowDefinitions="Auto,Auto">
+                                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Model" FontSize="13"
+                                                       Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}" VerticalAlignment="Center" Margin="0,0,0,5"/>
+                                            <ComboBox Grid.Row="0" Grid.Column="2"
+                                                      ItemsSource="{Binding InstalledTaggerModelNames}"
+                                                      SelectedItem="{Binding HoshiAnimeTaggerModel, Mode=TwoWay}"
+                                                      CornerRadius="6" FontSize="13" HorizontalAlignment="Stretch"/>
+
+                                            <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Spacing="8"
+                                                        Margin="0,10,0,0">
+                                                <TextBlock Text="Available taggers" FontSize="11" FontWeight="SemiBold"
+                                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                <ItemsControl ItemsSource="{Binding RecommendedTaggerModels}">
+                                                    <ItemsControl.ItemsPanel>
+                                                        <ItemsPanelTemplate>
+                                                            <WrapPanel Orientation="Horizontal"/>
+                                                        </ItemsPanelTemplate>
+                                                    </ItemsControl.ItemsPanel>
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate x:DataType="vm:RecommendedModelRow">
+                                                            <Border Margin="0,0,6,6" Padding="10,5" CornerRadius="10"
+                                                                    Background="{actipro:ThemeResource Container2BackgroundBrush}"
+                                                                    BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                                                                    BorderThickness="1"
+                                                                    ToolTip.Tip="{Binding ToolTipText}">
+                                                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                                                    <TextBlock Text="{Binding Name}" FontSize="12" VerticalAlignment="Center"/>
+                                                                    <TextBlock Text="✓ Installed" FontSize="11" Foreground="#4ADE80"
+                                                                               VerticalAlignment="Center"
+                                                                               IsVisible="{Binding IsInstalled}"/>
+                                                                    <Button Content="Install" FontSize="11" Padding="8,3" CornerRadius="8"
+                                                                            Classes="accent"
+                                                                            IsVisible="{Binding !IsInstalled}"
+                                                                            IsEnabled="{Binding !IsInstalling}"
+                                                                            Command="{Binding $parent[ItemsControl].((vm:SettingsViewModel)DataContext).InstallRecommendedModelCommand}"
+                                                                            CommandParameter="{Binding}"/>
+                                                                </StackPanel>
+                                                            </Border>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+
+                                                <StackPanel Spacing="6" IsVisible="{Binding IsInstallingTaggerModel}">
+                                                    <ProgressBar Minimum="0" Maximum="100"
+                                                                 Value="{Binding TaggerInstallPercent}" Height="6"/>
+                                                    <TextBlock Text="{Binding TaggerInstallStatus}" FontSize="11"
+                                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                                               TextWrapping="Wrap"/>
+                                                </StackPanel>
+
+                                                <TextBlock Text="{Binding TaggerInstallError}" FontSize="11"
+                                                           Foreground="#F87171" TextWrapping="Wrap"
+                                                           IsVisible="{Binding TaggerInstallError, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+
+                                                <TextBlock FontSize="12" TextWrapping="Wrap" Foreground="#F87171"
+                                                           IsVisible="{Binding !IsSelectedTaggerModelInstalled}"
+                                                           Text="The selected model is not installed yet. Click it above to install."/>
+                                            </StackPanel>
+                                        </Grid>
+
+                                        <StackPanel Spacing="14" IsVisible="{Binding IsSelectedTaggerModelInstalled}">
+                                            <Grid ColumnDefinitions="Auto,12,*" RowDefinitions="Auto,Auto">
+                                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Confidence threshold" FontSize="13"
+                                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}" VerticalAlignment="Center" Margin="0,0,0,0"/>
+                                                <Slider Grid.Row="0" Grid.Column="2"
+                                                        Minimum="0" Maximum="1" TickFrequency="0.05" IsSnapToTickEnabled="True"
+                                                        Value="{Binding HoshiAnimeTaggerThreshold, Mode=TwoWay}"/>
+
+                                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Max tags" FontSize="13"
+                                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}" VerticalAlignment="Center" Margin="0,8,0,0"/>
+                                                <NumericUpDown Grid.Row="1" Grid.Column="2"
+                                                               Minimum="1" Maximum="1000"
+                                                               Value="{Binding HoshiAnimeTaggerMaxTags, Mode=TwoWay}"
+                                                               Margin="0,8,0,0" FontSize="13"/>
+                                            </Grid>
+
+                                            <CheckBox Content="Auto-tag downloaded images"
+                                                      IsChecked="{Binding HoshiAnimeTaggerAutoTagDownloads}"
+                                                      ToolTip.Tip="Runs the tagger on each downloaded image and writes the tags into a sidecar file next to the image."/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </StackPanel>
                             </StackPanel>
                         </Border>
 
-                        <!-- Install a model -->
+                        <!-- Model management -->
                         <Border Background="{actipro:ThemeResource Container1BackgroundBrush}"
                                 BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="28">
-                            <StackPanel Spacing="20">
-                                <TextBlock Text="Install a model" FontWeight="SemiBold" FontSize="14"/>
-                                <TextBlock FontSize="12"
-                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
-                                           TextWrapping="Wrap"
-                                           Text="Type any Ollama model name (e.g. llama3.2, llava, qwen2.5:7b) and click Install. The download runs in the background — you can keep using the app."/>
+                            <StackPanel Spacing="24">
+                                <StackPanel Spacing="6">
+                                    <TextBlock Text="Model management" FontWeight="SemiBold" FontSize="14"/>
+                                    <TextBlock FontSize="12"
+                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                               TextWrapping="Wrap"
+                                               Text="Install, refresh, and manage Ollama and ONNX models. Ollama models are pulled through Ollama; ONNX taggers are downloaded from Hugging Face."/>
+                                </StackPanel>
 
-                                <Grid ColumnDefinitions="*,Auto,Auto">
-                                    <TextBox Grid.Column="0"
-                                             Text="{Binding ModelToInstall, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                             CornerRadius="6" FontSize="13" Margin="0,0,8,0"
-                                             Watermark="Model name (e.g. llama3.2)"/>
-                                    <Button Grid.Column="1" Content="Install"
-                                            Classes="accent" CornerRadius="6" Padding="14,7" FontSize="13"
-                                            Command="{Binding PullModelCommand}"
-                                            IsEnabled="{Binding !IsPullingModel}"/>
-                                    <Button Grid.Column="2" Content="Cancel" Margin="6,0,0,0"
-                                            CornerRadius="6" Padding="14,7" FontSize="13"
-                                            Command="{Binding CancelModelPullCommand}"
-                                            IsVisible="{Binding IsPullingModel}"/>
-                                </Grid>
+                                <!-- Install a model -->
+                                <StackPanel Spacing="14">
+                                    <StackPanel Spacing="6">
+                                        <TextBlock Text="Install a model" FontWeight="SemiBold" FontSize="13"/>
+                                        <TextBlock FontSize="12"
+                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                                   TextWrapping="Wrap"
+                                                   Text="Type an Ollama model name below, or click a recommended chip to install it. Hover over a chip for its category, description, and estimated size."/>
+                                    </StackPanel>
 
-                                <!-- Suggested chips -->
-                                <StackPanel Orientation="Horizontal" Spacing="6">
-                                    <TextBlock Text="Suggested:" FontSize="11" VerticalAlignment="Center"
-                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}" Margin="0,0,6,0"/>
-                                    <ItemsControl ItemsSource="{Binding SuggestedModels}">
-                                        <ItemsControl.ItemsPanel>
-                                            <ItemsPanelTemplate>
-                                                <WrapPanel Orientation="Horizontal"/>
-                                            </ItemsPanelTemplate>
-                                        </ItemsControl.ItemsPanel>
+                                    <Grid ColumnDefinitions="*,Auto,Auto">
+                                        <TextBox Grid.Column="0"
+                                                 Text="{Binding ModelToInstall, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                 CornerRadius="6" FontSize="13" Margin="0,0,8,0"
+                                                 Watermark="Ollama model name (e.g. llama3.2)"/>
+                                        <Button Grid.Column="1" Content="Install"
+                                                Classes="accent" CornerRadius="6" Padding="14,7" FontSize="13"
+                                                Command="{Binding PullModelCommand}"
+                                                IsEnabled="{Binding !IsPullingModel}"/>
+                                        <Button Grid.Column="2" Content="Cancel" Margin="6,0,0,0"
+                                                CornerRadius="6" Padding="14,7" FontSize="13"
+                                                Command="{Binding CancelModelPullCommand}"
+                                                IsVisible="{Binding IsPullingModel}"/>
+                                    </Grid>
+
+                                    <StackPanel Spacing="10">
+                                        <TextBlock Text="Recommended:" FontSize="11"
+                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+
+                                        <StackPanel Spacing="6">
+                                            <TextBlock Text="Text / chat" FontSize="11" FontWeight="SemiBold"
+                                                       Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                            <ItemsControl ItemsSource="{Binding RecommendedTextModels}">
+                                                <ItemsControl.ItemsPanel>
+                                                    <ItemsPanelTemplate>
+                                                        <WrapPanel Orientation="Horizontal"/>
+                                                    </ItemsPanelTemplate>
+                                                </ItemsControl.ItemsPanel>
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate x:DataType="vm:RecommendedModelRow">
+                                                        <Button Content="{Binding Name}" Margin="0,0,6,6" Padding="8,3"
+                                                                FontSize="11" CornerRadius="10"
+                                                                ToolTip.Tip="{Binding ToolTipText}"
+                                                                IsEnabled="{Binding !IsInstalling}"
+                                                                Command="{Binding $parent[ItemsControl].((vm:SettingsViewModel)DataContext).InstallRecommendedModelCommand}"
+                                                                CommandParameter="{Binding}"/>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </StackPanel>
+
+                                        <StackPanel Spacing="6">
+                                            <TextBlock Text="Vision" FontSize="11" FontWeight="SemiBold"
+                                                       Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                            <ItemsControl ItemsSource="{Binding RecommendedVisionModels}">
+                                                <ItemsControl.ItemsPanel>
+                                                    <ItemsPanelTemplate>
+                                                        <WrapPanel Orientation="Horizontal"/>
+                                                    </ItemsPanelTemplate>
+                                                </ItemsControl.ItemsPanel>
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate x:DataType="vm:RecommendedModelRow">
+                                                        <Button Content="{Binding Name}" Margin="0,0,6,6" Padding="8,3"
+                                                                FontSize="11" CornerRadius="10"
+                                                                ToolTip.Tip="{Binding ToolTipText}"
+                                                                IsEnabled="{Binding !IsInstalling}"
+                                                                Command="{Binding $parent[ItemsControl].((vm:SettingsViewModel)DataContext).InstallRecommendedModelCommand}"
+                                                                CommandParameter="{Binding}"/>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </StackPanel>
+                                    </StackPanel>
+
+                                    <StackPanel Spacing="6" IsVisible="{Binding IsPullingModel}">
+                                        <ProgressBar Minimum="0" Maximum="100"
+                                                     Value="{Binding ModelPullPercent}" Height="6"/>
+                                        <TextBlock Text="{Binding ModelPullStatus}" FontSize="11"
+                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                                   TextWrapping="Wrap"/>
+                                    </StackPanel>
+
+                                    <TextBlock Text="{Binding ModelManagementError}" FontSize="11"
+                                               Foreground="#F87171" TextWrapping="Wrap"
+                                               IsVisible="{Binding ModelManagementError, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                                </StackPanel>
+
+                                <Border Height="1" Background="{actipro:ThemeResource Container1BorderBrush}" Margin="0,0"/>
+
+                                <!-- Installed Ollama models -->
+                                <StackPanel Spacing="14">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <TextBlock Grid.Column="0" Text="Installed Ollama models" FontWeight="SemiBold" FontSize="13"
+                                                   VerticalAlignment="Center"/>
+                                        <Button Grid.Column="1" Content="↻ Refresh"
+                                                CornerRadius="6" Padding="10,5" FontSize="12"
+                                                Command="{Binding RefreshInstalledModelsCommand}"
+                                                IsEnabled="{Binding !IsLoadingModels}"/>
+                                    </Grid>
+
+                                    <TextBlock Text="Loading…" FontSize="12"
+                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                               IsVisible="{Binding IsLoadingModels}"/>
+
+                                    <TextBlock Text="No Ollama models installed yet. Use the installer above to download one."
+                                               FontSize="12" TextWrapping="Wrap"
+                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}">
+                                        <TextBlock.IsVisible>
+                                            <MultiBinding Converter="{x:Static BoolConverters.And}">
+                                                <Binding Path="!IsLoadingModels"/>
+                                                <Binding Path="InstalledOllamaModels.Count" Converter="{x:Static svc:CountToBoolConverter.IsZero}"/>
+                                            </MultiBinding>
+                                        </TextBlock.IsVisible>
+                                    </TextBlock>
+
+                                    <ItemsControl ItemsSource="{Binding InstalledOllamaModels}">
                                         <ItemsControl.ItemTemplate>
-                                            <DataTemplate>
-                                                <Button Content="{Binding}" Margin="0,0,6,4" Padding="8,3"
-                                                        FontSize="11" CornerRadius="10"
-                                                        Command="{Binding $parent[ItemsControl].((vm:SettingsViewModel)DataContext).SelectSuggestedModelCommand}"
-                                                        CommandParameter="{Binding}"/>
+                                            <DataTemplate x:DataType="vm:InstalledModelRow">
+                                                <Border Margin="0,3" Padding="12,8" CornerRadius="6"
+                                                        Background="{actipro:ThemeResource Container2BackgroundBrush}"
+                                                        BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                                                        BorderThickness="1">
+                                                    <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
+                                                        <StackPanel Grid.Column="0" Spacing="2">
+                                                            <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="13"/>
+                                                            <TextBlock FontSize="11"
+                                                                       Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}">
+                                                                <Run Text="{Binding DisplaySize}"/>
+                                                                <Run Text="  ·  "/>
+                                                                <Run Text="{Binding DisplayModified}"/>
+                                                            </TextBlock>
+                                                        </StackPanel>
+                                                        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6">
+                                                            <Button Content="Use for chat"
+                                                                    CornerRadius="5" Padding="9,4" FontSize="11"
+                                                                    Command="{Binding $parent[ItemsControl].((vm:SettingsViewModel)DataContext).UseModelForTextCommand}"
+                                                                    CommandParameter="{Binding Name}"/>
+                                                            <Button Content="Use for vision"
+                                                                    CornerRadius="5" Padding="9,4" FontSize="11"
+                                                                    Command="{Binding $parent[ItemsControl].((vm:SettingsViewModel)DataContext).UseModelForVisionCommand}"
+                                                                    CommandParameter="{Binding Name}"/>
+                                                            <Button Content="Uninstall"
+                                                                    CornerRadius="5" Padding="9,4" FontSize="11"
+                                                                    Command="{Binding $parent[ItemsControl].((vm:SettingsViewModel)DataContext).DeleteModelCommand}"
+                                                                    CommandParameter="{Binding}"/>
+                                                        </StackPanel>
+                                                    </Grid>
+                                                </Border>
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
                                     </ItemsControl>
                                 </StackPanel>
 
-                                <!-- Progress -->
-                                <StackPanel Spacing="6" IsVisible="{Binding IsPullingModel}">
-                                    <ProgressBar Minimum="0" Maximum="100"
-                                                 Value="{Binding ModelPullPercent}" Height="6"/>
-                                    <TextBlock Text="{Binding ModelPullStatus}" FontSize="11"
-                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
-                                               TextWrapping="Wrap"/>
+                                <Border Height="1" Background="{actipro:ThemeResource Container1BorderBrush}" Margin="0,0"/>
+
+                                <!-- Installed anime taggers -->
+                                <StackPanel Spacing="14">
+                                    <TextBlock Text="Installed anime taggers" FontWeight="SemiBold" FontSize="13"/>
+
+                                    <TextBlock Text="No anime tagger models installed yet. Install one from the Hoshi AI tab above."
+                                               FontSize="12" TextWrapping="Wrap"
+                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}">
+                                        <TextBlock.IsVisible>
+                                            <MultiBinding Converter="{x:Static BoolConverters.And}">
+                                                <Binding Path="!IsLoadingModels"/>
+                                                <Binding Path="InstalledTaggerModels.Count" Converter="{x:Static svc:CountToBoolConverter.IsZero}"/>
+                                            </MultiBinding>
+                                        </TextBlock.IsVisible>
+                                    </TextBlock>
+
+                                    <ItemsControl ItemsSource="{Binding InstalledTaggerModels}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate x:DataType="vm:InstalledModelRow">
+                                                <Border Margin="0,3" Padding="12,8" CornerRadius="6"
+                                                        Background="{actipro:ThemeResource Container2BackgroundBrush}"
+                                                        BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                                                        BorderThickness="1">
+                                                    <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
+                                                        <StackPanel Grid.Column="0" Spacing="2">
+                                                            <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="13"/>
+                                                            <TextBlock FontSize="11"
+                                                                       Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}">
+                                                                <Run Text="{Binding DisplaySize}"/>
+                                                                <Run Text="  ·  "/>
+                                                                <Run Text="{Binding DisplayModified}"/>
+                                                            </TextBlock>
+                                                        </StackPanel>
+                                                        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6">
+                                                            <Button Content="Use for tagger"
+                                                                    CornerRadius="5" Padding="9,4" FontSize="11"
+                                                                    Command="{Binding $parent[ItemsControl].((vm:SettingsViewModel)DataContext).UseModelForTaggerCommand}"
+                                                                    CommandParameter="{Binding Name}"/>
+                                                            <Button Content="Uninstall"
+                                                                    CornerRadius="5" Padding="9,4" FontSize="11"
+                                                                    Command="{Binding $parent[ItemsControl].((vm:SettingsViewModel)DataContext).DeleteModelCommand}"
+                                                                    CommandParameter="{Binding}"/>
+                                                        </StackPanel>
+                                                    </Grid>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
                                 </StackPanel>
 
-                                <TextBlock Text="{Binding ModelManagementError}" FontSize="11"
-                                           Foreground="#F87171" TextWrapping="Wrap"
-                                           IsVisible="{Binding ModelManagementError, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
-                            </StackPanel>
-                        </Border>
-
-                        <!-- Installed models -->
-                        <Border Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
-                                BorderThickness="1" CornerRadius="8" Padding="28">
-                            <StackPanel Spacing="20">
-                                <Grid ColumnDefinitions="*,Auto">
-                                    <TextBlock Grid.Column="0" Text="Installed models" FontWeight="SemiBold" FontSize="14"
-                                               VerticalAlignment="Center"/>
-                                    <Button Grid.Column="1" Content="↻ Refresh"
-                                            CornerRadius="6" Padding="10,5" FontSize="12"
-                                            Command="{Binding RefreshInstalledModelsCommand}"
-                                            IsEnabled="{Binding !IsLoadingModels}"/>
-                                </Grid>
-
-                                <TextBlock Text="Loading…" FontSize="12"
+                                <TextBlock FontSize="11" TextWrapping="Wrap"
                                            Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
-                                           IsVisible="{Binding IsLoadingModels}"/>
-
-                                <TextBlock Text="No models installed yet. Use 'Install a model' above to download one."
-                                           FontSize="12" TextWrapping="Wrap"
-                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}">
-                                    <TextBlock.IsVisible>
-                                        <MultiBinding Converter="{x:Static BoolConverters.And}">
-                                            <Binding Path="!IsLoadingModels"/>
-                                            <Binding Path="InstalledModels.Count" Converter="{x:Static svc:CountToBoolConverter.IsZero}"/>
-                                        </MultiBinding>
-                                    </TextBlock.IsVisible>
-                                </TextBlock>
-
-                                <ItemsControl ItemsSource="{Binding InstalledModels}">
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate x:DataType="vm:InstalledModelRow">
-                                            <Border Margin="0,3" Padding="12,8" CornerRadius="6"
-                                                    Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                                                    BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
-                                                    BorderThickness="1">
-                                                <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto" VerticalAlignment="Center">
-                                                    <StackPanel Grid.Column="0" Spacing="2">
-                                                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="13"/>
-                                                        <TextBlock FontSize="11"
-                                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}">
-                                                            <Run Text="{Binding DisplaySize}"/>
-                                                            <Run Text="  ·  "/>
-                                                            <Run Text="{Binding DisplayModified}"/>
-                                                        </TextBlock>
-                                                    </StackPanel>
-                                                    <Button Grid.Column="1" Content="Use for chat" Margin="6,0,0,0"
-                                                            CornerRadius="5" Padding="9,4" FontSize="11"
-                                                            Command="{Binding $parent[ItemsControl].((vm:SettingsViewModel)DataContext).UseModelForTextCommand}"
-                                                            CommandParameter="{Binding Name}"/>
-                                                    <Button Grid.Column="2" Content="Use for vision" Margin="6,0,0,0"
-                                                            CornerRadius="5" Padding="9,4" FontSize="11"
-                                                            Command="{Binding $parent[ItemsControl].((vm:SettingsViewModel)DataContext).UseModelForVisionCommand}"
-                                                            CommandParameter="{Binding Name}"/>
-                                                    <Button Grid.Column="3" Content="Uninstall" Margin="6,0,0,0"
-                                                            CornerRadius="5" Padding="9,4" FontSize="11"
-                                                            Command="{Binding $parent[ItemsControl].((vm:SettingsViewModel)DataContext).DeleteModelCommand}"
-                                                            CommandParameter="{Binding Name}"/>
-                                                </Grid>
-                                            </Border>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
+                                           Text="Tip: Browse models at https://ollama.com/library. Type the exact name (e.g. 'llama3.2:3b' for a smaller variant)."/>
                             </StackPanel>
                         </Border>
-
-                        <TextBlock FontSize="11" TextWrapping="Wrap"
-                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
-                                   Text="Tip: Browse models at https://ollama.com/library. Type the exact name (e.g. 'llama3.2:3b' for a smaller variant)."/>
 
                     </StackPanel>
                 </ScrollViewer>

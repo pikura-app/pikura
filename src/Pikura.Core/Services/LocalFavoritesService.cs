@@ -124,6 +124,24 @@ public sealed class LocalFavoritesService
         Changed?.Invoke(this, EventArgs.Empty);
     }
 
+    /// <summary>
+    /// Backfills a favorite's thumbnail URL after the fact — used to repair entries that were
+    /// saved with a null ThumbnailUrl (e.g. artworks added via the single-artwork detail endpoint
+    /// before its "urls" field was mapped correctly). No-op if the entry no longer exists or
+    /// already has a thumbnail.
+    /// </summary>
+    public void UpdateThumbnailUrl(string artworkId, string thumbnailUrl)
+    {
+        lock (_gate)
+        {
+            var entry = _entries.FirstOrDefault(e => e.Id == artworkId);
+            if (entry == null || !string.IsNullOrEmpty(entry.ThumbnailUrl)) return;
+            entry.ThumbnailUrl = thumbnailUrl;
+            Save();
+        }
+        Changed?.Invoke(this, EventArgs.Empty);
+    }
+
     public void Remove(string artworkId)
     {
         lock (_gate)

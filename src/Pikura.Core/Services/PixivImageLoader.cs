@@ -33,13 +33,6 @@ public enum ThumbnailSize
 public sealed class PixivImageLoader : IDisposable
 {
     private const string Referer = "https://www.pixiv.net/";
-    private const int MaxMemoryEntries = 1024;
-    private const int MaxBitmapEntries = 256; // ~256 decoded bitmaps max (~50-100MB depending on size)
-    // Pixiv's i.pximg.net is HTTP/2 multiplexed and tolerates plenty of parallel
-    // requests; bumping from 24 → 48 nearly halves time-to-paint when first
-    // visiting an artist with 96 cards because the bottleneck was wait time on
-    // the semaphore, not the network itself.
-    private const int MaxConcurrentFetches = 48;
     // 14 days on disk before re-fetching (Pixiv URLs are content-hashed so
     // anything we cached under a given URL is still valid as long as the
     // URL is).
@@ -53,13 +46,26 @@ public sealed class PixivImageLoader : IDisposable
     private readonly ILogger<PixivImageLoader> _logger;
     private readonly ConcurrentDictionary<string, Task<byte[]?>> _memoryCache = new(StringComparer.Ordinal);
     private readonly ConcurrentDictionary<string, SKBitmap> _bitmapCache = new(StringComparer.Ordinal);
-    private readonly SemaphoreSlim _gate = new(MaxConcurrentFetches, MaxConcurrentFetches);
+    private readonly SemaphoreSlim _gate;
     private readonly SemaphoreSlim _bitmapGate = new(1, 1); // Protects bitmap cache eviction
 
-    public PixivImageLoader(PixivHttpClientFactory factory, ILogger<PixivImageLoader> logger)
+    // Device-aware limits — scaled by DeviceCapabilityService instead of hardcoded constants,
+    // so a low-end machine doesn't open as many concurrent sockets or hold as many decoded
+    // bitmaps in memory as a high-end desktop would. Pixiv's i.pximg.net is HTTP/2 multiplexed
+    // and tolerates plenty of parallel requests on capable hardware (the original tuning here
+    // bumped 24 → 48 concurrent fetches because the bottleneck was semaphore wait, not the
+    // network), but that same concurrency is wasted/costly on a constrained machine.
+    private readonly int _maxMemoryEntries;
+    private readonly int _maxBitmapEntries;
+
+    public PixivImageLoader(PixivHttpClientFactory factory, ILogger<PixivImageLoader> logger, DeviceCapabilityService? deviceCapability = null)
     {
         _factory = factory;
         _logger = logger;
+        var caps = deviceCapability ?? new DeviceCapabilityService();
+        _maxMemoryEntries = caps.MaxByteCacheEntries;
+        _maxBitmapEntries = caps.MaxBitmapCacheEntries;
+        _gate = new SemaphoreSlim(caps.MaxImageFetchConcurrency, caps.MaxImageFetchConcurrency);
         try { Directory.CreateDirectory(DiskCacheRoot); } catch { /* best-effort */ }
     }
 
@@ -68,9 +74,9 @@ public sealed class PixivImageLoader : IDisposable
         if (string.IsNullOrWhiteSpace(url)) return Task.FromResult<byte[]?>(null);
 
         // Hard cap on the in-memory map so it can't grow without bound.
-        if (_memoryCache.Count > MaxMemoryEntries)
+        if (_memoryCache.Count > _maxMemoryEntries)
         {
-            foreach (var kv in _memoryCache.Take(_memoryCache.Count - MaxMemoryEntries / 2))
+            foreach (var kv in _memoryCache.Take(_memoryCache.Count - _maxMemoryEntries / 2))
                 _memoryCache.TryRemove(kv.Key, out _);
         }
 
@@ -208,7 +214,7 @@ public sealed class PixivImageLoader : IDisposable
         await _bitmapGate.WaitAsync(ct).ConfigureAwait(false);
         try
         {
-            if (_bitmapCache.Count >= MaxBitmapEntries)
+            if (_bitmapCache.Count >= _maxBitmapEntries)
             {
                 // Evict oldest entries (simple strategy: remove first 32)
                 var toRemove = _bitmapCache.Take(32).ToList();
