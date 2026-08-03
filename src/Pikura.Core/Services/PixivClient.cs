@@ -138,7 +138,10 @@ public sealed partial class PixivClient
         CancellationToken ct = default)
     {
         var rest = hidden ? "hide" : "show";
-        var url = $"{BaseUrl}/ajax/user/{userId}/illusts/bookmarks?tag={Uri.EscapeDataString(tag ?? "")}&offset={offset}&limit={limit}&rest={rest}";
+        // Pixiv's web client always sends tag= and lang= on this endpoint; omitting
+        // lang= has been observed to cap responses (issue #22: only the first ~96/144
+        // bookmarks load regardless of offset, because the server stops paginating).
+        var url = $"{BaseUrl}/ajax/user/{userId}/illusts/bookmarks?tag={Uri.EscapeDataString(tag ?? "")}&offset={offset}&limit={limit}&rest={rest}&lang={_settings.Current.Locale}";
         var referer = $"{BaseUrl}/users/{userId}/bookmarks/artworks";
 
         // For private bookmarks, also dump raw response to diag so failures are visible
@@ -174,7 +177,7 @@ public sealed partial class PixivClient
         CancellationToken ct = default)
     {
         var rest = hidden ? "hide" : "show";
-        var url = $"{BaseUrl}/ajax/user/{userId}/novels/bookmarks?tag={Uri.EscapeDataString(tag ?? "")}&offset={offset}&limit={limit}&rest={rest}";
+        var url = $"{BaseUrl}/ajax/user/{userId}/novels/bookmarks?tag={Uri.EscapeDataString(tag ?? "")}&offset={offset}&limit={limit}&rest={rest}&lang={_settings.Current.Locale}";
         return await GetAjaxAsync<BookmarkedArtworksResponse>(url, ct).ConfigureAwait(false) ?? new();
     }
 
@@ -206,7 +209,7 @@ public sealed partial class PixivClient
         CancellationToken ct = default)
     {
         var rest = hidden ? "hide" : "show";
-        var url = $"{BaseUrl}/ajax/illusts/bookmark/backup?offset={offset}&limit={limit}&rest={rest}";
+        var url = $"{BaseUrl}/ajax/illusts/bookmark/backup?offset={offset}&limit={limit}&rest={rest}&lang={_settings.Current.Locale}";
         return await GetAjaxAsync<BookmarkedArtworksResponse>(url, ct).ConfigureAwait(false) ?? new();
     }
 

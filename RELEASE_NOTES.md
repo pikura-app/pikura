@@ -1,3 +1,13 @@
+## Pikura 1.8.4
+
+Hotfix for bookmark pagination. Adds the `lang=` query parameter to Pixiv's bookmark AJAX endpoints so offset pagination no longer caps public/private bookmarks at ~96/144 images.
+
+### Fixes
+
+- **Bookmarks stopped loading after the first chunk** — `PixivClient.GetBookmarkedArtworksAsync`, `GetBookmarkedNovelsAsync`, and `GetRecentBookmarksAsync` now send `lang=` alongside `tag=` and `rest=`. Without this, Pixiv's server returns only the initial slice of bookmarks regardless of `offset`, causing the Bookmarks tab to stop at two pages for public (96 images) and three for private (144 images).
+
+---
+
 ## Pikura 1.8.3
 
 Local ONNX anime image tagger and a curated recommended-model catalog for Hoshi AI, plus a broad pass of Hoshi AI reliability, UI, and performance fixes.
