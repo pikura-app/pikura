@@ -1,3 +1,13 @@
+## Pikura 1.8.5
+
+Follow-up hotfix for bookmark pagination (issue #22 was still occurring after 1.8.4 for a different reason).
+
+### Fixes
+
+- **Private/public bookmarks still stalling pagination past ~96 items** — Pixiv's bookmarks endpoint occasionally returns a raw numeric JSON token for `works[N].id` (and related id fields) instead of a quoted string once you page deep enough into the list. The strict `string`-typed model threw a `JsonException` on that token, silently dropping the entire page and stalling pagination — a different root cause than the `lang=` fix shipped in 1.8.4. `BookmarkedArtwork.Id`, `BookmarkedArtwork.UserId`, and `BookmarkData.Id` now use a lenient converter that accepts either a JSON string or number.
+
+---
+
 ## Pikura 1.8.4
 
 Hotfix for bookmark pagination. Adds the `lang=` query parameter to Pixiv's bookmark AJAX endpoints so offset pagination no longer caps public/private bookmarks at ~96/144 images.

@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Pikura.Core.Utilities;
 
 namespace Pikura.Core.Models;
 
@@ -12,13 +13,13 @@ public sealed class BookmarkedArtworksResponse
 
 public sealed class BookmarkedArtwork
 {
-    [JsonPropertyName("id")] public string Id { get; set; } = string.Empty;
+    [JsonPropertyName("id"), JsonConverter(typeof(FlexibleStringConverter))] public string Id { get; set; } = string.Empty;
     [JsonPropertyName("title")] public string Title { get; set; } = string.Empty;
     [JsonPropertyName("url")] public string Url { get; set; } = string.Empty;
     [JsonPropertyName("tags")] public List<string> Tags { get; set; } = new();
     [JsonPropertyName("isBookmarkable")] public bool IsBookmarkable { get; set; }
     [JsonPropertyName("bookmarkData")] public BookmarkData? BookmarkData { get; set; }
-    [JsonPropertyName("userId")] public string UserId { get; set; } = string.Empty;
+    [JsonPropertyName("userId"), JsonConverter(typeof(FlexibleStringConverter))] public string UserId { get; set; } = string.Empty;
     [JsonPropertyName("userName")] public string UserName { get; set; } = string.Empty;
     [JsonPropertyName("pageCount")] public int PageCount { get; set; } = 1;
     [JsonPropertyName("xRestrict")] public int XRestrict { get; set; }
@@ -46,7 +47,7 @@ public sealed class BookmarkedArtwork
 
 public sealed class BookmarkData
 {
-    [JsonPropertyName("id")] public string Id { get; set; } = string.Empty;
+    [JsonPropertyName("id"), JsonConverter(typeof(FlexibleStringConverter))] public string Id { get; set; } = string.Empty;
     [JsonPropertyName("private")] public bool IsPrivate { get; set; }
 }
 
