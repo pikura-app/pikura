@@ -23,6 +23,8 @@ using System;
 
 namespace Pikura.Avalonia.ViewModels;
 
+public record StartupTabOption(string Value, string Display);
+
 public partial class SettingsViewModel : ViewModelBase
 {
     private readonly SettingsService _settingsService;
@@ -177,6 +179,8 @@ public partial class SettingsViewModel : ViewModelBase
     // Startup & System Tray
     [ObservableProperty] private bool _startWithWindows;
     [ObservableProperty] private string _startupWindowState = "Normal";
+    [ObservableProperty] private string _startupTab = "Gallery";
+    [ObservableProperty] private StartupTabOption? _selectedStartupTab;
     [ObservableProperty] private bool _minimizeToTray;
     [ObservableProperty] private bool _closeToTray;
     [ObservableProperty] private bool _startMinimizedToTray;
@@ -213,6 +217,19 @@ public partial class SettingsViewModel : ViewModelBase
 
     // Available options
     public string[] StartupWindowStates { get; } = { "Normal", "Maximized", "Minimized", "System Tray" };
+    public StartupTabOption[] AvailableStartupTabs { get; } =
+    {
+        new("Gallery", "🏠 Gallery"),
+        new("Rankings", "📈 Rankings"),
+        new("Pixivision", "📰 Pixivision"),
+        new("Discover", "✨ Discover"),
+        new("Search", "🔍 Search"),
+        new("Bookmarks", "🔖 Bookmarks"),
+        new("Hoshi 星", "🤖 Hoshi 星"),
+        new("Viewed", "👀 Viewed"),
+        new("Batch", "🗂️ Batch"),
+        new("Jobs", "📋 Jobs")
+    };
     public string[] AvailableLocales { get; } = { "en", "ja", "zh", "ko", "es", "fr", "de", "it", "pt", "ru" };
     public string[] AvailableAppLanguages { get; } = { "English", "日本語", "中文", "한국어" };
     public string[] AvailableR18Types { get; } = { "Both", "R18", "R18G" };
@@ -477,6 +494,8 @@ public partial class SettingsViewModel : ViewModelBase
 
     private readonly FfmpegService _ffmpegService;
 
+    public BackgroundOverlayService OverlayService { get; }
+
     public SettingsViewModel(
         SettingsService settingsService,
         DialogService dialogService,
@@ -485,7 +504,8 @@ public partial class SettingsViewModel : ViewModelBase
         OllamaService ollama,
         AnimeTaggerService animeTagger,
         AccountService accountService,
-        FfmpegService ffmpegService)
+        FfmpegService ffmpegService,
+        BackgroundOverlayService overlayService)
     {
         _settingsService = settingsService;
         _dialogService = dialogService;
@@ -495,6 +515,7 @@ public partial class SettingsViewModel : ViewModelBase
         _animeTagger = animeTagger;
         _accountService = accountService;
         _ffmpegService = ffmpegService;
+        OverlayService = overlayService;
 
         InitializeRecommendedModels();
         RefreshTaggerInstallState();
@@ -643,6 +664,7 @@ public partial class SettingsViewModel : ViewModelBase
         // Startup & System Tray
         StartWithWindows = s.StartWithWindows;
         StartupWindowState = s.StartupWindowState;
+        SelectedStartupTab = AvailableStartupTabs.FirstOrDefault(t => t.Value == s.StartupTab) ?? AvailableStartupTabs[0];
         MinimizeToTray = s.MinimizeToTray;
         CloseToTray = s.CloseToTray;
         StartMinimizedToTray = s.StartMinimizedToTray;
@@ -899,6 +921,15 @@ public partial class SettingsViewModel : ViewModelBase
     partial void OnPixivLocaleChanged(string value)
         => _settingsService.Update(s => s.Locale = value);
 
+    partial void OnStartupTabChanged(string value)
+        => _settingsService.Update(s => s.StartupTab = value);
+
+    partial void OnSelectedStartupTabChanged(StartupTabOption? value)
+    {
+        if (value is not null)
+            StartupTab = value.Value;
+    }
+
     partial void OnAppLanguageChanged(string value)
     {
         RestartRequired = true;
@@ -1005,9 +1036,10 @@ public partial class SettingsViewModel : ViewModelBase
     {
         // Open image editor to create a custom preset
         var editor = new Views.Dialogs.ImageEditorWindow();
-        await editor.ShowDialog(App.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop
-            ? desktop.MainWindow
-            : null);
+        if (App.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime { MainWindow: not null } desktop)
+            await editor.ShowDialog(desktop.MainWindow);
+        else
+            editor.Show();
     }
 
     // Download Control
@@ -1843,7 +1875,7 @@ public partial class SettingsViewModel : ViewModelBase
         var taggerNames = new List<string>();
         foreach (var row in RecommendedModels.Where(r => !r.IsOllama && r.TaggerModel != null))
         {
-            row.IsInstalled = AnimeTaggerService.IsModelInstalled(row.TaggerModel);
+            row.IsInstalled = AnimeTaggerService.IsModelInstalled(row.TaggerModel!);
             if (row.IsInstalled)
                 taggerNames.Add(row.TaggerModel!.Key);
         }

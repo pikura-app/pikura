@@ -656,6 +656,7 @@
                                                         <MenuItem Header="Copy artwork ID" Click="OnContextCopyId"/>
                                                         <MenuItem Header="Copy artist ID" Click="OnContextCopyArtistId"/>
                                                         <MenuItem Header="📋 Copy image" Click="OnContextCopyImage"/>
+                                                        <MenuItem Header="🖼 Use as app background" Click="OnContextUseAsBackground"/>
                                                     </ContextMenu>
                                                 </Border.ContextMenu>
                                             <Border.Styles>
@@ -781,6 +782,7 @@
                                                         <MenuItem Header="Copy artwork ID" Click="OnContextCopyId"/>
                                                         <MenuItem Header="Copy artist ID" Click="OnContextCopyArtistId"/>
                                                         <MenuItem Header="📋 Copy image" Click="OnContextCopyImage"/>
+                                                        <MenuItem Header="🖼 Use as app background" Click="OnContextUseAsBackground"/>
                                                     </ContextMenu>
                                                 </Border.ContextMenu>
                                             <Border.Styles>
@@ -936,6 +938,7 @@
                                                     <MenuItem Header="Copy artwork ID" Click="OnContextCopyId"/>
                                                     <MenuItem Header="Copy artist ID" Click="OnContextCopyArtistId"/>
                                                     <MenuItem Header="📋 Copy image" Click="OnContextCopyImage"/>
+                                                    <MenuItem Header="🖼 Use as app background" Click="OnContextUseAsBackground"/>
                                                 </ContextMenu>
                                             </Border.ContextMenu>
                                             <Border.Styles>
@@ -1076,6 +1079,7 @@
                                                     <MenuItem Header="Copy artwork ID" Click="OnContextCopyId"/>
                                                     <MenuItem Header="Copy artist ID" Click="OnContextCopyArtistId"/>
                                                     <MenuItem Header="📋 Copy image" Click="OnContextCopyImage"/>
+                                                    <MenuItem Header="🖼 Use as app background" Click="OnContextUseAsBackground"/>
                                                 </ContextMenu>
                                             </Border.ContextMenu>
                                         <Grid ColumnDefinitions="Auto,Auto,*,Auto">

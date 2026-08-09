@@ -4,11 +4,17 @@
              xmlns:vm="using:Pikura.Avalonia.ViewModels"
              xmlns:conv="using:Pikura.Avalonia.Converters"
              xmlns:svc="using:Pikura.Avalonia.Services"
+             xmlns:sys="using:System"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="700"
              x:Class="Pikura.Avalonia.Views.Settings.SettingsView"
              x:DataType="vm:SettingsViewModel">
+
+    <UserControl.Resources>
+        <!-- Vector crown icon for the Pixiv Premium account badge. -->
+        <StreamGeometry x:Key="PremiumCrownGeometry">M2,18 L4,7 L8,11 L12,5 L16,11 L20,7 L22,18 Z</StreamGeometry>
+    </UserControl.Resources>
 
     <DockPanel LastChildFill="True">
 
@@ -81,6 +87,87 @@
                             </StackPanel>
                         </Border>
 
+                        <!-- Background Artwork Overlay -->
+                        <Border Background="{actipro:ThemeResource Container1BackgroundBrush}"
+                                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                                BorderThickness="1" CornerRadius="8" Padding="28">
+                            <StackPanel Spacing="20">
+                                <TextBlock Text="Background Artwork Overlay" FontWeight="SemiBold" FontSize="14"/>
+                                <CheckBox Content="Enable artwork background overlay"
+                                          IsChecked="{Binding OverlayService.IsEnabled, Mode=TwoWay}"
+                                          FontSize="13"/>
+
+                                <StackPanel Spacing="16" IsVisible="{Binding OverlayService.IsEnabled}">
+                                    <TextBlock Text="Selected images (up to 5)"
+                                               FontSize="13" FontWeight="SemiBold"
+                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                    <ItemsControl ItemsSource="{Binding OverlayService.ImagePaths}" MaxHeight="160">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate x:DataType="sys:String">
+                                                <Grid ColumnDefinitions="*,Auto" Margin="0,2">
+                                                    <TextBlock Grid.Column="0" Text="{Binding}" FontSize="12"
+                                                               TextTrimming="CharacterEllipsis"
+                                                               VerticalAlignment="Center"
+                                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushSecondary}"/>
+                                                    <Button Grid.Column="1" Content="Remove" FontSize="11"
+                                                            Padding="8,2" CornerRadius="4" Margin="8,0,0,0"
+                                                            Tag="{Binding}" Click="OnRemoveOverlayImageClick"/>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                    <Button Content="Clear all" FontSize="12" HorizontalAlignment="Left"
+                                            Padding="10,4" CornerRadius="5"
+                                            Click="OnClearAllOverlayImagesClick"/>
+
+                                    <TextBlock Text="Image adjustments"
+                                               FontSize="13" FontWeight="SemiBold" Margin="0,8,0,0"
+                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                    <StackPanel Spacing="10">
+                                        <Grid ColumnDefinitions="120,*,Auto">
+                                            <TextBlock Grid.Column="0" Text="Transparency" FontSize="12"
+                                                       VerticalAlignment="Center"/>
+                                            <Slider Grid.Column="1" Value="{Binding OverlayService.ImageOpacity, Mode=TwoWay}"
+                                                    Minimum="0" Maximum="1" TickFrequency="0.05" IsSnapToTickEnabled="True"
+                                                    Margin="0,0,12,0" VerticalAlignment="Center"/>
+                                            <TextBlock Grid.Column="2" Text="{Binding OverlayService.ImageOpacity, StringFormat='{}{0:P0}'}"
+                                                       FontSize="12" MinWidth="40" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                                        </Grid>
+                                        <Grid ColumnDefinitions="120,*,Auto">
+                                            <TextBlock Grid.Column="0" Text="Brightness" FontSize="12"
+                                                       VerticalAlignment="Center"/>
+                                            <Slider Grid.Column="1" Value="{Binding OverlayService.Brightness, Mode=TwoWay}"
+                                                    Minimum="0" Maximum="1" TickFrequency="0.05" IsSnapToTickEnabled="True"
+                                                    Margin="0,0,12,0" VerticalAlignment="Center"/>
+                                            <TextBlock Grid.Column="2" Text="{Binding OverlayService.Brightness, StringFormat='{}{0:P0}'}"
+                                                       FontSize="12" MinWidth="40" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                                        </Grid>
+                                        <Grid ColumnDefinitions="120,*,Auto">
+                                            <TextBlock Grid.Column="0" Text="Darkness" FontSize="12"
+                                                       VerticalAlignment="Center"/>
+                                            <Slider Grid.Column="1" Value="{Binding OverlayService.Darkness, Mode=TwoWay}"
+                                                    Minimum="0" Maximum="1" TickFrequency="0.05" IsSnapToTickEnabled="True"
+                                                    Margin="0,0,12,0" VerticalAlignment="Center"/>
+                                            <TextBlock Grid.Column="2" Text="{Binding OverlayService.Darkness, StringFormat='{}{0:P0}'}"
+                                                       FontSize="12" MinWidth="40" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                                        </Grid>
+                                    </StackPanel>
+
+                                    <TextBlock Text="Cycling"
+                                               FontSize="13" FontWeight="SemiBold" Margin="0,8,0,0"
+                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <ComboBox Grid.Column="0" ItemsSource="{Binding OverlayService.CycleModeOptions}"
+                                                  SelectedIndex="{Binding OverlayService.SelectedCycleModeIndex, Mode=TwoWay}"
+                                                  FontSize="12" CornerRadius="6" HorizontalAlignment="Left" MinWidth="180"/>
+                                        <NumericUpDown Grid.Column="1" Value="{Binding OverlayService.CycleInterval, Mode=TwoWay}"
+                                                       Minimum="1" Maximum="999" FontSize="12" CornerRadius="6" Width="100"
+                                                       HorizontalAlignment="Right"/>
+                                    </Grid>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
                         <!-- Gallery Viewer Keyboard Navigation -->
                         <Border Background="{actipro:ThemeResource Container1BackgroundBrush}"
                                 BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
@@ -140,7 +227,7 @@
                                                FontSize="13" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}" Margin="0,0,0,5"/>
                                     <Grid Grid.Row="1" Grid.Column="0" ColumnDefinitions="*,Auto">
                                         <TextBox Grid.Column="0" Text="{Binding FolderTemplate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                 CornerRadius="6" FontSize="13" Margin="0,0,8,0" Watermark="%artist% (%member_id%)"/>
+                                                 CornerRadius="6" FontSize="13" Margin="0,0,8,0" PlaceholderText="%artist% (%member_id%)"/>
                                         <ComboBox Grid.Column="1" Width="120" CornerRadius="6" FontSize="12"
                                                   PlaceholderText="Token&#x2026;" SelectionChanged="OnFolderTokenSelected">
                                             <ComboBoxItem>%artist%</ComboBoxItem>
@@ -159,7 +246,7 @@
                                                FontSize="13" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}" Margin="0,0,0,5"/>
                                     <Grid Grid.Row="1" Grid.Column="2" ColumnDefinitions="*,Auto">
                                         <TextBox Grid.Column="0" Text="{Binding FilenameTemplate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                 CornerRadius="6" FontSize="13" Margin="0,0,8,0" Watermark="%image_id% - %title%"/>
+                                                 CornerRadius="6" FontSize="13" Margin="0,0,8,0" PlaceholderText="%image_id% - %title%"/>
                                         <ComboBox Grid.Column="1" Width="120" CornerRadius="6" FontSize="12"
                                                   PlaceholderText="Token&#x2026;" SelectionChanged="OnFilenameTokenSelected">
                                             <ComboBoxItem>%image_id%</ComboBoxItem>
@@ -193,7 +280,7 @@
                                                FontSize="13" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}" Margin="0,0,0,5"/>
                                     <Grid Grid.Row="5" Grid.Column="0" ColumnDefinitions="*,Auto">
                                         <TextBox Grid.Column="0" Text="{Binding FilenameMangaFormat, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                 CornerRadius="6" FontSize="13" Margin="0,0,8,0" Watermark="%artist%\%image_id%\p%page_number%"/>
+                                                 CornerRadius="6" FontSize="13" Margin="0,0,8,0" PlaceholderText="%artist%\%image_id%\p%page_number%"/>
                                         <ComboBox Grid.Column="1" Width="120" CornerRadius="6" FontSize="12"
                                                   PlaceholderText="Token&#x2026;" SelectionChanged="OnMangaFilenameTokenSelected">
                                             <ComboBoxItem>%image_id%</ComboBoxItem>
@@ -220,7 +307,7 @@
                                                FontSize="13" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}" Margin="0,0,0,5"/>
                                     <Grid Grid.Row="5" Grid.Column="2" ColumnDefinitions="*,Auto">
                                         <TextBox Grid.Column="0" Text="{Binding FilenameInfoFormat, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                 CornerRadius="6" FontSize="13" Margin="0,0,8,0" Watermark="%artist%\%image_id%.txt"/>
+                                                 CornerRadius="6" FontSize="13" Margin="0,0,8,0" PlaceholderText="%artist%\%image_id%.txt"/>
                                         <ComboBox Grid.Column="1" Width="120" CornerRadius="6" FontSize="12"
                                                   PlaceholderText="Token&#x2026;" SelectionChanged="OnInfoFilenameTokenSelected">
                                             <ComboBoxItem>%image_id%</ComboBoxItem>
@@ -255,7 +342,7 @@
                                             <TextBlock Text="Date format" FontSize="13"
                                                        Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
                                             <TextBox Text="{Binding DateFormat, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                     CornerRadius="6" FontSize="13" Width="160" Watermark="yyyy-MM-dd"/>
+                                                     CornerRadius="6" FontSize="13" Width="160" PlaceholderText="yyyy-MM-dd"/>
                                         </StackPanel>
                                     </StackPanel>
 
@@ -359,7 +446,7 @@
                                         <Grid ColumnDefinitions="*,Auto" ColumnSpacing="6">
                                             <TextBox Grid.Column="0"
                                                      Text="{Binding AcctDownloadRoot}"
-                                                     Watermark="Leave blank to use global root"
+                                                     PlaceholderText="Leave blank to use global root"
                                                      FontSize="12" CornerRadius="6"/>
                                             <Button Grid.Column="1" Content="Browse"
                                                     Command="{Binding BrowseAcctDownloadRootCommand}"
@@ -370,14 +457,14 @@
                                     <StackPanel Spacing="5">
                                         <TextBlock Text="Folder Template" FontSize="12" FontWeight="SemiBold"/>
                                         <TextBox Text="{Binding AcctFolderTemplate}"
-                                                 Watermark="e.g. %artist% (%member_id%)"
+                                                 PlaceholderText="e.g. %artist% (%member_id%)"
                                                  FontSize="12" CornerRadius="6"/>
                                     </StackPanel>
 
                                     <StackPanel Spacing="5">
                                         <TextBlock Text="Filename Template" FontSize="12" FontWeight="SemiBold"/>
                                         <TextBox Text="{Binding AcctFilenameTemplate}"
-                                                 Watermark="e.g. %image_id%_p%page_index%"
+                                                 PlaceholderText="e.g. %image_id%_p%page_index%"
                                                  FontSize="12" CornerRadius="6"/>
                                     </StackPanel>
 
@@ -577,7 +664,7 @@
                                     <TextBox Grid.Column="0"
                                              Text="{Binding ImageProcessingOutputFolder}"
                                              IsReadOnly="True"
-                                             Watermark="Select a folder..."
+                                             PlaceholderText="Select a folder..."
                                              CornerRadius="6" FontSize="13"/>
                                     <Button Grid.Column="1"
                                             Content="Browse..."
@@ -627,7 +714,7 @@
                                            Text="Hides artworks from gallery views. Does not block downloads."/>
                                 <Grid ColumnDefinitions="*,Auto">
                                     <TextBox Grid.Column="0" Text="{Binding NewExcludedTag, Mode=TwoWay}"
-                                             Watermark="Tag to exclude&#x2026;" CornerRadius="5" FontSize="12" Margin="0,0,8,0"/>
+                                             PlaceholderText="Tag to exclude&#x2026;" CornerRadius="5" FontSize="12" Margin="0,0,8,0"/>
                                     <Button Grid.Column="1" Content="Add" CornerRadius="5" FontSize="12"
                                             Command="{Binding AddExcludedTagCommand}"/>
                                 </Grid>
@@ -834,7 +921,7 @@
                                         <TextBlock Text="Network / Proxy" FontWeight="SemiBold" FontSize="13"/>
                                         <CheckBox Content="Use proxy" IsChecked="{Binding UseProxy, Mode=TwoWay}" FontSize="12"/>
                                         <TextBox Text="{Binding ProxyAddress, Mode=TwoWay}" CornerRadius="5" FontSize="12"
-                                                 Watermark="http://127.0.0.1:8080" IsEnabled="{Binding UseProxy}"/>
+                                                 PlaceholderText="http://127.0.0.1:8080" IsEnabled="{Binding UseProxy}"/>
                                         <CheckBox Content="Verify SSL certificates" IsChecked="{Binding EnableSSLVerification, Mode=TwoWay}" FontSize="12"/>
                                         <CheckBox Content="Respect robots.txt" IsChecked="{Binding UseRobots, Mode=TwoWay}" FontSize="12"/>
                                     </StackPanel>
@@ -1241,7 +1328,7 @@
                                         <TextBox Grid.Column="0"
                                                  Text="{Binding ModelToInstall, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                  CornerRadius="6" FontSize="13" Margin="0,0,8,0"
-                                                 Watermark="Ollama model name (e.g. llama3.2)"/>
+                                                 PlaceholderText="Ollama model name (e.g. llama3.2)"/>
                                         <Button Grid.Column="1" Content="Install"
                                                 Classes="accent" CornerRadius="6" Padding="14,7" FontSize="13"
                                                 Command="{Binding PullModelCommand}"
@@ -1480,7 +1567,7 @@
                                     BorderThickness="1" CornerRadius="8" Padding="24">
                                 <StackPanel Spacing="20">
                                     <TextBlock Text="Startup" FontWeight="SemiBold" FontSize="13"/>
-                                    <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto">
+                                    <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto">
                                         <TextBlock Grid.Row="0" Grid.Column="0" Text="Window state" FontSize="12"
                                                    Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
                                                    VerticalAlignment="Center" Margin="0,0,10,0"/>
@@ -1497,6 +1584,19 @@
                                             <ComboBoxItem>Disabled</ComboBoxItem>
                                             <ComboBoxItem>Minimize to tray</ComboBoxItem>
                                             <ComboBoxItem>Close to tray</ComboBoxItem>
+                                        </ComboBox>
+                                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Startup tab" FontSize="12"
+                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                                   VerticalAlignment="Center" Margin="0,8,10,0"/>
+                                        <ComboBox Grid.Row="2" Grid.Column="1" Margin="0,8,0,0"
+                                                  ItemsSource="{Binding AvailableStartupTabs}"
+                                                  SelectedItem="{Binding SelectedStartupTab, Mode=TwoWay}"
+                                                  CornerRadius="5" FontSize="12">
+                                            <ComboBox.ItemTemplate>
+                                                <DataTemplate x:DataType="vm:StartupTabOption">
+                                                    <TextBlock Text="{Binding Display}" />
+                                                </DataTemplate>
+                                            </ComboBox.ItemTemplate>
                                         </ComboBox>
                                     </Grid>
                                     <CheckBox Content="Start with Windows"
@@ -1618,7 +1718,16 @@
                                                                        Text="{Binding DisplayLabel[0]}"/>
                                                         </Border>
                                                         <StackPanel Grid.Column="1" Spacing="1" VerticalAlignment="Center">
-                                                            <TextBlock Text="{Binding DisplayLabel}" FontWeight="SemiBold" FontSize="13"/>
+                                                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                                                <TextBlock Text="{Binding DisplayLabel}" FontWeight="SemiBold" FontSize="13"/>
+                                                                <Border IsVisible="{Binding IsPremium}"
+                                                                        Background="#F5A623" CornerRadius="4"
+                                                                        Padding="4,2" VerticalAlignment="Center"
+                                                                        ToolTip.Tip="Pixiv Premium">
+                                                                    <Path Data="{StaticResource PremiumCrownGeometry}"
+                                                                          Width="10" Height="10" Stretch="Uniform" Fill="White"/>
+                                                                </Border>
+                                                            </StackPanel>
                                                             <TextBlock FontSize="10"
                                                                        Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}">
                                                                 <Run Text="ID: "/><Run Text="{Binding UserId}"/>

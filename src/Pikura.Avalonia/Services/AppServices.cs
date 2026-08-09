@@ -49,6 +49,9 @@ public static class AppServices
                 // Local favorites (app-side persistence)
                 services.AddSingleton<Pikura.Core.Services.LocalFavoritesService>();
 
+                // Pixivision "read later" saved articles (app-side persistence)
+                services.AddSingleton<Pikura.Core.Services.PixivisionSavedArticlesService>();
+
                 // Download job repository (SQLite)
                 var dbPath = Path.Combine(
                     Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
@@ -67,6 +70,15 @@ public static class AppServices
                 // Artist monitoring repository (same database)
                 services.AddSingleton<ArtistMonitorRepository>(provider =>
                     new ArtistMonitorRepository(dbPath, provider.GetRequiredService<ILogger<ArtistMonitorRepository>>()));
+
+                // Followed-artists artwork search index (same database)
+                services.AddSingleton<ArtworkIndexRepository>(provider =>
+                    new ArtworkIndexRepository(dbPath, provider.GetRequiredService<ILogger<ArtworkIndexRepository>>()));
+                services.AddSingleton<FollowedArtistsIndexService>();
+
+                // Local browsing history (same database)
+                services.AddSingleton<ViewedHistoryRepository>(provider =>
+                    new ViewedHistoryRepository(dbPath, provider.GetRequiredService<ILogger<ViewedHistoryRepository>>()));
 
                 // User image presets repository (same database)
                 services.AddSingleton<UserPresetsRepository>(provider =>
@@ -147,6 +159,9 @@ public static class AppServices
                 services.AddSingleton<NotificationService>();
                 services.AddSingleton<AgentIpcClient>();
 
+                // Background artwork overlay
+                services.AddSingleton<BackgroundOverlayService>();
+
                 // ViewModels
                 services.AddSingleton<MainWindowViewModel>();
                 services.AddSingleton<GalleryViewModel>(provider =>
@@ -161,10 +176,29 @@ public static class AppServices
                         provider.GetRequiredService<DownloadCoordinator>(),
                         provider.GetRequiredService<AccountService>(),
                         provider.GetRequiredService<Pikura.Core.Services.DeviceCapabilityService>(),
+                        provider.GetRequiredService<FollowedArtistsIndexService>(),
+                        provider.GetRequiredService<ViewedHistoryRepository>(),
                         provider.GetRequiredService<ILogger<GalleryViewModel>>()));
                 services.AddTransient<ArtworkDetailViewModel>();
                 services.AddTransient<RankingsViewModel>();
                 services.AddSingleton<EnhancedRankingsViewModel>();
+                services.AddSingleton<GlobalSearchViewModel>(provider =>
+                    new GlobalSearchViewModel(
+                        provider.GetRequiredService<PixivClient>(),
+                        provider.GetRequiredService<PixivImageLoader>(),
+                        provider.GetRequiredService<SettingsService>()));
+                services.AddSingleton<ViewedHistoryViewModel>(provider =>
+                    new ViewedHistoryViewModel(
+                        provider.GetRequiredService<ViewedHistoryRepository>(),
+                        provider.GetRequiredService<PixivImageLoader>(),
+                        provider.GetRequiredService<SettingsService>()));
+                services.AddSingleton<PixivisionViewModel>(provider =>
+                    new PixivisionViewModel(
+                        provider.GetRequiredService<PixivisionService>(),
+                        provider.GetRequiredService<PixivClient>(),
+                        provider.GetRequiredService<PixivImageLoader>(),
+                        provider.GetRequiredService<SettingsService>(),
+                        provider.GetRequiredService<Pikura.Core.Services.PixivisionSavedArticlesService>()));
                 services.AddTransient<SettingsViewModel>(provider =>
                     new SettingsViewModel(
                         provider.GetRequiredService<SettingsService>(),
@@ -174,7 +208,8 @@ public static class AppServices
                         provider.GetRequiredService<OllamaService>(),
                         provider.GetRequiredService<AnimeTaggerService>(),
                         provider.GetRequiredService<AccountService>(),
-                        provider.GetRequiredService<FfmpegService>()));
+                        provider.GetRequiredService<FfmpegService>(),
+                        provider.GetRequiredService<BackgroundOverlayService>()));
                 services.AddSingleton<AnalyticsViewModel>();
                 services.AddTransient<DownloadsViewModel>();
                 services.AddSingleton<DownloadByArtistViewModel>();
@@ -196,7 +231,8 @@ public static class AppServices
                         provider.GetRequiredService<PixivClient>(),
                         provider.GetRequiredService<DownloadCoordinator>(),
                         provider.GetRequiredService<DialogService>(),
-                        provider.GetRequiredService<PixivImageLoader>()));
+                        provider.GetRequiredService<PixivImageLoader>(),
+                        provider.GetRequiredService<SettingsService>()));
                 services.AddSingleton<SchedulesViewModel>(provider =>
                     new SchedulesViewModel(
                         provider.GetRequiredService<DownloadScheduleRepository>(),
@@ -424,6 +460,44 @@ public static class AppServices
                     Debug.WriteLine($"Failed to start monitor service: {ex.Message}");
                 }
             });
+
+            // Build/refresh the followed-artists search index in the background.
+            // Throttled and non-blocking — see FollowedArtistsIndexService for the crawl delay.
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await Task.Delay(8000); // Let startup settle and the monitor service go first
+                    var indexService = Get<FollowedArtistsIndexService>();
+                    await indexService.BuildIndexAsync();
+                    // Keep re-crawling periodically so new follows are picked up and the
+                    // index doesn't go stale without requiring an app restart.
+                    indexService.Start();
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Failed to build artwork index: {ex.Message}");
+                }
+            });
+
+            // Incrementally refresh a single artist's index entry as soon as the
+            // monitor detects new submissions — keeps Search results fresh between
+            // full re-crawls instead of waiting up to the periodic interval.
+            monitorService.NewSubmissionsDetected += (_, e) =>
+            {
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        var indexService = Get<FollowedArtistsIndexService>();
+                        await indexService.RefreshArtistAsync(e.Artist.UserId, e.Artist.UserName);
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"Failed to incrementally refresh artwork index for {e.Artist.UserId}: {ex.Message}");
+                    }
+                });
+            };
 
             // Start schedule executor — only if the background agent is NOT already running.
             // If the agent is running it owns all schedule execution; we just listen via IPC.

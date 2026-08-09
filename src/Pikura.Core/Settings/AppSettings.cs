@@ -43,6 +43,9 @@ public sealed class AppSettings
     /// <summary>Display name resolved from the logged-in account, for UI only.</summary>
     public string? UserName { get; set; }
 
+    /// <summary>Whether the logged-in account has a Pixiv Premium subscription (resolved after a successful session check).</summary>
+    public bool IsPremium { get; set; }
+
     /// <summary>Absolute path to the download root folder.</summary>
     public string DownloadRoot { get; set; } =
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "PixivDownloads");
@@ -337,6 +340,31 @@ public sealed class AppSettings
     /// <summary>App theme: "Default", "Light", "Dark".</summary>
     public string Theme { get; set; } = "Default";
 
+    #region Background Artwork Overlay
+
+    /// <summary>When true, the selected artwork images are shown as a full-window overlay.</summary>
+    public bool BackgroundOverlayEnabled { get; set; } = false;
+
+    /// <summary>Up to 5 image URLs or local file paths used for the background overlay.</summary>
+    public List<string> BackgroundOverlayImagePaths { get; set; } = new();
+
+    /// <summary>Opacity of the overlay image (0 = invisible, 1 = fully opaque).</summary>
+    public double BackgroundOverlayImageOpacity { get; set; } = 0.25;
+
+    /// <summary>White overlay opacity used to brighten the image (0 - 1).</summary>
+    public double BackgroundOverlayBrightness { get; set; } = 0.0;
+
+    /// <summary>Black overlay opacity used to darken the image (0 - 1).</summary>
+    public double BackgroundOverlayDarkness { get; set; } = 0.0;
+
+    /// <summary>How long to wait before cycling to the next overlay image.</summary>
+    public int BackgroundOverlayCycleInterval { get; set; } = 30;
+
+    /// <summary>Overlay cycling mode index: 0=Sequential seconds, 1=Sequential minutes, 2=Random seconds, 3=Random minutes.</summary>
+    public int BackgroundOverlayCycleMode { get; set; } = 0;
+
+    #endregion
+
     #region Gallery UI state
 
     /// <summary>"Grid" or "List".</summary>
@@ -394,6 +422,9 @@ public sealed class AppSettings
 
     /// <summary>Startup window state: "Normal", "Maximized", "Minimized", "SystemTray".</summary>
     public string StartupWindowState { get; set; } = "Normal";
+
+    /// <summary>Which tab/view opens automatically on startup (matches the nav button labels).</summary>
+    public string StartupTab { get; set; } = "Gallery";
 
     /// <summary>When true, app minimizes to system tray instead of taskbar.</summary>
     public bool MinimizeToTray { get; set; } = false;
@@ -500,6 +531,12 @@ public sealed class AppSettings
 
     /// <summary>Items per page in Rankings view.</summary>
     public int RankingsItemsPerPage { get; set; } = 50;
+
+    /// <summary>When true, use pagination in the Search view instead of autoload-on-scroll.</summary>
+    public bool SearchUsePagination { get; set; } = false;
+
+    /// <summary>Items per page in Search view.</summary>
+    public int SearchItemsPerPage { get; set; } = 60;
 
     #endregion
 

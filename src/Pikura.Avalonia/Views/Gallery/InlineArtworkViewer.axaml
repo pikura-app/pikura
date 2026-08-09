@@ -25,14 +25,9 @@
                             Click="OnBrowseButtonClicked"
                             ToolTip.Tip="Hide or show the side panel">
                         <StackPanel Orientation="Horizontal" Spacing="5">
-                            <TextBlock Text="▣" FontSize="13" VerticalAlignment="Center"
-                                       IsVisible="{Binding ShowPreview}"/>
-                            <TextBlock Text="Hide Panel" FontSize="11" VerticalAlignment="Center"
-                                       IsVisible="{Binding ShowPreview}"/>
-                            <TextBlock Text="▣" FontSize="13" VerticalAlignment="Center"
-                                       IsVisible="{Binding !ShowPreview}"/>
-                            <TextBlock Text="Show Panel" FontSize="11" VerticalAlignment="Center"
-                                       IsVisible="{Binding !ShowPreview}"/>
+                            <TextBlock Text="▣" FontSize="13" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="ShowPanelLabel" Text="Show Panel" FontSize="11" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="HidePanelLabel" Text="Hide Panel" FontSize="11" VerticalAlignment="Center" IsVisible="False"/>
                         </StackPanel>
                     </Button>
                     <Button CornerRadius="6" Padding="10,5" FontSize="12"
@@ -168,7 +163,7 @@
                 Background="{actipro:ThemeResource Container2BackgroundBrush}"
                 BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
                 BorderThickness="0,0,0,1" Padding="8,5">
-            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" AllowAutoHide="False">
                 <StackPanel Orientation="Horizontal" Spacing="4">
                     <!-- Zoom controls -->
                     <Button Content="−" CornerRadius="5" Padding="8,4" FontSize="14"
@@ -328,6 +323,8 @@
                             <MenuItem Header="Copy artwork ID" Click="OnCopyId"/>
                             <MenuItem Header="Copy artist ID" Click="OnCopyArtistId"/>
                             <MenuItem Header="📋 Copy image" Click="OnCopyImage"/>
+                            <MenuItem x:Name="UseAsBackgroundMenuItem"
+                                      Header="🖼 Use as app background" Click="OnUseAsBackground"/>
                             <MenuItem Header="Reset zoom" Click="OnZoomFit"/>
                         </ContextMenu>
                     </Image.ContextMenu>
@@ -525,7 +522,7 @@
                 <!-- Input row -->
                 <Grid Grid.Row="2" ColumnDefinitions="*,Auto" Margin="8,4,8,8">
                     <TextBox Grid.Column="0" Name="AiInputBox"
-                             Watermark="Ask Hoshi anything — describe, suggest tags, download, add to favorites, move to folder…"
+                             PlaceholderText="Ask Hoshi anything — describe, suggest tags, download, add to favorites, move to folder…"
                              FontSize="11" CornerRadius="6,0,0,6"
                              KeyDown="OnAiInputKeyDown"/>
                     <Button Grid.Column="1" Content="Send" Name="AiSendBtn"
@@ -547,7 +544,7 @@
                            Text="{Binding InlineViewerCard.PageCount, StringFormat='{}{0} pages'}"
                            IsVisible="{Binding InlineViewerCard.IsMultiPage}" Margin="0,0,16,0"/>
                 <!-- Clickable tag chips -->
-                <ScrollViewer Grid.Column="2" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                <ScrollViewer Grid.Column="2" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" AllowAutoHide="False">
                     <ItemsControl Name="TagsItemsControl"
                                   ItemsSource="{Binding InlineViewerCard.Tags}">
                         <ItemsControl.ItemsPanel>

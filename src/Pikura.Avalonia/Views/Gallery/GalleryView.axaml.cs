@@ -345,6 +345,14 @@ public partial class GalleryView : UserControl
         CopyBitmapToClipboard(card.Thumbnail);
     }
 
+    private void OnContextUseAsBackground(object? sender, RoutedEventArgs e)
+    {
+        if (GetCardFromMenu(sender) is not { } card) return;
+        if (string.IsNullOrWhiteSpace(card.ThumbnailUrl)) return;
+        try { AppServices.Get<BackgroundOverlayService>().AddImage(card.ThumbnailUrl); }
+        catch { /* non-fatal */ }
+    }
+
     private void CopyBitmapToClipboard(global::Avalonia.Media.Imaging.Bitmap? bmp)
     {
         if (bmp == null) return;
@@ -447,38 +455,28 @@ public partial class GalleryView : UserControl
     }
 
     private void OnCardContextMenuOpening(object? sender, System.ComponentModel.CancelEventArgs e)
-    {
-        // Show ugoira options only for ugoira artworks (IllustType == 2)
-        if (sender is not ContextMenu menu) return;
-        if (menu.PlacementTarget is not Control ctrl) return;
-        if (ctrl.DataContext is not ArtworkCardViewModel card) return;
-
-        // Find the ugoira menu item by header
-        foreach (var item in menu.Items)
-        {
-            if (item is MenuItem mi && mi.Header is string header && header.Contains("Ugoira"))
-            {
-                mi.IsVisible = card.IllustType == 2;
-                break;
-            }
-        }
-    }
+        => ApplyContextMenuVisibility(sender as ContextMenu);
 
     private void OnListCardContextMenuOpening(object? sender, System.ComponentModel.CancelEventArgs e)
+        => ApplyContextMenuVisibility(sender as ContextMenu);
+
+    private void ApplyContextMenuVisibility(ContextMenu? menu)
     {
-        // Show ugoira options only for ugoira artworks (IllustType == 2)
-        if (sender is not ContextMenu menu) return;
+        if (menu is null) return;
         if (menu.PlacementTarget is not Control ctrl) return;
         if (ctrl.DataContext is not ArtworkCardViewModel card) return;
 
-        // Find the ugoira menu item by header
+        bool overlayEnabled = false;
+        try { overlayEnabled = AppServices.Get<BackgroundOverlayService>().IsEnabled; }
+        catch { /* non-fatal */ }
+
         foreach (var item in menu.Items)
         {
-            if (item is MenuItem mi && mi.Header is string header && header.Contains("Ugoira"))
-            {
+            if (item is not MenuItem mi || mi.Header is not string header) continue;
+            if (header.Contains("Ugoira"))
                 mi.IsVisible = card.IllustType == 2;
-                break;
-            }
+            else if (header.Contains("app background"))
+                mi.IsVisible = overlayEnabled;
         }
     }
 

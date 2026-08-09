@@ -20,6 +20,8 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly ILogger<MainWindowViewModel> _logger;
     private ContentControl? _mainContentControl;
 
+    public BackgroundOverlayService OverlayService { get; }
+
     [ObservableProperty] private string _sidebarUserName    = "Guest User";
     [ObservableProperty] private string _sidebarUserStatus  = "Not signed in";
     [ObservableProperty] private string _sidebarUserInitial = "G";
@@ -48,12 +50,13 @@ public partial class MainWindowViewModel : ViewModelBase
     private static readonly TimeSpan UpdateCheckPollInterval = TimeSpan.FromHours(6);
     private System.Threading.Timer? _updateCheckTimer;
 
-    public MainWindowViewModel(NavigationService navigationService, SettingsService settingsService, UpdateCheckService updateCheck, ILogger<MainWindowViewModel> logger)
+    public MainWindowViewModel(NavigationService navigationService, SettingsService settingsService, UpdateCheckService updateCheck, ILogger<MainWindowViewModel> logger, BackgroundOverlayService overlayService)
     {
         _navigationService = navigationService;
         _settingsService   = settingsService;
         _updateCheck       = updateCheck;
         _logger            = logger;
+        OverlayService     = overlayService;
         Title = "Pikura";
         RefreshUserChip();
         _settingsService.Changed += (_, _) => RefreshUserChip();
@@ -101,12 +104,13 @@ public partial class MainWindowViewModel : ViewModelBase
             // when the GitHub release tag doesn't exist yet (e.g. freshly bumped version).
             var notes = await _updateCheck.FetchReleaseNotesAsync(current).ConfigureAwait(false);
             notes ??= GetLocalReleaseNotes(current);
+            if (notes is not { } releaseNotes) return;
 
             await Dispatcher.UIThread.InvokeAsync(() =>
             {
-                ChangelogVersion    = notes.Version;
-                ChangelogNotes      = notes.ReleaseNotes;
-                ChangelogReleaseUrl = notes.ReleasePageUrl;
+                ChangelogVersion    = releaseNotes.Version;
+                ChangelogNotes      = releaseNotes.ReleaseNotes;
+                ChangelogReleaseUrl = releaseNotes.ReleasePageUrl;
                 ChangelogAvailable  = true;
             });
         }

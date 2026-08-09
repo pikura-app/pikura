@@ -125,4 +125,20 @@ public partial class SettingsView : UserControl
         if (Directory.Exists(folder))
             Process.Start(new ProcessStartInfo(folder) { UseShellExecute = true });
     }
+
+    private void OnRemoveOverlayImageClick(object? sender, RoutedEventArgs e)
+    {
+        if (sender is not Button btn || btn.Tag is not string path) return;
+        if (DataContext is not SettingsViewModel vm) return;
+
+        var index = vm.OverlayService.ImagePaths.IndexOf(path);
+        if (index >= 0)
+            vm.OverlayService.RemoveImage(index);
+    }
+
+    private void OnClearAllOverlayImagesClick(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is not SettingsViewModel vm) return;
+        vm.OverlayService.ClearImages();
+    }
 }

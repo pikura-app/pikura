@@ -62,11 +62,25 @@ public partial class InlineArtworkViewer : UserControl
         set => SetValue(IsExpandedProperty, value);
     }
 
+    /// <summary>Set by the host to drive the Show/Hide Panel button label. Each section (Gallery,
+    /// Rankings, Search, Pixivision, Viewed) has its own ShowPreview flag on its own ViewModel —
+    /// binding this control's DataContext to the shared GalleryViewModel means it can't read that
+    /// directly, so hosts pass their own ShowPreview in here instead.</summary>
+    public static readonly StyledProperty<bool> IsPanelOpenProperty =
+        AvaloniaProperty.Register<InlineArtworkViewer, bool>(nameof(IsPanelOpen));
+    public bool IsPanelOpen
+    {
+        get => GetValue(IsPanelOpenProperty);
+        set => SetValue(IsPanelOpenProperty, value);
+    }
+
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
     {
         base.OnPropertyChanged(change);
         if (change.Property == IsExpandedProperty)
             ApplyExpandedState((bool)change.NewValue!);
+        if (change.Property == IsPanelOpenProperty)
+            ApplyPanelOpenState((bool)change.NewValue!);
 
         // When own IsVisible flips true (e.g. GalleryFullViewer shown via IsViewerExpanded binding)
         // and also when IsExpanded changes (side↔full switch), reload the card.
@@ -93,6 +107,14 @@ public partial class InlineArtworkViewer : UserControl
             expandLbl.IsVisible = !expanded;
         if (this.FindControl<TextBlock>("RestoreLabel") is { } restoreLbl)
             restoreLbl.IsVisible = expanded;
+    }
+
+    private void ApplyPanelOpenState(bool open)
+    {
+        if (this.FindControl<TextBlock>("ShowPanelLabel") is { } showLbl)
+            showLbl.IsVisible = !open;
+        if (this.FindControl<TextBlock>("HidePanelLabel") is { } hideLbl)
+            hideLbl.IsVisible = open;
     }
 
     private readonly PixivClient _pixivClient;
@@ -889,6 +911,7 @@ public partial class InlineArtworkViewer : UserControl
     {
         if (_currentCard == null || VM == null) return;
         var window = TopLevel.GetTopLevel(this) as Window;
+        if (window == null) return;
 
 // Get required services and presets
 var imageResizeService = AppServices.Get<ImageResizeService>();
@@ -1274,6 +1297,14 @@ if (result != null && presetWindow.DownloadClicked)
         _ = cb.SetBitmapAsync(bmp);
     }
 
+    private void OnUseAsBackground(object? sender, RoutedEventArgs e)
+    {
+        var url = _currentOriginalUrl ?? _currentCard?.ThumbnailUrl;
+        if (string.IsNullOrWhiteSpace(url)) return;
+        try { AppServices.Get<BackgroundOverlayService>().AddImage(url); }
+        catch { /* non-fatal */ }
+    }
+
     private void OnTagPressed(object? sender, PointerPressedEventArgs e)
     {
         if (sender is not Border border) return;
@@ -1404,6 +1435,13 @@ if (result != null && presetWindow.DownloadClicked)
         if (GoToArtistMenuItem != null) GoToArtistMenuItem.IsVisible = !hide;
         // Toolbar button mirrors the menu item — keep them in sync
         if (GoToArtistBtn != null) GoToArtistBtn.IsVisible = !hide;
+
+        try
+        {
+            var enabled = AppServices.Get<BackgroundOverlayService>().IsEnabled;
+            if (UseAsBackgroundMenuItem != null) UseAsBackgroundMenuItem.IsVisible = enabled;
+        }
+        catch { /* non-fatal */ }
     }
 
     private void OnTagContextMenuOpening(object? sender, System.ComponentModel.CancelEventArgs e)
