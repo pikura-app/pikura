@@ -1994,14 +1994,20 @@
                                                Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}" Margin="0,0,20,0"/>
                                     <TextBlock Grid.Row="2" Grid.Column="1" Text="© 2026" FontSize="13" FontWeight="SemiBold"/>
                                 </Grid>
-                                <Button Content="GitHub Page"
-                                        Click="OnGitHubPageClick"
-                                        HorizontalAlignment="Center"
-                                        Cursor="Hand"
-                                        FontSize="13"
-                                        Padding="14,6"
-                                        CornerRadius="6"
-                                        Margin="0,8,0,0"/>
+                                <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center" Margin="0,8,0,0">
+                                    <Button Content="GitHub Page"
+                                            Click="OnGitHubPageClick"
+                                            Cursor="Hand"
+                                            FontSize="13"
+                                            Padding="14,6"
+                                            CornerRadius="6"/>
+                                    <Button Content="View Changelog"
+                                            Click="OnViewChangelogClick"
+                                            Cursor="Hand"
+                                            FontSize="13"
+                                            Padding="14,6"
+                                            CornerRadius="6"/>
+                                </StackPanel>
                             </StackPanel>
                         </Border>
 

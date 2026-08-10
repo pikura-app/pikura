@@ -230,6 +230,23 @@ public partial class SettingsView : UserControl
         catch { /* best-effort — no browser available */ }
     }
 
+    private async void OnViewChangelogClick(object? sender, RoutedEventArgs e)
+    {
+        try
+        {
+            var version = Pikura.Core.Services.UpdateCheckService.CurrentVersion;
+            var updateCheck = AppServices.Get<Pikura.Core.Services.UpdateCheckService>();
+            var notes = await updateCheck.FetchReleaseNotesAsync(version)
+                        ?? MainWindowViewModel.GetLocalReleaseNotes(version);
+            if (notes is null) return;
+
+            var dialog = new ChangelogDialog(notes.Version, notes.ReleaseNotes, notes.ReleasePageUrl);
+            if (TopLevel.GetTopLevel(this) is Window owner)
+                await dialog.ShowDialog(owner);
+        }
+        catch { /* non-fatal */ }
+    }
+
     private void OnRemoveOverlayImageClick(object? sender, RoutedEventArgs e)
     {
         if (sender is not Button btn || btn.Tag is not string path) return;
