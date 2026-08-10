@@ -458,10 +458,10 @@ public partial class MainWindowViewModel : ViewModelBase
             ### New Features
             - **Pixivision tab** — browse official Pixivision articles, artist interviews and featured spotlights without leaving the app; save articles, filter content, and go back to previous articles using the built-in calendar
             - **Search tab** — global search across artworks, artists, novels and users with a single query
-            - **Viewed tab** — every artwork you open is remembered; scroll back through your history or use the built-in calendar to jump to any past day
+            - **Viewed tab** — every artwork you open is remembered; scroll back through your history or use the built-in calendar to jump to any past day. Clear history from the past hour, day, week, month, year, or all time — or set it to clear automatically after a configurable retention window in Settings
             - **Artwork background overlay** — use any artwork as a full-window background with per-image opacity, brightness, pan and zoom; cycle through up to five favorites
             - **Gallery search** — search inside the gallery by tag, title, artist, caption, date range, R-18 mode, AI generation and more
-            - **Advanced filtering** — filter by AI generation, R-18 type, blocklist scope, tags, titles and artists independently in Gallery, Rankings, Discover, Search and Pixivision
+            - **Advanced filtering** — filter by AI generation, R-18 type, blocklist scope, tags, titles and artists independently in Gallery, Rankings, Discover, Search, Pixivision, Viewed and Bookmarks
 
             ### Performance Improvements
             - Reduced memory usage and faster startup

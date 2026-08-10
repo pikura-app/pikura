@@ -19,6 +19,8 @@ public class BlocklistScopeToDisplayConverter : IValueConverter
                 BlocklistScope.Discover => "Discover",
                 BlocklistScope.Pixivision => "Pixivision",
                 BlocklistScope.Search => "Search",
+                BlocklistScope.Viewed => "Viewed",
+                BlocklistScope.Bookmarks => "Bookmarks",
                 _ => scope.ToString(),
             };
         }

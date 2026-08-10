@@ -88,6 +88,37 @@ public sealed class AppSettings
     /// <summary>When true, R-18 and R-18G content is blurred in gallery until clicked.</summary>
     public bool BlurR18Content { get; set; } = false;
 
+    /// <summary>When true, viewed history entries older than the retention window are deleted at app start/restart.</summary>
+    public bool AutoClearViewedHistoryEnabled { get; set; } = false;
+
+    /// <summary>When true, viewed history entries older than the retention window are deleted periodically while the app is running.</summary>
+    public bool AutoClearViewedHistoryWhileRunning { get; set; } = false;
+
+    /// <summary>Retention amount for auto-clearing viewed history (interpreted with <see cref="AutoClearViewedHistoryUnit"/>).</summary>
+    public int AutoClearViewedHistoryValue { get; set; } = 1;
+
+    /// <summary>Retention unit for auto-clearing viewed history: Hours, Days, Weeks, Months, or Years.</summary>
+    public string AutoClearViewedHistoryUnit { get; set; } = "Months";
+
+    /// <summary>
+    /// Computes the UTC cutoff for viewed-history retention; entries viewed before this
+    /// instant should be deleted. Returns null when the window is misconfigured. Callers
+    /// are responsible for checking the on-start / while-running enable flags.
+    /// </summary>
+    public DateTime? GetViewedHistoryRetentionCutoffUtc(DateTime nowUtc)
+    {
+        if (AutoClearViewedHistoryValue <= 0) return null;
+        return AutoClearViewedHistoryUnit switch
+        {
+            "Hours"  => nowUtc.AddHours(-AutoClearViewedHistoryValue),
+            "Days"   => nowUtc.AddDays(-AutoClearViewedHistoryValue),
+            "Weeks"  => nowUtc.AddDays(-7 * AutoClearViewedHistoryValue),
+            "Months" => nowUtc.AddMonths(-AutoClearViewedHistoryValue),
+            "Years"  => nowUtc.AddYears(-AutoClearViewedHistoryValue),
+            _        => null,
+        };
+    }
+
     /// <summary>Blur intensity/radius (0-50). Higher = more blur.</summary>
     public int BlurIntensity { get; set; } = 15;
 

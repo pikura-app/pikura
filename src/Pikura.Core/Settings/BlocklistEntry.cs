@@ -17,6 +17,8 @@ public enum BlocklistScope
     Discover,
     Pixivision,
     Search,
+    Viewed,
+    Bookmarks,
 }
 
 public partial class BlocklistEntry : ObservableObject

@@ -4,6 +4,7 @@
              xmlns:vm="using:Pikura.Avalonia.ViewModels"
              xmlns:conv="using:Pikura.Avalonia.Converters"
              xmlns:gallery="using:Pikura.Avalonia.Views.Gallery"
+             xmlns:services="using:Pikura.Avalonia.Services"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
@@ -14,11 +15,26 @@
         <conv:BoolToBlurRadiusConverter x:Key="BoolToBlurRadiusConverter"/>
 
         <ContextMenu x:Key="ViewedCardContextMenu" x:DataType="vm:ArtworkCardViewModel">
-            <MenuItem Header="👁 Open in side panel" Click="OnContextPreview"/>
-            <MenuItem Header="🌐 Open on pixiv.net" Click="OnContextOpenPixiv"/>
-            <Separator/>
             <MenuItem Header="☑ Select" Click="OnContextToggleSelection" IsVisible="{Binding !IsSelected}"/>
             <MenuItem Header="☒ Deselect" Click="OnContextToggleSelection" IsVisible="{Binding IsSelected}"/>
+            <Separator/>
+            <MenuItem Header="↓ Download all" Click="OnContextDownloadAll"/>
+            <MenuItem Header="↓ First page only" Click="OnContextDownloadThisPage" IsVisible="{Binding IsMultiPage}"/>
+            <Separator/>
+            <MenuItem Header="👁 Open in side panel" Click="OnContextPreview"/>
+            <MenuItem Header="⛶ Open full screen" Click="OnContextOpenFullScreen"/>
+            <MenuItem Header="⊞ Open in new tab" Click="OnContextOpenInNewTab"/>
+            <MenuItem Header="⧉ Open in popup" Click="OnContextOpenPopup"/>
+            <MenuItem Header="🌐 Open on pixiv.net" Click="OnContextOpenPixiv"/>
+            <MenuItem Header="👤 Open artist gallery" Click="OnContextOpenArtistGallery"/>
+            <Separator/>
+            <MenuItem Header="★ Add to local favorites" Click="OnContextToggleFavorite" IsVisible="{Binding !IsLocalFavorite}"/>
+            <MenuItem Header="★ Remove from favorites" Click="OnContextToggleFavorite" IsVisible="{Binding IsLocalFavorite}"/>
+            <Separator/>
+            <MenuItem Header="Copy artwork ID" Click="OnContextCopyId"/>
+            <MenuItem Header="Copy artist ID" Click="OnContextCopyArtistId"/>
+            <MenuItem Header="📋 Copy image" Click="OnContextCopyImage"/>
+            <MenuItem Header="🖼 Use as app background" Click="OnContextUseAsBackground" IsVisible="{Binding IsEnabled, Source={x:Static services:AppServices.OverlayService}}"/>
             <Separator/>
             <MenuItem Header="✕ Remove from history" Click="OnContextRemove"/>
         </ContextMenu>
@@ -106,7 +122,19 @@
                         </StackPanel>
                     </ToggleButton>
                     <Button Content="⟳" CornerRadius="5" Padding="8,4" FontSize="11" Command="{Binding ReloadCommand}" ToolTip.Tip="Refresh"/>
-                    <Button Content="🗑" CornerRadius="5" Padding="8,4" FontSize="11" Click="OnClearAllClicked" ToolTip.Tip="Clear all history"/>
+                    <Button Content="🗑" CornerRadius="5" Padding="8,4" FontSize="11" ToolTip.Tip="Clear history…">
+                        <Button.Flyout>
+                            <MenuFlyout Placement="BottomEdgeAlignedRight">
+                                <MenuItem Header="Past hour"  Command="{Binding ClearHistoryRangeCommand}" CommandParameter="hour"/>
+                                <MenuItem Header="Past day"   Command="{Binding ClearHistoryRangeCommand}" CommandParameter="day"/>
+                                <MenuItem Header="Past week"  Command="{Binding ClearHistoryRangeCommand}" CommandParameter="week"/>
+                                <MenuItem Header="Past month" Command="{Binding ClearHistoryRangeCommand}" CommandParameter="month"/>
+                                <MenuItem Header="Past year"  Command="{Binding ClearHistoryRangeCommand}" CommandParameter="year"/>
+                                <Separator/>
+                                <MenuItem Header="All time"   Command="{Binding ClearHistoryRangeCommand}" CommandParameter="all"/>
+                            </MenuFlyout>
+                        </Button.Flyout>
+                    </Button>
                 </StackPanel>
             </Grid>
         </Border>

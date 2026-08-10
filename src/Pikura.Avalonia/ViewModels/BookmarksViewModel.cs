@@ -509,6 +509,8 @@ public partial class BookmarksViewModel : ViewModelBase
                 t.Contains(TagFilter, StringComparison.OrdinalIgnoreCase)));
         if (!ShowR18)
             items = items.Where(a => !a.Artwork.IsR18);
+        // Unified blocklist filter for the Bookmarks tab
+        items = items.Where(a => !_settingsService.Current.IsArtworkHidden("Bookmarks", a.UserId, a.UserName, a.Title, a.Tags));
         if (applyFolder && !string.IsNullOrWhiteSpace(FolderFilter))
             items = items.Where(a => _favoritesService.GetFolder(a.Id) == FolderFilter);
 

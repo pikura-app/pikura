@@ -1,8 +1,11 @@
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Input.Platform;
 using Avalonia.Interactivity;
 using Pikura.Avalonia.Services;
 using Pikura.Avalonia.ViewModels;
+using Pikura.Avalonia.Views.Artwork;
+using Pikura.Core.Services;
 using Pikura.Core.Settings;
 using System;
 using System.Diagnostics;
@@ -201,12 +204,6 @@ public partial class ViewedHistoryView : UserControl
 
     private void OnCardCheckboxClicked(object? sender, RoutedEventArgs e) => VM?.NotifySelectionChanged();
 
-    private async void OnClearAllClicked(object? sender, RoutedEventArgs e)
-    {
-        if (VM == null) return;
-        await VM.ClearAllAsync();
-    }
-
     private static ArtworkCardViewModel? CardFrom(object? sender) =>
         (sender as MenuItem)?.DataContext as ArtworkCardViewModel;
 
@@ -263,5 +260,131 @@ public partial class ViewedHistoryView : UserControl
     {
         if (CardFrom(sender) is not { } card || VM == null) return;
         await VM.RemoveAsync(card);
+    }
+
+    private void OnContextDownloadAll(object? sender, RoutedEventArgs e)
+    {
+        if (CardFrom(sender) is { } card) _ = VM?.GalleryVm.DownloadSingleAsync(card);
+    }
+
+    private void OnContextDownloadThisPage(object? sender, RoutedEventArgs e)
+    {
+        if (CardFrom(sender) is { } card) _ = VM?.GalleryVm.DownloadSinglePageAsync(card, 0);
+    }
+
+    private void OnContextOpenFullScreen(object? sender, RoutedEventArgs e)
+    {
+        if (CardFrom(sender) is not { } card || VM == null) return;
+        VM.OpenCard(card);
+        VM.IsViewerExpanded = true;
+    }
+
+    private void OnContextOpenInNewTab(object? sender, RoutedEventArgs e)
+    {
+        if (CardFrom(sender) is not { } card || VM == null) return;
+        try
+        {
+            AppServices.Get<GalleryViewModel>().OpenInNewTab(card, VM.Results.ToList().AsReadOnly(), VM.Results.Count, null, VM.ViewerSourceKey);
+            VM.ShowPreview = true;
+        }
+        catch { }
+    }
+
+    private async void OnContextOpenPopup(object? sender, RoutedEventArgs e)
+    {
+        if (CardFrom(sender) is not { } card || VM == null) return;
+        var window = TopLevel.GetTopLevel(this) as Window;
+        if (window == null) return;
+        var viewer = new ArtworkViewerWindow(card.Artwork, VM.GalleryVm);
+        await viewer.ShowDialog(window);
+    }
+
+    private void OnContextOpenArtistGallery(object? sender, RoutedEventArgs e)
+    {
+        if (CardFrom(sender) is not { } card) return;
+        try
+        {
+            var mainWindow = TopLevel.GetTopLevel(this) as Pikura.Avalonia.Views.MainWindow;
+            mainWindow?.LoadGalleryView();
+            var galleryVm = AppServices.Get<GalleryViewModel>();
+            _ = galleryVm.LoadArtistByIdCommand.ExecuteAsync(card.UserId);
+        }
+        catch { }
+    }
+
+    private void OnContextToggleFavorite(object? sender, RoutedEventArgs e)
+    {
+        if (CardFrom(sender) is not { } card) return;
+        var favs = AppServices.Get<LocalFavoritesService>();
+        favs.Toggle(card.Artwork);
+        card.IsLocalFavorite = favs.IsFavorite(card.Id);
+    }
+
+    private void OnContextCopyId(object? sender, RoutedEventArgs e)
+    {
+        if (CardFrom(sender) is not { } card) return;
+        CopyTextToClipboard(card.Id);
+    }
+
+    private void OnContextCopyArtistId(object? sender, RoutedEventArgs e)
+    {
+        if (CardFrom(sender) is not { } card) return;
+        if (string.IsNullOrWhiteSpace(card.UserId)) return;
+        CopyTextToClipboard(card.UserId);
+        try { QuickClipboardService.CopyArtist(card.UserId); } catch { }
+        if (VM != null) VM.StatusMessage = $"Copied artist ID {card.UserId} ({card.UserName})";
+    }
+
+    private void OnContextCopyImage(object? sender, RoutedEventArgs e)
+    {
+        if (CardFrom(sender) is not { } card || card.Thumbnail == null) return;
+        var clipboard = TopLevel.GetTopLevel(this)?.Clipboard;
+        if (clipboard == null) return;
+        _ = clipboard.SetBitmapAsync(card.Thumbnail);
+    }
+
+    private async void OnContextUseAsBackground(object? sender, RoutedEventArgs e)
+    {
+        try { if (!AppServices.Get<BackgroundOverlayService>().IsEnabled) return; }
+        catch { return; }
+        if (CardFrom(sender) is not { } card) return;
+        if (string.IsNullOrWhiteSpace(card.ThumbnailUrl)) return;
+        try
+        {
+            var overlay = AppServices.Get<BackgroundOverlayService>();
+            var bytes = await overlay.FetchImageBytesAsync(card.ThumbnailUrl);
+            var window = TopLevel.GetTopLevel(this) as Window;
+            if (window == null) { overlay.AddImage(card.ThumbnailUrl); return; }
+
+            var seedEntry = new OverlayImageEntry
+            {
+                Path = card.ThumbnailUrl,
+                Title = card.Title,
+                UserName = card.UserName,
+                UserId = card.UserId,
+                IllustId = card.Id,
+            };
+            var preview = new Pikura.Avalonia.Views.Dialogs.BackgroundPreviewWindow(card.ThumbnailUrl, bytes, seedEntry);
+            await preview.ShowDialog(window);
+
+            if (preview.Result is { } result)
+            {
+                result.Title = card.Title;
+                result.UserName = card.UserName;
+                result.UserId = card.UserId;
+                result.IllustId = card.Id;
+                overlay.AddImage(card.ThumbnailUrl, result);
+            }
+        }
+        catch { /* non-fatal */ }
+    }
+
+    private void CopyTextToClipboard(string text)
+    {
+        var clipboard = TopLevel.GetTopLevel(this)?.Clipboard;
+        if (clipboard == null) return;
+        var dt = new DataTransfer();
+        dt.Add(DataTransferItem.CreateText(text));
+        _ = clipboard.SetDataAsync(dt);
     }
 }

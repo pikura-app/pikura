@@ -103,7 +103,26 @@ public partial class ViewedHistoryViewModel : ViewModelBase
             { ShowPreview = false; IsViewerExpanded = false; }
         };
 
-        _ = ReloadAsync();
+        _ = InitializeAsync();
+    }
+
+    private async Task InitializeAsync()
+    {
+        await AutoClearExpiredAsync();
+        await ReloadAsync();
+    }
+
+    /// <summary>Deletes entries older than the user's retention window (Settings → Advanced → auto-clear history). No-op when disabled.</summary>
+    public async Task AutoClearExpiredAsync()
+    {
+        try
+        {
+            var s = _settingsService.Current;
+            if ((s.AutoClearViewedHistoryEnabled || s.AutoClearViewedHistoryWhileRunning)
+                && s.GetViewedHistoryRetentionCutoffUtc(DateTime.UtcNow) is { } cutoff)
+                await _repository.ClearOlderThanAsync(cutoff);
+        }
+        catch { /* retention cleanup must never break the tab */ }
     }
 
     [RelayCommand]
@@ -129,7 +148,7 @@ public partial class ViewedHistoryViewModel : ViewModelBase
             foreach (var entry in entries)
                 AddCard(entry);
 
-            CanLoadMore = Results.Count < total;
+            CanLoadMore = Results.Count < total && entries.Count > 0;
             StatusMessage = Results.Count == 0
                 ? (IsFilteredByDate
                     ? $"No artworks viewed on {DateLabel}."
@@ -203,6 +222,9 @@ public partial class ViewedHistoryViewModel : ViewModelBase
             PageCount = entry.PageCount,
             Tags = entry.Tags,
         };
+        if (_settingsService.Current.IsArtworkHidden("Viewed", preview.UserId, preview.UserName, preview.Title, preview.Tags))
+            return;
+
         var card = new ArtworkCardViewModel(preview)
         {
             IsBlurred = _settingsService.Current.BlurR18Content && entry.XRestrict >= 1
@@ -242,6 +264,44 @@ public partial class ViewedHistoryViewModel : ViewModelBase
         Results.Clear();
         StatusMessage = "History cleared.";
         OnPropertyChanged(nameof(HasResults));
+    }
+
+    /// <summary>
+    /// Clears history from a recent time window: "hour", "day", "week", "month",
+    /// "year" (entries viewed within that window), or "all" for everything.
+    /// </summary>
+    [RelayCommand]
+    public async Task ClearHistoryRangeAsync(string range)
+    {
+        var description = range == "all" ? "your entire viewing history" : $"viewing history from the past {range}";
+        var confirmed = await AppServices.Get<DialogService>().ShowConfirmationAsync(
+            "Clear History",
+            $"Delete {description}? This cannot be undone.");
+        if (!confirmed) return;
+
+        var now = DateTime.UtcNow;
+        DateTime? cutoff = range switch
+        {
+            "hour"  => now.AddHours(-1),
+            "day"   => now.AddDays(-1),
+            "week"  => now.AddDays(-7),
+            "month" => now.AddMonths(-1),
+            "year"  => now.AddYears(-1),
+            _       => null, // "all"
+        };
+
+        if (cutoff is { } c)
+        {
+            var removed = await _repository.ClearSinceAsync(c);
+            StatusMessage = $"Cleared {removed:N0} entr{(removed == 1 ? "y" : "ies")} from the past {range}.";
+        }
+        else
+        {
+            await _repository.ClearAllAsync();
+            StatusMessage = "History cleared.";
+        }
+
+        await ReloadAsync();
     }
 
     public void NotifySelectionChanged() => SelectedCount = Results.Count(c => c.IsSelected);

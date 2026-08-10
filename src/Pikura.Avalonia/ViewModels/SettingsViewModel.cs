@@ -92,6 +92,13 @@ public partial class SettingsViewModel : ViewModelBase
     [ObservableProperty] private bool _blurR18Content;
     [ObservableProperty] private int _blurIntensity = 15;
     [ObservableProperty] private bool _filterAiGenerated;
+    // Viewed history auto-clear
+    [ObservableProperty] private bool _autoClearViewedHistoryEnabled;
+    [ObservableProperty] private bool _autoClearViewedHistoryWhileRunning;
+    [ObservableProperty] private int _autoClearViewedHistoryValue = 1;
+    [ObservableProperty] private string _autoClearViewedHistoryUnit = "Months";
+    public string[] AutoClearHistoryUnits { get; } = ["Hours", "Days", "Weeks", "Months", "Years"];
+    public bool AutoClearHistoryAnyEnabled => AutoClearViewedHistoryEnabled || AutoClearViewedHistoryWhileRunning;
     // Metadata Export
     [ObservableProperty] private bool _writeImageJSON;
     [ObservableProperty] private bool _writeImageInfo;
@@ -143,6 +150,8 @@ public partial class SettingsViewModel : ViewModelBase
         new(BlocklistScope.Discover, "Discover"),
         new(BlocklistScope.Pixivision, "Pixivision"),
         new(BlocklistScope.Search, "Search"),
+        new(BlocklistScope.Viewed, "Viewed"),
+        new(BlocklistScope.Bookmarks, "Bookmarks"),
     };
 
     // Network / Proxy
@@ -586,6 +595,10 @@ public partial class SettingsViewModel : ViewModelBase
         BlurR18Content = s.BlurR18Content;
         BlurIntensity = s.BlurIntensity;
         FilterAiGenerated = s.FilterAiGenerated;
+        AutoClearViewedHistoryEnabled = s.AutoClearViewedHistoryEnabled;
+        AutoClearViewedHistoryWhileRunning = s.AutoClearViewedHistoryWhileRunning;
+        AutoClearViewedHistoryValue = s.AutoClearViewedHistoryValue;
+        AutoClearViewedHistoryUnit = s.AutoClearViewedHistoryUnit;
 
         // Metadata Export
         WriteImageJSON = s.WriteImageJSON;
@@ -917,6 +930,24 @@ public partial class SettingsViewModel : ViewModelBase
 
     partial void OnFilterAiGeneratedChanged(bool value)
         => _settingsService.Update(s => s.FilterAiGenerated = value);
+
+    partial void OnAutoClearViewedHistoryEnabledChanged(bool value)
+    {
+        _settingsService.Update(s => s.AutoClearViewedHistoryEnabled = value);
+        OnPropertyChanged(nameof(AutoClearHistoryAnyEnabled));
+    }
+
+    partial void OnAutoClearViewedHistoryWhileRunningChanged(bool value)
+    {
+        _settingsService.Update(s => s.AutoClearViewedHistoryWhileRunning = value);
+        OnPropertyChanged(nameof(AutoClearHistoryAnyEnabled));
+    }
+
+    partial void OnAutoClearViewedHistoryValueChanged(int value)
+        => _settingsService.Update(s => s.AutoClearViewedHistoryValue = value);
+
+    partial void OnAutoClearViewedHistoryUnitChanged(string value)
+        => _settingsService.Update(s => s.AutoClearViewedHistoryUnit = value);
 
     partial void OnR18ModeChanged(string value)
     {

@@ -293,7 +293,41 @@ public static class AppServices
 
         // Wire up per-account download/schedule/history isolation
         WireUpPerAccountDb();
+
+        // Retention-based viewed-history auto-clear (Settings → Advanced). Runs at
+        // startup so old entries are purged even if the Viewed tab is never opened,
+        // and periodically while the app is running when the user opted into that.
+        _ = System.Threading.Tasks.Task.Run(async () =>
+        {
+            try
+            {
+                var settings = Get<SettingsService>().Current;
+                if (settings.AutoClearViewedHistoryEnabled
+                    && settings.GetViewedHistoryRetentionCutoffUtc(DateTime.UtcNow) is { } cutoff)
+                    await Get<ViewedHistoryRepository>().ClearOlderThanAsync(cutoff);
+            }
+            catch { /* non-fatal */ }
+        });
+
+        _historyAutoClearTimer = new System.Threading.Timer(
+            _ =>
+            {
+                try
+                {
+                    var settings = Get<SettingsService>().Current;
+                    if (settings.AutoClearViewedHistoryWhileRunning
+                        && settings.GetViewedHistoryRetentionCutoffUtc(DateTime.UtcNow) is { } cutoff)
+                        Get<ViewedHistoryRepository>().ClearOlderThanAsync(cutoff).GetAwaiter().GetResult();
+                }
+                catch { /* non-fatal */ }
+            },
+            null,
+            TimeSpan.FromMinutes(5),
+            TimeSpan.FromMinutes(5));
     }
+
+    // Keeps the while-running history auto-clear timer alive for the app's lifetime.
+    private static System.Threading.Timer? _historyAutoClearTimer;
 
     private static void WireUpPerAccountDb()
     {

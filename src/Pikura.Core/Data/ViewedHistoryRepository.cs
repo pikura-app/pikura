@@ -225,5 +225,25 @@ public sealed class ViewedHistoryRepository : IDisposable
         await cmd.ExecuteNonQueryAsync(ct).ConfigureAwait(false);
     }
 
+    /// <summary>Deletes entries viewed at or after the given UTC instant (e.g. "clear the past hour"). Returns the number of rows removed.</summary>
+    public async Task<int> ClearSinceAsync(DateTime cutoffUtc, CancellationToken ct = default)
+    {
+        using var connection = CreateConnection();
+        await connection.OpenAsync(ct).ConfigureAwait(false);
+        using var cmd = new SqliteCommand("DELETE FROM viewed_history WHERE viewed_at >= @cutoff", connection);
+        cmd.Parameters.AddWithValue("@cutoff", cutoffUtc.ToString("O"));
+        return await cmd.ExecuteNonQueryAsync(ct).ConfigureAwait(false);
+    }
+
+    /// <summary>Deletes entries viewed before the given UTC instant (retention-based auto-clear). Returns the number of rows removed.</summary>
+    public async Task<int> ClearOlderThanAsync(DateTime cutoffUtc, CancellationToken ct = default)
+    {
+        using var connection = CreateConnection();
+        await connection.OpenAsync(ct).ConfigureAwait(false);
+        using var cmd = new SqliteCommand("DELETE FROM viewed_history WHERE viewed_at < @cutoff", connection);
+        cmd.Parameters.AddWithValue("@cutoff", cutoffUtc.ToString("O"));
+        return await cmd.ExecuteNonQueryAsync(ct).ConfigureAwait(false);
+    }
+
     public void Dispose() { /* connection is disposed per-operation */ }
 }
