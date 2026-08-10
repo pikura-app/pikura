@@ -3,6 +3,7 @@
              xmlns:actipro="http://schemas.actiprosoftware.com/avaloniaui"
              xmlns:vm="using:Pikura.Avalonia.ViewModels"
              xmlns:conv="using:Pikura.Avalonia.Converters"
+             xmlns:services="using:Pikura.Avalonia.Services"
              xmlns:sys="using:System"
              xmlns:gallery="using:Pikura.Avalonia.Views.Gallery"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -46,6 +47,7 @@
             <MenuItem Header="Copy artwork ID" Click="OnContextCopyId"/>
             <MenuItem Header="Copy artwork URL" Click="OnContextCopyUrl"/>
             <MenuItem Header="📋 Copy image" Click="OnContextCopyImage"/>
+            <MenuItem Header="🖼 Use as app background" Click="OnContextUseAsBackground" IsVisible="{Binding IsEnabled, Source={x:Static services:AppServices.OverlayService}}"/>
         </ContextMenu>
     </UserControl.Resources>
 
@@ -107,7 +109,7 @@
                             </Button>
                             <!-- Manual date input -->
                             <TextBox Text="{Binding DateInput}"
-                                     Watermark="YYYY-MM-DD"
+                                     PlaceholderText="YYYY-MM-DD"
                                      Width="100" BorderThickness="0"
                                      Background="Transparent"
                                      Padding="6,4" FontSize="11"
@@ -175,6 +177,8 @@
                             Command="{Binding SelectContentCommand}" CommandParameter="manga"
                             Classes.accent="{Binding SelectedContent, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=manga}"/>
                 </StackPanel>
+                <!-- Spacer — visually separates content-type tabs from the view controls -->
+                <Rectangle Width="32" Fill="Transparent"/>
                 <!-- RIGHT: grid/list | fixed/natural | size slider | info/tags -->
                 <StackPanel Orientation="Horizontal" Spacing="3" VerticalAlignment="Center">
                     <!-- Grid/List -->
@@ -227,7 +231,8 @@
                                   ToolTip.Tip="Toggle the side panel (browse artworks alongside the viewer)">
                         <StackPanel Orientation="Horizontal" Spacing="4">
                             <TextBlock Text="▣" FontSize="12" VerticalAlignment="Center"/>
-                            <TextBlock Text="Side Panel" FontSize="11" VerticalAlignment="Center"/>
+                            <TextBlock Text="Show Panel" FontSize="11" VerticalAlignment="Center" IsVisible="{Binding !ShowPreview}"/>
+                            <TextBlock Text="Hide Panel" FontSize="11" VerticalAlignment="Center" IsVisible="{Binding ShowPreview}"/>
                         </StackPanel>
                     </ToggleButton>
                     <Rectangle Width="1" Height="16" Fill="{actipro:ThemeResource Container1BorderBrush}" Margin="3,0"/>
@@ -302,9 +307,12 @@
                             Classes.accent="{Binding SelectedMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=weekly}"/>
                 </StackPanel>
 
-                <!-- Novel modes: Weekly, Monthly, Rookie only (novels don't have daily) -->
+                <!-- Novel modes: Daily, Weekly, Monthly, Rookie, Original, AI, Male, Female -->
                 <StackPanel Orientation="Horizontal" Spacing="4"
                             IsVisible="{Binding ShowNovelModes}">
+                    <Button Content="Daily"    CornerRadius="6" Padding="12,5" FontSize="11"
+                            Command="{Binding SelectModeCommand}" CommandParameter="daily"
+                            Classes.accent="{Binding SelectedMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=daily}"/>
                     <Button Content="Weekly"   CornerRadius="6" Padding="12,5" FontSize="11"
                             Command="{Binding SelectModeCommand}" CommandParameter="weekly"
                             Classes.accent="{Binding SelectedMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=weekly}"/>
@@ -314,6 +322,19 @@
                     <Button Content="Rookie"   CornerRadius="6" Padding="12,5" FontSize="11"
                             Command="{Binding SelectModeCommand}" CommandParameter="rookie"
                             Classes.accent="{Binding SelectedMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=rookie}"/>
+                    <Button Content="Original" CornerRadius="6" Padding="12,5" FontSize="11"
+                            Command="{Binding SelectModeCommand}" CommandParameter="weekly_original"
+                            Classes.accent="{Binding SelectedMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=weekly_original}"/>
+                    <Button Content="AI"       CornerRadius="6" Padding="12,5" FontSize="11"
+                            Command="{Binding SelectModeCommand}" CommandParameter="weekly_ai"
+                            Classes.accent="{Binding SelectedMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=weekly_ai}"
+                            IsVisible="{Binding ShowAiButton}"/>
+                    <Button Content="Male"     CornerRadius="6" Padding="12,5" FontSize="11"
+                            Command="{Binding SelectModeCommand}" CommandParameter="male"
+                            Classes.accent="{Binding SelectedMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=male}"/>
+                    <Button Content="Female"   CornerRadius="6" Padding="12,5" FontSize="11"
+                            Command="{Binding SelectModeCommand}" CommandParameter="female"
+                            Classes.accent="{Binding SelectedMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=female}"/>
                 </StackPanel>
             </StackPanel>
             </ScrollViewer>
@@ -387,7 +408,8 @@
                         IsVisible="{Binding ShowPreview}">
                     <gallery:InlineArtworkViewer Name="RankingsInlineViewer"
                                                  DataContext="{Binding GalleryVm}"
-                                                 IsExpanded="{Binding $parent[UserControl].((vm:EnhancedRankingsViewModel)DataContext).IsViewerExpanded}"/>
+                                                 IsExpanded="{Binding $parent[UserControl].((vm:EnhancedRankingsViewModel)DataContext).IsViewerExpanded}"
+                                                 IsPanelOpen="{Binding $parent[UserControl].((vm:EnhancedRankingsViewModel)DataContext).ShowPreview}"/>
                 </Border>
 
                 <!-- Main artwork area -->
@@ -417,20 +439,24 @@
                               IsVisible="{Binding IsGridView}"
                               ScrollChanged="OnScrollChanged">
                     <Panel>
-                    <!-- Grid view: MasonryPanel for both Fixed and Natural height -->
-                    <ItemsControl ItemsSource="{Binding FilteredItems}" Margin="10,10,4,10">
+                    <!-- Grid view is split into two mutually-exclusive ItemsControls rather than
+                         one shared panel: Fixed height uses a plain WrapPanel, since rank order
+                         must read strictly left-to-right/top-to-bottom and every card is the same
+                         height anyway (no masonry benefit, only its reordering downside). Natural
+                         height keeps MasonryPanel so images keep their real aspect ratio/shape
+                         instead of being stretched/letterboxed to a shared row height. -->
+                    <ItemsControl ItemsSource="{Binding FilteredItems}" Margin="10,10,4,10"
+                                  IsVisible="{Binding ShowFixedGrid}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
-                                <gallery:MasonryPanel ColumnWidth="{Binding $parent[UserControl].((vm:EnhancedRankingsViewModel)DataContext).CardSize}" ItemSpacing="6"/>
+                                <WrapPanel/>
                             </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
                             <DataTemplate x:DataType="vm:RankingCardViewModel">
-                                <Panel>
                                     <!-- ── FIXED HEIGHT card ── -->
                                     <Border Margin="0,0,6,6"
                                             Width="{Binding $parent[UserControl].((vm:EnhancedRankingsViewModel)DataContext).CardSize}"
-                                            IsVisible="{Binding $parent[UserControl].((vm:EnhancedRankingsViewModel)DataContext).ShowFixedGrid}"
                                             Background="{actipro:ThemeResource Container1BackgroundBrush}"
                                             BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
                                             BorderThickness="1" CornerRadius="8"
@@ -510,6 +536,9 @@
                                                 <TextBlock Text="{Binding UserName}" FontSize="10"
                                                            Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
                                                            TextTrimming="CharacterEllipsis" MaxLines="1"/>
+                                                <TextBlock Text="{Binding StatsLabel}" FontSize="9"
+                                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                                           IsVisible="{Binding IsNovel}"/>
                                                 <!-- tags -->
                                                 <ItemsControl ItemsSource="{Binding TopTags}" Margin="0,1,0,0"
                                                               IsVisible="{Binding $parent[UserControl].((vm:EnhancedRankingsViewModel)DataContext).ShowTags}">
@@ -540,11 +569,22 @@
                                             </StackPanel>
                                         </Grid>
                                     </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
 
+                    <ItemsControl ItemsSource="{Binding FilteredItems}" Margin="10,10,4,10"
+                                  IsVisible="{Binding ShowNaturalGrid}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <gallery:MasonryPanel ColumnWidth="{Binding $parent[UserControl].((vm:EnhancedRankingsViewModel)DataContext).CardSize}" ItemSpacing="6" PreserveOrder="True"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:RankingCardViewModel">
                                     <!-- ── NATURAL HEIGHT card ── -->
                                     <Border Margin="0,0,6,6"
                                             Width="{Binding $parent[UserControl].((vm:EnhancedRankingsViewModel)DataContext).CardSize}"
-                                            IsVisible="{Binding $parent[UserControl].((vm:EnhancedRankingsViewModel)DataContext).ShowNaturalGrid}"
                                             Background="{actipro:ThemeResource Container1BackgroundBrush}"
                                             BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
                                             BorderThickness="1" CornerRadius="8"
@@ -630,6 +670,9 @@
                                                 <TextBlock Text="{Binding UserName}" FontSize="10"
                                                            Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
                                                            TextTrimming="CharacterEllipsis" MaxLines="1"/>
+                                                <TextBlock Text="{Binding StatsLabel}" FontSize="9"
+                                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                                           IsVisible="{Binding IsNovel}"/>
                                                 <ItemsControl ItemsSource="{Binding TopTags}" Margin="0,1,0,0"
                                                               IsVisible="{Binding $parent[UserControl].((vm:EnhancedRankingsViewModel)DataContext).ShowTags}">
                                                     <ItemsControl.ItemsPanel>
@@ -659,7 +702,6 @@
                                             </StackPanel>
                                         </Grid>
                                     </Border>
-                                </Panel>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
@@ -738,74 +780,48 @@
                 Background="{actipro:ThemeResource Container1BackgroundBrush}"
                 BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
                 BorderThickness="0,1,0,0" Padding="14,8">
-            <Grid ColumnDefinitions="*,Auto,Auto">
+            <Grid ColumnDefinitions="*,Auto">
                 <TextBlock Grid.Column="0" FontSize="11"
                            Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
                            Text="{Binding StatusMessage}" VerticalAlignment="Center"/>
 
-                <!-- Pagination controls at bottom -->
-                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center" Margin="0,0,20,0">
-                    <!-- Pagination Toggle -->
+                <!-- Single switch: checked = paged (Prev/Next), unchecked = autoload while scrolling —
+                     mirrors Pixivision's "Pages" toggle for a consistent, unambiguous control. -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
                     <ToggleButton IsChecked="{Binding UsePagination, Mode=TwoWay}"
                                   CornerRadius="6" Padding="8,4" FontSize="11"
-                                  ToolTip.Tip="Toggle pagination (off = show all, on = paginated)">
+                                  ToolTip.Tip="Toggle pagination (off = autoload while scrolling)">
                         <StackPanel Orientation="Horizontal" Spacing="4">
                             <TextBlock Text="📄" FontSize="12" VerticalAlignment="Center"/>
                             <TextBlock Text="Pages" FontSize="11" VerticalAlignment="Center"/>
                         </StackPanel>
                     </ToggleButton>
 
-                    <!-- Items per page selector (visible when pagination enabled) -->
                     <ComboBox IsVisible="{Binding UsePagination}"
                               SelectedItem="{Binding ItemsPerPage, Mode=TwoWay}"
                               ItemsSource="{Binding ItemsPerPageOptions}"
                               CornerRadius="6" MinWidth="75" FontSize="11"
                               ToolTip.Tip="Items per page"/>
 
-                    <!-- Page navigation (visible when pagination enabled) -->
-                    <StackPanel IsVisible="{Binding UsePagination}" Orientation="Horizontal" Spacing="4">
-                        <!-- First page -->
-                        <Button Command="{Binding FirstPageCommand}"
-                                IsEnabled="{Binding CanGoPrevious}"
-                                CornerRadius="6" Padding="8,4" FontSize="11"
-                                ToolTip.Tip="Go to first page">|←</Button>
-
-                        <!-- Previous page -->
-                        <Button Command="{Binding PreviousPageCommand}"
-                                IsEnabled="{Binding CanGoPrevious}"
-                                CornerRadius="6" Padding="8,4" FontSize="11"
-                                ToolTip.Tip="Previous page">←</Button>
-
-                        <!-- Page input -->
-                        <TextBox Text="{Binding GalleryCurrentPage, Mode=TwoWay}"
-                                 Width="40"
-                                 CornerRadius="6"
-                                 FontSize="11"
-                                 HorizontalContentAlignment="Center"
-                                 VerticalAlignment="Center"
-                                 ToolTip.Tip="Enter page number and press Enter to jump"/>
-
-                        <TextBlock Text="/" VerticalAlignment="Center" FontSize="11" Margin="2,0"/>
-                        <TextBlock Text="{Binding TotalPages, StringFormat='{}{0}'}" VerticalAlignment="Center" FontSize="11" Margin="0,0,2,0"/>
-
-                        <!-- Next page -->
-                        <Button Command="{Binding NextPageCommand}"
-                                IsEnabled="{Binding CanGoNext}"
-                                CornerRadius="6" Padding="8,4" FontSize="11"
-                                ToolTip.Tip="Next page">→</Button>
-
-                        <!-- Last page -->
-                        <Button Command="{Binding LastPageCommand}"
-                                IsEnabled="{Binding CanGoNext}"
-                                CornerRadius="6" Padding="8,4" FontSize="11"
-                                ToolTip.Tip="Go to last page">→|</Button>
+                    <StackPanel IsVisible="{Binding UsePagination}" Orientation="Horizontal" Spacing="6">
+                        <Button Content="‹ Prev" CornerRadius="6" Padding="10,5" FontSize="11"
+                                Command="{Binding PreviousPageCommand}" IsEnabled="{Binding CanGoPrevious}"/>
+                        <TextBlock Text="{Binding GalleryCurrentPage, StringFormat='Page {0} of'}" FontSize="11"
+                                   VerticalAlignment="Center" Margin="4,0"/>
+                        <TextBlock Text="{Binding TotalPages}" FontSize="11" VerticalAlignment="Center"/>
+                        <TextBox Text="{Binding PageInput}" PlaceholderText="#"
+                                 Width="44" BorderThickness="1" CornerRadius="6"
+                                 Padding="6,4" FontSize="11" Margin="6,0,0,0"
+                                 VerticalContentAlignment="Center"
+                                 KeyDown="OnRankingsPageInputKeyDown"
+                                 ToolTip.Tip="Type a page number and press Enter"/>
+                        <Button Content="Next ›" CornerRadius="6" Padding="10,5" FontSize="11"
+                                Command="{Binding NextPageCommand}" IsEnabled="{Binding CanGoNext}"/>
                     </StackPanel>
-                </StackPanel>
 
-                <Button Grid.Column="2" Content="Load More" CornerRadius="6" Padding="12,5" FontSize="11"
-                        Command="{Binding LoadMoreCommand}"
-                        IsVisible="{Binding CanLoadMore}"
-                        ToolTip.Tip="Load next page"/>
+                    <ProgressBar IsIndeterminate="True" Width="60" Height="3"
+                                 IsVisible="{Binding !UsePagination}" VerticalAlignment="Center"/>
+                </StackPanel>
             </Grid>
         </Border>
 
@@ -817,7 +833,8 @@
                                      Margin="0,32,0,0"
                                      ZIndex="10"
                                      DataContext="{Binding GalleryVm}"
-                                     IsExpanded="{Binding $parent[UserControl].((vm:EnhancedRankingsViewModel)DataContext).IsViewerExpanded}">
+                                     IsExpanded="{Binding $parent[UserControl].((vm:EnhancedRankingsViewModel)DataContext).IsViewerExpanded}"
+                                     IsPanelOpen="{Binding $parent[UserControl].((vm:EnhancedRankingsViewModel)DataContext).ShowPreview}">
             <gallery:InlineArtworkViewer.IsVisible>
                 <Binding Path="$parent[UserControl].((vm:EnhancedRankingsViewModel)DataContext).IsViewerExpanded"/>
             </gallery:InlineArtworkViewer.IsVisible>

@@ -4,6 +4,7 @@
              xmlns:vm="using:Pikura.Avalonia.ViewModels"
              xmlns:local="using:Pikura.Avalonia.Views.Gallery"
              xmlns:conv="using:Pikura.Avalonia.Converters"
+             xmlns:services="using:Pikura.Avalonia.Services"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
@@ -46,19 +47,29 @@
                     <ProgressBar IsIndeterminate="True" Width="60" Height="3"
                                  IsVisible="{Binding IsLoadingArtists}" VerticalAlignment="Center"/>
                     <Rectangle Width="1" Height="20" Fill="{actipro:ThemeResource Container1BorderBrush}" Margin="2,0"/>
-                    <Button Content="⟳ Refresh" CornerRadius="6" Padding="12,8" FontSize="12"
+                    <Button CornerRadius="6" Padding="12,8" FontSize="12"
                             Command="{Binding RefreshFollowedArtistsCommand}"
                             ToolTip.Tip="Refresh followed artists list from Pixiv (clears local cache)"
                             AutomationProperties.Name="Refresh Button"
                             AutomationProperties.HelpText="Refresh the list of followed artists from Pixiv server"
-                            KeyboardNavigation.TabIndex="1"/>
+                            KeyboardNavigation.TabIndex="1">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <PathIcon Data="{StaticResource RefreshIcon}" Width="16" Height="16"
+                                      VerticalAlignment="Center"
+                                      Foreground="{actipro:ThemeResource DefaultForegroundBrush}"/>
+                            <TextBlock Text="Refresh" FontSize="12" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
                     <Button CornerRadius="6" Padding="12,8" FontSize="12"
                             Command="{Binding CopyAllArtistIdsCommand}"
                             ToolTip.Tip="Click individual artist IDs to queue them, then press this to copy all queued IDs at once"
                             AutomationProperties.Name="Copy All Button"
                             KeyboardNavigation.TabIndex="1">
                         <StackPanel Orientation="Horizontal" Spacing="4">
-                            <TextBlock Text="📋 Copy All" FontSize="12"/>
+                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                <PathIcon Data="{StaticResource CopyIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                                <TextBlock Text="Copy All" FontSize="12" VerticalAlignment="Center"/>
+                            </StackPanel>
                             <TextBlock Text="{Binding QueuedArtistCount, StringFormat='({0})'}" FontSize="12"
                                        IsVisible="{Binding QueuedArtistCount, Converter={x:Static conv:GreaterThanZeroConverter.Instance}}"/>
                         </StackPanel>
@@ -70,19 +81,35 @@
                             AutomationProperties.HelpText="View recent works from all followed artists"
                             KeyboardNavigation.TabIndex="2">
                         <StackPanel Orientation="Horizontal" Spacing="6">
-                            <TextBlock Text="🖼" FontSize="13" VerticalAlignment="Center"/>
+                            <PathIcon Data="{StaticResource ImageIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
                             <TextBlock Text="Recent Works" FontSize="12" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                 </StackPanel>
 
-                <!-- CENTER: search bar — fixed minimum width -->
-                <Border Margin="4,0"
-                        Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                        CornerRadius="6" Height="34" MinWidth="200" Width="220" VerticalAlignment="Center">
-                    <Grid ColumnDefinitions="Auto,*">
-                        <TextBlock Grid.Column="0" Text="🔍" FontSize="11" Margin="10,0,4,0"
-                                   VerticalAlignment="Center" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}">
+                <!-- CENTER: unified search bar with integrated scope selector -->
+                <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
+                        CornerRadius="6" Height="34" MinWidth="280" Width="320"
+                        VerticalAlignment="Center">
+                    <Grid ColumnDefinitions="Auto,Auto,*,Auto">
+                        <ComboBox Grid.Column="0"
+                                  SelectedIndex="{Binding SearchScopeIndex, Mode=TwoWay}"
+                                  ToolTip.Tip="Search scope: Current artist filters the loaded gallery; All followed searches every followed artist's catalogue"
+                                  FontSize="11" Background="Transparent" BorderThickness="0"
+                                  Padding="8,0,4,0" Height="34" VerticalAlignment="Center">
+                            <ComboBoxItem Content="Current artist"/>
+                            <ComboBoxItem Content="All followed"/>
+                        </ComboBox>
+
+                        <Rectangle Grid.Column="1" Width="1" Height="20"
+                                   Fill="{actipro:ThemeResource Container1BorderBrush}"
+                                   Margin="4,0" VerticalAlignment="Center"/>
+
+                        <TextBox Grid.Column="2" Text="{Binding IdSearchQuery}"
+                                 PlaceholderText="Search tag, artist, or ID…"
+                                 FontSize="11" Background="Transparent" BorderThickness="0"
+                                 VerticalContentAlignment="Center" Padding="6,0"
+                                 KeyDown="OnIdSearchKeyDown">
                             <ToolTip.Tip>
                                 <StackPanel Spacing="6" MaxWidth="300">
                                     <TextBlock Text="Pixiv Search" FontWeight="SemiBold" FontSize="12"/>
@@ -93,16 +120,21 @@
                                         <Run Text="• "/><Run Text="a:name" FontWeight="SemiBold"/><Run Text=" — search artist by name"/>
                                     </TextBlock>
                                     <TextBlock FontSize="10" Foreground="{actipro:ThemeResource DefaultForegroundBrushDisabled}" TextWrapping="Wrap"
-                                               Text="Press Enter to search. Tag results are fetched live from Pixiv."/>
+                                               Text="Press Enter to search. Use the scope dropdown to search only the current artist or all followed artists."/>
                                 </StackPanel>
                             </ToolTip.Tip>
-                        </TextBlock>
-                        <TextBox Grid.Column="1" Text="{Binding IdSearchQuery}"
-                                 PlaceholderText="Search tag, artist, or ID…"
-                                 CornerRadius="0,6,6,0" FontSize="11"
-                                 Background="Transparent" BorderThickness="0"
-                                 VerticalContentAlignment="Center"
-                                 KeyDown="OnIdSearchKeyDown"/>
+                        </TextBox>
+
+                        <Button Grid.Column="3" FontSize="11" Padding="8,0"
+                                Background="Transparent" BorderThickness="0"
+                                VerticalAlignment="Center"
+                                Command="{Binding ClearSearchAndReturnCommand}"
+                                IsVisible="{Binding IdSearchQuery, Converter={x:Static conv:StringNotEmptyConverter.Instance}}"
+                                ToolTip.Tip="Clear search and return to gallery">
+                            <Path Data="{StaticResource CloseIcon}" Width="14" Height="14"
+                                  Stretch="Uniform" Stroke="{actipro:ThemeResource DefaultForegroundBrush}" StrokeThickness="2"
+                                  StrokeLineCap="Round" VerticalAlignment="Center" UseLayoutRounding="False"/>
+                        </Button>
                     </Grid>
                 </Border>
 
@@ -112,42 +144,73 @@
                     <!-- Download buttons — only shown when an artist is selected -->
                     <StackPanel Orientation="Horizontal" Spacing="4"
                                 IsVisible="{Binding SelectedArtist}">
-                        <Button Content="↓ Download All" CornerRadius="6" Padding="10,6" FontSize="11"
+                        <Button CornerRadius="6" Padding="10,6" FontSize="11"
                                 Classes="accent"
                                 Click="OnDownloadAllClicked"
-                                ToolTip.Tip="Download every artwork from this artist to disk"/>
-                        <Button Content="↓ Download Loaded" CornerRadius="6" Padding="10,6" FontSize="11"
+                                ToolTip.Tip="Download every artwork from this artist to disk">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <PathIcon Data="{StaticResource DownloadIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                                <TextBlock Text="Download All" FontSize="11" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        <Button CornerRadius="6" Padding="10,6" FontSize="11"
                                 Click="OnDownloadLoadedClicked"
-                                ToolTip.Tip="Download only the artworks currently shown in the grid"/>
+                                ToolTip.Tip="Download only the artworks currently shown in the grid">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <PathIcon Data="{StaticResource DownloadIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                                <TextBlock Text="Download Loaded" FontSize="11" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
                         <Button CornerRadius="6" Padding="10,6" FontSize="11"
                                 Click="OnDownloadSelectedClicked"
                                 IsVisible="{Binding SelectedCount}"
                                 ToolTip.Tip="Download only the checked artworks">
                             <StackPanel Orientation="Horizontal" Spacing="5">
-                                <TextBlock Text="↓" FontSize="12"/>
+                                <PathIcon Data="{StaticResource DownloadIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
                                 <TextBlock Text="{Binding SelectedCount, StringFormat='Download Selected ({0})'}" />
                             </StackPanel>
                         </Button>
-                        <Button Content="{Binding SelectedCount, StringFormat='☒ Deselect All ({0})'}"
-                                CornerRadius="6" Padding="10,6" FontSize="11"
+                        <Button CornerRadius="6" Padding="10,6" FontSize="11"
                                 Command="{Binding ClearSelectionCommand}"
                                 IsVisible="{Binding SelectedCount}"
-                                ToolTip.Tip="Clear selection"/>
-                        <Button Content="↓ Download Range…" CornerRadius="6" Padding="10,6" FontSize="11"
+                                ToolTip.Tip="Clear selection">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <Path Data="{StaticResource CloseIcon}" Width="14" Height="14"
+                                  Stretch="Uniform" Stroke="{actipro:ThemeResource DefaultForegroundBrush}" StrokeThickness="2"
+                                  StrokeLineCap="Round" VerticalAlignment="Center" UseLayoutRounding="False"/>
+                                <TextBlock>
+                                    <Run Text="Deselect All ("/><Run Text="{Binding SelectedCount}"/><Run Text=")"/>
+                                </TextBlock>
+                            </StackPanel>
+                        </Button>
+                        <Button CornerRadius="6" Padding="10,6" FontSize="11"
                                 Click="OnDownloadRangeClicked"
-                                ToolTip.Tip="Choose a numbered range to download (e.g. 1-20)"/>
-                        <Button Content="🎨 Download Preset" CornerRadius="6" Padding="10,6" FontSize="11"
+                                ToolTip.Tip="Choose a numbered range to download (e.g. 1-20)">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <PathIcon Data="{StaticResource DownloadIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                                <TextBlock Text="Download Range…" FontSize="11" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        <Button CornerRadius="6" Padding="10,6" FontSize="11"
                                 Classes="accent"
                                 Click="OnDownloadPresetClicked"
-                                ToolTip.Tip="Download with image processing preset"/>
+                                ToolTip.Tip="Download with image processing preset">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <PathIcon Data="{StaticResource PaletteIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                                <TextBlock Text="Download Preset" FontSize="11" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
                         <Border IsVisible="{Binding HasQueuedDownloads}"
                                 Background="{actipro:ThemeResource Container3BackgroundBrush}"
                                 BorderBrush="{actipro:ThemeResource Container3BorderBrush}"
                                 BorderThickness="1" CornerRadius="10" Padding="8,4"
                                 VerticalAlignment="Center"
                                 ToolTip.Tip="Downloads waiting in queue (auto-start when current finishes)">
-                            <TextBlock Text="{Binding QueuedDownloadCount, StringFormat='⏳ Queued: {0}'}"
-                                       FontSize="11" FontWeight="SemiBold"/>
+                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                <PathIcon Data="{StaticResource ClockIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                                <TextBlock Text="{Binding QueuedDownloadCount, StringFormat='Queued: {0}'}"
+                                           FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                            </StackPanel>
                         </Border>
                     </StackPanel>
 
@@ -155,19 +218,27 @@
                                IsVisible="{Binding SelectedArtist, Converter={x:Static ObjectConverters.IsNotNull}}"/>
 
                     <!-- Preview + Filters -->
-                    <ToggleButton IsChecked="{Binding ShowPreview}"
+                    <ToggleButton IsChecked="{Binding ShowPreview, Mode=TwoWay}"
                                   CornerRadius="6" Padding="10,6" FontSize="11"
                                   ToolTip.Tip="Toggle the side panel (browse artworks alongside the viewer)">
                         <StackPanel Orientation="Horizontal" Spacing="4">
-                            <TextBlock Text="▣" FontSize="12" VerticalAlignment="Center"/>
-                            <TextBlock Text="Side Panel" FontSize="11" VerticalAlignment="Center"/>
+                            <Path Data="{StaticResource ShowPanelIcon}" Width="14" Height="14"
+                                  Stretch="Uniform" Stroke="{actipro:ThemeResource DefaultForegroundBrush}" StrokeThickness="1.5"
+                                  StrokeLineCap="Round" VerticalAlignment="Center" UseLayoutRounding="False"
+                                  IsVisible="{Binding !ShowPreview}"/>
+                            <Path Data="{StaticResource HidePanelIcon}" Width="14" Height="14"
+                                  Stretch="Uniform" Stroke="{actipro:ThemeResource DefaultForegroundBrush}" StrokeThickness="1.5"
+                                  StrokeLineCap="Round" VerticalAlignment="Center" UseLayoutRounding="False"
+                                  IsVisible="{Binding ShowPreview}"/>
+                            <TextBlock Text="Show Panel" FontSize="11" VerticalAlignment="Center" IsVisible="{Binding !ShowPreview}"/>
+                            <TextBlock Text="Hide Panel" FontSize="11" VerticalAlignment="Center" IsVisible="{Binding ShowPreview}"/>
                         </StackPanel>
                     </ToggleButton>
                     <ToggleButton IsChecked="{Binding ShowFilters}"
                                   CornerRadius="6" Padding="10,6" FontSize="11"
                                   ToolTip.Tip="Toggle tag and date filters">
                         <StackPanel Orientation="Horizontal" Spacing="4">
-                            <TextBlock Text="⧉" FontSize="12" VerticalAlignment="Center"/>
+                            <PathIcon Data="{StaticResource FilterIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
                             <TextBlock Text="Filters" FontSize="11" VerticalAlignment="Center"/>
                         </StackPanel>
                     </ToggleButton>
@@ -178,12 +249,32 @@
                               Padding="10,6" MaxDropDownHeight="400"
                               SelectionChanged="OnSortComboChanged"
                               ToolTip.Tip="Sort artworks">
-                        <ComboBoxItem Content="🗒 Default"/>
+                        <ComboBoxItem>
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <PathIcon Data="{StaticResource DocumentIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                                <TextBlock Text="Default" FontSize="11" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </ComboBoxItem>
                         <ComboBoxItem Content="A → Z"/>
                         <ComboBoxItem Content="Z → A"/>
-                        <ComboBoxItem Content="⬇ Newest first"/>
-                        <ComboBoxItem Content="⬆ Oldest first"/>
-                        <ComboBoxItem Content="📚 Most pages"/>
+                        <ComboBoxItem>
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <PathIcon Data="{StaticResource ChevronDownIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                                <TextBlock Text="Newest first" FontSize="11" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </ComboBoxItem>
+                        <ComboBoxItem>
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <PathIcon Data="{StaticResource ChevronUpIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                                <TextBlock Text="Oldest first" FontSize="11" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </ComboBoxItem>
+                        <ComboBoxItem>
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <PathIcon Data="{StaticResource QueueIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                                <TextBlock Text="Most pages" FontSize="11" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </ComboBoxItem>
                     </ComboBox>
 
                     <Rectangle Width="1" Height="20" Fill="{actipro:ThemeResource Container1BorderBrush}" Margin="2,0"/>
@@ -203,7 +294,7 @@
                                 </Style>
                             </ToggleButton.Styles>
                             <StackPanel Orientation="Horizontal" Spacing="4">
-                                <TextBlock Text="⬛" FontSize="11" VerticalAlignment="Center"/>
+                                <PathIcon Data="{StaticResource MaximizeIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
                                 <TextBlock Text="Fixed" FontSize="11" VerticalAlignment="Center"/>
                             </StackPanel>
                         </ToggleButton>
@@ -219,7 +310,7 @@
                                 </Style>
                             </ToggleButton.Styles>
                             <StackPanel Orientation="Horizontal" Spacing="4">
-                                <TextBlock Text="↕" FontSize="11" VerticalAlignment="Center"/>
+                                <PathIcon Data="{StaticResource ResizeVerticalIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
                                 <TextBlock Text="Natural" FontSize="11" VerticalAlignment="Center"/>
                             </StackPanel>
                         </ToggleButton>
@@ -559,14 +650,15 @@
                         IsVisible="{Binding ShowPreview}">
                     <Border
                         Width="{Binding BrowsePanelWidth}"
-                        MinWidth="320"
+                        MinWidth="300"
                         ClipToBounds="True"
                         Background="{actipro:ThemeResource Container1BackgroundBrush}"
                         BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
                         BorderThickness="1,0,0,0">
                         <local:InlineArtworkViewer x:Name="GallerySideViewer"
                                                    DataContext="{Binding}"
-                                                   IsExpanded="{Binding IsViewerExpanded}"/>
+                                                   IsExpanded="{Binding IsViewerExpanded}"
+                                                   IsPanelOpen="{Binding ShowPreview}"/>
                     </Border>
                 </Border>
 
@@ -656,7 +748,7 @@
                                                         <MenuItem Header="Copy artwork ID" Click="OnContextCopyId"/>
                                                         <MenuItem Header="Copy artist ID" Click="OnContextCopyArtistId"/>
                                                         <MenuItem Header="📋 Copy image" Click="OnContextCopyImage"/>
-                                                        <MenuItem Header="🖼 Use as app background" Click="OnContextUseAsBackground"/>
+                                                        <MenuItem Header="🖼 Use as app background" Click="OnContextUseAsBackground" IsVisible="{Binding IsEnabled, Source={x:Static services:AppServices.OverlayService}}"/>
                                                     </ContextMenu>
                                                 </Border.ContextMenu>
                                             <Border.Styles>
@@ -782,7 +874,7 @@
                                                         <MenuItem Header="Copy artwork ID" Click="OnContextCopyId"/>
                                                         <MenuItem Header="Copy artist ID" Click="OnContextCopyArtistId"/>
                                                         <MenuItem Header="📋 Copy image" Click="OnContextCopyImage"/>
-                                                        <MenuItem Header="🖼 Use as app background" Click="OnContextUseAsBackground"/>
+                                                        <MenuItem Header="🖼 Use as app background" Click="OnContextUseAsBackground" IsVisible="{Binding IsEnabled, Source={x:Static services:AppServices.OverlayService}}"/>
                                                     </ContextMenu>
                                                 </Border.ContextMenu>
                                             <Border.Styles>
@@ -938,7 +1030,7 @@
                                                     <MenuItem Header="Copy artwork ID" Click="OnContextCopyId"/>
                                                     <MenuItem Header="Copy artist ID" Click="OnContextCopyArtistId"/>
                                                     <MenuItem Header="📋 Copy image" Click="OnContextCopyImage"/>
-                                                    <MenuItem Header="🖼 Use as app background" Click="OnContextUseAsBackground"/>
+                                                    <MenuItem Header="🖼 Use as app background" Click="OnContextUseAsBackground" IsVisible="{Binding IsEnabled, Source={x:Static services:AppServices.OverlayService}}"/>
                                                 </ContextMenu>
                                             </Border.ContextMenu>
                                             <Border.Styles>
@@ -1079,7 +1171,7 @@
                                                     <MenuItem Header="Copy artwork ID" Click="OnContextCopyId"/>
                                                     <MenuItem Header="Copy artist ID" Click="OnContextCopyArtistId"/>
                                                     <MenuItem Header="📋 Copy image" Click="OnContextCopyImage"/>
-                                                    <MenuItem Header="🖼 Use as app background" Click="OnContextUseAsBackground"/>
+                                                    <MenuItem Header="🖼 Use as app background" Click="OnContextUseAsBackground" IsVisible="{Binding IsEnabled, Source={x:Static services:AppServices.OverlayService}}"/>
                                                 </ContextMenu>
                                             </Border.ContextMenu>
                                         <Grid ColumnDefinitions="Auto,Auto,*,Auto">
@@ -1124,6 +1216,25 @@
                         </StackPanel>
                     </Border>
 
+                    <!-- Empty state: selected artist has no artworks -->
+                    <StackPanel Grid.Row="0"
+                                HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="8"
+                                ZIndex="1">
+                        <StackPanel.IsVisible>
+                            <MultiBinding Converter="{x:Static BoolConverters.And}">
+                                <Binding Path="SelectedArtist" Converter="{x:Static ObjectConverters.IsNotNull}"/>
+                                <Binding Path="!IsLoading"/>
+                                <Binding Path="!HasArtworks"/>
+                            </MultiBinding>
+                        </StackPanel.IsVisible>
+                        <PathIcon Data="{StaticResource ImageIcon}" Width="48" Height="48" HorizontalAlignment="Center"
+                                  Foreground="{actipro:ThemeResource DefaultForegroundBrushDisabled}"/>
+                        <TextBlock Text="No artworks found for this artist"
+                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}" FontSize="14" HorizontalAlignment="Center"/>
+                        <TextBlock Text="Try changing filters or selecting a different artist."
+                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushDisabled}" FontSize="12" HorizontalAlignment="Center"/>
+                    </StackPanel>
+
                     <!-- No separate bottom bar — action buttons live in the global status bar -->
                 </Grid>
 
@@ -1138,6 +1249,7 @@
                                     Margin="0,32,0,0"
                                     IsVisible="{Binding IsViewerExpanded}"
                                     IsExpanded="{Binding IsViewerExpanded}"
+                                    IsPanelOpen="{Binding ShowPreview}"
                                     ZIndex="10"
                                     DataContext="{Binding}"/>
 

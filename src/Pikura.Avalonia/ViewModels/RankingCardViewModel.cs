@@ -52,23 +52,47 @@ public partial class RankingCardViewModel : ObservableObject
             _ => "#6B7280"
         };
 
-    public RankingEntry Entry { get; }
-    public ArtworkPreview ToPreview() => Entry.ToPreview();
+    public RankingEntry? Entry { get; }
+    public NovelRankingEntry? NovelEntry { get; }
+    public bool IsNovel { get; }
+    private readonly bool _isR18Source;
 
-    public RankingCardViewModel(RankingEntry entry)
+    /// <summary>Novel text length in characters, or null if unavailable/not a novel.</summary>
+    public int? CharCount { get; }
+    /// <summary>Estimated reading time in minutes, or null if unavailable/not a novel.</summary>
+    public int? ReadingTimeMinutes { get; }
+    public string StatsLabel => IsNovel
+        ? (CharCount.HasValue ? $"{CharCount:N0} character(s)" : "")
+          + (ReadingTimeMinutes.HasValue ? $" · {ReadingTimeMinutes} min" : "")
+        : "";
+
+    /// <summary>
+    /// Not valid for novel entries — this app has no novel-download pipeline, so
+    /// novels are never routed through the artwork viewer/download commands.
+    /// Callers must check <see cref="IsNovel"/> first.
+    /// </summary>
+    public ArtworkPreview ToPreview() => Entry?.ToPreview(_isR18Source)
+        ?? throw new InvalidOperationException("Novel ranking entries cannot be converted to ArtworkPreview.");
+
+    /// <param name="isR18Source">True if this entry came from one of pixiv's "_r18" ranking
+    /// endpoints. That's the only reliable R-18 signal the legacy ranking.php API exposes —
+    /// <c>ContentType.Sexual</c> is a mild content-warning flag, not an age rating, and using it
+    /// to decide R-18 status incorrectly hides/mislabels legitimate all-ages art (e.g. artwork
+    /// with fanservice-adjacent tags that pixiv itself still ranks under "All ages").</param>
+    public RankingCardViewModel(RankingEntry entry, bool isR18Source = false)
     {
         Entry = entry;
+        _isR18Source = isR18Source;
         Rank = entry.Rank;
         Id = entry.IllustId.ToString();
         Title = entry.Title;
         UserName = entry.UserName;
         UserId = entry.UserId.ToString();
         PageCount = int.TryParse(entry.IllustPageCount, out var p) ? p : 1;
-        // Check both API flag and tags for R-18 detection (some AI content may lack the flag)
         var hasR18Tag = entry.Tags.Any(t => t.Contains("R-18", StringComparison.OrdinalIgnoreCase));
         var hasR18GTag = entry.Tags.Any(t => t.Contains("R-18G", StringComparison.OrdinalIgnoreCase));
-        IsR18 = entry.ContentType.Sexual || hasR18Tag || hasR18GTag;
-        IsR18G = entry.ContentType.Grotesque || entry.ContentType.Violent || hasR18GTag;
+        IsR18 = isR18Source || hasR18Tag || hasR18GTag;
+        IsR18G = (isR18Source && (entry.ContentType.Grotesque || entry.ContentType.Violent)) || hasR18GTag;
         YesterdayRank = entry.YesRank;
         RatingCount = entry.RatingCount;
         ViewCount = entry.ViewCount;
@@ -80,6 +104,31 @@ public partial class RankingCardViewModel : ObservableObject
             ? (double)entry.Height / entry.Width : 1.0;
         ClampedAspectRatio = Math.Min(Math.Max(rawAspect, 0.5), 2.5);
         Tags = entry.Tags;
+    }
+
+    public RankingCardViewModel(NovelRankingEntry entry, bool isR18Source = false)
+    {
+        NovelEntry = entry;
+        IsNovel = true;
+        Rank = entry.Rank;
+        Id = entry.NovelId.ToString();
+        Title = entry.Title;
+        UserName = entry.UserName;
+        UserId = entry.UserId.ToString();
+        PageCount = 1;
+        var hasR18Tag = entry.Tags.Any(t => t.Contains("R-18", StringComparison.OrdinalIgnoreCase));
+        var hasR18GTag = entry.Tags.Any(t => t.Contains("R-18G", StringComparison.OrdinalIgnoreCase));
+        IsR18 = isR18Source || hasR18Tag || hasR18GTag;
+        IsR18G = (isR18Source && (entry.ContentType.Grotesque || entry.ContentType.Violent)) || hasR18GTag;
+        YesterdayRank = entry.YesRank;
+        RatingCount = entry.RatingCount;
+        ViewCount = entry.ViewCount ?? 0;
+        ThumbnailUrl = UpgradeThumbnailUrl(entry.ThumbnailUrl);
+        Date = string.Empty;
+        ClampedAspectRatio = 1.4; // novel covers are typically portrait-ish; fixed ratio, no real dims from this endpoint
+        Tags = entry.Tags;
+        CharCount = entry.TextCount;
+        ReadingTimeMinutes = entry.ReadingTimeMinutes;
     }
 
     private static string? UpgradeThumbnailUrl(string? url)

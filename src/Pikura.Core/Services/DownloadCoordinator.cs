@@ -538,11 +538,14 @@ public sealed class DownloadCoordinator : IDisposable
                     cts.Token);
 
                 // Process with preset (overwrite original file, then move to final destination)
-                var processedPath = await _resizeService.ProcessAsync(tempPath, preset, cts.Token);
-                if (processedPath != null && processedPath != tempPath)
+                if (_resizeService != null)
                 {
-                    // If output differs from tempPath, move it to the final destination
-                    File.Move(processedPath, outputPath, overwrite: true);
+                    var processedPath = await _resizeService.ProcessAsync(tempPath, preset, cts.Token);
+                    if (processedPath != null && processedPath != tempPath)
+                    {
+                        // If output differs from tempPath, move it to the final destination
+                        File.Move(processedPath, outputPath, overwrite: true);
+                    }
                 }
 
                 _logger.LogInformation("Processed and saved: {OutputPath}", outputPath);
@@ -954,6 +957,7 @@ public sealed class DownloadCoordinator : IDisposable
             if (settings.SkipR18G    == true && artwork.IsR18G)          return false;
             if (!MatchesTagFilters(artwork.Tags, includeTagSet, excludeTagSet)) return false;
             if (!MatchesDateRange(artwork.CreateDate, dateFromUtc, dateToUtc)) return false;
+            if (_settingsService.Current.IsArtworkBlockedFromDownload(artwork.UserId, artwork.UserName, artwork.Title, artwork.Tags)) return false;
             return true;
         }).ToList();
 
@@ -1184,6 +1188,10 @@ public sealed class DownloadCoordinator : IDisposable
         if (settings.FilterAiGenerated == true && detail.AiType is 1 or 2) return (1, 0);
         if (settings.SkipR18          == true && detail.XRestrict >= 1)    return (1, 0);
         if (settings.SkipR18G         == true && detail.XRestrict == 2)    return (1, 0);
+
+        var detailTags = detail.Tags?.Tags.Select(t => t.Tag ?? "").Where(t => !string.IsNullOrEmpty(t)).ToList() ?? new List<string>();
+        if (_settingsService.Current.IsArtworkBlockedFromDownload(detail.UserId, detail.UserName, detail.IllustTitle, detailTags))
+            return (1, 0);
 
         var pages = await _client.GetArtworkPagesAsync(target.TargetId, ct);
         if (pages.Count == 0)

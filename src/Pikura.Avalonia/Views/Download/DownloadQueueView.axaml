@@ -19,8 +19,15 @@
                                Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
                                VerticalAlignment="Center"/>
                 </StackPanel>
-                <Button Grid.Column="1" Content="↺ Refresh" CornerRadius="6" Padding="10,6" FontSize="12"
-                        Click="OnRefresh"/>
+                <Button Grid.Column="1" CornerRadius="6" Padding="10,6" FontSize="12"
+                        Click="OnRefresh">
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                        <PathIcon Data="{StaticResource RefreshIcon}" Width="14" Height="14"
+                                  VerticalAlignment="Center"
+                                  Foreground="{actipro:ThemeResource DefaultForegroundBrush}"/>
+                        <TextBlock Text="Refresh" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
             </Grid>
         </Border>
 

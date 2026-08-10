@@ -19,12 +19,16 @@
                 BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
                 BorderThickness="0,0,0,1" Padding="8,5">
             <StackPanel Orientation="Horizontal" Spacing="4">
-                <Button Name="PopupZoomOutBtn" Content="−" Padding="10,4" CornerRadius="4" FontSize="14"
-                        ToolTip.Tip="Zoom out"/>
+                <Button Name="PopupZoomOutBtn" Padding="10,4" CornerRadius="4" FontSize="14"
+                        ToolTip.Tip="Zoom out">
+                    <PathIcon Data="{StaticResource MinusIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                </Button>
                 <Button Name="PopupZoomFitBtn" Content="Fit" Padding="10,4" CornerRadius="4" FontSize="12"
                         ToolTip.Tip="Reset zoom"/>
-                <Button Name="PopupZoomInBtn"  Content="+" Padding="10,4" CornerRadius="4" FontSize="14"
-                        ToolTip.Tip="Zoom in"/>
+                <Button Name="PopupZoomInBtn" Padding="10,4" CornerRadius="4" FontSize="14"
+                        ToolTip.Tip="Zoom in">
+                    <PathIcon Data="{StaticResource PlusIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                </Button>
                 <TextBlock Name="PopupZoomLabel" Text="100%" VerticalAlignment="Center"
                            Margin="8,0" FontSize="11"
                            Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
@@ -34,8 +38,10 @@
                            Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
                 <TextBlock Text="|" VerticalAlignment="Center" Margin="4,0"
                            Foreground="{actipro:ThemeResource Container1BorderBrush}"/>
-                <Button Name="PopupFullscreenBtn" Content="&#9974;" Padding="10,4" CornerRadius="4" FontSize="14"
-                        ToolTip.Tip="Fullscreen (F11) - ESC to exit and close" Click="OnFullscreenClicked"/>
+                <Button Name="PopupFullscreenBtn" Padding="10,4" CornerRadius="4" FontSize="14"
+                        ToolTip.Tip="Fullscreen (F11) - ESC to exit and close" Click="OnFullscreenClicked">
+                    <PathIcon Data="{StaticResource FullscreenEnterIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                </Button>
             </StackPanel>
         </Border>
 
@@ -75,10 +81,10 @@
 
                 <!-- Info -->
                 <StackPanel Grid.Column="0" Spacing="4">
-                    <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="14"
-                               TextTrimming="CharacterEllipsis"/>
+                    <SelectableTextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="14"
+                                         TextTrimming="CharacterEllipsis"/>
                     <StackPanel Orientation="Horizontal" Spacing="12">
-                        <TextBlock Text="{Binding ArtistName}" FontSize="12" Foreground="#9CA3AF"/>
+                        <SelectableTextBlock Text="{Binding ArtistName}" FontSize="12" Foreground="#9CA3AF"/>
                         <TextBlock Text="{Binding TypeLabel}" FontSize="12" Foreground="#6B7280"/>
                         <TextBlock Text="{Binding PageCount, StringFormat='{}{0} pages'}"
                                    FontSize="12" Foreground="#6B7280"
@@ -94,19 +100,42 @@
 
                 <!-- Download actions -->
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                    <Button Content="↓ This page" CornerRadius="6" Padding="10,6" FontSize="12"
+                    <Button CornerRadius="6" Padding="10,6" FontSize="12"
                             Command="{Binding DownloadCurrentPageCommand}"
-                            IsEnabled="{Binding !IsDownloading}"/>
-                    <Button Content="↓ All pages" CornerRadius="6" Padding="10,6" FontSize="12"
+                            IsEnabled="{Binding !IsDownloading}">
+                        <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                            <PathIcon Data="{StaticResource DownloadIcon}" Width="12" Height="12" VerticalAlignment="Center"/>
+                            <TextBlock Text="This page" FontSize="12" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Button CornerRadius="6" Padding="10,6" FontSize="12"
                             Command="{Binding DownloadAllPagesCommand}"
                             Classes="accent"
-                            IsEnabled="{Binding !IsDownloading}"/>
-                    <Button Content="↓ Range…" CornerRadius="6" Padding="10,6" FontSize="12"
+                            IsEnabled="{Binding !IsDownloading}">
+                        <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                            <PathIcon Data="{StaticResource DownloadIcon}" Width="12" Height="12" VerticalAlignment="Center"/>
+                            <TextBlock Text="All pages" FontSize="12" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Button CornerRadius="6" Padding="10,6" FontSize="12"
                             Command="{Binding DownloadRangeCommand}"
                             IsEnabled="{Binding !IsDownloading}"
-                            IsVisible="{Binding HasMultiplePages}"/>
-                    <Button Content="✕ Close" CornerRadius="6" Padding="10,6" FontSize="12"
-                            Command="{Binding CloseCommand}"/>
+                            IsVisible="{Binding HasMultiplePages}">
+                        <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                            <PathIcon Data="{StaticResource DownloadIcon}" Width="12" Height="12" VerticalAlignment="Center"/>
+                            <TextBlock Text="Range…" FontSize="12" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Button CornerRadius="6" Padding="10,6" FontSize="12"
+                            Command="{Binding CloseCommand}">
+                        <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                            <Path Data="{StaticResource CloseIcon}" Width="12" Height="12"
+                                  Stretch="Uniform" Stroke="{actipro:ThemeResource DefaultForegroundBrush}" StrokeThickness="2"
+                                  StrokeLineCap="Round"
+                                  VerticalAlignment="Center" UseLayoutRounding="False"/>
+                            <TextBlock Text="Close" FontSize="12" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
                     <ProgressBar IsIndeterminate="True" Width="60" Height="4"
                                  IsVisible="{Binding IsDownloading}" VerticalAlignment="Center"/>
                 </StackPanel>

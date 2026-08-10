@@ -449,9 +449,12 @@ public partial class DownloadPresetWindow : Window
                     Debug.WriteLine($"Warning: Using thumbnail URL (low quality): {imageUrl}");
                 }
 
-                var bytes = await _imageLoader.FetchBytesAsync(imageUrl);
-                if (bytes != null)
-                    _currentOriginalBitmap = SkiaSharp.SKBitmap.Decode(bytes);
+                if (!string.IsNullOrEmpty(imageUrl))
+                {
+                    var bytes = await _imageLoader.FetchBytesAsync(imageUrl);
+                    if (bytes != null)
+                        _currentOriginalBitmap = SkiaSharp.SKBitmap.Decode(bytes);
+                }
             }
 
             // Apply current preset for preview (immediate, no debounce for navigation)
@@ -549,7 +552,7 @@ public partial class DownloadPresetWindow : Window
                         if (src.Width <= maxWidth) return src.Copy();
                         var scale = (float)maxWidth / src.Width;
                         var newH = (int)(src.Height * scale);
-                        return src.Resize(new SKImageInfo(maxWidth, newH), SKFilterQuality.High);
+                        return src.Resize(new SKImageInfo(maxWidth, newH), new SKSamplingOptions(SKFilterMode.Linear, SKMipmapMode.Linear));
                     }
                     catch
                     {
@@ -811,6 +814,10 @@ public partial class DownloadPresetWindow : Window
         var selectedArtworks = artworks ?? GetSelectedArtworksWithPages();
         if (selectedArtworks.Count == 0) return results;
 
+        var client = _pixivClient;
+        var loader = _imageLoader;
+        if (client == null || loader == null) return results;
+
         // Semaphore to limit concurrent image loading (max 4 at a time)
         var semaphore = new SemaphoreSlim(4, 4);
         var artworkTasks = selectedArtworks.Select(async artwork =>
@@ -825,17 +832,17 @@ public partial class DownloadPresetWindow : Window
             try
             {
                 // Always fetch pages to get the Original URL for high resolution
-                var pages = await _pixivClient.GetArtworkPagesAsync(artwork.ArtworkId);
+                var pages = await client.GetArtworkPagesAsync(artwork.ArtworkId);
                 var pageTasks = pages.Select(async (p, idx) =>
                 {
                     await semaphore.WaitAsync();
                     try
                     {
                         // Use Original URL for full resolution, fallback to Regular or Small
-                        var url = p.Urls.Original ?? p.Urls.Regular ?? p.Urls.Small;
+                        var url = p.Urls?.Original ?? p.Urls?.Regular ?? p.Urls?.Small;
                         if (string.IsNullOrEmpty(url)) return (idx, (SKBitmap?)null);
 
-                        var bytes = await _imageLoader.FetchBytesAsync(url);
+                        var bytes = await loader.FetchBytesAsync(url);
                         if (bytes == null) return (idx, (SKBitmap?)null);
 
                         return (idx, SKBitmap.Decode(bytes));
@@ -914,12 +921,13 @@ public partial class DownloadPresetWindow : Window
     /// </summary>
     private async Task<SKBitmap?> LoadHighResBitmapAsync(string artworkId)
     {
+        if (_pixivClient == null || _imageLoader == null) return null;
         try
         {
             var pages = await _pixivClient.GetArtworkPagesAsync(artworkId);
             if (pages == null || pages.Count == 0) return null;
 
-            var url = pages[0].Urls.Original ?? pages[0].Urls.Regular ?? pages[0].Urls.Small;
+            var url = pages[0].Urls?.Original ?? pages[0].Urls?.Regular ?? pages[0].Urls?.Small;
             if (string.IsNullOrEmpty(url)) return null;
 
             var bytes = await _imageLoader.FetchBytesAsync(url);
@@ -1475,7 +1483,7 @@ public partial class DownloadPresetWindow : Window
         if (artwork == null) return;
 
         PopulatePagePicker(artwork.PageCount);
-        (ApplyToSelectedPagesButton?.Flyout as Flyout)?.ShowAt(ApplyToSelectedPagesButton);
+        (ApplyToSelectedPagesButton?.Flyout as Flyout)?.ShowAt(ApplyToSelectedPagesButton!);
     }
 
     private bool _isUpdatingPagePickerText;
@@ -1520,7 +1528,7 @@ public partial class DownloadPresetWindow : Window
         var artwork = GetCurrentArtwork();
         if (artwork == null) return;
 
-        var parsed = ParseSelectedPages(PagePickerTextBox.Text, artwork.PageCount);
+        var parsed = ParseSelectedPages(PagePickerTextBox.Text ?? string.Empty, artwork.PageCount);
         _isUpdatingPagePickerText = true;
         foreach (var child in PagePickerPanel.Children)
         {
@@ -1578,7 +1586,7 @@ public partial class DownloadPresetWindow : Window
         var artwork = GetCurrentArtwork();
         if (artwork == null || PagePickerTextBox == null) return;
 
-        var selectedPages = ParseSelectedPages(PagePickerTextBox.Text, artwork.PageCount);
+        var selectedPages = ParseSelectedPages(PagePickerTextBox.Text ?? string.Empty, artwork.PageCount);
         if (selectedPages.Count == 0)
         {
             _dialogService?.ShowMessageAsync("Apply to Selected Pages", "No pages selected.");
@@ -1779,7 +1787,7 @@ public partial class DownloadPresetWindow : Window
                 if (currentArtwork != null && SelectedPagesTextBox != null)
                 {
                     _currentPreset.SelectedPageIndices = ParseSelectedPages(
-                        SelectedPagesTextBox.Text, currentArtwork.PageCount);
+                        SelectedPagesTextBox.Text ?? string.Empty, currentArtwork.PageCount);
                 }
                 break;
             default:

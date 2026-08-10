@@ -1,0 +1,28 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:actipro="http://schemas.actiprosoftware.com/avaloniaui"
+        x:Class="Pikura.Avalonia.Views.SplashWindow"
+        Title="Pikura"
+        Width="480" Height="260"
+        WindowStartupLocation="CenterScreen"
+        WindowDecorations="None"
+        CanResize="False"
+        ShowInTaskbar="False"
+        Topmost="True"
+        Background="Transparent"
+        TransparencyLevelHint="Transparent">
+
+    <Border Background="{actipro:ThemeResource Container1BackgroundBrush}"
+            BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+            BorderThickness="1"
+            CornerRadius="12"
+            BoxShadow="0 12 40 0 #66000000"
+            Padding="40,32">
+        <Grid RowDefinitions="Auto,Auto" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Image Grid.Row="0" Source="/Assets/pikura-logo.png" Width="64" Height="64"
+                   HorizontalAlignment="Center" Margin="0,0,0,16"
+                   RenderOptions.BitmapInterpolationMode="HighQuality"/>
+            <TextBlock Grid.Row="1" Text="Pikura" FontSize="28" FontWeight="Bold" HorizontalAlignment="Center"/>
+        </Grid>
+    </Border>
+</Window>

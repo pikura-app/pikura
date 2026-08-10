@@ -25,9 +25,16 @@
                     <TextBlock Text="Download statistics and insights" FontSize="12" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}" VerticalAlignment="Center"/>
                 </StackPanel>
                 <Border Grid.Column="1"/>
-                <Button Grid.Column="2" Content="🔄 Refresh"
+                <Button Grid.Column="2"
                         Command="{Binding LoadAnalyticsCommand}"
-                        CornerRadius="6" Padding="12,8" FontSize="12"/>
+                        CornerRadius="6" Padding="12,8" FontSize="12">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <PathIcon Data="{StaticResource RefreshIcon}" Width="14" Height="14"
+                                  VerticalAlignment="Center"
+                                  Foreground="{actipro:ThemeResource DefaultForegroundBrush}"/>
+                        <TextBlock Text="Refresh" FontSize="12" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
             </Grid>
         </Border>
 

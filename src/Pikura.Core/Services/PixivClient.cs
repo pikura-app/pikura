@@ -94,6 +94,15 @@ public sealed partial class PixivClient
             s.UserId = self.Value.UserId;
             s.UserName = self.Value.UserName;
         });
+
+        try
+        {
+            var isPremium = await GetIsPremiumAsync(ct).ConfigureAwait(false);
+            if (isPremium.HasValue)
+                _settings.Update(s => s.IsPremium = isPremium.Value);
+        }
+        catch (Exception ex) { _logger.LogDebug(ex, "Premium status check failed (non-fatal)"); }
+
         return true;
     }
 
@@ -280,20 +289,19 @@ public sealed partial class PixivClient
                     new UserSearchEntry
                     {
                         UserId = info.UserId,
-                        UserName = info.Name,
-                        ProfileImageUrl = info.ImageUrl,
+                        Name = info.Name,
+                        ImageUrl = info.ImageUrl,
                         Comment = info.Comment,
                     },
                 };
             }
         }
 
-        // Pixiv's user search endpoint
-        var url = $"{BaseUrl}/ajax/search/users/{Uri.EscapeDataString(keyword)}?lang={_settings.Current.Locale}";
-        _logger.LogDebug("Searching artists: {Url}", url);
-        var body = await GetAjaxAsync<UserSearchResult>(url, ct).ConfigureAwait(false);
-        _logger.LogDebug("Search returned {Count} users", body?.Users?.Count ?? 0);
-        return body?.Users ?? [];
+        // The old /ajax/search/users/{keyword} endpoint 404s — reuse the HTML-scraping
+        // implementation in SearchUsersAsync instead (see its docs for why).
+        var result = await SearchUsersAsync(keyword, page: 1, ct).ConfigureAwait(false);
+        _logger.LogDebug("Searching artists {Keyword}: {Count} users", keyword, result?.Users?.Count ?? 0);
+        return result?.Users ?? [];
     }
 
     private static bool TryExtractUserId(string keyword, out string userId)
@@ -376,6 +384,49 @@ public sealed partial class PixivClient
         return body ?? new RankingResponse();
     }
 
+    /// <summary>
+    /// GET /novel/ranking.php?format=json — separate endpoint from the illust/manga/ugoira
+    /// ranking (novels are not a <c>content=</c> value on <c>/ranking.php</c>).
+    /// </summary>
+    /// <param name="mode">daily, weekly, monthly, rookie, weekly_original, weekly_ai,
+    /// male, female (append "_r18" for the R-18 variant, mirroring the illust ranking modes).</param>
+    /// <param name="date">Optional YYYYMMDD (null = latest available).</param>
+    /// <param name="page">1-based page index.</param>
+    public async Task<NovelRankingResponse> GetNovelRankingsAsync(
+        string mode = "daily",
+        string? date = null,
+        int page = 1,
+        CancellationToken ct = default)
+    {
+        var qs = new List<string> { $"mode={Uri.EscapeDataString(mode)}", "format=json", $"p={page}" };
+        if (!string.IsNullOrEmpty(date)) qs.Add($"date={date}");
+
+        var url = $"{BaseUrl}/novel/ranking.php?{string.Join("&", qs)}";
+        var client = _httpFactory.GetClient();
+        using var req = new HttpRequestMessage(HttpMethod.Get, url);
+        req.Headers.TryAddWithoutValidation("Referer", BaseUrl + "/");
+        req.Headers.TryAddWithoutValidation("Accept", "application/json");
+
+        using var resp = await client.SendAsync(req, ct).ConfigureAwait(false);
+        if (!resp.IsSuccessStatusCode)
+        {
+            _logger.LogWarning("Novel ranking {Url} -> {Code}", url, resp.StatusCode);
+            return new NovelRankingResponse();
+        }
+        try
+        {
+            var body = await resp.Content.ReadFromJsonAsync<NovelRankingResponse>(JsonOpts, ct).ConfigureAwait(false);
+            return body ?? new NovelRankingResponse();
+        }
+        catch (Exception ex)
+        {
+            // Best-effort field mapping (see NovelRankingEntry) — degrade to empty
+            // rather than crash the Rankings tab if Pixiv's actual shape differs.
+            _logger.LogWarning(ex, "Novel ranking {Url} JSON parse failed", url);
+            return new NovelRankingResponse();
+        }
+    }
+
     /// <summary>Alias for GetRankingsAsync for backward compatibility.</summary>
     public Task<RankingResponse> GetRankingAsync(
         string mode = "daily",
@@ -388,32 +439,175 @@ public sealed partial class PixivClient
     // ─── Artwork search ────────────────────────────────────────────────────
 
     /// <summary>
-    /// GET /ajax/search/artworks/{keyword} — full-text search over artwork
-    /// titles and tags. Pixiv supports a few sibling endpoints
-    /// (/search/illustrations/, /search/manga/) but the shared endpoint
-    /// returns everything so we use it as the default.
+    /// Full-text search over artwork titles and tags. Routes to whichever of pixiv's ajax search
+    /// endpoints actually honors the requested work type — reverse-engineered from a live
+    /// authenticated browser session's DevTools Network tab (2026-08-08), since this isn't
+    /// documented anywhere:
+    /// <list type="bullet">
+    /// <item><c>GET /ajax/search/artworks/{keyword}</c> — the combined illust+manga feed. Its own
+    /// <c>type=</c> param is silently ignored server-side (confirmed live: requesting
+    /// <c>type=illust_and_ugoira</c> still returned manga-type results, and the reported
+    /// <c>total</c> never changes regardless of <c>type=</c>) — used here only when no specific
+    /// work type is requested (i.e. <paramref name="options"/> is null, as with Download-by-Search).</item>
+    /// <item><c>GET /ajax/search/illustrations/{keyword}</c> — used whenever <see cref="ArtworkSearchOptions.WorkType"/>
+    /// is illust/ugoira/illust_and_ugoira. Its <c>type=</c> *does* filter server-side (confirmed live:
+    /// <c>type=ugoira</c> returned 60/60 illustType=2 results with an accurate <c>total</c>).</item>
+    /// <item><c>GET /ajax/search/manga/{keyword}</c> — used for the Manga work type. Same shape/behavior
+    /// as the illustrations endpoint, minus the <c>type=</c> param (manga has no sub-types to filter).</item>
+    /// </list>
+    /// Both dedicated endpoints return their section keyed as <c>"illust"</c>/<c>"manga"</c> rather than
+    /// <c>"illustManga"</c> — repackaged into <see cref="ArtworkSearchResult.IllustManga"/> below so every
+    /// existing caller keeps working unchanged.
     /// </summary>
     public async Task<ArtworkSearchResult?> SearchArtworksAsync(
         string keyword,
-        string order = "date_d",     // date_d = newest first; popular_d = popular first (Premium only)
+        string order = "date_d",     // date_d/date = newest; popular_d/popular, popular_male_d/popular_male,
+                                      // popular_female_d/popular_female = popularity sorts (Premium only)
         string mode = "safe",        // safe | r18 | all
         int page = 1,
+        ArtworkSearchOptions? options = null,
         CancellationToken ct = default)
     {
         keyword = (keyword ?? string.Empty).Trim();
         if (string.IsNullOrEmpty(keyword)) return null;
 
-        var url = $"{BaseUrl}/ajax/search/artworks/{Uri.EscapeDataString(keyword)}" +
-                  $"?word={Uri.EscapeDataString(keyword)}" +
-                  $"&order={Uri.EscapeDataString(order)}" +
-                  $"&mode={Uri.EscapeDataString(mode)}" +
-                  $"&p={page}" +
-                  $"&s_mode=s_tag" +
-                  $"&type=all" +
-                  $"&lang={_settings.Current.Locale}";
+        var endpoint = options?.WorkType switch
+        {
+            "manga" => "manga",
+            "illust" or "ugoira" or "illust_and_ugoira" => "illustrations",
+            _ => "artworks",
+        };
 
-        return await GetAjaxAsync<ArtworkSearchResult>(url, ct).ConfigureAwait(false);
+        var sb = new StringBuilder($"{BaseUrl}/ajax/search/{endpoint}/{Uri.EscapeDataString(keyword)}")
+            .Append($"?word={Uri.EscapeDataString(keyword)}")
+            .Append($"&order={Uri.EscapeDataString(order)}")
+            .Append($"&mode={Uri.EscapeDataString(mode)}")
+            .Append($"&p={page}")
+            .Append($"&s_mode={Uri.EscapeDataString(options?.TargetMode ?? "s_tag")}");
+
+        // Only the combined/illustrations endpoints take a `type=` param — manga has no sub-types.
+        if (endpoint != "manga")
+            sb.Append($"&type={Uri.EscapeDataString(options?.WorkType ?? "all")}");
+
+        sb.Append($"&lang={_settings.Current.Locale}");
+
+        if (options is not null)
+        {
+            sb.Append($"&ratio={(options.Ratio is { } ratio ? ratio.ToString(System.Globalization.CultureInfo.InvariantCulture) : "")}");
+            if (!string.IsNullOrWhiteSpace(options.Tool)) sb.Append($"&tool={Uri.EscapeDataString(options.Tool)}");
+            if (options.PostedAfter is { } scd) sb.Append($"&scd={scd:yyyy-MM-dd}");
+            if (options.PostedBefore is { } ecd) sb.Append($"&ecd={ecd:yyyy-MM-dd}");
+            if (options.MinWidth is { } wlt) sb.Append($"&wlt={wlt}");
+            if (options.MaxWidth is { } wgt) sb.Append($"&wgt={wgt}");
+            if (options.MinHeight is { } hlt) sb.Append($"&hlt={hlt}");
+            if (options.MaxHeight is { } hgt) sb.Append($"&hgt={hgt}");
+            if (options.MinBookmarks is { } blt) sb.Append($"&blt={blt}");
+            if (options.MaxBookmarks is { } bgt) sb.Append($"&bgt={bgt}");
+            // The dedicated endpoints require ai_type/csw to be present (0 = show AI / don't bundle)
+            // rather than omitted, matching pixiv's own frontend requests.
+            if (endpoint != "artworks")
+            {
+                sb.Append($"&ai_type={options.AiType ?? 0}");
+                sb.Append("&csw=0"); // "Bundle works by the same creator" — not exposed in our UI.
+            }
+            else if (options.AiType is { } aiType) sb.Append($"&ai_type={aiType}");
+        }
+
+        var result = await GetAjaxAsync<ArtworkSearchResult>(sb.ToString(), ct).ConfigureAwait(false);
+        if (result is null) return null;
+        if (endpoint == "artworks") return result;
+
+        var section = endpoint == "manga" ? result.Manga : result.Illust;
+        return result with { IllustManga = section ?? new ArtworkSearchSection() };
     }
+
+    /// <summary>
+    /// GET /search/users?s_mode=s_usr&amp;nick={keyword}&amp;i=1&amp;comment=&amp;p={page} — search pixiv
+    /// user accounts by name. There is no ajax/JSON endpoint for this anymore (the old
+    /// /ajax/search/users/{keyword} 404s) — the HTML search page embeds its data as a
+    /// Next.js <c>&lt;script id="__NEXT_DATA__"&gt;</c> JSON blob, so we scrape that instead.
+    /// See <see cref="PixivUserSearchNextData"/> for the blob's shape.
+    /// </summary>
+    public async Task<UserSearchResult?> SearchUsersAsync(
+        string keyword, int page = 1, CancellationToken ct = default)
+    {
+        keyword = (keyword ?? string.Empty).Trim();
+        if (string.IsNullOrEmpty(keyword)) return null;
+
+        var url = $"{BaseUrl}/search/users?s_mode=s_usr&nick={Uri.EscapeDataString(keyword)}&i=1&comment=&p={page}";
+        var client = _httpFactory.GetClient();
+        using var req = new HttpRequestMessage(HttpMethod.Get, url);
+        req.Headers.TryAddWithoutValidation("Referer", BaseUrl + "/");
+
+        using var resp = await client.SendAsync(req, ct).ConfigureAwait(false);
+        if (!resp.IsSuccessStatusCode)
+        {
+            _logger.LogWarning("SearchUsersAsync {Url} -> {Code}", url, resp.StatusCode);
+            return null;
+        }
+
+        var html = await resp.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+        var m = NextDataRegex().Match(html);
+        if (!m.Success)
+        {
+            _logger.LogWarning("SearchUsersAsync {Url}: __NEXT_DATA__ not found in response", url);
+            return null;
+        }
+
+        PixivUserSearchNextData? nextData;
+        try { nextData = System.Text.Json.JsonSerializer.Deserialize<PixivUserSearchNextData>(m.Groups[1].Value, JsonOpts); }
+        catch (Exception ex) { _logger.LogWarning(ex, "SearchUsersAsync {Url} JSON parse failed", url); return null; }
+
+        var pageProps = nextData?.Props?.PageProps;
+        var userIds = pageProps?.UserIds ?? [];
+        var workIds = pageProps?.WorkIds ?? new();
+
+        // Pixiv's current page shape puts the user map directly under pageProps.userData.
+        // Older shapes nest it inside a JSON string at serverSerializedPreloadedState.
+        var usersMap = pageProps?.UserData?.Users;
+        if (usersMap is null or { Count: 0 } && !string.IsNullOrEmpty(pageProps?.ServerSerializedPreloadedState))
+        {
+            try
+            {
+                var preloaded = System.Text.Json.JsonSerializer.Deserialize<PixivUserSearchPreloadedState>(
+                    pageProps.ServerSerializedPreloadedState, JsonOpts);
+                if (preloaded?.UserData?.Users is { } preloadedUsers) usersMap = preloadedUsers;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "SearchUsersAsync {Url}: failed to parse serverSerializedPreloadedState", url);
+            }
+        }
+
+        usersMap ??= new Dictionary<string, PixivUserSearchUserInfo>();
+
+        var entries = new List<UserSearchEntry>();
+        foreach (var id in userIds)
+        {
+            var key = id.ToString();
+            var recentWorks = workIds.TryGetValue(key, out var works) ? works : [];
+            if (usersMap.TryGetValue(key, out var info) && !string.IsNullOrWhiteSpace(info.Name))
+            {
+                entries.Add(new UserSearchEntry
+                {
+                    UserId = string.IsNullOrEmpty(info.Id) ? key : info.Id,
+                    Name = info.Name,
+                    ImageUrl = info.BestAvatarUrl,
+                    Comment = info.Comment,
+                    RecentWorkIds = recentWorks,
+                });
+            }
+            else
+            {
+                entries.Add(new UserSearchEntry { UserId = key, Name = $"User {key}", RecentWorkIds = recentWorks });
+            }
+        }
+
+        return new UserSearchResult { Users = entries, Total = entries.Count };
+    }
+
+    [GeneratedRegex("<script id=\"__NEXT_DATA__\"[^>]*>(.*?)</script>", RegexOptions.Singleline)]
+    private static partial Regex NextDataRegex();
 
     // ─── New modern endpoints ──────────────────────────────────────────────
 
@@ -448,15 +642,26 @@ public sealed partial class PixivClient
     }
 
     /// <summary>
-    /// GET /ajax/search/novels/{keyword} — search novels by keyword.
+    /// GET /ajax/search/novels/{keyword} — search novels by keyword. Mirrors
+    /// <see cref="SearchArtworksAsync"/>'s parameters (mode/s_mode/order) — omitting mode
+    /// and s_mode (as the previous implementation did) causes Pixiv to return an empty result set.
     /// </summary>
     public async Task<NovelSearchResult?> SearchNovelsAsync(
-        string keyword, string order = "date_d", int page = 1, CancellationToken ct = default)
+        string keyword,
+        string order = "date_d",
+        string mode = "safe",       // safe | r18 | all
+        string sMode = "s_tag",     // s_tag | s_tag_full | s_tc
+        int page = 1,
+        CancellationToken ct = default)
     {
         keyword = (keyword ?? string.Empty).Trim();
         if (string.IsNullOrEmpty(keyword)) return null;
         var url = $"{BaseUrl}/ajax/search/novels/{Uri.EscapeDataString(keyword)}" +
-                  $"?word={Uri.EscapeDataString(keyword)}&order={order}&p={page}&lang={_settings.Current.Locale}";
+                  $"?word={Uri.EscapeDataString(keyword)}&order={Uri.EscapeDataString(order)}" +
+                  $"&mode={Uri.EscapeDataString(mode)}&s_mode={Uri.EscapeDataString(sMode)}" +
+                  $"&p={page}&lang={_settings.Current.Locale}";
+        var raw = await GetAjaxRawAsync(url, referer: null, ct).ConfigureAwait(false);
+        try { await File.WriteAllTextAsync(System.IO.Path.Combine(Path.GetTempPath(), "pikura_novelsearch_dump.json"), raw ?? "(null)", ct); } catch { }
         return await GetAjaxAsync<NovelSearchResult>(url, ct).ConfigureAwait(false);
     }
 
@@ -718,6 +923,9 @@ public sealed partial class PixivClient
     // Cache the CSRF token so we only fetch it once per session (it's stable until re-login).
     private string? _cachedCsrfToken;
 
+    // Cache premium status so we only fetch it once per session.
+    private bool? _cachedIsPremium;
+
     /// <summary>
     /// Extracts the tt CSRF token from a Pixiv page. Tries multiple sources and patterns
     /// because Pixiv's Next.js migration moved the token around the HTML.
@@ -812,6 +1020,45 @@ public sealed partial class PixivClient
 
     [GeneratedRegex(@"(?:pixiv\.net/(?:en/)?users?/|members?\.php\?id=)(\d+)")]
     private static partial Regex UrlUserIdRegex();
+
+    // Pixiv's root page embeds a GA data-layer script containing the account's
+    // premium flag, e.g. `var dataLayer = [{ ... premium: 'yes', ... }];`.
+    [GeneratedRegex(@"var dataLayer\s*=.*?premium:\s*'(\w+)'", RegexOptions.Singleline)]
+    private static partial Regex PremiumDataLayerRegex();
+
+    /// <summary>
+    /// Best-effort detection of whether the signed-in account has a Pixiv Premium
+    /// subscription. Scrapes the <c>dataLayer</c> marker off the root page HTML —
+    /// there is no dedicated cookie-authenticated endpoint for this, and the App
+    /// API's <c>is_premium</c> field requires an OAuth refresh token most users
+    /// never configure. Returns null if the marker can't be found or the request
+    /// fails; result is cached for the lifetime of this client instance.
+    /// </summary>
+    public async Task<bool?> GetIsPremiumAsync(CancellationToken ct = default)
+    {
+        if (_cachedIsPremium.HasValue) return _cachedIsPremium;
+        try
+        {
+            var client = _httpFactory.GetClient();
+            using var req = new HttpRequestMessage(HttpMethod.Get, $"{BaseUrl}/");
+            req.Headers.TryAddWithoutValidation("Referer", BaseUrl + "/");
+            req.Headers.TryAddWithoutValidation("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
+            using var resp = await client.SendAsync(req, ct).ConfigureAwait(false);
+            if (!resp.IsSuccessStatusCode) return null;
+
+            var html = await resp.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            var m = PremiumDataLayerRegex().Match(html);
+            if (!m.Success) return null;
+
+            _cachedIsPremium = string.Equals(m.Groups[1].Value, "yes", StringComparison.OrdinalIgnoreCase);
+            return _cachedIsPremium;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogDebug(ex, "GetIsPremiumAsync failed (non-fatal)");
+            return null;
+        }
+    }
 
     // ─── OAuth Authentication for App API ─────────────────────────────────────
 

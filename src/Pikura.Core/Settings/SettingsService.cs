@@ -53,6 +53,8 @@ public sealed class SettingsService
                 // Decrypt sensitive fields (handles both legacy plaintext and ENC: prefixed values)
                 loaded.PhpSessId    = CredentialStore.Unprotect(loaded.PhpSessId);
                 loaded.RefreshToken = CredentialStore.Unprotect(loaded.RefreshToken);
+                // Migrate legacy blacklists into the unified blocklist format.
+                loaded.MigrateLegacyBlocklists();
                 Current = loaded;
             }
             catch

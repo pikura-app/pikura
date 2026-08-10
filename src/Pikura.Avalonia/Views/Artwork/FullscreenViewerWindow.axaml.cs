@@ -23,6 +23,12 @@ public partial class FullscreenViewerWindow : Window
     private DateTime _pressTime;
     private readonly GalleryViewModel _gallery;
 
+    public FullscreenViewerWindow()
+    {
+        InitializeComponent();
+        _gallery = null!;
+    }
+
     public FullscreenViewerWindow(ArtworkPreview artwork, GalleryViewModel gallery)
     {
         InitializeComponent();

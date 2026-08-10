@@ -1,6 +1,7 @@
 using SkiaSharp;
 using Microsoft.Extensions.Logging;
 using OllamaSharp;
+using OllamaSharp.Models;
 using Pikura.Core.Settings;
 using System;
 using System.Collections.Generic;
@@ -46,6 +47,17 @@ public sealed class OllamaService : IDisposable
         _logger = logger;
         _settings = settings;
     }
+
+    /// <summary>
+    /// Leave at least 2 cores free for the UI thread — CPU-only inference (chat/vision) can
+    /// otherwise saturate every core and starve Pikura's own UI thread of scheduling time,
+    /// which reads as the whole app "freezing" for the duration of the request even though
+    /// nothing is actually deadlocked. Applied per-request via <see cref="RequestOptions.NumThread"/>
+    /// (the OLLAMA_NUM_THREADS environment variable is not honored by Ollama — the num_thread
+    /// option must be sent with each request) so it takes effect even if Ollama was already
+    /// running before Pikura started (e.g. as a background service) and we never launched it.
+    /// </summary>
+    private static int InferenceThreadCount => Math.Max(1, Environment.ProcessorCount - 2);
 
     // ── Enable / disable ──────────────────────────────────────────────────────
     public Task EnableAsync(IProgress<string>? progress = null, CancellationToken ct = default)
@@ -127,7 +139,7 @@ public sealed class OllamaService : IDisposable
         // Use text model for better responses
         var textModel = GetTextModel();
         _client!.SelectedModel = textModel;
-        var textChat = new Chat(_client);
+        var textChat = new Chat(_client) { Options = new RequestOptions { NumThread = InferenceThreadCount } };
         await foreach (var token in textChat.SendAsync(userMessage, ct).ConfigureAwait(false))
         {
             if (!string.IsNullOrEmpty(token))
@@ -146,7 +158,7 @@ public sealed class OllamaService : IDisposable
         EnsureReady();
         var visionModel = GetVisionModel();
         _client!.SelectedModel = visionModel;
-        var visionChat = new Chat(_client);
+        var visionChat = new Chat(_client) { Options = new RequestOptions { NumThread = InferenceThreadCount } };
         // async IAsyncEnumerable methods run synchronously up to the first `await` on whatever
         // thread calls MoveNextAsync — for a UI-triggered SendAsync that's the UI thread. Decoding
         // and re-encoding a full-size Pixiv image (up to ~5000x7000px) on that thread could
@@ -179,7 +191,7 @@ public sealed class OllamaService : IDisposable
             float scale = (float)maxDim / Math.Max(w, h);
             int newW = (int)(w * scale), newH = (int)(h * scale);
 
-            using var resized = skBitmap.Resize(new SKImageInfo(newW, newH), SKFilterQuality.Medium);
+            using var resized = skBitmap.Resize(new SKImageInfo(newW, newH), new SKSamplingOptions(SKFilterMode.Linear, SKMipmapMode.None));
             if (resized == null) return src;
 
             using var image = SKImage.FromBitmap(resized);
@@ -283,7 +295,25 @@ public sealed class OllamaService : IDisposable
     private async Task EnsureOllamaRunningAsync(CancellationToken ct)
     {
         // Try the existing server first
-        if (await PingAsync(ct)) { _client = new OllamaApiClient(new Uri(OllamaHost)) { SelectedModel = GetTextModel() }; return; }
+        if (await PingAsync(ct))
+        {
+            // Ollama is already running (e.g. as a background service we never launched) —
+            // still try to lower its scheduling priority so a heavy Describe/chat request
+            // doesn't starve Pikura's own UI thread. Best-effort: the actual CPU-usage fix
+            // is RequestOptions.NumThread sent with each request (see InferenceThreadCount).
+            try
+            {
+                foreach (var p in Process.GetProcessesByName("ollama"))
+                {
+                    try { p.PriorityClass = ProcessPriorityClass.BelowNormal; }
+                    catch { /* ignore per-process failures (e.g. no permission) */ }
+                }
+            }
+            catch { /* non-fatal — priority is a best-effort scheduling hint */ }
+
+            _client = new OllamaApiClient(new Uri(OllamaHost)) { SelectedModel = GetTextModel() };
+            return;
+        }
 
         // Try to locate ollama executable — auto-install if missing
         var exe = FindOllamaExecutable();
@@ -298,17 +328,17 @@ public sealed class OllamaService : IDisposable
         }
 
         _logger.LogInformation("Starting Ollama process: {Exe}", exe);
-        _ollamaProcess = new Process
+        var startInfo = new ProcessStartInfo(exe, "serve")
         {
-            StartInfo = new ProcessStartInfo(exe, "serve")
-            {
-                UseShellExecute        = false,
-                RedirectStandardOutput = true,
-                RedirectStandardError  = true,
-                CreateNoWindow         = true,
-            }
+            UseShellExecute        = false,
+            RedirectStandardOutput = true,
+            RedirectStandardError  = true,
+            CreateNoWindow         = true,
         };
+        _ollamaProcess = new Process { StartInfo = startInfo };
         _ollamaProcess.Start();
+        try { _ollamaProcess.PriorityClass = ProcessPriorityClass.BelowNormal; }
+        catch { /* non-fatal — priority is a best-effort scheduling hint */ }
 
         // Wait up to 45 seconds for it to respond
         var deadline = DateTime.UtcNow.AddSeconds(45);

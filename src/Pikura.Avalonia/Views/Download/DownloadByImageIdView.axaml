@@ -50,7 +50,7 @@
                         <TextBox Text="{Binding InputText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                  AcceptsReturn="True"
                                  TextWrapping="Wrap"
-                                 Watermark="Enter image IDs, URLs, or paste from clipboard...&#x0a;Examples:&#x0a;12345678&#x0a;https://www.pixiv.net/en/artworks/12345678&#x0a;12345679, 12345680"
+                                 PlaceholderText="Enter image IDs, URLs, or paste from clipboard...&#x0a;Examples:&#x0a;12345678&#x0a;https://www.pixiv.net/en/artworks/12345678&#x0a;12345679, 12345680"
                                  Height="200"
                                  CornerRadius="6"
                                  FontFamily="Consolas, monospace"

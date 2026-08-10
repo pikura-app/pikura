@@ -241,8 +241,9 @@ public partial class EnhancedGalleryViewModel : ViewModelBase
         StatusMessage = "Selection cleared";
     }
 
-    private void ApplyFilter(string filter)
+    private void ApplyFilter(string? filter)
     {
+        if (string.IsNullOrEmpty(filter)) return;
         if (!ActiveFilters.Contains(filter))
         {
             ActiveFilters.Add(filter);
@@ -251,8 +252,9 @@ public partial class EnhancedGalleryViewModel : ViewModelBase
         }
     }
 
-    private void RemoveFilter(string filter)
+    private void RemoveFilter(string? filter)
     {
+        if (string.IsNullOrEmpty(filter)) return;
         ActiveFilters.Remove(filter);
         // Remove filter logic here
         StatusMessage = $"Removed filter: {filter}";

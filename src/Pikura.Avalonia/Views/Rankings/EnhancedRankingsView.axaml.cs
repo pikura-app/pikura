@@ -8,6 +8,7 @@ using Avalonia.VisualTree;
 using Pikura.Avalonia.Services;
 using Pikura.Avalonia.ViewModels;
 using Pikura.Avalonia.Views.Artwork;
+using Pikura.Avalonia.Views.Dialogs;
 using Pikura.Core.Settings;
 using System;
 using System.Collections.Generic;
@@ -182,6 +183,15 @@ public partial class EnhancedRankingsView : UserControl
         }
     }
 
+    private void OnRankingsPageInputKeyDown(object? sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Enter)
+        {
+            e.Handled = true;
+            VM?.GoToPageInputCommand.Execute(null);
+        }
+    }
+
     // ── Calendar popup ─────────────────────────────────────────────────────
     // Constrain to today max and preselect the currently loaded date.
     private void OnCalendarOpened(object? sender, System.EventArgs e)
@@ -260,6 +270,12 @@ public partial class EnhancedRankingsView : UserControl
     private void OpenInlineViewer(RankingCardViewModel card)
     {
         if (VM == null) return;
+        if (card.IsNovel)
+        {
+            try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo($"https://www.pixiv.net/novel/show.php?id={card.Id}") { UseShellExecute = true }); }
+            catch { /* non-fatal */ }
+            return;
+        }
         try
         {
             var galleryVm = AppServices.Get<GalleryViewModel>();
@@ -299,18 +315,20 @@ public partial class EnhancedRankingsView : UserControl
     private void OnContextOpenFullScreen(object? sender, RoutedEventArgs e)
     {
         if (GetCardFromMenu(sender) is not { } card || VM == null) return;
-        OpenInlineViewer(card);
-        VM.IsViewerExpanded = true;
+        OpenInlineViewer(card); // no-ops into a browser tab for novels
+        if (!card.IsNovel) VM.IsViewerExpanded = true;
     }
 
     private void OnContextOpenInNewTab(object? sender, RoutedEventArgs e)
     {
         if (GetCardFromMenu(sender) is not { } card) return;
+        if (card.IsNovel) { OpenInlineViewer(card); return; } // opens browser tab instead
         try
         {
             var galleryVm = AppServices.Get<GalleryViewModel>();
             // Build nav list from all loaded ranking items so prev/next works within the ranking
             var navList = VM?.FilteredItems
+                .Where(c => !c.IsNovel)
                 .Select(ToViewerCard)
                 .ToList() as IReadOnlyList<ArtworkCardViewModel>;
             var vmCard = navList?.FirstOrDefault(c => c.Id == card.Id)
@@ -325,6 +343,7 @@ public partial class EnhancedRankingsView : UserControl
     private void OnContextOpenPopup(object? sender, RoutedEventArgs e)
     {
         if (GetCardFromMenu(sender) is not { } card) return;
+        if (card.IsNovel) { OpenInlineViewer(card); return; } // opens browser tab instead
         _ = OpenPopupAsync(card);
     }
 
@@ -357,7 +376,9 @@ public partial class EnhancedRankingsView : UserControl
     private void OnContextOpenPixiv(object? sender, RoutedEventArgs e)
     {
         if (GetCardFromMenu(sender) is not { } card) return;
-        OpenUrl($"https://www.pixiv.net/artworks/{card.Id}");
+        OpenUrl(card.IsNovel
+            ? $"https://www.pixiv.net/novel/show.php?id={card.Id}"
+            : $"https://www.pixiv.net/artworks/{card.Id}");
     }
 
     private void OnContextOpenArtist(object? sender, RoutedEventArgs e)
@@ -387,13 +408,51 @@ public partial class EnhancedRankingsView : UserControl
     private void OnContextCopyUrl(object? sender, RoutedEventArgs e)
     {
         if (GetCardFromMenu(sender) is not { } card) return;
-        CopyToClipboard($"https://www.pixiv.net/artworks/{card.Id}");
+        CopyToClipboard(card.IsNovel
+            ? $"https://www.pixiv.net/novel/show.php?id={card.Id}"
+            : $"https://www.pixiv.net/artworks/{card.Id}");
     }
 
     private void OnContextCopyImage(object? sender, RoutedEventArgs e)
     {
         if (GetCardFromMenu(sender) is not { } card) return;
         CopyBitmapToClipboard(card.Thumbnail);
+    }
+
+    private async void OnContextUseAsBackground(object? sender, RoutedEventArgs e)
+    {
+        try { if (!AppServices.Get<BackgroundOverlayService>().IsEnabled) return; }
+        catch { return; }
+        if (GetCardFromMenu(sender) is not { } card) return;
+        if (string.IsNullOrWhiteSpace(card.ThumbnailUrl)) return;
+        try
+        {
+            var overlay = AppServices.Get<BackgroundOverlayService>();
+            var bytes = await overlay.FetchImageBytesAsync(card.ThumbnailUrl);
+            var window = TopLevel.GetTopLevel(this) as Window;
+            if (window == null) { overlay.AddImage(card.ThumbnailUrl); return; }
+
+            var seedEntry = new OverlayImageEntry
+            {
+                Path = card.ThumbnailUrl,
+                Title = card.Title,
+                UserName = card.UserName,
+                UserId = card.UserId,
+                IllustId = card.Id,
+            };
+            var preview = new BackgroundPreviewWindow(card.ThumbnailUrl, bytes, seedEntry);
+            await preview.ShowDialog(window);
+
+            if (preview.Result is { } result)
+            {
+                result.Title = card.Title;
+                result.UserName = card.UserName;
+                result.UserId = card.UserId;
+                result.IllustId = card.Id;
+                overlay.AddImage(card.ThumbnailUrl, result);
+            }
+        }
+        catch { /* non-fatal */ }
     }
 
     private void CopyBitmapToClipboard(global::Avalonia.Media.Imaging.Bitmap? bmp)
@@ -506,7 +565,8 @@ public partial class EnhancedRankingsView : UserControl
         if (VM == null) return;
 
         // Priority: 1) selected artworks  2) currently viewed (inline viewer)  3) error
-        var previews = VM.Items.Where(c => c.IsSelected).Select(c => c.ToPreview()).ToList();
+        // Novels have no download pipeline — excluded here (ToPreview() would throw).
+        var previews = VM.Items.Where(c => c.IsSelected && !c.IsNovel).Select(c => c.ToPreview()).ToList();
         if (previews.Count == 0 && VM.GalleryVm.InlineViewerCard != null)
         {
             // Use the currently viewed artwork

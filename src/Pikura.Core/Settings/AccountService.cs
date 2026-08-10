@@ -63,6 +63,7 @@ public sealed class AccountService
             if (existing != null)
             {
                 existing.UserName     = s.UserName;
+                existing.IsPremium    = s.IsPremium;
                 existing.PhpSessId    = s.PhpSessId;
                 existing.RefreshToken = s.RefreshToken;
                 existing.LastUsedAt   = DateTime.UtcNow;
@@ -74,6 +75,7 @@ public sealed class AccountService
                 {
                     UserId       = s.UserId,
                     UserName     = s.UserName,
+                    IsPremium    = s.IsPremium,
                     PhpSessId    = s.PhpSessId,
                     RefreshToken = s.RefreshToken,
                     LastUsedAt   = DateTime.UtcNow,
@@ -107,6 +109,7 @@ public sealed class AccountService
             s.RefreshToken = profile.RefreshToken;
             s.UserId       = profile.UserId;
             s.UserName     = profile.UserName;
+            s.IsPremium    = profile.IsPremium;
         });
 
         _favoritesService?.SwitchUser(profile.UserId);
@@ -217,6 +220,7 @@ public sealed class AccountService
             Id           = p.Id,
             UserId       = p.UserId,
             UserName     = p.UserName,
+            IsPremium    = p.IsPremium,
             PhpSessId    = CredentialStore.Protect(p.PhpSessId),
             RefreshToken = CredentialStore.Protect(p.RefreshToken),
             Settings     = p.Settings,
@@ -242,6 +246,7 @@ public sealed class AccountService
         {
             UserId       = s.UserId,
             UserName     = s.UserName,
+            IsPremium    = s.IsPremium,
             PhpSessId    = s.PhpSessId,
             RefreshToken = s.RefreshToken,
             LastUsedAt   = DateTime.UtcNow,

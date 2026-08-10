@@ -357,7 +357,7 @@
                     </WrapPanel>
                     <Grid ColumnDefinitions="*,Auto">
                         <TextBox Grid.Column="0" Name="InputBox"
-                                 Watermark="Ask Hoshi anything — drop an image, paste, or type a question…"
+                                 PlaceholderText="Ask Hoshi anything — drop an image, paste, or type a question…"
                                  FontSize="12" CornerRadius="6,0,0,6"
                                  KeyDown="OnInputKeyDown"/>
                         <Button Grid.Column="1" Name="SendBtn"

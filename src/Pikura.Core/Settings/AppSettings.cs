@@ -1,3 +1,4 @@
+using System;
 using System.Text.Json.Serialization;
 using Pikura.Core.Models;
 
@@ -219,22 +220,151 @@ public sealed class AppSettings
 
     #endregion
 
-    #region Blacklist Filtering
+    #region Blocklist
 
-    /// <summary>Tags that prevent download (exact match or substring).</summary>
+    /// <summary>Unified blocklist entries. Replaces legacy BlacklistTags, BlacklistTitles, BlacklistMembers and ExcludedTags.</summary>
+    public List<BlocklistEntry> BlocklistEntries { get; set; } = new();
+
+    // Legacy properties are retained only for one-time migration into <see cref="BlocklistEntries"/>.
     public List<string> BlacklistTags { get; set; } = new();
-
-    /// <summary>When true, uses regex matching for blacklist tags.</summary>
     public bool UseBlacklistTagsRegex { get; set; } = false;
-
-    /// <summary>Title patterns that prevent download.</summary>
     public List<string> BlacklistTitles { get; set; } = new();
-
-    /// <summary>When true, uses regex matching for blacklist titles.</summary>
     public bool UseBlacklistTitlesRegex { get; set; } = false;
-
-    /// <summary>Member IDs that are blacklisted from download.</summary>
     public List<string> BlacklistMembers { get; set; } = new();
+    public bool BlockDownloadsFromBlocklistedMembers { get; set; } = true;
+    public bool BlockDownloadsWithBlocklistedTags { get; set; } = true;
+    public bool HideBlocklistedArtistsInGallery { get; set; } = false;
+
+    /// <summary>
+    /// One-time migration from legacy blacklists into <see cref="BlocklistEntries"/>.
+    /// Safe to call repeatedly: it only runs when <see cref="BlocklistEntries"/> is empty.
+    /// </summary>
+    public void MigrateLegacyBlocklists()
+    {
+        if (BlocklistEntries.Count > 0) return;
+
+        foreach (var tag in ExcludedTags)
+            if (!string.IsNullOrWhiteSpace(tag))
+                BlocklistEntries.Add(new BlocklistEntry { Type = BlocklistType.Tag, Value = tag, Scope = BlocklistScope.AllTabs, BlockDownload = false });
+
+        foreach (var tag in BlacklistTags)
+            if (!string.IsNullOrWhiteSpace(tag))
+                BlocklistEntries.Add(new BlocklistEntry { Type = BlocklistType.Tag, Value = tag, Scope = BlocklistScope.AllTabs, UseRegex = UseBlacklistTagsRegex, BlockDownload = BlockDownloadsWithBlocklistedTags });
+
+        foreach (var title in BlacklistTitles)
+            if (!string.IsNullOrWhiteSpace(title))
+                BlocklistEntries.Add(new BlocklistEntry { Type = BlocklistType.Title, Value = title, Scope = BlocklistScope.AllTabs, UseRegex = UseBlacklistTitlesRegex, BlockDownload = true });
+
+        foreach (var member in BlacklistMembers)
+            if (!string.IsNullOrWhiteSpace(member))
+                BlocklistEntries.Add(new BlocklistEntry { Type = BlocklistType.Artist, Value = member, Scope = BlocklistScope.AllTabs, BlockDownload = BlockDownloadsFromBlocklistedMembers });
+
+        // Clear legacy lists so they are not re-migrated and no longer clutter the saved JSON.
+        ExcludedTags.Clear();
+        BlacklistTags.Clear();
+        BlacklistTitles.Clear();
+        BlacklistMembers.Clear();
+    }
+
+    /// <summary>Returns true if the given artist matches any artist blocklist entry.</summary>
+    public bool IsArtistBlocklisted(string? userId, string? userName)
+    {
+        foreach (var entry in BlocklistEntries)
+        {
+            if (entry.Type != BlocklistType.Artist) continue;
+            if (IsArtistMatch(entry, userId, userName)) return true;
+        }
+        return false;
+    }
+
+    /// <summary>Legacy alias for <see cref="IsArtistBlocklisted"/>.</summary>
+    public bool IsMemberBlocklisted(string? userId, string? userName) => IsArtistBlocklisted(userId, userName);
+
+    /// <summary>Returns true if the artwork should be hidden from the given source tab.</summary>
+    public bool IsArtworkHidden(string source, string? userId, string? userName, string? title, IReadOnlyList<string>? tags)
+    {
+        foreach (var entry in BlocklistEntries)
+        {
+            if (string.IsNullOrWhiteSpace(entry.Value)) continue;
+            if (!ScopeMatches(entry.Scope, source)) continue;
+
+            bool matches = entry.Type switch
+            {
+                BlocklistType.Tag => IsTagMatch(entry, tags),
+                BlocklistType.Artist => IsArtistMatch(entry, userId, userName),
+                BlocklistType.Title => IsTitleMatch(entry, title),
+                _ => false,
+            };
+
+            if (matches) return true;
+        }
+        return false;
+    }
+
+    /// <summary>Returns true if the artwork should be blocked from download.</summary>
+    public bool IsArtworkBlockedFromDownload(string? userId, string? userName, string? title, IReadOnlyList<string>? tags)
+    {
+        foreach (var entry in BlocklistEntries)
+        {
+            if (!entry.BlockDownload) continue;
+            if (string.IsNullOrWhiteSpace(entry.Value)) continue;
+
+            bool matches = entry.Type switch
+            {
+                BlocklistType.Tag => IsTagMatch(entry, tags),
+                BlocklistType.Artist => IsArtistMatch(entry, userId, userName),
+                BlocklistType.Title => IsTitleMatch(entry, title),
+                _ => false,
+            };
+
+            if (matches) return true;
+        }
+        return false;
+    }
+
+    private static bool ScopeMatches(BlocklistScope scope, string source)
+    {
+        if (scope == BlocklistScope.AllTabs) return true;
+        var sourceLower = source.ToLowerInvariant();
+        return scope.ToString().ToLowerInvariant() == sourceLower;
+    }
+
+    private static bool IsTagMatch(BlocklistEntry entry, IReadOnlyList<string>? tags)
+    {
+        if (tags is null || tags.Count == 0) return false;
+        if (entry.UseRegex)
+        {
+            try
+            {
+                var regex = new System.Text.RegularExpressions.Regex(entry.Value, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                return tags.Any(t => regex.IsMatch(t));
+            }
+            catch { return false; }
+        }
+        return tags.Any(t => t.Contains(entry.Value, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private static bool IsArtistMatch(BlocklistEntry entry, string? userId, string? userName)
+    {
+        if (!string.IsNullOrEmpty(userId) && string.Equals(entry.Value, userId, StringComparison.OrdinalIgnoreCase)) return true;
+        if (!string.IsNullOrEmpty(userName) && string.Equals(entry.Value, userName, StringComparison.OrdinalIgnoreCase)) return true;
+        return false;
+    }
+
+    private static bool IsTitleMatch(BlocklistEntry entry, string? title)
+    {
+        if (string.IsNullOrEmpty(title)) return false;
+        if (entry.UseRegex)
+        {
+            try
+            {
+                var regex = new System.Text.RegularExpressions.Regex(entry.Value, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                return regex.IsMatch(title);
+            }
+            catch { return false; }
+        }
+        return title.Contains(entry.Value, StringComparison.OrdinalIgnoreCase);
+    }
 
     #endregion
 
@@ -348,6 +478,9 @@ public sealed class AppSettings
     /// <summary>Up to 5 image URLs or local file paths used for the background overlay.</summary>
     public List<string> BackgroundOverlayImagePaths { get; set; } = new();
 
+    /// <summary>Per-image overlay settings (opacity, brightness, darkness, pan). Indices match <see cref="BackgroundOverlayImagePaths"/>.</summary>
+    public List<OverlayImageEntry> BackgroundOverlayImageEntries { get; set; } = new();
+
     /// <summary>Opacity of the overlay image (0 = invisible, 1 = fully opaque).</summary>
     public double BackgroundOverlayImageOpacity { get; set; } = 0.25;
 
@@ -356,6 +489,9 @@ public sealed class AppSettings
 
     /// <summary>Black overlay opacity used to darken the image (0 - 1).</summary>
     public double BackgroundOverlayDarkness { get; set; } = 0.0;
+
+    /// <summary>When true, the global opacity/lighten/darken values override per-image settings.</summary>
+    public bool BackgroundOverlayUseGlobalOverrides { get; set; } = false;
 
     /// <summary>How long to wait before cycling to the next overlay image.</summary>
     public int BackgroundOverlayCycleInterval { get; set; } = 30;
@@ -672,5 +808,57 @@ public sealed class AppSettings
 
     #endregion
 
+    #region UI
+
+    /// <summary>When true, show the introductory splash screen on startup.</summary>
+    public bool ShowSplashScreen { get; set; } = true;
+
+    /// <summary>When true, show the feature highlights / onboarding popup for new installs or major updates.</summary>
+    public bool ShowFeatureHighlights { get; set; } = true;
+
+    /// <summary>The app version that last displayed the feature highlights. Empty for a fresh install.</summary>
+    public string? LastOnboardingVersionShown { get; set; }
+
+    #endregion
+
     [JsonIgnore] public bool IsConfigured => !string.IsNullOrWhiteSpace(PhpSessId);
+}
+
+/// <summary>
+/// Per-image overlay settings persisted alongside <see cref="AppSettings.BackgroundOverlayImagePaths"/>.
+/// </summary>
+public sealed class OverlayImageEntry
+{
+    /// <summary>Image URL or local file path.</summary>
+    public string Path { get; set; } = string.Empty;
+
+    /// <summary>Artwork title (for display in settings).</summary>
+    public string? Title { get; set; }
+
+    /// <summary>Artist display name.</summary>
+    public string? UserName { get; set; }
+
+    /// <summary>Artist Pixiv user ID.</summary>
+    public string? UserId { get; set; }
+
+    /// <summary>Artwork (illust) ID on Pixiv.</summary>
+    public string? IllustId { get; set; }
+
+    /// <summary>Image opacity (0 = invisible, 1 = fully opaque).</summary>
+    public double Opacity { get; set; } = 0.25;
+
+    /// <summary>White overlay brightness (0 - 1).</summary>
+    public double Brightness { get; set; } = 0.0;
+
+    /// <summary>Black overlay darkness (0 - 1).</summary>
+    public double Darkness { get; set; } = 0.0;
+
+    /// <summary>Horizontal pan offset as a fraction (-1 to 1). 0 = centered.</summary>
+    public double PanX { get; set; } = 0.0;
+
+    /// <summary>Vertical pan offset as a fraction (-1 to 1). 0 = centered.</summary>
+    public double PanY { get; set; } = 0.0;
+
+    /// <summary>Zoom scale (1.0 = 100%, 0.5 = 50%, 2.0 = 200%).</summary>
+    public double Zoom { get; set; } = 1.0;
 }

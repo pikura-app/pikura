@@ -2,6 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:actipro="http://schemas.actiprosoftware.com/avaloniaui"
              xmlns:generation="using:ActiproSoftware.UI.Avalonia.Themes.Generation"
+             xmlns:animation="using:Avalonia.Animation"
              x:Class="Pikura.Avalonia.App"
              xmlns:local="using:Pikura.Avalonia"
              RequestedThemeVariant="Dark">
@@ -9,7 +10,18 @@
     <Application.DataTemplates>
         <local:ViewLocator/>
     </Application.DataTemplates>
-  
+
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceInclude Source="avares://Pikura/Assets/Icons.axaml"/>
+            </ResourceDictionary.MergedDictionaries>
+
+            <animation:CrossFade x:Key="MainPageTransition"
+                                 Duration="0:0:0.125"/>
+        </ResourceDictionary>
+    </Application.Resources>
+
     <Application.Styles>
         <actipro:ModernTheme>
             <actipro:ModernTheme.Definition>
@@ -58,6 +70,55 @@
         <!-- High Contrast Styles -->
         <Style Selector="Border">
             <Setter Property="BorderBrush" Value="{DynamicResource AccessibilityBorder}"/>
+        </Style>
+
+        <!-- Micro-animations -->
+        <Style Selector="Button, ToggleButton">
+            <Setter Property="Opacity" Value="1"/>
+            <Setter Property="RenderTransform">
+                <Setter.Value>
+                    <ScaleTransform ScaleX="1" ScaleY="1"/>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Transitions">
+                <Setter.Value>
+                    <animation:Transitions>
+                        <animation:DoubleTransition Property="Opacity" Duration="0:0:0.1"/>
+                    </animation:Transitions>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style Selector="Button:pointerover, ToggleButton:pointerover">
+            <Setter Property="RenderTransform">
+                <Setter.Value>
+                    <ScaleTransform ScaleX="1.02" ScaleY="1.02"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style Selector="Button:pressed, ToggleButton:pressed">
+            <Setter Property="Opacity" Value="0.8"/>
+        </Style>
+        <Style Selector="TextBox">
+            <Setter Property="Transitions">
+                <Setter.Value>
+                    <animation:Transitions>
+                        <animation:BrushTransition Property="BorderBrush" Duration="0:0:0.1"/>
+                        <animation:BrushTransition Property="Background" Duration="0:0:0.1"/>
+                    </animation:Transitions>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style Selector="TextBox:pointerover">
+            <Setter Property="Background" Value="{actipro:ThemeResource ControlBackgroundBrushSoftAccent}"/>
+        </Style>
+        <Style Selector="ComboBox">
+            <Setter Property="Transitions">
+                <Setter.Value>
+                    <animation:Transitions>
+                        <animation:BrushTransition Property="BorderBrush" Duration="0:0:0.1"/>
+                    </animation:Transitions>
+                </Setter.Value>
+            </Setter>
         </Style>
     </Application.Styles>
 

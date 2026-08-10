@@ -1,4 +1,5 @@
 using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -49,9 +50,11 @@ public static class CredentialStore
 
     // ── Windows DPAPI ─────────────────────────────────────────────────────────
 
+    [SupportedOSPlatform("windows")]
     private static byte[] DpapiProtect(byte[] data) =>
         ProtectedData.Protect(data, null, DataProtectionScope.CurrentUser);
 
+    [SupportedOSPlatform("windows")]
     private static byte[] DpapiUnprotect(byte[] data) =>
         ProtectedData.Unprotect(data, null, DataProtectionScope.CurrentUser);
 

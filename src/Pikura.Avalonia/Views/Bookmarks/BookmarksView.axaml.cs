@@ -55,7 +55,7 @@ public partial class BookmarksView : UserControl
         var available = grid?.Bounds.Width ?? 0;
         if (available > 400)
         {
-            var maxAllowed = available - 320;
+            var maxAllowed = available - 300;
             if (vm.BrowsePanelWidth > maxAllowed)
                 vm.BrowsePanelWidth = maxAllowed;
         }
@@ -303,7 +303,7 @@ public partial class BookmarksView : UserControl
             CanResize = false,
             WindowStartupLocation = WindowStartupLocation.CenterOwner,
         };
-        var tb = new TextBox { Watermark = "New folder name (or pick below)", Margin = new global::Avalonia.Thickness(12, 12, 12, 6) };
+        var tb = new TextBox { PlaceholderText = "New folder name (or pick below)", Margin = new global::Avalonia.Thickness(12, 12, 12, 6) };
         var existingPanel = new WrapPanel { Margin = new global::Avalonia.Thickness(12, 0, 12, 6) };
         foreach (var f in VM.AvailableFolders)
         {
@@ -341,7 +341,7 @@ public partial class BookmarksView : UserControl
             CanResize = false,
             WindowStartupLocation = WindowStartupLocation.CenterOwner,
         };
-        var tb = new TextBox { Text = current, Watermark = "Folder name (empty = none)", Margin = new global::Avalonia.Thickness(16, 16, 16, 8), VerticalAlignment = global::Avalonia.Layout.VerticalAlignment.Center };
+        var tb = new TextBox { Text = current, PlaceholderText = "Folder name (empty = none)", Margin = new global::Avalonia.Thickness(16, 16, 16, 8), VerticalAlignment = global::Avalonia.Layout.VerticalAlignment.Center };
         var ok = new Button { Content = "OK", HorizontalAlignment = global::Avalonia.Layout.HorizontalAlignment.Right, Margin = new global::Avalonia.Thickness(0, 0, 16, 12) };
         ok.Click += (_, _) => dialog.Close(tb.Text?.Trim());
         tb.KeyDown += (_, ke) => { if (ke.Key == global::Avalonia.Input.Key.Return) dialog.Close(tb.Text?.Trim()); };
@@ -363,6 +363,42 @@ public partial class BookmarksView : UserControl
         var clipboard = TopLevel.GetTopLevel(this)?.Clipboard;
         if (clipboard != null && card.Thumbnail != null)
             _ = clipboard.SetBitmapAsync(card.Thumbnail);
+    }
+
+    private async void OnContextUseAsBackground(object? sender, RoutedEventArgs e)
+    {
+        try { if (!AppServices.Get<Pikura.Avalonia.Services.BackgroundOverlayService>().IsEnabled) return; }
+        catch { return; }
+        if (GetCard(sender) is not { } card) return;
+        if (string.IsNullOrWhiteSpace(card.ThumbnailUrl)) return;
+        try
+        {
+            var overlay = AppServices.Get<BackgroundOverlayService>();
+            var bytes = await overlay.FetchImageBytesAsync(card.ThumbnailUrl);
+            var window = TopLevel.GetTopLevel(this) as Window;
+            if (window == null) { overlay.AddImage(card.ThumbnailUrl); return; }
+
+            var seedEntry = new Pikura.Core.Settings.OverlayImageEntry
+            {
+                Path = card.ThumbnailUrl,
+                Title = card.Title,
+                UserName = card.UserName,
+                UserId = card.UserId,
+                IllustId = card.Id,
+            };
+            var preview = new Dialogs.BackgroundPreviewWindow(card.ThumbnailUrl, bytes, seedEntry);
+            await preview.ShowDialog(window);
+
+            if (preview.Result is { } result)
+            {
+                result.Title = card.Title;
+                result.UserName = card.UserName;
+                result.UserId = card.UserId;
+                result.IllustId = card.Id;
+                overlay.AddImage(card.ThumbnailUrl, result);
+            }
+        }
+        catch { /* non-fatal */ }
     }
 
     // ── Helpers ─────────────────────────────────────────────────────────────
@@ -407,8 +443,8 @@ public partial class BookmarksView : UserControl
         var pt = e.GetPosition(this);
         var dx = pt.X - _dragStartX;
         var newWidth = _dragStartPanelWidth - dx;
-        var maxWidth = available - 320;
-        if (newWidth < 320) newWidth = 320;
+        var maxWidth = available - 300;
+        if (newWidth < 300) newWidth = 300;
         if (newWidth > maxWidth) newWidth = maxWidth;
         VM.BrowsePanelWidth = newWidth;
     }

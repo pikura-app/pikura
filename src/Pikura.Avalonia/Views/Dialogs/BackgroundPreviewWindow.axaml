@@ -1,0 +1,93 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:actipro="http://schemas.actiprosoftware.com/avaloniaui"
+        x:Class="Pikura.Avalonia.Views.Dialogs.BackgroundPreviewWindow"
+        Title="Pikura — Background Preview"
+        Width="900"
+        Height="720"
+        WindowStartupLocation="CenterOwner"
+        MinWidth="700"
+        MinHeight="550">
+
+    <Grid RowDefinitions="*,Auto,Auto">
+        <!-- Live preview area -->
+        <Border Grid.Row="0" Background="{actipro:ThemeResource Container3BackgroundBrush}"
+                ClipToBounds="True" Margin="12,12,12,0"
+                CornerRadius="8"
+                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                BorderThickness="1">
+            <Panel x:Name="PreviewPanel" ClipToBounds="True"
+                   Background="{actipro:ThemeResource Container3BackgroundBrush}"
+                   MinHeight="400">
+                <Panel x:Name="OpacityPanel">
+                    <Image x:Name="PreviewImage"
+                           Stretch="Uniform"
+                           RenderOptions.BitmapInterpolationMode="HighQuality"
+                           IsHitTestVisible="True"
+                           Cursor="Hand"/>
+                    <Rectangle x:Name="DarknessRect" Fill="Black" Opacity="0"
+                               IsHitTestVisible="False"/>
+                    <Rectangle x:Name="BrightnessRect" Fill="White" Opacity="0"
+                               IsHitTestVisible="False"/>
+                </Panel>
+                <!-- Drag hint -->
+                <TextBlock Text="Drag to reposition · Scroll to zoom"
+                           FontSize="11" Opacity="0.5"
+                           IsHitTestVisible="False"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Bottom"
+                           Margin="0,0,0,8"/>
+            </Panel>
+        </Border>
+
+        <!-- Adjustment sliders -->
+        <Border Grid.Row="1" Margin="12,8"
+                Background="{actipro:ThemeResource Container1BackgroundBrush}"
+                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                BorderThickness="1" CornerRadius="8" Padding="20,16">
+            <StackPanel Spacing="10">
+                <Grid ColumnDefinitions="100,*,50">
+                    <TextBlock Grid.Column="0" Text="Opacity" FontSize="12"
+                               VerticalAlignment="Center"/>
+                    <Slider x:Name="OpacitySlider" Grid.Column="1"
+                            Minimum="0" Maximum="0.85" Value="0.25"
+                            TickFrequency="0.01" IsSnapToTickEnabled="True"
+                            VerticalAlignment="Center" Margin="0,0,12,0"/>
+                    <TextBlock x:Name="OpacityLabel" Grid.Column="2" FontSize="12"
+                               VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                </Grid>
+                <Grid ColumnDefinitions="100,*,50">
+                    <TextBlock Grid.Column="0" Text="Lighten" FontSize="12"
+                               VerticalAlignment="Center"/>
+                    <Slider x:Name="BrightnessSlider" Grid.Column="1"
+                            Minimum="0" Maximum="0.85" Value="0"
+                            TickFrequency="0.01" IsSnapToTickEnabled="True"
+                            VerticalAlignment="Center" Margin="0,0,12,0"/>
+                    <TextBlock x:Name="BrightnessLabel" Grid.Column="2" FontSize="12"
+                               VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                </Grid>
+                <Grid ColumnDefinitions="100,*,50">
+                    <TextBlock Grid.Column="0" Text="Darken" FontSize="12"
+                               VerticalAlignment="Center"/>
+                    <Slider x:Name="DarknessSlider" Grid.Column="1"
+                            Minimum="0" Maximum="0.85" Value="0"
+                            TickFrequency="0.01" IsSnapToTickEnabled="True"
+                            VerticalAlignment="Center" Margin="0,0,12,0"/>
+                    <TextBlock x:Name="DarknessLabel" Grid.Column="2" FontSize="12"
+                               VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                </Grid>
+            </StackPanel>
+        </Border>
+
+        <!-- Action buttons -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right"
+                    Spacing="10" Margin="12,0,12,12">
+            <Button Content="Reset Position" Click="OnResetPosition"
+                    FontSize="12" Padding="14,7" CornerRadius="6"/>
+            <Button Content="Cancel" Click="OnCancel"
+                    FontSize="12" Padding="14,7" CornerRadius="6"/>
+            <Button Content="Apply" Click="OnApply" Classes="accent"
+                    FontSize="12" Padding="14,7" CornerRadius="6"/>
+        </StackPanel>
+    </Grid>
+</Window>

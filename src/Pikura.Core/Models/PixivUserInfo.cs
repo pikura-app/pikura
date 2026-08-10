@@ -21,24 +21,6 @@ public sealed record PixivUserBackground
     [JsonPropertyName("isPrivate")] public bool IsPrivate { get; init; }
 }
 
-/// <summary>
-/// Body shape returned by <c>GET /ajax/search/users/{keyword}</c>. Pixiv has
-/// changed this endpoint historically; we treat it best-effort.
-/// </summary>
-public sealed record UserSearchResult
-{
-    [JsonPropertyName("users")] public IReadOnlyList<UserSearchEntry> Users { get; init; } = [];
-    [JsonPropertyName("total")] public int Total { get; init; }
-}
-
-public sealed record UserSearchEntry
-{
-    [JsonPropertyName("userId")] public string UserId { get; init; } = string.Empty;
-    [JsonPropertyName("userName")] public string UserName { get; init; } = string.Empty;
-    [JsonPropertyName("profileImageUrl")] public string? ProfileImageUrl { get; init; }
-    [JsonPropertyName("comment")] public string? Comment { get; init; }
-}
-
 /// <summary>Body shape for <c>GET /touch/ajax/user/self/status</c>.</summary>
 public sealed record TouchSelfStatus
 {

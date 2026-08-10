@@ -66,11 +66,11 @@ public partial class BookmarksViewModel : ViewModelBase
     [ObservableProperty] private bool _showInfo = true;
     [ObservableProperty] private bool _showPreview;
     [ObservableProperty] private bool _showR18;
-    [ObservableProperty] private double _browsePanelWidth = 480;
+    [ObservableProperty] private double _browsePanelWidth = 450;
 
     // ── Folder filter (Local Favorites) ───────────────────────────────────
     [ObservableProperty] private string _folderFilter = string.Empty;
-    partial void OnFolderFilterChanged(string _) => UpdateFiltered();
+    partial void OnFolderFilterChanged(string value) => UpdateFiltered();
     public ObservableCollection<string> AvailableFolders { get; } = [];
 
     public double FixedCardTotalHeight => CardSize;
@@ -79,7 +79,7 @@ public partial class BookmarksViewModel : ViewModelBase
     public string ViewerSourceKey => $"Bookmarks:{SelectedTabIndex}:{ShowR18}:{TagFilter}:{FolderFilter}";
     public bool HasTabs => GalleryVm.HasTabs;
     [ObservableProperty] private bool _isViewerExpanded;
-    partial void OnIsViewerExpandedChanged(bool v) { OnPropertyChanged(nameof(IsViewerFullScreen)); OnPropertyChanged(nameof(ShowGridLayer)); OnPropertyChanged(nameof(PublicTabVisible)); OnPropertyChanged(nameof(PrivateTabVisible)); OnPropertyChanged(nameof(FavoritesTabVisible)); }
+    partial void OnIsViewerExpandedChanged(bool value) { OnPropertyChanged(nameof(IsViewerFullScreen)); OnPropertyChanged(nameof(ShowGridLayer)); OnPropertyChanged(nameof(PublicTabVisible)); OnPropertyChanged(nameof(PrivateTabVisible)); OnPropertyChanged(nameof(FavoritesTabVisible)); }
     /// <summary>True when the viewer is expanded to fill the full content area.</summary>
     public bool IsViewerFullScreen => IsViewerExpanded;
     /// <summary>True when the artwork grid should be visible.</summary>
@@ -154,7 +154,7 @@ public partial class BookmarksViewModel : ViewModelBase
     // ── Sort ───────────────────────────────────────────────────────────────
     public enum BookmarkSortMode { Default, NewestPosted, OldestPosted, TitleAZ, TitleZA, MostPages }
     [ObservableProperty] private BookmarkSortMode _sortMode = BookmarkSortMode.Default;
-    partial void OnSortModeChanged(BookmarkSortMode _) => UpdateFiltered();
+    partial void OnSortModeChanged(BookmarkSortMode value) => UpdateFiltered();
 
     public static IReadOnlyList<string> SortOptions { get; } =
     [
@@ -178,7 +178,7 @@ public partial class BookmarksViewModel : ViewModelBase
 
     // ── Tag filter ─────────────────────────────────────────────────────────
     [ObservableProperty] private string _tagFilter = string.Empty;
-    partial void OnTagFilterChanged(string _) => UpdateFiltered();
+    partial void OnTagFilterChanged(string value) => UpdateFiltered();
 
     // ── Constructor ────────────────────────────────────────────────────────
     public BookmarksViewModel(
@@ -207,7 +207,7 @@ public partial class BookmarksViewModel : ViewModelBase
         _showTags        = s.BookmarksShowTags;
         _showInfo        = s.BookmarksShowInfo;
         _showR18         = s.BookmarksShowR18;
-        _browsePanelWidth = s.BrowsePanelWidth >= 200 ? s.BrowsePanelWidth : 480;
+        _browsePanelWidth = s.BrowsePanelWidth >= 200 ? s.BrowsePanelWidth : 450;
 
         _favoritesService.Changed += (_, _) =>
         {
@@ -546,41 +546,41 @@ public partial class BookmarksViewModel : ViewModelBase
 
     public string? GetFolderForCard(string id) => _favoritesService.GetFolder(id);
 
-    partial void OnCardSizeChanged(int v)
+    partial void OnCardSizeChanged(int value)
     {
         OnPropertyChanged(nameof(FixedCardTotalHeight));
-        if (_settingsService.Current.CardSize != v)
-            _settingsService.Update(s => s.CardSize = v);
+        if (_settingsService.Current.CardSize != value)
+            _settingsService.Update(s => s.CardSize = value);
     }
-    partial void OnIsFixedHeightChanged(bool v)
+    partial void OnIsFixedHeightChanged(bool value)
     {
-        _settingsService.Update(s => s.BookmarksCardHeightMode = v ? "Fixed" : "Natural");
+        _settingsService.Update(s => s.BookmarksCardHeightMode = value ? "Fixed" : "Natural");
         OnPropertyChanged(nameof(ShowFixedGrid));
         OnPropertyChanged(nameof(ShowNaturalGrid));
     }
-    partial void OnIsNaturalHeightChanged(bool v)
+    partial void OnIsNaturalHeightChanged(bool value)
     {
         OnPropertyChanged(nameof(ShowFixedGrid));
         OnPropertyChanged(nameof(ShowNaturalGrid));
     }
-    partial void OnShowPreviewChanged(bool _) { }
-    partial void OnIsGridViewChanged(bool v)
+    partial void OnShowPreviewChanged(bool value) { }
+    partial void OnIsGridViewChanged(bool value)
     {
-        _settingsService.Update(s => s.BookmarksViewMode = v ? "Grid" : "List");
+        _settingsService.Update(s => s.BookmarksViewMode = value ? "Grid" : "List");
         OnPropertyChanged(nameof(ShowFixedGrid));
         OnPropertyChanged(nameof(ShowNaturalGrid));
     }
-    partial void OnIsListViewChanged(bool v)
+    partial void OnIsListViewChanged(bool value)
     {
-        if (v) _settingsService.Update(s => s.BookmarksViewMode = "List");
+        if (value) _settingsService.Update(s => s.BookmarksViewMode = "List");
         OnPropertyChanged(nameof(ShowFixedGrid));
         OnPropertyChanged(nameof(ShowNaturalGrid));
     }
-    partial void OnBrowsePanelWidthChanged(double v)
-        => _settingsService.Update(s => s.BrowsePanelWidth = v);
-    partial void OnShowTagsChanged(bool v)       => _settingsService.Update(s => s.BookmarksShowTags        = v);
-    partial void OnShowInfoChanged(bool v)       => _settingsService.Update(s => s.BookmarksShowInfo        = v);
-    partial void OnShowR18Changed(bool _)        { _settingsService.Update(s => s.BookmarksShowR18 = ShowR18); UpdateFiltered(); }
+    partial void OnBrowsePanelWidthChanged(double value)
+        => _settingsService.Update(s => s.BrowsePanelWidth = value);
+    partial void OnShowTagsChanged(bool value)       => _settingsService.Update(s => s.BookmarksShowTags        = value);
+    partial void OnShowInfoChanged(bool value)       => _settingsService.Update(s => s.BookmarksShowInfo        = value);
+    partial void OnShowR18Changed(bool value)        { _settingsService.Update(s => s.BookmarksShowR18 = ShowR18); UpdateFiltered(); }
 
     [RelayCommand]
     public async Task RefreshAsync()

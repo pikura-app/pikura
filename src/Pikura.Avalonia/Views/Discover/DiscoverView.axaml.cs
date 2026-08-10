@@ -122,8 +122,8 @@ public partial class DiscoverView : UserControl
         var pt = e.GetPosition(this);
         var dx = pt.X - _dragStartX;
         var newWidth = _dragStartPanelWidth - dx;
-        var maxWidth = available - 320;
-        if (newWidth < 320) newWidth = 320;
+        var maxWidth = available - 300;
+        if (newWidth < 300) newWidth = 300;
         if (newWidth > maxWidth) newWidth = maxWidth;
         VM.BrowsePanelWidth = newWidth;
     }
@@ -467,6 +467,42 @@ public partial class DiscoverView : UserControl
     {
         if (GetCardFromMenu(sender) is not { } card) return;
         CopyBitmapToClipboard(card.Thumbnail);
+    }
+
+    private async void OnContextUseAsBackground(object? sender, RoutedEventArgs e)
+    {
+        try { if (!AppServices.Get<BackgroundOverlayService>().IsEnabled) return; }
+        catch { return; }
+        if (GetCardFromMenu(sender) is not { } card) return;
+        if (string.IsNullOrWhiteSpace(card.ThumbnailUrl)) return;
+        try
+        {
+            var overlay = AppServices.Get<BackgroundOverlayService>();
+            var bytes = await overlay.FetchImageBytesAsync(card.ThumbnailUrl);
+            var window = TopLevel.GetTopLevel(this) as Window;
+            if (window == null) { overlay.AddImage(card.ThumbnailUrl); return; }
+
+            var seedEntry = new OverlayImageEntry
+            {
+                Path = card.ThumbnailUrl,
+                Title = card.Title,
+                UserName = card.UserName,
+                UserId = card.UserId,
+                IllustId = card.Id,
+            };
+            var preview = new BackgroundPreviewWindow(card.ThumbnailUrl, bytes, seedEntry);
+            await preview.ShowDialog(window);
+
+            if (preview.Result is { } result)
+            {
+                result.Title = card.Title;
+                result.UserName = card.UserName;
+                result.UserId = card.UserId;
+                result.IllustId = card.Id;
+                overlay.AddImage(card.ThumbnailUrl, result);
+            }
+        }
+        catch { /* non-fatal */ }
     }
 
     private void OnContextToggleFavorite(object? sender, RoutedEventArgs e)

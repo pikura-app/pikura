@@ -43,6 +43,9 @@ public sealed class AccountProfile
     /// <summary>Display name shown in the account switcher.</summary>
     public string? UserName { get; set; }
 
+    /// <summary>Whether this account has a Pixiv Premium subscription (resolved after a successful session check).</summary>
+    public bool IsPremium { get; set; }
+
     /// <summary>Pixiv PHPSESSID cookie — plaintext in memory, encrypted on disk.</summary>
     public string PhpSessId { get; set; } = string.Empty;
 

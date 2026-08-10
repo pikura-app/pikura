@@ -20,7 +20,6 @@ namespace Pikura.Avalonia.Views.Dialogs;
 public partial class ImageEditorWindow : Window
 {
     private readonly ImageResizeService? _imageResizeService;
-    private readonly UgoiraService? _ugoiraService;
     private SKBitmap _originalBitmap;
     private ImageEditPreset _currentPreset;
     private CancellationTokenSource? _previewDebounceCts;
@@ -38,7 +37,6 @@ public partial class ImageEditorWindow : Window
     private int _currentPageIndex = 0;
 
     // Ugoira (animated) support
-    private string? _ugoiraPreviewPath;
     private bool _isUgoira; // Set based on artwork type, can be cleared for edit modes
     private bool _forceShowUgoiraDialog; // When true, always show mode selection dialog
     private bool _ugoiraDialogShowing; // Guard to prevent double-showing dialog
@@ -191,7 +189,7 @@ public partial class ImageEditorWindow : Window
     {
         var hasMultipleArtworks = _artworks.Count > 1;
         var currentArtwork = _currentArtworkIndex < _artworks.Count ? _artworks[_currentArtworkIndex] : null;
-        var hasMultiplePages = currentArtwork?.PageCount > 1;
+        var hasMultiplePages = (currentArtwork?.PageCount ?? 1) > 1;
 
         // Navigation panel visible if multiple artworks or multiple pages
         if (PageNavPanel != null)
@@ -212,12 +210,12 @@ public partial class ImageEditorWindow : Window
         }
 
         // Page indicator - shows page count within current submission
-        if (PageIndicator != null)
+        if (currentArtwork is { } art && PageIndicator is { } pageIndicator)
         {
             if (hasMultiplePages)
-                PageIndicator.Text = $"Pg {_currentPageIndex + 1}/{currentArtwork.PageCount}";
+                pageIndicator.Text = $"Pg {_currentPageIndex + 1}/{art.PageCount}";
             else
-                PageIndicator.Text = ""; // Hide page text if single page
+                pageIndicator.Text = ""; // Hide page text if single page
         }
 
         // Enable/disable nav buttons
@@ -577,7 +575,7 @@ public partial class ImageEditorWindow : Window
                         if (srcBmp.Width <= previewWidth) return srcBmp.Copy();
                         var scale = (float)previewWidth / srcBmp.Width;
                         var newHeight = (int)(srcBmp.Height * scale);
-                        return srcBmp.Resize(new SKImageInfo(previewWidth, newHeight), SKFilterQuality.High);
+                        return srcBmp.Resize(new SKImageInfo(previewWidth, newHeight), new SKSamplingOptions(SKFilterMode.Linear, SKMipmapMode.Linear));
                     }
                     catch
                     {
@@ -821,7 +819,7 @@ public partial class ImageEditorWindow : Window
             if (dialogMode == null) return; // User cancelled
 
             var newMode = dialogMode.Value;
-            if (newMode == _currentPreset?.UgoiraMode) return; // No change
+            if (_currentPreset == null || newMode == _currentPreset.UgoiraMode) return; // No change
 
             // Save the new mode
             _currentPreset.UgoiraMode = newMode;
@@ -834,7 +832,7 @@ public partial class ImageEditorWindow : Window
             });
 
             // Reload with the new mode
-            var ugoiraService = _ugoiraService ?? AppServices.Get<UgoiraService>();
+            var ugoiraService = AppServices.Get<UgoiraService>();
             
             // Reset visibility flags before loading
             await Dispatcher.UIThread.InvokeAsync(() =>
@@ -920,9 +918,7 @@ public partial class ImageEditorWindow : Window
     }
 
     // Drag state for crop overlay
-    private bool _isDraggingCrop = false;
     private global::Avalonia.Point _dragStart;
-    private double _dragStartX, _dragStartY;
 
     private void OnScrollViewerWheelChanged(object? sender, PointerWheelEventArgs e)
     {
@@ -1296,8 +1292,8 @@ public partial class ImageEditorWindow : Window
                 _ugoiraDialogShowing = false;
                 _forceShowUgoiraDialog = false; // Reset so we don't show again
                 if (dialogMode == null) return; // User cancelled
+                if (_currentPreset == null) return;
                 mode = dialogMode.Value;
-            }
 
             // Save the selected mode to the preset
             _currentPreset.UgoiraMode = mode;
@@ -1308,7 +1304,7 @@ public partial class ImageEditorWindow : Window
                 if (UgoiraModePanel != null) UgoiraModePanel.IsVisible = true;
             });
 
-            var ugoiraService = _ugoiraService ?? AppServices.Get<UgoiraService>();
+            var ugoiraService = AppServices.Get<UgoiraService>();
 
             switch (mode)
             {
@@ -1324,6 +1320,7 @@ public partial class ImageEditorWindow : Window
                 case UgoiraPresetMode.EditCover:
                     await LoadUgoiraCoverAsync(ugoiraService, artwork.ArtworkId);
                     break;
+            }
             }
         }
         catch (Exception ex)
@@ -1476,7 +1473,7 @@ public partial class ImageEditorWindow : Window
     private async Task<int?> ShowFramePickerDialogAsync(string artworkId, int frameCount)
     {
         var tcs = new TaskCompletionSource<int?>();
-        var ugoiraService = _ugoiraService ?? AppServices.Get<UgoiraService>();
+        var ugoiraService = AppServices.Get<UgoiraService>();
 
         await Dispatcher.UIThread.InvokeAsync(() =>
         {
@@ -1736,7 +1733,7 @@ public partial class ImageEditorWindow : Window
 
         try
         {
-            var ugoiraService = _ugoiraService ?? AppServices.Get<UgoiraService>();
+            var ugoiraService = AppServices.Get<UgoiraService>();
             
             // Determine which mode to use
             UgoiraPresetMode mode;
@@ -1750,6 +1747,7 @@ public partial class ImageEditorWindow : Window
                 _forceShowUgoiraDialog = false;
                 
                 if (dialogMode == null) return; // User cancelled
+                if (_currentPreset == null) return;
                 mode = dialogMode.Value;
                 _currentPreset.UgoiraMode = mode; // Save for remaining artworks
             }

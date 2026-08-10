@@ -365,8 +365,8 @@ public partial class DownloadByArtistViewModel : ViewModelBase
                     User = new BookmarkedUser
                     {
                         UserId = a.UserId,
-                        UserName = a.Name,
-                        ProfileImageUrl = a.ProfileImageUrl
+                        UserName = a.Name ?? string.Empty,
+                        ProfileImageUrl = a.ProfileImageUrl ?? string.Empty
                     },
                     IsSelected = false,
                     IsAlreadyAdded = existingIds.Contains(a.UserId)
@@ -425,7 +425,7 @@ public partial class DownloadByArtistViewModel : ViewModelBase
             {
                 UserId = u.UserId,
                 UserName = u.UserName,
-                ProfileImageUrl = u.ProfileImageUrl
+                ProfileImageUrl = u.ProfileImageUrl ?? string.Empty
             },
             IsSelected = false,
             IsAlreadyAdded = existingIds.Contains(u.UserId)
@@ -703,7 +703,7 @@ public partial class DownloadByArtistViewModel : ViewModelBase
         // Validate page range
         if (!PageRangeParser.IsValid(DefaultPageRange))
         {
-            await _dialogService.ShowMessageAsync("Invalid Page Range", PageRangeParser.GetValidationError(DefaultPageRange));
+            await _dialogService.ShowMessageAsync("Invalid Page Range", PageRangeParser.GetValidationError(DefaultPageRange) ?? string.Empty);
             return;
         }
 
@@ -799,7 +799,7 @@ public partial class DownloadByArtistViewModel : ViewModelBase
 
         if (!PageRangeParser.IsValid(DefaultPageRange))
         {
-            await _dialogService.ShowMessageAsync("Invalid Page Range", PageRangeParser.GetValidationError(DefaultPageRange));
+            await _dialogService.ShowMessageAsync("Invalid Page Range", PageRangeParser.GetValidationError(DefaultPageRange) ?? string.Empty);
             return;
         }
 

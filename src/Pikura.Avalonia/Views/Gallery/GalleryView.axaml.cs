@@ -148,8 +148,8 @@ public partial class GalleryView : UserControl
         var dx = pt.X - _dragStartX;
         // Dragging left (dx < 0) grows the panel
         var newWidth = _dragStartPanelWidth - dx;
-        var maxWidth = available - 320;
-        if (newWidth < 320) newWidth = 320;
+        var maxWidth = available - 300;
+        if (newWidth < 300) newWidth = 300;
         if (newWidth > maxWidth) newWidth = maxWidth;
         VM.BrowsePanelWidth = newWidth;
     }
@@ -175,7 +175,7 @@ public partial class GalleryView : UserControl
             var available = contentGrid?.Bounds.Width ?? 0;
             if (available > 400)
             {
-                var maxAllowed = available - 320;
+                var maxAllowed = available - 300;
                 if (vm0.BrowsePanelWidth > maxAllowed)
                     vm0.BrowsePanelWidth = maxAllowed;
             }
@@ -255,17 +255,22 @@ public partial class GalleryView : UserControl
         if (!e.GetCurrentPoint(null).Properties.IsLeftButtonPressed) return;
         if (sender is Border b && b.DataContext is string tag)
         {
-            // Shift+click = global Pixiv search; regular click = filter current view
-            bool isShiftPressed = (e.KeyModifiers & KeyModifiers.Shift) == KeyModifiers.Shift;
-            if (isShiftPressed && VM is { } vm)
+            // Shift+click always forces a global all-followed tag search.
+            // Otherwise the tag chip behaviour follows the toolbar search scope.
+            bool forceAllFollowed = (e.KeyModifiers & KeyModifiers.Shift) == KeyModifiers.Shift;
+            if (VM is { } vm)
             {
-                if (vm.SearchByTagCommand.CanExecute(tag))
-                    _ = vm.SearchByTagCommand.ExecuteAsync(tag);
-            }
-            else if (VM is { } v)
-            {
-                v.TagIncludeFilter = tag;
-                v.ShowFilters = true;
+                if (forceAllFollowed || vm.SearchScope == GallerySearchScope.AllFollowedArtists)
+                {
+                    vm.IdSearchQuery = tag;
+                    if (vm.SearchByTagCommand.CanExecute(tag))
+                        _ = vm.SearchByTagCommand.ExecuteAsync(tag);
+                }
+                else
+                {
+                    vm.TagIncludeFilter = tag;
+                    vm.ShowFilters = true;
+                }
             }
         }
         e.Handled = true;
@@ -345,11 +350,39 @@ public partial class GalleryView : UserControl
         CopyBitmapToClipboard(card.Thumbnail);
     }
 
-    private void OnContextUseAsBackground(object? sender, RoutedEventArgs e)
+    private async void OnContextUseAsBackground(object? sender, RoutedEventArgs e)
     {
+        try { if (!AppServices.Get<BackgroundOverlayService>().IsEnabled) return; }
+        catch { return; }
         if (GetCardFromMenu(sender) is not { } card) return;
         if (string.IsNullOrWhiteSpace(card.ThumbnailUrl)) return;
-        try { AppServices.Get<BackgroundOverlayService>().AddImage(card.ThumbnailUrl); }
+        try
+        {
+            var overlay = AppServices.Get<BackgroundOverlayService>();
+            var bytes = await overlay.FetchImageBytesAsync(card.ThumbnailUrl);
+            var window = TopLevel.GetTopLevel(this) as Window;
+            if (window == null) { overlay.AddImage(card.ThumbnailUrl); return; }
+
+            var seedEntry = new Pikura.Core.Settings.OverlayImageEntry
+            {
+                Path = card.ThumbnailUrl,
+                Title = card.Title,
+                UserName = card.UserName,
+                UserId = card.UserId,
+                IllustId = card.Id,
+            };
+            var preview = new BackgroundPreviewWindow(card.ThumbnailUrl, bytes, seedEntry);
+            await preview.ShowDialog(window);
+
+            if (preview.Result is { } result)
+            {
+                result.Title = card.Title;
+                result.UserName = card.UserName;
+                result.UserId = card.UserId;
+                result.IllustId = card.Id;
+                overlay.AddImage(card.ThumbnailUrl, result);
+            }
+        }
         catch { /* non-fatal */ }
     }
 
@@ -466,17 +499,11 @@ public partial class GalleryView : UserControl
         if (menu.PlacementTarget is not Control ctrl) return;
         if (ctrl.DataContext is not ArtworkCardViewModel card) return;
 
-        bool overlayEnabled = false;
-        try { overlayEnabled = AppServices.Get<BackgroundOverlayService>().IsEnabled; }
-        catch { /* non-fatal */ }
-
         foreach (var item in menu.Items)
         {
             if (item is not MenuItem mi || mi.Header is not string header) continue;
             if (header.Contains("Ugoira"))
                 mi.IsVisible = card.IllustType == 2;
-            else if (header.Contains("app background"))
-                mi.IsVisible = overlayEnabled;
         }
     }
 

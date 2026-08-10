@@ -110,14 +110,25 @@ public partial class DownloadBookmarksViewModel : ViewModelBase
             else
             {
                 // Bookmarked artists — queue as Artist jobs
+                const int batchSize = 48;
                 var visibilities = GetVisibilities();
                 var artistIds = new System.Collections.Generic.List<(string Id, string Name)>();
                 foreach (var hidden in visibilities)
                 {
-                    var resp = await _client.GetBookmarkedUsersAsync(self.Value.UserId, hidden: hidden, limit: 100);
-                    foreach (var u in resp.Users)
-                        if (!artistIds.Any(x => x.Id == u.UserId))
-                            artistIds.Add((u.UserId, u.UserName));
+                    var offset = 0;
+                    while (true)
+                    {
+                        var resp = await _client.GetBookmarkedUsersAsync(self.Value.UserId, hidden: hidden, offset: offset, limit: batchSize);
+                        if (resp.Users.Count == 0) break;
+
+                        foreach (var u in resp.Users)
+                            if (!artistIds.Any(x => x.Id == u.UserId))
+                                artistIds.Add((u.UserId, u.UserName));
+
+                        offset += resp.Users.Count;
+                        StatusMessage = $"Collecting bookmarked artists… {offset}/{resp.Total}";
+                        if (offset >= resp.Total) break;
+                    }
                 }
 
                 if (artistIds.Count == 0)
@@ -154,13 +165,24 @@ public partial class DownloadBookmarksViewModel : ViewModelBase
 
     private async System.Threading.Tasks.Task<System.Collections.Generic.List<string>> CollectBookmarkedArtworkIdsAsync(string userId)
     {
+        const int batchSize = 48;
         var ids = new System.Collections.Generic.List<string>();
         foreach (var hidden in GetVisibilities())
         {
-            var resp = await _client.GetBookmarkedArtworksAsync(userId, hidden: hidden, limit: 100);
-            foreach (var w in resp.Works)
-                if (!string.IsNullOrEmpty(w.Id) && !ids.Contains(w.Id))
-                    ids.Add(w.Id);
+            var offset = 0;
+            while (true)
+            {
+                var resp = await _client.GetBookmarkedArtworksAsync(userId, hidden: hidden, offset: offset, limit: batchSize);
+                if (resp.Works.Count == 0) break;
+
+                foreach (var w in resp.Works)
+                    if (!string.IsNullOrEmpty(w.Id) && !ids.Contains(w.Id))
+                        ids.Add(w.Id);
+
+                offset += resp.Works.Count;
+                StatusMessage = $"Collecting bookmarks… {offset}/{resp.Total}";
+                if (offset >= resp.Total) break;
+            }
         }
         return ids;
     }

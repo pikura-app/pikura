@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -44,7 +45,21 @@ public sealed class AnimatedImage : Image
     private int _frameIndex;
     private DispatcherTimer? _timer;
     private CancellationTokenSource? _loadCts;
+    private bool _ownsFrames;
     private readonly object _lock = new();
+
+    private static readonly ConcurrentDictionary<string, (Bitmap[] Frames, int[] Delays)> _frameCache = new();
+
+    // Only assets extracted for the feature-highlights splash are kept in the shared
+    // cache — regular ugoira playback owns (and disposes) its frames per instance so
+    // memory doesn't grow unboundedly while browsing.
+    private static readonly string _cacheableDir = Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+        "Pikura",
+        "FeatureCache");
+
+    private static bool ShouldCache(string path) =>
+        path.StartsWith(_cacheableDir, StringComparison.OrdinalIgnoreCase);
 
     static AnimatedImage()
     {
@@ -77,7 +92,7 @@ public sealed class AnimatedImage : Image
         DetachedFromVisualTree += (_, _) => Dispose();
     }
 
-    /// <summary>Stops playback and disposes pre-decoded frames.</summary>
+    /// <summary>Stops playback and disposes pre-decoded frames this instance owns.</summary>
     public void Dispose()
     {
         _loadCts?.Cancel();
@@ -91,13 +106,17 @@ public sealed class AnimatedImage : Image
             Source = null;
             if (_frames != null)
             {
-                foreach (var f in _frames)
+                if (_ownsFrames)
                 {
-                    try { f.Dispose(); } catch { /* best-effort */ }
+                    foreach (var f in _frames)
+                    {
+                        try { f.Dispose(); } catch { /* best-effort */ }
+                    }
                 }
                 _frames = null;
                 _frameDurationsMs = null;
                 _frameIndex = 0;
+                _ownsFrames = false;
             }
         }
     }
@@ -111,40 +130,75 @@ public sealed class AnimatedImage : Image
             Source = null;
             if (_frames != null)
             {
-                foreach (var f in _frames)
+                if (_ownsFrames)
                 {
-                    try { f.Dispose(); } catch { }
+                    foreach (var f in _frames)
+                    {
+                        try { f.Dispose(); } catch { }
+                    }
                 }
                 _frames = null;
                 _frameDurationsMs = null;
                 _frameIndex = 0;
+                _ownsFrames = false;
             }
         }
 
         if (ct.IsCancellationRequested) return;
 
         var path = SourcePath;
-        if (string.IsNullOrEmpty(path) || !File.Exists(path)) return;
+        if (string.IsNullOrEmpty(path)) return;
 
-        Bitmap[]? decodedFrames = null;
+        // Use cached decoded frames if available (already on UI thread)
+        if (_frameCache.TryGetValue(path, out var cached))
+        {
+            lock (_lock)
+            {
+                if (ct.IsCancellationRequested || SourcePath != path) return;
+
+                _frames = cached.Frames;
+                _frameDurationsMs = cached.Delays;
+                _frameIndex = 0;
+                _ownsFrames = false;
+                Source = _frames[0];
+                if (IsPlaying && _frames.Length > 1) StartTimer();
+            }
+            return;
+        }
+
+        SKBitmap[]? decodedSkBitmaps = null;
         int[]? decodedDelays = null;
 
         try
         {
-            var result = await Task.Run(() => DecodeAllFrames(path, ct), ct);
-            decodedFrames = result.Frames;
+            var result = await Task.Run(() =>
+            {
+                try
+                {
+                    using var data = LoadSourceData(path);
+                    if (data == null) return (null, null);
+                    return DecodeAllFrames(data, ct);
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"AnimatedImage failed to decode {path}: {ex.Message}");
+                    return (null, null);
+                }
+            }, ct);
+
+            decodedSkBitmaps = result.Frames;
             decodedDelays = result.DelaysMs;
 
-            if (ct.IsCancellationRequested || decodedFrames.Length == 0)
+            if (ct.IsCancellationRequested || decodedSkBitmaps == null || decodedSkBitmaps.Length == 0)
             {
-                DisposeFrames(decodedFrames);
+                DisposeSkBitmaps(decodedSkBitmaps);
                 return;
             }
 
             // Verify SourcePath hasn't changed while we were decoding
             if (SourcePath != path)
             {
-                DisposeFrames(decodedFrames);
+                DisposeSkBitmaps(decodedSkBitmaps);
                 return;
             }
 
@@ -155,22 +209,23 @@ public sealed class AnimatedImage : Image
                     // Final check inside lock - bail if cancelled or path changed
                     if (ct.IsCancellationRequested || SourcePath != path)
                     {
-                        DisposeFrames(decodedFrames);
+                        DisposeSkBitmaps(decodedSkBitmaps);
                         return;
                     }
 
-                    // Dispose any frames that were set by a previous ReloadAsync
-                    if (_frames != null)
+                    var bitmaps = new Bitmap[decodedSkBitmaps.Length];
+                    for (int i = 0; i < bitmaps.Length; i++)
                     {
-                        foreach (var f in _frames)
-                        {
-                            try { f.Dispose(); } catch { }
-                        }
+                        bitmaps[i] = decodedSkBitmaps[i] is null ? null! : SkBitmapToAvalonia(decodedSkBitmaps[i]);
                     }
+                    DisposeSkBitmaps(decodedSkBitmaps);
 
-                    _frames = decodedFrames;
+                    var cacheable = ShouldCache(path);
+                    if (cacheable) _frameCache[path] = (bitmaps, decodedDelays!);
+                    _frames = bitmaps;
                     _frameDurationsMs = decodedDelays;
                     _frameIndex = 0;
+                    _ownsFrames = !cacheable;
                     Source = _frames[0];
                     if (IsPlaying && _frames.Length > 1) StartTimer();
                 }
@@ -178,11 +233,11 @@ public sealed class AnimatedImage : Image
         }
         catch (OperationCanceledException)
         {
-            DisposeFrames(decodedFrames);
+            DisposeSkBitmaps(decodedSkBitmaps);
         }
         catch (Exception ex)
         {
-            DisposeFrames(decodedFrames);
+            DisposeSkBitmaps(decodedSkBitmaps);
             System.Diagnostics.Debug.WriteLine($"AnimatedImage failed to load {path}: {ex.Message}");
         }
     }
@@ -194,6 +249,63 @@ public sealed class AnimatedImage : Image
         {
             try { f.Dispose(); } catch { }
         }
+    }
+
+    private static void DisposeSkBitmaps(SKBitmap[]? frames)
+    {
+        if (frames == null) return;
+        foreach (var f in frames)
+        {
+            try { f?.Dispose(); } catch { }
+        }
+    }
+
+    /// <summary>
+    /// Decodes all frames of the given file into the shared cache so a later
+    /// <see cref="SourcePath"/> assignment displays instantly. No-op if already cached.
+    /// </summary>
+    public static Task PreloadAsync(string? path)
+    {
+        if (string.IsNullOrEmpty(path) || _frameCache.ContainsKey(path))
+            return Task.CompletedTask;
+
+        return Task.Run(() =>
+        {
+            try
+            {
+                if (_frameCache.ContainsKey(path)) return;
+
+                using var data = LoadSourceData(path);
+                if (data == null) return;
+
+                var (skFrames, delays) = DecodeAllFrames(data, CancellationToken.None);
+                if (skFrames == null || skFrames.Length == 0 || delays == null) return;
+
+                var bitmaps = new Bitmap[skFrames.Length];
+                for (int i = 0; i < bitmaps.Length; i++)
+                {
+                    bitmaps[i] = skFrames[i] is null ? null! : SkBitmapToAvalonia(skFrames[i]);
+                }
+                DisposeSkBitmaps(skFrames);
+
+                if (!_frameCache.TryAdd(path, (bitmaps, delays)))
+                    DisposeFrames(bitmaps);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"AnimatedImage preload failed for {path}: {ex.Message}");
+            }
+        });
+    }
+
+    /// <summary>Clears the shared decoded-frame cache and releases its bitmaps.</summary>
+    public static void ClearCache()
+    {
+        foreach (var (_, cached) in _frameCache)
+        {
+            DisposeFrames(cached.Frames);
+        }
+        _frameCache.Clear();
     }
 
     private void StartTimer()
@@ -237,31 +349,32 @@ public sealed class AnimatedImage : Image
     /// using <see cref="SKCodec"/>. Returns the per-frame display delay in ms
     /// (defaults to 80 ms when the codec doesn't supply one).
     /// </summary>
-    private static (Bitmap[] Frames, int[] DelaysMs) DecodeAllFrames(string path, CancellationToken ct)
+    private static (SKBitmap[]? Frames, int[]? DelaysMs) DecodeAllFrames(SKData data, CancellationToken ct)
     {
-        using var stream = File.OpenRead(path);
-        using var data = SKData.Create(stream);
         using var codec = SKCodec.Create(data);
-        if (codec == null) return (Array.Empty<Bitmap>(), Array.Empty<int>());
+        if (codec == null) return (Array.Empty<SKBitmap>(), Array.Empty<int>());
 
         var info = new SKImageInfo(codec.Info.Width, codec.Info.Height, SKColorType.Bgra8888, SKAlphaType.Premul);
         var frameInfos = codec.FrameInfo;
         var count = Math.Max(1, frameInfos?.Length ?? 1);
 
-        var frames = new Bitmap[count];
+        var frames = new SKBitmap[count];
         var delays = new int[count];
 
         for (int i = 0; i < count; i++)
         {
             if (ct.IsCancellationRequested) break;
 
-            using var bmp = new SKBitmap(info);
+            var bmp = new SKBitmap(info);
             var opts = new SKCodecOptions(i);
             var result = codec.GetPixels(info, bmp.GetPixels(), bmp.RowBytes, opts);
             if (result != SKCodecResult.Success && result != SKCodecResult.IncompleteInput)
+            {
+                bmp.Dispose();
                 continue;
+            }
 
-            frames[i] = SkBitmapToAvalonia(bmp);
+            frames[i] = bmp;
             delays[i] = frameInfos != null && i < frameInfos.Length && frameInfos[i].Duration > 0
                 ? frameInfos[i].Duration
                 : 80;
@@ -283,5 +396,25 @@ public sealed class AnimatedImage : Image
             Buffer.MemoryCopy(src + y * source.RowBytes, dst + y * fb.RowBytes, rowBytes, rowBytes);
         }
         return writeable;
+    }
+
+    private static SKData? LoadSourceData(string path)
+    {
+        try
+        {
+            if (path.StartsWith("avares://", StringComparison.OrdinalIgnoreCase))
+            {
+                using var stream = AssetLoader.Open(new Uri(path));
+                return SKData.Create(stream);
+            }
+
+            using var fs = File.OpenRead(path);
+            return SKData.Create(fs);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"AnimatedImage failed to read {path}: {ex.Message}");
+            return null;
+        }
     }
 }

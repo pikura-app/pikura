@@ -316,6 +316,7 @@ public partial class PixivLoginWindow : Window
                     var client = AppServices.Get<PixivClient>();
                     await client.ValidateSessionAsync();
                 });
+                AppServices.Get<AccountService>().UpsertFromCurrentSession();
             }
             catch { /* non-fatal — the profile is already saved */ }
 

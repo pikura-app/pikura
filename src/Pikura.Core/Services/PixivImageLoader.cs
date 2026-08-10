@@ -190,12 +190,21 @@ public sealed class PixivImageLoader : IDisposable
         // Apply thumbnail size transformation
         var sizedUrl = ConvertUrlForThumbnailSize(url, size);
 
-        // Check bitmap cache first (fastest - already decoded)
-        if (_bitmapCache.TryGetValue(sizedUrl, out var cachedBitmap))
+        // Check bitmap cache first (fastest - already decoded). Must hold _bitmapGate for this
+        // read too, not just the eviction/write path below — otherwise a concurrent eviction can
+        // Dispose() the very SKBitmap this thread is mid-Copy() on (both run on high-concurrency
+        // fire-and-forget thumbnail loads), causing a use-after-free that crashes natively in
+        // SkiaSharp (0xC0000005) instead of throwing a catchable .NET exception.
+        await _bitmapGate.WaitAsync(ct).ConfigureAwait(false);
+        try
         {
-            // Return a copy so callers can dispose without affecting cache
-            return cachedBitmap.Copy();
+            if (_bitmapCache.TryGetValue(sizedUrl, out var cachedBitmap))
+            {
+                // Return a copy so callers can dispose without affecting cache
+                return cachedBitmap.Copy();
+            }
         }
+        finally { _bitmapGate.Release(); }
 
         // Not in bitmap cache - fetch bytes and decode
         var bytes = await FetchBytesAsync(sizedUrl, ct).ConfigureAwait(false);
@@ -250,11 +259,24 @@ public sealed class PixivImageLoader : IDisposable
             ThumbnailSize.Medium => url
                 .Replace("_square1200", "_master1200")
                 .Replace("/250x250_80_a2/", "/540x540_70_/"),
-            ThumbnailSize.Original => url
-                .Replace("_square1200", "_master1200")
-                .Replace("/250x250_80_a2/", "/540x540_70_/"),
+            ThumbnailSize.Original => ConvertToOriginalUrl(url),
             _ => url
         };
+    }
+
+    private static string ConvertToOriginalUrl(string url)
+    {
+        // Pixiv original URLs are not always derivable; this handles the common
+        // i.pximg.net master/square thumbnail patterns by stripping the crop and
+        // master suffix. The result is a .jpg guess; callers should fall back to
+        // the source URL if the guess fails.
+        if (!url.Contains("pximg.net", StringComparison.OrdinalIgnoreCase))
+            return url;
+
+        var original = System.Text.RegularExpressions.Regex.Replace(url, @"/c/[^/]+/", "/");
+        original = original.Replace("/img-master/", "/img-original/", StringComparison.OrdinalIgnoreCase);
+        original = System.Text.RegularExpressions.Regex.Replace(original, @"_(master|square)1200(\.[a-zA-Z0-9]+)$", "$2");
+        return original;
     }
 
     public void Dispose()

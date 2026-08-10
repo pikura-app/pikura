@@ -32,7 +32,13 @@
                           FontWeight="SemiBold" 
                           FontSize="20"/>
                 
-                <Button Grid.Column="2" Content="Refresh" Command="{Binding RefreshDownloadsCommand}"/>
+                <Button Grid.Column="2" Command="{Binding RefreshDownloadsCommand}">
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                        <PathIcon Data="{StaticResource RefreshIcon}" Width="14" Height="14"
+                                  VerticalAlignment="Center"/>
+                        <TextBlock Text="Refresh" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
             </Grid>
         </Border>
 
@@ -45,9 +51,10 @@
                     Margin="16"
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center"
-                    Padding="32">
+                    Padding="32"
+                    IsVisible="{Binding !IsLoading}">
                 <StackPanel Spacing="16" HorizontalAlignment="Center">
-                    <TextBlock Text="⬇️" FontSize="48" HorizontalAlignment="Center"/>
+                    <PathIcon Data="{StaticResource DownloadIcon}" Width="48" Height="48" HorizontalAlignment="Center"/>
                     <TextBlock Text="Downloads" 
                               FontWeight="SemiBold" 
                               FontSize="24" 
@@ -55,9 +62,22 @@
                     <TextBlock Text="Manage and monitor your downloads" 
                               TextAlignment="Center" 
                               Opacity="0.7"/>
-                    <Button Content="Refresh Downloads" 
-                            Command="{Binding RefreshDownloadsCommand}"
-                            HorizontalAlignment="Center"/>
+                    <Button Command="{Binding RefreshDownloadsCommand}"
+                            HorizontalAlignment="Center">
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                            <PathIcon Data="{StaticResource RefreshIcon}" Width="14" Height="14"
+                                      VerticalAlignment="Center"/>
+                            <TextBlock Text="Refresh Downloads" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Border>
+
+            <!-- Loading overlay -->
+            <Border Background="#AA000000" IsVisible="{Binding IsLoading}" ZIndex="10">
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="12">
+                    <ProgressBar IsIndeterminate="True" Width="200" Height="4"/>
+                    <TextBlock Text="{Binding StatusMessage}" FontSize="13" HorizontalAlignment="Center" Foreground="White"/>
                 </StackPanel>
             </Border>
         </Grid>

@@ -11,6 +11,7 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Media;
+using Avalonia.Media.Imaging;
 using Pikura.Avalonia.Services;
 using Pikura.Avalonia.ViewModels;
 using Pikura.Core.Settings;
@@ -123,9 +124,9 @@ public partial class MainWindow : Window
             if (RootGrid?.ColumnDefinitions.Count > 0)
             {
                 var col = RootGrid.ColumnDefinitions[0];
-                if (col.Width.Value < 220)
+                if (col.Width.Value < 200)
                 {
-                    col.Width = new GridLength(220);
+                    col.Width = new GridLength(200);
                     if (SidebarBorder != null) SidebarBorder.IsVisible = true;
                 }
             }
@@ -187,7 +188,77 @@ public partial class MainWindow : Window
             HamburgerBtn.Margin = new Thickness(0, 4, 6, 0);
         }
 
-        LoadGalleryView();
+        LoadStartupTab(AppServices.Get<SettingsService>().Current);
+
+        // Wire up overlay image pan + zoom transform using the same normalized
+        // pan coordinates the preview window produces.  The transform is applied
+        // to the OverlayTransformPanel (which wraps the Image + tint rectangles)
+        // with a center-relative origin, matching the BackgroundPreviewWindow.
+        try
+        {
+            var overlayTranslate = new TranslateTransform();
+            var overlayScale = new ScaleTransform(1, 1);
+            var tg = new TransformGroup();
+            tg.Children.Add(overlayScale);
+            tg.Children.Add(overlayTranslate);
+            OverlayTransformPanel.RenderTransform = tg;
+            OverlayTransformPanel.RenderTransformOrigin = new RelativePoint(0.5, 0.5, RelativeUnit.Relative);
+
+            void UpdateOverlayTransform()
+            {
+                if (OverlayImage?.Source is not Bitmap bmp) return;
+                if (DataContext is not MainWindowViewModel { OverlayService: { } svc }) return;
+
+                var natural = bmp.PixelSize;
+                var bounds = OverlayTransformPanel.Bounds;
+                if (natural.Width <= 0 || natural.Height <= 0 || bounds.Width <= 0 || bounds.Height <= 0)
+                    return;
+
+                // Use the same base-scale formula as BackgroundPreviewWindow:
+                // Min() for Uniform fit inside the panel, then pan is expressed
+                // as a fraction of the scaled image size.
+                var baseScale = Math.Min(bounds.Width / natural.Width, bounds.Height / natural.Height);
+                var zoom = Math.Max(0.1, svc.Zoom);
+                overlayScale.ScaleX = zoom;
+                overlayScale.ScaleY = zoom;
+                overlayTranslate.X = svc.PanX * natural.Width * baseScale * zoom;
+                overlayTranslate.Y = svc.PanY * natural.Height * baseScale * zoom;
+            }
+
+            if (DataContext is MainWindowViewModel { OverlayService: { } svc })
+            {
+                svc.PropertyChanged += (_, ev) =>
+                {
+                    if (ev.PropertyName is nameof(svc.PanX) or nameof(svc.PanY) or nameof(svc.Zoom) or nameof(svc.CurrentImage))
+                        UpdateOverlayTransform();
+                };
+            }
+
+            OverlayTransformPanel.LayoutUpdated += (_, _) => UpdateOverlayTransform();
+            OverlayImage.PropertyChanged += (_, ev) =>
+            {
+                if (ev.Property?.Name == nameof(Image.Source))
+                    UpdateOverlayTransform();
+            };
+        }
+        catch { /* non-fatal */ }
+    }
+
+    private void LoadStartupTab(AppSettings s)
+    {
+        switch (s.StartupTab)
+        {
+            case "Rankings": RankingsButton_Click(null, new RoutedEventArgs()); break;
+            case "Pixivision": PixivisionButton_Click(null, new RoutedEventArgs()); break;
+            case "Discover": DiscoverButton_Click(null, new RoutedEventArgs()); break;
+            case "Search": SearchButton_Click(null, new RoutedEventArgs()); break;
+            case "Bookmarks": BookmarksButton_Click(null, new RoutedEventArgs()); break;
+            case "Hoshi 星": HoshiButton_Click(null, new RoutedEventArgs()); break;
+            case "Viewed": ViewedButton_Click(null, new RoutedEventArgs()); break;
+            case "Batch": BatchDownloadButton_Click(null, new RoutedEventArgs()); break;
+            case "Jobs": JobsButton_Click(null, new RoutedEventArgs()); break;
+            default: LoadGalleryView(); break;
+        }
     }
 
     private async Task ShowChangelogDialogAsync(ViewModels.MainWindowViewModel mainVm)
@@ -277,10 +348,13 @@ public partial class MainWindow : Window
     private Pikura.Avalonia.Views.Rankings.EnhancedRankingsView? _rankingsView;
     private Pikura.Avalonia.Views.Discover.DiscoverView? _discoverView;
     private Pikura.Avalonia.Views.Settings.SettingsView? _settingsView;
+    private Pikura.Avalonia.Views.Search.GlobalSearchView? _searchView;
     private Pikura.Avalonia.Views.Bookmarks.BookmarksView? _bookmarksView;
     private Pikura.Avalonia.Views.Hoshi.HoshiView? _hoshiView;
     private Pikura.Avalonia.Views.Analytics.AnalyticsView? _analyticsView;
     private Pikura.Avalonia.Views.History.HistoryView? _historyView;
+    private Pikura.Avalonia.Views.History.ViewedHistoryView? _viewedHistoryView;
+    private Pikura.Avalonia.Views.Pixivision.PixivisionView? _pixivisionView;
 
     private void SetSectionTitle(string section) => Title = $"Pikura — {section}";
 
@@ -355,6 +429,21 @@ public partial class MainWindow : Window
         }
     }
 
+    private void SearchButton_Click(object? sender, RoutedEventArgs e)
+    {
+        try
+        {
+            var vm = AppServices.Get<Pikura.Avalonia.ViewModels.GlobalSearchViewModel>();
+            _searchView ??= new Pikura.Avalonia.Views.Search.GlobalSearchView { DataContext = vm };
+            MainContentControl.Content = _searchView;
+            SetSectionTitle("Search");
+        }
+        catch (Exception ex)
+        {
+            MainContentControl.Content = new TextBlock { Text = $"Search — error: {ex.Message}", FontSize = 18, Foreground = Brush.Parse("#9CA3AF"), VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center };
+        }
+    }
+
     private void BookmarksButton_Click(object? sender, RoutedEventArgs e)
     {
         try
@@ -387,6 +476,36 @@ public partial class MainWindow : Window
         catch (Exception ex)
         {
             MainContentControl.Content = new TextBlock { Text = $"Jobs — error: {ex.Message}", FontSize = 18, Foreground = Brush.Parse("#9CA3AF"), VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center };
+        }
+    }
+
+    private void ViewedButton_Click(object? sender, RoutedEventArgs e)
+    {
+        try
+        {
+            var vm = AppServices.Get<Pikura.Avalonia.ViewModels.ViewedHistoryViewModel>();
+            _viewedHistoryView ??= new Pikura.Avalonia.Views.History.ViewedHistoryView { DataContext = vm };
+            MainContentControl.Content = _viewedHistoryView;
+            SetSectionTitle("Viewed");
+        }
+        catch (Exception ex)
+        {
+            MainContentControl.Content = new TextBlock { Text = $"Viewed — error: {ex.Message}", FontSize = 18, Foreground = Brush.Parse("#9CA3AF"), VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center };
+        }
+    }
+
+    private void PixivisionButton_Click(object? sender, RoutedEventArgs e)
+    {
+        try
+        {
+            var vm = AppServices.Get<Pikura.Avalonia.ViewModels.PixivisionViewModel>();
+            _pixivisionView ??= new Pikura.Avalonia.Views.Pixivision.PixivisionView { DataContext = vm };
+            MainContentControl.Content = _pixivisionView;
+            SetSectionTitle("Pixivision");
+        }
+        catch (Exception ex)
+        {
+            MainContentControl.Content = new TextBlock { Text = $"Pixivision — error: {ex.Message}", FontSize = 18, Foreground = Brush.Parse("#9CA3AF"), VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center };
         }
     }
 
@@ -532,13 +651,12 @@ public partial class MainWindow : Window
 
     private void UpdateCaptionIcons()
     {
-        // Cross-platform Unicode glyphs (Segoe MDL2 isn't available on Linux/macOS).
-        // Maximize: U+25A1 (white square) = maximize, U+29C9 (two joined squares) = restore
-        if (MaximizeBtn is { } max)
-            max.Content = WindowState == WindowState.Maximized ? "\u29C9" : "\u2610";
-        // Fullscreen: U+26F6 (square four corners) = enter, U+2922 (NE-SW arrow) = exit
-        if (FullscreenBtn is { } fs)
-            fs.Content = WindowState == WindowState.FullScreen ? "\u2922" : "\u26F6";
+        // Swap vector icon data based on current window state.
+        if (MaximizeIcon is { } maxIcon)
+            maxIcon.Data = (Geometry?)this.FindResource(WindowState == WindowState.Maximized ? "RestoreIcon" : "MaximizeIcon");
+
+        if (FullscreenIcon is { } fsIcon)
+            fsIcon.Data = (Geometry?)this.FindResource(WindowState == WindowState.FullScreen ? "FullscreenExitIcon" : "FullscreenEnterIcon");
     }
 
     private void AccountChip_Click(object? sender, RoutedEventArgs e)
@@ -715,7 +833,7 @@ public partial class MainWindow : Window
         }
         else
         {
-            col.Width = new GridLength(220);
+            col.Width = new GridLength(200);
             SidebarBorder.IsVisible = true;
         }
     }

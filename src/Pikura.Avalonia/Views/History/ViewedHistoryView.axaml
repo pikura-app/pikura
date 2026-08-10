@@ -1,0 +1,349 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:actipro="http://schemas.actiprosoftware.com/avaloniaui"
+             xmlns:vm="using:Pikura.Avalonia.ViewModels"
+             xmlns:conv="using:Pikura.Avalonia.Converters"
+             xmlns:gallery="using:Pikura.Avalonia.Views.Gallery"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
+             x:Class="Pikura.Avalonia.Views.History.ViewedHistoryView"
+             x:DataType="vm:ViewedHistoryViewModel">
+
+    <UserControl.Resources>
+        <conv:BoolToBlurRadiusConverter x:Key="BoolToBlurRadiusConverter"/>
+
+        <ContextMenu x:Key="ViewedCardContextMenu" x:DataType="vm:ArtworkCardViewModel">
+            <MenuItem Header="👁 Open in side panel" Click="OnContextPreview"/>
+            <MenuItem Header="🌐 Open on pixiv.net" Click="OnContextOpenPixiv"/>
+            <Separator/>
+            <MenuItem Header="☑ Select" Click="OnContextToggleSelection" IsVisible="{Binding !IsSelected}"/>
+            <MenuItem Header="☒ Deselect" Click="OnContextToggleSelection" IsVisible="{Binding IsSelected}"/>
+            <Separator/>
+            <MenuItem Header="✕ Remove from history" Click="OnContextRemove"/>
+        </ContextMenu>
+    </UserControl.Resources>
+
+    <Grid RowDefinitions="Auto,Auto,*,Auto">
+
+        <!-- ══ Row 0: Title + actions ══ -->
+        <Border Grid.Row="0"
+                Background="{actipro:ThemeResource Container1BackgroundBrush}"
+                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                BorderThickness="0,0,0,1" Padding="20,10"
+                Margin="0,32,0,0">
+            <Grid ColumnDefinitions="Auto,*,Auto">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                    <TextBlock Text="Viewed" FontWeight="Bold" FontSize="20" VerticalAlignment="Center"/>
+                    <ProgressBar IsIndeterminate="True" Width="70" Height="3"
+                                 IsVisible="{Binding IsLoading}" VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6"
+                            HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
+                            BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                            BorderThickness="1" CornerRadius="7" Padding="3">
+                        <StackPanel Orientation="Horizontal" Spacing="0">
+                            <Button Name="CalendarFlyoutButton" Content="📅" FontSize="12"
+                                    CornerRadius="5" Padding="7,4" Background="Transparent" BorderThickness="0"
+                                    ToolTip.Tip="Browse by date">
+                                <Button.Flyout>
+                                    <Flyout Placement="Bottom" ShowMode="Standard" Opened="OnCalendarOpened">
+                                        <Calendar Name="DatePopupCalendar"
+                                                  SelectionMode="SingleDate"
+                                                  SelectedDatesChanged="OnCalendarSelectedDateChanged"/>
+                                    </Flyout>
+                                </Button.Flyout>
+                            </Button>
+                            <TextBlock Text="{Binding DateLabel}" FontSize="11" VerticalAlignment="Center" Margin="8,0"/>
+                            <Button Content="⊙" FontSize="12" CornerRadius="5" Padding="7,4"
+                                    Background="Transparent" BorderThickness="0"
+                                    IsVisible="{Binding IsFilteredByDate}"
+                                    Command="{Binding GoToAllTimeCommand}"
+                                    ToolTip.Tip="Back to all time"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="3" VerticalAlignment="Center">
+                    <ToggleButton IsChecked="{Binding IsGridView}" CornerRadius="5" Padding="9,5" FontSize="11"
+                                  Command="{Binding SetGridViewCommand}">⊞ Grid</ToggleButton>
+                    <ToggleButton IsChecked="{Binding IsListView}" CornerRadius="5" Padding="9,5" FontSize="11"
+                                  Command="{Binding SetListViewCommand}">☰ List</ToggleButton>
+                    <Rectangle Width="1" Height="16" Fill="{actipro:ThemeResource Container1BorderBrush}" Margin="3,0"
+                               IsVisible="{Binding IsGridView}"/>
+                    <ToggleButton IsChecked="{Binding IsFixedHeight}" CornerRadius="5" Padding="9,5" FontSize="11"
+                                  Command="{Binding SetFixedHeightCommand}" IsVisible="{Binding IsGridView}">
+                        <ToggleButton.Styles>
+                            <Style Selector="ToggleButton:checked">
+                                <Setter Property="Background" Value="#3B82F6"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Style>
+                        </ToggleButton.Styles>
+                        Fixed
+                    </ToggleButton>
+                    <ToggleButton IsChecked="{Binding IsNaturalHeight}" CornerRadius="5" Padding="9,5" FontSize="11"
+                                  Command="{Binding SetNaturalHeightCommand}" IsVisible="{Binding IsGridView}">
+                        <ToggleButton.Styles>
+                            <Style Selector="ToggleButton:checked">
+                                <Setter Property="Background" Value="#3B82F6"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Style>
+                        </ToggleButton.Styles>
+                        Natural
+                    </ToggleButton>
+                    <Rectangle Width="1" Height="16" Fill="{actipro:ThemeResource Container1BorderBrush}" Margin="3,0"/>
+                    <Slider Value="{Binding CardSize}" Minimum="100" Maximum="320" Width="80" IsVisible="{Binding IsGridView}"/>
+                    <ToggleButton IsChecked="{Binding ShowInfo}" CornerRadius="5" Padding="9,5" FontSize="11">Info</ToggleButton>
+                    <ToggleButton IsChecked="{Binding ShowTags}" CornerRadius="5" Padding="9,5" FontSize="11">Tags</ToggleButton>
+                    <Rectangle Width="1" Height="16" Fill="{actipro:ThemeResource Container1BorderBrush}" Margin="3,0"/>
+                    <ToggleButton IsChecked="{Binding ShowPreview}" CornerRadius="5" Padding="10,5" FontSize="11">
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                            <TextBlock Text="▣" FontSize="12"/>
+                            <TextBlock Text="Show Panel" FontSize="11" IsVisible="{Binding !ShowPreview}"/>
+                            <TextBlock Text="Hide Panel" FontSize="11" IsVisible="{Binding ShowPreview}"/>
+                        </StackPanel>
+                    </ToggleButton>
+                    <Button Content="⟳" CornerRadius="5" Padding="8,4" FontSize="11" Command="{Binding ReloadCommand}" ToolTip.Tip="Refresh"/>
+                    <Button Content="🗑" CornerRadius="5" Padding="8,4" FontSize="11" Click="OnClearAllClicked" ToolTip.Tip="Clear all history"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- ══ Row 1: Action buttons ══ -->
+        <Border Grid.Row="1"
+                Background="{actipro:ThemeResource Container1BackgroundBrush}"
+                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                BorderThickness="0,0,0,1" Padding="20,6">
+            <StackPanel Orientation="Horizontal" Spacing="6">
+                <Button CornerRadius="6" Padding="12,6" FontSize="11"
+                        Classes.accent="{Binding HasSelection}"
+                        IsEnabled="{Binding HasSelection}"
+                        Command="{Binding DownloadSelectedCommand}">
+                    <StackPanel Orientation="Horizontal" Spacing="5">
+                        <TextBlock Text="↓" FontSize="12"/>
+                        <TextBlock Text="{Binding SelectedCount, StringFormat='Download Selected ({0})'}"/>
+                    </StackPanel>
+                </Button>
+                <Button CornerRadius="6" Padding="12,6" FontSize="11"
+                        Command="{Binding DownloadAllVisibleCommand}">
+                    <StackPanel Orientation="Horizontal" Spacing="5">
+                        <TextBlock Text="⊞" FontSize="12"/>
+                        <TextBlock Text="Download Visible"/>
+                    </StackPanel>
+                </Button>
+                <Button Content="☑ Select All" CornerRadius="6" Padding="12,6" FontSize="11" Command="{Binding SelectAllCommand}"/>
+                <Button Content="{Binding SelectedCount, StringFormat='☒ Deselect All ({0})'}"
+                        CornerRadius="6" Padding="12,6" FontSize="11"
+                        Command="{Binding ClearSelectionCommand}" IsVisible="{Binding HasSelection}"/>
+                <Button Content="🎨 Download Preset" CornerRadius="6" Padding="12,6" FontSize="11"
+                        Classes="accent"
+                        Click="OnDownloadPresetClicked"
+                        ToolTip.Tip="Download with image processing preset"/>
+            </StackPanel>
+        </Border>
+
+        <!-- ══ Row 2: Results area ══ -->
+        <Border Grid.Row="2" Background="{actipro:ThemeResource Container3BackgroundBrush}">
+            <Grid Name="ContentGrid">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" MinWidth="280"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="0" MinWidth="0"/>
+                </Grid.ColumnDefinitions>
+
+                <GridSplitter Grid.Column="1" Width="4"
+                              Background="{actipro:ThemeResource Container1BorderBrush}"
+                              IsVisible="{Binding ShowPreview}"
+                              ResizeBehavior="PreviousAndNext" ResizeDirection="Columns"
+                              DragCompleted="OnSplitterDragCompleted"/>
+
+                <Border Grid.Column="2"
+                        Background="{actipro:ThemeResource Container1BackgroundBrush}"
+                        BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                        BorderThickness="1,0,0,0"
+                        IsVisible="{Binding ShowPreview}">
+                    <gallery:InlineArtworkViewer Name="HistoryInlineViewer"
+                                                 DataContext="{Binding GalleryVm}"
+                                                 IsExpanded="{Binding $parent[UserControl].((vm:ViewedHistoryViewModel)DataContext).IsViewerExpanded}"
+                                                 IsPanelOpen="{Binding $parent[UserControl].((vm:ViewedHistoryViewModel)DataContext).ShowPreview}"/>
+                </Border>
+
+                <Panel Grid.Column="0">
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="8"
+                                IsVisible="{Binding !HasResults}">
+                        <TextBlock Text="{Binding StatusMessage}"
+                                   FontSize="13" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                   HorizontalAlignment="Center" TextWrapping="Wrap" MaxWidth="400"/>
+                    </StackPanel>
+
+                    <ScrollViewer Name="GridScrollViewer"
+                                  HorizontalScrollBarVisibility="Disabled"
+                                  VerticalScrollBarVisibility="Auto"
+                                  AllowAutoHide="False"
+                                  ScrollChanged="OnScrollChanged">
+                        <Panel>
+                        <ItemsControl ItemsSource="{Binding Results}" Margin="10,10,4,10"
+                                      IsVisible="{Binding IsGridView}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <gallery:MasonryPanel ColumnWidth="{Binding $parent[UserControl].((vm:ViewedHistoryViewModel)DataContext).CardSize}" ItemSpacing="6"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:ArtworkCardViewModel">
+                                    <Border Margin="0,0,6,6"
+                                            Width="{Binding $parent[UserControl].((vm:ViewedHistoryViewModel)DataContext).CardSize}"
+                                            Background="{actipro:ThemeResource Container1BackgroundBrush}"
+                                            BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                                            BorderThickness="1" CornerRadius="8"
+                                            BoxShadow="0 1 4 0 #28000000" Cursor="Hand"
+                                            PointerPressed="OnCardClicked"
+                                            ContextMenu="{StaticResource ViewedCardContextMenu}">
+                                        <Border.Styles>
+                                            <Style Selector="Border:pointerover">
+                                                <Setter Property="BoxShadow" Value="0 6 20 0 #55000000"/>
+                                                <Setter Property="BorderBrush" Value="{actipro:ThemeResource ControlBackgroundBrushSolidAccent}"/>
+                                            </Style>
+                                        </Border.Styles>
+                                        <Grid RowDefinitions="*,Auto">
+                                            <Border Grid.Row="0"
+                                                    Height="{Binding $parent[UserControl].((vm:ViewedHistoryViewModel)DataContext).FixedCardTotalHeight}"
+                                                    CornerRadius="7,7,0,0" ClipToBounds="True">
+                                                <Panel>
+                                                    <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
+                                                            IsVisible="{Binding Thumbnail, Converter={x:Static ObjectConverters.IsNull}}"/>
+                                                    <Image Source="{Binding Thumbnail}" Stretch="UniformToFill">
+                                                        <Image.Effect>
+                                                            <BlurEffect Radius="{Binding IsBlurred, Converter={StaticResource BoolToBlurRadiusConverter}}"/>
+                                                        </Image.Effect>
+                                                    </Image>
+                                                </Panel>
+                                            </Border>
+                                            <Border Grid.Row="0" VerticalAlignment="Top" HorizontalAlignment="Right"
+                                                    Margin="0,6,6,0" Padding="5,2" CornerRadius="4"
+                                                    Background="#CCDC2626" IsVisible="{Binding IsR18}" IsHitTestVisible="False">
+                                                <TextBlock Text="R-18" FontSize="8" Foreground="White" FontWeight="Bold"/>
+                                            </Border>
+                                            <CheckBox Grid.Row="0" ZIndex="6"
+                                                      IsChecked="{Binding IsSelected}"
+                                                      VerticalAlignment="Top" HorizontalAlignment="Left"
+                                                      Margin="6,6,0,0" MinWidth="0" MinHeight="0"
+                                                      Click="OnCardCheckboxClicked"/>
+                                            <StackPanel Grid.Row="1" Margin="8,5,8,7" Spacing="2"
+                                                        IsVisible="{Binding $parent[UserControl].((vm:ViewedHistoryViewModel)DataContext).ShowInfo}">
+                                                <TextBlock Text="{Binding Title}" FontSize="11" FontWeight="SemiBold"
+                                                           TextTrimming="CharacterEllipsis" MaxLines="1"/>
+                                                <TextBlock Text="{Binding UserName}" FontSize="10"
+                                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                                           TextTrimming="CharacterEllipsis" MaxLines="1"/>
+                                                <ItemsControl ItemsSource="{Binding TopTags}" Margin="0,2,0,0"
+                                                              IsVisible="{Binding $parent[UserControl].((vm:ViewedHistoryViewModel)DataContext).ShowTags}">
+                                                    <ItemsControl.ItemsPanel>
+                                                        <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                                                    </ItemsControl.ItemsPanel>
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate x:DataType="x:String">
+                                                            <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
+                                                                    CornerRadius="3" Padding="4,1" Margin="0,2,3,0">
+                                                                <TextBlock Text="{Binding}" FontSize="8"
+                                                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushSecondary}"/>
+                                                            </Border>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <!-- List view -->
+                        <ItemsControl ItemsSource="{Binding Results}" Margin="10"
+                                      IsVisible="{Binding IsListView}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:ArtworkCardViewModel">
+                                    <Border Margin="0,0,0,6" Padding="8"
+                                            Background="{actipro:ThemeResource Container1BackgroundBrush}"
+                                            BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                                            BorderThickness="1" CornerRadius="8" Cursor="Hand"
+                                            PointerPressed="OnCardClicked"
+                                            ContextMenu="{StaticResource ViewedCardContextMenu}">
+                                        <Border.Styles>
+                                            <Style Selector="Border:pointerover">
+                                                <Setter Property="BorderBrush" Value="{actipro:ThemeResource ControlBackgroundBrushSolidAccent}"/>
+                                            </Style>
+                                        </Border.Styles>
+                                        <Grid ColumnDefinitions="Auto,Auto,*">
+                                            <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected}"
+                                                      VerticalAlignment="Center" Margin="0,0,8,0"
+                                                      Click="OnCardCheckboxClicked"/>
+                                            <Border Grid.Column="1" Width="70" Height="70" CornerRadius="6" ClipToBounds="True">
+                                                <Image Source="{Binding Thumbnail}" Stretch="UniformToFill">
+                                                    <Image.Effect>
+                                                        <BlurEffect Radius="{Binding IsBlurred, Converter={StaticResource BoolToBlurRadiusConverter}}"/>
+                                                    </Image.Effect>
+                                                </Image>
+                                            </Border>
+                                            <StackPanel Grid.Column="2" Margin="10,0,0,0" VerticalAlignment="Center" Spacing="2"
+                                                        IsVisible="{Binding $parent[UserControl].((vm:ViewedHistoryViewModel)DataContext).ShowInfo}">
+                                                <TextBlock Text="{Binding Title}" FontSize="12" FontWeight="SemiBold"
+                                                           TextTrimming="CharacterEllipsis" MaxLines="1"/>
+                                                <TextBlock Text="{Binding UserName}" FontSize="11"
+                                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                <ItemsControl ItemsSource="{Binding TopTags}" Margin="0,2,0,0"
+                                                              IsVisible="{Binding $parent[UserControl].((vm:ViewedHistoryViewModel)DataContext).ShowTags}">
+                                                    <ItemsControl.ItemsPanel>
+                                                        <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                                                    </ItemsControl.ItemsPanel>
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate x:DataType="x:String">
+                                                            <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
+                                                                    CornerRadius="3" Padding="5,1" Margin="0,2,4,0">
+                                                                <TextBlock Text="{Binding}" FontSize="9"
+                                                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushSecondary}"/>
+                                                            </Border>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        </Panel>
+                    </ScrollViewer>
+                </Panel>
+            </Grid>
+        </Border>
+
+        <!-- ══ Row 3: Status bar ══ -->
+        <Border Grid.Row="3"
+                Background="{actipro:ThemeResource Container1BackgroundBrush}"
+                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                BorderThickness="0,1,0,0" Padding="14,8">
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Grid.Column="0" FontSize="11"
+                           Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                           Text="{Binding StatusMessage}" VerticalAlignment="Center"/>
+                <Button Grid.Column="1" Content="Load More" CornerRadius="6" Padding="12,5" FontSize="11"
+                        Command="{Binding LoadMoreCommand}" IsVisible="{Binding CanLoadMore}"/>
+            </Grid>
+        </Border>
+
+        <gallery:InlineArtworkViewer Name="HistoryOverlayViewer"
+                                     Grid.Row="0" Grid.RowSpan="4"
+                                     Margin="0,32,0,0"
+                                     ZIndex="10"
+                                     DataContext="{Binding GalleryVm}"
+                                     IsExpanded="{Binding $parent[UserControl].((vm:ViewedHistoryViewModel)DataContext).IsViewerExpanded}"
+                                     IsPanelOpen="{Binding $parent[UserControl].((vm:ViewedHistoryViewModel)DataContext).ShowPreview}">
+            <gallery:InlineArtworkViewer.IsVisible>
+                <Binding Path="$parent[UserControl].((vm:ViewedHistoryViewModel)DataContext).IsViewerExpanded"/>
+            </gallery:InlineArtworkViewer.IsVisible>
+        </gallery:InlineArtworkViewer>
+    </Grid>
+</UserControl>

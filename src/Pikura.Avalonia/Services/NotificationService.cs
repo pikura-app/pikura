@@ -396,7 +396,9 @@ public class NotificationService
     /// <summary>
     /// Event raised when a notification is clicked.
     /// </summary>
+#pragma warning disable CS0067
     public event EventHandler<NotificationClickedEventArgs>? NotificationClicked;
+#pragma warning restore CS0067
 }
 
 /// <summary>

@@ -116,6 +116,7 @@ public sealed class PixivLoginService
         _settings.Update(s => s.PhpSessId = dlg.PhpSessId);
         try { _accounts.UpsertFromCurrentSession(); } catch { /* non-fatal */ }
         try { await _pixivClient.ValidateSessionAsync().ConfigureAwait(false); } catch { /* non-fatal */ }
+        try { _accounts.UpsertFromCurrentSession(); } catch { /* non-fatal — picks up IsPremium resolved above */ }
 
         var cur = _settings.Current;
         return new LoginResult(true, cur.UserId, cur.UserName);

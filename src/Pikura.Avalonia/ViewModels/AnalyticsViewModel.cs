@@ -33,7 +33,7 @@ public partial class AnalyticsViewModel : ViewModelBase
     {
         _jobRepository = jobRepository;
         
-        LoadAnalyticsAsync();
+        _ = LoadAnalyticsAsync();
     }
 
     public Task ReloadAsync() => LoadAnalyticsAsync();

@@ -11,6 +11,11 @@ public partial class RangePickerDialog : Window
 
     private readonly int _maxInclusive;
 
+    public RangePickerDialog()
+    {
+        InitializeComponent();
+    }
+
     public RangePickerDialog(string title, string description, int maxInclusive, string placeholder = "")
     {
         InitializeComponent();

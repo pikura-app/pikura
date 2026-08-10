@@ -1,5 +1,6 @@
 using Avalonia;
 using Avalonia.Controls;
+using ShapePath = global::Avalonia.Controls.Shapes.Path;
 using Avalonia.Input;
 using Avalonia.Input.Platform;
 using Avalonia.Interactivity;
@@ -111,6 +112,10 @@ public partial class InlineArtworkViewer : UserControl
 
     private void ApplyPanelOpenState(bool open)
     {
+        if (this.FindControl<ShapePath>("ShowPanelIcon") is { } showIcon)
+            showIcon.IsVisible = !open;
+        if (this.FindControl<ShapePath>("HidePanelIcon") is { } hideIcon)
+            hideIcon.IsVisible = open;
         if (this.FindControl<TextBlock>("ShowPanelLabel") is { } showLbl)
             showLbl.IsVisible = !open;
         if (this.FindControl<TextBlock>("HidePanelLabel") is { } hideLbl)
@@ -1297,11 +1302,39 @@ if (result != null && presetWindow.DownloadClicked)
         _ = cb.SetBitmapAsync(bmp);
     }
 
-    private void OnUseAsBackground(object? sender, RoutedEventArgs e)
+    private async void OnUseAsBackground(object? sender, RoutedEventArgs e)
     {
+        try { if (!AppServices.Get<BackgroundOverlayService>().IsEnabled) return; }
+        catch { return; }
         var url = _currentOriginalUrl ?? _currentCard?.ThumbnailUrl;
         if (string.IsNullOrWhiteSpace(url)) return;
-        try { AppServices.Get<BackgroundOverlayService>().AddImage(url); }
+        try
+        {
+            var overlay = AppServices.Get<BackgroundOverlayService>();
+            var bytes = await overlay.FetchImageBytesAsync(url);
+            var window = TopLevel.GetTopLevel(this) as Window;
+            if (window == null) { overlay.AddImage(url); return; }
+
+            var seedEntry = new Pikura.Core.Settings.OverlayImageEntry
+            {
+                Path = url,
+                Title = _currentCard?.Title,
+                UserName = _currentCard?.UserName,
+                UserId = _currentCard?.UserId,
+                IllustId = _currentCard?.Id,
+            };
+            var preview = new BackgroundPreviewWindow(url, bytes, seedEntry);
+            await preview.ShowDialog(window);
+
+            if (preview.Result is { } result)
+            {
+                result.Title = _currentCard?.Title;
+                result.UserName = _currentCard?.UserName;
+                result.UserId = _currentCard?.UserId;
+                result.IllustId = _currentCard?.Id;
+                overlay.AddImage(url, result);
+            }
+        }
         catch { /* non-fatal */ }
     }
 
@@ -1436,12 +1469,6 @@ if (result != null && presetWindow.DownloadClicked)
         // Toolbar button mirrors the menu item — keep them in sync
         if (GoToArtistBtn != null) GoToArtistBtn.IsVisible = !hide;
 
-        try
-        {
-            var enabled = AppServices.Get<BackgroundOverlayService>().IsEnabled;
-            if (UseAsBackgroundMenuItem != null) UseAsBackgroundMenuItem.IsVisible = enabled;
-        }
-        catch { /* non-fatal */ }
     }
 
     private void OnTagContextMenuOpening(object? sender, System.ComponentModel.CancelEventArgs e)
@@ -1487,7 +1514,7 @@ if (result != null && presetWindow.DownloadClicked)
     {
         if (LocalFavBtn == null || LocalFavLabel == null) return;
         var isFav = card != null && _favorites.IsFavorite(card.Id);
-        LocalFavLabel.Text = isFav ? "★ Favorited" : "☆ Favorite";
+        LocalFavLabel.Text = isFav ? "Favorited" : "Favorite";
         if (card != null) card.IsLocalFavorite = isFav;
     }
 

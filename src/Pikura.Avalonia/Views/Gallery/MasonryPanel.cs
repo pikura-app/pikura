@@ -18,6 +18,9 @@ public class MasonryPanel : Panel
     public static readonly StyledProperty<double> ItemSpacingProperty =
         AvaloniaProperty.Register<MasonryPanel, double>(nameof(ItemSpacing), 6);
 
+    public static readonly StyledProperty<bool> PreserveOrderProperty =
+        AvaloniaProperty.Register<MasonryPanel, bool>(nameof(PreserveOrder));
+
     /// <summary>Target width for each column. Panel auto-calculates actual column count.</summary>
     public double ColumnWidth
     {
@@ -30,6 +33,19 @@ public class MasonryPanel : Panel
     {
         get => GetValue(ItemSpacingProperty);
         set => SetValue(ItemSpacingProperty, value);
+    }
+
+    /// <summary>When true, items are assigned to columns round-robin by index (0,1,2,...,then
+    /// wrapping back to column 0) instead of always dropping into the currently-shortest column.
+    /// Keeps each column internally in strict source order — needed for content like rankings
+    /// where position must reflect rank, while still letting each card keep its natural aspect
+    /// ratio/height (unlike a plain WrapPanel, which clamps every item in a row to the same
+    /// height). Default (false) keeps the original Pinterest-style shortest-column packing used
+    /// by regular galleries, where visual tightness matters more than strict ordering.</summary>
+    public bool PreserveOrder
+    {
+        get => GetValue(PreserveOrderProperty);
+        set => SetValue(PreserveOrderProperty, value);
     }
 
     // Cache measurements between Measure and Arrange passes
@@ -89,9 +105,8 @@ public class MasonryPanel : Panel
 
             _cachedSizes[i] = size;
 
-            // Find shortest column using simple scan (faster than heap for small column counts)
-            var shortestCol = FindShortestColumn(columnHeights);
-            columnHeights[shortestCol] += size.Height + ItemSpacing;
+            var col = PreserveOrder ? i % columnCount : FindShortestColumn(columnHeights);
+            columnHeights[col] += size.Height + ItemSpacing;
         }
 
         var maxHeight = columnHeights.Length > 0 ? columnHeights.Max() : 0;
@@ -127,13 +142,13 @@ public class MasonryPanel : Panel
 
         for (int i = 0; i < Children.Count && i < _cachedSizes.Length; i++)
         {
-            var shortestCol = FindShortestColumn(columnHeights);
-            var x = offsetX + shortestCol * (actualColumnWidth + ItemSpacing);
-            var y = columnHeights[shortestCol];
+            var col = PreserveOrder ? i % columnCount : FindShortestColumn(columnHeights);
+            var x = offsetX + col * (actualColumnWidth + ItemSpacing);
+            var y = columnHeights[col];
             var size = _cachedSizes[i];
 
             Children[i].Arrange(new Rect(x, y, actualColumnWidth, size.Height));
-            columnHeights[shortestCol] += size.Height + ItemSpacing;
+            columnHeights[col] += size.Height + ItemSpacing;
         }
 
         return finalSize;

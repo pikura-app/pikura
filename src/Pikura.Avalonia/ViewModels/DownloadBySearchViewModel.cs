@@ -8,6 +8,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Pikura.Core.Models;
 using Pikura.Core.Services;
+using Pikura.Core.Settings;
 using Pikura.Avalonia.Services;
 
 namespace Pikura.Avalonia.ViewModels;
@@ -18,6 +19,7 @@ public partial class DownloadBySearchViewModel : ViewModelBase
     private readonly DownloadCoordinator _coordinator;
     private readonly DialogService _dialogService;
     private readonly PixivImageLoader _imageLoader;
+    private readonly SettingsService _settingsService;
 
     [ObservableProperty] private string _searchKeyword = string.Empty;
     [ObservableProperty] private int _maxResults = 100;
@@ -28,16 +30,41 @@ public partial class DownloadBySearchViewModel : ViewModelBase
     public ObservableCollection<SearchResultItem> SearchResults { get; } = new();
     public bool HasResults => SearchResults.Count > 0;
 
+    /// <summary>
+    /// Pixiv's "popularity" search sort (order=popular_d) is a Premium-only feature —
+    /// non-Premium accounts get it silently ignored/errored server-side. Gate the
+    /// option in the UI rather than letting free accounts pick something that won't work.
+    /// </summary>
+    public bool IsPremiumAccount => _settingsService.Current.IsPremium;
+
     public DownloadBySearchViewModel(
         PixivClient client,
         DownloadCoordinator coordinator,
         DialogService dialogService,
-        PixivImageLoader imageLoader)
+        PixivImageLoader imageLoader,
+        SettingsService settingsService)
     {
         _client = client;
         _coordinator = coordinator;
         _dialogService = dialogService;
         _imageLoader = imageLoader;
+        _settingsService = settingsService;
+
+        _settingsService.Changed += (_, _) =>
+        {
+            OnPropertyChanged(nameof(IsPremiumAccount));
+            // If Premium lapsed (or this is a stale non-Premium session) while
+            // popularity sort was selected, fall back to date order so the next
+            // search doesn't silently misbehave.
+            if (!IsPremiumAccount && SortOrder == "popular_d")
+                SortOrder = "date_d";
+        };
+
+        // Guard against a stale/leftover selection from a previous session or a non-Premium
+        // account whose SortOrder somehow ended up "popular_d" — don't wait for a settings
+        // Changed event, correct it immediately so the ComboBox can't display/keep it selected.
+        if (!IsPremiumAccount && SortOrder == "popular_d")
+            SortOrder = "date_d";
     }
 
     [RelayCommand]

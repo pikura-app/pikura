@@ -135,7 +135,7 @@
                                     <TextBox Text="{Binding ArtistViewModel.NewArtistId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                              AcceptsReturn="True"
                                              TextWrapping="Wrap"
-                                             Watermark="Enter artist IDs or URLs...&#x0a;One per line or comma-separated&#x0a;Example: 1234567&#x0a;https://www.pixiv.net/en/users/1234567"
+                                             PlaceholderText="Enter artist IDs or URLs...&#x0a;One per line or comma-separated&#x0a;Example: 1234567&#x0a;https://www.pixiv.net/en/users/1234567"
                                              CornerRadius="6" MinHeight="80"
                                              AutomationProperties.Name="Artist ID or URL Input"
                                              AutomationProperties.HelpText="Enter Pixiv artist IDs or profile URLs. Multiple IDs can be entered separated by commas or new lines."
@@ -201,7 +201,7 @@
                                 <StackPanel Spacing="4">
                                     <TextBox Text="{Binding ArtistViewModel.DefaultPageRange, Mode=TwoWay}"
                                              CornerRadius="6" Width="200" HorizontalAlignment="Left"
-                                             Watermark="e.g., 0, 1-5, 2,4,6-10"
+                                             PlaceholderText="e.g., 0, 1-5, 2,4,6-10"
                                              ToolTip.Tip="Enter page numbers: 0 or 'all' for all pages, '1-5' for range, '2,4,6' for specific pages"/>
                                     <TextBlock Margin="0,2,0,0"
                                                FontSize="11" Foreground="{actipro:ThemeResource DefaultForegroundBrushDisabled}"
@@ -250,7 +250,7 @@
                                                         </StackPanel>
                                                         <TextBox Grid.Column="1"
                                                                  Text="{Binding PageRange, Mode=TwoWay}"
-                                                                 Watermark="Default"
+                                                                 PlaceholderText="Default"
                                                                  CornerRadius="4"
                                                                  FontSize="12"/>
                                                         <Button Grid.Column="2"
@@ -343,14 +343,14 @@
                                                     <StackPanel Grid.Column="0" Spacing="4">
                                                         <TextBlock Text="Must include tag(s)" FontSize="11"/>
                                                         <TextBox Text="{Binding ArtistViewModel.CustomSettings.IncludeTags, Mode=TwoWay}"
-                                                                 Watermark="e.g. original, fantasy"
+                                                                 PlaceholderText="e.g. original, fantasy"
                                                                  CornerRadius="4" FontSize="12"
                                                                  ToolTip.Tip="Comma-separated. Artwork must match at least one."/>
                                                     </StackPanel>
                                                     <StackPanel Grid.Column="1" Spacing="4">
                                                         <TextBlock Text="Exclude tag(s)" FontSize="11"/>
                                                         <TextBox Text="{Binding ArtistViewModel.CustomSettings.ExcludeTagsFilter, Mode=TwoWay}"
-                                                                 Watermark="e.g. guro, furry"
+                                                                 PlaceholderText="e.g. guro, furry"
                                                                  CornerRadius="4" FontSize="12"
                                                                  ToolTip.Tip="Comma-separated. Artwork is skipped if it has any of these."/>
                                                     </StackPanel>
@@ -487,7 +487,7 @@
                                 <TextBox Text="{Binding ImageIdViewModel.InputText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                          AcceptsReturn="True"
                                          TextWrapping="Wrap"
-                                         Watermark="Enter image IDs, URLs...&#x0a;One per line or comma-separated&#x0a;Example: 12345678&#x0a;https://www.pixiv.net/en/artworks/12345678"
+                                         PlaceholderText="Enter image IDs, URLs...&#x0a;One per line or comma-separated&#x0a;Example: 12345678&#x0a;https://www.pixiv.net/en/artworks/12345678"
                                          Height="200"
                                          CornerRadius="6"
                                          FontFamily="Consolas, monospace"
@@ -692,13 +692,21 @@
                                         </ComboBox>
                                     </StackPanel>
                                     <StackPanel Grid.Column="1" Spacing="4" Margin="8,0,0,0">
-                                        <TextBlock Text="Sort Order" FontSize="12" 
-                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                        <StackPanel Orientation="Horizontal" Spacing="4">
+                                            <TextBlock Text="Sort Order" FontSize="12"
+                                                       Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                            <TextBlock Text="👑" FontSize="10" VerticalAlignment="Center"
+                                                       IsVisible="{Binding !SearchViewModel.IsPremiumAccount}"
+                                                       ToolTip.Tip="Popularity sort requires Pixiv Premium"/>
+                                        </StackPanel>
                                         <ComboBox SelectedValue="{Binding SearchViewModel.SortOrder, Mode=TwoWay}"
                                                   SelectedValueBinding="{ReflectionBinding Tag}"
                                                   CornerRadius="6" FontSize="12">
                                             <ComboBoxItem Content="Newest First" Tag="date_d"/>
-                                            <ComboBoxItem Content="Popular First" Tag="popular_d"/>
+                                            <ComboBoxItem Content="Popular First" Tag="popular_d"
+                                                          IsVisible="{Binding SearchViewModel.IsPremiumAccount}"
+                                                          IsEnabled="{Binding SearchViewModel.IsPremiumAccount}"
+                                                          ToolTip.Tip="Sort by popularity (Pixiv Premium)"/>
                                         </ComboBox>
                                     </StackPanel>
                                     <StackPanel Grid.Column="2" Spacing="4" Margin="8,0,0,0">
@@ -932,10 +940,16 @@
                                             IsVisible="{Binding !SchedulesViewModel.IsEditing}"
                                             Classes="accent"
                                             CornerRadius="6" Padding="12,6" FontSize="12"/>
-                                    <Button Content="↺ Refresh"
-                                            Command="{Binding SchedulesViewModel.RefreshCommand}"
+                                    <Button Command="{Binding SchedulesViewModel.RefreshCommand}"
                                             IsVisible="{Binding !SchedulesViewModel.IsEditing}"
-                                            CornerRadius="6" Padding="10,4" FontSize="12"/>
+                                            CornerRadius="6" Padding="10,4" FontSize="12">
+                                        <StackPanel Orientation="Horizontal" Spacing="4">
+                                            <PathIcon Data="{StaticResource RefreshIcon}" Width="14" Height="14"
+                                                      VerticalAlignment="Center"
+                                                      Foreground="{actipro:ThemeResource DefaultForegroundBrush}"/>
+                                            <TextBlock Text="Refresh" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Button>
                                     <!-- Show when editing -->
                                     <Button Content="← Back to Schedules"
                                             Command="{Binding SchedulesViewModel.CancelEditCommand}"
@@ -1034,7 +1048,7 @@
                                     <StackPanel Spacing="4">
                                         <TextBlock Text="Schedule Name" FontSize="12" FontWeight="SemiBold"/>
                                         <TextBox Text="{Binding SchedulesViewModel.NewScheduleName, Mode=TwoWay}"
-                                                 Watermark="e.g. My Fav Artists Daily (auto-generated if blank)"
+                                                 PlaceholderText="e.g. My Fav Artists Daily (auto-generated if blank)"
                                                  CornerRadius="6" FontSize="12"/>
                                     </StackPanel>
 
@@ -1082,11 +1096,11 @@
                                         <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="6">
                                             <TextBox Grid.Column="0"
                                                      Text="{Binding SchedulesViewModel.NewArtistId, Mode=TwoWay}"
-                                                     Watermark="Artist ID or pixiv.net/en/users/123…"
+                                                     PlaceholderText="Artist ID or pixiv.net/en/users/123…"
                                                      CornerRadius="6" FontSize="12"/>
                                             <TextBox Grid.Column="1" Width="80"
                                                      Text="{Binding SchedulesViewModel.PageRange, Mode=TwoWay}"
-                                                     Watermark="Pages"
+                                                     PlaceholderText="Pages"
                                                      ToolTip.Tip="Page range for this artist, e.g. 0 = all, 1-5 = range"
                                                      CornerRadius="6" FontSize="12"/>
                                             <Button Grid.Column="2" Content="+ Add"
@@ -1204,7 +1218,7 @@
                                                     <TextBlock Text="Max artworks per artist:" FontSize="11"
                                                                Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
                                                     <TextBox Text="{Binding SchedulesViewModel.FilterMaxArtworks, Mode=TwoWay}"
-                                                             Watermark="e.g. 10  (leave blank for all)"
+                                                             PlaceholderText="e.g. 10  (leave blank for all)"
                                                              CornerRadius="4" FontSize="12" HorizontalAlignment="Left" MinWidth="180"
                                                              ToolTip.Tip="Only fetch the N most-recent artworks per artist. Leave blank or 0 for no limit."/>
                                                 </StackPanel>
@@ -1212,13 +1226,13 @@
                                                     <StackPanel Grid.Column="0" Spacing="4">
                                                         <TextBlock Text="Must include tag(s)" FontSize="11"/>
                                                         <TextBox Text="{Binding SchedulesViewModel.FilterIncludeTags, Mode=TwoWay}"
-                                                                 Watermark="e.g. original, fantasy" CornerRadius="4" FontSize="12"
+                                                                 PlaceholderText="e.g. original, fantasy" CornerRadius="4" FontSize="12"
                                                                  ToolTip.Tip="Comma-separated. Artwork must match at least one."/>
                                                     </StackPanel>
                                                     <StackPanel Grid.Column="1" Spacing="4">
                                                         <TextBlock Text="Exclude tag(s)" FontSize="11"/>
                                                         <TextBox Text="{Binding SchedulesViewModel.FilterExcludeTags, Mode=TwoWay}"
-                                                                 Watermark="e.g. guro, furry" CornerRadius="4" FontSize="12"
+                                                                 PlaceholderText="e.g. guro, furry" CornerRadius="4" FontSize="12"
                                                                  ToolTip.Tip="Comma-separated. Artwork is skipped if it has any of these."/>
                                                     </StackPanel>
                                                 </Grid>
@@ -1236,12 +1250,12 @@
                                                     <StackPanel Grid.Column="0" Spacing="4">
                                                         <TextBlock Text="Folder Template" FontSize="12"/>
                                                         <TextBox Text="{Binding SchedulesViewModel.CustomFolderTemplate, Mode=TwoWay}"
-                                                                 Watermark="Leave blank for global" CornerRadius="4" FontSize="12"/>
+                                                                 PlaceholderText="Leave blank for global" CornerRadius="4" FontSize="12"/>
                                                     </StackPanel>
                                                     <StackPanel Grid.Column="1" Spacing="4">
                                                         <TextBlock Text="Filename Template" FontSize="12"/>
                                                         <TextBox Text="{Binding SchedulesViewModel.CustomFilenameTemplate, Mode=TwoWay}"
-                                                                 Watermark="Leave blank for global" CornerRadius="4" FontSize="12"/>
+                                                                 PlaceholderText="Leave blank for global" CornerRadius="4" FontSize="12"/>
                                                     </StackPanel>
                                                 </Grid>
                                                 <CheckBox Content="Separate R-18 into subfolder"

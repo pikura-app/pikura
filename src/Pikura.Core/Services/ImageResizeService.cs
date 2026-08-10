@@ -94,7 +94,7 @@ public class ImageResizeService
             {
                 var scale = (float)maxPreviewWidth / original.Width;
                 var newHeight = (int)(original.Height * scale);
-                previewBitmap = original.Resize(new SKImageInfo(maxPreviewWidth, newHeight), SKFilterQuality.High);
+                previewBitmap = original.Resize(new SKImageInfo(maxPreviewWidth, newHeight), new SKSamplingOptions(SKFilterMode.Linear, SKMipmapMode.Linear));
                 ownsPreviewBitmap = true;
             }
             else
@@ -218,7 +218,7 @@ public class ImageResizeService
                 var fitScale = Math.Min((float)targetWidth / source.Width, (float)targetHeight / source.Height);
                 var fitWidth = (int)(source.Width * fitScale);
                 var fitHeight = (int)(source.Height * fitScale);
-                result = source.Resize(new SKImageInfo(fitWidth, fitHeight), SKFilterQuality.High);
+                result = source.Resize(new SKImageInfo(fitWidth, fitHeight), new SKSamplingOptions(SKFilterMode.Linear, SKMipmapMode.Linear));
                 break;
 
             case ResizeMode.Fill:
@@ -228,7 +228,7 @@ public class ImageResizeService
                 var fillScale = Math.Max((float)targetWidth / source.Width, (float)targetHeight / source.Height);
                 var scaledWidth = (int)(source.Width * fillScale);
                 var scaledHeight = (int)(source.Height * fillScale);
-                using (var scaled = source.Resize(new SKImageInfo(scaledWidth, scaledHeight), SKFilterQuality.High))
+                using (var scaled = source.Resize(new SKImageInfo(scaledWidth, scaledHeight), new SKSamplingOptions(SKFilterMode.Linear, SKMipmapMode.Linear)))
                 {
                     var maxOffsetX = Math.Max(0, scaledWidth - targetWidth);
                     var maxOffsetY = Math.Max(0, scaledHeight - targetHeight);
@@ -248,7 +248,7 @@ public class ImageResizeService
 
             case ResizeMode.Stretch:
                 // Distort to fill exactly
-                result = source.Resize(new SKImageInfo(targetWidth, targetHeight), SKFilterQuality.High);
+                result = source.Resize(new SKImageInfo(targetWidth, targetHeight), new SKSamplingOptions(SKFilterMode.Linear, SKMipmapMode.Linear));
                 break;
 
             default:
@@ -597,7 +597,7 @@ public class ImageResizeService
         {
             var halfInfo = new SKImageInfo(source.Width / 2, source.Height / 2,
                                             source.ColorType, source.AlphaType);
-            using var half = source.Resize(halfInfo, SKFilterQuality.Medium);
+            using var half = source.Resize(halfInfo, new SKSamplingOptions(SKFilterMode.Linear, SKMipmapMode.None));
             if (half != null)
             {
                 using var blurredHalf = new SKBitmap(halfInfo);
@@ -609,7 +609,9 @@ public class ImageResizeService
 
                 var result = new SKBitmap(source.Info);
                 using (var canvas = new SKCanvas(result))
+#pragma warning disable CS0618
                 using (var paint = new SKPaint { FilterQuality = SKFilterQuality.High })
+#pragma warning restore CS0618
                 {
                     canvas.DrawBitmap(blurredHalf,
                         new SKRect(0, 0, blurredHalf.Width, blurredHalf.Height),

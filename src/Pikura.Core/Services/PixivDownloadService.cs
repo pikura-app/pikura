@@ -193,6 +193,13 @@ public sealed class PixivDownloadService
     {
         Diag($"=== START artwork {artwork.Id} title='{artwork.Title}' previewPageCount={artwork.PageCount} requestedPages={(pageIndexes is null ? "ALL" : string.Join(",", pageIndexes))}");
 
+        if (_settings.Current.IsArtworkBlockedFromDownload(artwork.UserId, artwork.UserName, artwork.Title, artwork.Tags))
+        {
+            Diag($"SKIP: artwork {artwork.Id} blocked by blocklist (artist/tag/title)");
+            _logger.LogInformation("Skipped download of artwork {ArtworkId} — blocked by blocklist", artwork.Id);
+            return [];
+        }
+
         // Ugoira (animated) branch — fetch frame zip, apply preset if specified, run ffmpeg, write configured formats.
         if (artwork.IllustType == 2)
         {

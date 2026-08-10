@@ -1143,7 +1143,7 @@ public partial class AiViewModel : ObservableObject
         {
             try
             {
-                var bytes = await _imageLoader.FetchBytesAsync(card.ThumbnailUrl);
+                var bytes = string.IsNullOrEmpty(card.ThumbnailUrl) ? null : await _imageLoader.FetchBytesAsync(card.ThumbnailUrl);
                 if (bytes is { Length: > 0 })
                 {
                     CurrentImageBytes = bytes;
@@ -1320,7 +1320,7 @@ public partial class AiViewModel : ObservableObject
                     {
                         // Set as current card and load image bytes
                         CurrentCard = card;
-                        var bytes = await _imageLoader.FetchBytesAsync(card.ThumbnailUrl);
+                        var bytes = string.IsNullOrEmpty(card.ThumbnailUrl) ? null : await _imageLoader.FetchBytesAsync(card.ThumbnailUrl);
                         if (bytes != null)
                         {
                             if (CurrentSession != null)
@@ -1371,7 +1371,7 @@ public partial class AiViewModel : ObservableObject
                     if (card != null)
                     {
                         CurrentCard = card;
-                        var bytes = await _imageLoader.FetchBytesAsync(card.ThumbnailUrl);
+                        var bytes = string.IsNullOrEmpty(card.ThumbnailUrl) ? null : await _imageLoader.FetchBytesAsync(card.ThumbnailUrl);
                         if (bytes != null)
                         {
                             if (CurrentSession != null)
@@ -1672,7 +1672,7 @@ public partial class AiViewModel : ObservableObject
                 if (card != null)
                 {
                     CurrentCard = card;
-                    var bytes = await _imageLoader.FetchBytesAsync(card.ThumbnailUrl);
+                    var bytes = string.IsNullOrEmpty(card.ThumbnailUrl) ? null : await _imageLoader.FetchBytesAsync(card.ThumbnailUrl);
                     if (bytes != null)
                     {
                         if (CurrentSession != null)
@@ -1883,8 +1883,9 @@ public partial class AiViewModel : ObservableObject
         foreach (var w in works)
         {
             byte[]? bytes = null;
-            try { bytes = await _imageLoader.FetchBytesAsync(w.ThumbnailUrl); }
-            catch { /* thumbnail is best-effort — still show the text/link if it fails */ }
+            if (!string.IsNullOrEmpty(w.ThumbnailUrl))
+                try { bytes = await _imageLoader.FetchBytesAsync(w.ThumbnailUrl); }
+                catch { /* thumbnail is best-effort — still show the text/link if it fails */ }
 
             var msg = new AiChatMessage
             {

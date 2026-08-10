@@ -22,6 +22,7 @@ public static class StartupHelper
     /// </summary>
     public static bool IsStartupEnabled()
     {
+        if (!OperatingSystem.IsWindows()) return false;
         try
         {
             using var key = Registry.CurrentUser.OpenSubKey(RegistryKey, false);
@@ -44,6 +45,7 @@ public static class StartupHelper
     /// </summary>
     public static void SetStartupEnabled(bool enabled)
     {
+        if (!OperatingSystem.IsWindows()) return;
         try
         {
             using var key = Registry.CurrentUser.OpenSubKey(RegistryKey, true);
@@ -77,6 +79,7 @@ public static class StartupHelper
     /// </summary>
     public static void UpdateStartupCommand(bool startMinimized, bool startInTray)
     {
+        if (!OperatingSystem.IsWindows()) return;
         try
         {
             using var key = Registry.CurrentUser.OpenSubKey(RegistryKey, true);

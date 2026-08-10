@@ -1,0 +1,1272 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:actipro="http://schemas.actiprosoftware.com/avaloniaui"
+             xmlns:vm="using:Pikura.Avalonia.ViewModels"
+             xmlns:conv="using:Pikura.Avalonia.Converters"
+             xmlns:services="using:Pikura.Avalonia.Services"
+             xmlns:gallery="using:Pikura.Avalonia.Views.Gallery"
+             xmlns:models="using:Pikura.Core.Models"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
+             x:Class="Pikura.Avalonia.Views.Pixivision.PixivisionView"
+             x:DataType="vm:PixivisionViewModel">
+
+    <UserControl.Resources>
+        <conv:BoolToBlurRadiusConverter x:Key="BoolToBlurRadiusConverter"/>
+
+        <ContextMenu x:Key="WorkCardContextMenu" x:DataType="vm:ArtworkCardViewModel" Opening="OnCardContextMenuOpening">
+            <MenuItem Header="☑ Select" Click="OnContextToggleSelection" IsVisible="{Binding !IsSelected}"/>
+            <MenuItem Header="☒ Deselect" Click="OnContextToggleSelection" IsVisible="{Binding IsSelected}"/>
+            <Separator/>
+            <MenuItem Header="↓ Download all" Click="OnContextDownloadAll"/>
+            <MenuItem Header="↓ First page only" Click="OnContextDownloadThisPage" IsVisible="{Binding IsMultiPage}"/>
+            <Separator/>
+            <MenuItem Header="👁 Open in side panel" Click="OnContextOpenSidePanel"/>
+            <MenuItem Header="⛶ Open full screen" Click="OnContextOpenFullScreen"/>
+            <MenuItem Header="⊞ Open in new tab" Click="OnContextOpenInNewTab"/>
+            <MenuItem Header="⧉ Open in popup" Click="OnContextOpenPopup"/>
+            <MenuItem Header="🌐 Open on pixiv.net" Click="OnContextOpenPixiv"/>
+            <MenuItem Header="👤 Open artist gallery" Click="OnContextOpenArtistGallery"/>
+            <Separator/>
+            <MenuItem Header="★ Add to local favorites" Click="OnContextToggleFavorite" IsVisible="{Binding !IsLocalFavorite}"/>
+            <MenuItem Header="★ Remove from favorites" Click="OnContextToggleFavorite" IsVisible="{Binding IsLocalFavorite}"/>
+            <Separator/>
+            <MenuItem Header="Copy artwork ID" Click="OnContextCopyId"/>
+            <MenuItem Header="Copy artist ID" Click="OnContextCopyArtistId"/>
+            <MenuItem Header="📋 Copy image" Click="OnContextCopyImage"/>
+            <MenuItem Header="🖼 Use as app background" Click="OnContextUseAsBackground" IsVisible="{Binding IsEnabled, Source={x:Static services:AppServices.OverlayService}}"/>
+            <MenuItem Header="Ugoira options…" Click="OnContextUgoiraOptions" IsVisible="False"/>
+        </ContextMenu>
+
+        <ContextMenu x:Key="ArticleCardContextMenu" x:DataType="vm:PixivisionArticleCardViewModel">
+            <MenuItem Header="🔖 Save for later" Click="OnContextToggleSaveArticle" IsVisible="{Binding !IsSaved}"/>
+            <MenuItem Header="🔖 Remove from saved" Click="OnContextToggleSaveArticle" IsVisible="{Binding IsSaved}"/>
+            <Separator/>
+            <MenuItem Header="🌐 Open on pixivision.net" Click="OnContextOpenArticlePixivision"/>
+        </ContextMenu>
+    </UserControl.Resources>
+
+    <UserControl.Styles>
+        <Style Selector="Button.linkChip">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        <Style Selector="Button.linkChip:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="Transparent"/>
+        </Style>
+    </UserControl.Styles>
+
+    <!-- header | category tabs | view controls | actions | content | status -->
+    <Grid RowDefinitions="Auto,Auto,Auto,Auto,*,Auto">
+
+        <!-- ══ Row 0: Title / article header ══ -->
+        <Border Grid.Row="0"
+                Background="{actipro:ThemeResource Container1BackgroundBrush}"
+                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                BorderThickness="0,0,0,1" Padding="20,10"
+                Margin="0,32,0,0">
+            <Grid ColumnDefinitions="Auto,*,Auto">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                    <StackPanel.IsVisible>
+                        <MultiBinding Converter="{x:Static BoolConverters.And}">
+                            <Binding Path="!IsViewingArticle"/>
+                            <Binding Path="!IsViewingSavedArticles"/>
+                        </MultiBinding>
+                    </StackPanel.IsVisible>
+                    <TextBlock Text="Pixivision" FontWeight="Bold" FontSize="20" VerticalAlignment="Center"/>
+                    <ProgressBar IsIndeterminate="True" Width="70" Height="3"
+                                 IsVisible="{Binding IsLoading}" VerticalAlignment="Center"/>
+                    <Button Content="{Binding SavedArticlesButtonLabel}" CornerRadius="6" Padding="10,5" FontSize="11"
+                            Command="{Binding ShowSavedArticlesCommand}"
+                            ToolTip.Tip="Articles saved for reading later"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center"
+                            IsVisible="{Binding IsViewingArticle}">
+                    <Button Content="← Back" CornerRadius="6" Padding="10,5" FontSize="11"
+                            Command="{Binding BackToListCommand}"/>
+                    <TextBlock Text="{Binding ArticleTitle}" FontWeight="Bold" FontSize="16" VerticalAlignment="Center"
+                               TextTrimming="CharacterEllipsis" MaxWidth="500"/>
+                    <ProgressBar IsIndeterminate="True" Width="70" Height="3"
+                                 IsVisible="{Binding IsLoadingArticle}" VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <!-- Date toolbar — centred, grouped in a single rounded container, matching Rankings -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6"
+                            HorizontalAlignment="Center" VerticalAlignment="Center"
+                            IsVisible="{Binding !IsViewingArticle}">
+                    <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
+                            BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                            BorderThickness="1" CornerRadius="7" Padding="3">
+                        <Border.Styles>
+                            <Style Selector="Button.tool">
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Setter Property="BorderThickness" Value="0"/>
+                                <Setter Property="CornerRadius" Value="5"/>
+                                <Setter Property="Padding" Value="7,4"/>
+                                <Setter Property="FontSize" Value="13"/>
+                                <Setter Property="MinWidth" Value="0"/>
+                            </Style>
+                            <Style Selector="Button.tool:pointerover /template/ ContentPresenter">
+                                <Setter Property="Background" Value="{actipro:ThemeResource Container3BackgroundBrush}"/>
+                            </Style>
+                        </Border.Styles>
+                        <StackPanel Orientation="Horizontal" Spacing="0">
+                            <Button Name="CalendarFlyoutButton" Classes="tool" Content="📅"
+                                    FontSize="12" ToolTip.Tip="Browse articles by date">
+                                <Button.Flyout>
+                                    <Flyout Placement="Bottom" ShowMode="Standard" Opened="OnCalendarOpened">
+                                        <Calendar Name="DatePopupCalendar"
+                                                  SelectionMode="SingleDate"
+                                                  SelectedDatesChanged="OnCalendarSelectedDateChanged"
+                                                  DisplayDateChanged="OnCalendarDisplayDateChanged"/>
+                                    </Flyout>
+                                </Button.Flyout>
+                            </Button>
+                            <TextBlock Text="{Binding DateLabel}" FontSize="11" VerticalAlignment="Center" Margin="8,0"/>
+                            <Button Classes="tool" Content="⊙" FontSize="12"
+                                    IsVisible="{Binding IsFilteredByDate}"
+                                    Command="{Binding GoToAllTimeCommand}"
+                                    ToolTip.Tip="Back to all dates"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8" IsVisible="{Binding IsViewingArticle}">
+                    <ToggleButton IsChecked="{Binding IsCurrentArticleSaved}" CornerRadius="6" Padding="10,5" FontSize="11"
+                                  Command="{Binding ToggleSaveArticleCommand}"
+                                  ToolTip.Tip="Save this article to read later">
+                        <ToggleButton.Styles>
+                            <Style Selector="ToggleButton:checked">
+                                <Setter Property="Background" Value="#3B82F6"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Style>
+                        </ToggleButton.Styles>
+                        <TextBlock Text="{Binding SaveArticleButtonLabel}"/>
+                    </ToggleButton>
+                    <Button Content="🌐 Open on pixivision.net" CornerRadius="6" Padding="10,5" FontSize="11"
+                            Command="{Binding OpenArticleInBrowserCommand}"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- ══ Row 1: Category tabs (list mode only) ══ -->
+        <Border Grid.Row="1"
+                Background="{actipro:ThemeResource Container1BackgroundBrush}"
+                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                BorderThickness="0,0,0,1" Padding="20,10"
+                IsVisible="{Binding !IsViewingArticle}">
+            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                <ItemsControl ItemsSource="{Binding CategoryGroups}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate><StackPanel Orientation="Horizontal" Spacing="0" VerticalAlignment="Bottom"/></ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="models:PixivisionCategoryGroup">
+                            <StackPanel Orientation="Horizontal" Spacing="0" VerticalAlignment="Bottom" Margin="0,0,18,0">
+                                <StackPanel Spacing="6" VerticalAlignment="Bottom">
+                                    <TextBlock Text="{Binding Label}" FontSize="13" FontWeight="Bold"
+                                               Foreground="{Binding Color}" IsVisible="{Binding HasLabel}"/>
+                                    <ItemsControl ItemsSource="{Binding Items}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate><StackPanel Orientation="Horizontal" Spacing="4"/></ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate x:DataType="models:PixivisionCategory">
+                                                <ToggleButton CornerRadius="5" Padding="10,5" FontSize="11" Content="{Binding Label}"
+                                                              IsChecked="{Binding $parent[UserControl].((vm:PixivisionViewModel)DataContext).SelectedCategory, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={Binding}}"
+                                                              Click="OnCategoryTabClicked" Tag="{Binding}"/>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                                <Rectangle Width="1" Height="26" Margin="18,0,0,0" VerticalAlignment="Bottom"
+                                           Fill="{actipro:ThemeResource Container1BorderBrush}"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </Border>
+
+        <!-- ══ Row 2: View controls ══ -->
+        <Border Grid.Row="2"
+                Background="{actipro:ThemeResource Container1BackgroundBrush}"
+                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                BorderThickness="0,0,0,1" Padding="20,7">
+            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                <Panel>
+                    <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center"
+                                IsVisible="{Binding !IsViewingArticle}">
+                        <ToggleButton IsChecked="{Binding IsArticleGridView}" CornerRadius="5" Padding="9,5" FontSize="11"
+                                      Command="{Binding SetArticleGridViewCommand}">⊞ Grid</ToggleButton>
+                        <ToggleButton IsChecked="{Binding IsArticleListView}" CornerRadius="5" Padding="9,5" FontSize="11"
+                                      Command="{Binding SetArticleListViewCommand}">☰ List</ToggleButton>
+                        <Rectangle Width="1" Height="16" Fill="{actipro:ThemeResource Container1BorderBrush}"/>
+                        <TextBlock Text="Card size" FontSize="11" VerticalAlignment="Center"
+                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                   IsVisible="{Binding IsArticleGridView}"/>
+                        <Slider Value="{Binding ArticleCardSize}" Minimum="140" Maximum="320"
+                                Width="90" VerticalAlignment="Center"
+                                IsVisible="{Binding IsArticleGridView}"/>
+                        <Rectangle Width="1" Height="16" Fill="{actipro:ThemeResource Container1BorderBrush}"
+                                   IsVisible="{Binding IsArticleGridView}"/>
+                        <ToggleButton IsChecked="{Binding ShowSidebarWidgets}" CornerRadius="5" Padding="9,5" FontSize="11"
+                                      ToolTip.Tip="Show or hide the Monthly Ranking / Featured sidebar">
+                            Featured
+                        </ToggleButton>
+                        <Rectangle Width="1" Height="16" Fill="{actipro:ThemeResource Container1BorderBrush}"/>
+                        <ToggleButton IsChecked="{Binding ShowPreview}" CornerRadius="5" Padding="10,5" FontSize="11"
+                                      ToolTip.Tip="Toggle the side panel (browse artworks alongside the viewer)">
+                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                <TextBlock Text="▣" FontSize="12"/>
+                                <TextBlock Text="{Binding SidePanelLabel}" FontSize="11"/>
+                            </StackPanel>
+                        </ToggleButton>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center"
+                                IsVisible="{Binding IsViewingArticle}">
+                        <TextBlock Text="Card size" FontSize="11" VerticalAlignment="Center"
+                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                        <Slider Value="{Binding CardSize}" Minimum="100" Maximum="320"
+                                Width="90" VerticalAlignment="Center"/>
+                        <Rectangle Width="1" Height="16" Fill="{actipro:ThemeResource Container1BorderBrush}"/>
+                        <ToggleButton IsChecked="{Binding IsFixedHeight}" CornerRadius="5" Padding="9,5" FontSize="11"
+                                      Command="{Binding SetFixedHeightCommand}">
+                            <ToggleButton.Styles>
+                                <Style Selector="ToggleButton:checked">
+                                    <Setter Property="Background" Value="#3B82F6"/>
+                                    <Setter Property="Foreground" Value="White"/>
+                                </Style>
+                            </ToggleButton.Styles>
+                            Fixed
+                        </ToggleButton>
+                        <ToggleButton IsChecked="{Binding IsNaturalHeight}" CornerRadius="5" Padding="9,5" FontSize="11"
+                                      Command="{Binding SetNaturalHeightCommand}">
+                            <ToggleButton.Styles>
+                                <Style Selector="ToggleButton:checked">
+                                    <Setter Property="Background" Value="#3B82F6"/>
+                                    <Setter Property="Foreground" Value="White"/>
+                                </Style>
+                            </ToggleButton.Styles>
+                            Natural
+                        </ToggleButton>
+                        <Rectangle Width="1" Height="16" Fill="{actipro:ThemeResource Container1BorderBrush}"/>
+                        <ToggleButton IsChecked="{Binding IsInlineArtworkLayout}" CornerRadius="5" Padding="9,5" FontSize="11"
+                                      ToolTip.Tip="Switch between showing embedded artworks inline where they appear in the article, or grouped in a gallery at the bottom">
+                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                <TextBlock Text="⇄" FontSize="12"/>
+                                <TextBlock Text="Artworks:"/>
+                                <TextBlock Text="{Binding InlineArtworkLayoutLabel}" FontWeight="SemiBold"/>
+                            </StackPanel>
+                        </ToggleButton>
+                        <Rectangle Width="1" Height="16" Fill="{actipro:ThemeResource Container1BorderBrush}"/>
+                        <ToggleButton IsChecked="{Binding ShowInfo}" CornerRadius="5" Padding="9,5" FontSize="11">Info</ToggleButton>
+                        <ToggleButton IsChecked="{Binding ShowTags}" CornerRadius="5" Padding="9,5" FontSize="11">Tags</ToggleButton>
+                        <Rectangle Width="1" Height="16" Fill="{actipro:ThemeResource Container1BorderBrush}"/>
+                        <ToggleButton IsChecked="{Binding ShowPreview}" CornerRadius="5" Padding="10,5" FontSize="11"
+                                      ToolTip.Tip="Toggle the side panel (browse artworks alongside the viewer)">
+                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                <TextBlock Text="▣" FontSize="12"/>
+                                <TextBlock Text="{Binding SidePanelLabel}" FontSize="11"/>
+                            </StackPanel>
+                        </ToggleButton>
+                    </StackPanel>
+                </Panel>
+            </ScrollViewer>
+        </Border>
+
+        <!-- ══ Row 3: Action buttons (article mode only) ══ -->
+        <Border Grid.Row="3"
+                Background="{actipro:ThemeResource Container1BackgroundBrush}"
+                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                BorderThickness="0,0,0,1" Padding="20,6"
+                IsVisible="{Binding IsViewingArticle}">
+            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <Button CornerRadius="6" Padding="12,6" FontSize="11"
+                            Classes.accent="{Binding HasSelection}"
+                            IsEnabled="{Binding HasSelection}"
+                            Command="{Binding DownloadSelectedCommand}">
+                        <StackPanel Orientation="Horizontal" Spacing="5">
+                            <TextBlock Text="↓" FontSize="12"/>
+                            <TextBlock Text="{Binding SelectedCount, StringFormat='Download Selected ({0})'}"/>
+                        </StackPanel>
+                    </Button>
+                    <Button CornerRadius="6" Padding="12,6" FontSize="11"
+                            Command="{Binding DownloadAllVisibleCommand}">
+                        <StackPanel Orientation="Horizontal" Spacing="5">
+                            <TextBlock Text="⊞" FontSize="12"/>
+                            <TextBlock Text="Download All Featured"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Content="☑ Select All" CornerRadius="6" Padding="12,6" FontSize="11"
+                            Command="{Binding SelectAllCommand}"/>
+                    <Button Content="{Binding SelectedCount, StringFormat='☒ Deselect All ({0})'}"
+                            CornerRadius="6" Padding="12,6" FontSize="11"
+                            Command="{Binding ClearSelectionCommand}"
+                            IsVisible="{Binding HasSelection}"/>
+                    <Button Content="🎨 Download Preset" CornerRadius="6" Padding="12,6" FontSize="11"
+                            Classes="accent"
+                            Click="OnDownloadPresetClicked"
+                            ToolTip.Tip="Download with image processing preset"/>
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+
+        <!-- ══ Row 4: Content area ══ -->
+        <Border Grid.Row="4"
+                Background="{actipro:ThemeResource Container3BackgroundBrush}"
+                Margin="0">
+            <Grid Name="ContentGrid">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" MinWidth="280"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="0" MinWidth="0"/>
+                </Grid.ColumnDefinitions>
+
+                <GridSplitter Grid.Column="1" Width="4"
+                              Background="{actipro:ThemeResource Container1BorderBrush}"
+                              IsVisible="{Binding ShowPreview}"
+                              ResizeBehavior="PreviousAndNext" ResizeDirection="Columns"
+                              DragCompleted="OnSplitterDragCompleted"/>
+
+                <Border Grid.Column="2"
+                        Background="{actipro:ThemeResource Container1BackgroundBrush}"
+                        BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                        BorderThickness="1,0,0,0"
+                        IsVisible="{Binding ShowPreview}">
+                    <gallery:InlineArtworkViewer Name="PixivisionInlineViewer"
+                                                 DataContext="{Binding GalleryVm}"
+                                                 IsExpanded="{Binding $parent[UserControl].((vm:PixivisionViewModel)DataContext).IsViewerExpanded}"
+                                                 IsPanelOpen="{Binding $parent[UserControl].((vm:PixivisionViewModel)DataContext).ShowPreview}"/>
+                </Border>
+
+                <!-- ── Article LIST mode ── -->
+                <Grid Grid.Column="0" ColumnDefinitions="*,Auto">
+                    <Grid.IsVisible>
+                        <MultiBinding Converter="{x:Static BoolConverters.And}">
+                            <Binding Path="!IsViewingArticle"/>
+                            <Binding Path="!IsViewingSavedArticles"/>
+                        </MultiBinding>
+                    </Grid.IsVisible>
+                <Panel Grid.Column="0">
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="8"
+                                IsVisible="{Binding !HasArticles}">
+                        <TextBlock Text="{Binding StatusMessage}"
+                                   FontSize="13" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                   HorizontalAlignment="Center" TextWrapping="Wrap" MaxWidth="400"/>
+                    </StackPanel>
+
+                    <!-- GRID view -->
+                    <ScrollViewer Name="ArticleScrollViewer"
+                                  HorizontalScrollBarVisibility="Disabled"
+                                  VerticalScrollBarVisibility="Auto"
+                                  AllowAutoHide="False"
+                                  ScrollChanged="OnArticleScrollChanged"
+                                  IsVisible="{Binding IsArticleGridView}">
+                        <ItemsControl ItemsSource="{Binding Articles}" Margin="14">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:PixivisionArticleCardViewModel">
+                                    <Border Width="{Binding $parent[UserControl].((vm:PixivisionViewModel)DataContext).ArticleCardSize}"
+                                            Margin="0,0,10,10"
+                                            Background="{actipro:ThemeResource Container1BackgroundBrush}"
+                                            BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                                            BorderThickness="1" CornerRadius="8"
+                                            BoxShadow="0 1 4 0 #28000000" Cursor="Hand"
+                                            PointerPressed="OnArticleCardClicked"
+                                            ContextMenu="{StaticResource ArticleCardContextMenu}">
+                                        <Border.Styles>
+                                            <Style Selector="Border:pointerover">
+                                                <Setter Property="BoxShadow" Value="0 6 20 0 #55000000"/>
+                                                <Setter Property="BorderBrush" Value="{actipro:ThemeResource ControlBackgroundBrushSolidAccent}"/>
+                                            </Style>
+                                        </Border.Styles>
+                                        <Grid RowDefinitions="Auto,Auto">
+                                            <Panel Grid.Row="0">
+                                                <Border Height="150" CornerRadius="7,7,0,0" ClipToBounds="True">
+                                                    <Panel>
+                                                        <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
+                                                                IsVisible="{Binding Thumbnail, Converter={x:Static ObjectConverters.IsNull}}"/>
+                                                        <Image Source="{Binding Thumbnail}" Stretch="UniformToFill"/>
+                                                    </Panel>
+                                                </Border>
+                                                <Button Content="🌐" FontSize="11" Padding="5,3" CornerRadius="4"
+                                                        VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,6,6,0"
+                                                        Background="#AA000000" Foreground="White" BorderThickness="0"
+                                                        Click="OnArticleOpenInBrowserClicked"
+                                                        ToolTip.Tip="Open on pixivision.net"/>
+                                                <Button Content="🔖" FontSize="12" Padding="5,3" CornerRadius="4"
+                                                        VerticalAlignment="Top" HorizontalAlignment="Left" Margin="6,6,0,0"
+                                                        Background="{Binding IsSaved, Converter={x:Static conv:BoolToBookmarkIconConverter.Instance}}"
+                                                        Foreground="White" BorderThickness="0"
+                                                        Click="OnBookmarkIconClicked"
+                                                        ToolTip.Tip="Save for later"/>
+                                            </Panel>
+                                            <StackPanel Grid.Row="1" Margin="8,6,8,8" Spacing="4">
+                                                <TextBlock Text="{Binding Title}" FontSize="12" FontWeight="SemiBold"
+                                                           TextWrapping="Wrap" MaxLines="3"/>
+                                                <TextBlock Text="{Binding DateLabel}" FontSize="10" IsVisible="{Binding HasDate}"
+                                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                <ItemsControl ItemsSource="{Binding Tags}" IsVisible="{Binding HasTags}">
+                                                    <ItemsControl.ItemsPanel>
+                                                        <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                                                    </ItemsControl.ItemsPanel>
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate x:DataType="x:String">
+                                                            <Border Margin="0,0,3,3" Padding="5,2" CornerRadius="3"
+                                                                    Background="{actipro:ThemeResource Container2BackgroundBrush}">
+                                                                <TextBlock Text="{Binding}" FontSize="9"
+                                                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                            </Border>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+
+                    <!-- LIST view -->
+                    <ScrollViewer Name="ArticleListScrollViewer"
+                                  HorizontalScrollBarVisibility="Disabled"
+                                  VerticalScrollBarVisibility="Auto"
+                                  AllowAutoHide="False"
+                                  ScrollChanged="OnArticleScrollChanged"
+                                  IsVisible="{Binding IsArticleListView}">
+                        <ItemsControl ItemsSource="{Binding Articles}" Margin="8">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:PixivisionArticleCardViewModel">
+                                    <Border Margin="0,0,0,4"
+                                            Background="{actipro:ThemeResource Container1BackgroundBrush}"
+                                            BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                                            BorderThickness="1" CornerRadius="6"
+                                            BoxShadow="0 1 3 0 #20000000" Cursor="Hand"
+                                            PointerPressed="OnArticleCardClicked"
+                                            ContextMenu="{StaticResource ArticleCardContextMenu}">
+                                        <Grid ColumnDefinitions="Auto,*,Auto,Auto" Margin="8,6">
+                                            <Border Grid.Column="0" Width="90" Height="60" CornerRadius="4" ClipToBounds="True" Margin="0,0,10,0">
+                                                <Panel>
+                                                    <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
+                                                            IsVisible="{Binding Thumbnail, Converter={x:Static ObjectConverters.IsNull}}"/>
+                                                    <Image Source="{Binding Thumbnail}" Stretch="UniformToFill"/>
+                                                </Panel>
+                                            </Border>
+                                            <StackPanel Grid.Column="1" Spacing="3" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding Title}" FontSize="12" FontWeight="SemiBold"
+                                                           TextTrimming="CharacterEllipsis" MaxLines="1"/>
+                                                <ItemsControl ItemsSource="{Binding Tags}" IsVisible="{Binding HasTags}">
+                                                    <ItemsControl.ItemsPanel>
+                                                        <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                                                    </ItemsControl.ItemsPanel>
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate x:DataType="x:String">
+                                                            <Border Margin="0,0,3,3" Padding="5,2" CornerRadius="3"
+                                                                    Background="{actipro:ThemeResource Container2BackgroundBrush}">
+                                                                <TextBlock Text="{Binding}" FontSize="9"
+                                                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                            </Border>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                            </StackPanel>
+                                            <TextBlock Grid.Column="2" Text="{Binding DateLabel}" FontSize="10"
+                                                       Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                                       VerticalAlignment="Center" Margin="12,0"/>
+                                            <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                                                <Button Content="🔖" FontSize="11" Padding="6,4" CornerRadius="4"
+                                                        Background="{Binding IsSaved, Converter={x:Static conv:BoolToBookmarkIconConverter.Instance}}"
+                                                        Foreground="White" BorderThickness="0"
+                                                        Click="OnBookmarkIconClicked"
+                                                        ToolTip.Tip="Save for later"/>
+                                                <Button Content="🌐" FontSize="11" Padding="6,4" CornerRadius="4"
+                                                        Click="OnArticleOpenInBrowserClicked"
+                                                        ToolTip.Tip="Open on pixivision.net"/>
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Panel>
+
+                <!-- pixivision's own "Monthly Ranking" / "Featured" sidebar widgets -->
+                <ScrollViewer Grid.Column="1" Width="230" Margin="0,10,10,10"
+                              IsVisible="{Binding ShowSidebarPanel}"
+                              VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel Spacing="14">
+                        <StackPanel Spacing="0" IsVisible="{Binding HasMonthlyRanking}">
+                            <Border Background="{actipro:ThemeResource ControlBackgroundBrushSolidAccent}" CornerRadius="8,8,0,0" Padding="10,7">
+                                <TextBlock Text="🏆 Monthly Ranking" FontWeight="Bold" FontSize="12" Foreground="White"/>
+                            </Border>
+                            <Border Background="{actipro:ThemeResource Container1BackgroundBrush}"
+                                    BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                                    BorderThickness="1,0,1,1" CornerRadius="0,0,8,8" Padding="8">
+                                <ItemsControl ItemsSource="{Binding MonthlyRanking}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:PixivisionArticleCardViewModel">
+                                            <Border Margin="0,0,0,8" Cursor="Hand"
+                                                    PointerPressed="OnArticleCardClicked"
+                                                    ContextMenu="{StaticResource ArticleCardContextMenu}">
+                                                <Grid ColumnDefinitions="Auto,*">
+                                                    <Panel Grid.Column="0" Width="56" Height="56" Margin="0,0,8,0">
+                                                        <Border CornerRadius="4" ClipToBounds="True">
+                                                            <Panel>
+                                                                <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
+                                                                        IsVisible="{Binding Thumbnail, Converter={x:Static ObjectConverters.IsNull}}"/>
+                                                                <Image Source="{Binding Thumbnail}" Stretch="UniformToFill"/>
+                                                            </Panel>
+                                                        </Border>
+                                                        <Border VerticalAlignment="Top" HorizontalAlignment="Left"
+                                                                Background="{actipro:ThemeResource ControlBackgroundBrushSolidAccent}"
+                                                                Padding="5,1" CornerRadius="4" Margin="3">
+                                                            <TextBlock Text="{Binding Rank}" FontSize="10" FontWeight="Bold" Foreground="White"/>
+                                                        </Border>
+                                                    </Panel>
+                                                    <TextBlock Grid.Column="1" Text="{Binding Title}" FontSize="11"
+                                                               TextWrapping="Wrap" MaxLines="3" VerticalAlignment="Center"/>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </Border>
+                        </StackPanel>
+
+                        <StackPanel Spacing="0" IsVisible="{Binding HasFeatured}">
+                            <Border Background="{actipro:ThemeResource Container3BackgroundBrush}" CornerRadius="8,8,0,0" Padding="10,7">
+                                <TextBlock Text="⭐ Featured" FontWeight="Bold" FontSize="12"/>
+                            </Border>
+                            <Border Background="{actipro:ThemeResource Container1BackgroundBrush}"
+                                    BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                                    BorderThickness="1,0,1,1" CornerRadius="0,0,8,8" Padding="8">
+                                <ItemsControl ItemsSource="{Binding Featured}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:PixivisionArticleCardViewModel">
+                                            <Border Margin="0,0,0,8" Cursor="Hand"
+                                                    PointerPressed="OnArticleCardClicked"
+                                                    ContextMenu="{StaticResource ArticleCardContextMenu}">
+                                                <Grid ColumnDefinitions="Auto,*">
+                                                    <Border Grid.Column="0" Width="56" Height="56" Margin="0,0,8,0"
+                                                            CornerRadius="4" ClipToBounds="True">
+                                                        <Panel>
+                                                            <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
+                                                                    IsVisible="{Binding Thumbnail, Converter={x:Static ObjectConverters.IsNull}}"/>
+                                                            <Image Source="{Binding Thumbnail}" Stretch="UniformToFill"/>
+                                                        </Panel>
+                                                    </Border>
+                                                    <TextBlock Grid.Column="1" Text="{Binding Title}" FontSize="11"
+                                                               TextWrapping="Wrap" MaxLines="3" VerticalAlignment="Center"/>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </Border>
+                        </StackPanel>
+                    </StackPanel>
+                </ScrollViewer>
+                </Grid>
+
+                <!-- ── Saved articles ("read later") mode ── -->
+                <Grid Grid.Column="0" RowDefinitions="Auto,*">
+                    <Grid.IsVisible>
+                        <MultiBinding Converter="{x:Static BoolConverters.And}">
+                            <Binding Path="IsViewingSavedArticles"/>
+                            <Binding Path="!IsViewingArticle"/>
+                        </MultiBinding>
+                    </Grid.IsVisible>
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="10" Margin="20,14,20,0">
+                        <Button Content="← Back" CornerRadius="6" Padding="10,5" FontSize="11"
+                                Command="{Binding HideSavedArticlesCommand}"/>
+                        <TextBlock Text="🔖 Saved Articles" FontWeight="Bold" FontSize="16" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                        <Panel>
+                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="8"
+                                        IsVisible="{Binding !HasSavedArticles}" Margin="0,60,0,0">
+                                <TextBlock Text="No saved articles yet. Open an article and tap 🔖 Save to read it later."
+                                           FontSize="13" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                           HorizontalAlignment="Center" TextWrapping="Wrap" MaxWidth="400"/>
+                            </StackPanel>
+                            <ItemsControl ItemsSource="{Binding SavedArticles}" Margin="20">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:PixivisionArticleCardViewModel">
+                                        <Border Width="300" Margin="0,0,12,12"
+                                                Background="{actipro:ThemeResource Container1BackgroundBrush}"
+                                                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                                                BorderThickness="1" CornerRadius="8" ClipToBounds="True" Cursor="Hand"
+                                                PointerPressed="OnArticleCardClicked"
+                                                ContextMenu="{StaticResource ArticleCardContextMenu}">
+                                            <StackPanel>
+                                                <Panel Height="185">
+                                                    <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
+                                                            IsVisible="{Binding Thumbnail, Converter={x:Static ObjectConverters.IsNull}}"/>
+                                                    <Image Source="{Binding Thumbnail}" Stretch="UniformToFill"/>
+                                                </Panel>
+                                                <Grid ColumnDefinitions="*,Auto" Margin="10">
+                                                    <TextBlock Grid.Column="0" Text="{Binding Title}" FontSize="13"
+                                                               TextWrapping="Wrap" MaxLines="3"/>
+                                                    <Button Grid.Column="1" Content="✕" Classes="tool" FontSize="11"
+                                                            VerticalAlignment="Top"
+                                                            ToolTip.Tip="Remove from saved"
+                                                            Command="{Binding $parent[UserControl].((vm:PixivisionViewModel)DataContext).RemoveSavedArticleCommand}"
+                                                            CommandParameter="{Binding}"/>
+                                                </Grid>
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </Panel>
+                    </ScrollViewer>
+                </Grid>
+
+                <!-- ── Article DETAIL mode ── -->
+                <ScrollViewer x:Name="ArticleDetailScrollViewer" Grid.Column="0" IsVisible="{Binding IsViewingArticle}"
+                              HorizontalScrollBarVisibility="Disabled"
+                              VerticalScrollBarVisibility="Auto"
+                              AllowAutoHide="False">
+                    <StackPanel Margin="16" Spacing="14">
+                        <Border x:Name="EyecatchBorder" CornerRadius="8" ClipToBounds="True" HorizontalAlignment="Stretch"
+                                IsVisible="{Binding ArticleEyecatch, Converter={x:Static ObjectConverters.IsNotNull}}">
+                            <Image Source="{Binding ArticleEyecatch}" Stretch="UniformToFill"
+                                   HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+                        </Border>
+
+                        <!-- Table of Contents (interview-style articles) -->
+                        <Border IsVisible="{Binding HasArticleToc}" CornerRadius="8" Padding="14,10"
+                                Background="{actipro:ThemeResource Container1BackgroundBrush}"
+                                BorderBrush="{actipro:ThemeResource Container1BorderBrush}" BorderThickness="1">
+                            <StackPanel Spacing="6">
+                                <TextBlock Text="📑 Index" FontWeight="Bold" FontSize="13"/>
+                                <ItemsControl ItemsSource="{Binding ArticleTableOfContents}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:PixivisionTocEntryViewModel">
+                                            <Button Classes="linkChip" Click="OnTocEntryClicked" Tag="{Binding HeadingOrdinal}"
+                                                    HorizontalContentAlignment="Left" HorizontalAlignment="Stretch"
+                                                    Padding="0,2">
+                                                <TextBlock Text="{Binding Text}" FontSize="13" TextWrapping="Wrap"
+                                                           TextDecorations="Underline"
+                                                           Foreground="{actipro:ThemeResource ControlBackgroundBrushSolidAccent}"/>
+                                            </Button>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Interviewee profile/bio card (interview-style articles) -->
+                        <Border IsVisible="{Binding HasArticleProfile}" CornerRadius="8" Padding="14"
+                                Background="{actipro:ThemeResource Container1BackgroundBrush}"
+                                BorderBrush="{actipro:ThemeResource Container1BorderBrush}" BorderThickness="1">
+                            <Grid ColumnDefinitions="Auto,*">
+                                <Border Grid.Column="0" Width="64" Height="64" CornerRadius="32" ClipToBounds="True"
+                                        Margin="0,0,14,0" VerticalAlignment="Top"
+                                        IsVisible="{Binding ArticleProfileAvatar, Converter={x:Static ObjectConverters.IsNotNull}}">
+                                    <Image Source="{Binding ArticleProfileAvatar}" Stretch="UniformToFill"/>
+                                </Border>
+                                <StackPanel Grid.Column="1" Spacing="6">
+                                    <TextBlock Text="{Binding ArticleProfile.Name}" FontWeight="Bold" FontSize="15"/>
+                                    <TextBlock Text="{Binding ArticleProfile.Bio}" FontSize="13" TextWrapping="Wrap"
+                                               LineSpacing="4"
+                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushSecondary}"/>
+                                    <ItemsControl ItemsSource="{Binding ArticleProfile.Links}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate><StackPanel Orientation="Horizontal" Spacing="10"/></ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate x:DataType="models:PixivisionParagraphLink">
+                                                <Button Classes="linkChip" Click="OnParagraphLinkClicked" Tag="{Binding Url}">
+                                                    <TextBlock Text="{Binding Text}" FontSize="12"
+                                                               TextDecorations="Underline"
+                                                               Foreground="{actipro:ThemeResource ControlBackgroundBrushSolidAccent}"/>
+                                                </Button>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+
+                        <ItemsControl x:Name="ArticleParagraphsItemsControl" ItemsSource="{Binding ArticleParagraphs}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:PixivisionParagraphViewModel">
+                                    <StackPanel Margin="0,0,0,14" Spacing="6">
+                                        <StackPanel.IsVisible>
+                                            <MultiBinding Converter="{x:Static BoolConverters.Or}">
+                                                <Binding Path="!IsArtwork"/>
+                                                <MultiBinding Converter="{x:Static BoolConverters.And}">
+                                                    <Binding Path="Artwork" Converter="{x:Static ObjectConverters.IsNotNull}"/>
+                                                    <Binding Path="$parent[UserControl].((vm:PixivisionViewModel)DataContext).IsInlineArtworkLayout"/>
+                                                </MultiBinding>
+                                            </MultiBinding>
+                                        </StackPanel.IsVisible>
+                                        <!-- Section heading (interview-style articles) -->
+                                        <TextBlock Text="{Binding Text}" FontSize="20" FontWeight="Bold"
+                                                   TextWrapping="Wrap" Margin="0,10,0,0"
+                                                   IsVisible="{Binding IsHeading}"/>
+
+                                        <!-- Recommended-article cards embedded right under some headings
+                                             (e.g. "Check out past Artist's Spotlight interviews!") -->
+                                        <ItemsControl ItemsSource="{Binding RelatedCards}" IsVisible="{Binding HasRelatedCards}">
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate x:DataType="vm:PixivisionArticleCardViewModel">
+                                                    <Border Width="300" Margin="0,0,12,12"
+                                                            Background="{actipro:ThemeResource Container1BackgroundBrush}"
+                                                            BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                                                            BorderThickness="1" CornerRadius="8" ClipToBounds="True" Cursor="Hand"
+                                                            PointerPressed="OnArticleCardClicked"
+                                                            ContextMenu="{StaticResource ArticleCardContextMenu}">
+                                                        <StackPanel>
+                                                            <Panel Height="185">
+                                                                <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
+                                                                        IsVisible="{Binding Thumbnail, Converter={x:Static ObjectConverters.IsNull}}"/>
+                                                                <Image Source="{Binding Thumbnail}" Stretch="UniformToFill"/>
+                                                            </Panel>
+                                                            <TextBlock Text="{Binding Title}" FontSize="13" Margin="10"
+                                                                       TextWrapping="Wrap" MaxLines="3"/>
+                                                        </StackPanel>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+
+                                        <!-- Interviewer question -->
+                                        <Border IsVisible="{Binding IsQuestion}" Margin="0,6,0,0"
+                                                BorderBrush="{actipro:ThemeResource ControlBackgroundBrushSolidAccent}"
+                                                BorderThickness="3,0,0,0" Padding="12,2,0,2">
+                                            <TextBlock Text="{Binding Text}" FontSize="15" FontWeight="SemiBold"
+                                                       FontStyle="Italic" TextWrapping="Wrap" LineSpacing="6"/>
+                                        </Border>
+
+                                        <!-- Interviewee answer, with optional avatar -->
+                                        <Grid IsVisible="{Binding IsAnswer}" ColumnDefinitions="Auto,*">
+                                            <Border Grid.Column="0" Width="40" Height="40" CornerRadius="20"
+                                                    ClipToBounds="True" Margin="0,0,10,0" VerticalAlignment="Top"
+                                                    IsVisible="{Binding Avatar, Converter={x:Static ObjectConverters.IsNotNull}}">
+                                                <Image Source="{Binding Avatar}" Stretch="UniformToFill"/>
+                                            </Border>
+                                            <TextBlock Grid.Column="1" Text="{Binding Text}" FontSize="15" TextWrapping="Wrap"
+                                                       LineSpacing="8" LineHeight="24"
+                                                       Foreground="{actipro:ThemeResource DefaultForegroundBrushSecondary}"/>
+                                        </Grid>
+
+                                        <!-- Plain paragraph text (regular articles) -->
+                                        <TextBlock Text="{Binding Text}" FontSize="15" TextWrapping="Wrap"
+                                                   LineSpacing="8" LineHeight="24"
+                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushSecondary}">
+                                            <TextBlock.IsVisible>
+                                                <MultiBinding Converter="{x:Static BoolConverters.And}">
+                                                    <Binding Path="IsPlainText"/>
+                                                    <Binding Path="HasText"/>
+                                                </MultiBinding>
+                                            </TextBlock.IsVisible>
+                                        </TextBlock>
+
+                                        <!-- Embedded artwork, shown here only when "Inline Artworks" is on. Mirrors the
+                                             "Featured Artworks" gallery card exactly (same CardSize/Fixed-Natural/Info/Tags
+                                             toolbar bindings, same underlying ArtworkCardViewModel instance) so both views
+                                             stay in sync, just laid out differently. -->
+                                        <Panel HorizontalAlignment="Left" Margin="0,6,0,0">
+                                            <Panel.IsVisible>
+                                                <MultiBinding Converter="{x:Static BoolConverters.And}">
+                                                    <Binding Path="IsArtwork"/>
+                                                    <Binding Path="Artwork" Converter="{x:Static ObjectConverters.IsNotNull}"/>
+                                                </MultiBinding>
+                                            </Panel.IsVisible>
+                                            <!-- FIXED HEIGHT card -->
+                                            <Border DataContext="{Binding Artwork}"
+                                                    Width="{Binding $parent[UserControl].((vm:PixivisionViewModel)DataContext).CardSize}"
+                                                    IsVisible="{Binding $parent[UserControl].((vm:PixivisionViewModel)DataContext).ShowFixedGrid}"
+                                                    Background="{actipro:ThemeResource Container1BackgroundBrush}"
+                                                    BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                                                    BorderThickness="1" CornerRadius="8"
+                                                    BoxShadow="0 1 4 0 #28000000" Cursor="Hand"
+                                                    PointerPressed="OnCardClicked"
+                                                    ContextMenu="{StaticResource WorkCardContextMenu}">
+                                                <Border.Styles>
+                                                    <Style Selector="Border:pointerover">
+                                                        <Setter Property="BoxShadow" Value="0 6 20 0 #55000000"/>
+                                                        <Setter Property="BorderBrush" Value="{actipro:ThemeResource ControlBackgroundBrushSolidAccent}"/>
+                                                    </Style>
+                                                </Border.Styles>
+                                                <Grid RowDefinitions="*,Auto">
+                                                    <Border Grid.Row="0"
+                                                            Height="{Binding $parent[UserControl].((vm:PixivisionViewModel)DataContext).FixedCardTotalHeight}"
+                                                            CornerRadius="7,7,0,0" ClipToBounds="True">
+                                                        <Panel>
+                                                            <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
+                                                                    IsVisible="{Binding Thumbnail, Converter={x:Static ObjectConverters.IsNull}}"/>
+                                                            <Image Source="{Binding Thumbnail}" Stretch="UniformToFill">
+                                                                <Image.Effect>
+                                                                    <BlurEffect Radius="{Binding IsBlurred, Converter={StaticResource BoolToBlurRadiusConverter}}"/>
+                                                                </Image.Effect>
+                                                            </Image>
+                                                        </Panel>
+                                                    </Border>
+                                                    <Panel Grid.Row="0" ZIndex="5" IsHitTestVisible="False">
+                                                        <Border VerticalAlignment="Top" HorizontalAlignment="Right"
+                                                                Margin="0,6,6,0" Padding="5,2" CornerRadius="4"
+                                                                Background="#CCDC2626" IsVisible="{Binding IsR18}">
+                                                            <TextBlock Text="R-18" FontSize="8" Foreground="White" FontWeight="Bold"/>
+                                                        </Border>
+                                                        <Border VerticalAlignment="Bottom" HorizontalAlignment="Left"
+                                                                Margin="6,0,0,6" Padding="5,2" CornerRadius="4"
+                                                                Background="#BB000000" IsVisible="{Binding IsMultiPage}">
+                                                            <TextBlock Text="{Binding PageCount, StringFormat='1/{0}'}" FontSize="9" Foreground="White"/>
+                                                        </Border>
+                                                    </Panel>
+                                                    <CheckBox Grid.Row="0" ZIndex="6"
+                                                              IsChecked="{Binding IsSelected}"
+                                                              VerticalAlignment="Top" HorizontalAlignment="Left"
+                                                              Margin="6,6,0,0" MinWidth="0" MinHeight="0"
+                                                              Click="OnCardCheckboxClicked"/>
+                                                    <StackPanel Grid.Row="1" Margin="8,5,8,7" Spacing="2"
+                                                                IsVisible="{Binding $parent[UserControl].((vm:PixivisionViewModel)DataContext).ShowInfo}">
+                                                        <TextBlock Text="{Binding Title}" FontSize="11" FontWeight="SemiBold"
+                                                                   TextTrimming="CharacterEllipsis" MaxLines="1"/>
+                                                        <TextBlock Text="{Binding UserName}" FontSize="10"
+                                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                                                   TextTrimming="CharacterEllipsis" MaxLines="1"/>
+                                                        <ItemsControl ItemsSource="{Binding TopTags}" Margin="0,1,0,0"
+                                                                      IsVisible="{Binding $parent[UserControl].((vm:PixivisionViewModel)DataContext).ShowTags}">
+                                                            <ItemsControl.ItemsPanel>
+                                                                <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                                                            </ItemsControl.ItemsPanel>
+                                                            <ItemsControl.ItemTemplate>
+                                                                <DataTemplate x:DataType="x:String">
+                                                                    <Border Margin="0,1,3,1" Padding="5,2" CornerRadius="3"
+                                                                            Background="{actipro:ThemeResource Container2BackgroundBrush}">
+                                                                        <TextBlock Text="{Binding}" FontSize="10"
+                                                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                                    </Border>
+                                                                </DataTemplate>
+                                                            </ItemsControl.ItemTemplate>
+                                                        </ItemsControl>
+                                                        <TextBlock Text="{Binding Caption}" FontSize="10" FontStyle="Italic"
+                                                                   Margin="0,2,0,0" TextWrapping="Wrap"
+                                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                                                   IsVisible="{Binding HasCaption}"/>
+                                                    </StackPanel>
+                                                </Grid>
+                                            </Border>
+
+                                            <!-- NATURAL HEIGHT card -->
+                                            <Border DataContext="{Binding Artwork}"
+                                                    Width="{Binding $parent[UserControl].((vm:PixivisionViewModel)DataContext).CardSize}"
+                                                    IsVisible="{Binding $parent[UserControl].((vm:PixivisionViewModel)DataContext).ShowNaturalGrid}"
+                                                    Background="{actipro:ThemeResource Container1BackgroundBrush}"
+                                                    BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                                                    BorderThickness="1" CornerRadius="8"
+                                                    BoxShadow="0 1 4 0 #28000000" Cursor="Hand"
+                                                    PointerPressed="OnCardClicked"
+                                                    ContextMenu="{StaticResource WorkCardContextMenu}">
+                                                <Border.Styles>
+                                                    <Style Selector="Border:pointerover">
+                                                        <Setter Property="BoxShadow" Value="0 6 20 0 #55000000"/>
+                                                        <Setter Property="BorderBrush" Value="{actipro:ThemeResource ControlBackgroundBrushSolidAccent}"/>
+                                                    </Style>
+                                                </Border.Styles>
+                                                <Grid RowDefinitions="*,Auto">
+                                                    <Border Grid.Row="0" CornerRadius="7,7,0,0" ClipToBounds="True">
+                                                        <Panel>
+                                                            <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
+                                                                    IsVisible="{Binding Thumbnail, Converter={x:Static ObjectConverters.IsNull}}"/>
+                                                            <Image Source="{Binding Thumbnail}" Stretch="UniformToFill">
+                                                                <Image.Height>
+                                                                    <MultiBinding Converter="{x:Static conv:MultiplyByAspectRatioConverter.Instance}">
+                                                                        <Binding Path="$parent[UserControl].((vm:PixivisionViewModel)DataContext).CardSize"/>
+                                                                        <Binding Path="ClampedAspectRatio"/>
+                                                                    </MultiBinding>
+                                                                </Image.Height>
+                                                                <Image.Effect>
+                                                                    <BlurEffect Radius="{Binding IsBlurred, Converter={StaticResource BoolToBlurRadiusConverter}}"/>
+                                                                </Image.Effect>
+                                                            </Image>
+                                                        </Panel>
+                                                    </Border>
+                                                    <Panel Grid.Row="0" ZIndex="5" IsHitTestVisible="False">
+                                                        <Panel.Height>
+                                                            <MultiBinding Converter="{x:Static conv:MultiplyByAspectRatioConverter.Instance}">
+                                                                <Binding Path="$parent[UserControl].((vm:PixivisionViewModel)DataContext).CardSize"/>
+                                                                <Binding Path="ClampedAspectRatio"/>
+                                                            </MultiBinding>
+                                                        </Panel.Height>
+                                                        <Border VerticalAlignment="Top" HorizontalAlignment="Right"
+                                                                Margin="0,6,6,0" Padding="5,2" CornerRadius="4"
+                                                                Background="#CCDC2626" IsVisible="{Binding IsR18}">
+                                                            <TextBlock Text="R-18" FontSize="8" Foreground="White" FontWeight="Bold"/>
+                                                        </Border>
+                                                    </Panel>
+                                                    <CheckBox Grid.Row="0" ZIndex="6"
+                                                              IsChecked="{Binding IsSelected}"
+                                                              VerticalAlignment="Top" HorizontalAlignment="Left"
+                                                              Margin="6,6,0,0" MinWidth="0" MinHeight="0"
+                                                              Click="OnCardCheckboxClicked"/>
+                                                    <StackPanel Grid.Row="1" Margin="8,5,8,7" Spacing="2"
+                                                                IsVisible="{Binding $parent[UserControl].((vm:PixivisionViewModel)DataContext).ShowInfo}">
+                                                        <TextBlock Text="{Binding Title}" FontSize="11" FontWeight="SemiBold"
+                                                                   TextTrimming="CharacterEllipsis" MaxLines="1"/>
+                                                        <TextBlock Text="{Binding UserName}" FontSize="10"
+                                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                                                   TextTrimming="CharacterEllipsis" MaxLines="1"/>
+                                                        <ItemsControl ItemsSource="{Binding TopTags}" Margin="0,1,0,0"
+                                                                      IsVisible="{Binding $parent[UserControl].((vm:PixivisionViewModel)DataContext).ShowTags}">
+                                                            <ItemsControl.ItemsPanel>
+                                                                <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                                                            </ItemsControl.ItemsPanel>
+                                                            <ItemsControl.ItemTemplate>
+                                                                <DataTemplate x:DataType="x:String">
+                                                                    <Border Margin="0,1,3,1" Padding="5,2" CornerRadius="3"
+                                                                            Background="{actipro:ThemeResource Container2BackgroundBrush}">
+                                                                        <TextBlock Text="{Binding}" FontSize="10"
+                                                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                                    </Border>
+                                                                </DataTemplate>
+                                                            </ItemsControl.ItemTemplate>
+                                                        </ItemsControl>
+                                                        <TextBlock Text="{Binding Caption}" FontSize="10" FontStyle="Italic"
+                                                                   Margin="0,2,0,0" TextWrapping="Wrap"
+                                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                                                   IsVisible="{Binding HasCaption}"/>
+                                                    </StackPanel>
+                                                </Grid>
+                                            </Border>
+                                        </Panel>
+
+                                        <ItemsControl ItemsSource="{Binding Links}" IsVisible="{Binding HasLinks}">
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate><StackPanel Spacing="2"/></ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate x:DataType="models:PixivisionParagraphLink">
+                                                    <Button Classes="linkChip" Click="OnParagraphLinkClicked" Tag="{Binding Url}">
+                                                        <TextBlock Text="{Binding Text}" FontSize="13" TextWrapping="Wrap"
+                                                                   TextDecorations="Underline"
+                                                                   Foreground="{actipro:ThemeResource ControlBackgroundBrushSolidAccent}"/>
+                                                    </Button>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <TextBlock Text="Featured Artworks" FontWeight="SemiBold" FontSize="14"
+                                   Margin="0,6,0,0"
+                                   IsVisible="{Binding ShowFeaturedWorksGallery}"/>
+
+                        <ItemsControl ItemsSource="{Binding FeaturedWorks}" IsVisible="{Binding ShowFeaturedWorksGallery}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <gallery:MasonryPanel ColumnWidth="{Binding $parent[UserControl].((vm:PixivisionViewModel)DataContext).CardSize}" ItemSpacing="6"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:ArtworkCardViewModel">
+                                    <Panel>
+                                        <!-- FIXED HEIGHT card -->
+                                        <Border Margin="0,0,6,6"
+                                                Width="{Binding $parent[UserControl].((vm:PixivisionViewModel)DataContext).CardSize}"
+                                                IsVisible="{Binding $parent[UserControl].((vm:PixivisionViewModel)DataContext).ShowFixedGrid}"
+                                                Background="{actipro:ThemeResource Container1BackgroundBrush}"
+                                                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                                                BorderThickness="1" CornerRadius="8"
+                                                BoxShadow="0 1 4 0 #28000000" Cursor="Hand"
+                                                PointerPressed="OnCardClicked"
+                                                ContextMenu="{StaticResource WorkCardContextMenu}">
+                                            <Border.Styles>
+                                                <Style Selector="Border:pointerover">
+                                                    <Setter Property="BoxShadow" Value="0 6 20 0 #55000000"/>
+                                                    <Setter Property="BorderBrush" Value="{actipro:ThemeResource ControlBackgroundBrushSolidAccent}"/>
+                                                </Style>
+                                            </Border.Styles>
+                                            <Grid RowDefinitions="*,Auto">
+                                                <Border Grid.Row="0"
+                                                        Height="{Binding $parent[UserControl].((vm:PixivisionViewModel)DataContext).FixedCardTotalHeight}"
+                                                        CornerRadius="7,7,0,0" ClipToBounds="True">
+                                                    <Panel>
+                                                        <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
+                                                                IsVisible="{Binding Thumbnail, Converter={x:Static ObjectConverters.IsNull}}"/>
+                                                        <Image Source="{Binding Thumbnail}" Stretch="UniformToFill">
+                                                            <Image.Effect>
+                                                                <BlurEffect Radius="{Binding IsBlurred, Converter={StaticResource BoolToBlurRadiusConverter}}"/>
+                                                            </Image.Effect>
+                                                        </Image>
+                                                    </Panel>
+                                                </Border>
+                                                <Panel Grid.Row="0" ZIndex="5" IsHitTestVisible="False">
+                                                    <Border VerticalAlignment="Top" HorizontalAlignment="Right"
+                                                            Margin="0,6,6,0" Padding="5,2" CornerRadius="4"
+                                                            Background="#CCDC2626" IsVisible="{Binding IsR18}">
+                                                        <TextBlock Text="R-18" FontSize="8" Foreground="White" FontWeight="Bold"/>
+                                                    </Border>
+                                                    <Border VerticalAlignment="Bottom" HorizontalAlignment="Left"
+                                                            Margin="6,0,0,6" Padding="5,2" CornerRadius="4"
+                                                            Background="#BB000000" IsVisible="{Binding IsMultiPage}">
+                                                        <TextBlock Text="{Binding PageCount, StringFormat='1/{0}'}" FontSize="9" Foreground="White"/>
+                                                    </Border>
+                                                </Panel>
+                                                <CheckBox Grid.Row="0" ZIndex="6"
+                                                          IsChecked="{Binding IsSelected}"
+                                                          VerticalAlignment="Top" HorizontalAlignment="Left"
+                                                          Margin="6,6,0,0" MinWidth="0" MinHeight="0"
+                                                          Click="OnCardCheckboxClicked"/>
+                                                <StackPanel Grid.Row="1" Margin="8,5,8,7" Spacing="2"
+                                                            IsVisible="{Binding $parent[UserControl].((vm:PixivisionViewModel)DataContext).ShowInfo}">
+                                                    <TextBlock Text="{Binding Title}" FontSize="11" FontWeight="SemiBold"
+                                                               TextTrimming="CharacterEllipsis" MaxLines="1"/>
+                                                    <TextBlock Text="{Binding UserName}" FontSize="10"
+                                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                                               TextTrimming="CharacterEllipsis" MaxLines="1"/>
+                                                    <ItemsControl ItemsSource="{Binding TopTags}" Margin="0,1,0,0"
+                                                                  IsVisible="{Binding $parent[UserControl].((vm:PixivisionViewModel)DataContext).ShowTags}">
+                                                        <ItemsControl.ItemsPanel>
+                                                            <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                                                        </ItemsControl.ItemsPanel>
+                                                        <ItemsControl.ItemTemplate>
+                                                            <DataTemplate x:DataType="x:String">
+                                                                <Border Margin="0,1,3,1" Padding="5,2" CornerRadius="3"
+                                                                        Background="{actipro:ThemeResource Container2BackgroundBrush}">
+                                                                    <TextBlock Text="{Binding}" FontSize="10"
+                                                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                                </Border>
+                                                            </DataTemplate>
+                                                        </ItemsControl.ItemTemplate>
+                                                    </ItemsControl>
+                                                    <TextBlock Text="{Binding Caption}" FontSize="10" FontStyle="Italic"
+                                                               Margin="0,2,0,0" TextWrapping="Wrap"
+                                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                                               IsVisible="{Binding HasCaption}"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Border>
+
+                                        <!-- NATURAL HEIGHT card -->
+                                        <Border Margin="0,0,6,6"
+                                                Width="{Binding $parent[UserControl].((vm:PixivisionViewModel)DataContext).CardSize}"
+                                                IsVisible="{Binding $parent[UserControl].((vm:PixivisionViewModel)DataContext).ShowNaturalGrid}"
+                                                Background="{actipro:ThemeResource Container1BackgroundBrush}"
+                                                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                                                BorderThickness="1" CornerRadius="8"
+                                                BoxShadow="0 1 4 0 #28000000" Cursor="Hand"
+                                                PointerPressed="OnCardClicked"
+                                                ContextMenu="{StaticResource WorkCardContextMenu}">
+                                            <Border.Styles>
+                                                <Style Selector="Border:pointerover">
+                                                    <Setter Property="BoxShadow" Value="0 6 20 0 #55000000"/>
+                                                    <Setter Property="BorderBrush" Value="{actipro:ThemeResource ControlBackgroundBrushSolidAccent}"/>
+                                                </Style>
+                                            </Border.Styles>
+                                            <Grid RowDefinitions="*,Auto">
+                                                <Border Grid.Row="0" CornerRadius="7,7,0,0" ClipToBounds="True">
+                                                    <Panel>
+                                                        <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
+                                                                IsVisible="{Binding Thumbnail, Converter={x:Static ObjectConverters.IsNull}}"/>
+                                                        <Image Source="{Binding Thumbnail}" Stretch="UniformToFill">
+                                                            <Image.Height>
+                                                                <MultiBinding Converter="{x:Static conv:MultiplyByAspectRatioConverter.Instance}">
+                                                                    <Binding Path="$parent[UserControl].((vm:PixivisionViewModel)DataContext).CardSize"/>
+                                                                    <Binding Path="ClampedAspectRatio"/>
+                                                                </MultiBinding>
+                                                            </Image.Height>
+                                                            <Image.Effect>
+                                                                <BlurEffect Radius="{Binding IsBlurred, Converter={StaticResource BoolToBlurRadiusConverter}}"/>
+                                                            </Image.Effect>
+                                                        </Image>
+                                                    </Panel>
+                                                </Border>
+                                                <Panel Grid.Row="0" ZIndex="5" IsHitTestVisible="False">
+                                                    <Panel.Height>
+                                                        <MultiBinding Converter="{x:Static conv:MultiplyByAspectRatioConverter.Instance}">
+                                                            <Binding Path="$parent[UserControl].((vm:PixivisionViewModel)DataContext).CardSize"/>
+                                                            <Binding Path="ClampedAspectRatio"/>
+                                                        </MultiBinding>
+                                                    </Panel.Height>
+                                                    <Border VerticalAlignment="Top" HorizontalAlignment="Right"
+                                                            Margin="0,6,6,0" Padding="5,2" CornerRadius="4"
+                                                            Background="#CCDC2626" IsVisible="{Binding IsR18}">
+                                                        <TextBlock Text="R-18" FontSize="8" Foreground="White" FontWeight="Bold"/>
+                                                    </Border>
+                                                </Panel>
+                                                <CheckBox Grid.Row="0" ZIndex="6"
+                                                          IsChecked="{Binding IsSelected}"
+                                                          VerticalAlignment="Top" HorizontalAlignment="Left"
+                                                          Margin="6,6,0,0" MinWidth="0" MinHeight="0"
+                                                          Click="OnCardCheckboxClicked"/>
+                                                <StackPanel Grid.Row="1" Margin="8,5,8,7" Spacing="2"
+                                                            IsVisible="{Binding $parent[UserControl].((vm:PixivisionViewModel)DataContext).ShowInfo}">
+                                                    <TextBlock Text="{Binding Title}" FontSize="11" FontWeight="SemiBold"
+                                                               TextTrimming="CharacterEllipsis" MaxLines="1"/>
+                                                    <TextBlock Text="{Binding UserName}" FontSize="10"
+                                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                                               TextTrimming="CharacterEllipsis" MaxLines="1"/>
+                                                    <ItemsControl ItemsSource="{Binding TopTags}" Margin="0,1,0,0"
+                                                                  IsVisible="{Binding $parent[UserControl].((vm:PixivisionViewModel)DataContext).ShowTags}">
+                                                        <ItemsControl.ItemsPanel>
+                                                            <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                                                        </ItemsControl.ItemsPanel>
+                                                        <ItemsControl.ItemTemplate>
+                                                            <DataTemplate x:DataType="x:String">
+                                                                <Border Margin="0,1,3,1" Padding="5,2" CornerRadius="3"
+                                                                        Background="{actipro:ThemeResource Container2BackgroundBrush}">
+                                                                    <TextBlock Text="{Binding}" FontSize="10"
+                                                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                                </Border>
+                                                            </DataTemplate>
+                                                        </ItemsControl.ItemTemplate>
+                                                    </ItemsControl>
+                                                    <TextBlock Text="{Binding Caption}" FontSize="10" FontStyle="Italic"
+                                                               Margin="0,2,0,0" TextWrapping="Wrap"
+                                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                                               IsVisible="{Binding HasCaption}"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Border>
+                                    </Panel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <!-- pixivision's own "related articles" widgets -->
+                        <Separator IsVisible="{Binding HasRelatedLatest}" Margin="0,4,0,0"/>
+                        <StackPanel Spacing="8" IsVisible="{Binding HasRelatedLatest}">
+                            <TextBlock Text="{Binding RelatedLatestHeading}" FontSize="14" FontWeight="Bold"/>
+                            <ItemsControl ItemsSource="{Binding RelatedLatest}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:PixivisionArticleCardViewModel">
+                                        <Border Width="300" Margin="0,0,12,12"
+                                                Background="{actipro:ThemeResource Container1BackgroundBrush}"
+                                                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                                                BorderThickness="1" CornerRadius="8" ClipToBounds="True" Cursor="Hand"
+                                                PointerPressed="OnArticleCardClicked"
+                                                ContextMenu="{StaticResource ArticleCardContextMenu}">
+                                            <StackPanel>
+                                                <Panel Height="185">
+                                                    <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
+                                                            IsVisible="{Binding Thumbnail, Converter={x:Static ObjectConverters.IsNull}}"/>
+                                                    <Image Source="{Binding Thumbnail}" Stretch="UniformToFill"/>
+                                                </Panel>
+                                                <TextBlock Text="{Binding Title}" FontSize="13" Margin="10"
+                                                           TextWrapping="Wrap" MaxLines="3"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+
+                        <StackPanel Spacing="8" IsVisible="{Binding HasRelatedPopular}" Margin="0,10,0,0">
+                            <TextBlock Text="{Binding RelatedPopularHeading}" FontSize="14" FontWeight="Bold"/>
+                            <ItemsControl ItemsSource="{Binding RelatedPopular}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:PixivisionArticleCardViewModel">
+                                        <Border Width="300" Margin="0,0,12,12"
+                                                Background="{actipro:ThemeResource Container1BackgroundBrush}"
+                                                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                                                BorderThickness="1" CornerRadius="8" ClipToBounds="True" Cursor="Hand"
+                                                PointerPressed="OnArticleCardClicked"
+                                                ContextMenu="{StaticResource ArticleCardContextMenu}">
+                                            <StackPanel>
+                                                <Panel Height="185">
+                                                    <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
+                                                            IsVisible="{Binding Thumbnail, Converter={x:Static ObjectConverters.IsNull}}"/>
+                                                    <Image Source="{Binding Thumbnail}" Stretch="UniformToFill"/>
+                                                </Panel>
+                                                <TextBlock Text="{Binding Title}" FontSize="13" Margin="10"
+                                                           TextWrapping="Wrap" MaxLines="3"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+
+                        <Separator Margin="0,10,0,0"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </Grid>
+        </Border>
+
+        <!-- ══ Row 5: Status bar / pager ══ -->
+        <Border Grid.Row="5"
+                Background="{actipro:ThemeResource Container1BackgroundBrush}"
+                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                BorderThickness="0,1,0,0" Padding="14,8">
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Grid.Column="0" FontSize="11"
+                           Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                           Text="{Binding StatusMessage}" VerticalAlignment="Center"/>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8"
+                            IsVisible="{Binding !IsViewingArticle}">
+                    <!-- Single switch: checked = paged (Prev/Next), unchecked = autoload while scrolling —
+                         mirrors Rankings' "Pages" toggle for a consistent, unambiguous control. -->
+                    <ToggleButton IsChecked="{Binding UsePagedMode, Mode=TwoWay}"
+                                  CornerRadius="6" Padding="8,4" FontSize="11"
+                                  ToolTip.Tip="Toggle pagination (off = autoload while scrolling)">
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                            <TextBlock Text="📄" FontSize="12" VerticalAlignment="Center"/>
+                            <TextBlock Text="Pages" FontSize="11" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </ToggleButton>
+                    <StackPanel Orientation="Horizontal" Spacing="6"
+                                IsVisible="{Binding !IsAutoloadMode}">
+                        <Button Content="‹ Prev" CornerRadius="6" Padding="10,5" FontSize="11"
+                                Command="{Binding PrevPageCommand}" IsEnabled="{Binding HasPrevPage}"/>
+                        <TextBlock Text="{Binding ArticlePage, StringFormat='Page {0}'}" FontSize="11"
+                                   VerticalAlignment="Center" Margin="4,0"/>
+                        <TextBox Text="{Binding PageInput}" PlaceholderText="#"
+                                 Width="44" BorderThickness="1" CornerRadius="6"
+                                 Padding="6,4" FontSize="11" Margin="6,0,0,0"
+                                 VerticalContentAlignment="Center"
+                                 KeyDown="OnPixivisionPageInputKeyDown"
+                                 ToolTip.Tip="Type a page number and press Enter"/>
+                        <Button Content="Next ›" CornerRadius="6" Padding="10,5" FontSize="11"
+                                Command="{Binding NextPageCommand}" IsEnabled="{Binding HasNextPage}"/>
+                    </StackPanel>
+                    <ProgressBar IsIndeterminate="True" Width="60" Height="3"
+                                 IsVisible="{Binding IsAutoloadMode}" VerticalAlignment="Center"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Full-screen viewer overlay -->
+        <gallery:InlineArtworkViewer Name="PixivisionOverlayViewer"
+                                     Grid.Row="0" Grid.RowSpan="6"
+                                     Margin="0,32,0,0"
+                                     ZIndex="10"
+                                     DataContext="{Binding GalleryVm}"
+                                     IsExpanded="{Binding $parent[UserControl].((vm:PixivisionViewModel)DataContext).IsViewerExpanded}"
+                                     IsPanelOpen="{Binding $parent[UserControl].((vm:PixivisionViewModel)DataContext).ShowPreview}">
+            <gallery:InlineArtworkViewer.IsVisible>
+                <Binding Path="$parent[UserControl].((vm:PixivisionViewModel)DataContext).IsViewerExpanded"/>
+            </gallery:InlineArtworkViewer.IsVisible>
+        </gallery:InlineArtworkViewer>
+    </Grid>
+</UserControl>

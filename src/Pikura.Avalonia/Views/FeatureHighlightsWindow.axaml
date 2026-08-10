@@ -1,0 +1,115 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:actipro="http://schemas.actiprosoftware.com/avaloniaui"
+        xmlns:vm="using:Pikura.Avalonia.ViewModels"
+        xmlns:models="using:Pikura.Avalonia.Models"
+        xmlns:conv="using:Pikura.Avalonia.Converters"
+        xmlns:controls="using:Pikura.Avalonia.Controls"
+        x:Class="Pikura.Avalonia.Views.FeatureHighlightsWindow"
+        x:DataType="vm:FeatureHighlightsViewModel"
+        Title="What's New in Pikura"
+        Width="980" Height="680"
+        WindowStartupLocation="CenterOwner"
+        WindowDecorations="None"
+        CanResize="False"
+        ShowInTaskbar="False"
+        Background="Transparent"
+        TransparencyLevelHint="Transparent">
+
+    <Window.Resources>
+        <conv:IconKeyToGeometryConverter x:Key="IconKeyToGeometryConverter"/>
+    </Window.Resources>
+
+    <Border x:Name="RootBorder" Margin="20"
+            Background="{actipro:ThemeResource Container1BackgroundBrush}"
+            BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+            BorderThickness="1"
+            CornerRadius="14"
+            BoxShadow="0 16 48 0 #66000000"
+            Opacity="0"
+            RenderTransformOrigin="0.5,0.5"
+            RenderTransform="scale(0.94)">
+        <Border.Transitions>
+            <Transitions>
+                <DoubleTransition Property="Opacity" Duration="0:0:0.25" Easing="CubicEaseOut"/>
+                <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.3" Easing="CubicEaseOut"/>
+            </Transitions>
+        </Border.Transitions>
+        <Grid ColumnDefinitions="260,*">
+            <!-- Accent icon panel -->
+            <Border Grid.Column="0" Background="{actipro:ThemeResource ControlBackgroundBrushSolidAccent}"
+                    CornerRadius="14,0,0,14" ClipToBounds="True">
+                <Path x:Name="PageIcon"
+                      Data="{Binding CurrentPage.IconKey, Converter={StaticResource IconKeyToGeometryConverter}}"
+                      Width="120" Height="120"
+                      Stroke="White" StrokeThickness="1.5" Fill="Transparent"
+                      Stretch="Uniform"
+                      HorizontalAlignment="Center" VerticalAlignment="Center"
+                      Opacity="0.95"/>
+            </Border>
+
+            <!-- Content -->
+            <DockPanel Grid.Column="1" Margin="32" LastChildFill="True">
+                <!-- Footer navigation -->
+                <Grid DockPanel.Dock="Bottom" ColumnDefinitions="Auto,*,Auto,Auto" VerticalAlignment="Bottom" Margin="0,24,0,0">
+                    <Button Grid.Column="0"
+                            Command="{Binding PreviousCommand}"
+                            Background="Transparent" BorderThickness="0" Padding="8"
+                            Foreground="{actipro:ThemeResource DefaultForegroundBrush}"
+                            IsVisible="{Binding CanGoPrevious}"
+                            ToolTip.Tip="Previous">
+                        <Path Data="{StaticResource ChevronLeftIcon}" Width="18" Height="18"
+                              Stroke="{actipro:ThemeResource DefaultForegroundBrush}" StrokeThickness="2" Fill="Transparent"
+                              Stretch="Uniform"/>
+                    </Button>
+
+                    <TextBlock Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center"
+                               FontSize="12" Opacity="0.6"
+                               Text="{Binding StepText}"/>
+
+                    <Button Grid.Column="2" Content="Skip"
+                            Command="{Binding SkipCommand}"
+                            Background="Transparent" BorderThickness="0"
+                            Padding="12,6" Margin="0,0,8,0"
+                            Foreground="{actipro:ThemeResource DefaultForegroundBrush}"
+                            IsVisible="{Binding !IsLastPage}"/>
+
+                    <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="8">
+                        <Button Content="Next" Command="{Binding NextCommand}"
+                                IsVisible="{Binding !IsLastPage}"
+                                Background="{actipro:ThemeResource ControlBackgroundBrushSolidAccent}"
+                                Foreground="White" BorderThickness="0"
+                                Padding="18,8" CornerRadius="6"/>
+                        <Button Content="Finish" Command="{Binding FinishCommand}"
+                                IsVisible="{Binding IsLastPage}"
+                                Background="{actipro:ThemeResource ControlBackgroundBrushSolidAccent}"
+                                Foreground="White" BorderThickness="0"
+                                Padding="18,8" CornerRadius="6"/>
+                    </StackPanel>
+                </Grid>
+
+                <TransitioningContentControl Content="{Binding CurrentPage}"
+                                             PageTransition="{StaticResource MainPageTransition}">
+                    <TransitioningContentControl.ContentTemplate>
+                        <DataTemplate DataType="models:OnboardingPage">
+                            <StackPanel VerticalAlignment="Center" Spacing="10">
+                                <TextBlock Text="{Binding Title}" FontSize="22" FontWeight="Bold"
+                                           TextWrapping="Wrap"/>
+                                <TextBlock Text="{Binding Subtitle}" FontSize="14" Opacity="0.85"
+                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                           TextWrapping="Wrap"/>
+                                <TextBlock Text="{Binding Description}" FontSize="12" Opacity="0.75" LineHeight="20"
+                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                           TextWrapping="Wrap"/>
+                                <controls:AnimatedImage SourcePath="{Binding Screenshot, Converter={x:Static conv:AssetPathConverter.Instance}}"
+                                                        MaxHeight="380" MaxWidth="620" Stretch="Uniform"
+                                                        HorizontalAlignment="Center" Margin="0,16,0,0"
+                                                        RenderOptions.BitmapInterpolationMode="HighQuality"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </TransitioningContentControl.ContentTemplate>
+                </TransitioningContentControl>
+            </DockPanel>
+        </Grid>
+    </Border>
+</Window>

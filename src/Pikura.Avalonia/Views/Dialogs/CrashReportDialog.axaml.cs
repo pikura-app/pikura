@@ -78,7 +78,7 @@ public partial class CrashReportDialog : Window
                 });
             }
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             // Fallback: open folder and select file
             OpenFolderAndSelectFile(_crashInfo.LogFilePath);

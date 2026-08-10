@@ -30,7 +30,7 @@ public sealed class MarkdownTextBlock : SelectableTextBlock
 
     private void ParseAndRender()
     {
-        Inlines.Clear();
+        Inlines?.Clear();
         if (string.IsNullOrWhiteSpace(Markdown))
             return;
 
@@ -41,33 +41,33 @@ public sealed class MarkdownTextBlock : SelectableTextBlock
         {
             var line = rawLine;
             if (!first)
-                Inlines.Add(new LineBreak());
+                Inlines?.Add(new LineBreak());
             first = false;
 
             // Headers
             if (line.StartsWith("### "))
             {
                 var run = new Run(line.Substring(4)) { FontWeight = FontWeight.Bold, FontSize = 13 };
-                Inlines.Add(run);
+                Inlines?.Add(run);
                 continue;
             }
             if (line.StartsWith("## "))
             {
                 var run = new Run(line.Substring(3)) { FontWeight = FontWeight.Bold, FontSize = 15 };
-                Inlines.Add(run);
+                Inlines?.Add(run);
                 continue;
             }
             if (line.StartsWith("# "))
             {
                 var run = new Run(line.Substring(2)) { FontWeight = FontWeight.Bold, FontSize = 18 };
-                Inlines.Add(run);
+                Inlines?.Add(run);
                 continue;
             }
 
             // Horizontal rule
             if (line.Trim() == "---")
             {
-                Inlines.Add(new Run("—".PadRight(40, '—')) { Foreground = Brushes.Gray });
+                Inlines?.Add(new Run("—".PadRight(40, '—')) { Foreground = Brushes.Gray });
                 continue;
             }
 
@@ -75,7 +75,7 @@ public sealed class MarkdownTextBlock : SelectableTextBlock
             if (line.TrimStart().StartsWith("> "))
             {
                 var run = new Run(line.TrimStart().Substring(2)) { FontStyle = FontStyle.Italic, Foreground = Brushes.Gray };
-                Inlines.Add(run);
+                Inlines?.Add(run);
                 continue;
             }
 
@@ -85,7 +85,7 @@ public sealed class MarkdownTextBlock : SelectableTextBlock
             {
                 var indent = line.Length - trimmed.Length;
                 var prefix = new string(' ', indent) + "• ";
-                Inlines.Add(new Run(prefix));
+                Inlines?.Add(new Run(prefix));
                 ParseInline(trimmed.Substring(2));
                 continue;
             }
@@ -96,7 +96,7 @@ public sealed class MarkdownTextBlock : SelectableTextBlock
                 {
                     var indent = line.Length - trimmed.Length;
                     var prefix = new string(' ', indent) + match.Groups[1].Value + ". ";
-                    Inlines.Add(new Run(prefix));
+                    Inlines?.Add(new Run(prefix));
                     ParseInline(trimmed.Substring(match.Length));
                     continue;
                 }
@@ -134,19 +134,19 @@ public sealed class MarkdownTextBlock : SelectableTextBlock
             if (earliestMatch == null)
             {
                 // No more formatting
-                Inlines.Add(new Run(remaining));
+                Inlines?.Add(new Run(remaining));
                 break;
             }
 
             // Add text before the match
             if (earliestMatch.match.Index > 0)
             {
-                Inlines.Add(new Run(remaining.Substring(0, earliestMatch.match.Index)));
+                Inlines?.Add(new Run(remaining.Substring(0, earliestMatch.match.Index)));
             }
 
             // Add formatted content
             var content = earliestMatch.match.Groups[1].Value;
-            Inlines.Add(earliestMatch.pattern.create(content));
+            Inlines?.Add(earliestMatch.pattern.create(content));
 
             // Continue after the match
             remaining = remaining.Substring(earliestMatch.match.Index + earliestMatch.match.Length);

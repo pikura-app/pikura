@@ -12,6 +12,13 @@ public partial class ArtistSettingsDialog : Window
     public SettingsOverride Settings { get; private set; }
     public string ArtistName { get; }
 
+    public ArtistSettingsDialog()
+    {
+        InitializeComponent();
+        Settings = null!;
+        ArtistName = string.Empty;
+    }
+
     public ArtistSettingsDialog(SettingsOverride settings, string artistName)
     {
         Settings = settings;

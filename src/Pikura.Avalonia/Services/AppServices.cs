@@ -586,6 +586,9 @@ public static class AppServices
         }
     }
 
+    /// <summary>Singleton background overlay service, exposed for XAML bindings.</summary>
+    public static BackgroundOverlayService OverlayService => Get<BackgroundOverlayService>();
+
     public static T Get<T>() where T : class
     {
         if (_serviceProvider == null)

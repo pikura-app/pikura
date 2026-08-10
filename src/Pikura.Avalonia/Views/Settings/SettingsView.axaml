@@ -5,6 +5,7 @@
              xmlns:conv="using:Pikura.Avalonia.Converters"
              xmlns:svc="using:Pikura.Avalonia.Services"
              xmlns:sys="using:System"
+             xmlns:settings="using:Pikura.Core.Settings"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="700"
@@ -14,21 +15,25 @@
     <UserControl.Resources>
         <!-- Vector crown icon for the Pixiv Premium account badge. -->
         <StreamGeometry x:Key="PremiumCrownGeometry">M2,18 L4,7 L8,11 L12,5 L16,11 L20,7 L22,18 Z</StreamGeometry>
+        <conv:BlocklistScopeToDisplayConverter x:Key="BlocklistScopeToDisplayConverter"/>
     </UserControl.Resources>
 
-    <DockPanel LastChildFill="True">
+    <Grid RowDefinitions="Auto,Auto,*">
 
         <!-- Page title -->
-        <TextBlock DockPanel.Dock="Top" Text="Settings" FontSize="22" FontWeight="Bold"
+        <TextBlock Grid.Row="0" Text="Settings" FontSize="22" FontWeight="Bold"
                    Margin="24,36,24,8"/>
 
         <!-- Restart banner -->
-        <Border DockPanel.Dock="Top" Background="#1AFFA500" BorderBrush="Orange"
+        <Border Grid.Row="1" Background="#1AFFA500" BorderBrush="Orange"
                 BorderThickness="0,0,0,2" Padding="16,7"
                 IsVisible="{Binding RestartRequired}">
             <StackPanel Orientation="Horizontal" Spacing="20">
-                <TextBlock Text="&#x26A0; Some changes require a restart to take effect."
-                           VerticalAlignment="Center" FontSize="12"/>
+                <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                    <PathIcon Data="{StaticResource WarningIcon}" Width="14" Height="14" VerticalAlignment="Center"
+                              Foreground="Orange"/>
+                    <TextBlock Text="Some changes require a restart to take effect." FontSize="12" VerticalAlignment="Center"/>
+                </StackPanel>
                 <Button Content="Restart Now" CornerRadius="5" Padding="8,4" FontSize="11"
                         Classes="accent" Command="{Binding RestartApplicationCommand}"/>
                 <Button Content="Dismiss" CornerRadius="5" Padding="8,4" FontSize="11"
@@ -36,24 +41,37 @@
             </StackPanel>
         </Border>
 
-        <TabControl TabStripPlacement="Top" Margin="16,0,16,16">
+        <TabControl Grid.Row="2" TabStripPlacement="Top" Margin="16,0,16,16"
+                    VerticalAlignment="Stretch" VerticalContentAlignment="Stretch">
 
             <!-- ====================== APPEARANCE ====================== -->
             <TabItem Header="Appearance">
-                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="16">
-                    <StackPanel Spacing="24" Margin="8">
+                <ScrollViewer VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled"
+                              VerticalAlignment="Stretch">
+                    <StackPanel Spacing="24" Margin="24" VerticalAlignment="Top">
                         <Border Background="{actipro:ThemeResource Container1BackgroundBrush}"
                                 BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="28">
                             <StackPanel Spacing="20">
                                 <TextBlock Text="Theme" FontWeight="SemiBold" FontSize="14"/>
                                 <StackPanel Orientation="Horizontal" Spacing="16">
-                                    <Button Content="&#x1F319; Dark" CornerRadius="6" Padding="16,8" FontSize="13"
+                                    <Button CornerRadius="6" Padding="16,8" FontSize="13"
                                             Command="{Binding SetThemeCommand}" CommandParameter="Dark"
-                                            Classes.accent="{Binding !IsLightTheme}"/>
-                                    <Button Content="&#x2600; Light" CornerRadius="6" Padding="16,8" FontSize="13"
+                                            Classes.accent="{Binding !IsLightTheme}">
+                                        <StackPanel Orientation="Horizontal" Spacing="6">
+                                            <PathIcon Data="{StaticResource MoonIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                                            <TextBlock Text="Dark" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <Button CornerRadius="6" Padding="16,8" FontSize="13"
                                             Command="{Binding SetThemeCommand}" CommandParameter="Light"
-                                            Classes.accent="{Binding IsLightTheme}"/>
+                                            Classes.accent="{Binding IsLightTheme}">
+                                        <StackPanel Orientation="Horizontal" Spacing="6">
+                                            <PathIcon Data="{StaticResource SunIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                                            <TextBlock Text="Light" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Button>
                                 </StackPanel>
                             </StackPanel>
                         </Border>
@@ -101,17 +119,63 @@
                                     <TextBlock Text="Selected images (up to 5)"
                                                FontSize="13" FontWeight="SemiBold"
                                                Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
-                                    <ItemsControl ItemsSource="{Binding OverlayService.ImagePaths}" MaxHeight="160">
+                                    <ItemsControl ItemsSource="{Binding OverlayService.ImageItems}"
+                                                  Padding="0,8,10,0">
                                         <ItemsControl.ItemTemplate>
-                                            <DataTemplate x:DataType="sys:String">
-                                                <Grid ColumnDefinitions="*,Auto" Margin="0,2">
-                                                    <TextBlock Grid.Column="0" Text="{Binding}" FontSize="12"
-                                                               TextTrimming="CharacterEllipsis"
-                                                               VerticalAlignment="Center"
-                                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushSecondary}"/>
-                                                    <Button Grid.Column="1" Content="Remove" FontSize="11"
-                                                            Padding="8,2" CornerRadius="4" Margin="8,0,0,0"
-                                                            Tag="{Binding}" Click="OnRemoveOverlayImageClick"/>
+                                            <DataTemplate x:DataType="svc:OverlayImageItem">
+                                                <Grid Margin="0,3">
+                                                    <!-- Thumbnail card -->
+                                                    <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
+                                                            BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                                                            BorderThickness="1" CornerRadius="6"
+                                                            Padding="6" Height="72">
+                                                        <Grid ColumnDefinitions="80,*,Auto">
+                                                            <!-- Thumbnail -->
+                                                            <Border Grid.Column="0" CornerRadius="4"
+                                                                    ClipToBounds="True" Width="68" Height="58">
+                                                                <Image Source="{Binding Thumbnail}"
+                                                                       Stretch="UniformToFill"/>
+                                                            </Border>
+                                                            <!-- Artwork info (clickable — navigates to artist gallery) -->
+                                                            <Button Grid.Column="1"
+                                                                    Background="Transparent" BorderThickness="0"
+                                                                    Padding="0" Margin="10,0,0,0"
+                                                                    VerticalAlignment="Center"
+                                                                    HorizontalContentAlignment="Left"
+                                                                    Cursor="Hand"
+                                                                    Tag="{Binding}"
+                                                                    Click="OnOverlayImageTitleClick">
+                                                                <TextBlock Text="{Binding DisplayTitle}"
+                                                                           FontSize="12" FontWeight="SemiBold"
+                                                                           TextTrimming="CharacterEllipsis" MaxLines="2"
+                                                                           TextWrapping="Wrap"
+                                                                           TextDecorations="Underline"
+                                                                           Foreground="{actipro:ThemeResource ControlForegroundBrushOutlineAccent}"/>
+                                                            </Button>
+                                                            <!-- Edit button -->
+                                                            <Button Grid.Column="2" Content="Edit" FontSize="11"
+                                                                    Padding="10,4" CornerRadius="4"
+                                                                    VerticalAlignment="Center" Margin="6,0"
+                                                                    Tag="{Binding Path}"
+                                                                    Click="OnEditOverlayImageClick"/>
+                                                        </Grid>
+                                                    </Border>
+                                                    <!-- X remove button outside top-right of card -->
+                                                    <Button FontSize="10"
+                                                            Width="22" Height="22" Padding="0"
+                                                            CornerRadius="11"
+                                                            Background="{actipro:ThemeResource Container2BackgroundBrush}"
+                                                            Foreground="{actipro:ThemeResource DefaultForegroundBrush}"
+                                                            BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                                                            BorderThickness="1"
+                                                            HorizontalAlignment="Right" VerticalAlignment="Top"
+                                                            Margin="0,-8,-8,0"
+                                                            Tag="{Binding Path}"
+                                                            Click="OnRemoveOverlayImageClick">
+                                                        <Path Data="{StaticResource CloseIcon}" Width="10" Height="10" Margin="1"
+                                                              Stretch="Uniform" Stroke="{Binding $parent[Button].Foreground}" StrokeThickness="2"
+                                                              VerticalAlignment="Center" HorizontalAlignment="Center" UseLayoutRounding="False"/>
+                                                    </Button>
                                                 </Grid>
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
@@ -123,32 +187,39 @@
                                     <TextBlock Text="Image adjustments"
                                                FontSize="13" FontWeight="SemiBold" Margin="0,8,0,0"
                                                Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
-                                    <StackPanel Spacing="10">
+                                    <TextBlock Text="Use the Edit button on each image for per-image opacity, lighten, darken, zoom, and positioning. Enable global overrides below to apply the same values to all images."
+                                               FontSize="11" TextWrapping="Wrap"
+                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                    <CheckBox Content="Use global overrides (apply to all images)"
+                                              IsChecked="{Binding OverlayService.UseGlobalOverrides, Mode=TwoWay}"
+                                              FontSize="12" Margin="0,4,0,0"/>
+                                    <StackPanel Spacing="10"
+                                                IsVisible="{Binding OverlayService.UseGlobalOverrides}">
                                         <Grid ColumnDefinitions="120,*,Auto">
-                                            <TextBlock Grid.Column="0" Text="Transparency" FontSize="12"
+                                            <TextBlock Grid.Column="0" Text="Opacity" FontSize="12"
                                                        VerticalAlignment="Center"/>
                                             <Slider Grid.Column="1" Value="{Binding OverlayService.ImageOpacity, Mode=TwoWay}"
-                                                    Minimum="0" Maximum="1" TickFrequency="0.05" IsSnapToTickEnabled="True"
+                                                    Minimum="0" Maximum="0.85" TickFrequency="0.01" IsSnapToTickEnabled="True"
                                                     Margin="0,0,12,0" VerticalAlignment="Center"/>
-                                            <TextBlock Grid.Column="2" Text="{Binding OverlayService.ImageOpacity, StringFormat='{}{0:P0}'}"
+                                            <TextBlock Grid.Column="2" Text="{Binding OverlayService.ImageOpacity, StringFormat='{}{0:F2}'}"
                                                        FontSize="12" MinWidth="40" VerticalAlignment="Center" HorizontalAlignment="Right"/>
                                         </Grid>
                                         <Grid ColumnDefinitions="120,*,Auto">
-                                            <TextBlock Grid.Column="0" Text="Brightness" FontSize="12"
+                                            <TextBlock Grid.Column="0" Text="Lighten" FontSize="12"
                                                        VerticalAlignment="Center"/>
                                             <Slider Grid.Column="1" Value="{Binding OverlayService.Brightness, Mode=TwoWay}"
-                                                    Minimum="0" Maximum="1" TickFrequency="0.05" IsSnapToTickEnabled="True"
+                                                    Minimum="0" Maximum="0.85" TickFrequency="0.01" IsSnapToTickEnabled="True"
                                                     Margin="0,0,12,0" VerticalAlignment="Center"/>
-                                            <TextBlock Grid.Column="2" Text="{Binding OverlayService.Brightness, StringFormat='{}{0:P0}'}"
+                                            <TextBlock Grid.Column="2" Text="{Binding OverlayService.Brightness, StringFormat='{}{0:F2}'}"
                                                        FontSize="12" MinWidth="40" VerticalAlignment="Center" HorizontalAlignment="Right"/>
                                         </Grid>
                                         <Grid ColumnDefinitions="120,*,Auto">
-                                            <TextBlock Grid.Column="0" Text="Darkness" FontSize="12"
+                                            <TextBlock Grid.Column="0" Text="Darken" FontSize="12"
                                                        VerticalAlignment="Center"/>
                                             <Slider Grid.Column="1" Value="{Binding OverlayService.Darkness, Mode=TwoWay}"
-                                                    Minimum="0" Maximum="1" TickFrequency="0.05" IsSnapToTickEnabled="True"
+                                                    Minimum="0" Maximum="0.85" TickFrequency="0.01" IsSnapToTickEnabled="True"
                                                     Margin="0,0,12,0" VerticalAlignment="Center"/>
-                                            <TextBlock Grid.Column="2" Text="{Binding OverlayService.Darkness, StringFormat='{}{0:P0}'}"
+                                            <TextBlock Grid.Column="2" Text="{Binding OverlayService.Darkness, StringFormat='{}{0:F2}'}"
                                                        FontSize="12" MinWidth="40" VerticalAlignment="Center" HorizontalAlignment="Right"/>
                                         </Grid>
                                     </StackPanel>
@@ -168,34 +239,16 @@
                             </StackPanel>
                         </Border>
 
-                        <!-- Gallery Viewer Keyboard Navigation -->
-                        <Border Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
-                                BorderThickness="1" CornerRadius="8" Padding="28">
-                            <StackPanel Spacing="16">
-                                <TextBlock Text="Gallery Viewer" FontWeight="SemiBold" FontSize="14"/>
-                                <TextBlock FontSize="12" TextWrapping="Wrap"
-                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
-                                           Text="Use arrow keys to navigate between artworks when the viewer is open."/>
-                                <CheckBox Content="Enable keyboard navigation in gallery (&#x2190; &#x2192; arrow keys)"
-                                          IsChecked="{Binding GalleryKeyboardNavEnabled, Mode=TwoWay}"
-                                          FontSize="13"
-                                          ToolTip.Tip="Left/Right arrow keys move to the previous/next artwork while the inline viewer panel is open"/>
-                                <CheckBox Content="Enable keyboard navigation in fullscreen viewer"
-                                          IsChecked="{Binding FullscreenKeyboardNavEnabled, Mode=TwoWay}"
-                                          FontSize="13"
-                                          ToolTip.Tip="Left/Right arrow keys navigate between artworks in the fullscreen viewer window"/>
-                            </StackPanel>
-                        </Border>
-
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>
 
             <!-- ====================== STORAGE & NAMING ====================== -->
             <TabItem Header="Storage &amp; Naming">
-                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="16">
-                    <StackPanel Spacing="16" Margin="8,8,8,32">
+                <ScrollViewer VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled"
+                              VerticalAlignment="Stretch">
+                    <StackPanel Spacing="16" Margin="24,24,24,48" VerticalAlignment="Top">
 
                         <!-- Download Folder -->
                         <Border Background="{actipro:ThemeResource Container1BackgroundBrush}"
@@ -236,10 +289,12 @@
                                             <ComboBoxItem>%R-18%</ComboBoxItem>
                                         </ComboBox>
                                     </Grid>
-                                    <TextBlock Grid.Row="2" Grid.Column="0" FontSize="12" Margin="0,4,0,0"
-                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}">
-                                        <Run Text="&#x1F4C1; "/><Run FontWeight="SemiBold" Text="{Binding FolderPreview}"/>
-                                    </TextBlock>
+                                    <StackPanel Grid.Row="2" Grid.Column="0" Orientation="Horizontal" Spacing="6" Margin="0,4,0,0"
+                                                VerticalAlignment="Center">
+                                        <PathIcon Data="{StaticResource FolderIcon}" Width="12" Height="12" VerticalAlignment="Center"/>
+                                        <TextBlock FontSize="12" FontWeight="SemiBold" Text="{Binding FolderPreview}"
+                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                    </StackPanel>
 
                                     <!-- Filename template -->
                                     <TextBlock Grid.Row="0" Grid.Column="2" Text="Filename template"
@@ -267,10 +322,12 @@
                                             <ComboBoxItem>%tags%</ComboBoxItem>
                                         </ComboBox>
                                     </Grid>
-                                    <TextBlock Grid.Row="2" Grid.Column="2" FontSize="12" Margin="0,4,0,0"
-                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}">
-                                        <Run Text="&#x1F4C4; "/><Run FontWeight="SemiBold" Text="{Binding FilenamePreview}"/>
-                                    </TextBlock>
+                                    <StackPanel Grid.Row="2" Grid.Column="2" Orientation="Horizontal" Spacing="6" Margin="0,4,0,0"
+                                                VerticalAlignment="Center">
+                                        <PathIcon Data="{StaticResource DocumentIcon}" Width="12" Height="12" VerticalAlignment="Center"/>
+                                        <TextBlock FontSize="12" FontWeight="SemiBold" Text="{Binding FilenamePreview}"
+                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                    </StackPanel>
 
                                     <Separator Grid.Row="3" Grid.ColumnSpan="3" Margin="0,10"
                                                Background="{actipro:ThemeResource Container1BorderBrush}"/>
@@ -298,10 +355,12 @@
                                             <ComboBoxItem>%tags%</ComboBoxItem>
                                         </ComboBox>
                                     </Grid>
-                                    <TextBlock Grid.Row="6" Grid.Column="0" FontSize="12" Margin="0,4,0,0"
-                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}">
-                                        <Run Text="&#x1F4C4; "/><Run FontWeight="SemiBold" Text="{Binding MangaFilenamePreview}"/>
-                                    </TextBlock>
+                                    <StackPanel Grid.Row="6" Grid.Column="0" Orientation="Horizontal" Spacing="6" Margin="0,4,0,0"
+                                                VerticalAlignment="Center">
+                                        <PathIcon Data="{StaticResource DocumentIcon}" Width="12" Height="12" VerticalAlignment="Center"/>
+                                        <TextBlock FontSize="12" FontWeight="SemiBold" Text="{Binding MangaFilenamePreview}"
+                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                    </StackPanel>
 
                                     <TextBlock Grid.Row="4" Grid.Column="2" Text="Info text filename"
                                                FontSize="13" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}" Margin="0,0,0,5"/>
@@ -322,10 +381,12 @@
                                             <ComboBoxItem>%tags%</ComboBoxItem>
                                         </ComboBox>
                                     </Grid>
-                                    <TextBlock Grid.Row="6" Grid.Column="2" FontSize="12" Margin="0,4,0,0"
-                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}">
-                                        <Run Text="&#x1F4C4; "/><Run FontWeight="SemiBold" Text="{Binding InfoFilenamePreview}"/>
-                                    </TextBlock>
+                                    <StackPanel Grid.Row="6" Grid.Column="2" Orientation="Horizontal" Spacing="6" Margin="0,4,0,0"
+                                                VerticalAlignment="Center">
+                                        <PathIcon Data="{StaticResource DocumentIcon}" Width="12" Height="12" VerticalAlignment="Center"/>
+                                        <TextBlock FontSize="12" FontWeight="SemiBold" Text="{Binding InfoFilenamePreview}"
+                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                    </StackPanel>
 
                                     <Separator Grid.Row="7" Grid.ColumnSpan="3" Margin="0,10"
                                                Background="{actipro:ThemeResource Container1BorderBrush}"/>
@@ -535,8 +596,10 @@
 
             <!-- ====================== IMAGE PROCESSING ====================== -->
             <TabItem Header="Image Processing">
-                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="16">
-                    <StackPanel Spacing="16" Margin="8,8,8,32">
+                <ScrollViewer VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled"
+                              VerticalAlignment="Stretch">
+                    <StackPanel Spacing="16" Margin="24,24,24,48" VerticalAlignment="Top">
 
                         <!-- Enable Image Processing -->
                         <Border Background="{actipro:ThemeResource Container1BackgroundBrush}"
@@ -686,9 +749,13 @@
                                 <Grid ColumnDefinitions="*,Auto">
                                     <TextBlock Text="Custom Presets" FontWeight="SemiBold" FontSize="14"/>
                                     <Button Grid.Column="1"
-                                            Content="📝 Open Image Editor"
                                             Command="{Binding OpenImageEditorCommand}"
-                                            CornerRadius="6" FontSize="12" Padding="12,6"/>
+                                            CornerRadius="6" FontSize="12" Padding="12,6">
+                                        <StackPanel Orientation="Horizontal" Spacing="6">
+                                            <PathIcon Data="{StaticResource EditIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                                            <TextBlock Text="Open Image Editor" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Button>
                                 </Grid>
                                 <TextBlock FontSize="11"
                                            Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
@@ -702,148 +769,72 @@
 
             <!-- ====================== CONTENT FILTERING ====================== -->
             <TabItem Header="Content Filtering">
-                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="16">
-                    <StackPanel Spacing="24" Margin="8">
+                <ScrollViewer VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled"
+                              VerticalAlignment="Stretch">
+                    <StackPanel Spacing="24" Margin="24" VerticalAlignment="Top">
 
                         <Border Background="{actipro:ThemeResource Container1BackgroundBrush}"
                                 BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="24">
                             <StackPanel Spacing="16">
-                                <TextBlock Text="Excluded Tags (gallery hide only)" FontWeight="SemiBold" FontSize="13"/>
+                                <TextBlock Text="Blocklist" FontWeight="SemiBold" FontSize="13"/>
                                 <TextBlock FontSize="11" Foreground="{actipro:ThemeResource DefaultForegroundBrushDisabled}"
-                                           Text="Hides artworks from gallery views. Does not block downloads."/>
-                                <Grid ColumnDefinitions="*,Auto">
-                                    <TextBox Grid.Column="0" Text="{Binding NewExcludedTag, Mode=TwoWay}"
-                                             PlaceholderText="Tag to exclude&#x2026;" CornerRadius="5" FontSize="12" Margin="0,0,8,0"/>
-                                    <Button Grid.Column="1" Content="Add" CornerRadius="5" FontSize="12"
-                                            Command="{Binding AddExcludedTagCommand}"/>
+                                           Text="Hide or block artworks by tag, artist, or title. Choose whether a rule applies to a specific tab or all tabs, and whether it also prevents downloads."/>
+
+                                <!-- Add new rule -->
+                                <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto,Auto" ColumnSpacing="8">
+                                    <ComboBox Grid.Column="0" ItemsSource="{Binding BlocklistTypes}" SelectedItem="{Binding NewBlocklistType, Mode=TwoWay}"
+                                              FontSize="12" CornerRadius="5" Padding="8,4" VerticalAlignment="Center"/>
+                                    <TextBox Grid.Column="1" Text="{Binding NewBlocklistValue, Mode=TwoWay}"
+                                             PlaceholderText="Tag, artist name, artist ID, or title&#x2026;" CornerRadius="5" FontSize="12" VerticalAlignment="Center"/>
+                                    <ComboBox Grid.Column="2" ItemsSource="{Binding BlocklistScopeOptions}"
+                                              SelectedItem="{Binding SelectedBlocklistScope, Mode=TwoWay}"
+                                              FontSize="12" CornerRadius="5" Padding="8,4" VerticalAlignment="Center">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate x:DataType="vm:BlocklistScopeOption">
+                                                <TextBlock Text="{Binding Display}" FontSize="12" VerticalAlignment="Center"/>
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
+                                    <CheckBox Grid.Column="3" Content="Regex" FontSize="11"
+                                              IsChecked="{Binding NewBlocklistUseRegex, Mode=TwoWay}" VerticalAlignment="Center"/>
+                                    <CheckBox Grid.Column="4" Content="Block downloads" FontSize="11"
+                                              IsChecked="{Binding NewBlocklistBlockDownload, Mode=TwoWay}" VerticalAlignment="Center"/>
+                                    <Button Grid.Column="5" Content="Add" CornerRadius="5" FontSize="12" Padding="14,6"
+                                            Command="{Binding AddBlocklistEntryCommand}" VerticalAlignment="Center"/>
                                 </Grid>
-                                <ItemsControl ItemsSource="{Binding ExcludedTags}">
-                                    <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+
+                                <!-- Existing rules -->
+                                <ItemsControl ItemsSource="{Binding BlocklistEntries}">
+                                    <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Spacing="6"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
                                     <ItemsControl.ItemTemplate>
-                                        <DataTemplate x:DataType="x:String">
+                                        <DataTemplate x:DataType="settings:BlocklistEntry">
                                             <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
                                                     BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
-                                                    BorderThickness="1" CornerRadius="5" Padding="7,3" Margin="0,0,5,5">
-                                                <StackPanel Orientation="Horizontal" Spacing="6">
-                                                    <TextBlock Text="{Binding}" VerticalAlignment="Center" FontSize="12"/>
-                                                    <Button Content="&#x2715;" FontSize="10" CornerRadius="3" Padding="3,1"
-                                                            Command="{Binding $parent[ItemsControl].DataContext.RemoveExcludedTagCommand}"
-                                                            CommandParameter="{Binding}"/>
-                                                </StackPanel>
+                                                    BorderThickness="1" CornerRadius="5" Padding="8,6">
+                                                <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto,Auto" ColumnSpacing="10">
+                                                    <TextBlock Grid.Column="0" Text="{Binding Type}" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                                    <TextBlock Grid.Column="1" Text="{Binding Value}" FontSize="12" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                                    <TextBlock Grid.Column="2" Text="{Binding Scope, Converter={StaticResource BlocklistScopeToDisplayConverter}}" FontSize="11" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}" VerticalAlignment="Center"/>
+                                                    <Border Grid.Column="3" Background="{actipro:ThemeResource Container3BackgroundBrush}" CornerRadius="3" Padding="4,2"
+                                                            IsVisible="{Binding UseRegex}">
+                                                        <TextBlock Text="Regex" FontSize="10" VerticalAlignment="Center"/>
+                                                    </Border>
+                                                    <Border Grid.Column="4" Background="{actipro:ThemeResource Container3BackgroundBrush}" CornerRadius="3" Padding="4,2"
+                                                            IsVisible="{Binding BlockDownload}">
+                                                        <TextBlock Text="Block downloads" FontSize="10" VerticalAlignment="Center"/>
+                                                    </Border>
+                                                    <Button Grid.Column="5" FontSize="10" CornerRadius="3" Padding="6,2"
+                                                            Command="{Binding $parent[ItemsControl].DataContext.RemoveBlocklistEntryCommand}"
+                                                            CommandParameter="{Binding}" VerticalAlignment="Center">
+                                                        <PathIcon Data="{StaticResource CloseIcon}" Width="10" Height="10" VerticalAlignment="Center"/>
+                                                    </Button>
+                                                </Grid>
                                             </Border>
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
-                            </StackPanel>
-                        </Border>
-
-                        <Border Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
-                                BorderThickness="1" CornerRadius="8" Padding="24">
-                            <StackPanel Spacing="20">
-                                <TextBlock Text="Blocklist (block download)" FontWeight="SemiBold" FontSize="13"/>
-                                <Grid ColumnDefinitions="*,1,*,1,*" ColumnSpan="1">
-
-                                    <!-- Tags -->
-                                    <StackPanel Grid.Column="0" Spacing="12">
-                                        <Grid ColumnDefinitions="*,Auto">
-                                            <TextBlock Text="Tags" FontWeight="SemiBold" FontSize="12"/>
-                                            <CheckBox Grid.Column="1" Content="Regex" FontSize="11"
-                                                      IsChecked="{Binding UseBlacklistTagsRegex, Mode=TwoWay}"/>
-                                        </Grid>
-                                        <Grid ColumnDefinitions="*,Auto">
-                                            <TextBox Grid.Column="0" Text="{Binding NewBlacklistTag, Mode=TwoWay}"
-                                                     PlaceholderText="Tag&#x2026;" CornerRadius="5" FontSize="12" Margin="0,0,8,0"/>
-                                            <Button Grid.Column="1" Content="Add" CornerRadius="5" FontSize="12" Padding="14,6"
-                                                    Command="{Binding AddBlacklistTagCommand}"/>
-                                        </Grid>
-                                        <ItemsControl ItemsSource="{Binding BlacklistTags}">
-                                            <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
-                                            <ItemsControl.ItemTemplate>
-                                                <DataTemplate x:DataType="x:String">
-                                                    <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                                                            BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
-                                                            BorderThickness="1" CornerRadius="5" Padding="7,3" Margin="0,0,5,5">
-                                                        <StackPanel Orientation="Horizontal" Spacing="6">
-                                                            <TextBlock Text="{Binding}" VerticalAlignment="Center" FontSize="12"/>
-                                                            <Button Content="&#x2715;" FontSize="10" CornerRadius="3" Padding="3,1"
-                                                                    Command="{Binding $parent[ItemsControl].DataContext.RemoveBlacklistTagCommand}"
-                                                                    CommandParameter="{Binding}"/>
-                                                        </StackPanel>
-                                                    </Border>
-                                                </DataTemplate>
-                                            </ItemsControl.ItemTemplate>
-                                        </ItemsControl>
-                                    </StackPanel>
-
-                                    <!-- Divider -->
-                                    <Rectangle Grid.Column="1" Fill="{actipro:ThemeResource Container1BorderBrush}" Width="1" Margin="12,0"/>
-
-                                    <!-- Titles -->
-                                    <StackPanel Grid.Column="2" Spacing="12">
-                                        <Grid ColumnDefinitions="*,Auto">
-                                            <TextBlock Text="Titles" FontWeight="SemiBold" FontSize="12"/>
-                                            <CheckBox Grid.Column="1" Content="Regex" FontSize="11"
-                                                      IsChecked="{Binding UseBlacklistTitlesRegex, Mode=TwoWay}"/>
-                                        </Grid>
-                                        <Grid ColumnDefinitions="*,Auto">
-                                            <TextBox Grid.Column="0" Text="{Binding NewBlacklistTitle, Mode=TwoWay}"
-                                                     PlaceholderText="Title pattern&#x2026;" CornerRadius="5" FontSize="12" Margin="0,0,8,0"/>
-                                            <Button Grid.Column="1" Content="Add" CornerRadius="5" FontSize="12" Padding="14,6"
-                                                    Command="{Binding AddBlacklistTitleCommand}"/>
-                                        </Grid>
-                                        <ItemsControl ItemsSource="{Binding BlacklistTitles}">
-                                            <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
-                                            <ItemsControl.ItemTemplate>
-                                                <DataTemplate x:DataType="x:String">
-                                                    <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                                                            BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
-                                                            BorderThickness="1" CornerRadius="5" Padding="7,3" Margin="0,0,5,5">
-                                                        <StackPanel Orientation="Horizontal" Spacing="6">
-                                                            <TextBlock Text="{Binding}" VerticalAlignment="Center" FontSize="12"/>
-                                                            <Button Content="&#x2715;" FontSize="10" CornerRadius="3" Padding="3,1"
-                                                                    Command="{Binding $parent[ItemsControl].DataContext.RemoveBlacklistTitleCommand}"
-                                                                    CommandParameter="{Binding}"/>
-                                                        </StackPanel>
-                                                    </Border>
-                                                </DataTemplate>
-                                            </ItemsControl.ItemTemplate>
-                                        </ItemsControl>
-                                    </StackPanel>
-
-                                    <!-- Divider -->
-                                    <Rectangle Grid.Column="3" Fill="{actipro:ThemeResource Container1BorderBrush}" Width="1" Margin="12,0"/>
-
-                                    <!-- Member IDs -->
-                                    <StackPanel Grid.Column="4" Spacing="12">
-                                        <TextBlock Text="Member IDs" FontWeight="SemiBold" FontSize="12"/>
-                                        <Grid ColumnDefinitions="*,Auto">
-                                            <TextBox Grid.Column="0" Text="{Binding NewBlacklistMember, Mode=TwoWay}"
-                                                     PlaceholderText="Member ID&#x2026;" CornerRadius="5" FontSize="12" Margin="0,0,8,0"/>
-                                            <Button Grid.Column="1" Content="Add" CornerRadius="5" FontSize="12" Padding="14,6"
-                                                    Command="{Binding AddBlacklistMemberCommand}"/>
-                                        </Grid>
-                                        <ItemsControl ItemsSource="{Binding BlacklistMembers}">
-                                            <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
-                                            <ItemsControl.ItemTemplate>
-                                                <DataTemplate x:DataType="x:String">
-                                                    <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                                                            BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
-                                                            BorderThickness="1" CornerRadius="5" Padding="7,3" Margin="0,0,5,5">
-                                                        <StackPanel Orientation="Horizontal" Spacing="6">
-                                                            <TextBlock Text="{Binding}" VerticalAlignment="Center" FontSize="12"/>
-                                                            <Button Content="&#x2715;" FontSize="10" CornerRadius="3" Padding="3,1"
-                                                                    Command="{Binding $parent[ItemsControl].DataContext.RemoveBlacklistMemberCommand}"
-                                                                    CommandParameter="{Binding}"/>
-                                                        </StackPanel>
-                                                    </Border>
-                                                </DataTemplate>
-                                            </ItemsControl.ItemTemplate>
-                                        </ItemsControl>
-                                    </StackPanel>
-
-                                </Grid>
                             </StackPanel>
                         </Border>
 
@@ -910,8 +901,10 @@
 
             <!-- ====================== ADVANCED ====================== -->
             <TabItem Header="Advanced">
-                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="16">
-                    <StackPanel Spacing="24" Margin="8,8,8,32">
+                <ScrollViewer VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled"
+                              VerticalAlignment="Stretch">
+                    <StackPanel Spacing="24" Margin="24,24,24,48">
                         <Grid ColumnDefinitions="*,12,*" VerticalAlignment="Top">
                             <StackPanel Grid.Column="0" Spacing="20">
                                 <Border Background="{actipro:ThemeResource Container1BackgroundBrush}"
@@ -945,7 +938,7 @@
                                 <StackPanel Spacing="16">
                                     <TextBlock Text="Ugoira (Animated Images)" FontWeight="SemiBold" FontSize="13"/>
                                     <TextBlock FontSize="11" Foreground="{actipro:ThemeResource DefaultForegroundBrushDisabled}"
-                                               Text="Convert animated ZIP frames � requires FFmpeg." TextWrapping="Wrap"/>
+                                               Text="Converting animated ZIP frames requires FFmpeg." TextWrapping="Wrap"/>
                                     <WrapPanel>
                                         <CheckBox Content="WebM" IsChecked="{Binding CreateUgoiraWebm, Mode=TwoWay}" FontSize="12" Margin="0,0,12,4"/>
                                         <CheckBox Content="GIF"  IsChecked="{Binding CreateUgoiraGif,  Mode=TwoWay}" FontSize="12" Margin="0,0,12,4"/>
@@ -964,7 +957,7 @@
                                             <ComboBoxItem>libvpx</ComboBoxItem>
                                         </ComboBox>
                                     </Grid>
-                                    <TextBlock Text="{Binding FfMpegCRF, StringFormat='Quality (CRF): {0} � lower = better'}"
+                                    <TextBlock Text="{Binding FfMpegCRF, StringFormat='Quality (CRF): {0} - lower = better'}"
                                                FontSize="12" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
                                     <Slider Minimum="0" Maximum="35" TickFrequency="1" IsSnapToTickEnabled="True"
                                             Value="{Binding FfMpegCRF, Mode=TwoWay}"/>
@@ -1111,10 +1104,14 @@
 
                             <CheckBox Content="Enable verbose logging (debug level)"
                                       IsChecked="{Binding VerboseLogging, Mode=TwoWay}"/>
-                            <TextBlock Text="⚠ Verbose mode writes detailed debug output. Takes effect after restart."
-                                       FontSize="12" TextWrapping="Wrap"
-                                       Foreground="{actipro:ThemeResource DefaultForegroundBrushDisabled}"
-                                       IsVisible="{Binding VerboseLogging}"/>
+                            <StackPanel Orientation="Horizontal" Spacing="6"
+                                        IsVisible="{Binding VerboseLogging}">
+                                <PathIcon Data="{StaticResource WarningIcon}" Width="14" Height="14" VerticalAlignment="Center"
+                                          Foreground="Orange"/>
+                                <TextBlock Text="Verbose mode writes detailed debug output. Takes effect after restart."
+                                           FontSize="12" TextWrapping="Wrap" VerticalAlignment="Center"
+                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushDisabled}"/>
+                            </StackPanel>
 
                             <Separator Background="{actipro:ThemeResource Container1BorderBrush}" Margin="0,4"/>
 
@@ -1154,8 +1151,10 @@
 
             <!-- ====================== HOSHI AI ====================== -->
             <TabItem Header="Hoshi AI">
-                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="16">
-                    <StackPanel Spacing="16" Margin="8,8,8,8">
+                <ScrollViewer VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled"
+                              VerticalAlignment="Stretch">
+                    <StackPanel Spacing="16" Margin="24,24,24,24" VerticalAlignment="Top">
 
                         <!-- Active models -->
                         <Border Background="{actipro:ThemeResource Container1BackgroundBrush}"
@@ -1180,9 +1179,12 @@
                                     <!-- Shown while the installed-models list is still loading (e.g. right after
                                          app startup while Ollama itself is spinning up) so an empty ComboBox
                                          doesn't read as "my selection got cleared" — it's just still loading. -->
-                                    <TextBlock Text="⏳ Loading your installed Ollama models…" FontSize="12"
-                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
-                                               IsVisible="{Binding IsLoadingModels}"/>
+                                    <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center"
+                                                IsVisible="{Binding IsLoadingModels}">
+                                        <PathIcon Data="{StaticResource ClockIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                                        <TextBlock Text="Loading your installed Ollama models…" FontSize="12" VerticalAlignment="Center"
+                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                    </StackPanel>
                                     <Grid ColumnDefinitions="*,20,*" RowDefinitions="Auto,Auto">
                                         <TextBlock Grid.Row="0" Grid.Column="0" Text="Text model" FontSize="13"
                                                    Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}" Margin="0,0,0,5"/>
@@ -1243,9 +1245,12 @@
                                                                     ToolTip.Tip="{Binding ToolTipText}">
                                                                 <StackPanel Orientation="Horizontal" Spacing="6">
                                                                     <TextBlock Text="{Binding Name}" FontSize="12" VerticalAlignment="Center"/>
-                                                                    <TextBlock Text="✓ Installed" FontSize="11" Foreground="#4ADE80"
-                                                                               VerticalAlignment="Center"
-                                                                               IsVisible="{Binding IsInstalled}"/>
+                                                                    <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center"
+                                                                                IsVisible="{Binding IsInstalled}">
+                                                                        <PathIcon Data="{StaticResource CheckIcon}" Width="10" Height="10" VerticalAlignment="Center"
+                                                                                  Foreground="#4ADE80"/>
+                                                                        <TextBlock Text="Installed" FontSize="11" Foreground="#4ADE80" VerticalAlignment="Center"/>
+                                                                    </StackPanel>
                                                                     <Button Content="Install" FontSize="11" Padding="8,3" CornerRadius="8"
                                                                             Classes="accent"
                                                                             IsVisible="{Binding !IsInstalled}"
@@ -1408,10 +1413,15 @@
                                     <Grid ColumnDefinitions="*,Auto">
                                         <TextBlock Grid.Column="0" Text="Installed Ollama models" FontWeight="SemiBold" FontSize="13"
                                                    VerticalAlignment="Center"/>
-                                        <Button Grid.Column="1" Content="↻ Refresh"
+                                        <Button Grid.Column="1"
                                                 CornerRadius="6" Padding="10,5" FontSize="12"
                                                 Command="{Binding RefreshInstalledModelsCommand}"
-                                                IsEnabled="{Binding !IsLoadingModels}"/>
+                                                IsEnabled="{Binding !IsLoadingModels}">
+                                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                                <PathIcon Data="{StaticResource RefreshIcon}" Width="12" Height="12" VerticalAlignment="Center"/>
+                                                <TextBlock Text="Refresh" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </Button>
                                     </Grid>
 
                                     <TextBlock Text="Loading…" FontSize="12"
@@ -1530,8 +1540,10 @@
 
             <!-- ====================== CONFIG ====================== -->
             <TabItem Header="Config">
-                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="16">
-                    <StackPanel Spacing="24" Margin="8">
+                <ScrollViewer VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled"
+                              VerticalAlignment="Stretch">
+                    <StackPanel Spacing="24" Margin="24" VerticalAlignment="Top">
 
                         <Grid ColumnDefinitions="*,12,*">
                             <!-- Languages -->
@@ -1599,11 +1611,39 @@
                                             </ComboBox.ItemTemplate>
                                         </ComboBox>
                                     </Grid>
+                                    <CheckBox Content="Show splash screen on startup"
+                                              IsChecked="{Binding ShowSplashScreen, Mode=TwoWay}"
+                                              FontSize="12"
+                                              ToolTip.Tip="Display the Pikura splash screen when the app launches"/>
+                                    <CheckBox Content="Show feature highlights after updates"
+                                              IsChecked="{Binding ShowFeatureHighlights, Mode=TwoWay}"
+                                              FontSize="12"
+                                              ToolTip.Tip="Show the What's New dialog the first time you open a new major version"/>
                                     <CheckBox Content="Start with Windows"
                                               IsChecked="{Binding StartWithWindows, Mode=TwoWay}" FontSize="12"/>
                                 </StackPanel>
                             </Border>
                         </Grid>
+
+                        <!-- Gallery Viewer Keyboard Navigation -->
+                        <Border Background="{actipro:ThemeResource Container1BackgroundBrush}"
+                                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                                BorderThickness="1" CornerRadius="8" Padding="28">
+                            <StackPanel Spacing="16">
+                                <TextBlock Text="Gallery Viewer" FontWeight="SemiBold" FontSize="14"/>
+                                <TextBlock FontSize="12" TextWrapping="Wrap"
+                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                           Text="Use arrow keys to navigate between artworks when the viewer is open."/>
+                                <CheckBox Content="Enable keyboard navigation in gallery (left/right arrow keys)"
+                                          IsChecked="{Binding GalleryKeyboardNavEnabled, Mode=TwoWay}"
+                                          FontSize="13"
+                                          ToolTip.Tip="Left/Right arrow keys move to the previous/next artwork while the inline viewer panel is open"/>
+                                <CheckBox Content="Enable keyboard navigation in fullscreen viewer"
+                                          IsChecked="{Binding FullscreenKeyboardNavEnabled, Mode=TwoWay}"
+                                          FontSize="13"
+                                          ToolTip.Tip="Left/Right arrow keys navigate between artworks in the fullscreen viewer window"/>
+                            </StackPanel>
+                        </Border>
 
                         <!-- Download Notifications -->
                         <Border Background="{actipro:ThemeResource Container1BackgroundBrush}"
@@ -1673,8 +1713,10 @@
 
             <!-- ====================== ACCOUNTS ====================== -->
             <TabItem Header="Accounts">
-                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="16">
-                    <StackPanel Spacing="24" Margin="8">
+                <ScrollViewer VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled"
+                              VerticalAlignment="Stretch">
+                    <StackPanel Spacing="24" Margin="24" VerticalAlignment="Top">
 
                         <!-- Accounts list (always visible) -->
                         <Border Background="{actipro:ThemeResource Container1BackgroundBrush}"
@@ -1797,8 +1839,10 @@
 
             <!-- ====================== UPDATES ====================== -->
             <TabItem Header="Updates">
-                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="16">
-                    <StackPanel Spacing="24" Margin="8" HorizontalAlignment="Center" MaxWidth="620">
+                <ScrollViewer VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled"
+                              VerticalAlignment="Stretch">
+                    <StackPanel Spacing="24" Margin="24" HorizontalAlignment="Center" MaxWidth="620" VerticalAlignment="Top">
 
                         <!-- Current version + check now -->
                         <Border Background="{actipro:ThemeResource Container1BackgroundBrush}"
@@ -1918,8 +1962,10 @@
 
             <!-- ====================== ABOUT ====================== -->
             <TabItem Header="About">
-                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="16">
-                    <StackPanel Spacing="24" Margin="8" HorizontalAlignment="Center" MaxWidth="560">
+                <ScrollViewer VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled"
+                              VerticalAlignment="Stretch">
+                    <StackPanel Spacing="24" Margin="24" HorizontalAlignment="Center" MaxWidth="560" VerticalAlignment="Top">
 
                         <!-- Logo / App Identity -->
                         <Border Background="{actipro:ThemeResource Container1BackgroundBrush}"
@@ -1948,6 +1994,14 @@
                                                Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}" Margin="0,0,20,0"/>
                                     <TextBlock Grid.Row="2" Grid.Column="1" Text="© 2026" FontSize="13" FontWeight="SemiBold"/>
                                 </Grid>
+                                <Button Content="GitHub Page"
+                                        Click="OnGitHubPageClick"
+                                        HorizontalAlignment="Center"
+                                        Cursor="Hand"
+                                        FontSize="13"
+                                        Padding="14,6"
+                                        CornerRadius="6"
+                                        Margin="0,8,0,0"/>
                             </StackPanel>
                         </Border>
 
@@ -2003,5 +2057,5 @@
             </TabItem>
 
         </TabControl>
-    </DockPanel>
+    </Grid>
 </UserControl>

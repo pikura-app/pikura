@@ -78,7 +78,7 @@
                 Margin="0,32,0,0">
             <Grid ColumnDefinitions="*,Auto">
                                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
-                    <TextBlock Text="&#128451;" FontSize="20" VerticalAlignment="Center"/>
+                    <PathIcon Data="{StaticResource QueueIcon}" Width="24" Height="24" VerticalAlignment="Center"/>
                     <StackPanel Orientation="Vertical" Spacing="2" VerticalAlignment="Center">
                         <TextBlock Text="Jobs" FontWeight="SemiBold" FontSize="18"/>
                         <TextBlock Text="Active and completed downloads"
@@ -86,13 +86,21 @@
                     </StackPanel>
                 </StackPanel>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
-                    <Button Content="🔄 Refresh"
-                            Command="{Binding RefreshCommand}"
-                            CornerRadius="6" Padding="12,8"/>
-                    <Button Content="🔄 Retry All Failed"
-                            Command="{Binding RetryAllFailedCommand}"
+                    <Button Command="{Binding RefreshCommand}"
+                            CornerRadius="6" Padding="10,6" FontSize="12">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <PathIcon Data="{StaticResource RefreshIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                            <TextBlock Text="Refresh" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding RetryAllFailedCommand}"
                             IsVisible="{Binding FailedJobs.Count}"
-                            CornerRadius="6" Padding="12,8" Classes="accent"/>
+                            CornerRadius="6" Padding="10,6" FontSize="12" Classes="accent">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <PathIcon Data="{StaticResource RefreshIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                            <TextBlock Text="Retry All Failed" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
                 </StackPanel>
             </Grid>
         </Border>
@@ -104,7 +112,8 @@
             <TabItem>
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal" Spacing="6">
-                        <TextBlock Text="⏳ Active"/>
+                        <PathIcon Data="{StaticResource ClockIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                        <TextBlock Text="Active" FontSize="12" VerticalAlignment="Center"/>
                         <Border Background="{actipro:ThemeResource Container3BackgroundBrush}"
                                 CornerRadius="8" Padding="5,1"
                                 IsVisible="{Binding ActiveJobs.Count}">
@@ -122,25 +131,33 @@
                             <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="6">
                                 <StackPanel Orientation="Horizontal" Spacing="2"
                                             IsVisible="{Binding ActiveJobs.Count}">
-                                    <Button CornerRadius="6,0,0,6" Padding="8,6" FontSize="12" ToolTip.Tip="Card view"
+                                    <Button CornerRadius="6,0,0,6" Padding="10,6" FontSize="12" ToolTip.Tip="Card view"
                                             Classes.accent="{Binding !ActiveListView}"
                                             Command="{Binding SetActiveListViewCommand}" CommandParameter="false">
-                                        <TextBlock Text="&#x229E;"/>
+                                        <PathIcon Data="{StaticResource GridViewIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
                                     </Button>
-                                    <Button CornerRadius="0,6,6,0" Padding="8,6" FontSize="12" ToolTip.Tip="List view"
+                                    <Button CornerRadius="0,6,6,0" Padding="10,6" FontSize="12" ToolTip.Tip="List view"
                                             Classes.accent="{Binding ActiveListView}"
                                             Command="{Binding SetActiveListViewCommand}" CommandParameter="true">
-                                        <TextBlock Text="&#x2630;"/>
+                                        <PathIcon Data="{StaticResource ListViewIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
                                     </Button>
                                 </StackPanel>
                                 <StackPanel Orientation="Horizontal" Spacing="6"
                                             IsVisible="{Binding ActiveJobs.Count}">
-                                    <Button Content="⏸ Pause All"
-                                            Command="{Binding PauseAllCommand}"
-                                            CornerRadius="6" Padding="10,6" FontSize="12"/>
-                                    <Button Content="▶ Resume All"
-                                            Command="{Binding ResumeAllCommand}"
-                                            CornerRadius="6" Padding="10,6" FontSize="12" Classes="accent"/>
+                                    <Button Command="{Binding PauseAllCommand}"
+                                            CornerRadius="6" Padding="10,6" FontSize="12">
+                                        <StackPanel Orientation="Horizontal" Spacing="6">
+                                            <PathIcon Data="{StaticResource PauseIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                                            <TextBlock Text="Pause All" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <Button Command="{Binding ResumeAllCommand}"
+                                            CornerRadius="6" Padding="10,6" FontSize="12" Classes="accent">
+                                        <StackPanel Orientation="Horizontal" Spacing="6">
+                                            <PathIcon Data="{StaticResource PlayIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                                            <TextBlock Text="Resume All" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Button>
                                 </StackPanel>
                             </StackPanel>
                         </DockPanel>
@@ -174,24 +191,48 @@
                                             </Border.Transitions>
                                             <Border.ContextMenu>
                                                 <ContextMenu>
-                                                    <MenuItem Header="⏸ Pause"
-                                                              Command="{Binding PauseCommand}"
-                                                              IsVisible="{Binding IsPausable}"/>
-                                                    <MenuItem Header="▶ Resume"
-                                                              Command="{Binding ResumeCommand}"
-                                                              IsVisible="{Binding IsResumable}"/>
-                                                    <MenuItem Header="✖ Cancel"
-                                                              Command="{Binding CancelCommand}"
-                                                              IsVisible="{Binding IsCancellable}"/>
+                                                    <MenuItem Command="{Binding PauseCommand}" IsVisible="{Binding IsPausable}">
+                                                        <MenuItem.Header>
+                                                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                                                <PathIcon Data="{StaticResource PauseIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                                                                <TextBlock Text="Pause" VerticalAlignment="Center"/>
+                                                            </StackPanel>
+                                                        </MenuItem.Header>
+                                                    </MenuItem>
+                                                    <MenuItem Command="{Binding ResumeCommand}" IsVisible="{Binding IsResumable}">
+                                                        <MenuItem.Header>
+                                                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                                                <PathIcon Data="{StaticResource PlayIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                                                                <TextBlock Text="Resume" VerticalAlignment="Center"/>
+                                                            </StackPanel>
+                                                        </MenuItem.Header>
+                                                    </MenuItem>
+                                                    <MenuItem Command="{Binding CancelCommand}" IsVisible="{Binding IsCancellable}">
+                                                        <MenuItem.Header>
+                                                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                                                <Path Data="{StaticResource CloseIcon}" Width="12" Height="12"
+                                  Stretch="Uniform" Stroke="{actipro:ThemeResource DefaultForegroundBrush}" StrokeThickness="2"
+                                  StrokeLineCap="Round" VerticalAlignment="Center" UseLayoutRounding="False"/>
+                                                                <TextBlock Text="Cancel" VerticalAlignment="Center"/>
+                                                            </StackPanel>
+                                                        </MenuItem.Header>
+                                                    </MenuItem>
                                                     <Separator/>
-                                                    <MenuItem Header="⬆ Move to Top"    Command="{Binding MoveToTopCommand}"/>
-                                                    <MenuItem Header="↑ Move Up"         Command="{Binding MoveUpCommand}"/>
-                                                    <MenuItem Header="↓ Move Down"       Command="{Binding MoveDownCommand}"/>
-                                                    <MenuItem Header="⬇ Move to Bottom"  Command="{Binding MoveToBottomCommand}"/>
+                                                    <MenuItem Header="Move to Top"    Command="{Binding MoveToTopCommand}"/>
+                                                    <MenuItem Header="Move Up"         Command="{Binding MoveUpCommand}"/>
+                                                    <MenuItem Header="Move Down"       Command="{Binding MoveDownCommand}"/>
+                                                    <MenuItem Header="Move to Bottom"  Command="{Binding MoveToBottomCommand}"/>
                                                     <Separator/>
-                                                    <MenuItem Header="🗑 Remove from Queue"
-                                                              Command="{Binding $parent[ListBox].DataContext.RemoveActiveJobCommand}"
-                                                              CommandParameter="{Binding}"/>
+                                                    <MenuItem Command="{Binding $parent[ListBox].DataContext.RemoveActiveJobCommand}" CommandParameter="{Binding}">
+                                                        <MenuItem.Header>
+                                                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                                                <Path Data="{StaticResource TrashIcon}" Width="14" Height="14"
+                                  Stretch="Uniform" Stroke="{actipro:ThemeResource DefaultForegroundBrush}" StrokeThickness="2"
+                                  StrokeLineCap="Round" VerticalAlignment="Center" UseLayoutRounding="False"/>
+                                                                <TextBlock Text="Remove from Queue" VerticalAlignment="Center"/>
+                                                            </StackPanel>
+                                                        </MenuItem.Header>
+                                                    </MenuItem>
                                                 </ContextMenu>
                                             </Border.ContextMenu>
                                             <Grid ColumnDefinitions="Auto,Auto,*,Auto">
@@ -202,10 +243,10 @@
                                                         <TextBlock Text="{Binding QueuePosition}" FontSize="12" FontWeight="SemiBold"
                                                                    HorizontalAlignment="Center"
                                                                    Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
-                                                        <TextBlock Name="DragGrip" Text="&#x22EE;&#x22EE;" FontSize="10"
-                                                                   Opacity="0" VerticalAlignment="Center"
-                                                                   HorizontalAlignment="Center"
-                                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                        <PathIcon x:Name="DragGrip" Data="{StaticResource GripIcon}" Width="12" Height="12"
+                                                                  Opacity="0" VerticalAlignment="Center"
+                                                                  HorizontalAlignment="Center"
+                                                                  Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
                                                     </StackPanel>
                                                 </Border>
                                                 <!-- Artist / artwork thumbnail -->
@@ -215,9 +256,9 @@
                                                         BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
                                                         Background="{actipro:ThemeResource Container2BackgroundBrush}">
                                                     <Panel>
-                                                        <TextBlock Text="&#128444;" FontSize="34" Opacity="0.35"
-                                                                   HorizontalAlignment="Center" VerticalAlignment="Center"
-                                                                   IsVisible="{Binding !HasAnyThumbnail}"/>
+                                                        <PathIcon Data="{StaticResource ImageIcon}" Width="42" Height="42" Opacity="0.35"
+                                                                  HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                                  IsVisible="{Binding !HasAnyThumbnail}"/>
                                                         <Image Source="{Binding CurrentFileThumbnail}" Stretch="UniformToFill"
                                                                IsVisible="{Binding CurrentFileThumbnail, Converter={x:Static ObjectConverters.IsNotNull}}"/>
                                                         <Image Source="{Binding Thumbnail}" Stretch="UniformToFill">
@@ -235,7 +276,7 @@
                                                     <TextBlock Text="{Binding Job.Name}" FontWeight="SemiBold" FontSize="15" TextTrimming="CharacterEllipsis" MaxLines="1"/>
                                                     <StackPanel x:Name="CurrentArtistLabel" Orientation="Horizontal" Spacing="4"
                                                                 IsVisible="{Binding CurrentArtist, Converter={x:Static ObjectConverters.IsNotNull}}">
-                                                        <TextBlock Text="&#x25B6;" FontSize="10" Foreground="DodgerBlue" VerticalAlignment="Center"/>
+                                                        <PathIcon Data="{StaticResource PlayIcon}" Width="10" Height="10" Foreground="DodgerBlue" VerticalAlignment="Center"/>
                                                         <TextBlock Text="{Binding CurrentArtist}" FontSize="12" FontWeight="SemiBold"
                                                                    Foreground="{actipro:ThemeResource DefaultForegroundBrushSecondary}"
                                                                    TextTrimming="CharacterEllipsis" MaxLines="1"/>
@@ -283,33 +324,64 @@
                                                                 IsVisible="{Binding IsPausable}"
                                                                 Command="{Binding PauseCommand}"
                                                                 ToolTip.Tip="Pause">
-                                                            <TextBlock Text="&#x23F8;" FontSize="14"/>
+                                                            <PathIcon Data="{StaticResource PauseIcon}" Width="16" Height="16" VerticalAlignment="Center"/>
                                                         </Button>
                                                         <Button CornerRadius="6" Padding="8,3" FontSize="12"
                                                                 IsVisible="{Binding IsResumable}"
                                                                 Command="{Binding ResumeCommand}"
                                                                 ToolTip.Tip="Resume" Classes="accent">
-                                                            <TextBlock Text="&#x25B6;" FontSize="14"/>
+                                                            <PathIcon Data="{StaticResource PlayIcon}" Width="16" Height="16" VerticalAlignment="Center"/>
                                                         </Button>
-                                                        <Button Content="&#x22EF;" CornerRadius="6" Padding="8,3" FontSize="14"
+                                                        <Button CornerRadius="6" Padding="8,3" FontSize="14"
                                                                 ToolTip.Tip="Actions">
-                                                        <Button.Flyout>
-                                                            <MenuFlyout>
-                                                                <MenuItem Header="⏸ Pause" Command="{Binding PauseCommand}" IsVisible="{Binding IsPausable}"/>
-                                                                <MenuItem Header="▶ Resume" Command="{Binding ResumeCommand}" IsVisible="{Binding IsResumable}"/>
-                                                                <MenuItem Header="✖ Cancel" Command="{Binding CancelCommand}" IsVisible="{Binding IsCancellable}"/>
-                                                                <Separator/>
-                                                                <MenuItem Header="⬆ Move to Top"    Command="{Binding MoveToTopCommand}"/>
-                                                                <MenuItem Header="↑ Move Up"         Command="{Binding MoveUpCommand}"/>
-                                                                <MenuItem Header="↓ Move Down"       Command="{Binding MoveDownCommand}"/>
-                                                                <MenuItem Header="⬇ Move to Bottom"  Command="{Binding MoveToBottomCommand}"/>
-                                                                <Separator/>
-                                                                <MenuItem Header="🗑 Remove from Queue"
-                                                                          Command="{Binding $parent[ListBox].DataContext.RemoveActiveJobCommand}"
-                                                                          CommandParameter="{Binding}"/>
-                                                            </MenuFlyout>
-                                                        </Button.Flyout>
-                                                    </Button>
+                                                            <PathIcon Data="{StaticResource HamburgerIcon}" Width="16" Height="16" VerticalAlignment="Center"/>
+                                                            <Button.Flyout>
+                                                                <MenuFlyout>
+                                                                    <MenuItem Command="{Binding PauseCommand}" IsVisible="{Binding IsPausable}">
+                                                                        <MenuItem.Header>
+                                                                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                                                                <PathIcon Data="{StaticResource PauseIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                                                                                <TextBlock Text="Pause" VerticalAlignment="Center"/>
+                                                                            </StackPanel>
+                                                                        </MenuItem.Header>
+                                                                    </MenuItem>
+                                                                    <MenuItem Command="{Binding ResumeCommand}" IsVisible="{Binding IsResumable}">
+                                                                        <MenuItem.Header>
+                                                                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                                                                <PathIcon Data="{StaticResource PlayIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                                                                                <TextBlock Text="Resume" VerticalAlignment="Center"/>
+                                                                            </StackPanel>
+                                                                        </MenuItem.Header>
+                                                                    </MenuItem>
+                                                                    <MenuItem Command="{Binding CancelCommand}" IsVisible="{Binding IsCancellable}">
+                                                                        <MenuItem.Header>
+                                                                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                                                                <Path Data="{StaticResource CloseIcon}" Width="12" Height="12"
+                                  Stretch="Uniform" Stroke="{actipro:ThemeResource DefaultForegroundBrush}" StrokeThickness="2"
+                                  StrokeLineCap="Round" VerticalAlignment="Center" UseLayoutRounding="False"/>
+                                                                                <TextBlock Text="Cancel" VerticalAlignment="Center"/>
+                                                                            </StackPanel>
+                                                                        </MenuItem.Header>
+                                                                    </MenuItem>
+                                                                    <Separator/>
+                                                                    <MenuItem Header="Move to Top"    Command="{Binding MoveToTopCommand}"/>
+                                                                    <MenuItem Header="Move Up"         Command="{Binding MoveUpCommand}"/>
+                                                                    <MenuItem Header="Move Down"       Command="{Binding MoveDownCommand}"/>
+                                                                    <MenuItem Header="Move to Bottom"  Command="{Binding MoveToBottomCommand}"/>
+                                                                    <Separator/>
+                                                                    <MenuItem Command="{Binding $parent[ListBox].DataContext.RemoveActiveJobCommand}" CommandParameter="{Binding}">
+                                                                        <MenuItem.Header>
+                                                                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                                                                <Path Data="{StaticResource TrashIcon}" Width="14" Height="14"
+                                  Stretch="Uniform" Stroke="{actipro:ThemeResource DefaultForegroundBrush}" StrokeThickness="2"
+                                  StrokeLineCap="Round" VerticalAlignment="Center" UseLayoutRounding="False"/>
+                                                                                <TextBlock Text="Remove from Queue" VerticalAlignment="Center"/>
+                                                                            </StackPanel>
+                                                                        </MenuItem.Header>
+                                                                    </MenuItem>
+                                                                </MenuFlyout>
+                                                            </Button.Flyout>
+                                                        </Button>
                                                     </StackPanel>
                                                 </StackPanel>
                                             </Grid>
@@ -342,11 +414,11 @@
                                                 <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
                                                     <Button CornerRadius="6" Padding="6,3" FontSize="12"
                                                             IsVisible="{Binding IsPausable}" Command="{Binding PauseCommand}" ToolTip.Tip="Pause">
-                                                        <TextBlock Text="&#x23F8;" FontSize="12"/>
+                                                        <PathIcon Data="{StaticResource PauseIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
                                                     </Button>
                                                     <Button CornerRadius="6" Padding="6,3" FontSize="12" Classes="accent"
                                                             IsVisible="{Binding IsResumable}" Command="{Binding ResumeCommand}" ToolTip.Tip="Resume">
-                                                        <TextBlock Text="&#x25B6;" FontSize="12"/>
+                                                        <PathIcon Data="{StaticResource PlayIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
                                                     </Button>
                                                 </StackPanel>
                                             </Grid>
@@ -357,7 +429,7 @@
                             <StackPanel IsVisible="{Binding !ActiveJobs.Count}"
                                        HorizontalAlignment="Center" VerticalAlignment="Center"
                                        Spacing="8" Margin="0,-40,0,0">
-                                <TextBlock Text="&#128203;" FontSize="48" Opacity="0.3" HorizontalAlignment="Center"/>
+                                <PathIcon Data="{StaticResource QueueIcon}" Width="48" Height="48" Opacity="0.3" HorizontalAlignment="Center"/>
                                 <TextBlock Text="No active downloads" FontSize="15" FontWeight="SemiBold"
                                            Foreground="{actipro:ThemeResource DefaultForegroundBrushSecondary}"
                                            HorizontalAlignment="Center"/>
@@ -375,7 +447,7 @@
             <TabItem>
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal" Spacing="6">
-                        <TextBlock Text="✅ Completed"/>
+                        <PathIcon Data="{StaticResource CheckIcon}" Width="14" Height="14" VerticalAlignment="Center"/><TextBlock Text="Completed" FontSize="12" VerticalAlignment="Center"/>
                         <Border Background="{actipro:ThemeResource Container3BackgroundBrush}"
                                 CornerRadius="8" Padding="5,1"
                                 IsVisible="{Binding CompletedJobs.Count}">
@@ -390,21 +462,27 @@
                                        FontSize="12" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}" VerticalAlignment="Center"/>
                             <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="6">
                                 <StackPanel Orientation="Horizontal" Spacing="2">
-                                    <Button CornerRadius="6,0,0,6" Padding="7,4" FontSize="11" ToolTip.Tip="Card view"
+                                    <Button CornerRadius="6,0,0,6" Padding="10,6" FontSize="12" ToolTip.Tip="Card view"
                                             Classes.accent="{Binding !CompletedListView}"
                                             Command="{Binding SetCompletedListViewCommand}" CommandParameter="false">
-                                        <TextBlock Text="&#x229E;"/>
+                                        <PathIcon Data="{StaticResource GridViewIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
                                     </Button>
-                                    <Button CornerRadius="0,6,6,0" Padding="7,4" FontSize="11" ToolTip.Tip="List view"
+                                    <Button CornerRadius="0,6,6,0" Padding="10,6" FontSize="12" ToolTip.Tip="List view"
                                             Classes.accent="{Binding CompletedListView}"
                                             Command="{Binding SetCompletedListViewCommand}" CommandParameter="true">
-                                        <TextBlock Text="&#x2630;"/>
+                                        <PathIcon Data="{StaticResource ListViewIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
                                     </Button>
                                 </StackPanel>
-                                <Button Content="🗑 Clear All"
-                                        Command="{Binding ClearCompletedCommand}"
+                                <Button Command="{Binding ClearCompletedCommand}"
                                         IsVisible="{Binding CompletedJobs.Count}"
-                                        CornerRadius="6" Padding="10,4" FontSize="11"/>
+                                        CornerRadius="6" Padding="10,6" FontSize="12">
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <Path Data="{StaticResource TrashIcon}" Width="14" Height="14"
+                                  Stretch="Uniform" Stroke="{actipro:ThemeResource DefaultForegroundBrush}" StrokeThickness="2"
+                                  StrokeLineCap="Round" VerticalAlignment="Center" UseLayoutRounding="False"/>
+                                        <TextBlock Text="Clear All" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Button>
                             </StackPanel>
                         </DockPanel>
                     </Border>
@@ -436,11 +514,17 @@
                                             <TextBlock Grid.Column="1" Text="{Binding StatusText}" FontSize="12" FontWeight="SemiBold"
                                                        Margin="12,0" VerticalAlignment="Center"/>
                                             <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
-                                                <Button Content="📂" CornerRadius="6" Padding="8,4" FontSize="12"
-                                                        IsVisible="{Binding HasOutputFolder}" Command="{Binding OpenFolderCommand}" ToolTip.Tip="Open Folder"/>
-                                                <Button Content="✖" CornerRadius="6" Padding="8,4" FontSize="12"
+                                                <Button CornerRadius="6" Padding="8,4" FontSize="12"
+                                                        IsVisible="{Binding HasOutputFolder}" Command="{Binding OpenFolderCommand}" ToolTip.Tip="Open Folder">
+                                                    <PathIcon Data="{StaticResource FolderIcon}" Width="12" Height="12" VerticalAlignment="Center"/>
+                                                </Button>
+                                                <Button CornerRadius="6" Padding="8,4" FontSize="12"
                                                         Command="{Binding $parent[ListBox].DataContext.RemoveJobCommand}"
-                                                        CommandParameter="{Binding}" ToolTip.Tip="Remove"/>
+                                                        CommandParameter="{Binding}" ToolTip.Tip="Remove">
+                                                    <Path Data="{StaticResource CloseIcon}" Width="12" Height="12"
+                                  Stretch="Uniform" Stroke="{actipro:ThemeResource DefaultForegroundBrush}" StrokeThickness="2"
+                                  StrokeLineCap="Round" VerticalAlignment="Center" UseLayoutRounding="False"/>
+                                                </Button>
                                             </StackPanel>
                                         </Grid>
                                     </Border>
@@ -510,15 +594,26 @@
                                             </StackPanel>
                                             <StackPanel Grid.Column="2" Spacing="8" Margin="0,0,4,0" VerticalAlignment="Center" MinWidth="130">
                                                 <TextBlock Text="{Binding StatusText}" FontSize="13" FontWeight="SemiBold" HorizontalAlignment="Right" Margin="0,0,0,2"/>
-                                                <Button Content="📂 Open Folder" Command="{Binding OpenFolderCommand}"
+                                                <Button Command="{Binding OpenFolderCommand}"
                                                         IsVisible="{Binding HasOutputFolder}"
                                                         HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
-                                                        CornerRadius="6" Padding="12,7" FontSize="12"/>
-                                                <Button Content="✖ Remove"
-                                                        Command="{Binding $parent[ListBox].DataContext.RemoveJobCommand}"
+                                                        CornerRadius="6" Padding="12,7" FontSize="12">
+                                                    <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center">
+                                                        <PathIcon Data="{StaticResource FolderIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                                                        <TextBlock Text="Open Folder" VerticalAlignment="Center"/>
+                                                    </StackPanel>
+                                                </Button>
+                                                <Button Command="{Binding $parent[ListBox].DataContext.RemoveJobCommand}"
                                                         CommandParameter="{Binding}"
                                                         HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
-                                                        CornerRadius="6" Padding="12,7" FontSize="12"/>
+                                                        CornerRadius="6" Padding="12,7" FontSize="12">
+                                                    <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center">
+                                                        <Path Data="{StaticResource CloseIcon}" Width="14" Height="14"
+                                  Stretch="Uniform" Stroke="{actipro:ThemeResource DefaultForegroundBrush}" StrokeThickness="2"
+                                  StrokeLineCap="Round" VerticalAlignment="Center" UseLayoutRounding="False"/>
+                                                        <TextBlock Text="Remove" VerticalAlignment="Center"/>
+                                                    </StackPanel>
+                                                </Button>
                                             </StackPanel>
                                         </Grid>
                                     </Border>
@@ -537,7 +632,7 @@
             <TabItem>
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal" Spacing="6">
-                        <TextBlock Text="❌ Failed"/>
+                        <PathIcon Data="{StaticResource WarningIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="OrangeRed"/><TextBlock Text="Failed" FontSize="12" VerticalAlignment="Center" Foreground="OrangeRed"/>
                         <Border Background="{actipro:ThemeResource Container3BackgroundBrush}"
                                 CornerRadius="8" Padding="5,1"
                                 IsVisible="{Binding FailedJobs.Count}">
@@ -552,25 +647,35 @@
                                        FontSize="12" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}" VerticalAlignment="Center"/>
                             <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="6">
                                 <StackPanel Orientation="Horizontal" Spacing="2">
-                                    <Button CornerRadius="6,0,0,6" Padding="7,4" FontSize="11" ToolTip.Tip="Card view"
+                                    <Button CornerRadius="6,0,0,6" Padding="10,6" FontSize="12" ToolTip.Tip="Card view"
                                             Classes.accent="{Binding !FailedListView}"
                                             Command="{Binding SetFailedListViewCommand}" CommandParameter="false">
-                                        <TextBlock Text="&#x229E;"/>
+                                        <PathIcon Data="{StaticResource GridViewIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
                                     </Button>
-                                    <Button CornerRadius="0,6,6,0" Padding="7,4" FontSize="11" ToolTip.Tip="List view"
+                                    <Button CornerRadius="0,6,6,0" Padding="10,6" FontSize="12" ToolTip.Tip="List view"
                                             Classes.accent="{Binding FailedListView}"
                                             Command="{Binding SetFailedListViewCommand}" CommandParameter="true">
-                                        <TextBlock Text="&#x2630;"/>
+                                        <PathIcon Data="{StaticResource ListViewIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
                                     </Button>
                                 </StackPanel>
-                                <Button Content="&#x1F504; Retry All"
-                                        Command="{Binding RetryAllFailedCommand}"
+                                <Button Command="{Binding RetryAllFailedCommand}"
                                         IsVisible="{Binding FailedJobs.Count}"
-                                        CornerRadius="6" Padding="10,4" FontSize="11" Classes="accent"/>
-                                <Button Content="&#x1F5D1; Clear All"
-                                        Command="{Binding ClearFailedCommand}"
+                                        CornerRadius="6" Padding="10,6" FontSize="12" Classes="accent">
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <PathIcon Data="{StaticResource RefreshIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                                        <TextBlock Text="Retry All" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Button>
+                                <Button Command="{Binding ClearFailedCommand}"
                                         IsVisible="{Binding FailedJobs.Count}"
-                                        CornerRadius="6" Padding="10,4" FontSize="11"/>
+                                        CornerRadius="6" Padding="10,6" FontSize="12">
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <Path Data="{StaticResource TrashIcon}" Width="14" Height="14"
+                                  Stretch="Uniform" Stroke="{actipro:ThemeResource DefaultForegroundBrush}" StrokeThickness="2"
+                                  StrokeLineCap="Round" VerticalAlignment="Center" UseLayoutRounding="False"/>
+                                        <TextBlock Text="Clear All" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Button>
                             </StackPanel>
                         </DockPanel>
                     </Border>
@@ -602,12 +707,18 @@
                                             <TextBlock Grid.Column="1" Text="{Binding StatusText}" FontSize="12" FontWeight="SemiBold"
                                                        Foreground="OrangeRed" Margin="12,0" VerticalAlignment="Center"/>
                                             <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
-                                                <Button Content="&#x1F504;" CornerRadius="6" Padding="8,4" FontSize="12" Classes="accent"
+                                                <Button CornerRadius="6" Padding="8,4" FontSize="12" Classes="accent"
                                                         Command="{Binding $parent[ListBox].DataContext.RetryJobCommand}"
-                                                        CommandParameter="{Binding}" ToolTip.Tip="Retry"/>
-                                                <Button Content="✖" CornerRadius="6" Padding="8,4" FontSize="12"
+                                                        CommandParameter="{Binding}" ToolTip.Tip="Retry">
+                                                    <PathIcon Data="{StaticResource RefreshIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                                                </Button>
+                                                <Button CornerRadius="6" Padding="8,4" FontSize="12"
                                                         Command="{Binding $parent[ListBox].DataContext.RemoveJobCommand}"
-                                                        CommandParameter="{Binding}" ToolTip.Tip="Remove"/>
+                                                        CommandParameter="{Binding}" ToolTip.Tip="Remove">
+                                                    <Path Data="{StaticResource CloseIcon}" Width="12" Height="12"
+                                  Stretch="Uniform" Stroke="{actipro:ThemeResource DefaultForegroundBrush}" StrokeThickness="2"
+                                  StrokeLineCap="Round" VerticalAlignment="Center" UseLayoutRounding="False"/>
+                                                </Button>
                                             </StackPanel>
                                         </Grid>
                                     </Border>
@@ -676,16 +787,26 @@
                                             </StackPanel>
                                             <StackPanel Grid.Column="2" Spacing="8" Margin="0,0,4,0" VerticalAlignment="Center" MinWidth="130">
                                                 <TextBlock Text="{Binding StatusText}" FontSize="13" FontWeight="SemiBold" HorizontalAlignment="Right" Margin="0,0,0,2" Foreground="OrangeRed"/>
-                                                <Button Content="🔄 Retry"
-                                                        Command="{Binding $parent[ListBox].DataContext.RetryJobCommand}"
+                                                <Button Command="{Binding $parent[ListBox].DataContext.RetryJobCommand}"
                                                         CommandParameter="{Binding}"
                                                         HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
-                                                        CornerRadius="6" Padding="12,7" FontSize="12" Classes="accent"/>
-                                                <Button Content="✖ Remove"
-                                                        Command="{Binding $parent[ListBox].DataContext.RemoveJobCommand}"
+                                                        CornerRadius="6" Padding="12,7" FontSize="12" Classes="accent">
+                                                    <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center">
+                                                        <PathIcon Data="{StaticResource RefreshIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                                                        <TextBlock Text="Retry" VerticalAlignment="Center"/>
+                                                    </StackPanel>
+                                                </Button>
+                                                <Button Command="{Binding $parent[ListBox].DataContext.RemoveJobCommand}"
                                                         CommandParameter="{Binding}"
                                                         HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
-                                                        CornerRadius="6" Padding="12,7" FontSize="12"/>
+                                                        CornerRadius="6" Padding="12,7" FontSize="12">
+                                                    <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center">
+                                                        <Path Data="{StaticResource CloseIcon}" Width="14" Height="14"
+                                  Stretch="Uniform" Stroke="{actipro:ThemeResource DefaultForegroundBrush}" StrokeThickness="2"
+                                  StrokeLineCap="Round" VerticalAlignment="Center" UseLayoutRounding="False"/>
+                                                        <TextBlock Text="Remove" VerticalAlignment="Center"/>
+                                                    </StackPanel>
+                                                </Button>
                                             </StackPanel>
                                         </Grid>
                                     </Border>
@@ -704,7 +825,8 @@
             <TabItem>
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal" Spacing="6">
-                        <TextBlock Text="🚫 Cancelled"/>
+                        <PathIcon Data="{StaticResource CloseFilledIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="OrangeRed"/>
+                        <TextBlock Text="Cancelled" FontSize="12" VerticalAlignment="Center" Foreground="OrangeRed"/>
                         <Border Background="{actipro:ThemeResource Container3BackgroundBrush}"
                                 CornerRadius="8" Padding="5,1"
                                 IsVisible="{Binding CancelledJobs.Count}">
@@ -719,21 +841,27 @@
                                        FontSize="12" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}" VerticalAlignment="Center"/>
                             <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="6">
                                 <StackPanel Orientation="Horizontal" Spacing="2">
-                                    <Button CornerRadius="6,0,0,6" Padding="7,4" FontSize="11" ToolTip.Tip="Card view"
+                                    <Button CornerRadius="6,0,0,6" Padding="10,6" FontSize="12" ToolTip.Tip="Card view"
                                             Classes.accent="{Binding !CancelledListView}"
                                             Command="{Binding SetCancelledListViewCommand}" CommandParameter="false">
-                                        <TextBlock Text="&#x229E;"/>
+                                        <PathIcon Data="{StaticResource GridViewIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
                                     </Button>
-                                    <Button CornerRadius="0,6,6,0" Padding="7,4" FontSize="11" ToolTip.Tip="List view"
+                                    <Button CornerRadius="0,6,6,0" Padding="10,6" FontSize="12" ToolTip.Tip="List view"
                                             Classes.accent="{Binding CancelledListView}"
                                             Command="{Binding SetCancelledListViewCommand}" CommandParameter="true">
-                                        <TextBlock Text="&#x2630;"/>
+                                        <PathIcon Data="{StaticResource ListViewIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
                                     </Button>
                                 </StackPanel>
-                                <Button Content="🗑 Clear All"
-                                        Command="{Binding ClearCancelledCommand}"
+                                <Button Command="{Binding ClearCancelledCommand}"
                                         IsVisible="{Binding CancelledJobs.Count}"
-                                        CornerRadius="6" Padding="10,4" FontSize="11"/>
+                                        CornerRadius="6" Padding="10,6" FontSize="12">
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <Path Data="{StaticResource TrashIcon}" Width="14" Height="14"
+                                  Stretch="Uniform" Stroke="{actipro:ThemeResource DefaultForegroundBrush}" StrokeThickness="2"
+                                  StrokeLineCap="Round" VerticalAlignment="Center" UseLayoutRounding="False"/>
+                                        <TextBlock Text="Clear All" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Button>
                             </StackPanel>
                         </DockPanel>
                     </Border>
@@ -766,12 +894,18 @@
                                                        Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
                                                        Margin="12,0" VerticalAlignment="Center"/>
                                             <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
-                                                <Button Content="&#x1F504;" CornerRadius="6" Padding="8,4" FontSize="12" Classes="accent"
+                                                <Button CornerRadius="6" Padding="8,4" FontSize="12" Classes="accent"
                                                         Command="{Binding $parent[ListBox].DataContext.RetryJobCommand}"
-                                                        CommandParameter="{Binding}" ToolTip.Tip="Retry"/>
-                                                <Button Content="&#x2716;" CornerRadius="6" Padding="8,4" FontSize="12"
+                                                        CommandParameter="{Binding}" ToolTip.Tip="Retry">
+                                                    <PathIcon Data="{StaticResource RefreshIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                                                </Button>
+                                                <Button CornerRadius="6" Padding="8,4" FontSize="12"
                                                         Command="{Binding $parent[ListBox].DataContext.RemoveJobCommand}"
-                                                        CommandParameter="{Binding}" ToolTip.Tip="Remove"/>
+                                                        CommandParameter="{Binding}" ToolTip.Tip="Remove">
+                                                    <Path Data="{StaticResource CloseIcon}" Width="12" Height="12"
+                                  Stretch="Uniform" Stroke="{actipro:ThemeResource DefaultForegroundBrush}" StrokeThickness="2"
+                                  StrokeLineCap="Round" VerticalAlignment="Center" UseLayoutRounding="False"/>
+                                                </Button>
                                             </StackPanel>
                                         </Grid>
                                     </Border>
@@ -842,16 +976,26 @@
                                             <StackPanel Grid.Column="2" Spacing="8" Margin="0,0,4,0" VerticalAlignment="Center" MinWidth="130">
                                                 <TextBlock Text="{Binding StatusText}" FontSize="13" FontWeight="SemiBold" HorizontalAlignment="Right" Margin="0,0,0,2"
                                                            Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
-                                                <Button Content="🔄 Retry"
-                                                        Command="{Binding $parent[ListBox].DataContext.RetryJobCommand}"
+                                                <Button Command="{Binding $parent[ListBox].DataContext.RetryJobCommand}"
                                                         CommandParameter="{Binding}"
                                                         HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
-                                                        CornerRadius="6" Padding="12,7" FontSize="12" Classes="accent"/>
-                                                <Button Content="✖ Remove"
-                                                        Command="{Binding $parent[ListBox].DataContext.RemoveJobCommand}"
+                                                        CornerRadius="6" Padding="12,7" FontSize="12" Classes="accent">
+                                                    <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center">
+                                                        <PathIcon Data="{StaticResource RefreshIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                                                        <TextBlock Text="Retry" VerticalAlignment="Center"/>
+                                                    </StackPanel>
+                                                </Button>
+                                                <Button Command="{Binding $parent[ListBox].DataContext.RemoveJobCommand}"
                                                         CommandParameter="{Binding}"
                                                         HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
-                                                        CornerRadius="6" Padding="12,7" FontSize="12"/>
+                                                        CornerRadius="6" Padding="12,7" FontSize="12">
+                                                    <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center">
+                                                        <Path Data="{StaticResource CloseIcon}" Width="14" Height="14"
+                                  Stretch="Uniform" Stroke="{actipro:ThemeResource DefaultForegroundBrush}" StrokeThickness="2"
+                                  StrokeLineCap="Round" VerticalAlignment="Center" UseLayoutRounding="False"/>
+                                                        <TextBlock Text="Remove" VerticalAlignment="Center"/>
+                                                    </StackPanel>
+                                                </Button>
                                             </StackPanel>
                                         </Grid>
                                     </Border>

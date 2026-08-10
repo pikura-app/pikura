@@ -22,6 +22,7 @@ namespace Pikura.Avalonia.ViewModels;
 public enum GalleryViewMode { Grid, List }
 public enum ArtworkSortMode { Default, TitleAsc, TitleDesc, NewestFirst, OldestFirst, PagesDesc }
 public enum CardHeightMode { Fixed, Natural }
+public enum GallerySearchScope { CurrentArtist, AllFollowedArtists }
 
 public partial class ViewerTab : ObservableObject
 {
@@ -72,12 +73,17 @@ public partial class GalleryViewModel : ViewModelBase
     private readonly DownloadCoordinator _coordinator;
     private readonly AccountService? _accountService;
     private readonly Pikura.Core.Services.DeviceCapabilityService _deviceCapability;
+    private readonly Pikura.Core.Services.FollowedArtistsIndexService? _indexService;
+    private readonly Pikura.Core.Data.ViewedHistoryRepository? _historyRepository;
 
     private int _loadingArtistsGuard;
     private bool _suppressArtistChanged;
     private List<string> _currentArtistAllIds = [];
     private int _currentArtistLoadedCount;
     private CancellationTokenSource? _artworkLoadCts;
+    private List<ArtworkCardViewModel>? _searchBackup;
+    private ArtistCardViewModel? _searchPreviousArtist;
+    private bool _searchWasRecentFeedActive;
     private Task _artistLoadTask = Task.CompletedTask;
     // Cache: artistUserId -> loaded card list (avoids re-fetching on back navigation)
     private readonly Dictionary<string, (List<ArtworkCardViewModel> Cards, List<string> AllIds, int TotalIds, int LoadedCount, bool CanMore)> _artworkCache = [];
@@ -176,12 +182,18 @@ public partial class GalleryViewModel : ViewModelBase
     [ObservableProperty] private DateTime? _dateTo;
     [ObservableProperty] private string _idSearchQuery = string.Empty;
     [ObservableProperty] private bool _isIdSearchMode;
+    [ObservableProperty] private GallerySearchScope _searchScope = GallerySearchScope.CurrentArtist;
+    [ObservableProperty] private int _searchScopeIndex;
+    [ObservableProperty] private bool _isSearchActive;
+
+    partial void OnSearchScopeChanged(GallerySearchScope value) => SearchScopeIndex = (int)value;
+    partial void OnSearchScopeIndexChanged(int value) => SearchScope = (GallerySearchScope)value;
     [ObservableProperty] private bool _showFilters;
     [ObservableProperty] private bool _showTags = true;
     [ObservableProperty] private bool _showInfo = true;
     [ObservableProperty] private bool _isRecentFeedActive;
     [ObservableProperty] private bool _showPreview;
-    [ObservableProperty] private double _browsePanelWidth = 380;
+    [ObservableProperty] private double _browsePanelWidth = 350;
     [ObservableProperty] private bool _showSearchInfo;
 
     // Pagination properties
@@ -451,6 +463,8 @@ public partial class GalleryViewModel : ViewModelBase
         DownloadCoordinator coordinator,
         AccountService? accountService = null,
         Pikura.Core.Services.DeviceCapabilityService? deviceCapability = null,
+        Pikura.Core.Services.FollowedArtistsIndexService? indexService = null,
+        Pikura.Core.Data.ViewedHistoryRepository? historyRepository = null,
         ILogger<GalleryViewModel>? logger = null) : base((ILogger?)logger ?? Microsoft.Extensions.Logging.Abstractions.NullLogger.Instance)
     {
         _pixivClient = pixivClient;
@@ -463,6 +477,8 @@ public partial class GalleryViewModel : ViewModelBase
         _coordinator = coordinator;
         _accountService = accountService;
         _deviceCapability = deviceCapability ?? new Pikura.Core.Services.DeviceCapabilityService();
+        _indexService = indexService;
+        _historyRepository = historyRepository;
 
         // Restore persisted gallery UI state
         var s = settingsService.Current;
@@ -477,7 +493,7 @@ public partial class GalleryViewModel : ViewModelBase
         _showTags = s.ShowTags;
         _showInfo = s.ShowInfo;
         _showPreview = s.ShowPreview;
-        _browsePanelWidth = s.BrowsePanelWidth >= 200 ? s.BrowsePanelWidth : 380;
+        _browsePanelWidth = s.BrowsePanelWidth >= 200 ? s.BrowsePanelWidth : 350;
         _showR18 = s.GalleryShowR18;
 
         // Clean up stale active jobs from a previous session.
@@ -568,6 +584,23 @@ public partial class GalleryViewModel : ViewModelBase
     partial void OnInlineViewerCardChanged(ArtworkCardViewModel? value)
     {
         OnPropertyChanged(nameof(IsInlineViewerOpen));
+        if (value != null && _historyRepository != null)
+        {
+            var entry = new Pikura.Core.Data.ViewedHistoryEntry
+            {
+                ArtworkId = value.Id,
+                Title = value.Title,
+                UserId = value.UserId,
+                UserName = value.UserName,
+                ThumbnailUrl = value.ThumbnailUrl,
+                IllustType = value.IllustType,
+                XRestrict = value.IsR18G ? 2 : value.IsR18 ? 1 : 0,
+                PageCount = value.PageCount,
+                Tags = value.Tags,
+                ViewedAt = DateTime.UtcNow,
+            };
+            _ = _historyRepository.RecordViewAsync(entry);
+        }
     }
 
     partial void OnSelectedViewerTabChanged(ViewerTab? value)
@@ -667,8 +700,6 @@ public partial class GalleryViewModel : ViewModelBase
     {
         var inc = TagIncludeFilter.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
         var exc = TagExcludeFilter.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-        // Global excluded tags from settings
-        var globalExc = _settingsService.Current.ExcludedTags;
         IEnumerable<ArtworkCardViewModel> src = VisibleArtworks;
 
         // R-18 filter logic based on global R18Mode and view toggle
@@ -714,9 +745,8 @@ public partial class GalleryViewModel : ViewModelBase
         // Local exclude filter
         if (exc.Length > 0)
             src = src.Where(a => !exc.Any(t => a.Tags.Any(tag => tag.Contains(t, StringComparison.OrdinalIgnoreCase))));
-        // Global excluded tags from settings - always active
-        if (globalExc.Count > 0)
-            src = src.Where(a => !globalExc.Any(t => a.Tags.Any(tag => tag.Contains(t, StringComparison.OrdinalIgnoreCase))));
+        // Unified blocklist filter for the Gallery tab
+        src = src.Where(a => !_settingsService.Current.IsArtworkHidden("Gallery", a.UserId, a.UserName, a.Title, a.Tags));
         if (DateFrom.HasValue)
             src = src.Where(a => a.DateCreated >= DateFrom.Value);
         if (DateTo.HasValue)
@@ -762,24 +792,26 @@ public partial class GalleryViewModel : ViewModelBase
         var cts = new CancellationTokenSource();
         _artworkLoadCts = cts;
 
-        // Perform global Pixiv search for this tag
-        StatusMessage = $"Searching for tag: {tag}...";
+        // Search is restricted to followed artists via the local index — the
+        // dedicated "Search" tab (GlobalSearchViewModel) covers global Pixiv search.
+        StatusMessage = $"Searching your followed artists for: {tag}...";
         IsLoading = true;
         IsRecentFeedActive = false;
 
         try
         {
-            var results = await _pixivClient.SearchArtworksAsync(
-                tag,
-                mode: ShowR18 ? "all" : "safe",
-                ct: cts.Token);
-
-            var artworks = results?.IllustManga.Data;
-            if (artworks is null || artworks.Count == 0)
+            if (_indexService is null)
             {
-                StatusMessage = $"No results found for tag: {tag}";
+                StatusMessage = "Search index unavailable.";
                 return;
             }
+
+            // Remember what the user was viewing so clearing the search bar can restore it.
+            BackupSearchState();
+
+            var incTags = TagIncludeFilter.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            var excTags = TagExcludeFilter.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            var (rows, total) = await _indexService.SearchAsync(tag, incTags, excTags, 0, 96, cts.Token);
 
             // Clear current view
             VisibleArtworks.Clear();
@@ -787,17 +819,27 @@ public partial class GalleryViewModel : ViewModelBase
             _currentArtistAllIds = [];
             _currentArtistLoadedCount = 0;
             CanLoadMore = false;
-            ArtworksTotal = artworks.Count;
+            ArtworksTotal = total;
+
+            if (rows.Count == 0)
+            {
+                ShowSearchInfo = true;
+                SearchInfoText = $"Tag: {tag} (followed artists) • 0 results";
+                StatusMessage = $"No results among your followed artists for: {tag}";
+                IsSearchActive = true;
+                return;
+            }
 
             // Prepare batch of artwork cards
             var batch = new List<ArtworkCardViewModel>();
-            foreach (var preview in artworks)
+            foreach (var row in rows)
             {
-                if (!ShowR18 && preview.IsR18) continue;
+                if (!ShowR18 && row.XRestrict >= 1) continue;
+                var preview = IndexedArtworkToPreview(row);
                 batch.Add(new ArtworkCardViewModel(preview)
                 {
-                    IsFollowed = IsArtistFollowed(preview.UserId),
-                    IsBlurred = _settingsService.Current.BlurR18Content && preview.IsR18
+                    IsFollowed = true, // index only contains followed artists
+                    IsBlurred = _settingsService.Current.BlurR18Content && row.XRestrict >= 1
                 });
             }
 
@@ -806,9 +848,10 @@ public partial class GalleryViewModel : ViewModelBase
 
             // Show info bar with search context
             ShowSearchInfo = true;
-            SearchInfoText = $"Tag: {tag} • {VisibleArtworks.Count} results";
+            SearchInfoText = $"Tag: {tag} (followed artists) • {VisibleArtworks.Count} results";
+            IsSearchActive = true;
 
-            StatusMessage = $"Found {VisibleArtworks.Count} artworks for tag: {tag}";
+            StatusMessage = $"Found {VisibleArtworks.Count} artworks among your followed artists for: {tag}";
         }
         catch (Exception ex)
         {
@@ -820,11 +863,34 @@ public partial class GalleryViewModel : ViewModelBase
         }
     }
 
+    private static ArtworkPreview IndexedArtworkToPreview(Pikura.Core.Data.IndexedArtwork row) => new()
+    {
+        Id = row.ArtworkId,
+        Title = row.Title,
+        UserId = row.ArtistUserId,
+        UserName = row.ArtistUserName,
+        ThumbnailUrl = row.ThumbnailUrl,
+        IllustType = row.IllustType,
+        XRestrict = row.XRestrict,
+        AiType = row.AiType,
+        PageCount = row.PageCount,
+        Width = row.Width,
+        Height = row.Height,
+        Tags = row.Tags,
+        CreateDate = row.CreateDate,
+    };
+
     [RelayCommand]
     private async Task SearchByIdAsync()
     {
         var raw = IdSearchQuery.Trim();
-        if (string.IsNullOrEmpty(raw)) return;
+
+        // Clearing the search bar returns the user to the gallery they were viewing.
+        if (string.IsNullOrEmpty(raw))
+        {
+            await ClearSearchAndReturnAsync();
+            return;
+        }
 
         StatusMessage = $"Searching for '{raw}'…";
         IsLoading = true;
@@ -848,10 +914,13 @@ public partial class GalleryViewModel : ViewModelBase
             {
                 await LoadArtworkByIdAsync(raw);
             }
-            // otherwise = tag search
+            // otherwise = tag/title search
             else
             {
-                await SearchByTagAsync(raw);
+                if (SearchScope == GallerySearchScope.CurrentArtist)
+                    await SearchCurrentArtistAsync(raw);
+                else
+                    await SearchByTagAsync(raw);
             }
         }
         catch (Exception ex)
@@ -859,6 +928,77 @@ public partial class GalleryViewModel : ViewModelBase
             StatusMessage = "Search failed: " + ex.Message;
         }
         finally { IsLoading = false; }
+    }
+
+    /// <summary>Remembers the current artwork list and context so a later clear can restore it.</summary>
+    private void BackupSearchState()
+    {
+        if (_searchBackup != null) return;
+        _searchBackup = VisibleArtworks.ToList();
+        _searchPreviousArtist = SelectedArtist;
+        _searchWasRecentFeedActive = IsRecentFeedActive;
+    }
+
+    /// <summary>Performs a local keyword search over the currently displayed artworks.</summary>
+    private async Task SearchCurrentArtistAsync(string query)
+    {
+        IsRecentFeedActive = false;
+        CanLoadMore = false;
+        BackupSearchState();
+
+        var q = query;
+        var filtered = _searchBackup!.Where(a =>
+            a.Title.Contains(q, StringComparison.OrdinalIgnoreCase) ||
+            a.UserName.Contains(q, StringComparison.OrdinalIgnoreCase) ||
+            a.Tags.Any(tag => tag.Contains(q, StringComparison.OrdinalIgnoreCase))).ToList();
+
+        VisibleArtworks.Clear();
+        AddArtworkCardsBatch(filtered);
+
+        ShowSearchInfo = true;
+        SearchInfoText = $"'{query}' in current artist • {VisibleArtworks.Count} results";
+        IsSearchActive = true;
+        StatusMessage = $"Found {VisibleArtworks.Count} results for '{query}' in current artist";
+
+        await Task.CompletedTask;
+    }
+
+    /// <summary>Clears an active search and restores the previous gallery view.</summary>
+    [RelayCommand]
+    private async Task ClearSearchAndReturnAsync()
+    {
+        if (_searchBackup != null)
+        {
+            VisibleArtworks.Clear();
+            AddArtworkCardsBatch(_searchBackup);
+            _searchBackup = null;
+        }
+        else if (SelectedArtist != null)
+        {
+            await LoadArtistArtworksAsync(SelectedArtist);
+        }
+        else if (IsRecentFeedActive)
+        {
+            await LoadRecentWorksAsync();
+        }
+        else
+        {
+            VisibleArtworks.Clear();
+        }
+
+        // Restore the artist that was active before the search.
+        if (_searchPreviousArtist != null)
+        {
+            _suppressArtistChanged = true;
+            try { SelectedArtist = _searchPreviousArtist; }
+            finally { _suppressArtistChanged = false; }
+        }
+
+        IsRecentFeedActive = _searchWasRecentFeedActive;
+        IsSearchActive = false;
+        ShowSearchInfo = false;
+        IdSearchQuery = string.Empty;
+        StatusMessage = "Search cleared";
     }
 
     public async Task SearchArtistByNameAsync(string artistName)
@@ -1210,15 +1350,32 @@ public partial class GalleryViewModel : ViewModelBase
             }
             Logger.LogInformation("[FollowedArtists] After first pages: realTotal={RealTotal} seen={Seen}", realTotal, seen.Count);
 
-            // Step 2: Fetch remaining pages for public and private.
-            await FetchRemainingFollowedPagesAsync(userId, firstPages, limit, seen, seenLock);
-
-            ArtistsTotal = realTotal > 0 ? realTotal : Artists.Count;
-            Logger.LogInformation("[FollowedArtists] Load complete: Artists.Count={Count} ArtistsTotal={Total}", Artists.Count, ArtistsTotal);
+            // Step 2: Fetch remaining pages in the background so startup isn't gated on all pages.
             ArtistsLoaded = true;
             if (!IsLoading)
-                StatusMessage = $"{Artists.Count} followed artists";
+                StatusMessage = $"{Artists.Count} followed artists (loading more…)";
             RebuildFilteredArtists();
+
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await FetchRemainingFollowedPagesAsync(userId, firstPages, limit, seen, seenLock);
+
+                    await Dispatcher.UIThread.InvokeAsync(() =>
+                    {
+                        ArtistsTotal = Artists.Count;
+                        Logger.LogInformation("[FollowedArtists] Load complete: Artists.Count={Count} PixivTotalEstimate={Estimated}", Artists.Count, realTotal);
+                        if (!IsLoading)
+                            StatusMessage = $"{Artists.Count} followed artists";
+                        RebuildFilteredArtists();
+                    });
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, "Failed to load remaining followed artists");
+                }
+            });
         }
         catch (Exception ex)
         {
@@ -1350,7 +1507,7 @@ public partial class GalleryViewModel : ViewModelBase
             // Load remaining pages (uses the same paginate-or-discover helper as initial load).
             await FetchRemainingFollowedPagesAsync(userId, firstPages, limit, seen, seenLock);
 
-            ArtistsTotal = realTotal > 0 ? realTotal : Artists.Count;
+            ArtistsTotal = Artists.Count;
             ArtistsLoaded = true;
             if (!IsLoading)
                 StatusMessage = $"{Artists.Count} followed artists (refreshed)";
@@ -1888,7 +2045,14 @@ public partial class GalleryViewModel : ViewModelBase
     partial void OnSelectedArtistChanged(ArtistCardViewModel? value)
     {
         if (_suppressArtistChanged) return;
-        
+
+        // Selecting a different artist drops any active search so the new gallery loads cleanly.
+        _searchBackup = null;
+        _searchPreviousArtist = null;
+        _searchWasRecentFeedActive = false;
+        IsSearchActive = false;
+        ShowSearchInfo = false;
+
         // Debug: Log when SelectedArtist changes
         System.Diagnostics.Debug.WriteLine($"SelectedArtist changed to: {value?.Name ?? "null"}");
         OnPropertyChanged(nameof(SelectedArtist));
@@ -2685,12 +2849,16 @@ public partial class ArtworkCardViewModel : ObservableObject
     public string UserName { get; }
     public string UserId { get; }
     public string? ThumbnailUrl { get; }
+    /// <summary>Optional caption shown under the card. Only set by Pixivision, where pixivision's
+    /// own editorial caption for an embedded artwork gets attached here.</summary>
+    public string? Caption { get; set; }
+    public bool HasCaption => !string.IsNullOrWhiteSpace(Caption);
     public string TypeLabel { get; }
     public int PageCount { get; }
     public int IllustType { get; }
     public bool IsMultiPage => PageCount > 1;
     [ObservableProperty] private double _aspectRatio;
-    partial void OnAspectRatioChanged(double v) => OnPropertyChanged(nameof(ClampedAspectRatio));
+    partial void OnAspectRatioChanged(double value) => OnPropertyChanged(nameof(ClampedAspectRatio));
     /// <summary>Aspect ratio used for natural-height layout. Lightly clamped (0.25 - 5.0)
     /// to guard against degenerate/zero values while preserving the full image proportions.</summary>
     public double ClampedAspectRatio => Math.Min(Math.Max(AspectRatio, 0.25), 5.0);

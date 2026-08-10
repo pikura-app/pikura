@@ -13,6 +13,11 @@ public partial class LoadPresetDialog : Window
     public DownloadPreset? SelectedPreset { get; private set; }
     public bool ShouldDelete { get; private set; }
 
+    public LoadPresetDialog()
+    {
+        InitializeComponent();
+    }
+
     public LoadPresetDialog(IEnumerable<DownloadPreset> presets)
     {
         InitializeComponent();

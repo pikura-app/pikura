@@ -21,6 +21,7 @@ public static class ServiceCollectionExtensions
         services.TryAddSingleton<UgoiraService>();
         services.TryAddSingleton<PixivDownloadService>();
         services.TryAddSingleton<PixivImageLoader>();
+        services.TryAddSingleton<PixivisionService>();
         return services;
     }
 }

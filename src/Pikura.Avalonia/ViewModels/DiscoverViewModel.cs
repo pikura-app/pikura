@@ -67,7 +67,7 @@ public partial class DiscoverViewModel : ViewModelBase
     public ObservableCollection<ArtworkCardViewModel> FilteredWorks { get; } = [];
 
     [ObservableProperty] private string _tagFilter = string.Empty;
-    partial void OnTagFilterChanged(string _) => UpdateFilteredWorks();
+    partial void OnTagFilterChanged(string value) => UpdateFilteredWorks();
 
     public void UpdateFilteredWorks()
     {
@@ -77,6 +77,7 @@ public partial class DiscoverViewModel : ViewModelBase
             src = src.Where(a => a.Tags.Any(t => t.Contains(TagFilter, StringComparison.OrdinalIgnoreCase)));
         if (!ShowR18)
             src = src.Where(a => !a.Artwork.IsR18);
+        src = src.Where(a => !_settingsService.Current.IsArtworkHidden("Discover", a.UserId, a.UserName, a.Title, a.Tags));
         FilteredWorks.Clear();
         foreach (var a in src) FilteredWorks.Add(a);
 
@@ -84,6 +85,7 @@ public partial class DiscoverViewModel : ViewModelBase
         var artistSrc = ArtistWorks.AsEnumerable();
         if (!ShowR18)
             artistSrc = artistSrc.Where(a => !a.Artwork.IsR18);
+        artistSrc = artistSrc.Where(a => !_settingsService.Current.IsArtworkHidden("Discover", a.UserId, a.UserName, a.Title, a.Tags));
         FilteredArtistWorks.Clear();
         foreach (var a in artistSrc) FilteredArtistWorks.Add(a);
         OnPropertyChanged(nameof(HasArtistWorks));
@@ -128,14 +130,14 @@ public partial class DiscoverViewModel : ViewModelBase
     [ObservableProperty] private bool _showInfo = true;
     [ObservableProperty] private bool _showPreview;
     [ObservableProperty] private bool _showR18 = true;
-    [ObservableProperty] private double _browsePanelWidth = 420;
+    [ObservableProperty] private double _browsePanelWidth = 390;
 
     public bool ShowR18Buttons => _settingsService?.Current.R18Mode != Pikura.Core.Settings.R18Mode.Off;
 
     public bool IsResizingPanel { get; set; }
     public bool IsDiscoverViewerOpen => GalleryVm.HasTabs;
     [ObservableProperty] private bool _isViewerExpanded;
-    partial void OnIsViewerExpandedChanged(bool v) { OnPropertyChanged(nameof(IsViewerFullScreen)); }
+    partial void OnIsViewerExpandedChanged(bool value) { OnPropertyChanged(nameof(IsViewerFullScreen)); }
     public bool IsViewerFullScreen => IsViewerExpanded;
     public double FixedCardTotalHeight => CardSize;
 
@@ -307,7 +309,7 @@ public partial class DiscoverViewModel : ViewModelBase
         _showInfo         = s.DiscoverShowInfo;
         _showPreview      = s.DiscoverShowPreview;
         _showR18          = s.DiscoverShowR18;
-        _browsePanelWidth = s.BrowsePanelWidth >= 200 ? s.BrowsePanelWidth : 420;
+        _browsePanelWidth = s.BrowsePanelWidth >= 200 ? s.BrowsePanelWidth : 390;
 
         QuickClipboardService.ClipboardChanged += () =>
         {
@@ -316,8 +318,6 @@ public partial class DiscoverViewModel : ViewModelBase
     }
 
     // ── Navigation ───────────────────────────────────────────────────────────
-
-    private bool _navigatingTo;
 
     public void OnNavigatedTo()
     {
@@ -345,7 +345,6 @@ public partial class DiscoverViewModel : ViewModelBase
     {
         OnPropertyChanged(nameof(IsWorksTab));
         OnPropertyChanged(nameof(IsUsersTab));
-        if (_navigatingTo) return;
         switch (value)
         {
             case 0:

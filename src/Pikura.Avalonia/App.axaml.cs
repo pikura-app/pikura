@@ -12,7 +12,9 @@ using Pikura.Core.Settings;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using System.Threading.Tasks;
+using Pikura.Avalonia.Models;
 
 namespace Pikura.Avalonia;
 
@@ -56,14 +58,15 @@ public partial class App : Application
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
+            var settings = AppServices.Get<SettingsService>();
             var mainWindowViewModel = AppServices.Get<MainWindowViewModel>();
-            desktop.MainWindow = new MainWindow
+            var mainWindow = new MainWindow
             {
                 DataContext = mainWindowViewModel,
             };
 
             var dialogService = AppServices.Get<DialogService>();
-            dialogService.Initialize(desktop.MainWindow);
+            dialogService.Initialize(mainWindow);
 
             // Gracefully pause any running downloads on shutdown so their persisted
             // per-artwork progress can be resumed on next launch instead of being
@@ -77,6 +80,20 @@ public partial class App : Application
             // coordinator events before any download is triggered — otherwise jobs
             // started before the user opens the History tab would be missed.
             var historyVm = AppServices.Get<HistoryViewModel>();
+
+            // Show splash if enabled; otherwise show the main window right away.
+            SplashWindow? splash = null;
+            if (settings.Current.ShowSplashScreen)
+            {
+                splash = new SplashWindow();
+                splash.Show();
+                splash.Activate();
+            }
+            else
+            {
+                desktop.MainWindow = mainWindow;
+                mainWindow.Show();
+            }
 
             // Pre-load persisted history data after the window finishes initializing.
             _ = global::Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(async () =>
@@ -95,7 +112,6 @@ public partial class App : Application
             });
 
             // Auto-validate existing session cookie in background (shared with WPF app)
-            var settings = AppServices.Get<SettingsService>();
             if (settings.Current.IsConfigured)
             {
                 var client = AppServices.Get<PixivClient>();
@@ -106,15 +122,138 @@ public partial class App : Application
                 });
             }
 
-            // Check for previous crash and show dialog after window is loaded
+            // Prepare the feature highlights (page list + pre-decoded GIF frames) in the
+            // background while the startup splash is visible, so the popup opens instantly.
+            var highlightsPrep = PrepareStartupHighlightsAsync(settings);
+
+            // Close the splash after a couple of seconds, then reveal the main window
+            // and show any feature highlights / crash dialogs.
             _ = global::Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(async () =>
             {
-                await Task.Delay(500); // Let main window fully load first
+                if (splash is not null)
+                {
+                    await Task.Delay(3000);
+                    splash.CloseSplash();
+                    desktop.MainWindow = mainWindow;
+                    mainWindow.Show();
+                    mainWindow.Activate();
+                }
+
+                await ShowStartupHighlightsAsync(settings, mainWindow, highlightsPrep);
                 await ShowCrashDialogIfNeededAsync();
             });
         }
 
         base.OnFrameworkInitializationCompleted();
+    }
+
+    private static string GetCurrentVersionString()
+    {
+        var currentVersion = Assembly.GetEntryAssembly()?.GetName().Version;
+        return currentVersion is null
+            ? "2.0.0"
+            : $"{currentVersion.Major}.{currentVersion.Minor}.{currentVersion.Build}";
+    }
+
+    /// <summary>
+    /// Builds the onboarding pages and pre-decodes every screenshot/GIF into the
+    /// shared frame cache. Returns null when the highlights should not be shown.
+    /// </summary>
+    private static async Task<List<OnboardingPage>?> PrepareStartupHighlightsAsync(SettingsService settings)
+    {
+        if (!settings.Current.ShowFeatureHighlights ||
+            settings.Current.LastOnboardingVersionShown == GetCurrentVersionString())
+            return null;
+
+        var pages = BuildOnboardingPages();
+
+        // Pre-decode every screenshot/GIF into the shared frame cache so each
+        // page displays instantly when the user navigates to it.
+        var preloads = new List<Task>();
+        foreach (var page in pages)
+        {
+            if (string.IsNullOrEmpty(page.Screenshot)) continue;
+            if (Converters.AssetPathConverter.Instance.Convert(page.Screenshot, typeof(string), null, System.Globalization.CultureInfo.InvariantCulture) is string localPath)
+                preloads.Add(Controls.AnimatedImage.PreloadAsync(localPath));
+        }
+        await Task.WhenAll(preloads);
+
+        return pages;
+    }
+
+    /// <summary>
+    /// Shows the feature highlights / onboarding dialog for new installs or major updates.
+    /// </summary>
+    private async Task ShowStartupHighlightsAsync(SettingsService settings, Window owner, Task<List<OnboardingPage>?> preparation)
+    {
+        var pages = await preparation;
+        if (pages is null) return;
+
+        var vm = new FeatureHighlightsViewModel(pages);
+        var dialog = new FeatureHighlightsWindow(vm);
+        await dialog.ShowDialog<bool>(owner);
+
+        settings.Update(s => s.LastOnboardingVersionShown = GetCurrentVersionString());
+    }
+
+    private static List<OnboardingPage> BuildOnboardingPages()
+    {
+        return new List<OnboardingPage>
+        {
+            new()
+            {
+                Title = "Pixivision",
+                Subtitle = "Curated editorial content",
+                Description = "Browse official Pixivision articles, artist interviews and featured spotlights without leaving the app.",
+                IconKey = "GlobeIcon",
+                Screenshot = "avares://Pikura/Assets/FeatureHighlights/pixivision.png"
+            },
+            new()
+            {
+                Title = "Search Tab",
+                Subtitle = "Find everything in one place",
+                Description = "Open the Search tab to look up artworks, artists, novels, and users with a single query across the app.",
+                IconKey = "SearchIcon",
+                Screenshot = "avares://Pikura/Assets/FeatureHighlights/search-tab.gif"
+            },
+            new()
+            {
+                Title = "Artwork Background Overlay",
+                Subtitle = "Set any artwork as your background",
+                Description = "Use any artwork as a full-window background overlay. Tune opacity, brighten/darken, pan and zoom per image, or cycle through up to five favorites.",
+                IconKey = "ImageIcon",
+                Screenshot = "avares://Pikura/Assets/FeatureHighlights/background-overlay.gif"
+            },
+            new()
+            {
+                Title = "Viewed Tab",
+                Subtitle = "Revisit what you've already seen",
+                Description = "Every artwork you open is remembered in the new Viewed tab. Scroll back through your viewing history to rediscover images you've come across, or use the built-in calendar to jump to what you viewed on any past day.",
+                IconKey = "ClockIcon",
+                Screenshot = "avares://Pikura/Assets/FeatureHighlights/viewed.png"
+            },
+            new()
+            {
+                Title = "Gallery Search",
+                Subtitle = "Search and filter inside the gallery",
+                Description = "Search within the gallery by tag, title, artist, caption, date range, R-18 mode, AI generation and more. Combine filters and sorting to narrow down the displayed collection quickly.",
+                IconKey = "SearchIcon"
+            },
+            new()
+            {
+                Title = "Advanced Filtering",
+                Subtitle = "Fine-grained control over your view",
+                Description = "Filter by AI generation, R-18 type, blocklist scope, tags, titles and artists. Apply filters independently in Gallery, Rankings, Discover, Search and Pixivision.",
+                IconKey = "FilterIcon"
+            },
+            new()
+            {
+                Title = "Performance Improvements",
+                Subtitle = "Faster, smoother experience",
+                Description = "Reduced memory usage, faster startup, smoother gallery scrolling, and more responsive download coordination across the board.",
+                IconKey = "RefreshIcon"
+            },
+        };
     }
 
     /// <summary>
@@ -152,7 +291,10 @@ public partial class App : Application
             owner = desktop.MainWindow;
         }
 
-        await dialog.ShowDialog(owner);
+        if (owner != null)
+            await dialog.ShowDialog(owner);
+        else
+            dialog.Show();
     }
 
     /// <summary>

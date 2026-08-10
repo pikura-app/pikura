@@ -5,6 +5,7 @@
              xmlns:ctrl="using:Pikura.Avalonia.Views.Controls"
              xmlns:anim="using:Pikura.Avalonia.Controls"
              xmlns:conv="using:Pikura.Avalonia.Converters"
+             xmlns:services="using:Pikura.Avalonia.Services"
              x:Class="Pikura.Avalonia.Views.Gallery.InlineArtworkViewer"
              x:DataType="vm:GalleryViewModel"
              x:Name="ViewerRoot"
@@ -21,39 +22,49 @@
                 <!-- Browse gallery alongside tabs -->
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="4" Margin="0,0,8,0">
                     <Button x:Name="BrowsePanelButton"
-                            CornerRadius="6" Padding="10,5" FontSize="12"
+                            CornerRadius="6" Padding="10,6" FontSize="12"
                             Click="OnBrowseButtonClicked"
                             ToolTip.Tip="Hide or show the side panel">
                         <StackPanel Orientation="Horizontal" Spacing="5">
-                            <TextBlock Text="▣" FontSize="13" VerticalAlignment="Center"/>
-                            <TextBlock x:Name="ShowPanelLabel" Text="Show Panel" FontSize="11" VerticalAlignment="Center"/>
-                            <TextBlock x:Name="HidePanelLabel" Text="Hide Panel" FontSize="11" VerticalAlignment="Center" IsVisible="False"/>
+                            <Path x:Name="ShowPanelIcon" Data="{StaticResource ShowPanelIcon}" Width="14" Height="14"
+                                  Stretch="Uniform" Stroke="{actipro:ThemeResource DefaultForegroundBrush}" StrokeThickness="1.5"
+                                  StrokeLineCap="Round"
+                                  VerticalAlignment="Center" UseLayoutRounding="False"/>
+                            <Path x:Name="HidePanelIcon" Data="{StaticResource HidePanelIcon}" Width="14" Height="14"
+                                  Stretch="Uniform" Stroke="{actipro:ThemeResource DefaultForegroundBrush}" StrokeThickness="1.5"
+                                  StrokeLineCap="Round"
+                                  VerticalAlignment="Center" UseLayoutRounding="False" IsVisible="False"/>
+                            <TextBlock x:Name="ShowPanelLabel" Text="Show Panel" FontSize="12" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="HidePanelLabel" Text="Hide Panel" FontSize="12" VerticalAlignment="Center" IsVisible="False"/>
                         </StackPanel>
                     </Button>
-                    <Button CornerRadius="6" Padding="10,5" FontSize="12"
+                    <Button CornerRadius="6" Padding="10,6" FontSize="12"
                             Click="OnExpandButtonClicked"
                             ToolTip.Tip="Expand to full screen / restore side panel">
                         <StackPanel Orientation="Horizontal" Spacing="5">
-                            <TextBlock Text="⛶" FontSize="13" VerticalAlignment="Center"/>
-                            <TextBlock x:Name="ExpandLabel" Text="Expand" FontSize="11" VerticalAlignment="Center"/>
-                            <TextBlock x:Name="RestoreLabel" Text="Restore" FontSize="11" VerticalAlignment="Center" IsVisible="False"/>
+                            <PathIcon Data="{StaticResource FullscreenEnterIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="ExpandLabel" Text="Expand" FontSize="12" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="RestoreLabel" Text="Restore" FontSize="12" VerticalAlignment="Center" IsVisible="False"/>
                         </StackPanel>
                     </Button>
-                    <Button CornerRadius="6" Padding="10,5" FontSize="12"
+                    <Button CornerRadius="6" Padding="10,6" FontSize="12"
                             Classes="accent"
                             Click="OnFullscreen"
                             ToolTip.Tip="Open in fullscreen window (F11)">
                         <StackPanel Orientation="Horizontal" Spacing="5">
-                            <TextBlock Text="&#x26F6;" FontSize="13" VerticalAlignment="Center"/>
-                            <TextBlock Text="Fullscreen" FontSize="11" VerticalAlignment="Center"/>
+                            <PathIcon Data="{StaticResource FullscreenEnterIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                            <TextBlock Text="Fullscreen" FontSize="12" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
-                    <Button CornerRadius="6" Padding="10,5" FontSize="12"
+                    <Button CornerRadius="6" Padding="10,6" FontSize="12"
                             Click="OnCloseAllClicked"
                             ToolTip.Tip="Close all tabs">
                         <StackPanel Orientation="Horizontal" Spacing="5">
-                            <TextBlock Text="&#x2715;" FontSize="12" VerticalAlignment="Center"/>
-                            <TextBlock Text="Close all" FontSize="11" VerticalAlignment="Center"/>
+                            <Path Data="{StaticResource CloseIcon}" Width="14" Height="14"
+                                  Stretch="Uniform" Stroke="{actipro:ThemeResource DefaultForegroundBrush}" StrokeThickness="2"
+                                  StrokeLineCap="Round"
+                                  VerticalAlignment="Center" UseLayoutRounding="False"/>
+                            <TextBlock Text="Close all" FontSize="12" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                 </StackPanel>
@@ -80,11 +91,16 @@
                                                    FontSize="12" VerticalAlignment="Center"
                                                    TextTrimming="CharacterEllipsis"
                                                    MaxWidth="150" Margin="10,5,6,5"/>
-                                        <Button Name="TabCloseBtn" Content="&#x2715;" FontSize="9"
+                                        <Button Name="TabCloseBtn" FontSize="9"
                                                 Padding="4,2" Margin="0,3,4,3"
                                                 CornerRadius="3" VerticalAlignment="Center"
                                                 Click="OnTabCloseClick"
-                                                ToolTip.Tip="Close this tab"/>
+                                                ToolTip.Tip="Close this tab">
+                                            <Path Data="{StaticResource CloseIcon}" Width="10" Height="10"
+                                              Stretch="Uniform" Stroke="{actipro:ThemeResource DefaultForegroundBrush}" StrokeThickness="2"
+                                              StrokeLineCap="Round"
+                                              VerticalAlignment="Center" UseLayoutRounding="False"/>
+                                        </Button>
                                     </StackPanel>
                                 </Border>
                             </DataTemplate>
@@ -94,12 +110,13 @@
 
                 <!-- Right: tab list picker + zoom label -->
                 <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center" Margin="6,0,4,0">
-                    <Button Name="TabListBtn" Content="&#x2630;" FontSize="12"
-                            Padding="8,4" CornerRadius="6"
+                    <Button Name="TabListBtn" Padding="9,5" CornerRadius="6"
                             ToolTip.Tip="All open tabs"
                             Click="OnTabListClick"
-                            IsVisible="{Binding HasMultipleTabs}"/>
-                    <TextBlock Name="ZoomLabel" FontSize="11"
+                            IsVisible="{Binding HasMultipleTabs}">
+                        <PathIcon Data="{StaticResource HamburgerIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                    </Button>
+                    <TextBlock Name="ZoomLabel" FontSize="12"
                                Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
                                VerticalAlignment="Center"/>
                 </StackPanel>
@@ -113,15 +130,15 @@
                 BorderThickness="0,0,0,1" Padding="10,6">
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
-                    <TextBlock Text="{Binding InlineViewerCard.Title}"
-                               FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center"
-                               TextTrimming="CharacterEllipsis"/>
-                    <TextBlock Text="{Binding InlineViewerCard.UserName}"
-                               FontSize="11" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}" VerticalAlignment="Center"
-                               Cursor="Hand"
-                               ToolTip.Tip="Click to copy artist ID"
-                               PointerPressed="OnArtistNamePressed"/>
-                    <Button Name="FollowToggleBtn" CornerRadius="6" Padding="8,3" FontSize="11"
+                    <SelectableTextBlock Text="{Binding InlineViewerCard.Title}"
+                                         FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center"
+                                         TextTrimming="CharacterEllipsis"/>
+                    <SelectableTextBlock Text="{Binding InlineViewerCard.UserName}"
+                                         FontSize="12" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}" VerticalAlignment="Center"
+                                         Cursor="Hand"
+                                         ToolTip.Tip="Click to copy artist ID"
+                                         PointerPressed="OnArtistNamePressed"/>
+                    <Button Name="FollowToggleBtn" CornerRadius="6" Padding="8,3" FontSize="12"
                             Click="OnFollowToggleClicked" VerticalAlignment="Center"
                             IsVisible="{Binding InlineViewerCard, Converter={x:Static ObjectConverters.IsNotNull}}"
                             ToolTip.Tip="Follow or unfollow this artist"/>
@@ -131,28 +148,34 @@
                     </Border>
                 </StackPanel>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
-                    <TextBlock Name="ArtworkCounterLabel" FontSize="11"
+                    <TextBlock Name="ArtworkCounterLabel" FontSize="12"
                                Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
                                VerticalAlignment="Center"/>
                     <TextBox Name="ArtworkJumpBox" Width="52" Height="28" Padding="6,3"
-                             FontSize="11" TextAlignment="Center" VerticalContentAlignment="Center"
+                             FontSize="12" TextAlignment="Center" VerticalContentAlignment="Center"
                              PlaceholderText="#" KeyDown="OnArtworkJumpKeyDown"
                              ToolTip.Tip="Enter an artwork position and press Enter"/>
-                    <Button Name="FirstArtworkBtn" CornerRadius="6" Padding="7,4" FontSize="12"
+                    <Button Name="FirstArtworkBtn" CornerRadius="6" Padding="9,5" FontSize="12"
                             Click="OnFirstArtwork" ToolTip.Tip="First artwork">
-                        <TextBlock Text="&#x276E;&#x276E;" FontSize="12"/>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Spacing="-2">
+                            <PathIcon Data="{StaticResource ChevronLeftIcon}" Width="10" Height="10" VerticalAlignment="Center"/>
+                            <PathIcon Data="{StaticResource ChevronLeftIcon}" Width="10" Height="10" VerticalAlignment="Center"/>
+                        </StackPanel>
                     </Button>
-                    <Button Name="PrevArtworkBtn" CornerRadius="6" Padding="8,4" FontSize="12"
+                    <Button Name="PrevArtworkBtn" CornerRadius="6" Padding="9,5" FontSize="12"
                             Click="OnPrevArtwork" ToolTip.Tip="Previous artwork">
-                        <TextBlock Text="&#x276E;" FontSize="13"/>
+                        <PathIcon Data="{StaticResource ChevronLeftIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
                     </Button>
-                    <Button Name="NextArtworkBtn" CornerRadius="6" Padding="8,4" FontSize="12"
+                    <Button Name="NextArtworkBtn" CornerRadius="6" Padding="9,5" FontSize="12"
                             Click="OnNextArtwork" ToolTip.Tip="Next artwork">
-                        <TextBlock Text="&#x276F;" FontSize="13"/>
+                        <PathIcon Data="{StaticResource ChevronRightIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
                     </Button>
-                    <Button Name="LastArtworkBtn" CornerRadius="6" Padding="7,4" FontSize="12"
+                    <Button Name="LastArtworkBtn" CornerRadius="6" Padding="9,5" FontSize="12"
                             Click="OnLastArtwork" ToolTip.Tip="Last artwork">
-                        <TextBlock Text="&#x276F;&#x276F;" FontSize="12"/>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Spacing="-2">
+                            <PathIcon Data="{StaticResource ChevronRightIcon}" Width="10" Height="10" VerticalAlignment="Center"/>
+                            <PathIcon Data="{StaticResource ChevronRightIcon}" Width="10" Height="10" VerticalAlignment="Center"/>
+                        </StackPanel>
                     </Button>
                 </StackPanel>
             </Grid>
@@ -166,82 +189,141 @@
             <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" AllowAutoHide="False">
                 <StackPanel Orientation="Horizontal" Spacing="4">
                     <!-- Zoom controls -->
-                    <Button Content="−" CornerRadius="5" Padding="8,4" FontSize="14"
-                            Name="ZoomOutBtn" Click="OnZoomOut" ToolTip.Tip="Zoom out"/>
-                    <Button Content="⊡" CornerRadius="5" Padding="8,4" FontSize="12"
-                            Name="ZoomFitBtn" Click="OnZoomFit" ToolTip.Tip="Fit to window"/>
-                    <Button Content="+" CornerRadius="5" Padding="8,4" FontSize="14"
-                            Name="ZoomInBtn" Click="OnZoomIn" ToolTip.Tip="Zoom in"/>
+                    <Button CornerRadius="6" Padding="9,5" FontSize="14"
+                            Name="ZoomOutBtn" Click="OnZoomOut" ToolTip.Tip="Zoom out">
+                        <PathIcon Data="{StaticResource MinusIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                    </Button>
+                    <Button CornerRadius="6" Padding="9,5" FontSize="12"
+                            Name="ZoomFitBtn" Click="OnZoomFit" ToolTip.Tip="Fit to window">
+                        <PathIcon Data="{StaticResource MaximizeIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                    </Button>
+                    <Button CornerRadius="6" Padding="9,5" FontSize="14"
+                            Name="ZoomInBtn" Click="OnZoomIn" ToolTip.Tip="Zoom in">
+                        <PathIcon Data="{StaticResource PlusIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                    </Button>
 
                     <Rectangle Width="1" Height="16" Fill="{actipro:ThemeResource Container1BorderBrush}" Margin="4,0"/>
 
                     <!-- Page navigation (multi-page only) -->
-                    <Button Content="‹ Prev" CornerRadius="5" Padding="8,4" FontSize="12"
+                    <Button CornerRadius="6" Padding="9,5" FontSize="12"
                             Name="PrevPageBtn" Click="OnPrevPage"
                             IsVisible="{Binding InlineViewerCard.IsMultiPage}"
-                            ToolTip.Tip="Previous page"/>
+                            ToolTip.Tip="Previous page">
+                        <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                            <PathIcon Data="{StaticResource ChevronLeftIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                            <TextBlock Text="Prev" FontSize="12" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
                     <Border Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                            CornerRadius="5" Padding="8,4"
+                            CornerRadius="6" Padding="9,5"
                             IsVisible="{Binding InlineViewerCard.IsMultiPage}">
                         <TextBlock Name="PageIndicatorText" FontSize="12" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
                     </Border>
-                    <Button Content="Next ›" CornerRadius="5" Padding="8,4" FontSize="12"
+                    <Button CornerRadius="6" Padding="9,5" FontSize="12"
                             Name="NextPageBtn" Click="OnNextPage"
                             IsVisible="{Binding InlineViewerCard.IsMultiPage}"
-                            ToolTip.Tip="Next page"/>
+                            ToolTip.Tip="Next page">
+                        <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                            <TextBlock Text="Next" FontSize="12" VerticalAlignment="Center"/>
+                            <PathIcon Data="{StaticResource ChevronRightIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
 
                     <Rectangle Width="1" Height="16" Fill="{actipro:ThemeResource Container1BorderBrush}" Margin="4,0"/>
 
                     <!-- Downloads -->
-                    <Button Content="↓ Page" CornerRadius="5" Padding="9,4" FontSize="11"
+                    <Button CornerRadius="6" Padding="9,5" FontSize="12"
                             Name="DlPageBtn" Click="OnDownloadCurrentPage"
-                            ToolTip.Tip="Download current page"/>
-                    <Button Content="↓ All pages" CornerRadius="5" Padding="9,4" FontSize="11"
+                            ToolTip.Tip="Download current page">
+                        <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                            <PathIcon Data="{StaticResource DownloadIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                            <TextBlock Text="Page" FontSize="12" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Button CornerRadius="6" Padding="9,5" FontSize="12"
                             Classes="accent" Name="DlAllBtn" Click="OnDownloadAllPages"
                             IsVisible="{Binding InlineViewerCard.IsMultiPage}"
-                            ToolTip.Tip="Download all pages"/>
-                    <Button Content="↓ Range…" CornerRadius="5" Padding="9,4" FontSize="11"
+                            ToolTip.Tip="Download all pages">
+                        <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                            <PathIcon Data="{StaticResource DownloadIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                            <TextBlock Text="All pages" FontSize="12" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Button CornerRadius="6" Padding="9,5" FontSize="12"
                             Name="DlRangeBtn" Click="OnDownloadPageRange"
                             IsVisible="{Binding InlineViewerCard.IsMultiPage}"
-                            ToolTip.Tip="Download page range"/>
-                    <Button Content="🎨 Preset" CornerRadius="5" Padding="9,4" FontSize="11"
+                            ToolTip.Tip="Download page range">
+                        <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                            <PathIcon Data="{StaticResource DownloadIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                            <TextBlock Text="Range…" FontSize="12" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Button CornerRadius="6" Padding="9,5" FontSize="12"
                             Name="DlPresetBtn" Click="OnDownloadWithPreset"
-                            ToolTip.Tip="Download with image processing preset"/>
+                            ToolTip.Tip="Download with image processing preset">
+                        <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                            <PathIcon Data="{StaticResource PaletteIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                            <TextBlock Text="Preset" FontSize="12" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
 
                     <Rectangle Width="1" Height="16" Fill="{actipro:ThemeResource Container1BorderBrush}" Margin="4,0"/>
 
-                    <Button Content="🌐 Pixiv" CornerRadius="5" Padding="9,4" FontSize="11"
+                    <Button CornerRadius="6" Padding="9,5" FontSize="12"
                             Name="OpenPixivBtn" Click="OnOpenInPixiv"
-                            ToolTip.Tip="Open on pixiv.net"/>
+                            ToolTip.Tip="Open on pixiv.net">
+                        <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                            <PathIcon Data="{StaticResource GlobeIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                            <TextBlock Text="Pixiv" FontSize="12" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
                     <Button x:Name="GoToArtistBtn"
-                            Content="👤 Artist" CornerRadius="5" Padding="9,4" FontSize="11"
+                            CornerRadius="6" Padding="9,5" FontSize="12"
                             Click="OnGoToArtist"
-                            ToolTip.Tip="Open this artist's gallery"/>
-                    <Button Content="⧉ Popup" CornerRadius="5" Padding="9,4" FontSize="11"
+                            ToolTip.Tip="Open this artist's gallery">
+                        <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                            <PathIcon Data="{StaticResource PersonIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                            <TextBlock Text="Artist" FontSize="12" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Button CornerRadius="6" Padding="9,5" FontSize="12"
                             Click="OnOpenPopup"
-                            ToolTip.Tip="Open in floating popup window"/>
-                    <Button Content="📋 Copy" CornerRadius="5" Padding="9,4" FontSize="11"
+                            ToolTip.Tip="Open in floating popup window">
+                        <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                            <PathIcon Data="{StaticResource PopupIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                            <TextBlock Text="Popup" FontSize="12" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Button CornerRadius="6" Padding="9,5" FontSize="12"
                             Click="OnCopyImage"
-                            ToolTip.Tip="Copy this image to the clipboard"/>
+                            ToolTip.Tip="Copy this image to the clipboard">
+                        <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                            <PathIcon Data="{StaticResource CopyIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                            <TextBlock Text="Copy" FontSize="12" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
 
                     <Rectangle Width="1" Height="16" Fill="{actipro:ThemeResource Container1BorderBrush}" Margin="4,0"/>
 
                     <!-- ★ Local favorite toggle -->
-                    <Button Name="LocalFavBtn" CornerRadius="5" Padding="9,4" FontSize="11"
+                    <Button Name="LocalFavBtn" CornerRadius="6" Padding="9,5" FontSize="12"
                             Click="OnToggleLocalFavorite"
                             ToolTip.Tip="Add / remove from local favorites">
-                        <TextBlock Name="LocalFavLabel" Text="☆ Favorite"/>
+                        <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                            <PathIcon Data="{StaticResource StarIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                            <TextBlock Name="LocalFavLabel" Text="Favorite" FontSize="12" VerticalAlignment="Center"/>
+                        </StackPanel>
                     </Button>
 
                     <Rectangle Width="1" Height="16" Fill="{actipro:ThemeResource Container1BorderBrush}" Margin="4,0"/>
 
                     <!-- Hoshi AI assistant toggle -->
-                    <Button Name="AiToggleBtn" CornerRadius="5" Padding="9,4" FontSize="11"
+                    <Button Name="AiToggleBtn" CornerRadius="6" Padding="9,5" FontSize="12"
                             Click="OnAiToggleClicked"
                             ToolTip.Tip="Toggle Hoshi (星) — AI assistant">
                         <StackPanel Orientation="Horizontal" Spacing="4">
-                            <TextBlock Text="✦" FontSize="12" VerticalAlignment="Center"/>
-                            <TextBlock Name="AiToggleBtnLabel" Text="Hoshi" FontSize="11" VerticalAlignment="Center"/>
+                            <PathIcon Data="{StaticResource NewIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                            <TextBlock Name="AiToggleBtnLabel" Text="Hoshi" FontSize="12" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                 </StackPanel>
@@ -323,8 +405,7 @@
                             <MenuItem Header="Copy artwork ID" Click="OnCopyId"/>
                             <MenuItem Header="Copy artist ID" Click="OnCopyArtistId"/>
                             <MenuItem Header="📋 Copy image" Click="OnCopyImage"/>
-                            <MenuItem x:Name="UseAsBackgroundMenuItem"
-                                      Header="🖼 Use as app background" Click="OnUseAsBackground"/>
+                            <MenuItem Header="🖼 Use as app background" Click="OnUseAsBackground" IsVisible="{Binding IsEnabled, Source={x:Static services:AppServices.OverlayService}}"/>
                             <MenuItem Header="Reset zoom" Click="OnZoomFit"/>
                         </ContextMenu>
                     </Image.ContextMenu>
@@ -434,7 +515,7 @@
                                             Padding="10,7" Margin="50,0,0,0"
                                             HorizontalAlignment="Right"
                                             MaxWidth="340">
-                                        <ctrl:LinkTextBlock LinkText="{Binding Content}" FontSize="11"
+                                        <ctrl:LinkTextBlock LinkText="{Binding Content}" FontSize="12"
                                                    TextWrapping="Wrap"
                                                    Foreground="{actipro:ThemeResource DefaultForegroundBrush}"/>
                                     </Border>
@@ -446,7 +527,7 @@
                                             HorizontalAlignment="Left"
                                             MaxWidth="380">
                                         <StackPanel Spacing="6">
-                                            <ctrl:LinkTextBlock LinkText="{Binding Content}" FontSize="11"
+                                            <ctrl:LinkTextBlock LinkText="{Binding Content}" FontSize="12"
                                                        TextWrapping="Wrap"
                                                        Foreground="{actipro:ThemeResource DefaultForegroundBrush}"/>
                                             <StackPanel Orientation="Horizontal" Spacing="6"
@@ -510,7 +591,7 @@
                                         </Style>
                                     </TextBlock.Styles>
                                 </TextBlock>
-                                <TextBlock Text="Hoshi is thinking…" FontSize="11"
+                                <TextBlock Text="Hoshi is thinking…" FontSize="12"
                                            Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
                                            FontStyle="Italic" VerticalAlignment="Center"/>
                             </StackPanel>
@@ -523,10 +604,10 @@
                 <Grid Grid.Row="2" ColumnDefinitions="*,Auto" Margin="8,4,8,8">
                     <TextBox Grid.Column="0" Name="AiInputBox"
                              PlaceholderText="Ask Hoshi anything — describe, suggest tags, download, add to favorites, move to folder…"
-                             FontSize="11" CornerRadius="6,0,0,6"
+                             FontSize="12" CornerRadius="6,0,0,6"
                              KeyDown="OnAiInputKeyDown"/>
                     <Button Grid.Column="1" Content="Send" Name="AiSendBtn"
-                            CornerRadius="0,6,6,0" Padding="12,0" FontSize="11"
+                            CornerRadius="0,6,6,0" Padding="12,0" FontSize="12"
                             Click="OnAiSendClicked"/>
                 </Grid>
             </Grid>
@@ -539,8 +620,8 @@
                 BorderThickness="0,1,0,0" Padding="14,10">
             <Grid ColumnDefinitions="Auto,Auto,*,Auto">
                 <TextBlock Grid.Column="0" Text="{Binding InlineViewerCard.TypeLabel}"
-                           FontSize="11" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}" VerticalAlignment="Center" Margin="0,0,16,0"/>
-                <TextBlock Grid.Column="1" FontSize="11" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}" VerticalAlignment="Center"
+                           FontSize="12" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}" VerticalAlignment="Center" Margin="0,0,16,0"/>
+                <TextBlock Grid.Column="1" FontSize="12" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}" VerticalAlignment="Center"
                            Text="{Binding InlineViewerCard.PageCount, StringFormat='{}{0} pages'}"
                            IsVisible="{Binding InlineViewerCard.IsMultiPage}" Margin="0,0,16,0"/>
                 <!-- Clickable tag chips -->

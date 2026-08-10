@@ -44,7 +44,7 @@ public partial class EnhancedRankingsViewModel : ViewModelBase
     [ObservableProperty] private bool _showPreview;
 
     [ObservableProperty] private bool _isViewerExpanded;
-    partial void OnIsViewerExpandedChanged(bool v) { OnPropertyChanged(nameof(IsViewerFullScreen)); }
+    partial void OnIsViewerExpandedChanged(bool value) { OnPropertyChanged(nameof(IsViewerFullScreen)); }
     public bool IsViewerFullScreen => IsViewerExpanded;
     public double FixedCardTotalHeight => CardSize;
     public bool HasSelection => SelectedCount > 0;
@@ -57,6 +57,7 @@ public partial class EnhancedRankingsViewModel : ViewModelBase
     [RelayCommand]
     public void ToggleFavorite(RankingCardViewModel card)
     {
+        if (card.IsNovel) return; // no local-favorites support for novels
         if (_favoritesService.IsFavorite(card.Id))
             _favoritesService.Remove(card.Id);
         else
@@ -91,7 +92,7 @@ public partial class EnhancedRankingsViewModel : ViewModelBase
 
     // Tag filter (set when user clicks a tag chip)
     [ObservableProperty] private string _tagFilter = string.Empty;
-    partial void OnTagFilterChanged(string _) => UpdateFilteredItems();
+    partial void OnTagFilterChanged(string value) => UpdateFilteredItems();
 
     // Pagination properties
     [ObservableProperty] private bool _usePagination;
@@ -100,6 +101,7 @@ public partial class EnhancedRankingsViewModel : ViewModelBase
     [ObservableProperty] private bool _canGoPrevious;
     [ObservableProperty] private bool _canGoNext;
     [ObservableProperty] private int _galleryCurrentPage = 1;
+    [ObservableProperty] private string _pageInput = "";
 
     public int[] ItemsPerPageOptions { get; } = { 10, 20, 50, 100 };
 
@@ -346,6 +348,53 @@ public partial class EnhancedRankingsViewModel : ViewModelBase
         try
         {
             var dateParam = string.IsNullOrEmpty(RankingDate) ? null : RankingDate;
+            var globalR18Off = _settingsService.Current.R18Mode == Pikura.Core.Settings.R18Mode.Off;
+            var isR18Source = effectiveMode.Contains("_r18");
+
+            if (SelectedContent == "novel")
+            {
+                var novelResp = await _pixivClient.GetNovelRankingsAsync(effectiveMode, dateParam, 1, ct);
+                if (novelResp.Contents.Count == 0)
+                {
+                    StatusMessage = "No results — check your session or try a different mode.";
+                    return;
+                }
+
+                TotalItems = novelResp.Next is not null
+                    ? Math.Max(novelResp.RankTotal, novelResp.Contents.Count * 5)
+                    : novelResp.RankTotal;
+                RankingDate = novelResp.Date is { Length: 8 } nd && nd.All(char.IsDigit) ? nd : "";
+                PrevDate = NormalizeDate(novelResp.PrevDate);
+                NextDate = NormalizeDate(novelResp.NextDate);
+
+                foreach (var entry in novelResp.Contents)
+                {
+                    if (ct.IsCancellationRequested) break;
+                    if (globalR18Off && entry.Tags.Any(t => t.Contains("R-18", StringComparison.OrdinalIgnoreCase)))
+                        continue;
+                    if (_settingsService.Current.IsArtworkHidden("Rankings", entry.UserId.ToString(), entry.UserName, entry.Title, entry.Tags))
+                        continue;
+
+                    // Blur must key off the card's own IsR18 (isR18Source / R-18 tag), not the raw
+                    // ContentType.Sexual flag — that's a mild content-warning, not an age rating,
+                    // so plenty of R-18 rankings entries (e.g. R-18G violence/grotesque) have it
+                    // false and would otherwise slip through unblurred while others get blurred.
+                    var card = new RankingCardViewModel(entry, isR18Source);
+                    card.IsBlurred = _settingsService.Current.BlurR18Content && card.IsR18;
+                    card.PropertyChanged += OnCardPropertyChanged;
+                    Items.Add(card);
+                    _ = card.LoadThumbnailAsync(_imageLoader);
+                }
+
+                CanLoadMore = novelResp.Next is not null;
+                CurrentPage = 2;
+                UpdateFilteredItems();
+                StatusMessage = Items.Count > 0
+                    ? $"#{Items[0].Rank}–#{Items[^1].Rank} of {TotalItems:N0}  ·  {effectiveMode}  ·  {RankingDate}"
+                    : "No results after filtering.";
+                return;
+            }
+
             var resp = await _pixivClient.GetRankingAsync(effectiveMode, SelectedContent, 1, ct, dateParam);
             if (resp is null || resp.Contents.Count == 0)
             {
@@ -363,10 +412,6 @@ public partial class EnhancedRankingsViewModel : ViewModelBase
             PrevDate = NormalizeDate(resp.PrevDate);
             NextDate = NormalizeDate(resp.NextDate);
 
-            // Global excluded tags from settings
-            var excludedTags = _settingsService.Current.ExcludedTags;
-            var globalR18Off = _settingsService.Current.R18Mode == Pikura.Core.Settings.R18Mode.Off;
-
             foreach (var entry in resp.Contents)
             {
                 if (ct.IsCancellationRequested) break;
@@ -375,14 +420,12 @@ public partial class EnhancedRankingsViewModel : ViewModelBase
                 if (globalR18Off && entry.Tags.Any(t => t.Contains("R-18", StringComparison.OrdinalIgnoreCase)))
                     continue;
 
-                // Skip items with excluded tags
-                if (excludedTags.Count > 0 && entry.Tags.Any(t => excludedTags.Any(e => t.Contains(e, StringComparison.OrdinalIgnoreCase))))
+                // Skip items matching the unified blocklist for Rankings
+                if (_settingsService.Current.IsArtworkHidden("Rankings", entry.UserId.ToString(), entry.UserName, entry.Title, entry.Tags))
                     continue;
 
-                var card = new RankingCardViewModel(entry)
-                {
-                    IsBlurred = _settingsService.Current.BlurR18Content && entry.ContentType.Sexual
-                };
+                var card = new RankingCardViewModel(entry, isR18Source);
+                card.IsBlurred = _settingsService.Current.BlurR18Content && card.IsR18;
                 card.PropertyChanged += OnCardPropertyChanged;
                 Items.Add(card);
                 _ = card.LoadThumbnailAsync(_imageLoader); // no ct — thumbnail should survive load-more
@@ -432,18 +475,48 @@ public partial class EnhancedRankingsViewModel : ViewModelBase
         if (r18Mode == R18Mode.Off && effectiveMode.Contains("_r18"))
             effectiveMode = effectiveMode.Replace("_r18", "");
 
+        var isR18Source = effectiveMode.Contains("_r18");
+
         try
         {
+            if (SelectedContent == "novel")
+            {
+                var novelResp = await _pixivClient.GetNovelRankingsAsync(effectiveMode, null, CurrentPage, ct);
+
+                foreach (var entry in novelResp.Contents)
+                {
+                    if (ct.IsCancellationRequested) break;
+                    if (_settingsService.Current.IsArtworkHidden("Rankings", entry.UserId.ToString(), entry.UserName, entry.Title, entry.Tags))
+                        continue;
+                    var card = new RankingCardViewModel(entry, isR18Source);
+                    card.IsBlurred = _settingsService.Current.BlurR18Content && card.IsR18;
+                    card.PropertyChanged += OnCardPropertyChanged;
+                    Items.Add(card);
+                    _ = card.LoadThumbnailAsync(_imageLoader);
+                }
+
+                CanLoadMore = novelResp.Next is not null;
+                CurrentPage++;
+                if (!CanLoadMore) TotalItems = Items.Count;
+
+                // Novels have no inline viewer/download pipeline — skip GalleryVm sync entirely.
+                UpdateFilteredItems();
+                StatusMessage = Items.Count > 0
+                    ? $"#{Items[0].Rank}–#{Items[^1].Rank} of {TotalItems:N0}  ·  {effectiveMode}  ·  {RankingDate}"
+                    : "No results.";
+                return;
+            }
+
             var resp = await _pixivClient.GetRankingAsync(effectiveMode, SelectedContent, CurrentPage, ct);
             if (resp is null) return;
 
             foreach (var entry in resp.Contents)
             {
                 if (ct.IsCancellationRequested) break;
-                var card = new RankingCardViewModel(entry)
-                {
-                    IsBlurred = _settingsService.Current.BlurR18Content && entry.ContentType.Sexual
-                };
+                if (_settingsService.Current.IsArtworkHidden("Rankings", entry.UserId.ToString(), entry.UserName, entry.Title, entry.Tags))
+                    continue;
+                var card = new RankingCardViewModel(entry, isR18Source);
+                card.IsBlurred = _settingsService.Current.BlurR18Content && card.IsR18;
                 card.PropertyChanged += OnCardPropertyChanged;
                 Items.Add(card);
                 _ = card.LoadThumbnailAsync(_imageLoader); // no ct — thumbnail should survive navigation
@@ -459,6 +532,7 @@ public partial class EnhancedRankingsViewModel : ViewModelBase
             // Sync to FilteredItems for pagination display
             UpdateFilteredItems();
             var viewerCards = FilteredItems
+                .Where(c => !c.IsNovel)
                 .Select(c => new ArtworkCardViewModel(c.ToPreview()) { ViewerPosition = c.Rank })
                 .ToList();
             GalleryVm.SyncViewerTabs(ViewerSourceKey, viewerCards, UsePagination ? viewerCards.Count : TotalItems);
@@ -488,15 +562,21 @@ public partial class EnhancedRankingsViewModel : ViewModelBase
     [RelayCommand]
     public Task DownloadSelectedAsync()
     {
-        var previews = Items.Where(c => c.IsSelected).Select(c => c.ToPreview()).ToList();
-        if (previews.Count == 0) return Task.CompletedTask;
+        // Novels have no download pipeline in this app — open them on pixiv.net instead.
+        var previews = Items.Where(c => c.IsSelected && !c.IsNovel).Select(c => c.ToPreview()).ToList();
+        if (previews.Count == 0)
+        {
+            if (Items.Any(c => c.IsSelected && c.IsNovel))
+                StatusMessage = "Novels can't be downloaded from Rankings — open them on pixiv.net instead.";
+            return Task.CompletedTask;
+        }
         return GalleryVm.DownloadPreviewsAsync(previews);
     }
 
     [RelayCommand]
     public Task DownloadVisibleAsync()
     {
-        var previews = FilteredItems.Select(c => c.ToPreview()).ToList();
+        var previews = FilteredItems.Where(c => !c.IsNovel).Select(c => c.ToPreview()).ToList();
         if (previews.Count == 0) return Task.CompletedTask;
         return GalleryVm.DownloadPreviewsAsync(previews);
     }
@@ -504,7 +584,7 @@ public partial class EnhancedRankingsViewModel : ViewModelBase
     [RelayCommand]
     public async Task DownloadWithPresetAsync()
     {
-        var previews = Items.Where(c => c.IsSelected).Select(c => c.ToPreview()).ToList();
+        var previews = Items.Where(c => c.IsSelected && !c.IsNovel).Select(c => c.ToPreview()).ToList();
         if (previews.Count == 0)
         {
             StatusMessage = "No artworks selected.";
@@ -592,6 +672,14 @@ public partial class EnhancedRankingsViewModel : ViewModelBase
         }
     }
 
+    [RelayCommand]
+    private async Task GoToPageInputAsync()
+    {
+        if (int.TryParse(PageInput.Trim(), out var page))
+            await GoToPageAsync(Math.Clamp(page, 1, Math.Max(1, TotalPages)));
+        PageInput = "";
+    }
+
     partial void OnGalleryCurrentPageChanged(int value)
     {
         // Validate page bounds and update pagination when user enters a page number
@@ -628,7 +716,10 @@ public partial class EnhancedRankingsViewModel : ViewModelBase
 
     partial void OnUsePaginationChanged(bool value)
     {
-        GalleryCurrentPage = 1;
+        // GalleryCurrentPage is left untouched here on purpose: forcing it back to page 1 (or
+        // recomputing it from however many items autoload happens to have accumulated) made the
+        // toggle feel like a random reset. Leaving it alone means switching modes always lands
+        // back on whatever page the user was actually looking at.
         _settingsService.Update(s => s.RankingsUsePagination = value);
         UpdateFilteredItems();
     }
@@ -659,6 +750,9 @@ public partial class EnhancedRankingsViewModel : ViewModelBase
         var r18Mode = _settingsService.Current.R18Mode;
         var r18Type = _settingsService.Current.R18Type;
 
+        // Blocklist filter
+        src = src.Where(a => !_settingsService.Current.IsArtworkHidden("Rankings", a.UserId, a.UserName, a.Title, a.Tags));
+
         if (r18Mode == R18Mode.Only)
         {
             // Only mode: Show nothing if toggle off, show only R-18 if toggle on
@@ -678,26 +772,31 @@ public partial class EnhancedRankingsViewModel : ViewModelBase
                 };
             }
         }
-        else if (r18Mode == R18Mode.Off || !ShowR18)
-        {
-            // Hide all R-18/R-18G content when globally off or toggle is disabled
-            src = src.Where(a => !a.IsR18);
-        }
-        // R18Mode.Show allows all content, no additional filtering needed
+        // R18Mode.Off / ShowR18=false: no extra filtering needed here — ReloadAsync already
+        // picked the safe (non "_r18") API mode for the fetch, so Items never contains true
+        // R-18 content in the first place. Re-filtering here by IsR18 (which is derived from
+        // pixiv's "sexual" content-warning flag, not its actual age rating) was incorrectly
+        // hiding legitimate all-ages art that merely carries a mild content-warning tag —
+        // e.g. today's real #1 daily illustration ranking on pixiv.net itself.
+        // R18Mode.Show allows all content, no additional filtering needed either way.
 
         // Apply pagination if enabled
         if (UsePagination)
         {
-            var filteredCount = src.Count();
-
-            // Use TotalItems (from API) if more data is available, otherwise use what's loaded
-            var totalForPages = (CanLoadMore && TotalItems > filteredCount) ? TotalItems : filteredCount;
+            // Paginate by original RANK range (page 1 = ranks 1..ItemsPerPage, page 2 = the next
+            // block, etc.) instead of by position in the post-filter list. Slicing post-filter
+            // meant page boundaries shifted every time R-18/tag filters changed or autoload
+            // loaded more data — "page 1" could start at rank #2 instead of #1, and toggling
+            // modes made it jump around. Rank ranges stay fixed regardless of filtering.
+            var totalForPages = Math.Max(TotalItems, Items.Count);
             TotalPages = Math.Max(1, (int)Math.Ceiling(totalForPages / (double)ItemsPerPage));
             GalleryCurrentPage = Math.Clamp(GalleryCurrentPage, 1, TotalPages);
             CanGoPrevious = GalleryCurrentPage > 1;
             CanGoNext = GalleryCurrentPage < TotalPages;
 
-            src = src.Skip((GalleryCurrentPage - 1) * ItemsPerPage).Take(ItemsPerPage);
+            var rangeStart = (GalleryCurrentPage - 1) * ItemsPerPage + 1;
+            var rangeEnd = GalleryCurrentPage * ItemsPerPage;
+            src = src.Where(a => a.Rank >= rangeStart && a.Rank <= rangeEnd);
         }
         else
         {

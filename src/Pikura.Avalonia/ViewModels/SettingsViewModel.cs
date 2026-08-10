@@ -25,6 +25,8 @@ namespace Pikura.Avalonia.ViewModels;
 
 public record StartupTabOption(string Value, string Display);
 
+public record BlocklistScopeOption(BlocklistScope Scope, string Display);
+
 public partial class SettingsViewModel : ViewModelBase
 {
     private readonly SettingsService _settingsService;
@@ -90,9 +92,6 @@ public partial class SettingsViewModel : ViewModelBase
     [ObservableProperty] private bool _blurR18Content;
     [ObservableProperty] private int _blurIntensity = 15;
     [ObservableProperty] private bool _filterAiGenerated;
-    [ObservableProperty] private ObservableCollection<string> _excludedTags = new();
-    [ObservableProperty] private string _newExcludedTag = "";
-
     // Metadata Export
     [ObservableProperty] private bool _writeImageJSON;
     [ObservableProperty] private bool _writeImageInfo;
@@ -128,15 +127,23 @@ public partial class SettingsViewModel : ViewModelBase
     [ObservableProperty] private int _downloadDelaySeconds;
     [ObservableProperty] private int _downloadBufferKB = 512;
 
-    // Blacklist Filtering
-    [ObservableProperty] private ObservableCollection<string> _blacklistTags = new();
-    [ObservableProperty] private bool _useBlacklistTagsRegex;
-    [ObservableProperty] private ObservableCollection<string> _blacklistTitles = new();
-    [ObservableProperty] private bool _useBlacklistTitlesRegex;
-    [ObservableProperty] private ObservableCollection<string> _blacklistMembers = new();
-    [ObservableProperty] private string _newBlacklistTag = "";
-    [ObservableProperty] private string _newBlacklistTitle = "";
-    [ObservableProperty] private string _newBlacklistMember = "";
+    // Blocklist
+    [ObservableProperty] private ObservableCollection<BlocklistEntry> _blocklistEntries = new();
+    [ObservableProperty] private BlocklistType _newBlocklistType = BlocklistType.Tag;
+    [ObservableProperty] private string _newBlocklistValue = "";
+    [ObservableProperty] private BlocklistScopeOption _selectedBlocklistScope = new(BlocklistScope.AllTabs, "All Tabs");
+    [ObservableProperty] private bool _newBlocklistUseRegex;
+    [ObservableProperty] private bool _newBlocklistBlockDownload;
+    public BlocklistType[] BlocklistTypes { get; } = (BlocklistType[])Enum.GetValues(typeof(BlocklistType));
+    public BlocklistScopeOption[] BlocklistScopeOptions { get; } =
+    {
+        new(BlocklistScope.AllTabs, "All Tabs"),
+        new(BlocklistScope.Gallery, "Gallery"),
+        new(BlocklistScope.Rankings, "Rankings"),
+        new(BlocklistScope.Discover, "Discover"),
+        new(BlocklistScope.Pixivision, "Pixivision"),
+        new(BlocklistScope.Search, "Search"),
+    };
 
     // Network / Proxy
     [ObservableProperty] private bool _useProxy;
@@ -181,6 +188,8 @@ public partial class SettingsViewModel : ViewModelBase
     [ObservableProperty] private string _startupWindowState = "Normal";
     [ObservableProperty] private string _startupTab = "Gallery";
     [ObservableProperty] private StartupTabOption? _selectedStartupTab;
+    [ObservableProperty] private bool _showSplashScreen = true;
+    [ObservableProperty] private bool _showFeatureHighlights = true;
     [ObservableProperty] private bool _minimizeToTray;
     [ObservableProperty] private bool _closeToTray;
     [ObservableProperty] private bool _startMinimizedToTray;
@@ -577,7 +586,6 @@ public partial class SettingsViewModel : ViewModelBase
         BlurR18Content = s.BlurR18Content;
         BlurIntensity = s.BlurIntensity;
         FilterAiGenerated = s.FilterAiGenerated;
-        ExcludedTags = new ObservableCollection<string>(s.ExcludedTags);
 
         // Metadata Export
         WriteImageJSON = s.WriteImageJSON;
@@ -614,12 +622,8 @@ public partial class SettingsViewModel : ViewModelBase
         DownloadDelaySeconds = s.DownloadDelaySeconds;
         DownloadBufferKB = s.DownloadBufferKB;
 
-        // Blacklist
-        BlacklistTags = new ObservableCollection<string>(s.BlacklistTags);
-        UseBlacklistTagsRegex = s.UseBlacklistTagsRegex;
-        BlacklistTitles = new ObservableCollection<string>(s.BlacklistTitles);
-        UseBlacklistTitlesRegex = s.UseBlacklistTitlesRegex;
-        BlacklistMembers = new ObservableCollection<string>(s.BlacklistMembers);
+        // Blocklist
+        BlocklistEntries = new ObservableCollection<BlocklistEntry>(s.BlocklistEntries);
 
         // Network
         UseProxy = s.UseProxy;
@@ -665,6 +669,8 @@ public partial class SettingsViewModel : ViewModelBase
         StartWithWindows = s.StartWithWindows;
         StartupWindowState = s.StartupWindowState;
         SelectedStartupTab = AvailableStartupTabs.FirstOrDefault(t => t.Value == s.StartupTab) ?? AvailableStartupTabs[0];
+        ShowSplashScreen = s.ShowSplashScreen;
+        ShowFeatureHighlights = s.ShowFeatureHighlights;
         MinimizeToTray = s.MinimizeToTray;
         CloseToTray = s.CloseToTray;
         StartMinimizedToTray = s.StartMinimizedToTray;
@@ -706,6 +712,12 @@ public partial class SettingsViewModel : ViewModelBase
         HoshiAnimeTaggerAutoTagDownloads = s.HoshiAnimeTaggerAutoTagDownloads;
         RefreshTaggerInstallState();
     }
+
+    partial void OnShowSplashScreenChanged(bool value)
+        => _settingsService.Update(s => s.ShowSplashScreen = value);
+
+    partial void OnShowFeatureHighlightsChanged(bool value)
+        => _settingsService.Update(s => s.ShowFeatureHighlights = value);
 
     [RelayCommand]
     private void SaveUpdateSettings()
@@ -1073,13 +1085,6 @@ public partial class SettingsViewModel : ViewModelBase
     partial void OnDownloadBufferKBChanged(int value)
         => _settingsService.Update(s => s.DownloadBufferKB = value);
 
-    // Blacklist
-    partial void OnUseBlacklistTagsRegexChanged(bool value)
-        => _settingsService.Update(s => s.UseBlacklistTagsRegex = value);
-
-    partial void OnUseBlacklistTitlesRegexChanged(bool value)
-        => _settingsService.Update(s => s.UseBlacklistTitlesRegex = value);
-
     // Network
     partial void OnUseProxyChanged(bool value)
         => _settingsService.Update(s => s.UseProxy = value);
@@ -1219,78 +1224,32 @@ public partial class SettingsViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private void AddExcludedTag()
+    private void AddBlocklistEntry()
     {
-        if (string.IsNullOrWhiteSpace(NewExcludedTag)) return;
-        var tag = NewExcludedTag.Trim();
-        if (!ExcludedTags.Contains(tag))
+        if (string.IsNullOrWhiteSpace(NewBlocklistValue)) return;
+        var entry = new BlocklistEntry
         {
-            ExcludedTags.Add(tag);
-            _settingsService.Update(s => s.ExcludedTags = ExcludedTags.ToList());
-        }
-        NewExcludedTag = "";
+            Type = NewBlocklistType,
+            Value = NewBlocklistValue.Trim(),
+            Scope = SelectedBlocklistScope.Scope,
+            UseRegex = NewBlocklistUseRegex,
+            BlockDownload = NewBlocklistBlockDownload,
+        };
+        if (BlocklistEntries.Any(e => e.Type == entry.Type && string.Equals(e.Value, entry.Value, StringComparison.OrdinalIgnoreCase)))
+            return;
+        BlocklistEntries.Add(entry);
+        _settingsService.Update(s => s.BlocklistEntries = BlocklistEntries.ToList());
+        NewBlocklistValue = "";
+        NewBlocklistUseRegex = false;
+        NewBlocklistBlockDownload = false;
     }
 
     [RelayCommand]
-    private void RemoveExcludedTag(string tag)
+    private void RemoveBlocklistEntry(BlocklistEntry? entry)
     {
-        if (ExcludedTags.Remove(tag))
-            _settingsService.Update(s => s.ExcludedTags = ExcludedTags.ToList());
-    }
-
-    // Blacklist management commands
-    [RelayCommand] private void AddBlacklistTag()
-    {
-        if (string.IsNullOrWhiteSpace(NewBlacklistTag)) return;
-        var tag = NewBlacklistTag.Trim();
-        if (!BlacklistTags.Contains(tag))
-        {
-            BlacklistTags.Add(tag);
-            _settingsService.Update(s => s.BlacklistTags = BlacklistTags.ToList());
-        }
-        NewBlacklistTag = "";
-    }
-
-    [RelayCommand] private void RemoveBlacklistTag(string tag)
-    {
-        if (BlacklistTags.Remove(tag))
-            _settingsService.Update(s => s.BlacklistTags = BlacklistTags.ToList());
-    }
-
-    [RelayCommand] private void AddBlacklistTitle()
-    {
-        if (string.IsNullOrWhiteSpace(NewBlacklistTitle)) return;
-        var title = NewBlacklistTitle.Trim();
-        if (!BlacklistTitles.Contains(title))
-        {
-            BlacklistTitles.Add(title);
-            _settingsService.Update(s => s.BlacklistTitles = BlacklistTitles.ToList());
-        }
-        NewBlacklistTitle = "";
-    }
-
-    [RelayCommand] private void RemoveBlacklistTitle(string title)
-    {
-        if (BlacklistTitles.Remove(title))
-            _settingsService.Update(s => s.BlacklistTitles = BlacklistTitles.ToList());
-    }
-
-    [RelayCommand] private void AddBlacklistMember()
-    {
-        if (string.IsNullOrWhiteSpace(NewBlacklistMember)) return;
-        var member = NewBlacklistMember.Trim();
-        if (!BlacklistMembers.Contains(member))
-        {
-            BlacklistMembers.Add(member);
-            _settingsService.Update(s => s.BlacklistMembers = BlacklistMembers.ToList());
-        }
-        NewBlacklistMember = "";
-    }
-
-    [RelayCommand] private void RemoveBlacklistMember(string member)
-    {
-        if (BlacklistMembers.Remove(member))
-            _settingsService.Update(s => s.BlacklistMembers = BlacklistMembers.ToList());
+        if (entry is null) return;
+        if (BlocklistEntries.Remove(entry))
+            _settingsService.Update(s => s.BlocklistEntries = BlocklistEntries.ToList());
     }
 
     // FFmpeg commands

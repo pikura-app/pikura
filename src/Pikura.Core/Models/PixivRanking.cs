@@ -75,12 +75,16 @@ public sealed record RankingEntry
 
     /// <summary>Projects this ranking entry onto the shared <see cref="ArtworkPreview"/>
     /// shape so it renders in the same grid as other feeds.</summary>
-    public ArtworkPreview ToPreview()
+    /// <param name="isR18Source">True if this entry came from one of pixiv's "_r18" ranking
+    /// endpoints — the only reliable R-18 signal the legacy ranking.php API exposes.
+    /// <c>ContentType.Sexual</c> is a mild content-warning flag, not an age rating, so it must
+    /// not be used to decide R-18 status here either, or the inline viewer mislabels legitimate
+    /// all-ages art as R-18 even after the ranking grid itself gets it right.</param>
+    public ArtworkPreview ToPreview(bool isR18Source = false)
     {
-        // Check both API flag and tags for R-18 detection (some AI content may lack the flag)
         var hasR18Tag = Tags.Any(t => t.Contains("R-18", StringComparison.OrdinalIgnoreCase));
         var hasR18GTag = Tags.Any(t => t.Contains("R-18G", StringComparison.OrdinalIgnoreCase));
-        var xRestrict = ContentType.Sexual || hasR18Tag || hasR18GTag ? 1 : 0;
+        var xRestrict = isR18Source || hasR18Tag || hasR18GTag ? 1 : 0;
         if (hasR18GTag) xRestrict = 2; // R-18G is xRestrict=2
 
         return new()
@@ -130,4 +134,48 @@ public sealed record ArtworkSearchSection
 {
     [JsonPropertyName("data")] public IReadOnlyList<ArtworkPreview> Data { get; init; } = [];
     [JsonPropertyName("total")] public int Total { get; init; }
+
+    /// <summary>Only populated by the dedicated <c>/ajax/search/illustrations/</c> and
+    /// <c>/ajax/search/manga/</c> endpoints (not the combined <c>/ajax/search/artworks/</c> one) —
+    /// null there, since that endpoint's <c>total</c> is unreliable anyway (see <see cref="Pikura.Core.Services.PixivClient.SearchArtworksAsync"/>).</summary>
+    [JsonPropertyName("lastPage")] public int? LastPage { get; init; }
+}
+
+/// <summary>
+/// Response shape of <c>GET /novel/ranking.php?format=json</c> — the same
+/// legacy PHP ranking engine as <see cref="RankingResponse"/> but for novels.
+/// NOTE: field names below are best-effort (mirrored from the confirmed illust
+/// ranking shape) — Pixiv doesn't publish a schema for the novel variant and it
+/// could not be fetched raw for verification. All novel-specific numeric fields
+/// are nullable so an unexpected/renamed field degrades to "stat unavailable"
+/// instead of throwing during deserialization.
+/// </summary>
+public sealed record NovelRankingResponse
+{
+    [JsonPropertyName("contents")] public IReadOnlyList<NovelRankingEntry> Contents { get; init; } = [];
+    [JsonPropertyName("mode")] public string Mode { get; init; } = string.Empty;
+    [JsonPropertyName("page")] public int Page { get; init; }
+    [JsonPropertyName("next")] public object? Next { get; init; }
+    [JsonPropertyName("date")] public string Date { get; init; } = string.Empty;
+    [JsonPropertyName("prev_date")] public object? PrevDate { get; init; }
+    [JsonPropertyName("next_date")] public object? NextDate { get; init; }
+    [JsonPropertyName("rank_total")] public int RankTotal { get; init; }
+}
+
+public sealed record NovelRankingEntry
+{
+    [JsonPropertyName("title")] public string Title { get; init; } = string.Empty;
+    [JsonPropertyName("tags")] public IReadOnlyList<string> Tags { get; init; } = [];
+    [JsonPropertyName("url")] public string? ThumbnailUrl { get; init; }
+    [JsonPropertyName("novel_id")] public long NovelId { get; init; }
+    [JsonPropertyName("user_id")] public long UserId { get; init; }
+    [JsonPropertyName("user_name")] public string UserName { get; init; } = string.Empty;
+    [JsonPropertyName("profile_img")] public string? ProfileImg { get; init; }
+    [JsonPropertyName("rank")] public int Rank { get; init; }
+    [JsonPropertyName("yes_rank")] public int YesRank { get; init; }
+    [JsonPropertyName("rating_count")] public int RatingCount { get; init; }
+    [JsonPropertyName("view_count")] public int? ViewCount { get; init; }
+    [JsonPropertyName("novel_text_count")] public int? TextCount { get; init; }
+    [JsonPropertyName("novel_reading_time")] public int? ReadingTimeMinutes { get; init; }
+    [JsonPropertyName("illust_content_type")] public IllustContentType ContentType { get; init; } = new();
 }

@@ -86,7 +86,7 @@
             BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
             BorderThickness="1"
             PointerPressed="ResizeBorder_PointerPressed">
-    <Grid x:Name="RootGrid" ColumnDefinitions="220,*">
+    <Grid x:Name="RootGrid" ColumnDefinitions="200,*">
 
             <!-- Sidebar with box shadow for depth -->
             <Border x:Name="SidebarBorder" Grid.Column="0"
@@ -209,11 +209,16 @@
                                                        Margin="6,2,0,4" LetterSpacing="1.5"/>
                                             <ItemsControl x:Name="AccountList"/>
                                             <Separator Margin="0,4"/>
-                                            <Button Content="＋  Add account" FontSize="12"
+                                            <Button FontSize="12"
                                                     Background="Transparent" BorderThickness="0"
                                                     HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
                                                     Padding="6,6" CornerRadius="4"
-                                                    Click="AddAccountBtn_Click"/>
+                                                    Click="AddAccountBtn_Click">
+                                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                                    <PathIcon Data="{StaticResource PlusIcon}" Width="12" Height="12" VerticalAlignment="Center"/>
+                                                    <TextBlock Text="Add account" FontSize="12" VerticalAlignment="Center"/>
+                                                </StackPanel>
+                                            </Button>
                                         </StackPanel>
                                     </Border>
                                 </Flyout>
@@ -232,9 +237,9 @@
                                     <TextBlock Text="{Binding SidebarUserStatus}" FontSize="10"
                                                Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
                                 </StackPanel>
-                                <TextBlock Grid.Column="2" Text="⌄" FontSize="11" VerticalAlignment="Center"
-                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
-                                           Margin="6,0,0,0"/>
+                                <PathIcon Grid.Column="2" Data="{StaticResource ChevronDownIcon}" Width="12" Height="12" VerticalAlignment="Center"
+                                          Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                          Margin="6,0,0,0"/>
                             </Grid>
                         </Button>
                     </Grid>
@@ -253,7 +258,7 @@
                             Margin="0,32,0,0">
                         <Grid ColumnDefinitions="*,Auto,Auto,Auto">
                             <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                                <TextBlock Text="🆕" FontSize="13" VerticalAlignment="Center"/>
+                                <PathIcon Data="{StaticResource NewIcon}" Width="16" Height="16" VerticalAlignment="Center" Foreground="{actipro:ThemeResource DefaultForegroundBrush}"/>
                                 <TextBlock FontSize="13" VerticalAlignment="Center">
                                     <Run Text="Pikura v"/>
                                     <Run Text="{Binding UpdateVersion}"/>
@@ -271,11 +276,13 @@
                                     Command="{Binding OpenUpdatePageCommand}"
                                     FontSize="12" Padding="10,4" Margin="0,0,6,0"
                                     CornerRadius="4"/>
-                            <Button Grid.Column="3" Content="✕"
+                            <Button Grid.Column="3"
                                     Command="{Binding DismissUpdateCommand}"
                                     Background="Transparent" BorderThickness="0"
                                     FontSize="12" Padding="6,4" CornerRadius="4"
-                                    Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                    Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}">
+                                <PathIcon Data="{StaticResource CloseIcon}" Width="12" Height="12"/>
+                            </Button>
                         </Grid>
                     </Border>
 
@@ -290,11 +297,13 @@
                                 <ProgressBar Value="{Binding UpdateDownloadProgress}" Minimum="0" Maximum="100"
                                              Height="4" CornerRadius="2"/>
                             </StackPanel>
-                            <Button Grid.Column="2" Content="✕"
+                            <Button Grid.Column="2"
                                     Command="{Binding DismissUpdateCommand}"
                                     Background="Transparent" BorderThickness="0"
                                     FontSize="12" Padding="6,4" CornerRadius="4"
-                                    Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                    Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}">
+                                <PathIcon Data="{StaticResource CloseIcon}" Width="12" Height="12"/>
+                            </Button>
                         </Grid>
                     </Border>
 
@@ -305,11 +314,14 @@
                             Margin="0,32,0,0">
                         <Grid ColumnDefinitions="*,Auto,Auto,Auto">
                             <StackPanel Grid.Column="0" Spacing="2" VerticalAlignment="Center">
-                                <TextBlock FontSize="13">
-                                    <Run Text="✅  Pikura v"/>
-                                    <Run Text="{Binding UpdateVersion}"/>
-                                    <Run Text=" downloaded — ready to install"/>
-                                </TextBlock>
+                                <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                                    <PathIcon Data="{StaticResource CheckIcon}" Width="16" Height="16" VerticalAlignment="Center" Foreground="{actipro:ThemeResource DefaultForegroundBrush}"/>
+                                    <TextBlock FontSize="13" VerticalAlignment="Center">
+                                        <Run Text="Pikura v"/>
+                                        <Run Text="{Binding UpdateVersion}"/>
+                                        <Run Text=" downloaded — ready to install"/>
+                                    </TextBlock>
+                                </StackPanel>
                                 <TextBlock Text="{Binding UpdateStatusText}" FontSize="11" Opacity="0.75"
                                            IsVisible="{Binding UpdateStatusText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
                             </StackPanel>
@@ -326,33 +338,45 @@
                         </Grid>
                     </Border>
                     </StackPanel>
-                    <ContentControl x:Name="MainContentControl" Grid.Row="1"/>
+                    <TransitioningContentControl x:Name="MainContentControl" Grid.Row="1"
+                                                 PageTransition="{StaticResource MainPageTransition}"/>
                 </Grid>
             </Border>
 
-            <!-- Artwork background overlay - rendered above content but below title bars -->
-            <Panel Grid.Column="0" Grid.ColumnSpan="2" ZIndex="8"
+            <!-- Artwork background overlay - rendered above content AND title bar backgrounds
+                 so the overlay covers the entire window. The outer Panel carries the image
+                 opacity so brightness/darkness rectangles are composited *inside* the
+                 semi-transparent layer rather than tinting the entire window. -->
+            <Panel Grid.Column="0" Grid.ColumnSpan="2" ZIndex="9"
                    IsVisible="{Binding OverlayService.IsEnabled}"
+                   Opacity="{Binding OverlayService.ImageOpacity}"
+                   ClipToBounds="True"
                    IsHitTestVisible="False">
-                <Image Source="{Binding OverlayService.CurrentImage}"
-                       Opacity="{Binding OverlayService.ImageOpacity}"
-                       Stretch="UniformToFill"
-                       IsHitTestVisible="False"/>
-                <Rectangle Fill="Black" Opacity="{Binding OverlayService.Darkness}"
+                <Panel x:Name="OverlayTransformPanel">
+                    <Image x:Name="OverlayImage"
+                           Source="{Binding OverlayService.CurrentImage}"
+                           Stretch="Uniform"
+                           RenderOptions.BitmapInterpolationMode="HighQuality"
                            IsHitTestVisible="False"/>
-                <Rectangle Fill="White" Opacity="{Binding OverlayService.Brightness}"
-                           IsHitTestVisible="False"/>
+                    <Rectangle Fill="Black" Opacity="{Binding OverlayService.Darkness}"
+                               IsHitTestVisible="False"/>
+                    <Rectangle Fill="White" Opacity="{Binding OverlayService.Brightness}"
+                               IsHitTestVisible="False"/>
+                </Panel>
             </Panel>
 
-            <!-- Title bar background — covers full width to hide OS-rendered title text -->
-            <Border Grid.Column="0" Height="32" VerticalAlignment="Top" ZIndex="9"
+            <!-- Title bar background — covers full width to hide OS-rendered title text.
+                 Hidden when the artwork overlay is active so the overlay covers the title bar too. -->
+            <Border Grid.Column="0" Height="32" VerticalAlignment="Top" ZIndex="8"
                     Background="{actipro:ThemeResource Container1BackgroundBrush}"
                     BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
                     BorderThickness="0,0,1,0"
-                    IsHitTestVisible="False"/>
-            <Border Grid.Column="1" Height="32" VerticalAlignment="Top" ZIndex="9"
+                    IsHitTestVisible="False"
+                    IsVisible="{Binding OverlayService.IsEnabled, Converter={x:Static BoolConverters.Not}}"/>
+            <Border Grid.Column="1" Height="32" VerticalAlignment="Top" ZIndex="8"
                     Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                    IsHitTestVisible="False"/>
+                    IsHitTestVisible="False"
+                    IsVisible="{Binding OverlayService.IsEnabled, Converter={x:Static BoolConverters.Not}}"/>
 
             <!-- Draggable title bar strip — spans full width -->
             <Panel Grid.Column="0" Grid.ColumnSpan="2"
@@ -364,21 +388,33 @@
             <!-- Window caption buttons — ZIndex=20 sits above the draggable panel -->
             <StackPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Top"
                         Orientation="Horizontal" ZIndex="20" Height="32">
-                <!-- Fullscreen toggle (cross-platform glyphs; toggled in code-behind) -->
-                <Button x:Name="FullscreenBtn" Classes="caption" Content="&#x26F6;"
-                        ToolTip.Tip="Fullscreen" Click="FullscreenBtn_Click"/>
+                <!-- Fullscreen toggle (icon toggled in code-behind) -->
+                <Button x:Name="FullscreenBtn" Classes="caption"
+                        ToolTip.Tip="Fullscreen" Click="FullscreenBtn_Click">
+                    <Path x:Name="FullscreenIcon" Data="{StaticResource FullscreenEnterIcon}" Width="12" Height="12"
+                          Stretch="Uniform" Stroke="{Binding $parent[Button].Foreground}" StrokeThickness="2"
+                          VerticalAlignment="Center" HorizontalAlignment="Center" UseLayoutRounding="False"/>
+                </Button>
                 <!-- Minimize -->
-                <Button x:Name="MinimizeBtn" Classes="caption" Content="&#x2014;"
-                        ToolTip.Tip="Minimize" Click="MinimizeBtn_Click"
-                        chrome:WindowDecorationProperties.ElementRole="MinimizeButton"/>
+                <Button x:Name="MinimizeBtn" Classes="caption"
+                        ToolTip.Tip="Minimize" Click="MinimizeBtn_Click">
+                    <Rectangle Width="12" Height="2" Fill="{Binding $parent[Button].Foreground}"
+                               VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                </Button>
                 <!-- Maximize/Restore -->
-                <Button x:Name="MaximizeBtn" Classes="caption" Content="&#x2610;"
-                        ToolTip.Tip="Maximize" Click="MaximizeBtn_Click"
-                        chrome:WindowDecorationProperties.ElementRole="MaximizeButton"/>
+                <Button x:Name="MaximizeBtn" Classes="caption"
+                        ToolTip.Tip="Maximize" Click="MaximizeBtn_Click">
+                    <Path x:Name="MaximizeIcon" Data="{StaticResource MaximizeIcon}" Width="12" Height="12"
+                          Stretch="Uniform" Stroke="{Binding $parent[Button].Foreground}" StrokeThickness="2"
+                          VerticalAlignment="Center" HorizontalAlignment="Center" UseLayoutRounding="False"/>
+                </Button>
                 <!-- Close -->
-                <Button x:Name="CloseBtn" Classes="caption" Content="&#x2715;"
-                        ToolTip.Tip="Close" Click="CloseBtn_Click"
-                        chrome:WindowDecorationProperties.ElementRole="CloseButton"/>
+                <Button x:Name="CloseBtn" Classes="caption"
+                        ToolTip.Tip="Close" Click="CloseBtn_Click">
+                    <Path Data="{StaticResource CloseIcon}" Width="12" Height="12"
+                          Stretch="Uniform" Stroke="{Binding $parent[Button].Foreground}" StrokeThickness="2"
+                          VerticalAlignment="Center" HorizontalAlignment="Center" UseLayoutRounding="False"/>
+                </Button>
             </StackPanel>
 
             <!-- Hamburger button — always in column 1 so it survives sidebar collapse -->
@@ -391,7 +427,9 @@
                     FontSize="15" CornerRadius="5"
                     IsHitTestVisible="True"
                     Click="HamburgerBtn_Click"
-                    ToolTip.Tip="Toggle sidebar">☰</Button>
+                    ToolTip.Tip="Toggle sidebar">
+                <PathIcon Data="{StaticResource HamburgerIcon}" Width="16" Height="16"/>
+            </Button>
     </Grid>
     </Border>
 
