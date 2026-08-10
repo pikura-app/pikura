@@ -18,7 +18,9 @@
 
   <ItemGroup>
     <Folder Include="Models\" />
-    <AvaloniaResource Include="Assets\**" />
+    <!-- Exclude .axaml: the Avalonia SDK already includes those automatically,
+         and double inclusion crashes the asset loader with a duplicate-key error. -->
+    <AvaloniaResource Include="Assets\**" Exclude="Assets\**\*.axaml" />
   </ItemGroup>
 
   <ItemGroup>

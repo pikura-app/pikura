@@ -265,6 +265,13 @@ public partial class MainWindow : Window
     {
         try
         {
+            // The changelog check often completes while the startup splash is still
+            // covering a hidden main window, and the feature-highlights dialog opens
+            // right after it appears. Wait until the startup dialog sequence has fully
+            // completed and this window is visible before presenting the changelog.
+            while (!IsVisible || !App.StartupDialogsComplete || OwnedWindows.Count > 0)
+                await Task.Delay(250);
+
             var dialog = new Dialogs.ChangelogDialog(
                 mainVm.ChangelogVersion,
                 mainVm.ChangelogNotes,

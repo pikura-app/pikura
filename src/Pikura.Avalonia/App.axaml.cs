@@ -139,13 +139,29 @@ public partial class App : Application
                     mainWindow.Activate();
                 }
 
-                await ShowStartupHighlightsAsync(settings, mainWindow, highlightsPrep);
-                await ShowCrashDialogIfNeededAsync();
+                try
+                {
+                    await ShowStartupHighlightsAsync(settings, mainWindow, highlightsPrep);
+                    await ShowCrashDialogIfNeededAsync();
+                }
+                finally
+                {
+                    // Signals waiters (e.g. the post-update changelog popup) that the
+                    // startup dialog sequence is finished, so they never race with it.
+                    StartupDialogsComplete = true;
+                }
             });
         }
 
         base.OnFrameworkInitializationCompleted();
     }
+
+    /// <summary>
+    /// True once the startup dialog sequence (feature highlights, crash report) has
+    /// finished. Popups triggered by background checks wait on this to avoid racing
+    /// the startup modals for the main window.
+    /// </summary>
+    public static bool StartupDialogsComplete { get; private set; }
 
     private static string GetCurrentVersionString()
     {
@@ -204,7 +220,7 @@ public partial class App : Application
             {
                 Title = "Pixivision",
                 Subtitle = "Curated editorial content",
-                Description = "Browse official Pixivision articles, artist interviews and featured spotlights without leaving the app.",
+                Description = "Browse official Pixivision articles, artist interviews and featured spotlights without leaving the app. You can also go back and look at previous articles using the built-in calendar.",
                 IconKey = "GlobeIcon",
                 Screenshot = "avares://Pikura/Assets/FeatureHighlights/pixivision.png"
             },

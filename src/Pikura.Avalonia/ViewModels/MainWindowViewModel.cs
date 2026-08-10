@@ -456,7 +456,7 @@ public partial class MainWindowViewModel : ViewModelBase
             This is the biggest update to Pikura yet — three brand-new tabs, a new onboarding experience, and significant performance work across the app.
 
             ### New Features
-            - **Pixivision tab** — browse official Pixivision articles, artist interviews and featured spotlights without leaving the app; save articles and filter content
+            - **Pixivision tab** — browse official Pixivision articles, artist interviews and featured spotlights without leaving the app; save articles, filter content, and go back to previous articles using the built-in calendar
             - **Search tab** — global search across artworks, artists, novels and users with a single query
             - **Viewed tab** — every artwork you open is remembered; scroll back through your history or use the built-in calendar to jump to any past day
             - **Artwork background overlay** — use any artwork as a full-window background with per-image opacity, brightness, pan and zoom; cycle through up to five favorites
