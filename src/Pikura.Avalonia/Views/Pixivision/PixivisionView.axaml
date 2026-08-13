@@ -542,7 +542,7 @@
                               VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                     <StackPanel Spacing="14">
                         <StackPanel Spacing="0" IsVisible="{Binding HasMonthlyRanking}">
-                            <Border Background="{DynamicResource ControlBackgroundBrushSolidAccent}" CornerRadius="8,8,0,0" Padding="10,7">
+                            <Border Background="#000000" CornerRadius="8,8,0,0" Padding="10,7">
                                 <TextBlock Text="🏆 Monthly Ranking" FontWeight="Bold" FontSize="12" Foreground="White"/>
                             </Border>
                             <Border Background="{DynamicResource Container1BackgroundBrush}"
@@ -580,8 +580,8 @@
                         </StackPanel>
 
                         <StackPanel Spacing="0" IsVisible="{Binding HasFeatured}">
-                            <Border Background="{DynamicResource Container3BackgroundBrush}" CornerRadius="8,8,0,0" Padding="10,7">
-                                <TextBlock Text="⭐ Featured" FontWeight="Bold" FontSize="12"/>
+                            <Border Background="#000000" CornerRadius="8,8,0,0" Padding="10,7">
+                                <TextBlock Text="⭐ Featured" FontWeight="Bold" FontSize="12" Foreground="White"/>
                             </Border>
                             <Border Background="{DynamicResource Container1BackgroundBrush}"
                                     BorderBrush="{DynamicResource Container1BorderBrush}"
