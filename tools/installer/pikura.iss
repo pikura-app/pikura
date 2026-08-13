@@ -162,3 +162,43 @@ begin
       'You can remove it manually via "Apps & features".',
       mbError, MB_OK);
 end;
+
+// ---------------------------------------------------------------------------
+// Uninstall: ask whether to wipe all of Pikura's data (settings, saved login,
+// download history/database, cached images, downloaded AI models, etc.) or
+// keep it in place so a future reinstall picks up right where the user left
+// off (download folder preferences, blocklists, saved login, etc.).
+// ---------------------------------------------------------------------------
+
+var
+  RemoveAllUserData: Boolean;
+
+procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
+var
+  AppDataDir: String;
+  LocalAppDataDir: String;
+begin
+  if CurUninstallStep = usUninstall then
+  begin
+    RemoveAllUserData := (MsgBox(
+      'Completely remove Pikura?' + Chr(13) + Chr(10) +
+      Chr(13) + Chr(10) +
+      'Choose "Yes" to also delete your settings, saved Pixiv login, download ' +
+      'history/database, cached images, and any downloaded AI tagging models.' +
+      Chr(13) + Chr(10) + Chr(13) + Chr(10) +
+      'Choose "No" to keep your settings (such as your download folder and ' +
+      'preferences) in case you reinstall Pikura later.',
+      mbConfirmation, MB_YESNO) = IDYES);
+  end;
+
+  if CurUninstallStep = usPostUninstall then
+  begin
+    if RemoveAllUserData then
+    begin
+      AppDataDir := ExpandConstant('{userappdata}\Pikura');
+      LocalAppDataDir := ExpandConstant('{localappdata}\Pikura');
+      DelTree(AppDataDir, True, True, True);
+      DelTree(LocalAppDataDir, True, True, True);
+    end;
+  end;
+end;
