@@ -65,6 +65,7 @@
 - **Search improvements** — a History dropdown lets you jump back to a previous search (with the filters used at the time), and Popular Tags are shown as clickable chips so you can search by tag with one click.
 - **Smoother sync** — likes, bookmarks, follows, and view counts update immediately across the gallery, Discover, Rankings, Search, Pixivision, and the inline viewer.
 - **Refreshed themes** — light and dark modes have been cleaned up with better contrast, rounded button hover highlights, visible caption-button hover states, and a working system-theme toggle.
+- **Full-removal uninstall option** — the Windows uninstaller can now fully remove Pikura (settings, saved Pixiv login, download history/database, cached images, and downloaded AI tagging models) or keep that data for a future reinstall.
 
 ## Requirements
 

@@ -23,3 +23,10 @@ All notable changes to Pikura are documented in this file.
 - Refined light and dark themes with improved contrast, button hover rounding, and better caption-button visibility.
 - System theme mode now follows the OS light/dark preference correctly and updates live when the system theme changes.
 - Feature highlight screenshots updated to show the refreshed UI, themes, and new Pixiv-connected actions.
+- Collections tile context menu now has an "Open on pixiv.net" link alongside Copy collection link.
+- Windows uninstaller can now fully remove Pikura (settings, saved Pixiv login, download history/database, cached images, and any downloaded AI tagging models) or keep that data in place for a future reinstall.
+
+### Fixed
+
+- Pixivision Monthly Ranking/Featured sidebar banners were unreadable in light/dark mode; both now use a fixed black background with white text.
+- Updated the Pixiv-connected actions preview GIF used on the feature highlights page.

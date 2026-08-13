@@ -1,3 +1,35 @@
+## Pikura 2.1.0
+
+Collections, Collage, and Pixiv-connected actions — likes, bookmarks, follows, and comments now operate on your real Pixiv account, plus a refreshed light/dark theme.
+
+### New Features
+
+- **Collections** — full support for Pixiv's collection-curation feature: browse Featured and All collections, open details, download selected or entire collections, bookmark collections, and post/read collection comments.
+- **Collage** — open any selection of artworks as a single unique collage tab, add or remove individual images, and download the whole collage. Viewer tabs, including the collage tab, persist and reopen across restarts.
+- **Pixiv-connected actions** — likes, public/private bookmarks, follows/unfollows, views, comments, replies, stickers, and Pixiv emoji now operate on your real Pixiv account and stay in sync across the app.
+
+### Improvements
+
+- **Chrome-style drag-to-reorder** for inline viewer tabs — tabs lift and neighboring tabs slide aside smoothly as you drag.
+- **"View in new tabs"** support across Gallery, Discover, Rankings, Pixivision, Bookmarks, Search, and Collections.
+- **Bookmarks** now includes every artwork you've liked on Pixiv (even ones that aren't bookmarked) alongside your public/private bookmarks and bookmarked collections.
+- **Search History dropdown** so you can jump back to a previous search (your last 25 queries, with the filters used at the time) — click outside it to close.
+- **Search Popular Tags** shown as clickable chips so you can search by tag with one click.
+- **Smoother sync** — likes, bookmarks, follows, and view counts update immediately across the gallery, Discover, Rankings, Search, Pixivision, bookmarks, and the inline viewer.
+- **Public artwork statistics** reflect Pixiv's public like, bookmark, and view counts.
+- **Comment threads** support correct-thread replies, text and sticker comments, Pixiv custom-emoji shortcodes, and deletion of your own comments after confirmation.
+- **Refreshed themes** — light and dark modes have better contrast, rounded button hover highlights, visible caption-button hover states, and a working system-theme toggle that follows the OS preference live.
+- **Feature highlight screenshots** updated to show the refreshed UI, themes, and new Pixiv-connected actions.
+- Collections tile context menu now has an "Open on pixiv.net" link alongside Copy collection link.
+- The Windows uninstaller can now fully remove Pikura (settings, saved Pixiv login, download history/database, cached images, and downloaded AI tagging models) or keep that data in place for a future reinstall.
+
+### Fixes
+
+- **Pixivision Monthly Ranking/Featured sidebar banners were unreadable in light/dark mode** — both now use a fixed black background with white text, matching pixivision's own styling.
+- Updated the Pixiv-connected actions preview GIF used on the feature highlights page to the correct capture.
+
+---
+
 ## Pikura 2.0.0
 
 Pikura 2.0.0 is a **major release** — the biggest update yet, introducing three brand-new tabs, a new onboarding experience, and significant performance work across the app.
