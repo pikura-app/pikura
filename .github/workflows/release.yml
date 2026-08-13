@@ -248,6 +248,25 @@ jobs:
           path: artifacts
           merge-multiple: true
 
+      # RELEASE_NOTES.md holds the full multi-version history (newest first, separated by
+      # "## Pikura X.Y.Z" headings). Extract just the section for the tag being released so
+      # the GitHub Release body doesn't dump every past version's notes.
+      - name: Extract release notes for this version
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          awk -v ver="$VERSION" '
+            /^## / {
+              if (found) exit
+              if (index($0, ver) > 0) { found=1; next }
+              next
+            }
+            found { print }
+          ' RELEASE_NOTES.md > RELEASE_NOTES_CURRENT.md
+          if [ ! -s RELEASE_NOTES_CURRENT.md ]; then
+            echo "No RELEASE_NOTES.md section found for $VERSION" > RELEASE_NOTES_CURRENT.md
+          fi
+          cat RELEASE_NOTES_CURRENT.md
+
       - name: Upload assets to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
@@ -255,5 +274,5 @@ jobs:
           draft: false
           prerelease: ${{ contains(github.ref_name, '-') }}
           generate_release_notes: false
-          body_path: RELEASE_NOTES.md
+          body_path: RELEASE_NOTES_CURRENT.md
           files: artifacts/**/*
