@@ -393,6 +393,9 @@
                                                 <MenuItem Header="Copy collection link" Click="OnContextCopyCollectionLink">
                                                     <MenuItem.Icon><PathIcon Data="{StaticResource CopyIcon}" Width="14" Height="14"/></MenuItem.Icon>
                                                 </MenuItem>
+                                                <MenuItem Header="Open on pixiv.net" Click="OnContextOpenCollectionOnPixiv">
+                                                    <MenuItem.Icon><PathIcon Data="{StaticResource ExternalLinkIcon}" Width="14" Height="14"/></MenuItem.Icon>
+                                                </MenuItem>
                                             </ContextMenu>
                                         </Border.ContextMenu>
                                         <StackPanel>
@@ -505,6 +508,9 @@
                                                 <MenuItem Header="Copy collection ID" Click="OnContextCopyCollectionId"/>
                                                 <MenuItem Header="Copy collection link" Click="OnContextCopyCollectionLink">
                                                     <MenuItem.Icon><PathIcon Data="{StaticResource CopyIcon}" Width="14" Height="14"/></MenuItem.Icon>
+                                                </MenuItem>
+                                                <MenuItem Header="Open on pixiv.net" Click="OnContextOpenCollectionOnPixiv">
+                                                    <MenuItem.Icon><PathIcon Data="{StaticResource ExternalLinkIcon}" Width="14" Height="14"/></MenuItem.Icon>
                                                 </MenuItem>
                                             </ContextMenu>
                                         </Border.ContextMenu>

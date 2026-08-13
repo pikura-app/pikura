@@ -302,6 +302,11 @@ public partial class CollectionsView : UserControl
         if (GetTileFromMenu(sender) is { } tile) CopyToClipboard($"https://www.pixiv.net/collections/{tile.Id}");
     }
 
+    private void OnContextOpenCollectionOnPixiv(object? sender, RoutedEventArgs e)
+    {
+        if (GetTileFromMenu(sender) is { } tile) OpenUrl($"https://www.pixiv.net/collections/{tile.Id}");
+    }
+
     private void OnWorkCheckboxClicked(object? sender, RoutedEventArgs e)
     {
         VM?.NotifyWorksSelectionChanged();
