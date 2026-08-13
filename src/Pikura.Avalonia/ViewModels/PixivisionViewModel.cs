@@ -47,8 +47,16 @@ public partial class PixivisionViewModel : ViewModelBase
     [ObservableProperty] private bool _isAutoloadMode;
     [ObservableProperty] private string _pageInput = "";
     public bool HasPrevPage => ArticlePage > 1;
-    partial void OnArticlePageChanged(int value) => OnPropertyChanged(nameof(HasPrevPage));
-    partial void OnIsAutoloadModeChanged(bool value) => OnPropertyChanged(nameof(UsePagedMode));
+    partial void OnArticlePageChanged(int value)
+    {
+        OnPropertyChanged(nameof(HasPrevPage));
+        OnPropertyChanged(nameof(ShowSidebarPanel));
+    }
+    partial void OnIsAutoloadModeChanged(bool value)
+    {
+        OnPropertyChanged(nameof(UsePagedMode));
+        _settingsService.Update(s => s.PixivisionUsePagination = !value);
+    }
 
     /// <summary>Single-switch view of the paged/autoload choice — checked means paged, mirroring
     /// Rankings' "Pages" toggle so both sections present the same control instead of two
@@ -68,8 +76,27 @@ public partial class PixivisionViewModel : ViewModelBase
     /// published on that day. pixivision has no date-archive endpoint, so this is a best-effort
     /// client-side scan of the reverse-chronological feed, bounded by <see cref="MaxDateScanPages"/>.</summary>
     [ObservableProperty] private DateTime? _selectedDate;
-    public bool IsFilteredByDate => SelectedDate.HasValue;
-    public string DateLabel => SelectedDate?.ToString("yyyy-MM-dd") ?? "All dates";
+
+    /// <summary>Quick range picker: "all", "day" (past 24h), "week", "month", "year", or "custom".
+    /// Mutually exclusive with <see cref="SelectedDate"/> — mirrors ViewedHistoryViewModel's
+    /// identical property, adapted to pixivision's client-side page-scan approach (no date-archive
+    /// endpoint exists to query a range directly).</summary>
+    [ObservableProperty] private string _quickRange = "all";
+    [ObservableProperty] private DateTime? _customRangeStart;
+    [ObservableProperty] private DateTime? _customRangeEnd;
+
+    public bool IsFilteredByDate => SelectedDate.HasValue || QuickRange != "all";
+    public string DateLabel => SelectedDate?.ToString("yyyy-MM-dd")
+        ?? QuickRange switch
+        {
+            "day" => "Past day",
+            "week" => "Past week",
+            "month" => "Past month",
+            "year" => "Past year",
+            "custom" when CustomRangeStart.HasValue && CustomRangeEnd.HasValue
+                => $"{CustomRangeStart:yyyy-MM-dd} – {CustomRangeEnd:yyyy-MM-dd}",
+            _ => "All dates",
+        };
     private const int MaxDateScanPages = 60;
 
     // ── Calendar "empty day" detection ─────────────────────────────────────
@@ -199,6 +226,7 @@ public partial class PixivisionViewModel : ViewModelBase
     [ObservableProperty] private bool _isNaturalHeight;
     [ObservableProperty] private bool _showInfo = true;
     [ObservableProperty] private bool _showTags = true;
+    [ObservableProperty] private bool _showBadges = true;
     [ObservableProperty] private bool _showPreview;
     [ObservableProperty] private bool _isViewerExpanded;
     [ObservableProperty] private int _selectedCount;
@@ -230,7 +258,7 @@ public partial class PixivisionViewModel : ViewModelBase
     public bool HasMonthlyRanking => MonthlyRanking.Count > 0;
     public bool HasFeatured => Featured.Count > 0;
     public bool HasSidebarWidgets => HasMonthlyRanking || HasFeatured;
-    public bool ShowSidebarPanel => ShowSidebarWidgets && HasSidebarWidgets;
+    public bool ShowSidebarPanel => ShowSidebarWidgets && HasSidebarWidgets && ArticlePage == 1;
     partial void OnShowSidebarWidgetsChanged(bool value) => OnPropertyChanged(nameof(ShowSidebarPanel));
 
     public bool HasArticles => Articles.Count > 0;
@@ -241,10 +269,18 @@ public partial class PixivisionViewModel : ViewModelBase
     public bool ShowNaturalGrid => IsNaturalHeight;
     partial void OnIsFixedHeightChanged(bool value) { OnPropertyChanged(nameof(ShowFixedGrid)); OnPropertyChanged(nameof(ShowNaturalGrid)); }
     partial void OnIsNaturalHeightChanged(bool value) { OnPropertyChanged(nameof(ShowFixedGrid)); OnPropertyChanged(nameof(ShowNaturalGrid)); }
+    partial void OnShowBadgesChanged(bool value) => _settingsService.Update(s => s.ShowBadges = value);
 
     partial void OnIsViewerExpandedChanged(bool value) => OnPropertyChanged(nameof(IsViewerFullScreen));
     public bool IsViewerFullScreen => IsViewerExpanded;
-    partial void OnSelectedCountChanged(int value) => OnPropertyChanged(nameof(HasSelection));
+    partial void OnSelectedCountChanged(int value)
+    {
+        OnPropertyChanged(nameof(HasSelection));
+        OnPropertyChanged(nameof(CanViewSelectedAsCollage));
+        ViewSelectedAsCollageCommand.NotifyCanExecuteChanged();
+        OnPropertyChanged(nameof(CanViewSelectedInNewTabs));
+        ViewSelectedInNewTabsCommand.NotifyCanExecuteChanged();
+    }
 
     public GalleryViewModel GalleryVm => AppServices.Get<GalleryViewModel>();
     public string ViewerSourceKey => $"Pixivision:{CurrentArticleId}";
@@ -275,11 +311,21 @@ public partial class PixivisionViewModel : ViewModelBase
         _settingsService = settingsService;
         _savedArticles = savedArticles;
         _cardSize = _settingsService.Current.CardSize;
+        _showBadges = _settingsService.Current.ShowBadges;
+        _isAutoloadMode = !_settingsService.Current.PixivisionUsePagination;
 
         GalleryVm.PropertyChanged += (_, e) =>
         {
             if (e.PropertyName == nameof(GalleryViewModel.HasTabs) && !GalleryVm.HasTabs)
             { ShowPreview = false; IsViewerExpanded = false; }
+            if (e.PropertyName is nameof(GalleryViewModel.IsCollageMode)
+                               or nameof(GalleryViewModel.HasStoredCollage)
+                               or nameof(GalleryViewModel.CollageItems)
+                               or nameof(GalleryViewModel.CanViewSelectedAsCollage))
+            {
+                OnPropertyChanged(nameof(CanViewSelectedAsCollage));
+                ViewSelectedAsCollageCommand.NotifyCanExecuteChanged();
+            }
         };
 
         _savedArticles.Changed += (_, _) =>
@@ -301,6 +347,7 @@ public partial class PixivisionViewModel : ViewModelBase
     public Task GoToPageAsync(int page)
     {
         SelectedDate = null;
+        QuickRange = "all";
         OnPropertyChanged(nameof(IsFilteredByDate));
         OnPropertyChanged(nameof(DateLabel));
         return LoadArticlesPageAsync(page, append: false);
@@ -412,6 +459,7 @@ public partial class PixivisionViewModel : ViewModelBase
     {
         var target = date.Date;
         SelectedDate = target;
+        QuickRange = "all";
         OnPropertyChanged(nameof(IsFilteredByDate));
         OnPropertyChanged(nameof(DateLabel));
 
@@ -465,9 +513,104 @@ public partial class PixivisionViewModel : ViewModelBase
     public Task GoToAllTimeAsync()
     {
         SelectedDate = null;
+        QuickRange = "all";
         OnPropertyChanged(nameof(IsFilteredByDate));
         OnPropertyChanged(nameof(DateLabel));
         return GoToPageAsync(1);
+    }
+
+    /// <summary>Quick range picker: "today" (delegates to the exact-day scan), "day"/"week"/"month"/"year"
+    /// (relative range), or "all".</summary>
+    [RelayCommand]
+    public Task SetQuickRangeAsync(string range)
+    {
+        if (range == "today") return GoToDateAsync(DateTime.Today);
+        if (range == "all") return GoToAllTimeAsync();
+
+        SelectedDate = null;
+        QuickRange = range;
+        OnPropertyChanged(nameof(IsFilteredByDate));
+        OnPropertyChanged(nameof(DateLabel));
+
+        var now = DateTime.Today;
+        var start = range switch
+        {
+            "day" => now.AddDays(-1),
+            "week" => now.AddDays(-7),
+            "month" => now.AddMonths(-1),
+            "year" => now.AddYears(-1),
+            _ => (DateTime?)null,
+        };
+        return ScanRangeAsync(start, now);
+    }
+
+    /// <summary>Applies a custom "from – to" date range (inclusive, local calendar dates).</summary>
+    [RelayCommand]
+    public Task ApplyCustomRangeAsync()
+    {
+        if (CustomRangeStart is null || CustomRangeEnd is null) return Task.CompletedTask;
+        if (CustomRangeStart > CustomRangeEnd) (CustomRangeStart, CustomRangeEnd) = (CustomRangeEnd, CustomRangeStart);
+        SelectedDate = null;
+        QuickRange = "custom";
+        OnPropertyChanged(nameof(IsFilteredByDate));
+        OnPropertyChanged(nameof(DateLabel));
+        return ScanRangeAsync(CustomRangeStart, CustomRangeEnd);
+    }
+
+    /// <summary>Best-effort client-side date-RANGE filter — same page-scan approach as
+    /// <see cref="GoToDateAsync"/>, but collects every article whose published date falls within
+    /// [<paramref name="startInclusive"/>, <paramref name="endInclusive"/>] (either bound may be
+    /// null = unbounded on that side) instead of matching a single day.</summary>
+    private async Task ScanRangeAsync(DateTime? startInclusive, DateTime? endInclusive)
+    {
+        var start = startInclusive?.Date;
+        var end = endInclusive?.Date;
+
+        Articles.Clear();
+        SelectedCount = 0;
+        HasNextPage = false;
+        IsLoading = true;
+        StatusMessage = $"Searching pixivision for articles {DateLabel}…";
+
+        try
+        {
+            var page = 1;
+            var scannedPages = 0;
+            while (page <= MaxDateScanPages)
+            {
+                var result = await _pixivision.GetArticlesAsync(SelectedCategory.Slug, page);
+                scannedPages++;
+                if (result.Items.Count == 0) break;
+
+                var passedStart = false;
+                foreach (var a in result.Items)
+                {
+                    if (a.PublishedDate is not { } d) continue;
+                    var date = d.Date;
+                    if ((end is null || date <= end) && (start is null || date >= start))
+                    {
+                        var card = new PixivisionArticleCardViewModel(a);
+                        Articles.Add(card);
+                        _ = card.LoadThumbnailAsync(_imageLoader);
+                    }
+                    else if (start is not null && date < start)
+                    {
+                        passedStart = true;
+                    }
+                }
+
+                if (passedStart || !result.HasNextPage) break;
+                page++;
+            }
+
+            StatusMessage = Articles.Count == 0
+                ? $"No articles found {DateLabel} (searched {scannedPages} page(s))."
+                : $"{Articles.Count} article(s) {DateLabel}";
+            OnPropertyChanged(nameof(HasArticles));
+            RefreshCardSavedStates();
+        }
+        catch (Exception ex) { StatusMessage = $"Date search failed: {ex.Message}"; }
+        finally { IsLoading = false; }
     }
 
     [RelayCommand]
@@ -805,7 +948,35 @@ public partial class PixivisionViewModel : ViewModelBase
         ShowPreview = true;
     }
 
-    public void NotifySelectionChanged() => SelectedCount = FeaturedWorks.Count(c => c.IsSelected);
+    public void NotifySelectionChanged()
+    {
+        SelectedCount = FeaturedWorks.Count(c => c.IsSelected);
+        OnPropertyChanged(nameof(CanViewSelectedAsCollage));
+        ViewSelectedAsCollageCommand.NotifyCanExecuteChanged();
+    }
+
+    public bool CanViewSelectedAsCollage => GalleryVm.CanCollage(SelectedCount);
+
+    [RelayCommand(CanExecute = nameof(CanViewSelectedAsCollage))]
+    private void ViewSelectedAsCollage()
+    {
+        var selected = FeaturedWorks.Where(c => c.IsSelected).ToList();
+        if (selected.Count == 0) return;
+        GalleryVm.AddSelectedToCollage(selected);
+    }
+
+    public bool CanViewSelectedInNewTabs => SelectedCount >= 1;
+
+    [RelayCommand(CanExecute = nameof(CanViewSelectedInNewTabs))]
+    private void ViewSelectedInNewTabs()
+    {
+        var selected = FeaturedWorks.Where(c => c.IsSelected).ToList();
+        if (selected.Count == 0) return;
+        foreach (var card in selected)
+            GalleryVm.OpenInNewTab(card, selected, selected.Count, source: ViewerSourceKey);
+        ShowPreview = true;
+    }
+
     [RelayCommand] public void SelectAll() { foreach (var c in FeaturedWorks) c.IsSelected = true; NotifySelectionChanged(); }
     [RelayCommand] public void ClearSelection() { foreach (var c in FeaturedWorks) c.IsSelected = false; SelectedCount = 0; }
 

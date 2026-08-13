@@ -6,7 +6,7 @@
         Width="520" Height="240"
         CanResize="False"
         WindowStartupLocation="CenterOwner"
-        Background="{actipro:ThemeResource Container2BackgroundBrush}">
+        Background="{DynamicResource Container2BackgroundBrush}">
 
     <Grid Margin="24,20" RowDefinitions="Auto,Auto,Auto,*,Auto" RowSpacing="12">
 
@@ -16,7 +16,7 @@
         <TextBlock Grid.Row="1" x:Name="StatusText"
                    Text="Downloading the bundled browser used to sign you in. This happens once and takes a few minutes (~150 MB)."
                    TextWrapping="Wrap" FontSize="12"
-                   Foreground="{actipro:ThemeResource DefaultForegroundBrushSecondary}"/>
+                   Foreground="{DynamicResource DefaultForegroundBrushSecondary}"/>
 
         <ProgressBar Grid.Row="2" x:Name="Progress"
                      IsIndeterminate="True" Height="6"
@@ -25,13 +25,11 @@
         <TextBlock Grid.Row="3" x:Name="DetailText"
                    Text="Contacting playwright.dev…"
                    FontSize="11" VerticalAlignment="Top"
-                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
 
         <StackPanel Grid.Row="4" Orientation="Horizontal"
                     HorizontalAlignment="Right" Spacing="8">
-            <Button x:Name="CancelBtn" Content="Cancel"
-                    CornerRadius="6" Padding="14,7"
-                    Click="OnCancel"/>
+            <Button x:Name="CancelBtn" Content="Cancel" Click="OnCancel"/>
         </StackPanel>
     </Grid>
 </Window>

@@ -32,9 +32,11 @@ public partial class GalleryView : UserControl
         GallerySideViewer.ToggleBrowse += OnToggleBrowse;
         GallerySideViewer.ExpandViewer += OnExpandViewer;
         GallerySideViewer.ViewerClosed += OnViewerClosed;
+        GallerySideViewer.RequestFullscreen += OnRequestFullscreen;
         GalleryFullViewer.ToggleBrowse  += OnToggleBrowse;
         GalleryFullViewer.ExpandViewer  += OnExpandViewer;
         GalleryFullViewer.ViewerClosed  += OnViewerClosed;
+        GalleryFullViewer.RequestFullscreen += OnRequestFullscreen;
     }
 
     /// <summary>Browse/panel button → toggle side-panel visibility only.</summary>
@@ -44,7 +46,9 @@ public partial class GalleryView : UserControl
         if (VM != null) VM.ShowPreview = !VM.ShowPreview;
     }
 
-    /// <summary>Expand button → toggle full-screen overlay.</summary>
+    /// <summary>Expand button → toggle full-screen overlay. Collage mode (IsCollageMode/
+    /// CollageItems on the shared GalleryViewModel) is bound directly in XAML, so it's already
+    /// reflected on whichever viewer instance becomes visible — no manual sync needed here.</summary>
     private void OnExpandViewer(object? sender, global::Avalonia.Interactivity.RoutedEventArgs e)
     {
         e.Handled = true;
@@ -53,9 +57,21 @@ public partial class GalleryView : UserControl
         if (!VM.IsViewerExpanded) VM.ShowPreview = true;
     }
 
+    /// <summary>"Fullscreen" while in Collage mode — unconditionally goes full-screen (never
+    /// toggles off), unlike OnExpandViewer.</summary>
+    private void OnRequestFullscreen(object? sender, global::Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        e.Handled = true;
+        if (VM == null) return;
+        VM.IsViewerExpanded = true;
+    }
+
     private void OnViewerClosed(object? sender, global::Avalonia.Interactivity.RoutedEventArgs e)
     {
         e.Handled = true;
+        if (VM == null) return;
+        VM.ShowPreview = false;
+        VM.IsViewerExpanded = false;
     }
 
     private void OnUnloaded(object? sender, RoutedEventArgs e) { }
@@ -429,12 +445,33 @@ public partial class GalleryView : UserControl
         if (window is MainWindow mw) mw.HoshiButton_Click(sender, e);
     }
 
-    private void OnContextToggleFollow(object? sender, RoutedEventArgs e)
+    private async void OnContextToggleFollow(object? sender, RoutedEventArgs e)
     {
-        // Follow/unfollow feature removed - Pixiv OAuth no longer available
-        if (VM != null)
+        if (GetCardFromMenu(sender) is not { } card || VM == null) return;
+        await ToggleArtistFollowAsync(card.UserId, card.UserName, card.IsFollowed, VM,
+            onChanged: followed => card.IsFollowed = followed);
+    }
+
+    /// <summary>Shared follow/unfollow logic used by artwork-card and artist-list context menus.</summary>
+    private static async Task ToggleArtistFollowAsync(
+        string userId, string userName, bool currentlyFollowed, GalleryViewModel vm, Action<bool> onChanged)
+    {
+        if (string.IsNullOrEmpty(userId)) return;
+        var pixivClient = AppServices.Get<PixivClient>();
+        var ok = currentlyFollowed
+            ? await pixivClient.UnfollowUserAsync(userId)
+            : await pixivClient.FollowUserAsync(userId);
+
+        if (ok)
         {
-            VM.StatusMessage = "Follow/unfollow is not available. Pixiv has blocked OAuth authentication.";
+            var followed = !currentlyFollowed;
+            onChanged(followed);
+            vm.SetArtistFollowed(userId, userName, followed);
+            vm.StatusMessage = followed ? $"Following {userName}" : $"Unfollowed {userName}";
+        }
+        else
+        {
+            vm.StatusMessage = "Could not update follow. Follow/unfollow requires a Pixiv App API refresh token (Settings > Accounts) or a valid web session.";
         }
     }
 
@@ -666,13 +703,14 @@ public partial class GalleryView : UserControl
         }
     }
 
-    private void OnUnfollowArtistMenu(object? sender, RoutedEventArgs e)
+    private async void OnUnfollowArtistMenu(object? sender, RoutedEventArgs e)
     {
-        // Follow/unfollow feature removed - Pixiv OAuth no longer available
-        if (VM != null)
-        {
-            VM.StatusMessage = "Unfollow is not available. Pixiv has blocked OAuth authentication.";
-        }
+        if (VM == null) return;
+        // The ContextMenu is set on the artist row Grid, so DataContext flows down to
+        // the MenuItem as the row's ArtistCardViewModel.
+        if (sender is not MenuItem { DataContext: ArtistCardViewModel artist }) return;
+        await ToggleArtistFollowAsync(artist.UserId, artist.Name, currentlyFollowed: true, VM,
+            onChanged: followed => artist.IsFollowed = followed);
     }
 
     private void CopyArtistIdToClipboard(string userId)

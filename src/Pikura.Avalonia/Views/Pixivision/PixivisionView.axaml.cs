@@ -230,6 +230,35 @@ public partial class PixivisionView : UserControl
             .GetAttachedFlyout(this.FindControl<Button>("CalendarFlyoutButton")!)?.Hide();
     }
 
+    // ── Custom date range — mirrors ViewedHistoryView's identical pattern ──────
+    /// <summary>Opens the custom date-range picker as an anchored Popup near the ⏱ button —
+    /// a nested Flyout-inside-a-MenuFlyout (the previous approach) is a known Avalonia timing
+    /// trap: showing a second flyout synchronously while the first is still closing loses the
+    /// race and silently shows nothing, even when deferred with Dispatcher.Post. The Popup here
+    /// is opened deferred for the same underlying reason (this handler runs while the
+    /// MenuFlyout hosting "Custom range…" is still closing).</summary>
+    private void OnCustomRangeMenuClick(object? sender, RoutedEventArgs e)
+    {
+        Dispatcher.UIThread.Post(() =>
+        {
+            if (VM == null) return;
+            CustomRangePanel.SetInitialRange(VM.CustomRangeStart, VM.CustomRangeEnd);
+            CustomRangePopup.IsOpen = true;
+        }, DispatcherPriority.Background);
+    }
+
+    private void OnCustomRangeApplied(object? sender, EventArgs e)
+    {
+        if (VM == null || sender is not Dialogs.DateRangePickerPanel panel) return;
+        CustomRangePopup.IsOpen = false;
+        if (panel.RangeStart is null || panel.RangeEnd is null) return;
+        VM.CustomRangeStart = panel.RangeStart;
+        VM.CustomRangeEnd = panel.RangeEnd;
+        _ = VM.ApplyCustomRangeCommand.ExecuteAsync(null);
+    }
+
+    private void OnCustomRangeCancelled(object? sender, EventArgs e) => CustomRangePopup.IsOpen = false;
+
     private void OnPixivisionPageInputKeyDown(object? sender, KeyEventArgs e)
     {
         if (e.Key == Key.Enter)

@@ -5,6 +5,7 @@
              xmlns:conv="using:Pikura.Avalonia.Converters"
              xmlns:gallery="using:Pikura.Avalonia.Views.Gallery"
              xmlns:services="using:Pikura.Avalonia.Services"
+             xmlns:dialogs="using:Pikura.Avalonia.Views.Dialogs"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
@@ -44,26 +45,51 @@
 
         <!-- ══ Row 0: Title + actions ══ -->
         <Border Grid.Row="0"
-                Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                Background="{DynamicResource Container1BackgroundBrush}"
+                BorderBrush="{DynamicResource Container1BorderBrush}"
                 BorderThickness="0,0,0,1" Padding="20,10"
                 Margin="0,32,0,0">
             <Grid ColumnDefinitions="Auto,*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
-                    <TextBlock Text="Viewed" FontWeight="Bold" FontSize="20" VerticalAlignment="Center"/>
+                    <TextBlock Text="History" FontWeight="Bold" FontSize="20" VerticalAlignment="Center"/>
+                    <Button Content="⟳"   FontSize="11"
+                            VerticalAlignment="Center"
+                            Command="{Binding ReloadCommand}" ToolTip.Tip="Refresh"/>
+                    <ToggleButton IsChecked="{Binding IncognitoModeEnabled, Mode=TwoWay}"   FontSize="11"
+                                  BorderThickness="1" VerticalAlignment="Center"
+                                  ToolTip.Tip="Incognito mode: artworks you open won't be added to this history while enabled.">
+                        <ToggleButton.Styles>
+                            <Style Selector="ToggleButton">
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Setter Property="BorderBrush" Value="{DynamicResource Container1BorderBrush}"/>
+                            </Style>
+                            <Style Selector="ToggleButton:checked">
+                                <Setter Property="Background" Value="#7C3AED"/>
+                                <Setter Property="BorderBrush" Value="#7C3AED"/>
+                            </Style>
+                            <Style Selector="ToggleButton:checked TextBlock">
+                                <Setter Property="Foreground" Value="White"/>
+                            </Style>
+                        </ToggleButton.Styles>
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                            <TextBlock Text="🕶" FontSize="12"/>
+                            <TextBlock Text="Incognito: Off" FontSize="11" IsVisible="{Binding !IncognitoModeEnabled}"/>
+                            <TextBlock Text="Incognito: On" FontSize="11" FontWeight="Bold" IsVisible="{Binding IncognitoModeEnabled}"/>
+                        </StackPanel>
+                    </ToggleButton>
                     <ProgressBar IsIndeterminate="True" Width="70" Height="3"
                                  IsVisible="{Binding IsLoading}" VerticalAlignment="Center"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6"
                             HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                            BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                    <Border Background="{DynamicResource Container2BackgroundBrush}"
+                            BorderBrush="{DynamicResource Container1BorderBrush}"
                             BorderThickness="1" CornerRadius="7" Padding="3">
                         <StackPanel Orientation="Horizontal" Spacing="0">
                             <Button Name="CalendarFlyoutButton" Content="📅" FontSize="12"
-                                    CornerRadius="5" Padding="7,4" Background="Transparent" BorderThickness="0"
-                                    ToolTip.Tip="Browse by date">
+                                      Background="Transparent" BorderThickness="0"
+                                    ToolTip.Tip="Browse by exact date">
                                 <Button.Flyout>
                                     <Flyout Placement="Bottom" ShowMode="Standard" Opened="OnCalendarOpened">
                                         <Calendar Name="DatePopupCalendar"
@@ -72,57 +98,79 @@
                                     </Flyout>
                                 </Button.Flyout>
                             </Button>
+                            <Button Name="QuickRangeButton" Content="⏱" FontSize="12"
+                                      Background="Transparent" BorderThickness="0"
+                                    ToolTip.Tip="Quick range">
+                                <Button.Flyout>
+                                    <MenuFlyout Placement="Bottom">
+                                        <MenuItem Header="Today"      Command="{Binding SetQuickRangeCommand}" CommandParameter="today"/>
+                                        <MenuItem Header="Past day"   Command="{Binding SetQuickRangeCommand}" CommandParameter="day"/>
+                                        <MenuItem Header="Past week"  Command="{Binding SetQuickRangeCommand}" CommandParameter="week"/>
+                                        <MenuItem Header="Past month" Command="{Binding SetQuickRangeCommand}" CommandParameter="month"/>
+                                        <MenuItem Header="Past year"  Command="{Binding SetQuickRangeCommand}" CommandParameter="year"/>
+                                        <Separator/>
+                                        <MenuItem Header="Custom range…" Click="OnCustomRangeMenuClick"/>
+                                        <Separator/>
+                                        <MenuItem Header="All time" Command="{Binding GoToAllTimeCommand}"/>
+                                    </MenuFlyout>
+                                </Button.Flyout>
+                            </Button>
                             <TextBlock Text="{Binding DateLabel}" FontSize="11" VerticalAlignment="Center" Margin="8,0"/>
-                            <Button Content="⊙" FontSize="12" CornerRadius="5" Padding="7,4"
+                            <Button Content="⊙" FontSize="12"  
                                     Background="Transparent" BorderThickness="0"
                                     IsVisible="{Binding IsFilteredByDate}"
                                     Command="{Binding GoToAllTimeCommand}"
                                     ToolTip.Tip="Back to all time"/>
                         </StackPanel>
                     </Border>
+                    <!-- Custom range picker — an anchored Popup (like an airline booking site's
+                         inline date-range dropdown) rather than a separate modal window. -->
+                    <Popup Name="CustomRangePopup" PlacementTarget="{Binding #QuickRangeButton}"
+                           Placement="BottomEdgeAlignedLeft" IsLightDismissEnabled="False">
+                        <dialogs:DateRangePickerPanel Name="CustomRangePanel"
+                                                       Applied="OnCustomRangeApplied"
+                                                       Cancelled="OnCustomRangeCancelled"/>
+                    </Popup>
                 </StackPanel>
 
                 <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="3" VerticalAlignment="Center">
-                    <ToggleButton IsChecked="{Binding IsGridView}" CornerRadius="5" Padding="9,5" FontSize="11"
-                                  Command="{Binding SetGridViewCommand}">⊞ Grid</ToggleButton>
-                    <ToggleButton IsChecked="{Binding IsListView}" CornerRadius="5" Padding="9,5" FontSize="11"
-                                  Command="{Binding SetListViewCommand}">☰ List</ToggleButton>
-                    <Rectangle Width="1" Height="16" Fill="{actipro:ThemeResource Container1BorderBrush}" Margin="3,0"
-                               IsVisible="{Binding IsGridView}"/>
-                    <ToggleButton IsChecked="{Binding IsFixedHeight}" CornerRadius="5" Padding="9,5" FontSize="11"
-                                  Command="{Binding SetFixedHeightCommand}" IsVisible="{Binding IsGridView}">
-                        <ToggleButton.Styles>
-                            <Style Selector="ToggleButton:checked">
-                                <Setter Property="Background" Value="#3B82F6"/>
-                                <Setter Property="Foreground" Value="White"/>
-                            </Style>
-                        </ToggleButton.Styles>
+                    <ToggleButton IsChecked="{Binding IsDefaultMode}"   FontSize="11"
+                                  Command="{Binding SetViewModeCommand}" CommandParameter="default"
+                                  ToolTip.Tip="Default — flat, chronological feed">🕒 Default</ToggleButton>
+                    <ToggleButton IsChecked="{Binding IsGroupedMode}"   FontSize="11"
+                                  Command="{Binding SetViewModeCommand}" CommandParameter="grouped"
+                                  ToolTip.Tip="Grouped — collage thumbnail per day">▦ Grouped</ToggleButton>
+                    <ToggleButton IsChecked="{Binding IsListMode}"   FontSize="11"
+                                  Command="{Binding SetViewModeCommand}" CommandParameter="list"
+                                  ToolTip.Tip="List — day-by-day list">📋 List</ToggleButton>
+                    <Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}" Margin="3,0"/>
+                    <ToggleButton IsChecked="{Binding IsGridView}"   FontSize="11"
+                                  Command="{Binding SetGridViewCommand}" IsVisible="{Binding IsDefaultMode}">⊞ Grid</ToggleButton>
+                    <ToggleButton IsChecked="{Binding IsListView}"   FontSize="11"
+                                  Command="{Binding SetListViewCommand}" IsVisible="{Binding IsDefaultMode}">☰ List</ToggleButton>
+                    <Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}" Margin="3,0"
+                               IsVisible="{Binding IsDefaultMode}"/>
+                    <ToggleButton IsChecked="{Binding IsFixedHeight}"   FontSize="11"
+                                  Command="{Binding SetFixedHeightCommand}" IsVisible="{Binding ShowResultsGrid}">
                         Fixed
                     </ToggleButton>
-                    <ToggleButton IsChecked="{Binding IsNaturalHeight}" CornerRadius="5" Padding="9,5" FontSize="11"
-                                  Command="{Binding SetNaturalHeightCommand}" IsVisible="{Binding IsGridView}">
-                        <ToggleButton.Styles>
-                            <Style Selector="ToggleButton:checked">
-                                <Setter Property="Background" Value="#3B82F6"/>
-                                <Setter Property="Foreground" Value="White"/>
-                            </Style>
-                        </ToggleButton.Styles>
+                    <ToggleButton IsChecked="{Binding IsNaturalHeight}"   FontSize="11"
+                                  Command="{Binding SetNaturalHeightCommand}" IsVisible="{Binding ShowResultsGrid}">
                         Natural
                     </ToggleButton>
-                    <Rectangle Width="1" Height="16" Fill="{actipro:ThemeResource Container1BorderBrush}" Margin="3,0"/>
-                    <Slider Value="{Binding CardSize}" Minimum="100" Maximum="320" Width="80" IsVisible="{Binding IsGridView}"/>
-                    <ToggleButton IsChecked="{Binding ShowInfo}" CornerRadius="5" Padding="9,5" FontSize="11">Info</ToggleButton>
-                    <ToggleButton IsChecked="{Binding ShowTags}" CornerRadius="5" Padding="9,5" FontSize="11">Tags</ToggleButton>
-                    <Rectangle Width="1" Height="16" Fill="{actipro:ThemeResource Container1BorderBrush}" Margin="3,0"/>
-                    <ToggleButton IsChecked="{Binding ShowPreview}" CornerRadius="5" Padding="10,5" FontSize="11">
+                    <Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}" Margin="3,0"/>
+                    <Slider Value="{Binding CardSize}" Minimum="100" Maximum="320" Width="80" IsVisible="{Binding ShowResultsGrid}"/>
+                    <ToggleButton IsChecked="{Binding ShowInfo}"   FontSize="11">Info</ToggleButton>
+                    <ToggleButton IsChecked="{Binding ShowTags}"   FontSize="11">Tags</ToggleButton>
+                    <Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}" Margin="3,0"/>
+                    <ToggleButton IsChecked="{Binding ShowPreview}"  Padding="10,5" FontSize="11">
                         <StackPanel Orientation="Horizontal" Spacing="4">
                             <TextBlock Text="▣" FontSize="12"/>
                             <TextBlock Text="Show Panel" FontSize="11" IsVisible="{Binding !ShowPreview}"/>
                             <TextBlock Text="Hide Panel" FontSize="11" IsVisible="{Binding ShowPreview}"/>
                         </StackPanel>
                     </ToggleButton>
-                    <Button Content="⟳" CornerRadius="5" Padding="8,4" FontSize="11" Command="{Binding ReloadCommand}" ToolTip.Tip="Refresh"/>
-                    <Button Content="🗑" CornerRadius="5" Padding="8,4" FontSize="11" ToolTip.Tip="Clear history…">
+                    <Button Content="🗑"   FontSize="11" ToolTip.Tip="Clear history…">
                         <Button.Flyout>
                             <MenuFlyout Placement="BottomEdgeAlignedRight">
                                 <MenuItem Header="Past hour"  Command="{Binding ClearHistoryRangeCommand}" CommandParameter="hour"/>
@@ -141,11 +189,11 @@
 
         <!-- ══ Row 1: Action buttons ══ -->
         <Border Grid.Row="1"
-                Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                Background="{DynamicResource Container1BackgroundBrush}"
+                BorderBrush="{DynamicResource Container1BorderBrush}"
                 BorderThickness="0,0,0,1" Padding="20,6">
             <StackPanel Orientation="Horizontal" Spacing="6">
-                <Button CornerRadius="6" Padding="12,6" FontSize="11"
+                <Button   FontSize="11"
                         Classes.accent="{Binding HasSelection}"
                         IsEnabled="{Binding HasSelection}"
                         Command="{Binding DownloadSelectedCommand}">
@@ -154,18 +202,18 @@
                         <TextBlock Text="{Binding SelectedCount, StringFormat='Download Selected ({0})'}"/>
                     </StackPanel>
                 </Button>
-                <Button CornerRadius="6" Padding="12,6" FontSize="11"
+                <Button   FontSize="11"
                         Command="{Binding DownloadAllVisibleCommand}">
                     <StackPanel Orientation="Horizontal" Spacing="5">
                         <TextBlock Text="⊞" FontSize="12"/>
                         <TextBlock Text="Download Visible"/>
                     </StackPanel>
                 </Button>
-                <Button Content="☑ Select All" CornerRadius="6" Padding="12,6" FontSize="11" Command="{Binding SelectAllCommand}"/>
+                <Button Content="☑ Select All"   FontSize="11" Command="{Binding SelectAllCommand}"/>
                 <Button Content="{Binding SelectedCount, StringFormat='☒ Deselect All ({0})'}"
-                        CornerRadius="6" Padding="12,6" FontSize="11"
+                          FontSize="11"
                         Command="{Binding ClearSelectionCommand}" IsVisible="{Binding HasSelection}"/>
-                <Button Content="🎨 Download Preset" CornerRadius="6" Padding="12,6" FontSize="11"
+                <Button Content="🎨 Download Preset"   FontSize="11"
                         Classes="accent"
                         Click="OnDownloadPresetClicked"
                         ToolTip.Tip="Download with image processing preset"/>
@@ -173,7 +221,7 @@
         </Border>
 
         <!-- ══ Row 2: Results area ══ -->
-        <Border Grid.Row="2" Background="{actipro:ThemeResource Container3BackgroundBrush}">
+        <Border Grid.Row="2" Background="{DynamicResource Container3BackgroundBrush}">
             <Grid Name="ContentGrid">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" MinWidth="280"/>
@@ -182,14 +230,14 @@
                 </Grid.ColumnDefinitions>
 
                 <GridSplitter Grid.Column="1" Width="4"
-                              Background="{actipro:ThemeResource Container1BorderBrush}"
+                              Background="{DynamicResource Container1BorderBrush}"
                               IsVisible="{Binding ShowPreview}"
                               ResizeBehavior="PreviousAndNext" ResizeDirection="Columns"
                               DragCompleted="OnSplitterDragCompleted"/>
 
                 <Border Grid.Column="2"
-                        Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                        BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                        Background="{DynamicResource Container1BackgroundBrush}"
+                        BorderBrush="{DynamicResource Container1BorderBrush}"
                         BorderThickness="1,0,0,0"
                         IsVisible="{Binding ShowPreview}">
                     <gallery:InlineArtworkViewer Name="HistoryInlineViewer"
@@ -202,18 +250,149 @@
                     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="8"
                                 IsVisible="{Binding !HasResults}">
                         <TextBlock Text="{Binding StatusMessage}"
-                                   FontSize="13" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                   FontSize="13" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                    HorizontalAlignment="Center" TextWrapping="Wrap" MaxWidth="400"/>
                     </StackPanel>
 
-                    <ScrollViewer Name="GridScrollViewer"
-                                  HorizontalScrollBarVisibility="Disabled"
-                                  VerticalScrollBarVisibility="Auto"
-                                  AllowAutoHide="False"
-                                  ScrollChanged="OnScrollChanged">
+                    <!-- Grouped overview: one collage tile per day with 4 of that day's newest thumbnails -->
+                    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto"
+                                  AllowAutoHide="False" IsVisible="{Binding ShowDateGroups}">
+                        <ScrollViewer.IsVisible>
+                            <MultiBinding Converter="{x:Static BoolConverters.And}">
+                                <Binding Path="ShowDateGroups"/>
+                                <Binding Path="IsGroupedMode"/>
+                            </MultiBinding>
+                        </ScrollViewer.IsVisible>
+                        <ItemsControl ItemsSource="{Binding DateGroups}" Margin="10">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:HistoryDateGroupViewModel">
+                                    <!--
+                                        A Button (rather than a Border+PointerPressed) is used here specifically
+                                        because Button guarantees its Click fires for any point within its bounds —
+                                        unlike a bare Border/Panel, whose hit-testing can silently miss clicks on
+                                        blank/label sub-regions depending on descendant backgrounds. Chrome is
+                                        stripped via the styles below so it still looks like a plain card.
+                                    -->
+                                    <Button Width="200" Margin="0,0,10,10" Padding="0"
+                                            Background="Transparent" BorderThickness="0"
+                                            HorizontalContentAlignment="Stretch" Cursor="Hand"
+                                            Command="{Binding $parent[UserControl].((vm:ViewedHistoryViewModel)DataContext).OpenDateGroupCommand}"
+                                            CommandParameter="{Binding}">
+                                        <Button.Styles>
+                                            <Style Selector="Button:pointerover /template/ ContentPresenter">
+                                                <Setter Property="Background" Value="Transparent"/>
+                                            </Style>
+                                            <Style Selector="Button:pressed /template/ ContentPresenter">
+                                                <Setter Property="Background" Value="Transparent"/>
+                                            </Style>
+                                        </Button.Styles>
+                                        <Border Background="{DynamicResource Container1BackgroundBrush}"
+                                                BorderBrush="{DynamicResource Container1BorderBrush}"
+                                                BorderThickness="1" CornerRadius="8"
+                                                BoxShadow="{DynamicResource CardShadow}">
+                                            <Border.Styles>
+                                                <Style Selector="Border:pointerover">
+                                                    <Setter Property="BoxShadow" Value="0 6 20 0 #55000000"/>
+                                                    <Setter Property="BorderBrush" Value="{DynamicResource ControlBackgroundBrushSolidAccent}"/>
+                                                </Style>
+                                            </Border.Styles>
+                                            <StackPanel>
+                                                <Grid Width="200" Height="200" ColumnDefinitions="*,*" RowDefinitions="*,*" ClipToBounds="True">
+                                                    <Border Grid.Row="0" Grid.Column="0" Background="{DynamicResource Container2BackgroundBrush}">
+                                                        <Image Source="{Binding Thumb1}" Stretch="UniformToFill"/>
+                                                    </Border>
+                                                    <Border Grid.Row="0" Grid.Column="1" Background="{DynamicResource Container2BackgroundBrush}">
+                                                        <Image Source="{Binding Thumb2}" Stretch="UniformToFill"/>
+                                                    </Border>
+                                                    <Border Grid.Row="1" Grid.Column="0" Background="{DynamicResource Container2BackgroundBrush}">
+                                                        <Image Source="{Binding Thumb3}" Stretch="UniformToFill"/>
+                                                    </Border>
+                                                    <Border Grid.Row="1" Grid.Column="1" Background="{DynamicResource Container2BackgroundBrush}">
+                                                        <Image Source="{Binding Thumb4}" Stretch="UniformToFill"/>
+                                                    </Border>
+                                                </Grid>
+                                                <StackPanel Margin="10,8,10,10" Spacing="1">
+                                                    <TextBlock Text="{Binding Label}" FontSize="12" FontWeight="SemiBold"/>
+                                                    <TextBlock Text="{Binding Count, StringFormat='{}{0} viewed'}" FontSize="10"
+                                                               Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
+                                                </StackPanel>
+                                            </StackPanel>
+                                        </Border>
+                                    </Button>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+
+                    <!-- List overview: one row per day, with a single thumbnail, the date, and its view count -->
+                    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto"
+                                  AllowAutoHide="False">
+                        <ScrollViewer.IsVisible>
+                            <MultiBinding Converter="{x:Static BoolConverters.And}">
+                                <Binding Path="ShowDateGroups"/>
+                                <Binding Path="IsListMode"/>
+                            </MultiBinding>
+                        </ScrollViewer.IsVisible>
+                        <ItemsControl ItemsSource="{Binding DateGroups}" Margin="10">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:HistoryDateGroupViewModel">
+                                    <Button Margin="0,0,0,6" Padding="0" HorizontalContentAlignment="Stretch"
+                                            Background="Transparent" BorderThickness="0" Cursor="Hand"
+                                            Command="{Binding $parent[UserControl].((vm:ViewedHistoryViewModel)DataContext).OpenDateGroupCommand}"
+                                            CommandParameter="{Binding}">
+                                        <Button.Styles>
+                                            <Style Selector="Button:pointerover /template/ ContentPresenter">
+                                                <Setter Property="Background" Value="Transparent"/>
+                                            </Style>
+                                            <Style Selector="Button:pressed /template/ ContentPresenter">
+                                                <Setter Property="Background" Value="Transparent"/>
+                                            </Style>
+                                        </Button.Styles>
+                                        <Border Padding="10,8"
+                                                Background="{DynamicResource Container1BackgroundBrush}"
+                                                BorderBrush="{DynamicResource Container1BorderBrush}"
+                                                BorderThickness="1" CornerRadius="8">
+                                            <Border.Styles>
+                                                <Style Selector="Border:pointerover">
+                                                    <Setter Property="BorderBrush" Value="{DynamicResource ControlBackgroundBrushSolidAccent}"/>
+                                                </Style>
+                                            </Border.Styles>
+                                            <Grid ColumnDefinitions="Auto,*,Auto">
+                                                <Border Grid.Column="0" Width="56" Height="56" CornerRadius="6" ClipToBounds="True"
+                                                        Background="{DynamicResource Container2BackgroundBrush}">
+                                                    <Image Source="{Binding Thumb1}" Stretch="UniformToFill"/>
+                                                </Border>
+                                                <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center" Spacing="2">
+                                                    <TextBlock Text="{Binding FullLabel}" FontSize="13" FontWeight="SemiBold"/>
+                                                    <TextBlock Text="{Binding Count, StringFormat='{}{0} viewed'}" FontSize="11"
+                                                               Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
+                                                </StackPanel>
+                                                <TextBlock Grid.Column="2" Text="›" FontSize="18" VerticalAlignment="Center"
+                                                           Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
+                                            </Grid>
+                                        </Border>
+                                    </Button>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+
+                    <Grid RowDefinitions="Auto,*" IsVisible="{Binding !ShowDateGroups}">
+                        <Button Grid.Row="0" Content="← Back to days"  Padding="10,5" FontSize="11"
+                                Margin="10,10,0,0" HorizontalAlignment="Left"
+                                Command="{Binding BackToGroupsCommand}"
+                                IsVisible="{Binding DrillDownDate, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+                        <ScrollViewer Grid.Row="1" Name="GridScrollViewer"
+                                      HorizontalScrollBarVisibility="Disabled"
+                                      VerticalScrollBarVisibility="Auto"
+                                      AllowAutoHide="False"
+                                      ScrollChanged="OnScrollChanged">
                         <Panel>
-                        <ItemsControl ItemsSource="{Binding Results}" Margin="10,10,4,10"
-                                      IsVisible="{Binding IsGridView}">
+                        <ItemsControl ItemsSource="{Binding DisplayedResults}" Margin="10,10,4,10"
+                                      IsVisible="{Binding ShowResultsGrid}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <gallery:MasonryPanel ColumnWidth="{Binding $parent[UserControl].((vm:ViewedHistoryViewModel)DataContext).CardSize}" ItemSpacing="6"/>
@@ -223,16 +402,16 @@
                                 <DataTemplate x:DataType="vm:ArtworkCardViewModel">
                                     <Border Margin="0,0,6,6"
                                             Width="{Binding $parent[UserControl].((vm:ViewedHistoryViewModel)DataContext).CardSize}"
-                                            Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                                            BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                                            Background="{DynamicResource Container1BackgroundBrush}"
+                                            BorderBrush="{DynamicResource Container1BorderBrush}"
                                             BorderThickness="1" CornerRadius="8"
-                                            BoxShadow="0 1 4 0 #28000000" Cursor="Hand"
+                                            BoxShadow="{DynamicResource CardShadow}" Cursor="Hand"
                                             PointerPressed="OnCardClicked"
                                             ContextMenu="{StaticResource ViewedCardContextMenu}">
                                         <Border.Styles>
                                             <Style Selector="Border:pointerover">
                                                 <Setter Property="BoxShadow" Value="0 6 20 0 #55000000"/>
-                                                <Setter Property="BorderBrush" Value="{actipro:ThemeResource ControlBackgroundBrushSolidAccent}"/>
+                                                <Setter Property="BorderBrush" Value="{DynamicResource ControlBackgroundBrushSolidAccent}"/>
                                             </Style>
                                         </Border.Styles>
                                         <Grid RowDefinitions="*,Auto">
@@ -240,7 +419,7 @@
                                                     Height="{Binding $parent[UserControl].((vm:ViewedHistoryViewModel)DataContext).FixedCardTotalHeight}"
                                                     CornerRadius="7,7,0,0" ClipToBounds="True">
                                                 <Panel>
-                                                    <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
+                                                    <Border Background="{DynamicResource Container2BackgroundBrush}"
                                                             IsVisible="{Binding Thumbnail, Converter={x:Static ObjectConverters.IsNull}}"/>
                                                     <Image Source="{Binding Thumbnail}" Stretch="UniformToFill">
                                                         <Image.Effect>
@@ -264,7 +443,11 @@
                                                 <TextBlock Text="{Binding Title}" FontSize="11" FontWeight="SemiBold"
                                                            TextTrimming="CharacterEllipsis" MaxLines="1"/>
                                                 <TextBlock Text="{Binding UserName}" FontSize="10"
-                                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                                           Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
+                                                           TextTrimming="CharacterEllipsis" MaxLines="1"/>
+                                                <TextBlock Text="{Binding ViewedAtLabel}" FontSize="9"
+                                                           Foreground="{DynamicResource DefaultForegroundBrushDisabled}"
+                                                           IsVisible="{Binding HasViewedAt}"
                                                            TextTrimming="CharacterEllipsis" MaxLines="1"/>
                                                 <ItemsControl ItemsSource="{Binding TopTags}" Margin="0,2,0,0"
                                                               IsVisible="{Binding $parent[UserControl].((vm:ViewedHistoryViewModel)DataContext).ShowTags}">
@@ -273,10 +456,10 @@
                                                     </ItemsControl.ItemsPanel>
                                                     <ItemsControl.ItemTemplate>
                                                         <DataTemplate x:DataType="x:String">
-                                                            <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
+                                                            <Border Background="{DynamicResource Container2BackgroundBrush}"
                                                                     CornerRadius="3" Padding="4,1" Margin="0,2,3,0">
                                                                 <TextBlock Text="{Binding}" FontSize="8"
-                                                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushSecondary}"/>
+                                                                           Foreground="{DynamicResource DefaultForegroundBrushSecondary}"/>
                                                             </Border>
                                                         </DataTemplate>
                                                     </ItemsControl.ItemTemplate>
@@ -289,19 +472,19 @@
                         </ItemsControl>
 
                         <!-- List view -->
-                        <ItemsControl ItemsSource="{Binding Results}" Margin="10"
-                                      IsVisible="{Binding IsListView}">
+                        <ItemsControl ItemsSource="{Binding DisplayedResults}" Margin="10"
+                                      IsVisible="{Binding ShowResultsList}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate x:DataType="vm:ArtworkCardViewModel">
                                     <Border Margin="0,0,0,6" Padding="8"
-                                            Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                                            BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                                            Background="{DynamicResource Container1BackgroundBrush}"
+                                            BorderBrush="{DynamicResource Container1BorderBrush}"
                                             BorderThickness="1" CornerRadius="8" Cursor="Hand"
                                             PointerPressed="OnCardClicked"
                                             ContextMenu="{StaticResource ViewedCardContextMenu}">
                                         <Border.Styles>
                                             <Style Selector="Border:pointerover">
-                                                <Setter Property="BorderBrush" Value="{actipro:ThemeResource ControlBackgroundBrushSolidAccent}"/>
+                                                <Setter Property="BorderBrush" Value="{DynamicResource ControlBackgroundBrushSolidAccent}"/>
                                             </Style>
                                         </Border.Styles>
                                         <Grid ColumnDefinitions="Auto,Auto,*">
@@ -320,7 +503,10 @@
                                                 <TextBlock Text="{Binding Title}" FontSize="12" FontWeight="SemiBold"
                                                            TextTrimming="CharacterEllipsis" MaxLines="1"/>
                                                 <TextBlock Text="{Binding UserName}" FontSize="11"
-                                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                           Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
+                                                <TextBlock Text="{Binding ViewedAtLabel}" FontSize="10"
+                                                           Foreground="{DynamicResource DefaultForegroundBrushDisabled}"
+                                                           IsVisible="{Binding HasViewedAt}"/>
                                                 <ItemsControl ItemsSource="{Binding TopTags}" Margin="0,2,0,0"
                                                               IsVisible="{Binding $parent[UserControl].((vm:ViewedHistoryViewModel)DataContext).ShowTags}">
                                                     <ItemsControl.ItemsPanel>
@@ -328,10 +514,10 @@
                                                     </ItemsControl.ItemsPanel>
                                                     <ItemsControl.ItemTemplate>
                                                         <DataTemplate x:DataType="x:String">
-                                                            <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
+                                                            <Border Background="{DynamicResource Container2BackgroundBrush}"
                                                                     CornerRadius="3" Padding="5,1" Margin="0,2,4,0">
                                                                 <TextBlock Text="{Binding}" FontSize="9"
-                                                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushSecondary}"/>
+                                                                           Foreground="{DynamicResource DefaultForegroundBrushSecondary}"/>
                                                             </Border>
                                                         </DataTemplate>
                                                     </ItemsControl.ItemTemplate>
@@ -343,22 +529,77 @@
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
                         </Panel>
-                    </ScrollViewer>
+                        </ScrollViewer>
+                    </Grid>
                 </Panel>
             </Grid>
         </Border>
 
         <!-- ══ Row 3: Status bar ══ -->
         <Border Grid.Row="3"
-                Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                Background="{DynamicResource Container1BackgroundBrush}"
+                BorderBrush="{DynamicResource Container1BorderBrush}"
                 BorderThickness="0,1,0,0" Padding="14,8">
             <Grid ColumnDefinitions="*,Auto">
                 <TextBlock Grid.Column="0" FontSize="11"
-                           Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                           Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                            Text="{Binding StatusMessage}" VerticalAlignment="Center"/>
-                <Button Grid.Column="1" Content="Load More" CornerRadius="6" Padding="12,5" FontSize="11"
-                        Command="{Binding LoadMoreCommand}" IsVisible="{Binding CanLoadMore}"/>
+
+                <!-- Single switch: checked = paged (Prev/Next), unchecked = autoload while
+                     scrolling — mirrors Rankings'/Pixivision's identical "Pages" toggle. Default
+                     (flat) mode only; Grouped/List already show one date at a time. -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center"
+                            IsVisible="{Binding IsDefaultMode}">
+                    <ToggleButton IsChecked="{Binding UsePagination, Mode=TwoWay}"
+                                    FontSize="11"
+                                  ToolTip.Tip="Toggle pagination (off = autoload while scrolling)">
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                            <TextBlock Text="📄" FontSize="12" VerticalAlignment="Center"/>
+                            <TextBlock Text="Pages" FontSize="11" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </ToggleButton>
+
+                    <ComboBox IsVisible="{Binding UsePagination}"
+                              SelectedItem="{Binding ItemsPerPage, Mode=TwoWay}"
+                              ItemsSource="{Binding ItemsPerPageOptions}"
+                              CornerRadius="6" MinWidth="75" FontSize="11"
+                              ToolTip.Tip="Items per page"/>
+
+                    <StackPanel IsVisible="{Binding UsePagination}" Orientation="Horizontal" Spacing="6">
+                        <Button Content="‹ Prev"  Padding="10,5" FontSize="11"
+                                Command="{Binding PreviousPageCommand}" IsEnabled="{Binding CanGoPrevious}"/>
+                        <TextBlock Text="{Binding CurrentPage, StringFormat='Page {0} of'}" FontSize="11"
+                                   VerticalAlignment="Center" Margin="4,0"/>
+                        <TextBlock Text="{Binding TotalPages}" FontSize="11" VerticalAlignment="Center"/>
+                        <TextBox Text="{Binding PageInput}" PlaceholderText="#"
+                                 Width="44" BorderThickness="1" CornerRadius="6"
+                                 Padding="6,4" FontSize="11" Margin="6,0,0,0"
+                                 VerticalContentAlignment="Center"
+                                 KeyDown="OnHistoryPageInputKeyDown"
+                                 ToolTip.Tip="Type a page number and press Enter"/>
+                        <Button Content="Next ›"  Padding="10,5" FontSize="11"
+                                Command="{Binding NextPageCommand}" IsEnabled="{Binding CanGoNext}"/>
+                    </StackPanel>
+
+                    <Button Content="Load More"   FontSize="11"
+                            Command="{Binding LoadMoreCommand}">
+                        <Button.IsVisible>
+                            <MultiBinding Converter="{x:Static BoolConverters.And}">
+                                <Binding Path="!UsePagination"/>
+                                <Binding Path="CanLoadMore"/>
+                            </MultiBinding>
+                        </Button.IsVisible>
+                    </Button>
+                </StackPanel>
+                <Button Grid.Column="1" Content="Load More"   FontSize="11"
+                        Command="{Binding LoadMoreCommand}">
+                    <Button.IsVisible>
+                        <MultiBinding Converter="{x:Static BoolConverters.And}">
+                            <Binding Path="!IsDefaultMode"/>
+                            <Binding Path="CanLoadMore"/>
+                        </MultiBinding>
+                    </Button.IsVisible>
+                </Button>
             </Grid>
         </Border>
 

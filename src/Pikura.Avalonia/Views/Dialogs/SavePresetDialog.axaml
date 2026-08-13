@@ -27,13 +27,8 @@
             </StackPanel>
 
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8" Margin="0,8,0,0">
-                <Button Content="Cancel"
-                        Click="CancelButton_Click"
-                        CornerRadius="6" Padding="12,8"/>
-                <Button Content="Save"
-                        Click="SaveButton_Click"
-                        Classes="accent"
-                        CornerRadius="6" Padding="12,8"/>
+                <Button Content="Cancel" Click="CancelButton_Click"/>
+                <Button Content="Save" Click="SaveButton_Click" Classes="accent"/>
             </StackPanel>
         </StackPanel>
     </Border>

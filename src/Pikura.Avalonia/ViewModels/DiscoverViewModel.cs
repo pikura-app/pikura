@@ -93,6 +93,61 @@ public partial class DiscoverViewModel : ViewModelBase
         OnPropertyChanged(nameof(ShowNoWorksPlaceholder));
     }
 
+    /// <summary>
+    /// Pushes an updated Liked/Bookmarked/Local-favorite flag onto every currently-loaded card
+    /// with a matching artwork ID (in both RecommendedWorks and ArtistWorks — FilteredWorks/
+    /// FilteredArtistWorks share the same card instances, so they pick up the change too).
+    /// Called by the artwork viewer right after a Like/Bookmark/Favorite action succeeds.
+    /// </summary>
+    /// <summary>
+    /// Re-checks Liked/Bookmarked/Local-favorite status for every currently-loaded card (see
+    /// GalleryViewModel.RefreshLikedBookmarkedFavoriteFlags for the full rationale — the live
+    /// push in SyncArtworkFlags only reaches a card that's already loaded at the moment the
+    /// action happens). Call this whenever navigating back to Discover.
+    /// </summary>
+    public void RefreshLikedBookmarkedFavoriteFlags()
+    {
+        Pikura.Core.Settings.SettingsService settings;
+        Pikura.Core.Services.LocalFavoritesService favorites;
+        BookmarksViewModel? bookmarksVm = null;
+        try { settings = AppServices.Get<Pikura.Core.Settings.SettingsService>(); } catch { return; }
+        try { favorites = AppServices.Get<Pikura.Core.Services.LocalFavoritesService>(); } catch { return; }
+        try { bookmarksVm = AppServices.Get<BookmarksViewModel>(); } catch { /* not initialized yet */ }
+
+        foreach (var c in RecommendedWorks.Concat(ArtistWorks))
+        {
+            if (string.IsNullOrEmpty(c.Id)) continue;
+            c.IsLiked = settings.Current.PixivLikedArtworkIds.Contains(c.Id);
+            c.IsLocalFavorite = favorites.IsFavorite(c.Id);
+            if (bookmarksVm != null)
+            {
+                c.IsPixivBookmarked = bookmarksVm.IsKnownBookmarked(c.Id, out var isPrivate);
+                c.IsPixivPrivateBookmark = isPrivate;
+            }
+        }
+    }
+
+    public void SyncArtworkFlags(
+        string? id,
+        bool? isLiked = null,
+        bool? isPixivBookmarked = null,
+        bool? isPixivPrivateBookmark = null,
+        string? pixivBookmarkId = null,
+        bool bookmarkIdProvided = false,
+        bool? isLocalFavorite = null)
+    {
+        if (string.IsNullOrEmpty(id)) return;
+        foreach (var c in RecommendedWorks.Concat(ArtistWorks))
+        {
+            if (c.Id != id) continue;
+            if (isLiked.HasValue) c.IsLiked = isLiked.Value;
+            if (isPixivBookmarked.HasValue) c.IsPixivBookmarked = isPixivBookmarked.Value;
+            if (isPixivPrivateBookmark.HasValue) c.IsPixivPrivateBookmark = isPixivPrivateBookmark.Value;
+            if (bookmarkIdProvided) c.PixivBookmarkId = pixivBookmarkId;
+            if (isLocalFavorite.HasValue) c.IsLocalFavorite = isLocalFavorite.Value;
+        }
+    }
+
     // ── Users ────────────────────────────────────────────────────────────────
 
     [ObservableProperty] public ObservableCollection<DiscoveryUserCardViewModel> _recommendedUsers = new();
@@ -128,6 +183,7 @@ public partial class DiscoverViewModel : ViewModelBase
     [ObservableProperty] private bool _isListView;
     [ObservableProperty] private bool _showTags = true;
     [ObservableProperty] private bool _showInfo = true;
+    [ObservableProperty] private bool _showBadges = true;
     [ObservableProperty] private bool _showPreview;
     [ObservableProperty] private bool _showR18 = true;
     [ObservableProperty] private double _browsePanelWidth = 390;
@@ -167,7 +223,37 @@ public partial class DiscoverViewModel : ViewModelBase
     // ── Selection & Download ───────────────────────────────────────────────
 
     public void NotifySelectionChanged()
-        => SelectedCount = RecommendedWorks.Count(c => c.IsSelected) + ArtistWorks.Count(c => c.IsSelected);
+    {
+        SelectedCount = RecommendedWorks.Count(c => c.IsSelected) + ArtistWorks.Count(c => c.IsSelected);
+        OnPropertyChanged(nameof(CanViewSelectedAsCollage));
+        ViewSelectedAsCollageCommand.NotifyCanExecuteChanged();
+        OnPropertyChanged(nameof(CanViewSelectedInNewTabs));
+        ViewSelectedInNewTabsCommand.NotifyCanExecuteChanged();
+    }
+
+    public bool CanViewSelectedAsCollage => GalleryVm.CanCollage(SelectedCount);
+
+    [RelayCommand(CanExecute = nameof(CanViewSelectedAsCollage))]
+    private void ViewSelectedAsCollage()
+    {
+        var works = IsWorksTab ? RecommendedWorks : ArtistWorks;
+        var selected = works.Where(c => c.IsSelected).ToList();
+        if (selected.Count == 0) return;
+        GalleryVm.AddSelectedToCollage(selected);
+    }
+
+    public bool CanViewSelectedInNewTabs => SelectedCount >= 1;
+
+    [RelayCommand(CanExecute = nameof(CanViewSelectedInNewTabs))]
+    private void ViewSelectedInNewTabs()
+    {
+        var works = IsWorksTab ? RecommendedWorks : ArtistWorks;
+        var selected = works.Where(c => c.IsSelected).ToList();
+        if (selected.Count == 0) return;
+        foreach (var card in selected)
+            GalleryVm.OpenInNewTab(card, selected, selected.Count, source: "Discover");
+        ShowPreview = true;
+    }
 
     [RelayCommand]
     public void SelectAll()
@@ -265,6 +351,7 @@ public partial class DiscoverViewModel : ViewModelBase
     partial void OnIsGridViewChanged(bool value)    => _settingsService?.Update(s => s.DiscoverViewMode = value ? "Grid" : "List");
     partial void OnShowTagsChanged(bool value)      => _settingsService?.Update(s => s.DiscoverShowTags = value);
     partial void OnShowInfoChanged(bool value)      => _settingsService?.Update(s => s.DiscoverShowInfo = value);
+    partial void OnShowBadgesChanged(bool value)    => _settingsService?.Update(s => s.ShowBadges = value);
     partial void OnShowPreviewChanged(bool value)   { _settingsService?.Update(s => s.DiscoverShowPreview = value); }
     partial void OnShowR18Changed(bool value)       { _settingsService?.Update(s => s.DiscoverShowR18 = value); UpdateFilteredWorks(); }
 
@@ -287,6 +374,14 @@ public partial class DiscoverViewModel : ViewModelBase
                 OnPropertyChanged(nameof(IsDiscoverViewerOpen));
                 if (!GalleryVm.HasTabs) IsViewerExpanded = false;
             }
+            if (e.PropertyName is nameof(GalleryViewModel.IsCollageMode)
+                               or nameof(GalleryViewModel.HasStoredCollage)
+                               or nameof(GalleryViewModel.CollageItems)
+                               or nameof(GalleryViewModel.CanViewSelectedAsCollage))
+            {
+                OnPropertyChanged(nameof(CanViewSelectedAsCollage));
+                ViewSelectedAsCollageCommand.NotifyCanExecuteChanged();
+            }
         };
         GalleryVm.ViewerTabs.CollectionChanged += (_, _) =>
         {
@@ -307,6 +402,7 @@ public partial class DiscoverViewModel : ViewModelBase
         };
         _showTags         = s.DiscoverShowTags;
         _showInfo         = s.DiscoverShowInfo;
+        _showBadges       = s.ShowBadges;
         _showPreview      = s.DiscoverShowPreview;
         _showR18          = s.DiscoverShowR18;
         _browsePanelWidth = s.BrowsePanelWidth >= 200 ? s.BrowsePanelWidth : 390;

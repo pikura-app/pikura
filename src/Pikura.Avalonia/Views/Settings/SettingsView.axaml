@@ -34,9 +34,9 @@
                               Foreground="Orange"/>
                     <TextBlock Text="Some changes require a restart to take effect." FontSize="12" VerticalAlignment="Center"/>
                 </StackPanel>
-                <Button Content="Restart Now" CornerRadius="5" Padding="8,4" FontSize="11"
+                <Button Content="Restart Now"   FontSize="11"
                         Classes="accent" Command="{Binding RestartApplicationCommand}"/>
-                <Button Content="Dismiss" CornerRadius="5" Padding="8,4" FontSize="11"
+                <Button Content="Dismiss"   FontSize="11"
                         Command="{Binding DismissRestartNotificationCommand}"/>
             </StackPanel>
         </Border>
@@ -50,34 +50,60 @@
                               HorizontalScrollBarVisibility="Disabled"
                               VerticalAlignment="Stretch">
                     <StackPanel Spacing="24" Margin="24" VerticalAlignment="Top">
-                        <Border Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                        <Border Background="{DynamicResource Container1BackgroundBrush}"
+                                BorderBrush="{DynamicResource Container1BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="28">
                             <StackPanel Spacing="20">
                                 <TextBlock Text="Theme" FontWeight="SemiBold" FontSize="14"/>
-                                <StackPanel Orientation="Horizontal" Spacing="16">
-                                    <Button CornerRadius="6" Padding="16,8" FontSize="13"
-                                            Command="{Binding SetThemeCommand}" CommandParameter="Dark"
-                                            Classes.accent="{Binding !IsLightTheme}">
-                                        <StackPanel Orientation="Horizontal" Spacing="6">
-                                            <PathIcon Data="{StaticResource MoonIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
-                                            <TextBlock Text="Dark" VerticalAlignment="Center"/>
-                                        </StackPanel>
-                                    </Button>
-                                    <Button CornerRadius="6" Padding="16,8" FontSize="13"
+                                <StackPanel Orientation="Horizontal" Spacing="12">
+                                    <Button FontSize="13"
                                             Command="{Binding SetThemeCommand}" CommandParameter="Light"
-                                            Classes.accent="{Binding IsLightTheme}">
+                                            Classes.accent="{Binding IsThemeLight}">
                                         <StackPanel Orientation="Horizontal" Spacing="6">
-                                            <PathIcon Data="{StaticResource SunIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                                            <PathIcon Data="{StaticResource SunIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                                             <TextBlock Text="Light" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </Button>
+                                    <Button FontSize="13"
+                                            Command="{Binding SetThemeCommand}" CommandParameter="Dark"
+                                            Classes.accent="{Binding IsThemeDark}">
+                                        <StackPanel Orientation="Horizontal" Spacing="6">
+                                            <PathIcon Data="{StaticResource MoonIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
+                                            <TextBlock Text="Dark" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <Button FontSize="13"
+                                            Command="{Binding SetThemeCommand}" CommandParameter="System"
+                                            Classes.accent="{Binding IsThemeSystem}">
+                                        <StackPanel Orientation="Horizontal" Spacing="6">
+                                            <PathIcon Data="{StaticResource MonitorIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
+                                            <TextBlock Text="System" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <Button FontSize="13"
+                                            Command="{Binding SetThemeCommand}" CommandParameter="Scheduled"
+                                            Classes.accent="{Binding IsThemeScheduled}">
+                                        <StackPanel Orientation="Horizontal" Spacing="6">
+                                            <PathIcon Data="{StaticResource ClockIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
+                                            <TextBlock Text="Scheduled" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Button>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Spacing="16" IsVisible="{Binding IsThemeScheduled}">
+                                    <StackPanel Spacing="4">
+                                        <TextBlock Text="Dark from" FontSize="11" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
+                                        <TimePicker SelectedTime="{Binding ThemeScheduleDarkStart, Mode=TwoWay}" ClockIdentifier="12HourClock"/>
+                                    </StackPanel>
+                                    <StackPanel Spacing="4">
+                                        <TextBlock Text="Dark until" FontSize="11" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
+                                        <TimePicker SelectedTime="{Binding ThemeScheduleDarkEnd, Mode=TwoWay}" ClockIdentifier="12HourClock"/>
+                                    </StackPanel>
                                 </StackPanel>
                             </StackPanel>
                         </Border>
 
-                        <Border Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                        <Border Background="{DynamicResource Container1BackgroundBrush}"
+                                BorderBrush="{DynamicResource Container1BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="28">
                             <StackPanel Spacing="20">
                                 <TextBlock Text="Accessibility" FontWeight="SemiBold" FontSize="14"/>
@@ -93,7 +119,7 @@
                                 </WrapPanel>
                                 <StackPanel Spacing="8" Margin="0,8,0,0">
                                     <TextBlock Text="Font Size Scale" FontSize="13"
-                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                               Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                     <Grid ColumnDefinitions="*,Auto">
                                         <Slider Grid.Column="0" Value="{Binding FontSizeScale, Mode=TwoWay}"
                                                Minimum="0.5" Maximum="2.0" TickFrequency="0.1" IsSnapToTickEnabled="True"
@@ -106,8 +132,8 @@
                         </Border>
 
                         <!-- Background Artwork Overlay -->
-                        <Border Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                        <Border Background="{DynamicResource Container1BackgroundBrush}"
+                                BorderBrush="{DynamicResource Container1BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="28">
                             <StackPanel Spacing="20">
                                 <TextBlock Text="Background Artwork Overlay" FontWeight="SemiBold" FontSize="14"/>
@@ -118,15 +144,15 @@
                                 <StackPanel Spacing="16" IsVisible="{Binding OverlayService.IsEnabled}">
                                     <TextBlock Text="Selected images (up to 5)"
                                                FontSize="13" FontWeight="SemiBold"
-                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                               Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                     <ItemsControl ItemsSource="{Binding OverlayService.ImageItems}"
                                                   Padding="0,8,10,0">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate x:DataType="svc:OverlayImageItem">
                                                 <Grid Margin="0,3">
                                                     <!-- Thumbnail card -->
-                                                    <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                                                            BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                                                    <Border Background="{DynamicResource Container2BackgroundBrush}"
+                                                            BorderBrush="{DynamicResource Container2BorderBrush}"
                                                             BorderThickness="1" CornerRadius="6"
                                                             Padding="6" Height="72">
                                                         <Grid ColumnDefinitions="80,*,Auto">
@@ -150,11 +176,11 @@
                                                                            TextTrimming="CharacterEllipsis" MaxLines="2"
                                                                            TextWrapping="Wrap"
                                                                            TextDecorations="Underline"
-                                                                           Foreground="{actipro:ThemeResource ControlForegroundBrushOutlineAccent}"/>
+                                                                           Foreground="{DynamicResource ControlForegroundBrushOutlineAccent}"/>
                                                             </Button>
                                                             <!-- Edit button -->
                                                             <Button Grid.Column="2" Content="Edit" FontSize="11"
-                                                                    Padding="10,4" CornerRadius="4"
+                                                                    Padding="10,4" 
                                                                     VerticalAlignment="Center" Margin="6,0"
                                                                     Tag="{Binding Path}"
                                                                     Click="OnEditOverlayImageClick"/>
@@ -163,10 +189,10 @@
                                                     <!-- X remove button outside top-right of card -->
                                                     <Button FontSize="10"
                                                             Width="22" Height="22" Padding="0"
-                                                            CornerRadius="11"
-                                                            Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                                                            Foreground="{actipro:ThemeResource DefaultForegroundBrush}"
-                                                            BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                                                            
+                                                            Background="{DynamicResource Container2BackgroundBrush}"
+                                                            Foreground="{DynamicResource DefaultForegroundBrush}"
+                                                            BorderBrush="{DynamicResource Container1BorderBrush}"
                                                             BorderThickness="1"
                                                             HorizontalAlignment="Right" VerticalAlignment="Top"
                                                             Margin="0,-8,-8,0"
@@ -181,15 +207,15 @@
                                         </ItemsControl.ItemTemplate>
                                     </ItemsControl>
                                     <Button Content="Clear all" FontSize="12" HorizontalAlignment="Left"
-                                            Padding="10,4" CornerRadius="5"
+                                            Padding="10,4" 
                                             Click="OnClearAllOverlayImagesClick"/>
 
                                     <TextBlock Text="Image adjustments"
                                                FontSize="13" FontWeight="SemiBold" Margin="0,8,0,0"
-                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                               Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                     <TextBlock Text="Use the Edit button on each image for per-image opacity, lighten, darken, zoom, and positioning. Enable global overrides below to apply the same values to all images."
                                                FontSize="11" TextWrapping="Wrap"
-                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                               Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                     <CheckBox Content="Use global overrides (apply to all images)"
                                               IsChecked="{Binding OverlayService.UseGlobalOverrides, Mode=TwoWay}"
                                               FontSize="12" Margin="0,4,0,0"/>
@@ -226,7 +252,7 @@
 
                                     <TextBlock Text="Cycling"
                                                FontSize="13" FontWeight="SemiBold" Margin="0,8,0,0"
-                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                               Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                     <Grid ColumnDefinitions="*,Auto">
                                         <ComboBox Grid.Column="0" ItemsSource="{Binding OverlayService.CycleModeOptions}"
                                                   SelectedIndex="{Binding OverlayService.SelectedCycleModeIndex, Mode=TwoWay}"
@@ -251,8 +277,8 @@
                     <StackPanel Spacing="16" Margin="24,24,24,48" VerticalAlignment="Top">
 
                         <!-- Download Folder -->
-                        <Border Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                        <Border Background="{DynamicResource Container1BackgroundBrush}"
+                                BorderBrush="{DynamicResource Container1BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="28">
                             <StackPanel Spacing="20">
                                 <TextBlock Text="Download Folder" FontWeight="SemiBold" FontSize="14"/>
@@ -261,14 +287,14 @@
                                              CornerRadius="6" FontSize="13" Margin="0,0,10,0"/>
                                     <Button Grid.Column="1" Content="Browse&#x2026;"
                                             Command="{Binding ChangeDownloadFolderCommand}"
-                                            CornerRadius="6" FontSize="13" Padding="16,8"/>
+                                             FontSize="13" />
                                 </Grid>
                             </StackPanel>
                         </Border>
 
                         <!-- Naming Templates -->
-                        <Border Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                        <Border Background="{DynamicResource Container1BackgroundBrush}"
+                                BorderBrush="{DynamicResource Container1BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="28">
                             <StackPanel Spacing="24">
                                 <TextBlock Text="Naming Templates" FontWeight="SemiBold" FontSize="14"/>
@@ -277,7 +303,7 @@
 
                                     <!-- Folder template -->
                                     <TextBlock Grid.Row="0" Grid.Column="0" Text="Folder template"
-                                               FontSize="13" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}" Margin="0,0,0,5"/>
+                                               FontSize="13" Foreground="{DynamicResource DefaultForegroundBrushTertiary}" Margin="0,0,0,5"/>
                                     <Grid Grid.Row="1" Grid.Column="0" ColumnDefinitions="*,Auto">
                                         <TextBox Grid.Column="0" Text="{Binding FolderTemplate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                  CornerRadius="6" FontSize="13" Margin="0,0,8,0" PlaceholderText="%artist% (%member_id%)"/>
@@ -293,12 +319,12 @@
                                                 VerticalAlignment="Center">
                                         <PathIcon Data="{StaticResource FolderIcon}" Width="12" Height="12" VerticalAlignment="Center"/>
                                         <TextBlock FontSize="12" FontWeight="SemiBold" Text="{Binding FolderPreview}"
-                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                     </StackPanel>
 
                                     <!-- Filename template -->
                                     <TextBlock Grid.Row="0" Grid.Column="2" Text="Filename template"
-                                               FontSize="13" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}" Margin="0,0,0,5"/>
+                                               FontSize="13" Foreground="{DynamicResource DefaultForegroundBrushTertiary}" Margin="0,0,0,5"/>
                                     <Grid Grid.Row="1" Grid.Column="2" ColumnDefinitions="*,Auto">
                                         <TextBox Grid.Column="0" Text="{Binding FilenameTemplate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                  CornerRadius="6" FontSize="13" Margin="0,0,8,0" PlaceholderText="%image_id% - %title%"/>
@@ -326,15 +352,15 @@
                                                 VerticalAlignment="Center">
                                         <PathIcon Data="{StaticResource DocumentIcon}" Width="12" Height="12" VerticalAlignment="Center"/>
                                         <TextBlock FontSize="12" FontWeight="SemiBold" Text="{Binding FilenamePreview}"
-                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                     </StackPanel>
 
                                     <Separator Grid.Row="3" Grid.ColumnSpan="3" Margin="0,10"
-                                               Background="{actipro:ThemeResource Container1BorderBrush}"/>
+                                               Background="{DynamicResource Container1BorderBrush}"/>
 
                                     <!-- Manga / Info templates -->
                                     <TextBlock Grid.Row="4" Grid.Column="0" Text="Manga filename (multi-page)"
-                                               FontSize="13" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}" Margin="0,0,0,5"/>
+                                               FontSize="13" Foreground="{DynamicResource DefaultForegroundBrushTertiary}" Margin="0,0,0,5"/>
                                     <Grid Grid.Row="5" Grid.Column="0" ColumnDefinitions="*,Auto">
                                         <TextBox Grid.Column="0" Text="{Binding FilenameMangaFormat, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                  CornerRadius="6" FontSize="13" Margin="0,0,8,0" PlaceholderText="%artist%\%image_id%\p%page_number%"/>
@@ -359,11 +385,11 @@
                                                 VerticalAlignment="Center">
                                         <PathIcon Data="{StaticResource DocumentIcon}" Width="12" Height="12" VerticalAlignment="Center"/>
                                         <TextBlock FontSize="12" FontWeight="SemiBold" Text="{Binding MangaFilenamePreview}"
-                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                     </StackPanel>
 
                                     <TextBlock Grid.Row="4" Grid.Column="2" Text="Info text filename"
-                                               FontSize="13" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}" Margin="0,0,0,5"/>
+                                               FontSize="13" Foreground="{DynamicResource DefaultForegroundBrushTertiary}" Margin="0,0,0,5"/>
                                     <Grid Grid.Row="5" Grid.Column="2" ColumnDefinitions="*,Auto">
                                         <TextBox Grid.Column="0" Text="{Binding FilenameInfoFormat, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                  CornerRadius="6" FontSize="13" Margin="0,0,8,0" PlaceholderText="%artist%\%image_id%.txt"/>
@@ -385,23 +411,23 @@
                                                 VerticalAlignment="Center">
                                         <PathIcon Data="{StaticResource DocumentIcon}" Width="12" Height="12" VerticalAlignment="Center"/>
                                         <TextBlock FontSize="12" FontWeight="SemiBold" Text="{Binding InfoFilenamePreview}"
-                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                     </StackPanel>
 
                                     <Separator Grid.Row="7" Grid.ColumnSpan="3" Margin="0,10"
-                                               Background="{actipro:ThemeResource Container1BorderBrush}"/>
+                                               Background="{DynamicResource Container1BorderBrush}"/>
 
                                     <!-- Tags separator + Date format -->
                                     <StackPanel Grid.Row="8" Grid.Column="0" Orientation="Horizontal" Spacing="20">
                                         <StackPanel Spacing="5">
                                             <TextBlock Text="Tags separator" FontSize="13"
-                                                       Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                       Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                             <TextBox Text="{Binding TagsSeparator, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                      CornerRadius="6" FontSize="13" Width="80"/>
                                         </StackPanel>
                                         <StackPanel Spacing="5">
                                             <TextBlock Text="Date format" FontSize="13"
-                                                       Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                       Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                             <TextBox Text="{Binding DateFormat, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                      CornerRadius="6" FontSize="13" Width="160" PlaceholderText="yyyy-MM-dd"/>
                                         </StackPanel>
@@ -419,8 +445,8 @@
                         </Border>
 
                         <!-- FFmpeg & Ugoira (Animated) Settings -->
-                        <Border Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                        <Border Background="{DynamicResource Container1BackgroundBrush}"
+                                BorderBrush="{DynamicResource Container1BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="28" Margin="0,0,0,8">
                             <StackPanel Spacing="20">
                                 <TextBlock Text="FFmpeg &amp; Animated (Ugoira)" FontWeight="SemiBold" FontSize="14"/>
@@ -432,23 +458,23 @@
                                             <Run Text="Status: " FontWeight="SemiBold"/>
                                             <Run Text="{Binding FfmpegStatusText}"/>
                                         </TextBlock>
-                                        <TextBlock FontSize="11" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                        <TextBlock FontSize="11" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                                    Text="{Binding FfmpegVersionText}"/>
                                     </StackPanel>
                                     <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Spacing="8">
                                         <Button Content="Install FFmpeg" Command="{Binding InstallFfmpegCommand}"
                                                 IsVisible="{Binding !IsFfmpegInstalled}"
-                                                CornerRadius="6" FontSize="12" Padding="12,6"/>
+                                                 FontSize="12" />
                                         <Button Content="Check Again" Command="{Binding CheckFfmpegCommand}"
-                                                CornerRadius="6" FontSize="12" Padding="12,6"/>
+                                                 FontSize="12" />
                                     </StackPanel>
                                 </Grid>
 
-                                <Separator Background="{actipro:ThemeResource Container1BorderBrush}"/>
+                                <Separator Background="{DynamicResource Container1BorderBrush}"/>
 
                                 <!-- Ugoira format toggles -->
                                 <TextBlock Text="When downloading ugoira (animated illustrations), also create:"
-                                           FontSize="12" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                           FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                 <WrapPanel>
                                     <CheckBox Content="MP4 (H.264) — Recommended" IsChecked="{Binding CreateUgoiraMp4, Mode=TwoWay}"
                                               FontSize="13" Margin="0,0,24,8"/>
@@ -464,7 +490,7 @@
                                 <CheckBox Content="Keep original frame ZIP after conversion"
                                           IsChecked="{Binding KeepUgoiraZip, Mode=TwoWay}"
                                           FontSize="13" Margin="0,4,0,0"/>
-                                <Separator Background="{actipro:ThemeResource Container1BorderBrush}" Margin="0,8"/>
+                                <Separator Background="{DynamicResource Container1BorderBrush}" Margin="0,8"/>
                                 <CheckBox Content="Save individual frames as PNG images"
                                           IsChecked="{Binding SaveUgoiraFrames, Mode=TwoWay}"
                                           FontSize="13" Margin="0,4,0,0"/>
@@ -476,8 +502,8 @@
                         </Border>
 
                         <!-- Per-Account Download Settings (only when multiple accounts) -->
-                        <Border Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                        <Border Background="{DynamicResource Container1BackgroundBrush}"
+                                BorderBrush="{DynamicResource Container1BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="24"
                                 Margin="0,0,0,8"
                                 IsVisible="{Binding HasMultipleAccounts}">
@@ -487,7 +513,7 @@
                                     <StackPanel Grid.Column="0" Spacing="2">
                                         <TextBlock Text="Per-Account Download Settings" FontWeight="SemiBold" FontSize="14"/>
                                         <TextBlock FontSize="11"
-                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}">
+                                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}">
                                             <Run Text="Overrides for "/>
                                             <Run Text="{Binding ActiveProfileLabel}" FontWeight="SemiBold"/>
                                             <Run Text=" — leave blank to use global settings"/>
@@ -498,7 +524,7 @@
                                                  VerticalAlignment="Center"/>
                                 </Grid>
 
-                                <Separator Background="{actipro:ThemeResource Container1BorderBrush}"/>
+                                <Separator Background="{DynamicResource Container1BorderBrush}"/>
 
                                 <StackPanel Spacing="14" IsEnabled="{Binding UseAccountSettings}">
 
@@ -511,7 +537,7 @@
                                                      FontSize="12" CornerRadius="6"/>
                                             <Button Grid.Column="1" Content="Browse"
                                                     Command="{Binding BrowseAcctDownloadRootCommand}"
-                                                    CornerRadius="6" FontSize="12" Padding="10,6"/>
+                                                     FontSize="12" Padding="10,6"/>
                                         </Grid>
                                     </StackPanel>
 
@@ -555,15 +581,15 @@
 
                                 <Button Content="Save Account Settings"
                                         Command="{Binding SaveAccountSettingsCommand}"
-                                        Classes="accent" CornerRadius="6" Padding="14,7"
+                                        Classes="accent"  
                                         HorizontalAlignment="Right"/>
 
                             </StackPanel>
                         </Border>
 
                         <!-- Metadata Export -->
-                        <Border Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                        <Border Background="{DynamicResource Container1BackgroundBrush}"
+                                BorderBrush="{DynamicResource Container1BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="28">
                             <StackPanel Spacing="20">
                                 <TextBlock Text="Metadata Export" FontWeight="SemiBold" FontSize="14"/>
@@ -602,22 +628,22 @@
                     <StackPanel Spacing="16" Margin="24,24,24,48" VerticalAlignment="Top">
 
                         <!-- Enable Image Processing -->
-                        <Border Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                        <Border Background="{DynamicResource Container1BackgroundBrush}"
+                                BorderBrush="{DynamicResource Container1BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="28">
                             <StackPanel Spacing="16">
                                 <CheckBox Content="Enable automatic image processing on downloads"
                                           IsChecked="{Binding EnableImageProcessing, Mode=TwoWay}"
                                           FontSize="14" FontWeight="SemiBold"/>
                                 <TextBlock FontSize="11"
-                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                           Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                            Text="When enabled, all downloaded images will be processed according to the active preset below."/>
                             </StackPanel>
                         </Border>
 
                         <!-- Active Resize Preset -->
-                        <Border Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                        <Border Background="{DynamicResource Container1BackgroundBrush}"
+                                BorderBrush="{DynamicResource Container1BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="28">
                             <StackPanel Spacing="20">
                                 <TextBlock Text="Active Resize Preset" FontWeight="SemiBold" FontSize="14"/>
@@ -647,7 +673,7 @@
                                                        Minimum="100" Maximum="7680"
                                                        FontSize="13" CornerRadius="6"/>
                                         <TextBlock Grid.Column="2" Text="px" VerticalAlignment="Center" FontSize="12"
-                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                     </Grid>
                                     <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
                                         <TextBlock Grid.Column="0" Text="Height:" VerticalAlignment="Center" FontSize="13"/>
@@ -656,7 +682,7 @@
                                                        Minimum="100" Maximum="4320"
                                                        FontSize="13" CornerRadius="6"/>
                                         <TextBlock Grid.Column="2" Text="px" VerticalAlignment="Center" FontSize="12"
-                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                     </Grid>
                                     <CheckBox Content="Maintain aspect ratio"
                                               IsChecked="{Binding ResizeMaintainAspect, Mode=TwoWay}"
@@ -664,7 +690,7 @@
                                 </StackPanel>
 
                                 <Separator Margin="0,8"
-                                           Background="{actipro:ThemeResource Container1BorderBrush}"/>
+                                           Background="{DynamicResource Container1BorderBrush}"/>
 
                                 <!-- Resize Mode -->
                                 <StackPanel Spacing="8">
@@ -682,8 +708,8 @@
                         </Border>
 
                         <!-- Output Format -->
-                        <Border Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                        <Border Background="{DynamicResource Container1BackgroundBrush}"
+                                BorderBrush="{DynamicResource Container1BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="28">
                             <StackPanel Spacing="20">
                                 <TextBlock Text="Output Format" FontWeight="SemiBold" FontSize="14"/>
@@ -714,8 +740,8 @@
                         </Border>
 
                         <!-- Custom Output Folder -->
-                        <Border Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                        <Border Background="{DynamicResource Container1BackgroundBrush}"
+                                BorderBrush="{DynamicResource Container1BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="28">
                             <StackPanel Spacing="16">
                                 <TextBlock Text="Custom Output Folder" FontWeight="SemiBold" FontSize="14"/>
@@ -732,33 +758,33 @@
                                     <Button Grid.Column="1"
                                             Content="Browse..."
                                             Command="{Binding BrowseProcessingFolderCommand}"
-                                            CornerRadius="6" FontSize="13" Padding="14,6"/>
+                                             FontSize="13" />
                                 </Grid>
                                 <TextBlock FontSize="11"
-                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                           Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                            Text="If not set, processed images will be saved alongside the originals."
                                            IsVisible="{Binding !UseCustomProcessingFolder}"/>
                             </StackPanel>
                         </Border>
 
                         <!-- Saved Custom Presets -->
-                        <Border Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                        <Border Background="{DynamicResource Container1BackgroundBrush}"
+                                BorderBrush="{DynamicResource Container1BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="28">
                             <StackPanel Spacing="16">
                                 <Grid ColumnDefinitions="*,Auto">
                                     <TextBlock Text="Custom Presets" FontWeight="SemiBold" FontSize="14"/>
                                     <Button Grid.Column="1"
                                             Command="{Binding OpenImageEditorCommand}"
-                                            CornerRadius="6" FontSize="12" Padding="12,6">
+                                             FontSize="12" >
                                         <StackPanel Orientation="Horizontal" Spacing="6">
-                                            <PathIcon Data="{StaticResource EditIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                                            <PathIcon Data="{StaticResource EditIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                                             <TextBlock Text="Open Image Editor" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </Button>
                                 </Grid>
                                 <TextBlock FontSize="11"
-                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                           Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                            Text="Create and save custom presets with advanced adjustments. Click the button above to open the image editor."/>
                             </StackPanel>
                         </Border>
@@ -774,12 +800,12 @@
                               VerticalAlignment="Stretch">
                     <StackPanel Spacing="24" Margin="24" VerticalAlignment="Top">
 
-                        <Border Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                        <Border Background="{DynamicResource Container1BackgroundBrush}"
+                                BorderBrush="{DynamicResource Container1BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="24">
                             <StackPanel Spacing="16">
                                 <TextBlock Text="Blocklist" FontWeight="SemiBold" FontSize="13"/>
-                                <TextBlock FontSize="11" Foreground="{actipro:ThemeResource DefaultForegroundBrushDisabled}"
+                                <TextBlock FontSize="11" Foreground="{DynamicResource DefaultForegroundBrushDisabled}"
                                            Text="Hide or block artworks by tag, artist, or title. Choose whether a rule applies to a specific tab or all tabs, and whether it also prevents downloads."/>
 
                                 <!-- Add new rule -->
@@ -801,7 +827,7 @@
                                               IsChecked="{Binding NewBlocklistUseRegex, Mode=TwoWay}" VerticalAlignment="Center"/>
                                     <CheckBox Grid.Column="4" Content="Block downloads" FontSize="11"
                                               IsChecked="{Binding NewBlocklistBlockDownload, Mode=TwoWay}" VerticalAlignment="Center"/>
-                                    <Button Grid.Column="5" Content="Add" CornerRadius="5" FontSize="12" Padding="14,6"
+                                    <Button Grid.Column="5" Content="Add"  FontSize="12" 
                                             Command="{Binding AddBlocklistEntryCommand}" VerticalAlignment="Center"/>
                                 </Grid>
 
@@ -810,25 +836,25 @@
                                     <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Spacing="6"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate x:DataType="settings:BlocklistEntry">
-                                            <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                                                    BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                                            <Border Background="{DynamicResource Container2BackgroundBrush}"
+                                                    BorderBrush="{DynamicResource Container2BorderBrush}"
                                                     BorderThickness="1" CornerRadius="5" Padding="8,6">
                                                 <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto,Auto" ColumnSpacing="10">
                                                     <TextBlock Grid.Column="0" Text="{Binding Type}" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"/>
                                                     <TextBlock Grid.Column="1" Text="{Binding Value}" FontSize="12" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
-                                                    <TextBlock Grid.Column="2" Text="{Binding Scope, Converter={StaticResource BlocklistScopeToDisplayConverter}}" FontSize="11" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}" VerticalAlignment="Center"/>
-                                                    <Border Grid.Column="3" Background="{actipro:ThemeResource Container3BackgroundBrush}" CornerRadius="3" Padding="4,2"
+                                                    <TextBlock Grid.Column="2" Text="{Binding Scope, Converter={StaticResource BlocklistScopeToDisplayConverter}}" FontSize="11" Foreground="{DynamicResource DefaultForegroundBrushTertiary}" VerticalAlignment="Center"/>
+                                                    <Border Grid.Column="3" Background="{DynamicResource Container3BackgroundBrush}" CornerRadius="3" Padding="4,2"
                                                             IsVisible="{Binding UseRegex}">
                                                         <TextBlock Text="Regex" FontSize="10" VerticalAlignment="Center"/>
                                                     </Border>
-                                                    <Border Grid.Column="4" Background="{actipro:ThemeResource Container3BackgroundBrush}" CornerRadius="3" Padding="4,2"
+                                                    <Border Grid.Column="4" Background="{DynamicResource Container3BackgroundBrush}" CornerRadius="3" Padding="4,2"
                                                             IsVisible="{Binding BlockDownload}">
                                                         <TextBlock Text="Block downloads" FontSize="10" VerticalAlignment="Center"/>
                                                     </Border>
-                                                    <Button Grid.Column="5" FontSize="10" CornerRadius="3" Padding="6,2"
+                                                    <Button Grid.Column="5" FontSize="10"  
                                                             Command="{Binding $parent[ItemsControl].DataContext.RemoveBlocklistEntryCommand}"
                                                             CommandParameter="{Binding}" VerticalAlignment="Center">
-                                                        <PathIcon Data="{StaticResource CloseIcon}" Width="10" Height="10" VerticalAlignment="Center"/>
+                                                        <PathIcon Data="{StaticResource CloseIcon}" Width="10" Height="10" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                                                     </Button>
                                                 </Grid>
                                             </Border>
@@ -839,38 +865,38 @@
                         </Border>
 
                         <!-- R-18 Content -->
-                        <Border Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                        <Border Background="{DynamicResource Container1BackgroundBrush}"
+                                BorderBrush="{DynamicResource Container1BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="28">
                             <Grid ColumnDefinitions="*,20,*">
                                 <StackPanel Grid.Column="0" Spacing="20">
                                     <TextBlock Text="R-18 Content" FontWeight="SemiBold" FontSize="14"/>
                                     <StackPanel Spacing="8">
                                         <TextBlock Text="Content mode" FontSize="13"
-                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                         <StackPanel Orientation="Horizontal" Spacing="8">
-                                            <Button Content="Off" CornerRadius="6" Padding="16,7" FontSize="12"
+                                            <Button Content="Off"   FontSize="12"
                                                     Classes.accent="{Binding R18Mode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=Off}"
                                                     Click="OnR18ModeButtonClick" Tag="Off"/>
-                                            <Button Content="Show" CornerRadius="6" Padding="16,7" FontSize="12"
+                                            <Button Content="Show"   FontSize="12"
                                                     Classes.accent="{Binding R18Mode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=Show}"
                                                     Click="OnR18ModeButtonClick" Tag="Show"/>
-                                            <Button Content="Only" CornerRadius="6" Padding="16,7" FontSize="12"
+                                            <Button Content="Only"   FontSize="12"
                                                     Classes.accent="{Binding R18Mode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=Only}"
                                                     Click="OnR18ModeButtonClick" Tag="Only"/>
                                         </StackPanel>
                                     </StackPanel>
                                     <StackPanel Spacing="8">
                                         <TextBlock Text="Type filter" FontSize="13"
-                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                         <StackPanel Orientation="Horizontal" Spacing="8">
-                                            <Button Content="Both" CornerRadius="6" Padding="16,7" FontSize="12"
+                                            <Button Content="Both"   FontSize="12"
                                                     Classes.accent="{Binding R18Type, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=Both}"
                                                     Click="OnR18TypeButtonClick" Tag="Both"/>
-                                            <Button Content="R-18" CornerRadius="6" Padding="16,7" FontSize="12"
+                                            <Button Content="R-18"   FontSize="12"
                                                     Classes.accent="{Binding R18Type, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=R18}"
                                                     Click="OnR18TypeButtonClick" Tag="R18"/>
-                                            <Button Content="R-18G" CornerRadius="6" Padding="16,7" FontSize="12"
+                                            <Button Content="R-18G"   FontSize="12"
                                                     Classes.accent="{Binding R18Type, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=R18G}"
                                                     Click="OnR18TypeButtonClick" Tag="R18G"/>
                                         </StackPanel>
@@ -883,7 +909,7 @@
                                               IsChecked="{Binding BlurR18Content, Mode=TwoWay}" FontSize="13"/>
                                     <StackPanel Spacing="6" IsEnabled="{Binding BlurR18Content}">
                                         <TextBlock Text="{Binding BlurIntensity, StringFormat='Blur intensity: {0}px'}"
-                                                   FontSize="13" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                   FontSize="13" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                         <Slider Value="{Binding BlurIntensity, Mode=TwoWay}"
                                                 Minimum="5" Maximum="50" TickFrequency="5" IsSnapToTickEnabled="True"/>
                                     </StackPanel>
@@ -907,8 +933,8 @@
                     <StackPanel Spacing="24" Margin="24,24,24,48">
                         <Grid ColumnDefinitions="*,12,*" VerticalAlignment="Top">
                             <StackPanel Grid.Column="0" Spacing="20">
-                                <Border Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                                        BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                                <Border Background="{DynamicResource Container1BackgroundBrush}"
+                                        BorderBrush="{DynamicResource Container1BorderBrush}"
                                         BorderThickness="1" CornerRadius="8" Padding="24">
                                     <StackPanel Spacing="16">
                                         <TextBlock Text="Network / Proxy" FontWeight="SemiBold" FontSize="13"/>
@@ -919,8 +945,8 @@
                                         <CheckBox Content="Respect robots.txt" IsChecked="{Binding UseRobots, Mode=TwoWay}" FontSize="12"/>
                                     </StackPanel>
                                 </Border>
-                                <Border Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                                        BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                                <Border Background="{DynamicResource Container1BackgroundBrush}"
+                                        BorderBrush="{DynamicResource Container1BorderBrush}"
                                         BorderThickness="1" CornerRadius="8" Padding="24">
                                     <StackPanel Spacing="16">
                                         <TextBlock Text="FANBOX" FontWeight="SemiBold" FontSize="13"/>
@@ -930,11 +956,16 @@
                                                   IsChecked="{Binding WriteFanboxHtml, Mode=TwoWay}" FontSize="12"/>
                                     </StackPanel>
                                 </Border>
-                                <Border Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                                        BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                                <Border Background="{DynamicResource Container1BackgroundBrush}"
+                                        BorderBrush="{DynamicResource Container1BorderBrush}"
                                         BorderThickness="1" CornerRadius="8" Padding="24">
                                     <StackPanel Spacing="16">
                                         <TextBlock Text="Viewed History" FontWeight="SemiBold" FontSize="13"/>
+                                        <CheckBox Content="🕶 Incognito mode"
+                                                  IsChecked="{Binding IncognitoModeEnabled, Mode=TwoWay}"
+                                                  FontSize="12"
+                                                  ToolTip.Tip="While enabled, artworks you open anywhere in the app are not added to the Viewed tab. Existing history is left untouched. Can also be toggled from the Viewed tab toolbar."/>
+                                        <Separator Margin="0,4"/>
                                         <CheckBox Content="Auto-clear on start / restart"
                                                   IsChecked="{Binding AutoClearViewedHistoryEnabled, Mode=TwoWay}"
                                                   FontSize="12"
@@ -945,7 +976,7 @@
                                                   ToolTip.Tip="Checks every few minutes and deletes Viewed-tab entries older than the retention window."/>
                                         <StackPanel Orientation="Horizontal" Spacing="8" IsEnabled="{Binding AutoClearHistoryAnyEnabled}">
                                             <TextBlock Text="Keep history for" FontSize="12" VerticalAlignment="Center"
-                                                       Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                       Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                             <NumericUpDown Value="{Binding AutoClearViewedHistoryValue, Mode=TwoWay}"
                                                            Minimum="1" Maximum="999" Increment="1" FormatString="0"
                                                            Width="100" FontSize="12" CornerRadius="6"/>
@@ -953,18 +984,18 @@
                                                       SelectedItem="{Binding AutoClearViewedHistoryUnit, Mode=TwoWay}"
                                                       FontSize="12" CornerRadius="6" MinWidth="110"/>
                                         </StackPanel>
-                                        <TextBlock FontSize="11" Foreground="{actipro:ThemeResource DefaultForegroundBrushDisabled}"
+                                        <TextBlock FontSize="11" Foreground="{DynamicResource DefaultForegroundBrushDisabled}"
                                                    Text="Entries older than this window are removed from the Viewed tab automatically." TextWrapping="Wrap"/>
                                     </StackPanel>
                                 </Border>
                             </StackPanel>
 
-                            <Border Grid.Column="2" Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                                    BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                            <Border Grid.Column="2" Background="{DynamicResource Container1BackgroundBrush}"
+                                    BorderBrush="{DynamicResource Container1BorderBrush}"
                                     BorderThickness="1" CornerRadius="8" Padding="24">
                                 <StackPanel Spacing="16">
                                     <TextBlock Text="Ugoira (Animated Images)" FontWeight="SemiBold" FontSize="13"/>
-                                    <TextBlock FontSize="11" Foreground="{actipro:ThemeResource DefaultForegroundBrushDisabled}"
+                                    <TextBlock FontSize="11" Foreground="{DynamicResource DefaultForegroundBrushDisabled}"
                                                Text="Converting animated ZIP frames requires FFmpeg." TextWrapping="Wrap"/>
                                     <WrapPanel>
                                         <CheckBox Content="WebM" IsChecked="{Binding CreateUgoiraWebm, Mode=TwoWay}" FontSize="12" Margin="0,0,12,4"/>
@@ -976,7 +1007,7 @@
                                               IsChecked="{Binding KeepUgoiraZip, Mode=TwoWay}" FontSize="12"/>
                                     <Grid ColumnDefinitions="Auto,*" Margin="0,4,0,0">
                                         <TextBlock Text="Codec:" VerticalAlignment="Center" FontSize="12"
-                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}" Margin="0,0,8,0"/>
+                                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}" Margin="0,0,8,0"/>
                                         <ComboBox Grid.Column="1" CornerRadius="5" FontSize="12"
                                                   SelectedItem="{Binding FfMpegCodec, Mode=TwoWay}">
                                             <ComboBoxItem>libvpx-vp9</ComboBoxItem>
@@ -985,7 +1016,7 @@
                                         </ComboBox>
                                     </Grid>
                                     <TextBlock Text="{Binding FfMpegCRF, StringFormat='Quality (CRF): {0} - lower = better'}"
-                                               FontSize="12" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                               FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                     <Slider Minimum="0" Maximum="35" TickFrequency="1" IsSnapToTickEnabled="True"
                                             Value="{Binding FfMpegCRF, Mode=TwoWay}"/>
                                 </StackPanel>
@@ -993,22 +1024,22 @@
                         </Grid>
 
                     <!-- Download Behavior -->
-                    <Border Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                            BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                    <Border Background="{DynamicResource Container1BackgroundBrush}"
+                            BorderBrush="{DynamicResource Container1BorderBrush}"
                             BorderThickness="1" CornerRadius="8" Padding="20" Margin="4,10,4,4">
                         <StackPanel Spacing="24">
                             <TextBlock Text="Download Behavior" FontWeight="SemiBold" FontSize="14"/>
 
                             <!-- Safe Mode (anti-suspension) -->
-                            <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                                    BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                            <Border Background="{DynamicResource Container2BackgroundBrush}"
+                                    BorderBrush="{DynamicResource Container2BorderBrush}"
                                     BorderThickness="1" CornerRadius="6" Padding="14,12">
                                 <StackPanel Spacing="6">
                                     <CheckBox IsChecked="{Binding SafeMode, Mode=TwoWay}"
                                               FontSize="13" FontWeight="SemiBold"
                                               Content="Safe Mode — protect against Pixiv account suspension (recommended)"/>
                                     <TextBlock FontSize="12" TextWrapping="Wrap"
-                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                               Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                                Text="Pixiv detects and temporarily suspends accounts (typically 24–72 hours) for &quot;unauthorized access attempts&quot; caused by mass downloaders. When Safe Mode is ON, Pikura: ① forces sequential downloads (concurrency 1), ② enforces a 2–4 second jittered delay between artworks even if your delay is 0, and ③ honors Retry-After headers on HTTP 429/503 with exponential backoff (5→10→20→60s, ±25% jitter) without consuming your retry budget. Disable only for small, occasional jobs."/>
                                 </StackPanel>
                             </Border>
@@ -1024,43 +1055,43 @@
                                 <StackPanel Grid.Column="0" Spacing="24">
                                     <StackPanel Spacing="6">
                                         <TextBlock Text="Max concurrent downloads" FontSize="13"
-                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                         <NumericUpDown Minimum="1" Maximum="99" Increment="1" FormatString="0"
                                                        IsEnabled="{Binding !SafeMode}"
                                                        Value="{Binding MaxConcurrentDownloads, Mode=TwoWay}"
                                                        Width="100" HorizontalAlignment="Left"/>
-                                        <TextBlock FontSize="12" Foreground="{actipro:ThemeResource DefaultForegroundBrushDisabled}"
+                                        <TextBlock FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushDisabled}"
                                                    Text="Parallel file downloads within a single job"
                                                    IsVisible="{Binding !SafeMode}"/>
-                                        <TextBlock FontSize="12" Foreground="{actipro:ThemeResource DefaultForegroundBrushDisabled}"
+                                        <TextBlock FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushDisabled}"
                                                    Text="Overridden by Safe Mode (forced to 1)"
                                                    IsVisible="{Binding SafeMode}"/>
                                     </StackPanel>
                                     <StackPanel Spacing="6">
                                         <TextBlock Text="Max concurrent jobs" FontSize="13"
-                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                         <NumericUpDown Minimum="1" Maximum="99" Increment="1" FormatString="0"
                                                        IsEnabled="{Binding !SafeMode}"
                                                        Value="{Binding MaxConcurrentJobs, Mode=TwoWay}"
                                                        Width="100" HorizontalAlignment="Left"/>
-                                        <TextBlock FontSize="12" Foreground="{actipro:ThemeResource DefaultForegroundBrushDisabled}"
+                                        <TextBlock FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushDisabled}"
                                                    Text="Jobs running at once — extras queue as pending"
                                                    IsVisible="{Binding !SafeMode}"/>
-                                        <TextBlock FontSize="12" Foreground="{actipro:ThemeResource DefaultForegroundBrushDisabled}"
+                                        <TextBlock FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushDisabled}"
                                                    Text="Overridden by Safe Mode (forced to 1)"
                                                    IsVisible="{Binding SafeMode}"/>
                                     </StackPanel>
                                     <StackPanel Spacing="6">
                                         <TextBlock Text="Overwrite behavior" FontSize="13"
-                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                         <StackPanel Orientation="Horizontal" Spacing="8">
-                                            <Button Content="Skip" CornerRadius="6" Padding="16,7" FontSize="12"
+                                            <Button Content="Skip"   FontSize="12"
                                                     Classes.accent="{Binding OverwriteMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=0}"
                                                     Click="OnOverwriteModeButtonClick" Tag="0"/>
-                                            <Button Content="Overwrite" CornerRadius="6" Padding="16,7" FontSize="12"
+                                            <Button Content="Overwrite"   FontSize="12"
                                                     Classes.accent="{Binding OverwriteMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=1}"
                                                     Click="OnOverwriteModeButtonClick" Tag="1"/>
-                                            <Button Content="Backup" CornerRadius="6" Padding="16,7" FontSize="12"
+                                            <Button Content="Backup"   FontSize="12"
                                                     Classes.accent="{Binding OverwriteMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=2}"
                                                     Click="OnOverwriteModeButtonClick" Tag="2"/>
                                         </StackPanel>
@@ -1071,48 +1102,48 @@
                                 <StackPanel Grid.Column="2" Spacing="24">
                                     <StackPanel Spacing="6">
                                         <TextBlock Text="Min file size (KB)" FontSize="13"
-                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                         <NumericUpDown Value="{Binding MinFileSizeKB, Mode=TwoWay}"
                                                        Minimum="0" Maximum="102400" Increment="100"
                                                        CornerRadius="6" FontSize="13"/>
                                     </StackPanel>
                                     <StackPanel Spacing="6">
                                         <TextBlock Text="Max file size (KB)" FontSize="13"
-                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                         <NumericUpDown Value="{Binding MaxFileSizeKB, Mode=TwoWay}"
                                                        Minimum="0" Maximum="102400" Increment="1000"
                                                        CornerRadius="6" FontSize="13"/>
                                     </StackPanel>
                                     <TextBlock Text="0 = no limit" FontSize="12"
-                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushDisabled}"/>
+                                               Foreground="{DynamicResource DefaultForegroundBrushDisabled}"/>
                                 </StackPanel>
 
                                 <!-- Timing -->
                                 <StackPanel Grid.Column="4" Spacing="24">
                                     <StackPanel Spacing="6">
                                         <TextBlock Text="Timeout (s)" FontSize="13"
-                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                         <NumericUpDown Value="{Binding DownloadTimeout, Mode=TwoWay}"
                                                        Minimum="10" Maximum="300" Increment="5"
                                                        CornerRadius="6" FontSize="13"/>
                                     </StackPanel>
                                     <StackPanel Spacing="6">
                                         <TextBlock Text="Retry count" FontSize="13"
-                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                         <NumericUpDown Value="{Binding RetryCount, Mode=TwoWay}"
                                                        Minimum="0" Maximum="10" Increment="1"
                                                        CornerRadius="6" FontSize="13"/>
                                     </StackPanel>
                                     <StackPanel Spacing="6">
                                         <TextBlock Text="Retry delay (s)" FontSize="13"
-                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                         <NumericUpDown Value="{Binding RetryDelaySeconds, Mode=TwoWay}"
                                                        Minimum="0" Maximum="60" Increment="1"
                                                        CornerRadius="6" FontSize="13"/>
                                     </StackPanel>
                                     <StackPanel Spacing="6">
                                         <TextBlock Text="Delay between downloads (s)" FontSize="13"
-                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                         <NumericUpDown Value="{Binding DownloadDelaySeconds, Mode=TwoWay}"
                                                        Minimum="0" Maximum="30" Increment="1"
                                                        CornerRadius="6" FontSize="13"/>
@@ -1123,8 +1154,8 @@
                     </Border>
 
                     <!-- Diagnostics & Logging -->
-                    <Border Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                            BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                    <Border Background="{DynamicResource Container1BackgroundBrush}"
+                            BorderBrush="{DynamicResource Container1BorderBrush}"
                             BorderThickness="1" CornerRadius="8" Padding="20" Margin="4,10,4,24">
                         <StackPanel Spacing="16">
                             <TextBlock Text="Diagnostics &amp; Logging" FontWeight="SemiBold" FontSize="14"/>
@@ -1137,36 +1168,36 @@
                                           Foreground="Orange"/>
                                 <TextBlock Text="Verbose mode writes detailed debug output. Takes effect after restart."
                                            FontSize="12" TextWrapping="Wrap" VerticalAlignment="Center"
-                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushDisabled}"/>
+                                           Foreground="{DynamicResource DefaultForegroundBrushDisabled}"/>
                             </StackPanel>
 
-                            <Separator Background="{actipro:ThemeResource Container1BorderBrush}" Margin="0,4"/>
+                            <Separator Background="{DynamicResource Container1BorderBrush}" Margin="0,4"/>
 
                             <!-- App log -->
                             <StackPanel Spacing="6">
                                 <TextBlock Text="Application log" FontSize="13"
-                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                           Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                 <Grid ColumnDefinitions="*,Auto,Auto">
                                     <TextBox Grid.Column="0" IsReadOnly="True" FontSize="13" CornerRadius="5"
                                              Text="{Binding AppLogPath, Mode=OneWay}"
                                              FontFamily="Consolas,Menlo,monospace"/>
                                     <Button Grid.Column="1" Content="Copy" FontSize="12" Margin="6,0,0,0"
-                                            CornerRadius="5" Padding="10,5" Click="OnCopyAppLogPath"/>
+                                             Padding="10,5" Click="OnCopyAppLogPath"/>
                                     <Button Grid.Column="2" Content="Open folder" FontSize="12" Margin="6,0,0,0"
-                                            CornerRadius="5" Padding="10,5" Click="OnOpenLogFolder"/>
+                                             Padding="10,5" Click="OnOpenLogFolder"/>
                                 </Grid>
                             </StackPanel>
 
                             <!-- Crash log -->
                             <StackPanel Spacing="6">
                                 <TextBlock Text="Crash log (Desktop)" FontSize="13"
-                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                           Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                 <Grid ColumnDefinitions="*,Auto">
                                     <TextBox Grid.Column="0" IsReadOnly="True" FontSize="13" CornerRadius="5"
                                              Text="{Binding CrashLogPath, Mode=OneWay}"
                                              FontFamily="Consolas,Menlo,monospace"/>
                                     <Button Grid.Column="1" Content="Copy" FontSize="12" Margin="6,0,0,0"
-                                            CornerRadius="5" Padding="10,5" Click="OnCopyCrashLogPath"/>
+                                             Padding="10,5" Click="OnCopyCrashLogPath"/>
                                 </Grid>
                             </StackPanel>
                         </StackPanel>
@@ -1184,14 +1215,14 @@
                     <StackPanel Spacing="16" Margin="24,24,24,24" VerticalAlignment="Top">
 
                         <!-- Active models -->
-                        <Border Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                        <Border Background="{DynamicResource Container1BackgroundBrush}"
+                                BorderBrush="{DynamicResource Container1BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="28">
                             <StackPanel Spacing="24">
                                 <StackPanel Spacing="6">
                                     <TextBlock Text="Active models" FontWeight="SemiBold" FontSize="14"/>
                                     <TextBlock FontSize="12"
-                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                               Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                                TextWrapping="Wrap"
                                                Text="Choose the models Hoshi uses for chat, image understanding, and anime tag prediction."/>
                                 </StackPanel>
@@ -1200,7 +1231,7 @@
                                 <StackPanel Spacing="14">
                                     <TextBlock Text="Ollama" FontWeight="SemiBold" FontSize="13"/>
                                     <TextBlock FontSize="12"
-                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                               Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                                TextWrapping="Wrap"
                                                Text="Select the installed Ollama models Hoshi uses for chat and image understanding. Install more from Model management."/>
                                     <!-- Shown while the installed-models list is still loading (e.g. right after
@@ -1210,11 +1241,11 @@
                                                 IsVisible="{Binding IsLoadingModels}">
                                         <PathIcon Data="{StaticResource ClockIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
                                         <TextBlock Text="Loading your installed Ollama models…" FontSize="12" VerticalAlignment="Center"
-                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                     </StackPanel>
                                     <Grid ColumnDefinitions="*,20,*" RowDefinitions="Auto,Auto">
                                         <TextBlock Grid.Row="0" Grid.Column="0" Text="Text model" FontSize="13"
-                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}" Margin="0,0,0,5"/>
+                                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}" Margin="0,0,0,5"/>
                                         <ComboBox Grid.Row="1" Grid.Column="0"
                                                   ItemsSource="{Binding InstalledOllamaModelNames}"
                                                   SelectedItem="{Binding HoshiTextModel, Mode=TwoWay}"
@@ -1222,7 +1253,7 @@
                                                   CornerRadius="6" FontSize="13" HorizontalAlignment="Stretch"/>
 
                                         <TextBlock Grid.Row="0" Grid.Column="2" Text="Vision model" FontSize="13"
-                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}" Margin="0,0,0,5"/>
+                                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}" Margin="0,0,0,5"/>
                                         <ComboBox Grid.Row="1" Grid.Column="2"
                                                   ItemsSource="{Binding InstalledVisionModelNames}"
                                                   SelectedItem="{Binding HoshiVisionModel, Mode=TwoWay}"
@@ -1231,13 +1262,13 @@
                                     </Grid>
                                 </StackPanel>
 
-                                <Border Height="1" Background="{actipro:ThemeResource Container1BorderBrush}" Margin="0,0"/>
+                                <Border Height="1" Background="{DynamicResource Container1BorderBrush}" Margin="0,0"/>
 
                                 <!-- Anime tagger -->
                                 <StackPanel Spacing="14">
                                     <TextBlock Text="Anime image tagger (ONNX)" FontWeight="SemiBold" FontSize="13"/>
                                     <TextBlock FontSize="12"
-                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                               Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                                TextWrapping="Wrap"
                                                Text="Run a local Danbooru-style tagger for accurate anime / Pixiv tag prediction. ONNX models are downloaded on demand."/>
 
@@ -1247,7 +1278,7 @@
                                     <StackPanel Spacing="14" IsEnabled="{Binding HoshiUseAnimeTagger}">
                                         <Grid ColumnDefinitions="Auto,12,*" RowDefinitions="Auto,Auto">
                                             <TextBlock Grid.Row="0" Grid.Column="0" Text="Model" FontSize="13"
-                                                       Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}" VerticalAlignment="Center" Margin="0,0,0,5"/>
+                                                       Foreground="{DynamicResource DefaultForegroundBrushTertiary}" VerticalAlignment="Center" Margin="0,0,0,5"/>
                                             <ComboBox Grid.Row="0" Grid.Column="2"
                                                       ItemsSource="{Binding InstalledTaggerModelNames}"
                                                       SelectedItem="{Binding HoshiAnimeTaggerModel, Mode=TwoWay}"
@@ -1256,7 +1287,7 @@
                                             <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Spacing="8"
                                                         Margin="0,10,0,0">
                                                 <TextBlock Text="Available taggers" FontSize="11" FontWeight="SemiBold"
-                                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                           Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                                 <ItemsControl ItemsSource="{Binding RecommendedTaggerModels}">
                                                     <ItemsControl.ItemsPanel>
                                                         <ItemsPanelTemplate>
@@ -1266,8 +1297,8 @@
                                                     <ItemsControl.ItemTemplate>
                                                         <DataTemplate x:DataType="vm:RecommendedModelRow">
                                                             <Border Margin="0,0,6,6" Padding="10,5" CornerRadius="10"
-                                                                    Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                                                                    BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                                                                    Background="{DynamicResource Container2BackgroundBrush}"
+                                                                    BorderBrush="{DynamicResource Container1BorderBrush}"
                                                                     BorderThickness="1"
                                                                     ToolTip.Tip="{Binding ToolTipText}">
                                                                 <StackPanel Orientation="Horizontal" Spacing="6">
@@ -1278,7 +1309,7 @@
                                                                                   Foreground="#4ADE80"/>
                                                                         <TextBlock Text="Installed" FontSize="11" Foreground="#4ADE80" VerticalAlignment="Center"/>
                                                                     </StackPanel>
-                                                                    <Button Content="Install" FontSize="11" Padding="8,3" CornerRadius="8"
+                                                                    <Button Content="Install" FontSize="11"  
                                                                             Classes="accent"
                                                                             IsVisible="{Binding !IsInstalled}"
                                                                             IsEnabled="{Binding !IsInstalling}"
@@ -1294,7 +1325,7 @@
                                                     <ProgressBar Minimum="0" Maximum="100"
                                                                  Value="{Binding TaggerInstallPercent}" Height="6"/>
                                                     <TextBlock Text="{Binding TaggerInstallStatus}" FontSize="11"
-                                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                                               Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                                                TextWrapping="Wrap"/>
                                                 </StackPanel>
 
@@ -1311,13 +1342,13 @@
                                         <StackPanel Spacing="14" IsVisible="{Binding IsSelectedTaggerModelInstalled}">
                                             <Grid ColumnDefinitions="Auto,12,*" RowDefinitions="Auto,Auto">
                                                 <TextBlock Grid.Row="0" Grid.Column="0" Text="Confidence threshold" FontSize="13"
-                                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}" VerticalAlignment="Center" Margin="0,0,0,0"/>
+                                                           Foreground="{DynamicResource DefaultForegroundBrushTertiary}" VerticalAlignment="Center" Margin="0,0,0,0"/>
                                                 <Slider Grid.Row="0" Grid.Column="2"
                                                         Minimum="0" Maximum="1" TickFrequency="0.05" IsSnapToTickEnabled="True"
                                                         Value="{Binding HoshiAnimeTaggerThreshold, Mode=TwoWay}"/>
 
                                                 <TextBlock Grid.Row="1" Grid.Column="0" Text="Max tags" FontSize="13"
-                                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}" VerticalAlignment="Center" Margin="0,8,0,0"/>
+                                                           Foreground="{DynamicResource DefaultForegroundBrushTertiary}" VerticalAlignment="Center" Margin="0,8,0,0"/>
                                                 <NumericUpDown Grid.Row="1" Grid.Column="2"
                                                                Minimum="1" Maximum="1000"
                                                                Value="{Binding HoshiAnimeTaggerMaxTags, Mode=TwoWay}"
@@ -1334,14 +1365,14 @@
                         </Border>
 
                         <!-- Model management -->
-                        <Border Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                        <Border Background="{DynamicResource Container1BackgroundBrush}"
+                                BorderBrush="{DynamicResource Container1BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="28">
                             <StackPanel Spacing="24">
                                 <StackPanel Spacing="6">
                                     <TextBlock Text="Model management" FontWeight="SemiBold" FontSize="14"/>
                                     <TextBlock FontSize="12"
-                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                               Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                                TextWrapping="Wrap"
                                                Text="Install, refresh, and manage Ollama and ONNX models. Ollama models are pulled through Ollama; ONNX taggers are downloaded from Hugging Face."/>
                                 </StackPanel>
@@ -1351,7 +1382,7 @@
                                     <StackPanel Spacing="6">
                                         <TextBlock Text="Install a model" FontWeight="SemiBold" FontSize="13"/>
                                         <TextBlock FontSize="12"
-                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                                    TextWrapping="Wrap"
                                                    Text="Type an Ollama model name below, or click a recommended chip to install it. Hover over a chip for its category, description, and estimated size."/>
                                     </StackPanel>
@@ -1362,22 +1393,22 @@
                                                  CornerRadius="6" FontSize="13" Margin="0,0,8,0"
                                                  PlaceholderText="Ollama model name (e.g. llama3.2)"/>
                                         <Button Grid.Column="1" Content="Install"
-                                                Classes="accent" CornerRadius="6" Padding="14,7" FontSize="13"
+                                                Classes="accent"   FontSize="13"
                                                 Command="{Binding PullModelCommand}"
                                                 IsEnabled="{Binding !IsPullingModel}"/>
                                         <Button Grid.Column="2" Content="Cancel" Margin="6,0,0,0"
-                                                CornerRadius="6" Padding="14,7" FontSize="13"
+                                                  FontSize="13"
                                                 Command="{Binding CancelModelPullCommand}"
                                                 IsVisible="{Binding IsPullingModel}"/>
                                     </Grid>
 
                                     <StackPanel Spacing="10">
                                         <TextBlock Text="Recommended:" FontSize="11"
-                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
 
                                         <StackPanel Spacing="6">
                                             <TextBlock Text="Text / chat" FontSize="11" FontWeight="SemiBold"
-                                                       Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                       Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                             <ItemsControl ItemsSource="{Binding RecommendedTextModels}">
                                                 <ItemsControl.ItemsPanel>
                                                     <ItemsPanelTemplate>
@@ -1386,8 +1417,8 @@
                                                 </ItemsControl.ItemsPanel>
                                                 <ItemsControl.ItemTemplate>
                                                     <DataTemplate x:DataType="vm:RecommendedModelRow">
-                                                        <Button Content="{Binding Name}" Margin="0,0,6,6" Padding="8,3"
-                                                                FontSize="11" CornerRadius="10"
+                                                        <Button Content="{Binding Name}" Margin="0,0,6,6" 
+                                                                FontSize="11" 
                                                                 ToolTip.Tip="{Binding ToolTipText}"
                                                                 IsEnabled="{Binding !IsInstalling}"
                                                                 Command="{Binding $parent[ItemsControl].((vm:SettingsViewModel)DataContext).InstallRecommendedModelCommand}"
@@ -1399,7 +1430,7 @@
 
                                         <StackPanel Spacing="6">
                                             <TextBlock Text="Vision" FontSize="11" FontWeight="SemiBold"
-                                                       Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                       Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                             <ItemsControl ItemsSource="{Binding RecommendedVisionModels}">
                                                 <ItemsControl.ItemsPanel>
                                                     <ItemsPanelTemplate>
@@ -1408,8 +1439,8 @@
                                                 </ItemsControl.ItemsPanel>
                                                 <ItemsControl.ItemTemplate>
                                                     <DataTemplate x:DataType="vm:RecommendedModelRow">
-                                                        <Button Content="{Binding Name}" Margin="0,0,6,6" Padding="8,3"
-                                                                FontSize="11" CornerRadius="10"
+                                                        <Button Content="{Binding Name}" Margin="0,0,6,6" 
+                                                                FontSize="11" 
                                                                 ToolTip.Tip="{Binding ToolTipText}"
                                                                 IsEnabled="{Binding !IsInstalling}"
                                                                 Command="{Binding $parent[ItemsControl].((vm:SettingsViewModel)DataContext).InstallRecommendedModelCommand}"
@@ -1424,7 +1455,7 @@
                                         <ProgressBar Minimum="0" Maximum="100"
                                                      Value="{Binding ModelPullPercent}" Height="6"/>
                                         <TextBlock Text="{Binding ModelPullStatus}" FontSize="11"
-                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                                    TextWrapping="Wrap"/>
                                     </StackPanel>
 
@@ -1433,7 +1464,7 @@
                                                IsVisible="{Binding ModelManagementError, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
                                 </StackPanel>
 
-                                <Border Height="1" Background="{actipro:ThemeResource Container1BorderBrush}" Margin="0,0"/>
+                                <Border Height="1" Background="{DynamicResource Container1BorderBrush}" Margin="0,0"/>
 
                                 <!-- Installed Ollama models -->
                                 <StackPanel Spacing="14">
@@ -1441,23 +1472,23 @@
                                         <TextBlock Grid.Column="0" Text="Installed Ollama models" FontWeight="SemiBold" FontSize="13"
                                                    VerticalAlignment="Center"/>
                                         <Button Grid.Column="1"
-                                                CornerRadius="6" Padding="10,5" FontSize="12"
+                                                 Padding="10,5" FontSize="12"
                                                 Command="{Binding RefreshInstalledModelsCommand}"
                                                 IsEnabled="{Binding !IsLoadingModels}">
                                             <StackPanel Orientation="Horizontal" Spacing="6">
-                                                <PathIcon Data="{StaticResource RefreshIcon}" Width="12" Height="12" VerticalAlignment="Center"/>
+                                                <PathIcon Data="{StaticResource RefreshIcon}" Width="12" Height="12" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                                                 <TextBlock Text="Refresh" VerticalAlignment="Center"/>
                                             </StackPanel>
                                         </Button>
                                     </Grid>
 
                                     <TextBlock Text="Loading…" FontSize="12"
-                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                               Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                                IsVisible="{Binding IsLoadingModels}"/>
 
                                     <TextBlock Text="No Ollama models installed yet. Use the installer above to download one."
                                                FontSize="12" TextWrapping="Wrap"
-                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}">
+                                               Foreground="{DynamicResource DefaultForegroundBrushTertiary}">
                                         <TextBlock.IsVisible>
                                             <MultiBinding Converter="{x:Static BoolConverters.And}">
                                                 <Binding Path="!IsLoadingModels"/>
@@ -1470,14 +1501,14 @@
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate x:DataType="vm:InstalledModelRow">
                                                 <Border Margin="0,3" Padding="12,8" CornerRadius="6"
-                                                        Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                                                        BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                                                        Background="{DynamicResource Container2BackgroundBrush}"
+                                                        BorderBrush="{DynamicResource Container1BorderBrush}"
                                                         BorderThickness="1">
                                                     <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
                                                         <StackPanel Grid.Column="0" Spacing="2">
                                                             <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="13"/>
                                                             <TextBlock FontSize="11"
-                                                                       Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}">
+                                                                       Foreground="{DynamicResource DefaultForegroundBrushTertiary}">
                                                                 <Run Text="{Binding DisplaySize}"/>
                                                                 <Run Text="  ·  "/>
                                                                 <Run Text="{Binding DisplayModified}"/>
@@ -1485,15 +1516,15 @@
                                                         </StackPanel>
                                                         <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6">
                                                             <Button Content="Use for chat"
-                                                                    CornerRadius="5" Padding="9,4" FontSize="11"
+                                                                      FontSize="11"
                                                                     Command="{Binding $parent[ItemsControl].((vm:SettingsViewModel)DataContext).UseModelForTextCommand}"
                                                                     CommandParameter="{Binding Name}"/>
                                                             <Button Content="Use for vision"
-                                                                    CornerRadius="5" Padding="9,4" FontSize="11"
+                                                                      FontSize="11"
                                                                     Command="{Binding $parent[ItemsControl].((vm:SettingsViewModel)DataContext).UseModelForVisionCommand}"
                                                                     CommandParameter="{Binding Name}"/>
                                                             <Button Content="Uninstall"
-                                                                    CornerRadius="5" Padding="9,4" FontSize="11"
+                                                                      FontSize="11"
                                                                     Command="{Binding $parent[ItemsControl].((vm:SettingsViewModel)DataContext).DeleteModelCommand}"
                                                                     CommandParameter="{Binding}"/>
                                                         </StackPanel>
@@ -1504,7 +1535,7 @@
                                     </ItemsControl>
                                 </StackPanel>
 
-                                <Border Height="1" Background="{actipro:ThemeResource Container1BorderBrush}" Margin="0,0"/>
+                                <Border Height="1" Background="{DynamicResource Container1BorderBrush}" Margin="0,0"/>
 
                                 <!-- Installed anime taggers -->
                                 <StackPanel Spacing="14">
@@ -1512,7 +1543,7 @@
 
                                     <TextBlock Text="No anime tagger models installed yet. Install one from the Hoshi AI tab above."
                                                FontSize="12" TextWrapping="Wrap"
-                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}">
+                                               Foreground="{DynamicResource DefaultForegroundBrushTertiary}">
                                         <TextBlock.IsVisible>
                                             <MultiBinding Converter="{x:Static BoolConverters.And}">
                                                 <Binding Path="!IsLoadingModels"/>
@@ -1525,14 +1556,14 @@
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate x:DataType="vm:InstalledModelRow">
                                                 <Border Margin="0,3" Padding="12,8" CornerRadius="6"
-                                                        Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                                                        BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                                                        Background="{DynamicResource Container2BackgroundBrush}"
+                                                        BorderBrush="{DynamicResource Container1BorderBrush}"
                                                         BorderThickness="1">
                                                     <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
                                                         <StackPanel Grid.Column="0" Spacing="2">
                                                             <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="13"/>
                                                             <TextBlock FontSize="11"
-                                                                       Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}">
+                                                                       Foreground="{DynamicResource DefaultForegroundBrushTertiary}">
                                                                 <Run Text="{Binding DisplaySize}"/>
                                                                 <Run Text="  ·  "/>
                                                                 <Run Text="{Binding DisplayModified}"/>
@@ -1540,11 +1571,11 @@
                                                         </StackPanel>
                                                         <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6">
                                                             <Button Content="Use for tagger"
-                                                                    CornerRadius="5" Padding="9,4" FontSize="11"
+                                                                      FontSize="11"
                                                                     Command="{Binding $parent[ItemsControl].((vm:SettingsViewModel)DataContext).UseModelForTaggerCommand}"
                                                                     CommandParameter="{Binding Name}"/>
                                                             <Button Content="Uninstall"
-                                                                    CornerRadius="5" Padding="9,4" FontSize="11"
+                                                                      FontSize="11"
                                                                     Command="{Binding $parent[ItemsControl].((vm:SettingsViewModel)DataContext).DeleteModelCommand}"
                                                                     CommandParameter="{Binding}"/>
                                                         </StackPanel>
@@ -1556,7 +1587,7 @@
                                 </StackPanel>
 
                                 <TextBlock FontSize="11" TextWrapping="Wrap"
-                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                           Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                            Text="Tip: Browse models at https://ollama.com/library. Type the exact name (e.g. 'llama3.2:3b' for a smaller variant)."/>
                             </StackPanel>
                         </Border>
@@ -1574,14 +1605,14 @@
 
                         <Grid ColumnDefinitions="*,12,*">
                             <!-- Languages -->
-                            <Border Grid.Column="0" Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                                    BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                            <Border Grid.Column="0" Background="{DynamicResource Container1BackgroundBrush}"
+                                    BorderBrush="{DynamicResource Container1BorderBrush}"
                                     BorderThickness="1" CornerRadius="8" Padding="24">
                                 <StackPanel Spacing="20">
                                     <TextBlock Text="Language" FontWeight="SemiBold" FontSize="13"/>
                                     <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto">
                                         <TextBlock Grid.Row="0" Grid.Column="0" Text="App language" FontSize="12"
-                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                                    VerticalAlignment="Center" Margin="0,0,10,0"/>
                                         <ComboBox Grid.Row="0" Grid.Column="1"
                                                   ItemsSource="{Binding AvailableAppLanguages}"
@@ -1589,7 +1620,7 @@
                                                   SelectionChanged="OnAppLanguageChanged"
                                                   CornerRadius="5" FontSize="12"/>
                                         <TextBlock Grid.Row="1" Grid.Column="0" Text="API language" FontSize="12"
-                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                                    VerticalAlignment="Center" Margin="0,8,10,0"/>
                                         <ComboBox Grid.Row="1" Grid.Column="1" Margin="0,8,0,0"
                                                   ItemsSource="{Binding AvailableLocales}"
@@ -1601,21 +1632,21 @@
                             </Border>
 
                             <!-- Startup -->
-                            <Border Grid.Column="2" Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                                    BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                            <Border Grid.Column="2" Background="{DynamicResource Container1BackgroundBrush}"
+                                    BorderBrush="{DynamicResource Container1BorderBrush}"
                                     BorderThickness="1" CornerRadius="8" Padding="24">
                                 <StackPanel Spacing="20">
                                     <TextBlock Text="Startup" FontWeight="SemiBold" FontSize="13"/>
                                     <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto">
                                         <TextBlock Grid.Row="0" Grid.Column="0" Text="Window state" FontSize="12"
-                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                                    VerticalAlignment="Center" Margin="0,0,10,0"/>
                                         <ComboBox Grid.Row="0" Grid.Column="1"
                                                   SelectedItem="{Binding StartupWindowState, Mode=TwoWay}"
                                                   ItemsSource="{Binding StartupWindowStates}"
                                                   CornerRadius="5" FontSize="12"/>
                                         <TextBlock Grid.Row="1" Grid.Column="0" Text="System tray" FontSize="12"
-                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                                    VerticalAlignment="Center" Margin="0,8,10,0"/>
                                         <ComboBox Grid.Row="1" Grid.Column="1" Margin="0,8,0,0"
                                                   CornerRadius="5" FontSize="12"
@@ -1625,7 +1656,7 @@
                                             <ComboBoxItem>Close to tray</ComboBoxItem>
                                         </ComboBox>
                                         <TextBlock Grid.Row="2" Grid.Column="0" Text="Startup tab" FontSize="12"
-                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                                    VerticalAlignment="Center" Margin="0,8,10,0"/>
                                         <ComboBox Grid.Row="2" Grid.Column="1" Margin="0,8,0,0"
                                                   ItemsSource="{Binding AvailableStartupTabs}"
@@ -1653,13 +1684,13 @@
                         </Grid>
 
                         <!-- Gallery Viewer Keyboard Navigation -->
-                        <Border Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                        <Border Background="{DynamicResource Container1BackgroundBrush}"
+                                BorderBrush="{DynamicResource Container1BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="28">
                             <StackPanel Spacing="16">
                                 <TextBlock Text="Gallery Viewer" FontWeight="SemiBold" FontSize="14"/>
                                 <TextBlock FontSize="12" TextWrapping="Wrap"
-                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                           Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                            Text="Use arrow keys to navigate between artworks when the viewer is open."/>
                                 <CheckBox Content="Enable keyboard navigation in gallery (left/right arrow keys)"
                                           IsChecked="{Binding GalleryKeyboardNavEnabled, Mode=TwoWay}"
@@ -1673,20 +1704,20 @@
                         </Border>
 
                         <!-- Download Notifications -->
-                        <Border Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                        <Border Background="{DynamicResource Container1BackgroundBrush}"
+                                BorderBrush="{DynamicResource Container1BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="20">
                             <StackPanel Spacing="14">
                                 <TextBlock Text="Download Notifications" FontWeight="SemiBold" FontSize="13"/>
                                 <TextBlock FontSize="11" TextWrapping="Wrap"
-                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushDisabled}"
+                                           Foreground="{DynamicResource DefaultForegroundBrushDisabled}"
                                            Text="Show a Windows toast notification for downloads. The artist thumbnail appears in the notification body."/>
 
                                 <CheckBox IsChecked="{Binding NotifyOnDownloadStarted, Mode=TwoWay}" FontSize="12">
                                     <StackPanel Spacing="1">
                                         <TextBlock Text="Download started" FontSize="12"/>
                                         <TextBlock Text="Notify when a job begins." FontSize="11"
-                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushDisabled}"/>
+                                                   Foreground="{DynamicResource DefaultForegroundBrushDisabled}"/>
                                     </StackPanel>
                                 </CheckBox>
 
@@ -1694,7 +1725,7 @@
                                     <StackPanel Spacing="1">
                                         <TextBlock Text="Download completed" FontSize="12"/>
                                         <TextBlock Text="Notify when a job finishes successfully." FontSize="11"
-                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushDisabled}"/>
+                                                   Foreground="{DynamicResource DefaultForegroundBrushDisabled}"/>
                                     </StackPanel>
                                 </CheckBox>
 
@@ -1702,7 +1733,7 @@
                                     <StackPanel Spacing="1">
                                         <TextBlock Text="Download failed" FontSize="12"/>
                                         <TextBlock Text="Notify when a job fails or completes with errors." FontSize="11"
-                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushDisabled}"/>
+                                                   Foreground="{DynamicResource DefaultForegroundBrushDisabled}"/>
                                     </StackPanel>
                                 </CheckBox>
 
@@ -1710,25 +1741,25 @@
                                     <StackPanel Spacing="1">
                                         <TextBlock Text="Download paused / resumed" FontSize="12"/>
                                         <TextBlock Text="Notify when a job is paused or resumed, with progress so far." FontSize="11"
-                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushDisabled}"/>
+                                                   Foreground="{DynamicResource DefaultForegroundBrushDisabled}"/>
                                     </StackPanel>
                                 </CheckBox>
                             </StackPanel>
                         </Border>
 
                         <!-- Settings.json -->
-                        <Border Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                        <Border Background="{DynamicResource Container1BackgroundBrush}"
+                                BorderBrush="{DynamicResource Container1BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="20">
                             <Grid ColumnDefinitions="*,Auto">
                                 <TextBlock Grid.Column="0" Text="{Binding SettingsPathHint}" FontSize="11"
-                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                           Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                            VerticalAlignment="Center"/>
                                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="16">
                                     <Button Content="Reset to Defaults" Command="{Binding ResetSettingsCommand}"
-                                            CornerRadius="6" FontSize="12"/>
+                                             FontSize="12"/>
                                     <TextBlock Text="Pikura &#xB7; Avalonia UI 12" FontSize="11"
-                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushDisabled}"
+                                               Foreground="{DynamicResource DefaultForegroundBrushDisabled}"
                                                VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Grid>
@@ -1746,8 +1777,8 @@
                     <StackPanel Spacing="24" Margin="24" VerticalAlignment="Top">
 
                         <!-- Accounts list (always visible) -->
-                        <Border Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                        <Border Background="{DynamicResource Container1BackgroundBrush}"
+                                BorderBrush="{DynamicResource Container1BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="24">
                             <StackPanel Spacing="20">
 
@@ -1756,20 +1787,20 @@
                                     <StackPanel Grid.Column="0" Spacing="2" VerticalAlignment="Center">
                                         <TextBlock Text="Accounts" FontWeight="SemiBold" FontSize="15"/>
                                         <TextBlock Text="Manage your signed-in Pixiv accounts" FontSize="11"
-                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                     </StackPanel>
                                     <Button Grid.Column="1" Content="Sign out all accounts"
                                             Command="{Binding SignOutAllCommand}"
-                                            CornerRadius="6" Margin="0,0,8,0"
+                                             Margin="0,0,8,0"
                                             IsVisible="{Binding IsSignedIn}"/>
                                     <Button Grid.Column="2" Content="+ Add account"
                                             Command="{Binding AddAccountCommand}"
-                                            CornerRadius="6" Classes="accent"/>
+                                             Classes="accent"/>
                                 </Grid>
 
                                 <!-- Accounts list -->
-                                <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                                        BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                                <Border Background="{DynamicResource Container2BackgroundBrush}"
+                                        BorderBrush="{DynamicResource Container2BorderBrush}"
                                         BorderThickness="1" CornerRadius="8" Padding="8">
                                     <ItemsControl ItemsSource="{Binding Profiles}">
                                         <ItemsControl.ItemTemplate>
@@ -1780,7 +1811,7 @@
                                                     </Border.Background>
                                                     <Grid ColumnDefinitions="Auto,*,Auto,Auto">
                                                         <Border Grid.Column="0" Width="34" Height="34" CornerRadius="17"
-                                                                Background="{actipro:ThemeResource ControlBackgroundBrushSolidAccent}"
+                                                                Background="{DynamicResource ControlBackgroundBrushSolidAccent}"
                                                                 Margin="0,0,12,0" VerticalAlignment="Center">
                                                             <TextBlock FontSize="14" FontWeight="Bold" Foreground="White"
                                                                        HorizontalAlignment="Center" VerticalAlignment="Center"
@@ -1798,13 +1829,13 @@
                                                                 </Border>
                                                             </StackPanel>
                                                             <TextBlock FontSize="10"
-                                                                       Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}">
+                                                                       Foreground="{DynamicResource DefaultForegroundBrushTertiary}">
                                                                 <Run Text="ID: "/><Run Text="{Binding UserId}"/>
                                                             </TextBlock>
                                                         </StackPanel>
                                                         <Panel Grid.Column="2" Margin="0,0,6,0">
                                                             <Border CornerRadius="5" Padding="10,4"
-                                                                    Background="{actipro:ThemeResource ControlBackgroundBrushSolidAccent}"
+                                                                    Background="{DynamicResource ControlBackgroundBrushSolidAccent}"
                                                                     VerticalAlignment="Center">
                                                                 <TextBlock Text="Active" FontSize="11" FontWeight="SemiBold"
                                                                            Foreground="White"
@@ -1817,7 +1848,7 @@
                                                                 </Border.IsVisible>
                                                             </Border>
                                                             <Button Content="Switch"
-                                                                    CornerRadius="5"
+                                                                    
                                                                     Classes="accent"
                                                                     Padding="10,4"
                                                                     FontSize="11"
@@ -1834,7 +1865,7 @@
                                                         </Panel>
                                                         <Button Grid.Column="3"
                                                                 Content="Sign out"
-                                                                CornerRadius="5"
+                                                                
                                                                 Padding="10,4"
                                                                 FontSize="11"
                                                                 Command="{Binding $parent[ItemsControl].((vm:SettingsViewModel)DataContext).SignOutAccountCommand}"
@@ -1849,7 +1880,7 @@
                                                     <ControlTemplate>
                                                         <TextBlock Text="No accounts signed in. Click '+ Add account' to get started."
                                                                    FontSize="12" Padding="12"
-                                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                                                    HorizontalAlignment="Center"/>
                                                     </ControlTemplate>
                                                 </Setter>
@@ -1872,8 +1903,8 @@
                     <StackPanel Spacing="24" Margin="24" HorizontalAlignment="Center" MaxWidth="620" VerticalAlignment="Top">
 
                         <!-- Current version + check now -->
-                        <Border Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                        <Border Background="{DynamicResource Container1BackgroundBrush}"
+                                BorderBrush="{DynamicResource Container1BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="24">
                             <Grid RowDefinitions="Auto,Auto,Auto" RowSpacing="14">
 
@@ -1882,14 +1913,14 @@
                                     <StackPanel Grid.Column="0" Spacing="3">
                                         <TextBlock Text="Pikura" FontWeight="SemiBold" FontSize="14"/>
                                         <TextBlock FontSize="12"
-                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}">
+                                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}">
                                             <Run Text="Current version: "/>
                                             <Run Text="{Binding AppVersion}" FontWeight="SemiBold"/>
                                         </TextBlock>
                                     </StackPanel>
                                     <Button Grid.Column="1" Content="Check Now"
                                             Command="{Binding CheckForUpdatesNowCommand}"
-                                            Classes="accent" CornerRadius="6" Padding="12,6"
+                                            Classes="accent"  
                                             IsEnabled="{Binding !CheckingForUpdates}"/>
                                 </Grid>
 
@@ -1901,18 +1932,18 @@
                                 <TextBlock Grid.Row="2"
                                            Text="{Binding UpdateStatusMessage}"
                                            FontSize="12" IsVisible="{Binding UpdateStatusMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
-                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushSecondary}"/>
+                                           Foreground="{DynamicResource DefaultForegroundBrushSecondary}"/>
                             </Grid>
                         </Border>
 
                         <!-- Update preferences -->
-                        <Border Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                        <Border Background="{DynamicResource Container1BackgroundBrush}"
+                                BorderBrush="{DynamicResource Container1BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="24">
                             <StackPanel Spacing="18">
 
                                 <TextBlock Text="Update Preferences" FontWeight="SemiBold" FontSize="14"/>
-                                <Separator Background="{actipro:ThemeResource Container1BorderBrush}"/>
+                                <Separator Background="{DynamicResource Container1BorderBrush}"/>
 
                                 <!-- Check frequency -->
                                 <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
@@ -1920,7 +1951,7 @@
                                         <TextBlock Text="Check for updates" FontSize="12" FontWeight="SemiBold"/>
                                         <TextBlock Text="How often Pikura checks for new versions on startup"
                                                    FontSize="11"
-                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                     </StackPanel>
                                     <ComboBox Grid.Column="1"
                                               ItemsSource="{Binding UpdateFrequencyOptions}"
@@ -1934,7 +1965,7 @@
                                         <TextBlock Text="Release channel" FontSize="12" FontWeight="SemiBold"/>
                                         <TextBlock Text="Stable = tagged releases only; Pre-release includes betas"
                                                    FontSize="11"
-                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                     </StackPanel>
                                     <ComboBox Grid.Column="1"
                                               ItemsSource="{Binding UpdateChannelOptions}"
@@ -1948,7 +1979,7 @@
                                         <TextBlock Text="Notify when update available" FontSize="12" FontWeight="SemiBold"/>
                                         <TextBlock Text="Shows a banner at the top of the window"
                                                    FontSize="11"
-                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                     </StackPanel>
                                     <ToggleSwitch Grid.Column="1" IsChecked="{Binding NotifyOnUpdate}"
                                                  OnContent="On" OffContent="Off" VerticalAlignment="Center"/>
@@ -1960,7 +1991,7 @@
                                         <TextBlock Text="Auto-download updates" FontSize="12" FontWeight="SemiBold"/>
                                         <TextBlock Text="Silently download in background; you still confirm install"
                                                    FontSize="11"
-                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                     </StackPanel>
                                     <ToggleSwitch Grid.Column="1" IsChecked="{Binding AutoDownloadUpdates}"
                                                  OnContent="On" OffContent="Off" VerticalAlignment="Center"/>
@@ -1969,17 +2000,17 @@
                                 <!-- Save -->
                                 <Button Content="Save Update Settings"
                                         Command="{Binding SaveUpdateSettingsCommand}"
-                                        Classes="accent" CornerRadius="6" Padding="14,7"
+                                        Classes="accent"  
                                         HorizontalAlignment="Right"/>
                             </StackPanel>
                         </Border>
 
                         <!-- Note: download progress and install banners appear at the top of the main window -->
-                        <Border Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                        <Border Background="{DynamicResource Container1BackgroundBrush}"
+                                BorderBrush="{DynamicResource Container1BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="16">
                             <TextBlock FontSize="12" TextWrapping="Wrap"
-                                       Foreground="{actipro:ThemeResource DefaultForegroundBrushSecondary}"
+                                       Foreground="{DynamicResource DefaultForegroundBrushSecondary}"
                                        Text="When an update is available, a banner will appear at the top of the window where you can download and install it."/>
                         </Border>
 
@@ -1995,8 +2026,8 @@
                     <StackPanel Spacing="24" Margin="24" HorizontalAlignment="Center" MaxWidth="560" VerticalAlignment="Top">
 
                         <!-- Logo / App Identity -->
-                        <Border Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                        <Border Background="{DynamicResource Container1BackgroundBrush}"
+                                BorderBrush="{DynamicResource Container1BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="36,32">
                             <StackPanel Spacing="10" HorizontalAlignment="Center">
                                 <Image Source="/Assets/pikura-logo.png" Width="80" Height="80"
@@ -2004,21 +2035,21 @@
                                 <TextBlock Text="Pikura" FontSize="32" FontWeight="Bold"
                                            HorizontalAlignment="Center"/>
                                 <TextBlock Text="ピクラ" FontSize="13"
-                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushSecondary}"
+                                           Foreground="{DynamicResource DefaultForegroundBrushSecondary}"
                                            HorizontalAlignment="Center" Margin="0,-4,0,0"/>
                                 <TextBlock Text="Pixiv Artwork Manager" FontSize="14"
-                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                           Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                            HorizontalAlignment="Center"/>
-                                <Separator Background="{actipro:ThemeResource Container1BorderBrush}" Margin="0,8"/>
+                                <Separator Background="{DynamicResource Container1BorderBrush}" Margin="0,8"/>
                                 <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto" HorizontalAlignment="Center">
                                     <TextBlock Grid.Row="0" Grid.Column="0" Text="Version" FontSize="13"
-                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}" Margin="0,0,20,6"/>
+                                               Foreground="{DynamicResource DefaultForegroundBrushTertiary}" Margin="0,0,20,6"/>
                                     <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding AppVersion}" FontSize="13" FontWeight="SemiBold"/>
                                     <TextBlock Grid.Row="1" Grid.Column="0" Text="Developer" FontSize="13"
-                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}" Margin="0,0,20,6"/>
+                                               Foreground="{DynamicResource DefaultForegroundBrushTertiary}" Margin="0,0,20,6"/>
                                     <TextBlock Grid.Row="1" Grid.Column="1" Text="mrplusultra" FontSize="13" FontWeight="SemiBold"/>
                                     <TextBlock Grid.Row="2" Grid.Column="0" Text="Year" FontSize="13"
-                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}" Margin="0,0,20,0"/>
+                                               Foreground="{DynamicResource DefaultForegroundBrushTertiary}" Margin="0,0,20,0"/>
                                     <TextBlock Grid.Row="2" Grid.Column="1" Text="© 2026" FontSize="13" FontWeight="SemiBold"/>
                                 </Grid>
                                 <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center" Margin="0,8,0,0">
@@ -2026,58 +2057,58 @@
                                             Click="OnGitHubPageClick"
                                             Cursor="Hand"
                                             FontSize="13"
-                                            Padding="14,6"
-                                            CornerRadius="6"/>
+                                            
+                                            />
                                     <Button Content="View Changelog"
                                             Click="OnViewChangelogClick"
                                             Cursor="Hand"
                                             FontSize="13"
-                                            Padding="14,6"
-                                            CornerRadius="6"/>
+                                            
+                                            />
                                 </StackPanel>
                             </StackPanel>
                         </Border>
 
                         <!-- License -->
-                        <Border Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                        <Border Background="{DynamicResource Container1BackgroundBrush}"
+                                BorderBrush="{DynamicResource Container1BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="28">
                             <StackPanel Spacing="10">
                                 <TextBlock Text="License" FontWeight="SemiBold" FontSize="14"/>
                                 <TextBlock FontSize="12" TextWrapping="Wrap"
-                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                           Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                            Text="Pikura is source-available software. Free for personal, non-commercial use. Commercial use requires a separate license. Contributions welcome."/>
                             </StackPanel>
                         </Border>
 
                         <!-- Tech Stack -->
-                        <Border Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                        <Border Background="{DynamicResource Container1BackgroundBrush}"
+                                BorderBrush="{DynamicResource Container1BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="28">
                             <StackPanel Spacing="10">
                                 <TextBlock Text="Built With" FontWeight="SemiBold" FontSize="14"/>
                                 <WrapPanel>
-                                    <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
+                                    <Border Background="{DynamicResource Container2BackgroundBrush}"
                                             CornerRadius="4" Padding="8,3" Margin="0,0,6,6">
                                         <TextBlock Text=".NET 10" FontSize="11"/>
                                     </Border>
-                                    <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
+                                    <Border Background="{DynamicResource Container2BackgroundBrush}"
                                             CornerRadius="4" Padding="8,3" Margin="0,0,6,6">
                                         <TextBlock Text="Avalonia UI" FontSize="11"/>
                                     </Border>
-                                    <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
+                                    <Border Background="{DynamicResource Container2BackgroundBrush}"
                                             CornerRadius="4" Padding="8,3" Margin="0,0,6,6">
                                         <TextBlock Text="ActiPro" FontSize="11"/>
                                     </Border>
-                                    <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
+                                    <Border Background="{DynamicResource Container2BackgroundBrush}"
                                             CornerRadius="4" Padding="8,3" Margin="0,0,6,6">
                                         <TextBlock Text="SQLite" FontSize="11"/>
                                     </Border>
-                                    <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
+                                    <Border Background="{DynamicResource Container2BackgroundBrush}"
                                             CornerRadius="4" Padding="8,3" Margin="0,0,6,6">
                                         <TextBlock Text="CommunityToolkit.Mvvm" FontSize="11"/>
                                     </Border>
-                                    <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
+                                    <Border Background="{DynamicResource Container2BackgroundBrush}"
                                             CornerRadius="4" Padding="8,3" Margin="0,0,6,6">
                                         <TextBlock Text="Ollama" FontSize="11"/>
                                     </Border>

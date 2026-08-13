@@ -38,6 +38,21 @@ public sealed class AppSettings
     /// <summary>Pixiv App API refresh token for OAuth authentication (used for bookmark operations).</summary>
     public string RefreshToken { get; set; } = string.Empty;
 
+    /// <summary>
+    /// Cloudflare's <c>cf_clearance</c> cookie. Unlike <see cref="PhpSessId"/> this isn't
+    /// obtained during normal login — some Pixiv subdomains (confirmed: <c>embed.pixiv.net</c>,
+    /// used for Collection collage thumbnails) enforce Cloudflare bot-management that rejects
+    /// plain HttpClient requests without it, even with a valid PHPSESSID. Obtained by solving
+    /// the Cloudflare challenge in a headless browser — see
+    /// <c>Pikura.Avalonia.Services.CloudflareSessionService</c>.
+    /// </summary>
+    public string CfClearance { get; set; } = string.Empty;
+
+    /// <summary>When <see cref="CfClearance"/> was last (re)obtained — used to decide when it's
+    /// stale enough to refresh (Cloudflare clearance tokens are typically valid for hours, not
+    /// indefinitely).</summary>
+    public DateTime? CfClearanceObtainedAt { get; set; }
+
     /// <summary>Pixiv user id of the logged-in account (resolved after a successful session check).</summary>
     public string? UserId { get; set; }
 
@@ -46,6 +61,14 @@ public sealed class AppSettings
 
     /// <summary>Whether the logged-in account has a Pixiv Premium subscription (resolved after a successful session check).</summary>
     public bool IsPremium { get; set; }
+
+    /// <summary>Artwork IDs the user has liked through Pikura, persisted so the UI remembers across restarts.</summary>
+    [JsonPropertyName("pixivLikedArtworkIds")]
+    public List<string> PixivLikedArtworkIds { get; set; } = new();
+
+    /// <summary>Past searches from the Search tab (query + the filters active at the time),
+    /// newest first — mirrors Pixiv's own search-history dropdown.</summary>
+    public List<SearchHistoryEntry> SearchHistory { get; set; } = new();
 
     /// <summary>Absolute path to the download root folder.</summary>
     public string DownloadRoot { get; set; } =
@@ -87,6 +110,17 @@ public sealed class AppSettings
 
     /// <summary>When true, R-18 and R-18G content is blurred in gallery until clicked.</summary>
     public bool BlurR18Content { get; set; } = false;
+
+    /// <summary>
+    /// When true, opening artworks anywhere in the app is not recorded to the local
+    /// "Viewed" history and does not affect recent-search suggestions — like a browser's
+    /// incognito mode. Existing history entries are left untouched; this only suppresses
+    /// new writes while enabled.
+    /// </summary>
+    public bool IncognitoModeEnabled { get; set; } = false;
+
+    /// <summary>Top-level layout for the Viewed/History tab: "Default", "Grouped", or "List". Persists across restarts.</summary>
+    public string HistoryViewMode { get; set; } = "Default";
 
     /// <summary>When true, viewed history entries older than the retention window are deleted at app start/restart.</summary>
     public bool AutoClearViewedHistoryEnabled { get; set; } = false;
@@ -498,8 +532,14 @@ public sealed class AppSettings
     /// <summary>Display language for the Pikura UI: "English", "日本語", "中文", "한국어".</summary>
     public string AppLanguage { get; set; } = "English";
 
-    /// <summary>App theme: "Default", "Light", "Dark".</summary>
-    public string Theme { get; set; } = "Default";
+    /// <summary>App theme: "Light", "Dark", "System", "Scheduled".</summary>
+    public string Theme { get; set; } = "System";
+
+    /// <summary>When <see cref="Theme"/> is "Scheduled", the local time of day to switch to dark mode.</summary>
+    public TimeSpan ThemeScheduleDarkStart { get; set; } = TimeSpan.FromHours(20);
+
+    /// <summary>When <see cref="Theme"/> is "Scheduled", the local time of day to switch back to light mode.</summary>
+    public TimeSpan ThemeScheduleDarkEnd { get; set; } = TimeSpan.FromHours(6);
 
     #region Background Artwork Overlay
 
@@ -551,6 +591,13 @@ public sealed class AppSettings
 
     /// <summary>Whether the info strip (title + tags) is visible on cards.</summary>
     public bool ShowInfo { get; set; } = true;
+
+    /// <summary>Whether the Liked/Bookmarked/Local-favorite corner badges are visible on cards
+    /// (Gallery, Discover, and Bookmarks all share this one setting).</summary>
+    public bool ShowBadges { get; set; } = true;
+
+    /// <summary>Whether the artwork viewer's like/bookmark/view stat counts are visible.</summary>
+    public bool ShowPixivStats { get; set; } = true;
 
     /// <summary>Whether the side preview panel is visible.</summary>
     public bool ShowPreview { get; set; } = false;
@@ -673,6 +720,23 @@ public sealed class AppSettings
     /// <summary>R-18 toggle state in Bookmarks (persisted).</summary>
     public bool BookmarksShowR18 { get; set; } = false;
 
+    /// <summary>R-18 toggle state in Collections browse (persisted) — Collections summaries
+    /// carry Pixiv's own <c>xRestrict</c> flag, so unlike artworks this can filter without an
+    /// extra request per tile.</summary>
+    public bool CollectionsShowR18 { get; set; } = false;
+
+    /// <summary>"Grid" or "List" for a Collection's own artwork grid (mirrors Bookmarks).</summary>
+    public string CollectionsViewMode { get; set; } = "Grid";
+
+    /// <summary>"Fixed" or "Natural" height for a Collection's own artwork cards.</summary>
+    public string CollectionsCardHeightMode { get; set; } = "Fixed";
+
+    /// <summary>Whether tag chips are visible on a Collection's artwork cards.</summary>
+    public bool CollectionsShowTags { get; set; } = true;
+
+    /// <summary>Whether the info strip is visible on a Collection's artwork cards.</summary>
+    public bool CollectionsShowInfo { get; set; } = true;
+
     #endregion
 
     #region Gallery Viewer Keyboard Navigation
@@ -698,6 +762,18 @@ public sealed class AppSettings
 
     /// <summary>Items per page in Rankings view.</summary>
     public int RankingsItemsPerPage { get; set; } = 50;
+
+    /// <summary>When true, Pixivision browses page-by-page (Prev/Next/jump-to-page) instead of
+    /// autoloading while scrolling. Not persisted before — always silently reset to autoload on
+    /// every restart regardless of what the user had picked.</summary>
+    public bool PixivisionUsePagination { get; set; } = true;
+
+    /// <summary>When true, History browses page-by-page instead of autoloading while scrolling
+    /// (Default/flat mode only — Grouped/List mode always shows one date at a time).</summary>
+    public bool HistoryUsePagination { get; set; } = false;
+
+    /// <summary>Items per page in History's Default (flat) view when HistoryUsePagination is on.</summary>
+    public int HistoryItemsPerPage { get; set; } = 50;
 
     /// <summary>When true, use pagination in the Search view instead of autoload-on-scroll.</summary>
     public bool SearchUsePagination { get; set; } = false;
@@ -852,7 +928,39 @@ public sealed class AppSettings
 
     #endregion
 
+    #region Viewer tab persistence
+
+    /// <summary>Open inline-viewer tabs (artwork + collage tabs), saved on close and restored on next launch.</summary>
+    public List<PersistedViewerTab> PersistedViewerTabs { get; set; } = [];
+
+    /// <summary>Index into <see cref="PersistedViewerTabs"/> of the tab that was selected when the app closed.</summary>
+    public int PersistedSelectedTabIndex { get; set; } = -1;
+
+    #endregion
+
     [JsonIgnore] public bool IsConfigured => !string.IsNullOrWhiteSpace(PhpSessId);
+}
+
+/// <summary>
+/// A single inline-viewer tab's persisted state — enough to rebuild the tab (re-fetching the
+/// artwork card(s) from Pixiv) the next time the app launches.
+/// </summary>
+public sealed class PersistedViewerTab
+{
+    /// <summary>The section that originally opened this tab (informational only).</summary>
+    public string Source { get; set; } = "Gallery";
+
+    /// <summary>Tab header text shown in the tab strip.</summary>
+    public string? Header { get; set; }
+
+    /// <summary>True if this is the collage tab.</summary>
+    public bool IsCollage { get; set; }
+
+    /// <summary>Artwork ID shown by a regular (non-collage) tab.</summary>
+    public string? ArtworkId { get; set; }
+
+    /// <summary>Artwork IDs contained in the collage tab, in order.</summary>
+    public List<string> CollageArtworkIds { get; set; } = [];
 }
 
 /// <summary>
@@ -892,4 +1000,21 @@ public sealed class OverlayImageEntry
 
     /// <summary>Zoom scale (1.0 = 100%, 0.5 = 50%, 2.0 = 200%).</summary>
     public double Zoom { get; set; } = 1.0;
+}
+
+/// <summary>One entry in the Search tab's search history — the query plus enough of the active
+/// filter state to both display a summary (e.g. "Illustrations · Hide AI-generated work") and
+/// exactly re-run the search later, mirroring Pixiv's own search-history dropdown.</summary>
+public sealed class SearchHistoryEntry
+{
+    public string Query { get; set; } = string.Empty;
+    public string Category { get; set; } = "illustrations"; // "illustrations" | "manga" | "novels" | "users"
+    public string SortOrder { get; set; } = "date_d";
+    public string SearchMode { get; set; } = "safe";
+    public string IncludeAnyKeywords { get; set; } = string.Empty;
+    public string ExcludeKeywords { get; set; } = string.Empty;
+    /// <summary>Precomputed short summary shown under the query in the dropdown, e.g.
+    /// "Illustrations and Manga" or "Novels · Group by series".</summary>
+    public string FilterSummary { get; set; } = string.Empty;
+    public DateTime SavedAt { get; set; } = DateTime.Now;
 }

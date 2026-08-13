@@ -13,20 +13,20 @@
     </Design.DataContext>
 
     <Grid RowDefinitions="Auto,*,Auto,Auto">
-        <Border Grid.Row="0" Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+        <Border Grid.Row="0" Background="{DynamicResource Container1BackgroundBrush}"
+                BorderBrush="{DynamicResource Container1BorderBrush}"
                 BorderThickness="0,0,0,1" Padding="20,16">
             <StackPanel Spacing="4">
                 <TextBlock Text="Download from Bookmarks" FontSize="20" FontWeight="SemiBold"/>
                 <TextBlock Text="Download artworks from your bookmarked artists and images"
-                           FontSize="12" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                           FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
             </StackPanel>
         </Border>
 
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
             <StackPanel Spacing="16" Margin="20">
-                <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                        BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                <Border Background="{DynamicResource Container2BackgroundBrush}"
+                        BorderBrush="{DynamicResource Container2BorderBrush}"
                         BorderThickness="1" CornerRadius="8" Padding="16">
                     <StackPanel Spacing="12">
                         <TextBlock Text="Source" FontSize="15" FontWeight="SemiBold"/>
@@ -39,8 +39,8 @@
                     </StackPanel>
                 </Border>
 
-                <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                        BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                <Border Background="{DynamicResource Container2BackgroundBrush}"
+                        BorderBrush="{DynamicResource Container2BorderBrush}"
                         BorderThickness="1" CornerRadius="8" Padding="16">
                     <StackPanel Spacing="12">
                         <TextBlock Text="Visibility" FontSize="15" FontWeight="SemiBold"/>
@@ -55,8 +55,8 @@
                     </StackPanel>
                 </Border>
 
-                <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                        BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                <Border Background="{DynamicResource Container2BackgroundBrush}"
+                        BorderBrush="{DynamicResource Container2BorderBrush}"
                         BorderThickness="1" CornerRadius="8" Padding="16">
                     <StackPanel Spacing="12">
                         <TextBlock Text="Filter Options" FontSize="15" FontWeight="SemiBold"/>
@@ -70,8 +70,8 @@
             </StackPanel>
         </ScrollViewer>
 
-        <Border Grid.Row="2" Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+        <Border Grid.Row="2" Background="{DynamicResource Container1BackgroundBrush}"
+                BorderBrush="{DynamicResource Container1BorderBrush}"
                 BorderThickness="0,1,0,0" Padding="16"
                 IsVisible="{Binding HasActiveJob}">
             <StackPanel Spacing="8">
@@ -80,12 +80,12 @@
             </StackPanel>
         </Border>
 
-        <Border Grid.Row="3" Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+        <Border Grid.Row="3" Background="{DynamicResource Container2BackgroundBrush}"
+                BorderBrush="{DynamicResource Container2BorderBrush}"
                 BorderThickness="0,1,0,0" Padding="16">
             <Button Content="▶ Start Download" Command="{Binding StartDownloadCommand}"
                     Classes="accent" HorizontalAlignment="Right"
-                    CornerRadius="6" Padding="20,12" FontWeight="SemiBold"/>
+                     Padding="20,12" />
         </Border>
     </Grid>
 </UserControl>

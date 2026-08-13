@@ -2,6 +2,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Input.Platform;
 using Avalonia.Interactivity;
+using Avalonia.Threading;
 using Pikura.Avalonia.Services;
 using Pikura.Avalonia.ViewModels;
 using Pikura.Avalonia.Views.Artwork;
@@ -175,10 +176,47 @@ public partial class ViewedHistoryView : UserControl
 
     private void OnScrollChanged(object? sender, ScrollChangedEventArgs e)
     {
-        if (VM is not { CanLoadMore: true, IsLoading: false }) return;
+        if (VM is not { CanLoadMore: true, IsLoading: false, UsePagination: false }) return;
         if (sender is not ScrollViewer sv) return;
         if (sv.Extent.Height - sv.Offset.Y - sv.Viewport.Height < 300)
             _ = VM.LoadMoreAsync();
+    }
+
+    /// <summary>Opens the custom date-range picker as an anchored Popup near the ⏱ button —
+    /// a nested Flyout-inside-a-MenuFlyout (the previous approach) is a known Avalonia timing
+    /// trap: showing a second flyout synchronously while the first is still closing loses the
+    /// race and silently shows nothing, even when deferred with Dispatcher.Post. The Popup here
+    /// is opened deferred for the same underlying reason (this handler runs while the
+    /// MenuFlyout hosting "Custom range…" is still closing).</summary>
+    private void OnCustomRangeMenuClick(object? sender, RoutedEventArgs e)
+    {
+        Dispatcher.UIThread.Post(() =>
+        {
+            if (VM == null) return;
+            CustomRangePanel.SetInitialRange(VM.CustomRangeStart, VM.CustomRangeEnd);
+            CustomRangePopup.IsOpen = true;
+        }, DispatcherPriority.Background);
+    }
+
+    private void OnCustomRangeApplied(object? sender, EventArgs e)
+    {
+        if (VM == null || sender is not Dialogs.DateRangePickerPanel panel) return;
+        CustomRangePopup.IsOpen = false;
+        if (panel.RangeStart is null || panel.RangeEnd is null) return;
+        VM.CustomRangeStart = panel.RangeStart;
+        VM.CustomRangeEnd = panel.RangeEnd;
+        _ = VM.ApplyCustomRangeCommand.ExecuteAsync(null);
+    }
+
+    private void OnCustomRangeCancelled(object? sender, EventArgs e) => CustomRangePopup.IsOpen = false;
+
+    private void OnHistoryPageInputKeyDown(object? sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Enter)
+        {
+            e.Handled = true;
+            VM?.GoToPageInputCommand.Execute(null);
+        }
     }
 
     private void OnCardClicked(object? sender, PointerPressedEventArgs e)

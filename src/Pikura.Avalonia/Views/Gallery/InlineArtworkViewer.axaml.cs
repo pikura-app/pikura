@@ -6,6 +6,9 @@ using Avalonia.Input.Platform;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
+using Avalonia.Media.Transformation;
+using AvaloniaAnimation = global::Avalonia.Animation;
+using Avalonia.Controls.Presenters;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using Pikura.Avalonia.Services;
@@ -18,6 +21,8 @@ using Pikura.Core.Models;
 using Pikura.Core.Services;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -43,6 +48,18 @@ public partial class InlineArtworkViewer : UserControl
     {
         add => AddHandler(ExpandViewerEvent, value);
         remove => RemoveHandler(ExpandViewerEvent, value);
+    }
+
+    /// <summary>Bubbling event raised when "Fullscreen" is clicked while Collage mode is
+    /// active — unlike ExpandViewer (which TOGGLES), hosts should unconditionally go full-screen
+    /// here, since Fullscreen should never accidentally collapse back to the side panel if it's
+    /// clicked while already expanded.</summary>
+    public static readonly RoutedEvent<RoutedEventArgs> RequestFullscreenEvent =
+        RoutedEvent.Register<InlineArtworkViewer, RoutedEventArgs>(nameof(RequestFullscreen), RoutingStrategies.Bubble);
+    public event EventHandler<RoutedEventArgs> RequestFullscreen
+    {
+        add => AddHandler(RequestFullscreenEvent, value);
+        remove => RemoveHandler(RequestFullscreenEvent, value);
     }
 
     /// <summary>Bubbling event raised after Close All is executed. Hosts can handle this to close their own panel.</summary>
@@ -150,6 +167,43 @@ public partial class InlineArtworkViewer : UserControl
     private bool _fullResLoaded;
     private string? _currentOriginalUrl;
 
+    // Pixiv action state
+    private bool _isLiked;
+    private bool _isBookmarked;
+    private bool _isPrivateBookmark;
+    private bool _isFollowing;
+    private string? _bookmarkId;
+    private int _bookmarkCount;
+    private int _likeCount;
+    private int _viewCount;
+    private bool _statsLoaded;
+    // Caches real like/bookmark/view counts per artwork ID once fetched, so navigating back
+    // to an artwork already seen this session shows the real numbers immediately instead of
+    // flashing "0" again while LoadArtworkStateAsync's network fetch is in flight — the
+    // gallery-listing endpoint doesn't return these counts, so the card starts at 0 for
+    // artworks that haven't had their detail fetched yet.
+    private readonly Dictionary<string, (int Likes, int Bookmarks, int Views)> _statsCache = [];
+    // Tab drag-reorder state
+    private ViewerTab? _dragTab;
+    private Control? _draggedContainer;
+    private Panel? _tabPanel;
+    private Point _dragStart;
+    private int _dragFromIndex = -1;
+    private bool _isDragging;
+    private double _slotWidth;
+    private readonly List<AvaloniaAnimation.Transitions?> _savedTabTransitions = [];
+    private readonly Dictionary<Control, double> _preMoveX = [];
+    private const double DragThreshold = 6.0;
+    private static readonly AvaloniaAnimation.Transitions _tabMoveTransitions = new()
+    {
+        new AvaloniaAnimation.TransformOperationsTransition
+        {
+            Property = Visual.RenderTransformProperty,
+            Duration = TimeSpan.FromSeconds(0.2),
+            Easing = new AvaloniaAnimation.Easings.CubicEaseOut()
+        }
+    };
+
     public InlineArtworkViewer()
     {
         InitializeComponent();
@@ -168,6 +222,15 @@ public partial class InlineArtworkViewer : UserControl
             // Hook extent changes so scroll fires after layout whenever content grows
             if (AiScrollViewer != null)
                 AiScrollViewer.PropertyChanged += OnScrollViewerPropertyChanged;
+
+            // Restore the persisted Show/Hide stats toggle state (previously always reset to
+            // visible on every card/restart, ignoring whatever the user last chose).
+            if (ShowStatsBtn != null && StatsStackPanel != null)
+            {
+                var showStats = AppServices.Get<Pikura.Core.Settings.SettingsService>().Current.ShowPixivStats;
+                ShowStatsBtn.IsChecked = showStats;
+                StatsStackPanel.IsVisible = showStats;
+            }
         };
 
         _aiVm.PropertyChanged += (_, e) =>
@@ -199,6 +262,7 @@ public partial class InlineArtworkViewer : UserControl
         };
 
         DataContextChanged += OnDataContextChanged;
+        TabStrip.Loaded += (_, _) => RefreshDragHandlers();
     }
 
     /// <summary>
@@ -289,11 +353,13 @@ public partial class InlineArtworkViewer : UserControl
         if (_subscribedVm != null)
         {
             _subscribedVm.PropertyChanged -= OnVmPropertyChanged;
+            _subscribedVm.ViewerTabs.CollectionChanged -= OnViewerTabsCollectionChanged;
             _subscribedVm = null;
         }
 
         if (VM is not { } vm) return;
         vm.PropertyChanged += OnVmPropertyChanged;
+        vm.ViewerTabs.CollectionChanged += OnViewerTabsCollectionChanged;
         _subscribedVm = vm;
 
         // Always force reload on re-attach — _currentCard may match a stale instance
@@ -304,6 +370,29 @@ public partial class InlineArtworkViewer : UserControl
         {
             _ = LoadCardAsync(vm.InlineViewerCard);
             UpdateTabHighlight();
+        }
+    }
+
+    private void OnViewerTabsCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        if (_isDragging) return;
+        Dispatcher.UIThread.Post(RefreshDragHandlers);
+    }
+
+    private void RefreshDragHandlers()
+    {
+        var panel = TabStrip.ItemsPanelRoot as Panel;
+        if (panel == null) return;
+        foreach (var child in panel.Children)
+        {
+            child.RemoveHandler(PointerPressedEvent, OnTabPointerPressed);
+            child.RemoveHandler(PointerMovedEvent, OnTabPointerMoved);
+            child.RemoveHandler(PointerReleasedEvent, OnTabPointerReleased);
+            child.RemoveHandler(PointerCaptureLostEvent, OnTabPointerCaptureLost);
+            child.AddHandler(PointerPressedEvent, OnTabPointerPressed, RoutingStrategies.Tunnel);
+            child.AddHandler(PointerMovedEvent, OnTabPointerMoved, RoutingStrategies.Tunnel);
+            child.AddHandler(PointerReleasedEvent, OnTabPointerReleased, RoutingStrategies.Direct);
+            child.AddHandler(PointerCaptureLostEvent, OnTabPointerCaptureLost, RoutingStrategies.Direct);
         }
     }
 
@@ -365,8 +454,163 @@ public partial class InlineArtworkViewer : UserControl
 
     private void OnTabPointerPressed(object? sender, PointerPressedEventArgs e)
     {
-        if (sender is Border b && b.DataContext is ViewerTab tab && VM != null)
-            VM.SelectedViewerTab = tab;
+        if (sender is not ContentPresenter cp || cp.DataContext is not ViewerTab tab || VM == null) return;
+        if (!e.GetCurrentPoint(null).Properties.IsLeftButtonPressed) return;
+
+        _tabPanel = TabStrip.ItemsPanelRoot as Panel;
+        if (_tabPanel == null) return;
+
+        _draggedContainer = cp;
+        VM.SelectedViewerTab = tab;
+        _dragTab = tab;
+        _dragFromIndex = _tabPanel.Children.IndexOf(cp);
+        _dragStart = e.GetPosition(_tabPanel);
+        _isDragging = false;
+    }
+
+    private void OnTabPointerMoved(object? sender, PointerEventArgs e)
+    {
+        if (_dragTab == null || _draggedContainer == null || _tabPanel == null) return;
+        var pos = e.GetPosition(_tabPanel);
+        if (!_isDragging)
+        {
+            if (Math.Abs(pos.X - _dragStart.X) < DragThreshold &&
+                Math.Abs(pos.Y - _dragStart.Y) < DragThreshold) return;
+
+            _isDragging = true;
+            _draggedContainer.Classes.Add("dragging");
+            _draggedContainer.ZIndex = 100;
+            _draggedContainer.Cursor = new Cursor(StandardCursorType.DragMove);
+            if (_draggedContainer is IInputElement ie)
+                e.Pointer.Capture(ie);
+
+            // Disable transitions during the drag so siblings snap to new slots immediately
+            // and the dragged container follows the cursor without lag.
+            _savedTabTransitions.Clear();
+            foreach (var child in _tabPanel.Children)
+            {
+                if (child is Control c)
+                {
+                    _savedTabTransitions.Add(c.Transitions);
+                    c.Transitions = null;
+                }
+                else _savedTabTransitions.Add(null);
+            }
+
+            if (_tabPanel.Children.Count > 1)
+                _slotWidth = Math.Abs(_tabPanel.Children[1].Bounds.X - _tabPanel.Children[0].Bounds.X);
+            else
+                _slotWidth = _draggedContainer.Bounds.Width + 2; // 2 is the StackPanel Spacing
+        }
+
+        ApplyDragTransform(pos.X - _dragStart.X);
+
+        int toIndex = -1;
+        for (int i = 0; i < _tabPanel.Children.Count; i++)
+        {
+            var child = _tabPanel.Children[i];
+            var bounds = child.Bounds;
+            if (pos.X < bounds.X + bounds.Width / 2 && toIndex < 0)
+                toIndex = i;
+        }
+        if (toIndex < 0) toIndex = _tabPanel.Children.Count - 1;
+        if (toIndex == _dragFromIndex) return;
+
+        var tabs = VM?.ViewerTabs;
+        if (tabs == null || _dragFromIndex >= tabs.Count || toIndex >= tabs.Count) return;
+
+        var shift = (toIndex - _dragFromIndex) * _slotWidth;
+        _preMoveX.Clear();
+        foreach (var child in _tabPanel.Children)
+        {
+            if (child is Control c && c != _draggedContainer)
+                _preMoveX[c] = child.Bounds.X;
+        }
+
+        tabs.Move(_dragFromIndex, toIndex);
+        _dragFromIndex = _tabPanel.Children.IndexOf(_draggedContainer);
+        _dragStart = new Point(_dragStart.X + shift, _dragStart.Y);
+        ApplyDragTransform(pos.X - _dragStart.X);
+
+        // FLIP: move siblings visually back to their pre-Move positions, then let
+        // transitions animate them to the new layout slot.
+        int t = 0;
+        foreach (var child in _tabPanel.Children)
+        {
+            if (child is Control c && c != _draggedContainer && _preMoveX.TryGetValue(c, out var oldX))
+            {
+                var newX = child.Bounds.X;
+                var delta = oldX - newX;
+                if (Math.Abs(delta) > 0.5)
+                {
+                    c.RenderTransform = TransformOperations.Parse($"translateX({delta:F2}px)");
+                    var saved = t < _savedTabTransitions.Count ? _savedTabTransitions[t] : null;
+                    c.Transitions = _tabMoveTransitions;
+                    Dispatcher.UIThread.Post(() =>
+                    {
+                        c.RenderTransform = null;
+                        c.Transitions = saved;
+                    });
+                }
+            }
+            t++;
+        }
+    }
+
+    private void ApplyDragTransform(double deltaX)
+    {
+        if (_draggedContainer == null) return;
+        var x = deltaX.ToString("F2", System.Globalization.CultureInfo.InvariantCulture);
+        _draggedContainer.RenderTransform = TransformOperations.Parse($"translateX({x}px) scale(1.03)");
+    }
+
+    private void OnTabPointerReleased(object? sender, PointerReleasedEventArgs e)
+    {
+        e.Pointer.Capture(null);
+        EndDrag();
+    }
+
+    private void OnTabPointerCaptureLost(object? sender, PointerCaptureLostEventArgs e)
+    {
+        EndDrag();
+    }
+
+    private void EndDrag()
+    {
+        if (_draggedContainer != null)
+        {
+            _draggedContainer.Classes.Remove("dragging");
+            _draggedContainer.ZIndex = 0;
+            _draggedContainer.RenderTransform = null;
+            _draggedContainer.Cursor = Cursor.Default;
+            _draggedContainer = null;
+        }
+
+        if (_tabPanel != null)
+        {
+            int t = 0;
+            foreach (var child in _tabPanel.Children)
+            {
+                if (child is Control c)
+                {
+                    c.RenderTransform = null;
+                    c.ZIndex = 0;
+                    c.Opacity = 1;
+                    c.Classes.Remove("dragging");
+                    c.Cursor = Cursor.Default;
+                    if (t < _savedTabTransitions.Count)
+                        c.Transitions = _savedTabTransitions[t];
+                }
+                t++;
+            }
+        }
+
+        _savedTabTransitions.Clear();
+        _preMoveX.Clear();
+        _isDragging = false;
+        _dragTab = null;
+        _dragFromIndex = -1;
+        _tabPanel = null;
     }
 
     private void OnTabCloseClick(object? sender, RoutedEventArgs e)
@@ -438,6 +682,15 @@ public partial class InlineArtworkViewer : UserControl
         if (ViewerImage != null) ViewerImage.Source = null;
 
         _currentCard = card;
+        // Re-apply the persisted Show/Hide stats toggle on every artwork navigation, not just
+        // once at control-load time — the ToggleButton's hardcoded XAML default (IsChecked="True")
+        // was winning back over the user's choice as soon as they moved to another submission.
+        if (ShowStatsBtn != null && StatsStackPanel != null)
+        {
+            var showStats = AppServices.Get<Pikura.Core.Settings.SettingsService>().Current.ShowPixivStats;
+            ShowStatsBtn.IsChecked = showStats;
+            StatsStackPanel.IsVisible = showStats;
+        }
         _aiVm.CurrentImageBytes = null;
         // Capture the resolved session by value — if the user switches to another
         // artwork before the fetches below complete, late-arriving bytes must still
@@ -475,9 +728,37 @@ public partial class InlineArtworkViewer : UserControl
         _currentPageIndex = 0;
         _pages = [];
         _fullResLoaded = false;
+
+        _isLiked = card.Id is not null &&
+                   (VM?.SettingsService?.Current?.PixivLikedArtworkIds.Contains(card.Id) ?? false);
+        card.IsLiked = _isLiked; // defensive: keep the card's own badge in sync with the authoritative check
+        SyncCardFlagsEverywhere(isLiked: _isLiked, targetCard: card);
+        _isBookmarked = card.IsPixivBookmarked;
+        _isPrivateBookmark = card.IsPixivPrivateBookmark;
+        _isFollowing = card.IsFollowed;
+        _bookmarkId = card.PixivBookmarkId;
+        if (card.Id is not null && _statsCache.TryGetValue(card.Id, out var cachedStats))
+        {
+            _likeCount = cachedStats.Likes;
+            _bookmarkCount = cachedStats.Bookmarks;
+            _viewCount = cachedStats.Views;
+            _statsLoaded = true;
+        }
+        else
+        {
+            _bookmarkCount = card.BookmarkCount;
+            _likeCount = card.LikeCount;
+            _viewCount = card.ViewCount;
+            _statsLoaded = false;
+        }
+        UpdateStatsLabel();
         UpdateFollowButton();
+        UpdateLikeButton();
+        UpdateBookmarkButtons();
         UpdateFavoriteButton(card);
         _currentOriginalUrl = null;
+
+        _ = LoadArtworkStateAsync(card);
 
         UpdatePageIndicator();
         UpdateArtworkCounter();
@@ -971,9 +1252,17 @@ if (result != null && presetWindow.DownloadClicked)
 
     private async void OnFullscreen(object? sender, RoutedEventArgs e)
     {
-        if (_currentCard == null || VM == null) return;
         var window = TopLevel.GetTopLevel(this) as Window;
-        if (window == null) return;
+        if (window == null || VM == null) return;
+
+        if (VM.IsCollageMode && VM.CollageItems is { Count: > 0 } collageItems)
+        {
+            var collage = new CollageFullscreenWindow(collageItems);
+            await collage.ShowDialog(window);
+            return;
+        }
+
+        if (_currentCard == null) return;
         var viewer = new FullscreenViewerWindow(_currentCard.Artwork, VM);
         await viewer.ShowDialog(window);
     }
@@ -1216,20 +1505,924 @@ if (result != null && presetWindow.DownloadClicked)
         await galleryVm.LoadArtistByIdCommand.ExecuteAsync(userId);
     }
 
-    private void OnFollowToggleClicked(object? sender, RoutedEventArgs e)
+    private async void OnFollowToggleClicked(object? sender, RoutedEventArgs e)
     {
-        // Follow/unfollow feature removed - Pixiv OAuth no longer available
-        if (VM != null)
+        if (_currentCard == null || VM == null) return;
+
+        bool ok;
+        if (_isFollowing)
+            ok = await _pixivClient.UnfollowUserAsync(_currentCard.UserId);
+        else
+            ok = await _pixivClient.FollowUserAsync(_currentCard.UserId);
+
+        if (ok)
         {
-            VM.StatusMessage = "Follow/unfollow is not available. Pixiv has blocked OAuth authentication.";
+            _isFollowing = !_isFollowing;
+            _currentCard.IsFollowed = _isFollowing;
+            VM.SetArtistFollowed(_currentCard.UserId, _currentCard.UserName, _isFollowing);
+            UpdateFollowButton();
+            VM.StatusMessage = _isFollowing ? $"Following {_currentCard.UserName}" : $"Unfollowed {_currentCard.UserName}";
+        }
+        else
+        {
+            VM.StatusMessage = "Could not update follow. Follow/unfollow requires a Pixiv App API refresh token (Settings > Accounts) or a valid web session.";
         }
     }
 
     private void UpdateFollowButton()
     {
-        // Follow button hidden - feature unavailable due to Pixiv OAuth restrictions
-        if (FollowToggleBtn != null)
-            FollowToggleBtn.IsVisible = false;
+        if (FollowToggleBtn == null || FollowToggleLabel == null) return;
+        FollowToggleBtn.IsVisible = _currentCard != null;
+        FollowToggleLabel.Text = _isFollowing ? "Following" : "Follow";
+        if (_isFollowing) FollowToggleBtn.Classes.Add("accent");
+        else FollowToggleBtn.Classes.Remove("accent");
+    }
+
+    private async Task LoadArtworkStateAsync(ArtworkCardViewModel card)
+    {
+        try
+        {
+            var detailTask = _pixivClient.GetArtworkDetailAsync(card.Id);
+            var bookmarkTask = _pixivClient.GetBookmarkStateAsync(card.Id);
+            // The local followed-artists cache can be incomplete (Pixiv's paginated list can
+            // shift while we're fetching hundreds of pages), so re-check the live follow state
+            // for this artist directly rather than trusting only the local Artists collection.
+            var followTask = string.IsNullOrWhiteSpace(card.UserId)
+                ? Task.FromResult<Core.Models.PixivUserInfo?>(null)
+                : _pixivClient.GetArtistAsync(card.UserId);
+
+            await Task.WhenAll(detailTask, bookmarkTask, followTask);
+
+            var detail = await detailTask;
+            var bookmark = await bookmarkTask;
+            var followInfo = await followTask;
+
+            await Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                if (_currentCard?.Id != card.Id) return;
+
+                _bookmarkCount = detail?.BookmarkCount ?? card.BookmarkCount;
+                _likeCount = detail?.LikeCount ?? card.LikeCount;
+                _viewCount = detail?.ViewCount ?? card.ViewCount;
+                _statsLoaded = true;
+                if (card.Id is not null)
+                    _statsCache[card.Id] = (_likeCount, _bookmarkCount, _viewCount);
+                _isBookmarked = bookmark?.IsBookmarked ?? false;
+                _isPrivateBookmark = bookmark?.IsPrivate ?? false;
+                _bookmarkId = bookmark?.BookmarkId;
+                // This live check is the ONLY place that discovers "this artwork is already
+                // bookmarked" when simply opening it (as opposed to clicking Bookmark, which
+                // already updates the card directly) — push it onto the card too, otherwise its
+                // badge in the Gallery/Discover/Bookmarks grid stays stale until some other
+                // action happens to touch it.
+                card.IsPixivBookmarked = _isBookmarked;
+                card.IsPixivPrivateBookmark = _isPrivateBookmark;
+                card.PixivBookmarkId = _bookmarkId;
+                if (card.Id is not null)
+                {
+                    try { AppServices.Get<BookmarksViewModel>().SyncBookmarked(card, _isBookmarked, _isPrivateBookmark, _bookmarkId); }
+                    catch { /* Bookmarks view not initialized yet */ }
+                    SyncCardFlagsEverywhere(isPixivBookmarked: _isBookmarked, isPixivPrivateBookmark: _isPrivateBookmark,
+                        pixivBookmarkId: _bookmarkId, bookmarkIdProvided: true, targetCard: card);
+                }
+
+                if (followInfo != null)
+                {
+                    _isFollowing = followInfo.IsFollowed;
+                    card.IsFollowed = followInfo.IsFollowed;
+                    if (followInfo.IsFollowed)
+                        VM?.SetArtistFollowed(card.UserId, card.UserName, true);
+                }
+
+                UpdateStatsLabel();
+                UpdateLikeButton();
+                UpdateBookmarkButtons();
+                UpdateFollowButton();
+            });
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[InlineArtworkViewer] LoadArtworkStateAsync({card.Id}) failed: {ex.Message}");
+        }
+    }
+
+    private void UpdateStatsLabel()
+    {
+        // Until the real detail fetch resolves, the card's counts default to 0 (the
+        // gallery-listing endpoint doesn't return them) — show "…" instead of a
+        // momentary, misleading "0 / 0 / 0".
+        if (!_statsLoaded)
+        {
+            if (LikeCountLabel != null) LikeCountLabel.Text = "…";
+            if (BookmarkCountLabel != null) BookmarkCountLabel.Text = "…";
+            if (ViewCountLabel != null) ViewCountLabel.Text = "…";
+            return;
+        }
+        if (LikeCountLabel != null) LikeCountLabel.Text = _likeCount.ToString("N0", CultureInfo.InvariantCulture);
+        if (BookmarkCountLabel != null) BookmarkCountLabel.Text = _bookmarkCount.ToString("N0", CultureInfo.InvariantCulture);
+        if (ViewCountLabel != null) ViewCountLabel.Text = _viewCount.ToString("N0", CultureInfo.InvariantCulture);
+    }
+
+    private void OnShowStatsToggled(object? sender, RoutedEventArgs e)
+    {
+        if (ShowStatsBtn == null || StatsStackPanel == null) return;
+        var isVisible = ShowStatsBtn.IsChecked ?? true;
+        StatsStackPanel.IsVisible = isVisible;
+        try { AppServices.Get<Pikura.Core.Settings.SettingsService>().Update(s => s.ShowPixivStats = isVisible); }
+        catch { /* non-fatal */ }
+    }
+
+    private void UpdateLikeButton()
+    {
+        if (LikeBtn == null || LikeBtnLabel == null) return;
+        LikeBtnLabel.Text = _isLiked ? "Liked" : "Like";
+        if (_isLiked) LikeBtn.Classes.Add("accent");
+        else LikeBtn.Classes.Remove("accent");
+    }
+
+    private void UpdateBookmarkButtons()
+    {
+        if (BookmarkSplitBtn == null || BookmarkBtnLabel == null) return;
+
+        if (_isBookmarked)
+        {
+            BookmarkBtnLabel.Text = _isPrivateBookmark ? "Private" : "Public";
+        }
+        else
+        {
+            BookmarkBtnLabel.Text = "Bookmark";
+        }
+
+        if (_isBookmarked) BookmarkSplitBtn.Classes.Add("accent");
+        else BookmarkSplitBtn.Classes.Remove("accent");
+    }
+
+    private async void OnLikeClicked(object? sender, RoutedEventArgs e)
+    {
+        if (_currentCard == null || _isLiked || VM == null) return;
+        LikeBtn!.IsEnabled = false;
+        try
+        {
+            var ok = await _pixivClient.LikeIllustAsync(_currentCard.Id);
+            if (ok)
+            {
+                _isLiked = true;
+                _likeCount++;
+                _currentCard.IsLiked = true;
+                UpdateLikeButton();
+                UpdateStatsLabel();
+                try
+                {
+                    var service = VM?.SettingsService;
+                    if (service != null && _currentCard?.Id != null && !service.Current.PixivLikedArtworkIds.Contains(_currentCard.Id))
+                    {
+                        service.Current.PixivLikedArtworkIds.Add(_currentCard.Id);
+                        service.Save();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[InlineArtworkViewer] Could not persist liked artwork: {ex.Message}");
+                }
+                try { AppServices.Get<BookmarksViewModel>().SyncLiked(_currentCard, true); }
+                catch { /* Bookmarks view not initialized yet — nothing to sync into */ }
+                SyncCardFlagsEverywhere(isLiked: true);
+                VM.StatusMessage = "Liked on Pixiv";
+            }
+            else
+            {
+                VM.StatusMessage = "Could not like artwork";
+            }
+        }
+        finally { LikeBtn.IsEnabled = true; }
+    }
+
+    // ── Comments ─────────────────────────────────────────────────────────────
+    private readonly List<Pikura.Core.Models.PixivComment> _loadedComments = [];
+    private int _commentsOffset;
+    private bool _commentsHasNext;
+    private bool _commentsLoading;
+    private string? _commentsLoadedForArtworkId;
+    /// <summary>Set while replying to a specific comment — that comment's own ID becomes
+    /// <c>parent_comment_id</c> on the next post. Pixiv only supports one level of replies (a
+    /// reply's own commentRootId is the top-level comment it belongs to), so replying to a
+    /// reply targets the same root rather than nesting further.</summary>
+    private (string Id, string UserName)? _replyingTo;
+    /// <summary>Root comment ID → its (currently expanded) replies panel, so a just-posted reply
+    /// can be inserted into the right thread instead of always landing at the top of the list.</summary>
+    private readonly Dictionary<string, StackPanel> _repliesHosts = [];
+
+    private DispatcherTimer? _commentsPollTimer;
+
+    private async void OnCommentsClicked(object? sender, RoutedEventArgs e)
+    {
+        if (_currentCard == null) return;
+        CommentsPopup.IsOpen = !CommentsPopup.IsOpen;
+        if (CommentsPopup.IsOpen)
+        {
+            if (_commentsLoadedForArtworkId != _currentCard.Id)
+                await LoadCommentsAsync(reset: true);
+            StartCommentsPolling();
+        }
+        else
+        {
+            StopCommentsPolling();
+        }
+    }
+
+    /// <summary>
+    /// Pixiv has no push/websocket notification for new comments, so the only way to reflect a
+    /// comment posted, replied to, or deleted from the website (or another device) while this
+    /// panel is open is to periodically re-check. Keeps things simple and low-risk: only adds
+    /// genuinely new top-level comments and removes ones that vanished from the first page —
+    /// it never touches already-expanded reply threads or in-progress typing.
+    /// </summary>
+    private void StartCommentsPolling()
+    {
+        StopCommentsPolling();
+        _commentsPollTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(20) };
+        _commentsPollTimer.Tick += async (_, _) => await PollCommentsForChangesAsync();
+        _commentsPollTimer.Start();
+    }
+
+    private void StopCommentsPolling()
+    {
+        _commentsPollTimer?.Stop();
+        _commentsPollTimer = null;
+    }
+
+    private void OnCommentsPopupClosed(object? sender, EventArgs e) => StopCommentsPolling();
+
+    private async Task PollCommentsForChangesAsync()
+    {
+        if (_currentCard?.Id == null || _commentsLoading) return;
+        try
+        {
+            var result = await _pixivClient.GetCommentsAsync(_currentCard.Id, 0, 20);
+            if (result == null) return;
+
+            var freshIds = result.Comments.Select(c => c.Id).ToHashSet();
+            // Snapshot BEFORE any mutation — only the comments we already knew about that fall
+            // within this same first page are eligible to be flagged as "deleted elsewhere";
+            // anything loaded further down via scroll-to-load-more is left untouched to avoid
+            // any risk of misjudging it as removed just because it's outside this shallow check.
+            var previouslyKnownFirstPage = _loadedComments.Take(result.Comments.Count).ToList();
+            var knownIds = _loadedComments.Select(c => c.Id).ToHashSet();
+
+            // Comments the website now has that we don't yet — insert at the top, newest first.
+            var newOnes = result.Comments.Where(c => !knownIds.Contains(c.Id)).Reverse().ToList();
+            foreach (var c in newOnes)
+            {
+                _loadedComments.Insert(0, c);
+                CommentsListPanel.Children.Insert(0, BuildCommentThread(c));
+            }
+
+            var removed = previouslyKnownFirstPage.Where(c => !freshIds.Contains(c.Id)).ToList();
+            if (removed.Count > 0)
+            {
+                foreach (var c in removed) _loadedComments.Remove(c);
+                RerenderCommentsList();
+            }
+            else if (newOnes.Count > 0)
+            {
+                CommentsCountLabel.Text = result.TotalComments > 0 ? $"{result.TotalComments} comment(s)" : string.Empty;
+                CommentsEmptyPanel.IsVisible = false;
+            }
+        }
+        catch { /* transient poll failure — just try again next tick */ }
+    }
+
+    private async Task LoadCommentsAsync(bool reset)
+    {
+        if (_currentCard?.Id == null || _commentsLoading) return;
+        _commentsLoading = true;
+        try
+        {
+            if (reset)
+            {
+                _loadedComments.Clear();
+                _repliesHosts.Clear();
+                _commentsOffset = 0;
+                _commentsLoadedForArtworkId = _currentCard.Id;
+                CommentsListPanel.Children.Clear();
+                CommentsEmptyPanel.IsVisible = true;
+                CommentsLoadingBar.IsVisible = true;
+                CommentsEmptyLabel.Text = "Loading comments…";
+                CommentsCountLabel.Text = string.Empty;
+            }
+
+            var result = await _pixivClient.GetCommentsAsync(_currentCard.Id, _commentsOffset, 20);
+            if (result == null)
+            {
+                CommentsLoadingBar.IsVisible = false;
+                CommentsEmptyLabel.Text = "Could not load comments.";
+                return;
+            }
+
+            _commentsHasNext = result.HasNext;
+            _loadedComments.AddRange(result.Comments);
+            _commentsOffset += result.Comments.Count;
+            CommentsCountLabel.Text = result.TotalComments > 0 ? $"{result.TotalComments} comment(s)" : string.Empty;
+
+            foreach (var c in result.Comments)
+                CommentsListPanel.Children.Add(BuildCommentThread(c));
+
+            CommentsEmptyPanel.IsVisible = _loadedComments.Count == 0;
+            if (_loadedComments.Count == 0) CommentsEmptyLabel.Text = "No comments yet — be the first!";
+            CommentsLoadingBar.IsVisible = false;
+        }
+        catch (Exception ex)
+        {
+            CommentsLoadingBar.IsVisible = false;
+            CommentsEmptyLabel.Text = "Could not load comments.";
+            System.Diagnostics.Debug.WriteLine($"[InlineArtworkViewer] LoadComments failed: {ex}");
+        }
+        finally { _commentsLoading = false; }
+    }
+
+    private Control BuildCommentRow(Pikura.Core.Models.PixivComment c)
+    {
+        var avatar = new Border
+        {
+            Width = 28, Height = 28, CornerRadius = new CornerRadius(14),
+            ClipToBounds = true,
+            Background = Brushes.Transparent,
+        };
+        if (!string.IsNullOrEmpty(c.UserImageUrl))
+        {
+            var img = new Image { Stretch = Stretch.UniformToFill };
+            avatar.Child = img;
+            _ = LoadAvatarIntoAsync(img, c.UserImageUrl);
+        }
+
+        var body = new StackPanel { Spacing = 2 };
+        body.Children.Add(new TextBlock
+        {
+            Text = c.UserName, FontSize = 11, FontWeight = FontWeight.SemiBold,
+        });
+        if (c.HasStamp && string.IsNullOrEmpty(c.Comment))
+        {
+            // Confirmed from inspecting a real rendered comment's CSS background-image — the
+            // correct CDN domain is source.pixiv.net (not s.pximg.net, which 404s on this path
+            // despite otherwise looking like a normal Pixiv image host).
+            var stampImg = new Image { Width = 48, Height = 48, Stretch = Stretch.Uniform, HorizontalAlignment = global::Avalonia.Layout.HorizontalAlignment.Left };
+            body.Children.Add(stampImg);
+            _ = LoadAvatarIntoAsync(stampImg, $"https://source.pixiv.net/common/images/stamp/generated-stamps/{c.StampId}_s.jpg?20180605");
+        }
+        else
+        {
+            body.Children.Add(BuildCommentTextWithEmoji(c.Comment));
+        }
+        var metaRow = new StackPanel { Orientation = global::Avalonia.Layout.Orientation.Horizontal, Spacing = 10 };
+        metaRow.Children.Add(new TextBlock
+        {
+            Text = c.CommentDate ?? string.Empty, FontSize = 10,
+            // ActiPro's theme resources aren't directly castable to IBrush via a plain
+            // Application.FindResource lookup from code-behind (that's what
+            // "actipro:ThemeResource" markup extension in XAML does) — a hardcoded gray is a
+            // perfectly fine, low-risk choice for this small piece of secondary metadata text.
+            Foreground = new SolidColorBrush(Color.Parse("#9CA3AF")),
+            VerticalAlignment = global::Avalonia.Layout.VerticalAlignment.Center,
+        });
+        // Pixiv only supports one level of nesting — replying to a reply still targets that
+        // reply's own root comment, not the reply itself, so this is available on every comment.
+        var replyButton = new Button
+        {
+            Content = "Reply", FontSize = 10, Padding = new Thickness(0),
+            Background = Brushes.Transparent, BorderThickness = new Thickness(0),
+            Cursor = new global::Avalonia.Input.Cursor(global::Avalonia.Input.StandardCursorType.Hand),
+        };
+        replyButton.Click += (_, _) => BeginReply(c);
+        metaRow.Children.Add(replyButton);
+
+        // Editable is set by Pixiv itself on comments the roots/replies endpoints return that
+        // belong to you — plus we always set it on comments we just posted locally this session.
+        if (c.Editable)
+        {
+            var deleteButton = new Button
+            {
+                Content = "Delete", FontSize = 10, Padding = new Thickness(0),
+                Background = Brushes.Transparent, BorderThickness = new Thickness(0),
+                Foreground = new SolidColorBrush(Color.Parse("#F87171")),
+                Cursor = new global::Avalonia.Input.Cursor(global::Avalonia.Input.StandardCursorType.Hand),
+            };
+            var confirmButton = new Button
+            {
+                Content = "Confirm?", FontSize = 10, Padding = new Thickness(0),
+                Background = Brushes.Transparent, BorderThickness = new Thickness(0),
+                Foreground = new SolidColorBrush(Color.Parse("#F87171")), FontWeight = FontWeight.SemiBold,
+                Cursor = new global::Avalonia.Input.Cursor(global::Avalonia.Input.StandardCursorType.Hand),
+                IsVisible = false,
+            };
+            var cancelButton = new Button
+            {
+                Content = "Cancel", FontSize = 10, Padding = new Thickness(0),
+                Background = Brushes.Transparent, BorderThickness = new Thickness(0),
+                Cursor = new global::Avalonia.Input.Cursor(global::Avalonia.Input.StandardCursorType.Hand),
+                IsVisible = false,
+            };
+            deleteButton.Click += (_, _) =>
+            {
+                deleteButton.IsVisible = false;
+                confirmButton.IsVisible = true;
+                cancelButton.IsVisible = true;
+            };
+            cancelButton.Click += (_, _) =>
+            {
+                deleteButton.IsVisible = true;
+                confirmButton.IsVisible = false;
+                cancelButton.IsVisible = false;
+            };
+            confirmButton.Click += async (_, _) => await DeleteCommentAsync(c);
+            metaRow.Children.Add(deleteButton);
+            metaRow.Children.Add(confirmButton);
+            metaRow.Children.Add(cancelButton);
+        }
+        body.Children.Add(metaRow);
+
+        var row = new Grid { ColumnDefinitions = new ColumnDefinitions("Auto,*") };
+        Grid.SetColumn(avatar, 0);
+        Grid.SetColumn(body, 1);
+        body.Margin = new Thickness(8, 0, 0, 0);
+        row.Children.Add(avatar);
+        row.Children.Add(body);
+        return row;
+    }
+
+    /// <summary>
+    /// Comment text from Pixiv contains literal shortcodes like "(shock3)" for any emoji the
+    /// poster inserted — Pixiv's own renderer swaps these for inline images, so plain text
+    /// display would otherwise show that raw parenthesized text instead of the emoji.
+    /// </summary>
+    private Control BuildCommentTextWithEmoji(string text)
+    {
+        var panel = new WrapPanel();
+        var lastEnd = 0;
+        foreach (System.Text.RegularExpressions.Match m in EmojiShortcodeRegex.Matches(text))
+        {
+            if (m.Index > lastEnd)
+                panel.Children.Add(new TextBlock { Text = text[lastEnd..m.Index], FontSize = 12, VerticalAlignment = global::Avalonia.Layout.VerticalAlignment.Center });
+
+            var id = EmojiCatalog.FirstOrDefault(e => e.Shortcode == m.Groups[1].Value).Id;
+            var emojiImg = new Image { Width = 20, Height = 20, Stretch = Stretch.Uniform, Margin = new Thickness(1, 0) };
+            _ = LoadAvatarIntoAsync(emojiImg, $"https://source.pixiv.net/common/images/emoji/{id}.png");
+            panel.Children.Add(emojiImg);
+            lastEnd = m.Index + m.Length;
+        }
+        if (lastEnd < text.Length)
+            panel.Children.Add(new TextBlock { Text = text[lastEnd..], FontSize = 12, VerticalAlignment = global::Avalonia.Layout.VerticalAlignment.Center });
+        return panel;
+    }
+
+    private static readonly Lazy<System.Text.RegularExpressions.Regex> EmojiShortcodeRegexLazy = new(() =>
+        new System.Text.RegularExpressions.Regex(@"\((" + string.Join("|", EmojiCatalog.Select(e => System.Text.RegularExpressions.Regex.Escape(e.Shortcode))) + @")\)"));
+    private static System.Text.RegularExpressions.Regex EmojiShortcodeRegex => EmojiShortcodeRegexLazy.Value;
+
+    private void BeginReply(Pikura.Core.Models.PixivComment c)
+    {
+        // A reply's parent should be the THREAD ROOT, not the specific reply being answered —
+        // Pixiv's comment model is only one level deep, so replying to a reply still posts under
+        // the same root comment as a sibling reply.
+        var rootId = c.CommentRootId ?? c.Id;
+        _replyingTo = (rootId, c.UserName);
+        ReplyingToLabel.Text = $"Replying to {c.UserName}";
+        ReplyingToRow.IsVisible = true;
+        NewCommentBox.Focus();
+    }
+
+    private async Task DeleteCommentAsync(Pikura.Core.Models.PixivComment c)
+    {
+        if (_currentCard?.Id == null) return;
+        var ok = await _pixivClient.DeleteCommentAsync(_currentCard.Id, c.Id);
+        if (!ok)
+        {
+            if (VM != null) VM.StatusMessage = "Could not delete comment.";
+            return;
+        }
+        _loadedComments.Remove(c);
+        RerenderCommentsList();
+        if (VM != null) VM.StatusMessage = "Comment deleted";
+    }
+
+    private void RerenderCommentsList()
+    {
+        CommentsListPanel.Children.Clear();
+        foreach (var c in _loadedComments)
+            CommentsListPanel.Children.Add(BuildCommentThread(c));
+        CommentsEmptyPanel.IsVisible = _loadedComments.Count == 0;
+        if (_loadedComments.Count == 0) CommentsEmptyLabel.Text = "No comments yet — be the first!";
+    }
+
+    /// <summary>A top-level comment's row plus, if it has replies, a "View N replies" toggle
+    /// that lazily fetches and shows them indented underneath — GetCommentsAsync only returns
+    /// root comments, so without this a whole thread just silently vanishes.</summary>
+    private Control BuildCommentThread(Pikura.Core.Models.PixivComment c)
+    {
+        var container = new StackPanel { Spacing = 6 };
+        container.Children.Add(BuildCommentRow(c));
+
+        // Always create the replies host and register it — even for comments with no replies
+        // yet — so a reply posted to THIS comment later lands nested under it instead of
+        // falling back to the top of the whole list for lack of anywhere else to put it.
+        var repliesHost = new StackPanel { Spacing = 6, Margin = new Thickness(38, 0, 0, 0), IsVisible = false };
+        _repliesHosts[c.Id] = repliesHost;
+
+        if (c.HasReplies)
+        {
+            var toggle = new Button
+            {
+                Content = "▾ View replies", FontSize = 10, Padding = new Thickness(0),
+                Margin = new Thickness(38, 0, 0, 0),
+                Background = Brushes.Transparent, BorderThickness = new Thickness(0),
+                Foreground = new SolidColorBrush(Color.Parse("#60A5FA")),
+                Cursor = new global::Avalonia.Input.Cursor(global::Avalonia.Input.StandardCursorType.Hand),
+            };
+            var loaded = false;
+            toggle.Click += async (_, _) =>
+            {
+                if (loaded) { repliesHost.IsVisible = !repliesHost.IsVisible; return; }
+                loaded = true;
+                repliesHost.IsVisible = true;
+                toggle.Content = "Loading…";
+                try
+                {
+                    var replies = await _pixivClient.GetCommentRepliesAsync(c.Id);
+                    foreach (var r in replies?.Comments ?? [])
+                        repliesHost.Children.Add(BuildCommentRow(r));
+                    toggle.Content = replies?.Comments.Count > 0 ? "▴ Hide replies" : "No replies found";
+                }
+                catch { toggle.Content = "Could not load replies"; }
+            };
+            container.Children.Add(toggle);
+        }
+        container.Children.Add(repliesHost);
+
+        return container;
+    }
+
+    private void OnCancelReplyClicked(object? sender, RoutedEventArgs e)
+    {
+        _replyingTo = null;
+        ReplyingToRow.IsVisible = false;
+    }
+
+    private async Task LoadAvatarIntoAsync(Image img, string url)
+    {
+        try
+        {
+            var skBitmap = await _imageLoader.FetchBitmapAsync(url, ThumbnailSize.Small, CancellationToken.None);
+            if (skBitmap == null) return;
+            var bmp = await Task.Run(() => (Bitmap?)BitmapInterop.SkiaToAvalonia(skBitmap));
+            skBitmap.Dispose();
+            if (bmp != null) img.Source = bmp;
+        }
+        catch { /* avatar is decorative — non-fatal */ }
+    }
+
+    private void OnCommentsScrollChanged(object? sender, ScrollChangedEventArgs e)
+    {
+        if (_commentsLoading || !_commentsHasNext) return;
+        if (sender is not ScrollViewer sv) return;
+        if (sv.Extent.Height - sv.Offset.Y - sv.Viewport.Height < 100)
+            _ = LoadCommentsAsync(reset: false);
+    }
+
+    private void OnNewCommentKeyDown(object? sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Enter) { e.Handled = true; _ = PostCommentAsync(); }
+    }
+
+    private async void OnPostCommentClicked(object? sender, RoutedEventArgs e) => await PostCommentAsync();
+
+    private bool _stickerGridBuilt;
+    private bool _emojiGridBuilt;
+
+    // Pixiv's actual 38-emoji "Custom" category from its emoji-mart picker — confirmed by
+    // inspecting the picker's own rendered DOM (aria-label = the shortcode text that gets typed
+    // into the comment box, e.g. "(shock3)"; background-image = the matching PNG at
+    // source.pixiv.net/common/images/emoji/{id}.png). Unlike the earlier Unicode-character
+    // approach, these EXACT shortcodes are what Pixiv's own comment renderer recognizes.
+    public static readonly (string Id, string Shortcode)[] EmojiCatalog =
+    [
+        ("101", "normal"), ("102", "surprise"), ("103", "serious"), ("104", "heaven"),
+        ("105", "happy"), ("106", "excited"), ("107", "sing"), ("108", "cry"),
+        ("201", "normal2"), ("202", "shame2"), ("203", "love2"), ("204", "interesting2"),
+        ("205", "blush2"), ("206", "fire2"), ("207", "angry2"), ("208", "shine2"), ("209", "panic2"),
+        ("301", "normal3"), ("302", "satisfaction3"), ("303", "surprise3"), ("304", "smile3"),
+        ("305", "shock3"), ("306", "gaze3"), ("307", "wink3"), ("308", "happy3"),
+        ("309", "excited3"), ("310", "love3"),
+        ("401", "normal4"), ("402", "surprise4"), ("403", "serious4"), ("404", "love4"),
+        ("405", "shine4"), ("406", "sweat4"), ("407", "shame4"), ("408", "sleep4"),
+        ("501", "heart"), ("502", "teardrop"), ("503", "star"),
+    ];
+
+    private void BuildEmojiGrid()
+    {
+        _emojiGridBuilt = true;
+        foreach (var (id, shortcode) in EmojiCatalog)
+        {
+            var shortcodeText = $"({shortcode})";
+            var tile = new Button
+            {
+                Width = 36, Height = 36, Padding = new Thickness(4), Margin = new Thickness(1),
+                Background = Brushes.Transparent, BorderThickness = new Thickness(0),
+                Cursor = new global::Avalonia.Input.Cursor(global::Avalonia.Input.StandardCursorType.Hand),
+            };
+            ToolTip.SetTip(tile, shortcodeText);
+            var img = new Image { Stretch = Stretch.Uniform };
+            tile.Content = img;
+            _ = LoadAvatarIntoAsync(img, $"https://source.pixiv.net/common/images/emoji/{id}.png");
+            tile.Click += (_, _) =>
+            {
+                // Insert at the caret rather than always appending, so you can drop one mid-sentence
+                // the same way Pixiv's own picker does.
+                var box = NewCommentBox;
+                var caret = box.CaretIndex;
+                var text = box.Text ?? string.Empty;
+                box.Text = text[..caret] + shortcodeText + text[caret..];
+                box.CaretIndex = caret + shortcodeText.Length;
+                box.Focus();
+            };
+            EmojiGrid.Children.Add(tile);
+        }
+    }
+
+    private void OnEmojiTabClicked(object? sender, RoutedEventArgs e)
+    {
+        EmojiTabBtn.IsChecked = true;
+        StickersTabBtn.IsChecked = false;
+        EmojiScrollViewer.IsVisible = true;
+        StickerScrollViewer.IsVisible = false;
+        StickerLoadingPanel.IsVisible = false;
+        if (!_emojiGridBuilt) BuildEmojiGrid();
+    }
+
+    private void OnStickersTabClicked(object? sender, RoutedEventArgs e)
+    {
+        EmojiTabBtn.IsChecked = false;
+        StickersTabBtn.IsChecked = true;
+        EmojiScrollViewer.IsVisible = false;
+        StickerScrollViewer.IsVisible = true;
+        if (!_stickerGridBuilt) BuildStickerGrid();
+    }
+
+    /// <summary>
+    /// Pixiv's stamp catalog has no public listing endpoint we can call without the OAuth
+    /// App API (which this app deliberately avoids) — only the image URL PATTERN is confirmed
+    /// (https://source.pixiv.net/common/images/stamp/generated-stamps/{id}_s.jpg?20180605,
+    /// sourced from inspecting a real rendered comment's CSS background-image). This tries a
+    /// broad range of candidate IDs and silently skips any that fail to load, rather than
+    /// guessing at a curated "known good" list.
+    /// </summary>
+    private void OnStickerPickerClicked(object? sender, RoutedEventArgs e)
+    {
+        StickerPickerPopup.IsOpen = !StickerPickerPopup.IsOpen;
+        if (!StickerPickerPopup.IsOpen) return;
+        if (!_emojiGridBuilt && EmojiTabBtn.IsChecked == true) BuildEmojiGrid();
+    }
+
+    private void BuildStickerGrid()
+    {
+        _stickerGridBuilt = true;
+        StickerLoadingPanel.IsVisible = true;
+
+        // Pixiv's own "we plan to add more types" history means the catalog spans well past
+        // the original ~38-stamp set (confirmed IDs seen so far include both 101-119ish and
+        // 300s) — scanning further to surface newer categories too.
+        const int maxId = 600;
+        var remaining = maxId;
+        var foundAny = false;
+
+        void OnOneFinished(bool found)
+        {
+            if (found) foundAny = true;
+            if (Interlocked.Decrement(ref remaining) == 0)
+            {
+                StickerLoadingPanel.IsVisible = false;
+                if (!foundAny)
+                {
+                    StickerLoadingPanel.IsVisible = true;
+                    ((TextBlock)StickerLoadingPanel.Children[1]).Text = "No stickers could be loaded.";
+                    StickerLoadingPanel.Children[0].IsVisible = false; // hide spinner, keep message
+                }
+            }
+        }
+
+        for (int id = 1; id <= maxId; id++)
+        {
+            var stampId = id.ToString();
+            var tile = new Button
+            {
+                Width = 40, Height = 40, Padding = new Thickness(2), Margin = new Thickness(2),
+                Background = Brushes.Transparent, BorderThickness = new Thickness(0),
+                Cursor = new global::Avalonia.Input.Cursor(global::Avalonia.Input.StandardCursorType.Hand),
+                IsVisible = false, // only shown once its image actually loads
+            };
+            var img = new Image { Stretch = Stretch.Uniform };
+            tile.Content = img;
+            tile.Click += async (_, _) =>
+            {
+                StickerPickerPopup.IsOpen = false;
+                await PostCommentOrStampAsync("", stampId);
+            };
+            StickerGrid.Children.Add(tile);
+            _ = LoadStickerTileAsync(img, tile, stampId, OnOneFinished);
+        }
+    }
+
+    private async Task LoadStickerTileAsync(Image img, Button tile, string stampId, Action<bool> onFinished)
+    {
+        try
+        {
+            var skBitmap = await _imageLoader.FetchBitmapAsync(
+                $"https://source.pixiv.net/common/images/stamp/generated-stamps/{stampId}_s.jpg?20180605",
+                ThumbnailSize.Small, CancellationToken.None);
+            if (skBitmap == null) { onFinished(false); return; }
+            var bmp = await Task.Run(() => (Bitmap?)BitmapInterop.SkiaToAvalonia(skBitmap));
+            skBitmap.Dispose();
+            if (bmp == null) { onFinished(false); return; }
+            img.Source = bmp;
+            tile.IsVisible = true;
+            onFinished(true);
+        }
+        catch { onFinished(false); /* candidate stamp ID doesn't exist — expected for many, just skip it */ }
+    }
+
+    private async Task PostCommentAsync() => await PostCommentOrStampAsync(NewCommentBox.Text?.Trim() ?? "", null);
+
+    private async Task PostCommentOrStampAsync(string text, string? stampId)
+    {
+        if (_currentCard?.Id == null) return;
+        if (string.IsNullOrEmpty(text) && string.IsNullOrEmpty(stampId)) return;
+
+        PostCommentBtn.IsEnabled = false;
+        NewCommentBox.IsEnabled = false;
+        var replyingTo = _replyingTo;
+        try
+        {
+            var result = await _pixivClient.PostCommentAsync(
+                _currentCard.Id, _currentCard.UserId, text, stampId, replyingTo?.Id);
+            if (result != null)
+            {
+                NewCommentBox.Text = string.Empty;
+                _replyingTo = null;
+                ReplyingToRow.IsVisible = false;
+                // Locally-construct the new comment/reply immediately rather than re-fetching —
+                // scroll position would otherwise reset on a full reload.
+                var mine = new Pikura.Core.Models.PixivComment
+                {
+                    Id = result.CommentId ?? Guid.NewGuid().ToString(),
+                    Comment = result.Comment ?? text,
+                    UserName = result.UserName ?? "You",
+                    StampId = result.StampId ?? stampId,
+                    CommentDate = DateTime.Now.ToString("yyyy-MM-dd HH:mm"),
+                    CommentRootId = replyingTo?.Id,
+                    CommentParentId = replyingTo?.Id,
+                    Editable = true,
+                };
+
+                if (replyingTo != null && _repliesHosts.TryGetValue(replyingTo.Value.Id, out var host))
+                {
+                    // Nest under the comment being replied to instead of the top-level list.
+                    host.IsVisible = true;
+                    host.Children.Add(BuildCommentRow(mine));
+                }
+                else
+                {
+                    _loadedComments.Insert(0, mine);
+                    CommentsListPanel.Children.Insert(0, BuildCommentThread(mine));
+                }
+                CommentsEmptyPanel.IsVisible = false;
+                if (VM != null) VM.StatusMessage = replyingTo != null ? $"Reply posted to {replyingTo.Value.UserName}" : "Comment posted";
+            }
+            else if (VM != null)
+            {
+                VM.StatusMessage = "Could not post comment.";
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[InlineArtworkViewer] PostComment failed: {ex.Message}");
+            if (VM != null) VM.StatusMessage = "Could not post comment";
+        }
+        finally
+        {
+            PostCommentBtn.IsEnabled = true;
+            NewCommentBox.IsEnabled = true;
+        }
+    }
+
+    private bool _isBookmarkToggling;
+
+    private async void OnBookmarkMainClicked(object? sender, RoutedEventArgs e)
+        => await OnBookmarkToggleAsync(_isPrivateBookmark);
+
+    private async void OnBookmarkPublicClicked(object? sender, RoutedEventArgs e)
+        => await OnBookmarkToggleAsync(false);
+
+    private async void OnBookmarkPrivateClicked(object? sender, RoutedEventArgs e)
+        => await OnBookmarkToggleAsync(true);
+
+    private async Task OnBookmarkToggleAsync(bool isPrivate)
+    {
+        if (_currentCard == null || VM == null || _isBookmarkToggling) return;
+
+        _isBookmarkToggling = true;
+        BookmarkSplitBtn!.IsEnabled = false;
+        try
+        {
+            if (_isBookmarked)
+            {
+                if (_isPrivateBookmark == isPrivate)
+                {
+                    // Remove existing bookmark
+                    if (_bookmarkId != null)
+                    {
+                        var ok = await _pixivClient.RemoveWebBookmarkAsync(new[] { _bookmarkId });
+                        if (ok)
+                        {
+                            _isBookmarked = false;
+                            _isPrivateBookmark = false;
+                            _bookmarkId = null;
+                            _bookmarkCount = Math.Max(0, _bookmarkCount - 1);
+                            _currentCard.IsPixivBookmarked = false;
+                            _currentCard.IsPixivPrivateBookmark = false;
+                            _currentCard.PixivBookmarkId = null;
+                            try { AppServices.Get<BookmarksViewModel>().SyncBookmarked(_currentCard, false, false, null); }
+                            catch { /* Bookmarks view not initialized yet */ }
+                            SyncCardFlagsEverywhere(isPixivBookmarked: false, isPixivPrivateBookmark: false, pixivBookmarkId: null, bookmarkIdProvided: true);
+                            VM.StatusMessage = "Removed Pixiv bookmark";
+                        }
+                        else
+                        {
+                            VM.StatusMessage = "Could not remove bookmark";
+                        }
+                    }
+                }
+                else
+                {
+                    // Switch privacy: remove current, add with new privacy
+                    if (_bookmarkId != null)
+                    {
+                        var removed = await _pixivClient.RemoveWebBookmarkAsync(new[] { _bookmarkId });
+                        if (removed)
+                        {
+                            var newId = await _pixivClient.AddWebBookmarkAsync(_currentCard.Id, isPrivate: isPrivate);
+                            if (newId != null)
+                            {
+                                _isPrivateBookmark = isPrivate;
+                                _bookmarkId = newId;
+                                _currentCard.IsPixivPrivateBookmark = isPrivate;
+                                _currentCard.PixivBookmarkId = newId;
+                                try { AppServices.Get<BookmarksViewModel>().SyncBookmarked(_currentCard, true, isPrivate, newId); }
+                                catch { /* Bookmarks view not initialized yet */ }
+                                SyncCardFlagsEverywhere(isPixivBookmarked: true, isPixivPrivateBookmark: isPrivate, pixivBookmarkId: newId, bookmarkIdProvided: true);
+                                VM.StatusMessage = isPrivate ? "Switched to private bookmark" : "Switched to public bookmark";
+                            }
+                            else
+                            {
+                                // If re-adding failed, we lost the bookmark. Refresh state.
+                                _ = LoadArtworkStateAsync(_currentCard);
+                                VM.StatusMessage = "Could not re-add bookmark";
+                            }
+                        }
+                        else
+                        {
+                            VM.StatusMessage = "Could not update bookmark privacy";
+                        }
+                    }
+                }
+            }
+            else
+            {
+                var newId = await _pixivClient.AddWebBookmarkAsync(_currentCard.Id, isPrivate: isPrivate);
+                if (newId != null)
+                {
+                    _isBookmarked = true;
+                    _isPrivateBookmark = isPrivate;
+                    _bookmarkId = newId;
+                    _bookmarkCount++;
+                    _currentCard.IsPixivBookmarked = true;
+                    _currentCard.IsPixivPrivateBookmark = isPrivate;
+                    _currentCard.PixivBookmarkId = newId;
+                    try { AppServices.Get<BookmarksViewModel>().SyncBookmarked(_currentCard, true, isPrivate, newId); }
+                    catch { /* Bookmarks view not initialized yet */ }
+                    SyncCardFlagsEverywhere(isPixivBookmarked: true, isPixivPrivateBookmark: isPrivate, pixivBookmarkId: newId, bookmarkIdProvided: true);
+                    VM.StatusMessage = isPrivate ? "Added private bookmark" : "Bookmarked on Pixiv";
+                }
+                else
+                {
+                    VM.StatusMessage = "Could not bookmark";
+                }
+            }
+            UpdateBookmarkButtons();
+            UpdateStatsLabel();
+        }
+        finally
+        {
+            _isBookmarkToggling = false;
+            BookmarkSplitBtn.IsEnabled = true;
+        }
     }
 
     private void OnOpenArtistInPixiv(object? sender, RoutedEventArgs e)
@@ -1515,7 +2708,49 @@ if (result != null && presetWindow.DownloadClicked)
         if (LocalFavBtn == null || LocalFavLabel == null) return;
         var isFav = card != null && _favorites.IsFavorite(card.Id);
         LocalFavLabel.Text = isFav ? "Favorited" : "Favorite";
-        if (card != null) card.IsLocalFavorite = isFav;
+        if (card != null)
+        {
+            card.IsLocalFavorite = isFav;
+            try { AppServices.Get<BookmarksViewModel>().SyncFavoriteEverywhere(card.Id, isFav); }
+            catch { /* Bookmarks view not initialized yet */ }
+            SyncCardFlagsEverywhere(isLocalFavorite: isFav, targetCard: card);
+        }
+    }
+
+    /// <summary>
+    /// Pushes updated flags onto every currently-loaded card with a matching artwork ID across
+    /// Gallery and Discover (the two other browsing surfaces besides Bookmarks), so the
+    /// heart/bookmark/star badges update live wherever that artwork is already on screen.
+    /// </summary>
+    private void SyncCardFlagsEverywhere(
+        bool? isLiked = null,
+        bool? isPixivBookmarked = null,
+        bool? isPixivPrivateBookmark = null,
+        string? pixivBookmarkId = null,
+        bool bookmarkIdProvided = false,
+        bool? isLocalFavorite = null,
+        ArtworkCardViewModel? targetCard = null)
+    {
+        var id = (targetCard ?? _currentCard)?.Id;
+        if (string.IsNullOrEmpty(id)) return;
+        try
+        {
+            AppServices.Get<GalleryViewModel>().SyncArtworkFlags(
+                id, isLiked, isPixivBookmarked, isPixivPrivateBookmark, pixivBookmarkId, bookmarkIdProvided, isLocalFavorite);
+        }
+        catch { /* Gallery view not initialized yet */ }
+        try
+        {
+            AppServices.Get<DiscoverViewModel>().SyncArtworkFlags(
+                id, isLiked, isPixivBookmarked, isPixivPrivateBookmark, pixivBookmarkId, bookmarkIdProvided, isLocalFavorite);
+        }
+        catch { /* Discover view not initialized yet */ }
+        try
+        {
+            AppServices.Get<EnhancedRankingsViewModel>().SyncArtworkFlags(
+                id, isLiked, isPixivBookmarked, isPixivPrivateBookmark, pixivBookmarkId, bookmarkIdProvided, isLocalFavorite);
+        }
+        catch { /* Rankings view not initialized yet */ }
     }
 
     private void OnToggleLocalFavorite(object? sender, RoutedEventArgs e)
@@ -1523,6 +2758,38 @@ if (result != null && presetWindow.DownloadClicked)
         if (_currentCard == null) return;
         _favorites.Toggle(_currentCard.Artwork);
         UpdateFavoriteButton(_currentCard);
+    }
+
+    // ── Collage mode — up to 5 selected images, tiled ────────────────────────────────────────
+    // IsCollageMode/CollageItems live on the shared GalleryViewModel (this control's DataContext
+    // in every tab it's used in) and are bound directly in XAML (CollagePanel.IsVisible /
+    // CollageGrid.ItemsSource) — so the side-panel and full-screen viewer instances automatically
+    // stay in sync with no manual cross-instance code needed here. There is no manual toggle for
+    // this — it's only entered via a "View as Collage" button in a tab's multi-select toolbar.
+
+    /// <summary>Explicit "Exit Collage" toolbar button — closes the collage tab.</summary>
+    private void OnExitCollageClicked(object? sender, RoutedEventArgs e) => VM?.CloseCollage();
+
+    /// <summary>Left-clicking a tile opens that image in a new tab, leaving the collage tab intact.
+    /// Right-click is left alone so a context menu can be used without immediately losing the collage.</summary>
+    private void OnCollageTileReleased(object? sender, PointerReleasedEventArgs e)
+    {
+        if (e.Handled || e.InitialPressMouseButton != MouseButton.Left) return;
+        if ((sender as Control)?.DataContext is not ArtworkCardViewModel card) return;
+        e.Handled = true;
+        VM?.OpenInViewer(card, VM.CollageItems?.ToList(), source: VM.ViewerSource);
+    }
+
+    private void OnRemoveCollageItemClicked(object? sender, RoutedEventArgs e)
+    {
+        e.Handled = true;
+        if ((sender as Control)?.DataContext is not ArtworkCardViewModel card) return;
+        VM?.RemoveFromCollage(card);
+    }
+
+    private void OnRemoveCollageItemTapped(object? sender, TappedEventArgs e)
+    {
+        e.Handled = true;
     }
 
     // ── Hoshi (星) AI assistant ───────────────────────────────────────────

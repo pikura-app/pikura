@@ -17,6 +17,81 @@
                 <ResourceInclude Source="avares://Pikura/Assets/Icons.axaml"/>
             </ResourceDictionary.MergedDictionaries>
 
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Light">
+                    <!-- Light-mode palette: accessible contrast, layered surfaces, subtle borders -->
+                    <SolidColorBrush x:Key="WindowBackgroundBrush" Color="#F8FAFC"/>
+                    <SolidColorBrush x:Key="Container1BackgroundBrush" Color="#FFFFFF"/>
+                    <SolidColorBrush x:Key="Container2BackgroundBrush" Color="#F1F5F9"/>
+                    <SolidColorBrush x:Key="Container3BackgroundBrush" Color="#FFFFFF"/>
+                    <SolidColorBrush x:Key="Container4BackgroundBrush" Color="#F8FAFC"/>
+                    <SolidColorBrush x:Key="Container1BorderBrush" Color="#E2E8F0"/>
+                    <SolidColorBrush x:Key="Container2BorderBrush" Color="#CBD5E0"/>
+                    <SolidColorBrush x:Key="Container3BorderBrush" Color="#CBD5E0"/>
+                    <SolidColorBrush x:Key="Container4BorderBrush" Color="#CBD5E0"/>
+                    <SolidColorBrush x:Key="DefaultForegroundBrush" Color="#000000"/>
+                    <SolidColorBrush x:Key="DefaultForegroundBrushSecondary" Color="#000000"/>
+                    <SolidColorBrush x:Key="DefaultForegroundBrushTertiary" Color="#1A202C"/>
+                    <SolidColorBrush x:Key="DefaultForegroundBrushDisabled" Color="#94A3B8"/>
+                    <SolidColorBrush x:Key="ControlBackgroundBrush" Color="#FFFFFF"/>
+                    <SolidColorBrush x:Key="ControlForegroundBrush" Color="#000000"/>
+                    <SolidColorBrush x:Key="ControlBorderBrush" Color="#CBD5E0"/>
+                    <SolidColorBrush x:Key="ControlBackgroundBrushSoftAccent" Color="#E4E4E7"/>
+                    <SolidColorBrush x:Key="ControlBackgroundBrushSoftAccentPressed" Color="#D4D4D8"/>
+                    <SolidColorBrush x:Key="ControlBackgroundBrushSolidAccent" Color="#6366F1"/>
+                    <SolidColorBrush x:Key="ControlBackgroundBrushSolidAccentHover" Color="#4F46E5"/>
+                    <SolidColorBrush x:Key="ControlForegroundBrushSolidAccent" Color="#FFFFFF"/>
+                    <SolidColorBrush x:Key="ControlForegroundBrushOutlineAccent" Color="#27272A"/>
+                    <SolidColorBrush x:Key="ControlBackgroundBrushSelected" Color="#E4E4E7"/>
+                    <SolidColorBrush x:Key="CaptionButtonHoverBrush" Color="#26000000"/>
+                    <SolidColorBrush x:Key="CaptionButtonPressedBrush" Color="#4D000000"/>
+                    <SolidColorBrush x:Key="R18ButtonForegroundBrush" Color="#F5F5F5"/>
+                    <SolidColorBrush x:Key="HeartBadgeIconBrush" Color="#EF4444"/>
+                    <SolidColorBrush x:Key="ImageCanvasBackgroundBrush" Color="#E2E8F0"/>
+                    <Color x:Key="SystemChromeLowColor">#F8FAFC</Color>
+                    <BoxShadows x:Key="CardShadow">0 2 6 0 #18000000</BoxShadows>
+                    <BoxShadows x:Key="CardShadowHover">0 6 12 0 #26000000</BoxShadows>
+                    <BoxShadows x:Key="PanelShadow">-2 0 10 0 #18000000</BoxShadows>
+                    <BoxShadows x:Key="DropdownShadow">0 4 12 0 #26000000</BoxShadows>
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="Dark">
+                    <!-- Dark-mode palette: deep neutral zinc, lighter than pure black but still dark -->
+                    <SolidColorBrush x:Key="WindowBackgroundBrush" Color="#0F0F11"/>
+                    <SolidColorBrush x:Key="Container1BackgroundBrush" Color="#1A1A1E"/>
+                    <SolidColorBrush x:Key="Container2BackgroundBrush" Color="#252529"/>
+                    <SolidColorBrush x:Key="Container3BackgroundBrush" Color="#1A1A1E"/>
+                    <SolidColorBrush x:Key="Container4BackgroundBrush" Color="#0F0F11"/>
+                    <SolidColorBrush x:Key="Container1BorderBrush" Color="#2F2F35"/>
+                    <SolidColorBrush x:Key="Container2BorderBrush" Color="#3F3F46"/>
+                    <SolidColorBrush x:Key="Container3BorderBrush" Color="#3F3F46"/>
+                    <SolidColorBrush x:Key="Container4BorderBrush" Color="#3F3F46"/>
+                    <SolidColorBrush x:Key="DefaultForegroundBrush" Color="#F4F4F5"/>
+                    <SolidColorBrush x:Key="DefaultForegroundBrushSecondary" Color="#F4F4F5"/>
+                    <SolidColorBrush x:Key="DefaultForegroundBrushTertiary" Color="#A1A1AA"/>
+                    <SolidColorBrush x:Key="DefaultForegroundBrushDisabled" Color="#52525B"/>
+                    <SolidColorBrush x:Key="ControlBackgroundBrush" Color="#252529"/>
+                    <SolidColorBrush x:Key="ControlForegroundBrush" Color="#F4F4F5"/>
+                    <SolidColorBrush x:Key="ControlBorderBrush" Color="#3F3F46"/>
+                    <SolidColorBrush x:Key="ControlBackgroundBrushSoftAccent" Color="#48484F"/>
+                    <SolidColorBrush x:Key="ControlBackgroundBrushSoftAccentPressed" Color="#58585F"/>
+                    <SolidColorBrush x:Key="ControlBackgroundBrushSolidAccent" Color="#E4E4E7"/>
+                    <SolidColorBrush x:Key="ControlBackgroundBrushSolidAccentHover" Color="#F4F4F5"/>
+                    <SolidColorBrush x:Key="ControlForegroundBrushSolidAccent" Color="#000000"/>
+                    <SolidColorBrush x:Key="ControlForegroundBrushOutlineAccent" Color="#F4F4F5"/>
+                    <SolidColorBrush x:Key="ControlBackgroundBrushSelected" Color="#52525B"/>
+                    <SolidColorBrush x:Key="CaptionButtonHoverBrush" Color="#1AFFFFFF"/>
+                    <SolidColorBrush x:Key="CaptionButtonPressedBrush" Color="#33FFFFFF"/>
+                    <SolidColorBrush x:Key="R18ButtonForegroundBrush" Color="#FFFFFF"/>
+                    <SolidColorBrush x:Key="HeartBadgeIconBrush" Color="#EF4444"/>
+                    <SolidColorBrush x:Key="ImageCanvasBackgroundBrush" Color="#1A1A1E"/>
+                    <Color x:Key="SystemChromeLowColor">#0F0F11</Color>
+                    <BoxShadows x:Key="CardShadow">0 2 6 0 #80000000</BoxShadows>
+                    <BoxShadows x:Key="CardShadowHover">0 6 12 0 #A0000000</BoxShadows>
+                    <BoxShadows x:Key="PanelShadow">-2 0 10 0 #80000000</BoxShadows>
+                    <BoxShadows x:Key="DropdownShadow">0 4 12 0 #A0000000</BoxShadows>
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+
             <animation:CrossFade x:Key="MainPageTransition"
                                  Duration="0:0:0.125"/>
         </ResourceDictionary>
@@ -119,6 +194,138 @@
                     </animation:Transitions>
                 </Setter.Value>
             </Setter>
+        </Style>
+
+        <!-- Light-mode friendly component styles. Custom keys use DynamicResource from the
+             Light ThemeDictionary; Actipro keys use actipro:ThemeResource and are overridden above. -->
+        <Style Selector="Button">
+            <Setter Property="Background" Value="{DynamicResource ControlBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource DefaultForegroundBrush}"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="10,6"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+        </Style>
+        <Style Selector="Button:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource ControlBackgroundBrushSoftAccent}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource ControlBackgroundBrushSoftAccentPressed}"/>
+            <Setter Property="BoxShadow" Value="{DynamicResource CardShadowHover}"/>
+            <Setter Property="CornerRadius" Value="{TemplateBinding CornerRadius}"/>
+        </Style>
+        <Style Selector="Button:pressed /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource ControlBackgroundBrushSoftAccentPressed}"/>
+            <Setter Property="Foreground" Value="{DynamicResource ControlForegroundBrushOutlineAccent}"/>
+            <Setter Property="CornerRadius" Value="{TemplateBinding CornerRadius}"/>
+        </Style>
+        <Style Selector="Button.accent">
+            <Setter Property="Background" Value="{DynamicResource ControlBackgroundBrushSolidAccent}"/>
+            <Setter Property="Foreground" Value="{DynamicResource ControlForegroundBrushSolidAccent}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+        </Style>
+        <Style Selector="Button.accent:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource ControlBackgroundBrushSolidAccentHover}"/>
+            <Setter Property="Foreground" Value="{DynamicResource ControlForegroundBrushSolidAccent}"/>
+            <Setter Property="CornerRadius" Value="{TemplateBinding CornerRadius}"/>
+        </Style>
+        <Style Selector="Button.accent:pressed /template/ ContentPresenter">
+            <Setter Property="Opacity" Value="0.9"/>
+            <Setter Property="Foreground" Value="{DynamicResource ControlForegroundBrushSolidAccent}"/>
+            <Setter Property="CornerRadius" Value="{TemplateBinding CornerRadius}"/>
+        </Style>
+        <Style Selector="ToggleButton">
+            <Setter Property="Background" Value="{DynamicResource ControlBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource DefaultForegroundBrush}"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="10,6"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <ContentPresenter x:Name="PART_ContentPresenter"
+                                      Background="{TemplateBinding Background}"
+                                      BorderBrush="{TemplateBinding BorderBrush}"
+                                      BorderThickness="{TemplateBinding BorderThickness}"
+                                      CornerRadius="{TemplateBinding CornerRadius}"
+                                      Content="{TemplateBinding Content}"
+                                      ContentTemplate="{TemplateBinding ContentTemplate}"
+                                      Foreground="{TemplateBinding Foreground}"
+                                      Padding="{TemplateBinding Padding}"
+                                      HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                      VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                                      RecognizesAccessKey="True"/>
+                </ControlTemplate>
+            </Setter>
+        </Style>
+        <Style Selector="ToggleButton:checked">
+            <Setter Property="Background" Value="{DynamicResource ControlBackgroundBrushSolidAccent}"/>
+            <Setter Property="Foreground" Value="{DynamicResource ControlForegroundBrushSolidAccent}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+        </Style>
+        <Style Selector="ToggleButton:checked /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource ControlBackgroundBrushSolidAccent}"/>
+            <Setter Property="Foreground" Value="{DynamicResource ControlForegroundBrushSolidAccent}"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="BoxShadow" Value="0 0 0 0 #00000000"/>
+            <Setter Property="Padding" Value="10,6"/>
+        </Style>
+        <Style Selector="ToggleButton:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource ControlBackgroundBrushSoftAccent}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource ControlBackgroundBrushSoftAccentPressed}"/>
+            <Setter Property="BoxShadow" Value="{DynamicResource CardShadowHover}"/>
+            <Setter Property="CornerRadius" Value="{TemplateBinding CornerRadius}"/>
+        </Style>
+        <Style Selector="ToggleButton:pressed /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource ControlBackgroundBrushSoftAccentPressed}"/>
+            <Setter Property="CornerRadius" Value="{TemplateBinding CornerRadius}"/>
+        </Style>
+        <Style Selector="ToggleButton:checked:pointerover">
+            <Setter Property="Background" Value="{DynamicResource ControlBackgroundBrushSolidAccentHover}"/>
+            <Setter Property="Foreground" Value="{DynamicResource ControlForegroundBrushSolidAccent}"/>
+        </Style>
+        <Style Selector="ToggleButton:checked:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource ControlBackgroundBrushSolidAccentHover}"/>
+            <Setter Property="Foreground" Value="{DynamicResource ControlForegroundBrushSolidAccent}"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="BoxShadow" Value="0 0 0 0 #00000000"/>
+            <Setter Property="Padding" Value="10,6"/>
+        </Style>
+        <Style Selector="ToggleButton:checked:pressed">
+            <Setter Property="Background" Value="{DynamicResource ControlBackgroundBrushSolidAccent}"/>
+            <Setter Property="Foreground" Value="{DynamicResource ControlForegroundBrushSolidAccent}"/>
+        </Style>
+        <Style Selector="ToggleButton:checked:pressed /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource ControlBackgroundBrushSolidAccent}"/>
+            <Setter Property="Foreground" Value="{DynamicResource ControlForegroundBrushSolidAccent}"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="BoxShadow" Value="0 0 0 0 #00000000"/>
+            <Setter Property="Padding" Value="10,6"/>
+            <Setter Property="Opacity" Value="0.85"/>
+        </Style>
+        <Style Selector="Border.card">
+            <Setter Property="Background" Value="{DynamicResource Container1BackgroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Container1BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="BoxShadow" Value="{DynamicResource CardShadow}"/>
+        </Style>
+        <Style Selector="Border.badge">
+            <Setter Property="Background" Value="{DynamicResource Container2BackgroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Container1BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Padding" Value="6,3"/>
+        </Style>
+        <Style Selector="TextBox /template/ TextBlock#PART_Watermark">
+            <Setter Property="Opacity" Value="1"/>
+            <Setter Property="Foreground" Value="{DynamicResource DefaultForegroundBrush}"/>
         </Style>
     </Application.Styles>
 

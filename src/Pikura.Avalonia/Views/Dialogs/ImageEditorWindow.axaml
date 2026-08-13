@@ -15,8 +15,8 @@
         <Grid Grid.Column="0" Grid.Row="0" RowDefinitions="Auto,*,Auto">
             <!-- Toolbar -->
             <Border Grid.Row="0"
-                    Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                    BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                    Background="{DynamicResource Container2BackgroundBrush}"
+                    BorderBrush="{DynamicResource Container2BorderBrush}"
                     BorderThickness="0,0,0,1"
                     Padding="12">
                 <WrapPanel Orientation="Horizontal">
@@ -56,26 +56,26 @@
 
                     <!-- Ugoira Mode Switcher (only visible for ugoira artworks) -->
                     <StackPanel x:Name="UgoiraModePanel" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center" Margin="0,4,12,4" IsVisible="False">
-                        <Button x:Name="UgoiraModeButton" Content="🎬 Ugoira Mode" Classes="accent" Click="OnUgoiraModeClick" ToolTip.Tip="Change how to handle this animated ugoira"/>
+                        <Button x:Name="UgoiraModeButton" Content="🎬 Ugoira Mode" Classes="accent" Click="OnUgoiraModeClick"/>
                     </StackPanel>
 
                     <!-- Submission/Page navigation -->
                     <StackPanel x:Name="PageNavPanel" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center" Margin="0,4,0,4" IsVisible="False">
-                        <Button x:Name="PrevPageButton" Content="◄" Click="OnPrevPageClick" ToolTip.Tip="Previous (←)" Width="32"/>
+                        <Button x:Name="PrevPageButton" Content="◄" Click="OnPrevPageClick" Width="32"/>
                         <!-- Submission indicator (when multiple artworks) -->
                         <Border x:Name="SubmissionIndicatorBorder" Background="#3B82F6" CornerRadius="4" Padding="6,2" IsVisible="False">
                             <TextBlock x:Name="SubmissionIndicator" Text="1 / 1" VerticalAlignment="Center" Foreground="White" FontWeight="SemiBold" FontSize="12"/>
                         </Border>
                         <!-- Page indicator (when multiple pages in current submission) -->
                         <TextBlock x:Name="PageIndicator" Text="1 / 1" VerticalAlignment="Center" MinWidth="50" TextAlignment="Center" FontWeight="SemiBold"/>
-                        <Button x:Name="NextPageButton" Content="►" Click="OnNextPageClick" ToolTip.Tip="Next (→)" Width="32"/>
+                        <Button x:Name="NextPageButton" Content="►" Click="OnNextPageClick" Width="32"/>
                     </StackPanel>
                 </WrapPanel>
             </Border>
 
             <!-- Image Preview Area - Clean simplified layout -->
             <Border Grid.Row="1"
-                    Background="{actipro:ThemeResource Container3BackgroundBrush}"
+                    Background="{DynamicResource Container3BackgroundBrush}"
                     Margin="16"
                     ClipToBounds="True">
                 <Grid>
@@ -165,8 +165,8 @@
 
             <!-- Preview Info -->
             <Border Grid.Row="2"
-                    Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                    BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                    Background="{DynamicResource Container2BackgroundBrush}"
+                    BorderBrush="{DynamicResource Container2BorderBrush}"
                     BorderThickness="0,1,0,0"
                     Padding="12">
                 <Grid ColumnDefinitions="*,Auto">
@@ -178,8 +178,8 @@
 
         <!-- RIGHT: Adjustment Sliders -->
         <Border Grid.Column="1" Grid.Row="0"
-                Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                Background="{DynamicResource Container2BackgroundBrush}"
+                BorderBrush="{DynamicResource Container2BorderBrush}"
                 BorderThickness="1,0,0,0"
                 Padding="16">
             <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -346,14 +346,14 @@
                                 <TextBlock Text="Color Overlay" FontSize="12"/>
                                 <TextBlock x:Name="OverlayColorHexLabel" Grid.Column="1"
                                            Text="#000000" FontSize="11"
-                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                           Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                             </Grid>
                             <Button x:Name="OverlayColorButton"
                                     HorizontalAlignment="Stretch"
                                     Height="24"
                                     Padding="0"
                                     CornerRadius="4"
-                                    BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                                    BorderBrush="{DynamicResource Container2BorderBrush}"
                                     BorderThickness="1"
                                     ToolTip.Tip="Click to choose overlay color">
                                 <Button.Background>
@@ -397,8 +397,8 @@
 
         <!-- Bottom Action Bar -->
         <Border Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1"
-                Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                Background="{DynamicResource Container2BackgroundBrush}"
+                BorderBrush="{DynamicResource Container2BorderBrush}"
                 BorderThickness="0,1,0,0"
                 Padding="16">
             <Grid ColumnDefinitions="*,Auto">

@@ -59,16 +59,29 @@ public sealed class PixivLoginService
     {
         try
         {
+            LoginResult result;
             if (OperatingSystem.IsLinux())
             {
-                var result = await _playwright.LoginAsync(owner, clearCookies, ct).ConfigureAwait(false);
-                if (result.Success) return result;
-                // Playwright path failed (offline, install cancelled, etc.) — offer the
-                // manual fallback so the user isn't stuck.
-                return await Dispatcher.UIThread.InvokeAsync(() => TryManualFallbackAsync(owner, result.ErrorMessage));
+                result = await _playwright.LoginAsync(owner, clearCookies, ct).ConfigureAwait(false);
+                if (!result.Success)
+                {
+                    // Playwright path failed (offline, install cancelled, etc.) — offer the
+                    // manual fallback so the user isn't stuck.
+                    result = await Dispatcher.UIThread.InvokeAsync(() => TryManualFallbackAsync(owner, result.ErrorMessage));
+                }
+            }
+            else
+            {
+                result = await Dispatcher.UIThread.InvokeAsync(() => RunEmbeddedWebViewLoginAsync(owner, clearCookies));
             }
 
-            return await Dispatcher.UIThread.InvokeAsync(() => RunEmbeddedWebViewLoginAsync(owner, clearCookies));
+            // Fire-and-forget: some pixiv.net subdomains (e.g. embed.pixiv.net, used for
+            // Collection collage thumbnails) enforce Cloudflare bot-management that a plain
+            // PHPSESSID doesn't satisfy. Don't block login completion on this — it's only
+            // needed for that specific feature, and login should still succeed if it fails.
+            if (result.Success) _ = RefreshCloudflareSessionAsync(CancellationToken.None);
+
+            return result;
         }
         catch (Exception ex)
         {
@@ -76,6 +89,49 @@ public sealed class PixivLoginService
             return new LoginResult(false, ErrorMessage: ex.Message);
         }
     }
+
+    /// <summary>
+    /// Solves Pixiv's Cloudflare challenge in a headless browser and persists the resulting
+    /// <c>cf_clearance</c> cookie so <see cref="Pikura.Core.Http.PixivHttpClientFactory"/> can
+    /// send it on every request. Safe to call repeatedly (e.g. on startup, after login, or from
+    /// a manual "Refresh Cloudflare Session" Settings button) — failures are logged, not thrown.
+    /// </summary>
+    public async Task RefreshCloudflareSessionAsync(CancellationToken ct = default)
+    {
+        var sid = _settings.Current.PhpSessId;
+        if (string.IsNullOrWhiteSpace(sid))
+        {
+            _logger.LogDebug("Skipping Cloudflare session refresh — no PHPSESSID yet");
+            return;
+        }
+
+        try
+        {
+            var cloudflare = new CloudflareSessionService(sid);
+            var clearance = await cloudflare.RefreshSessionAsync(ct).ConfigureAwait(false);
+            if (!string.IsNullOrEmpty(clearance))
+            {
+                _settings.Update(s =>
+                {
+                    s.CfClearance = clearance;
+                    s.CfClearanceObtainedAt = DateTime.UtcNow;
+                });
+                _logger.LogInformation("Refreshed Cloudflare cf_clearance cookie");
+            }
+        }
+        catch (OperationCanceledException) { throw; }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to refresh Cloudflare session");
+        }
+    }
+
+    /// <summary>True when <see cref="CfClearance"/>'s age suggests it should be refreshed —
+    /// Cloudflare clearance tokens are typically valid for hours, not indefinitely.</summary>
+    public bool IsCloudflareSessionStale =>
+        string.IsNullOrWhiteSpace(_settings.Current.CfClearance) ||
+        _settings.Current.CfClearanceObtainedAt is null ||
+        DateTime.UtcNow - _settings.Current.CfClearanceObtainedAt.Value > TimeSpan.FromHours(20);
 
     /// <summary>
     /// Windows / macOS path. Opens the existing <see cref="PixivLoginWindow"/>

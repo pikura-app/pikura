@@ -23,6 +23,9 @@
         <StreamGeometry x:Key="DiscoverIconGeometry">M2,10 L18,3 L11,18 L9,12 Z</StreamGeometry>
         <StreamGeometry x:Key="SearchIconGeometry">M15.5,14 H14.71 L14.43,13.73 C15.41,12.59 16,11.11 16,9.5 C16,5.91 13.09,3 9.5,3 S3,5.91 3,9.5 S5.91,16 9.5,16 C11.11,16 12.59,15.41 13.73,14.43 L14,14.71 V15.5 L19,20.49 L20.49,19 Z M9.5,14 C7.01,14 5,11.99 5,9.5 S7.01,5 9.5,5 S14,7.01 14,9.5 S11.99,14 9.5,14 Z</StreamGeometry>
         <StreamGeometry x:Key="BookmarksIconGeometry">M5,2 H15 V19 L10,15 L5,19 Z</StreamGeometry>
+        <!-- Stacked-photos "album" glyph — deliberately distinct from Gallery's even 2x2 grid
+             and Bookmarks' ribbon, since Collections previously (mistakenly) reused the latter. -->
+        <StreamGeometry x:Key="CollectionsIconGeometry">M2,2 H12 V12 H2 Z M8,8 H18 V18 H8 Z</StreamGeometry>
         <StreamGeometry x:Key="HoshiIconGeometry">M10,2 C10.6,6 14,9.4 18,10 C14,10.6 10.6,14 10,18 C9.4,14 6,10.6 2,10 C6,9.4 9.4,6 10,2 Z</StreamGeometry>
         <StreamGeometry x:Key="BatchIconGeometry">M7,1 H13 V9 H17 L10,16 L3,9 H7 Z M2,18 H18 V20 H2 Z</StreamGeometry>
         <StreamGeometry x:Key="JobsIconGeometry">M2,3 H18 V6 H2 Z M2,9 H18 V12 H2 Z M2,15 H18 V18 H2 Z</StreamGeometry>
@@ -30,31 +33,39 @@
         <StreamGeometry x:Key="PixivisionIconGeometry">M2,3 H18 V15 H2 Z M4,5 H16 V11 H4 Z M4,13 H9 V14 H4 Z M11,13 H16 V14 H11 Z</StreamGeometry>
         <StreamGeometry x:Key="AnalyticsIconGeometry">M2,12 H6 V18 H2 Z M8,7 H12 V18 H8 Z M14,2 H18 V18 H14 Z</StreamGeometry>
         <StreamGeometry x:Key="SettingsIconGeometry">M10,1 L12.3,4.5 L16.4,3.6 L15.5,7.7 L19,10 L15.5,12.3 L16.4,16.4 L12.3,15.5 L10,19 L7.7,15.5 L3.6,16.4 L4.5,12.3 L1,10 L4.5,7.7 L3.6,3.6 L7.7,4.5 Z</StreamGeometry>
+        <!-- Simple glasses/incognito glyph: two filled lens discs with a clearly visible gap,
+             joined by a thickened bridge bar so the two lenses don't merge into a single blob
+             at small render sizes. Kept compact (~12x5) so a Uniform stretch doesn't shrink it
+             down to a near-invisible sliver. -->
+        <StreamGeometry x:Key="IncognitoIconGeometry">M0.4,4 A2.6,2.6 0 1 0 5.6,4 A2.6,2.6 0 1 0 0.4,4 Z M7.4,4 A2.6,2.6 0 1 0 12.6,4 A2.6,2.6 0 1 0 7.4,4 Z M5.6,3.6 H7.4 V4.4 H5.6 Z</StreamGeometry>
     </Window.Resources>
 
     <Window.Styles>
         <Style Selector="Button.nav">
             <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+            <Setter Property="Foreground" Value="{DynamicResource DefaultForegroundBrushSecondary}"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="FontSize" Value="13"/>
             <Setter Property="Padding" Value="12,9"/>
             <Setter Property="HorizontalAlignment" Value="Stretch"/>
             <Setter Property="HorizontalContentAlignment" Value="Left"/>
             <Setter Property="CornerRadius" Value="6"/>
-            <Setter Property="Margin" Value="8,1"/>
+            <Setter Property="Margin" Value="8,2"/>
         </Style>
         <Style Selector="Button.nav:pointerover /template/ ContentPresenter">
-            <Setter Property="Background" Value="{actipro:ThemeResource ControlBackgroundBrushSoftAccent}"/>
-            <Setter Property="Foreground" Value="{actipro:ThemeResource DefaultForegroundBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource Container2BackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource DefaultForegroundBrush}"/>
         </Style>
         <Style Selector="Button.nav:pressed /template/ ContentPresenter">
-            <Setter Property="Background" Value="{actipro:ThemeResource ControlBackgroundBrushSoftAccentPressed}"/>
+            <Setter Property="Background" Value="{DynamicResource ControlBackgroundBrushSoftAccentPressed}"/>
         </Style>
         <!-- Active nav item -->
         <Style Selector="Button.nav.active /template/ ContentPresenter">
-            <Setter Property="Background" Value="{actipro:ThemeResource ControlBackgroundBrushSoftAccent}"/>
-            <Setter Property="Foreground" Value="{actipro:ThemeResource ControlForegroundBrushOutlineAccent}"/>
+            <Setter Property="Background" Value="{DynamicResource ControlBackgroundBrushSoftAccent}"/>
+            <Setter Property="Foreground" Value="{DynamicResource ControlForegroundBrushOutlineAccent}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource ControlForegroundBrushOutlineAccent}"/>
+            <Setter Property="BorderThickness" Value="3,0,0,0"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
         </Style>
         <!-- Caption button base style -->
         <Style Selector="Button.caption">
@@ -65,13 +76,13 @@
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="CornerRadius" Value="0"/>
             <Setter Property="FontSize" Value="16"/>
-            <Setter Property="Foreground" Value="{actipro:ThemeResource DefaultForegroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource DefaultForegroundBrush}"/>
         </Style>
         <Style Selector="Button.caption:pointerover /template/ ContentPresenter">
-            <Setter Property="Background" Value="#1AFFFFFF"/>
+            <Setter Property="Background" Value="{DynamicResource CaptionButtonHoverBrush}"/>
         </Style>
         <Style Selector="Button.caption:pressed /template/ ContentPresenter">
-            <Setter Property="Background" Value="#33FFFFFF"/>
+            <Setter Property="Background" Value="{DynamicResource CaptionButtonPressedBrush}"/>
         </Style>
         <Style Selector="Button#CloseBtn:pointerover /template/ ContentPresenter">
             <Setter Property="Background" Value="#C42B1C"/>
@@ -83,15 +94,15 @@
     </Window.Styles>
 
     <Border x:Name="WindowBorder"
-            BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+            BorderBrush="{DynamicResource Container1BorderBrush}"
             BorderThickness="1"
             PointerPressed="ResizeBorder_PointerPressed">
     <Grid x:Name="RootGrid" ColumnDefinitions="200,*">
 
             <!-- Sidebar with box shadow for depth -->
             <Border x:Name="SidebarBorder" Grid.Column="0"
-                    Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                    BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                    Background="{DynamicResource Container1BackgroundBrush}"
+                    BorderBrush="{DynamicResource Container1BorderBrush}"
                     BorderThickness="0,0,1,0"
                     BoxShadow="4 0 12 0 #33000000">
                     <Grid RowDefinitions="*,Auto">
@@ -99,7 +110,7 @@
                         <!-- Nav Items -->
                         <StackPanel Grid.Row="0" Margin="0,40,0,0">
                             <TextBlock Text="MENU" FontSize="10" FontWeight="SemiBold"
-                                       Foreground="{actipro:ThemeResource DefaultForegroundBrushDisabled}"
+                                       Foreground="{DynamicResource DefaultForegroundBrushDisabled}"
                                        Margin="20,4,0,4" LetterSpacing="1.5"/>
                             <Button Classes="nav" Click="GalleryButton_Click">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -129,6 +140,13 @@
                                     <TextBlock Text="Discover"/>
                                 </StackPanel>
                             </Button>
+                            <Button Classes="nav" Click="CollectionsButton_Click">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <Path Data="{StaticResource CollectionsIconGeometry}" Width="16" Height="16"
+                                          Stretch="Uniform" Fill="{Binding $parent[Button].Foreground}"/>
+                                    <TextBlock Text="Collections"/>
+                                </StackPanel>
+                            </Button>
                             <Button Classes="nav" Click="SearchButton_Click">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <Path Data="{StaticResource SearchIconGeometry}" Width="16" Height="16"
@@ -154,7 +172,7 @@
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <Path Data="{StaticResource ViewedIconGeometry}" Width="16" Height="16"
                                           Stretch="Uniform" Fill="{Binding $parent[Button].Foreground}"/>
-                                    <TextBlock Text="Viewed"/>
+                                    <TextBlock Text="History"/>
                                 </StackPanel>
                             </Button>
                             <Button Classes="nav" Click="BatchDownloadButton_Click">
@@ -172,10 +190,10 @@
                                 </StackPanel>
                             </Button>
 
-                            <Separator Margin="14,8" Background="{actipro:ThemeResource Container1BorderBrush}"/>
+                            <Separator Margin="14,8" Background="{DynamicResource Container1BorderBrush}"/>
 
                             <TextBlock Text="SYSTEM" FontSize="10" FontWeight="SemiBold"
-                                       Foreground="{actipro:ThemeResource DefaultForegroundBrushDisabled}"
+                                       Foreground="{DynamicResource DefaultForegroundBrushDisabled}"
                                        Margin="20,4,0,4" LetterSpacing="1.5"/>
                             <Button Classes="nav" Click="AnalyticsButton_Click">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -195,8 +213,8 @@
 
                         <!-- Account switcher chip -->
                         <Button Grid.Row="1" Margin="10,0,10,10" Padding="10"
-                                Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                                BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                                Background="{DynamicResource Container2BackgroundBrush}"
+                                BorderBrush="{DynamicResource Container2BorderBrush}"
                                 BorderThickness="1" CornerRadius="8"
                                 HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
                                 Click="AccountChip_Click" x:Name="AccountChipBtn">
@@ -205,7 +223,7 @@
                                     <Border MinWidth="200" MaxHeight="320" Padding="6">
                                         <StackPanel Spacing="4">
                                             <TextBlock Text="ACCOUNTS" FontSize="10" FontWeight="SemiBold"
-                                                       Foreground="{actipro:ThemeResource DefaultForegroundBrushDisabled}"
+                                                       Foreground="{DynamicResource DefaultForegroundBrushDisabled}"
                                                        Margin="6,2,0,4" LetterSpacing="1.5"/>
                                             <ItemsControl x:Name="AccountList"/>
                                             <Separator Margin="0,4"/>
@@ -215,7 +233,7 @@
                                                     Padding="6,6" CornerRadius="4"
                                                     Click="AddAccountBtn_Click">
                                                 <StackPanel Orientation="Horizontal" Spacing="6">
-                                                    <PathIcon Data="{StaticResource PlusIcon}" Width="12" Height="12" VerticalAlignment="Center"/>
+                                                    <PathIcon Data="{StaticResource PlusIcon}" Width="12" Height="12" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                                                     <TextBlock Text="Add account" FontSize="12" VerticalAlignment="Center"/>
                                                 </StackPanel>
                                             </Button>
@@ -224,7 +242,7 @@
                                 </Flyout>
                             </Button.Flyout>
                             <Grid ColumnDefinitions="Auto,*,Auto">
-                                <Border Grid.Column="0" Background="{actipro:ThemeResource ControlBackgroundBrushSolidAccent}"
+                                <Border Grid.Column="0" Background="{DynamicResource ControlBackgroundBrushSolidAccent}"
                                         CornerRadius="14" Width="28" Height="28">
                                     <TextBlock Text="{Binding SidebarUserInitial}" FontSize="12" FontWeight="Bold"
                                                Foreground="White"
@@ -232,13 +250,13 @@
                                 </Border>
                                 <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="1" Margin="10,0,0,0">
                                     <TextBlock Text="{Binding SidebarUserName}" FontSize="12" FontWeight="SemiBold"
-                                               Foreground="{actipro:ThemeResource DefaultForegroundBrush}"
+                                               Foreground="{DynamicResource DefaultForegroundBrush}"
                                                TextTrimming="CharacterEllipsis"/>
                                     <TextBlock Text="{Binding SidebarUserStatus}" FontSize="10"
-                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                               Foreground="{DynamicResource DefaultForegroundBrushSecondary}"/>
                                 </StackPanel>
                                 <PathIcon Grid.Column="2" Data="{StaticResource ChevronDownIcon}" Width="12" Height="12" VerticalAlignment="Center"
-                                          Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                          Foreground="{Binding $parent[Button].Foreground}"
                                           Margin="6,0,0,0"/>
                             </Grid>
                         </Button>
@@ -246,7 +264,7 @@
             </Border>
 
             <!-- Main content -->
-            <Border Grid.Column="1" Background="{actipro:ThemeResource Container3BackgroundBrush}">
+            <Border Grid.Column="1" Background="{DynamicResource Container3BackgroundBrush}">
                 <Grid RowDefinitions="Auto,*">
                     <StackPanel Grid.Row="0">
                     <!-- Update available banner.
@@ -258,7 +276,7 @@
                             Margin="0,32,0,0">
                         <Grid ColumnDefinitions="*,Auto,Auto,Auto">
                             <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                                <PathIcon Data="{StaticResource NewIcon}" Width="16" Height="16" VerticalAlignment="Center" Foreground="{actipro:ThemeResource DefaultForegroundBrush}"/>
+                                <PathIcon Data="{StaticResource NewIcon}" Width="16" Height="16" VerticalAlignment="Center" Foreground="{DynamicResource DefaultForegroundBrush}"/>
                                 <TextBlock FontSize="13" VerticalAlignment="Center">
                                     <Run Text="Pikura v"/>
                                     <Run Text="{Binding UpdateVersion}"/>
@@ -280,8 +298,8 @@
                                     Command="{Binding DismissUpdateCommand}"
                                     Background="Transparent" BorderThickness="0"
                                     FontSize="12" Padding="6,4" CornerRadius="4"
-                                    Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}">
-                                <PathIcon Data="{StaticResource CloseIcon}" Width="12" Height="12"/>
+                                    Foreground="{DynamicResource DefaultForegroundBrushSecondary}">
+                                <PathIcon Data="{StaticResource CloseIcon}" Width="12" Height="12" Foreground="{Binding $parent[Button].Foreground}" />
                             </Button>
                         </Grid>
                     </Border>
@@ -301,8 +319,8 @@
                                     Command="{Binding DismissUpdateCommand}"
                                     Background="Transparent" BorderThickness="0"
                                     FontSize="12" Padding="6,4" CornerRadius="4"
-                                    Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}">
-                                <PathIcon Data="{StaticResource CloseIcon}" Width="12" Height="12"/>
+                                    Foreground="{DynamicResource DefaultForegroundBrushSecondary}">
+                                <PathIcon Data="{StaticResource CloseIcon}" Width="12" Height="12" Foreground="{Binding $parent[Button].Foreground}" />
                             </Button>
                         </Grid>
                     </Border>
@@ -315,7 +333,7 @@
                         <Grid ColumnDefinitions="*,Auto,Auto,Auto">
                             <StackPanel Grid.Column="0" Spacing="2" VerticalAlignment="Center">
                                 <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                                    <PathIcon Data="{StaticResource CheckIcon}" Width="16" Height="16" VerticalAlignment="Center" Foreground="{actipro:ThemeResource DefaultForegroundBrush}"/>
+                                    <PathIcon Data="{StaticResource CheckIcon}" Width="16" Height="16" VerticalAlignment="Center" Foreground="{DynamicResource DefaultForegroundBrush}"/>
                                     <TextBlock FontSize="13" VerticalAlignment="Center">
                                         <Run Text="Pikura v"/>
                                         <Run Text="{Binding UpdateVersion}"/>
@@ -334,7 +352,7 @@
                                     Command="{Binding DismissUpdateCommand}"
                                     Background="Transparent" BorderThickness="0"
                                     FontSize="12" Padding="6,4" CornerRadius="4"
-                                    Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                    Foreground="{DynamicResource DefaultForegroundBrushSecondary}"/>
                         </Grid>
                     </Border>
                     </StackPanel>
@@ -368,15 +386,40 @@
             <!-- Title bar background — covers full width to hide OS-rendered title text.
                  Hidden when the artwork overlay is active so the overlay covers the title bar too. -->
             <Border Grid.Column="0" Height="32" VerticalAlignment="Top" ZIndex="8"
-                    Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                    BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                    Background="{DynamicResource Container1BackgroundBrush}"
+                    BorderBrush="{DynamicResource Container1BorderBrush}"
                     BorderThickness="0,0,1,0"
                     IsHitTestVisible="False"
                     IsVisible="{Binding OverlayService.IsEnabled, Converter={x:Static BoolConverters.Not}}"/>
             <Border Grid.Column="1" Height="32" VerticalAlignment="Top" ZIndex="8"
-                    Background="{actipro:ThemeResource Container1BackgroundBrush}"
+                    Background="{DynamicResource Container1BackgroundBrush}"
+                    BorderBrush="{DynamicResource Container1BorderBrush}"
+                    BorderThickness="0,0,0,1"
                     IsHitTestVisible="False"
                     IsVisible="{Binding OverlayService.IsEnabled, Converter={x:Static BoolConverters.Not}}"/>
+
+            <!-- Global incognito indicator — visible from any tab, not just Viewed, since
+                 incognito mode affects browsing history recording app-wide. Sits below the
+                 draggable strip in Z-order so window dragging still works over this area;
+                 it's purely a status pill, not interactive. -->
+            <Border Grid.Column="1" Height="20" VerticalAlignment="Top" Margin="0,6,0,0"
+                    HorizontalAlignment="Center" ZIndex="9" Padding="9,0" CornerRadius="10"
+                    IsHitTestVisible="False"
+                    IsVisible="{Binding IncognitoModeEnabled}"
+                    BoxShadow="0 1 3 0 #40000000">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+                        <GradientStop Offset="0" Color="#8B5CF6"/>
+                        <GradientStop Offset="1" Color="#6D28D9"/>
+                    </LinearGradientBrush>
+                </Border.Background>
+                <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                    <Path Data="{StaticResource IncognitoIconGeometry}" Width="14" Height="6"
+                          Stretch="Uniform" Fill="White" VerticalAlignment="Center"/>
+                    <TextBlock Text="INCOGNITO" FontSize="10" FontWeight="Bold" Foreground="White"
+                               LetterSpacing="0.5" VerticalAlignment="Center"/>
+                </StackPanel>
+            </Border>
 
             <!-- Draggable title bar strip — spans full width -->
             <Panel Grid.Column="0" Grid.ColumnSpan="2"
@@ -423,12 +466,12 @@
                     VerticalAlignment="Top" HorizontalAlignment="Left"
                     Margin="8,4,0,0" Padding="7,4" ZIndex="20"
                     Background="Transparent" BorderThickness="0"
-                    Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                    Foreground="{DynamicResource DefaultForegroundBrushSecondary}"
                     FontSize="15" CornerRadius="5"
                     IsHitTestVisible="True"
                     Click="HamburgerBtn_Click"
                     ToolTip.Tip="Toggle sidebar">
-                <PathIcon Data="{StaticResource HamburgerIcon}" Width="16" Height="16"/>
+                <PathIcon Data="{StaticResource HamburgerIcon}" Width="16" Height="16" Foreground="{Binding $parent[Button].Foreground}" />
             </Button>
     </Grid>
     </Border>

@@ -4,12 +4,12 @@
         xmlns:anim="using:Pikura.Avalonia.Controls"
         x:Class="Pikura.Avalonia.Views.Artwork.FullscreenViewerWindow"
         x:DataType="vm:ArtworkViewerViewModel"
-        Background="Black"
+        Background="{DynamicResource ImageCanvasBackgroundBrush}"
         WindowState="FullScreen"
         ShowInTaskbar="False">
     
     <!-- Just the image, nothing else -->
-    <Canvas Name="Canvas" ClipToBounds="True" Background="Black">
+    <Canvas Name="Canvas" ClipToBounds="True" Background="{DynamicResource ImageCanvasBackgroundBrush}">
         <Image Name="Image"
                Source="{Binding CurrentPageBitmap}"
                Stretch="Uniform"

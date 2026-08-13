@@ -1,0 +1,51 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:actipro="http://schemas.actiprosoftware.com/avaloniaui"
+             x:Class="Pikura.Avalonia.Views.Dialogs.DateRangePickerPanel"
+             Width="480">
+    <Border Background="{DynamicResource Container1BackgroundBrush}"
+            BorderBrush="{DynamicResource Container1BorderBrush}"
+            BorderThickness="1" CornerRadius="8"
+            BoxShadow="{DynamicResource CardShadow}">
+        <StackPanel Margin="16" Spacing="10">
+            <TextBlock Text="Custom date range" FontWeight="SemiBold" FontSize="13"/>
+
+            <Grid ColumnDefinitions="*,12,*">
+                <StackPanel Grid.Column="0" Spacing="4">
+                    <TextBlock Text="From (MM-DD-YYYY)" FontSize="10"
+                               Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
+                    <TextBox x:Name="StartDateBox" PlaceholderText="e.g. 10-14-2015"
+                             CornerRadius="6" FontSize="12"
+                             TextChanged="OnStartTextChanged"/>
+                </StackPanel>
+                <StackPanel Grid.Column="2" Spacing="4">
+                    <TextBlock Text="To (MM-DD-YYYY)" FontSize="10"
+                               Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
+                    <TextBox x:Name="EndDateBox" PlaceholderText="e.g. 10-23-2026"
+                             CornerRadius="6" FontSize="12"
+                             TextChanged="OnEndTextChanged"/>
+                </StackPanel>
+            </Grid>
+
+            <TextBlock x:Name="ErrorText" FontSize="11" Foreground="#F87171" TextWrapping="Wrap" IsVisible="False"/>
+
+            <!-- Calendars are an optional convenience — picking a date fills in the text box
+                 above, but typing directly (e.g. "10-14-2015") works without ever touching them. -->
+            <Grid ColumnDefinitions="Auto,12,Auto">
+                <StackPanel Grid.Column="0" Spacing="4">
+                    <Calendar x:Name="StartCalendar" SelectionMode="SingleDate"
+                              SelectedDatesChanged="OnStartCalendarChanged"/>
+                </StackPanel>
+                <StackPanel Grid.Column="2" Spacing="4">
+                    <Calendar x:Name="EndCalendar" SelectionMode="SingleDate"
+                              SelectedDatesChanged="OnEndCalendarChanged"/>
+                </StackPanel>
+            </Grid>
+
+            <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Right">
+                <Button Content="Cancel" Click="OnCancel"/>
+                <Button Content="Apply range" Classes="accent" Click="OnApply"/>
+            </StackPanel>
+        </StackPanel>
+    </Border>
+</UserControl>

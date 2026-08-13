@@ -74,6 +74,12 @@ public sealed class AddBookmarkBody
     [JsonPropertyName("last_bookmark_id")] public string? LastBookmarkId { get; set; }
 }
 
+/// <summary>Response body from POST /ajax/illusts/like.</summary>
+public sealed class LikeResponse
+{
+    [JsonPropertyName("is_liked")] public bool IsLiked { get; set; }
+}
+
 /// <summary>OAuth token response from Pixiv authentication endpoint.</summary>
 public sealed class OAuthTokenResponse
 {

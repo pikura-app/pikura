@@ -7,8 +7,10 @@ using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Pikura.Avalonia.Services;
 using Pikura.Core.Models;
 using Pikura.Core.Services;
+using Pikura.Core.Settings;
 
 namespace Pikura.Avalonia.ViewModels;
 
@@ -17,6 +19,21 @@ public partial class RankingCardViewModel : ObservableObject
     [ObservableProperty] private Bitmap? _thumbnail;
     [ObservableProperty] private bool _isSelected;
     [ObservableProperty] private bool _isBlurred;
+    /// <summary>Liked/bookmarked/local-favorite badges — same centralized-check approach as
+    /// ArtworkCardViewModel (see GalleryViewModel.cs for the full rationale).</summary>
+    [ObservableProperty] private bool _isLiked;
+    [ObservableProperty] private bool _isPixivBookmarked;
+    [ObservableProperty] private bool _isLocalFavorite;
+
+    private void InitLikedBookmarkedFavorite()
+    {
+        try { _isLiked = AppServices.Get<SettingsService>().Current.PixivLikedArtworkIds.Contains(Id); }
+        catch { /* AppServices not initialized yet, e.g. design-time */ }
+        try { _isLocalFavorite = AppServices.Get<Pikura.Core.Services.LocalFavoritesService>().IsFavorite(Id); }
+        catch { /* AppServices not initialized yet */ }
+        try { _isPixivBookmarked = AppServices.Get<BookmarksViewModel>().IsKnownBookmarked(Id, out _); }
+        catch { /* AppServices/BookmarksViewModel not initialized yet */ }
+    }
 
     public int Rank { get; }
     public string Id { get; }
@@ -104,6 +121,7 @@ public partial class RankingCardViewModel : ObservableObject
             ? (double)entry.Height / entry.Width : 1.0;
         ClampedAspectRatio = Math.Min(Math.Max(rawAspect, 0.5), 2.5);
         Tags = entry.Tags;
+        InitLikedBookmarkedFavorite();
     }
 
     public RankingCardViewModel(NovelRankingEntry entry, bool isR18Source = false)
@@ -129,6 +147,7 @@ public partial class RankingCardViewModel : ObservableObject
         Tags = entry.Tags;
         CharCount = entry.TextCount;
         ReadingTimeMinutes = entry.ReadingTimeMinutes;
+        InitLikedBookmarkedFavorite();
     }
 
     private static string? UpgradeThumbnailUrl(string? url)

@@ -16,16 +16,16 @@
     <Grid RowDefinitions="Auto,*,Auto,Auto">
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+        <Border Grid.Row="0" Background="{DynamicResource Container1BackgroundBrush}"
+                BorderBrush="{DynamicResource Container1BorderBrush}"
                 BorderThickness="0,0,0,1" Padding="20,16">
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Spacing="4">
                     <TextBlock Text="Download by Image ID" FontSize="20" FontWeight="SemiBold"/>
                     <TextBlock Text="Download specific artworks by their ID or URL"
-                               FontSize="12" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                               FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                 </StackPanel>
-                <Button Grid.Column="1" Content="? Help" CornerRadius="6" Padding="12,6"/>
+                <Button Grid.Column="1" Content="? Help"  />
             </Grid>
         </Border>
 
@@ -34,8 +34,8 @@
             <StackPanel Spacing="16" Margin="20">
 
                 <!-- Image IDs Input -->
-                <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                        BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                <Border Background="{DynamicResource Container2BackgroundBrush}"
+                        BorderBrush="{DynamicResource Container2BorderBrush}"
                         BorderThickness="1" CornerRadius="8" Padding="16">
                     <StackPanel Spacing="12">
                         <Grid ColumnDefinitions="*,Auto">
@@ -44,7 +44,7 @@
                             <TextBlock Grid.Column="1"
                                        Text="{Binding ParsedIds.Count, StringFormat='{}{0} IDs detected'}"
                                        FontSize="13"
-                                       Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                       Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                         </Grid>
 
                         <TextBox Text="{Binding InputText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -59,26 +59,26 @@
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <Button Content="📋 Paste from Clipboard"
                                     Click="OnPasteClicked"
-                                    CornerRadius="6" Padding="12,8"/>
+                                     />
                             <Button Content="📁 Import from File"
                                     Command="{Binding ImportFromFileCommand}"
-                                    CornerRadius="6" Padding="12,8"/>
+                                     />
                             <Button Content="Clear"
                                     Command="{Binding ClearInputCommand}"
-                                    CornerRadius="6" Padding="12,8"/>
+                                     />
                         </StackPanel>
 
                         <!-- Validation Summary -->
                         <Border IsVisible="{Binding HasInvalidInput}"
-                                Background="{actipro:ThemeResource Container3BackgroundBrush}"
-                                BorderBrush="{actipro:ThemeResource Container3BorderBrush}"
+                                Background="{DynamicResource Container3BackgroundBrush}"
+                                BorderBrush="{DynamicResource Container3BorderBrush}"
                                 BorderThickness="1" CornerRadius="6" Padding="12">
                             <StackPanel Spacing="4">
                                 <TextBlock Text="⚠ Some entries could not be parsed:"
                                            FontSize="12" Foreground="Orange"/>
                                 <TextBlock Text="{Binding InvalidEntriesSummary}"
                                            FontSize="11"
-                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                           Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                            TextWrapping="Wrap"/>
                             </StackPanel>
                         </Border>
@@ -86,22 +86,22 @@
                 </Border>
 
                 <!-- Download Options -->
-                <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                        BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                <Border Background="{DynamicResource Container2BackgroundBrush}"
+                        BorderBrush="{DynamicResource Container2BorderBrush}"
                         BorderThickness="1" CornerRadius="8" Padding="16">
                     <StackPanel Spacing="12">
                         <TextBlock Text="Download Options" FontSize="15" FontWeight="SemiBold"/>
 
                         <StackPanel Spacing="6">
                             <TextBlock Text="Page Range (for multi-page works)"
-                                       FontSize="13" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                       FontSize="13" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                             <ComboBox ItemsSource="{Binding PageRangeOptions}"
                                       SelectedItem="{Binding SelectedPageRange, Mode=TwoWay}"
                                       Width="200" HorizontalAlignment="Left"
                                       CornerRadius="6"/>
                             <TextBlock Text="Single-page artworks will download the full image regardless of this setting."
                                        FontSize="11"
-                                       Foreground="{actipro:ThemeResource DefaultForegroundBrushDisabled}"/>
+                                       Foreground="{DynamicResource DefaultForegroundBrushDisabled}"/>
                         </StackPanel>
 
                         <CheckBox Content="Skip already downloaded images"
@@ -110,8 +110,8 @@
                 </Border>
 
                 <!-- Settings Override -->
-                <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                        BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                <Border Background="{DynamicResource Container2BackgroundBrush}"
+                        BorderBrush="{DynamicResource Container2BorderBrush}"
                         BorderThickness="1" CornerRadius="8" Padding="16">
                     <StackPanel Spacing="12">
                         <TextBlock Text="Download Settings" FontSize="15" FontWeight="SemiBold"/>
@@ -145,8 +145,8 @@
         </ScrollViewer>
 
         <!-- Progress Panel -->
-        <Border Grid.Row="2" Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+        <Border Grid.Row="2" Background="{DynamicResource Container1BackgroundBrush}"
+                BorderBrush="{DynamicResource Container1BorderBrush}"
                 BorderThickness="0,1,0,0" Padding="16"
                 IsVisible="{Binding HasActiveJob}">
             <StackPanel Spacing="8">
@@ -158,31 +158,31 @@
                 </Grid>
                 <ProgressBar Value="{Binding ProgressPercent}" Maximum="100" Height="4"/>
                 <TextBlock Text="{Binding CurrentItemName}"
-                           FontSize="11" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                           FontSize="11" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                            IsVisible="{Binding CurrentItemName, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
             </StackPanel>
         </Border>
 
         <!-- Action Bar -->
-        <Border Grid.Row="3" Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+        <Border Grid.Row="3" Background="{DynamicResource Container2BackgroundBrush}"
+                BorderBrush="{DynamicResource Container2BorderBrush}"
                 BorderThickness="0,1,0,0" Padding="16">
             <Grid ColumnDefinitions="*,Auto,Auto">
                 <Button Grid.Column="0" Content="💾 Save Preset"
                         Command="{Binding SavePresetCommand}"
-                        CornerRadius="6" Padding="12,8"/>
+                         />
 
                 <Button Grid.Column="1" Content="Cancel"
                         Command="{Binding CancelDownloadCommand}"
                         IsVisible="{Binding HasActiveJob}"
-                        CornerRadius="6" Padding="16,10" Margin="0,0,8,0"/>
+                         Padding="16,10" Margin="0,0,8,0"/>
 
                 <Button Grid.Column="2" Content="▶ Start Download"
                         Command="{Binding StartDownloadCommand}"
                         IsEnabled="{Binding ParsedIds.Count}"
                         IsVisible="{Binding !HasActiveJob}"
                         Classes="accent"
-                        CornerRadius="6" Padding="20,12" FontWeight="SemiBold"/>
+                         Padding="20,12" />
             </Grid>
         </Border>
 

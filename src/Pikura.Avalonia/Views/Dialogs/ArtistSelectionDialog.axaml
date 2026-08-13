@@ -18,8 +18,8 @@
 
     <Grid RowDefinitions="Auto,*,Auto">
         <!-- Header -->
-        <Border Grid.Row="0" Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+        <Border Grid.Row="0" Background="{DynamicResource Container1BackgroundBrush}"
+                BorderBrush="{DynamicResource Container1BorderBrush}"
                 BorderThickness="0,0,0,1" Padding="16,12">
             <StackPanel Spacing="8">
                 <TextBlock Text="Select Artists to Download" FontSize="16" FontWeight="SemiBold"/>
@@ -40,15 +40,15 @@
                 <ItemsControl.ItemTemplate>
                     <DataTemplate DataType="vm:SelectableArtist">
                         <Border IsVisible="{Binding IsVisible}"
-                                Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                                BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                                Background="{DynamicResource Container2BackgroundBrush}"
+                                BorderBrush="{DynamicResource Container2BorderBrush}"
                                 BorderThickness="1" CornerRadius="6"
                                 Opacity="{Binding IsAlreadyAdded, Converter={x:Static ObjectConverters.IsNotNull}}">
                             <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Margin="12,10">
                                 <!-- Avatar -->
                                 <Border Grid.Column="0" Width="40" Height="40"
                                         CornerRadius="20"
-                                        Background="{actipro:ThemeResource ControlBackgroundBrushSolidAccent}">
+                                        Background="{DynamicResource ControlBackgroundBrushSolidAccent}">
                                     <TextBlock Text="👤" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20"/>
                                 </Border>
 
@@ -58,7 +58,7 @@
                                                FontSize="14" FontWeight="Medium"/>
                                     <TextBlock Text="{Binding User.UserId, StringFormat='ID: {0}'}"
                                                FontSize="11"
-                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                               Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                 </StackPanel>
 
                                 <!-- Checkbox -->
@@ -74,18 +74,16 @@
         </ScrollViewer>
 
         <!-- Footer -->
-        <Border Grid.Row="2" Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+        <Border Grid.Row="2" Background="{DynamicResource Container2BackgroundBrush}"
+                BorderBrush="{DynamicResource Container2BorderBrush}"
                 BorderThickness="0,1,0,0" Padding="16">
             <Grid ColumnDefinitions="*,Auto,Auto">
                 <TextBlock Grid.Column="0"
                            VerticalAlignment="Center">
                     <Run Text="Selected: "/><Run Text="{Binding SelectedUsers.Count}" FontWeight="SemiBold"/>
                 </TextBlock>
-                <Button Grid.Column="1" Content="Cancel" Click="CancelButton_Click"
-                        CornerRadius="6" Padding="16,8" Margin="0,0,8,0"/>
-                <Button Grid.Column="2" Content="Add Selected" Click="OkButton_Click"
-                        Classes="accent" CornerRadius="6" Padding="16,8"/>
+                <Button Content="Cancel" Click="CancelButton_Click" Margin="0,0,8,0"/>
+                <Button Content="Add Selected" Click="OkButton_Click" Classes="accent"/>
             </Grid>
         </Border>
     </Grid>

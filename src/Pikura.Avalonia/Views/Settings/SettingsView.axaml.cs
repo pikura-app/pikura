@@ -230,17 +230,31 @@ public partial class SettingsView : UserControl
         catch { /* best-effort — no browser available */ }
     }
 
+    /// <summary>
+    /// Shows the FULL published release history (every GitHub release, newest first), not just
+    /// the current version — per explicit user request that this button should "showcase the
+    /// entire published history rather than just the current version". The auto-popup shown
+    /// right after an update (see MainWindowViewModel.CheckChangelogAsync /
+    /// MainWindow.ShowChangelogDialogAsync) intentionally still only shows the latest release.
+    /// </summary>
     private async void OnViewChangelogClick(object? sender, RoutedEventArgs e)
     {
         try
         {
-            var version = Pikura.Core.Services.UpdateCheckService.CurrentVersion;
             var updateCheck = AppServices.Get<Pikura.Core.Services.UpdateCheckService>();
-            var notes = await updateCheck.FetchReleaseNotesAsync(version)
-                        ?? MainWindowViewModel.GetLocalReleaseNotes(version);
-            if (notes is null) return;
+            var releases = await updateCheck.FetchAllReleasesAsync();
 
-            var dialog = new ChangelogDialog(notes.Version, notes.ReleaseNotes, notes.ReleasePageUrl);
+            if (releases.Count == 0)
+            {
+                // Offline / GitHub unreachable — fall back to whatever we know locally so the
+                // button still does something useful instead of silently no-op'ing.
+                var version = Pikura.Core.Services.UpdateCheckService.CurrentVersion;
+                var local = MainWindowViewModel.GetLocalReleaseNotes(version);
+                if (local != null) releases.Add(local);
+            }
+            if (releases.Count == 0) return;
+
+            var dialog = new ChangelogDialog(releases, "https://github.com/pikura-app/pikura/releases");
             if (TopLevel.GetTopLevel(this) is Window owner)
                 await dialog.ShowDialog(owner);
         }

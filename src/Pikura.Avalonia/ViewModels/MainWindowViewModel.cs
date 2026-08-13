@@ -25,6 +25,9 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty] private string _sidebarUserName    = "Guest User";
     [ObservableProperty] private string _sidebarUserStatus  = "Not signed in";
     [ObservableProperty] private string _sidebarUserInitial = "G";
+
+    /// <summary>Mirrors <see cref="AppSettings.IncognitoModeEnabled"/> so a persistent indicator can be shown from any tab, not just the Viewed tab.</summary>
+    [ObservableProperty] private bool _incognitoModeEnabled;
     [ObservableProperty] private bool   _updateAvailable;
     [ObservableProperty] private string _updateVersion      = string.Empty;
     [ObservableProperty] private string _updateUrl          = string.Empty;
@@ -60,6 +63,12 @@ public partial class MainWindowViewModel : ViewModelBase
         Title = "Pikura";
         RefreshUserChip();
         _settingsService.Changed += (_, _) => RefreshUserChip();
+        IncognitoModeEnabled = _settingsService.ActiveIncognitoEnabled;
+        _settingsService.ActiveIncognitoChanged += (_, _) =>
+        {
+            var incognito = _settingsService.ActiveIncognitoEnabled;
+            if (IncognitoModeEnabled != incognito) IncognitoModeEnabled = incognito;
+        };
         _ = Task.Run(CheckForUpdateAsync);
         _ = Task.Run(CheckChangelogAsync);
         _ = Task.Run(RestoreDownloadedUpdateAsync);
@@ -447,6 +456,30 @@ public partial class MainWindowViewModel : ViewModelBase
 
     public static UpdateInfo? GetLocalReleaseNotes(string version) => version switch
     {
+        "2.1.0" => new UpdateInfo(
+            "2.1.0",
+            "Pikura 2.1.0",
+            """
+            ## 2.1.0
+
+            ### New Features
+            - **Collections** — full support for Pixiv's collection-curation feature: browse Featured and All collections, open collection details, download selected or entire collections, bookmark collections, and post/read collection comments
+            - **Collage** — open any selection of artworks as a single unique collage tab, add or remove individual images, and download the whole collage
+            - **Pixiv-connected actions** — likes, public/private bookmarks, follows/unfollows, views, comments, replies, stickers, and Pixiv emoji now operate on your real Pixiv account
+            - **Viewer tabs persist across restarts** — the tabs you had open (including the collage tab) are automatically reopened the next time you launch Pikura
+
+            ### Improved
+            - **Chrome-style tab reordering** — drag inline viewer tabs left or right and watch the strip slide around the tab in real time
+            - **View in new tabs** — open selected artworks in their own inline viewer tabs from Gallery, Discover, Rankings, Pixivision, Bookmarks, Search, and Collections
+            - **Bookmarks** now includes every artwork you've liked on Pixiv (even ones that aren't bookmarked) alongside your public/private bookmarks and bookmarked collections
+            - **Search** now has a History dropdown to jump back to a previous search (with the filters used at the time) and Popular Tags as clickable chips
+            - Synchronization updates immediately across the gallery, Discover, Rankings, Search, Pixivision, and the inline viewer
+            - Comment threads support correct-thread replies, stickers, Pixiv custom-emoji shortcodes, and deletion of your own comments after confirmation
+            - Refined light and dark themes with better contrast, rounded button hover highlights, visible caption-button hover states, and a working system-theme toggle
+            - Fixed the inline viewer **Liked** button readability in both themes
+            """,
+            "https://github.com/pikura-app/pikura/releases/latest",
+            null),
         "2.0.0" => new UpdateInfo(
             "2.0.0",
             "Pikura 2.0.0 — Major Release",

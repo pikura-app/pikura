@@ -2,7 +2,9 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using Avalonia.Platform;
 using Avalonia.Styling;
+using Avalonia.Threading;
 using Pikura.Avalonia.ViewModels;
 using Pikura.Avalonia.Views;
 using Pikura.Avalonia.Services;
@@ -21,6 +23,9 @@ namespace Pikura.Avalonia;
 public partial class App : Application
 {
     private CrashReportService? _crashService;
+    private static DispatcherTimer? _themeTimer;
+    private static IPlatformSettings? _platformSettings;
+    private static bool _themeEventsSubscribed;
 
     public override void Initialize()
     {
@@ -28,22 +33,109 @@ public partial class App : Application
         AppServices.Initialize();
 
         // Apply persisted theme before any window is created
-        var settings = AppServices.Get<SettingsService>();
-        RequestedThemeVariant = settings.Current.Theme switch
-        {
-            "Light" => ThemeVariant.Light,
-            "Dark"  => ThemeVariant.Dark,
-            _       => null  // system default
-        };
+        ApplyTheme();
 
         // Sync Windows startup registry with the saved user setting. The app/installer
         // may have left a stale Run key entry under a legacy or canonical name; this
         // makes the user's "Start with Windows" toggle authoritative.
+        var settings = AppServices.Get<SettingsService>();
         if (OperatingSystem.IsWindows())
         {
             try { Services.StartupHelper.SetStartupEnabled(settings.Current.StartWithWindows); }
             catch { /* non-fatal */ }
         }
+    }
+
+    public static void ApplyTheme()
+    {
+        if (Current is null) return;
+        var settings = AppServices.Get<SettingsService>();
+        var theme = settings.Current.Theme;
+        ThemeVariant? variant = theme switch
+        {
+            "Light" => ThemeVariant.Light,
+            "Dark" => ThemeVariant.Dark,
+            "Scheduled" => IsScheduledDark(settings.Current.ThemeScheduleDarkStart, settings.Current.ThemeScheduleDarkEnd)
+                ? ThemeVariant.Dark
+                : ThemeVariant.Light,
+            "System" or "Default" or _ => null
+        };
+
+        if (variant is null)
+        {
+            variant = GetSystemThemeVariant();
+            SubscribeToSystemThemeChanges();
+        }
+        else
+        {
+            UnsubscribeFromSystemThemeChanges();
+        }
+
+        Current.RequestedThemeVariant = variant;
+
+        if (theme == "Scheduled" && _themeTimer is null)
+        {
+            _themeTimer = new DispatcherTimer(TimeSpan.FromMinutes(1), DispatcherPriority.Background, (_, _) => ApplyTheme())
+            {
+                IsEnabled = true
+            };
+        }
+        else if (theme != "Scheduled")
+        {
+            _themeTimer?.Stop();
+            _themeTimer = null;
+        }
+    }
+
+    private static ThemeVariant GetSystemThemeVariant()
+    {
+        try
+        {
+            var values = GetPlatformSettings()?.GetColorValues();
+            if (values is not null)
+            {
+                var name = values.ThemeVariant.ToString();
+                if (name == "Dark") return ThemeVariant.Dark;
+                if (name == "Light") return ThemeVariant.Light;
+            }
+        }
+        catch { /* fall back to light if platform settings are unavailable */ }
+        return ThemeVariant.Light;
+    }
+
+    private static IPlatformSettings? GetPlatformSettings()
+    {
+        if (_platformSettings is not null) return _platformSettings;
+        _platformSettings = Current?.PlatformSettings;
+        return _platformSettings;
+    }
+
+    private static void SubscribeToSystemThemeChanges()
+    {
+        if (_themeEventsSubscribed) return;
+        var ps = GetPlatformSettings();
+        if (ps is null) return;
+        ps.ColorValuesChanged += (_, _) => Dispatcher.UIThread.Post(ApplyTheme);
+        _themeEventsSubscribed = true;
+    }
+
+    private static void UnsubscribeFromSystemThemeChanges()
+    {
+        if (!_themeEventsSubscribed) return;
+        var ps = GetPlatformSettings();
+        if (ps is not null)
+            ps.ColorValuesChanged -= (_, _) => Dispatcher.UIThread.Post(ApplyTheme);
+        _themeEventsSubscribed = false;
+    }
+
+    private static bool IsScheduledDark(TimeSpan start, TimeSpan end)
+    {
+        var now = DateTime.Now.TimeOfDay;
+        if (start <= end)
+        {
+            return now >= start && now < end;
+        }
+        return now >= start || now < end;
     }
 
     public override void OnFrameworkInitializationCompleted()
@@ -120,6 +212,19 @@ public partial class App : Application
                     try { await client.ValidateSessionAsync(); }
                     catch { /* non-fatal — UI will show "not signed in" and let user retry */ }
                 });
+
+                // Refresh the Cloudflare cf_clearance cookie in the background if it's missing
+                // or stale — needed for pixiv.net subdomains (e.g. embed.pixiv.net, Collection
+                // collage thumbnails) that enforce bot-management beyond plain PHPSESSID.
+                var loginService = AppServices.Get<PixivLoginService>();
+                if (loginService.IsCloudflareSessionStale)
+                {
+                    _ = Task.Run(async () =>
+                    {
+                        try { await loginService.RefreshCloudflareSessionAsync(); }
+                        catch { /* non-fatal — collage thumbnails just won't load */ }
+                    });
+                }
             }
 
             // Prepare the feature highlights (page list + pre-decoded GIF frames) in the
@@ -172,29 +277,33 @@ public partial class App : Application
     }
 
     /// <summary>
-    /// Builds the onboarding pages and pre-decodes every screenshot/GIF into the
-    /// shared frame cache. Returns null when the highlights should not be shown.
+    /// Builds the onboarding pages and starts pre-decoding screenshots/GIFs in the
+    /// background. Returns null when the highlights should not be shown.
     /// </summary>
-    private static async Task<List<OnboardingPage>?> PrepareStartupHighlightsAsync(SettingsService settings)
+    private static Task<List<OnboardingPage>?> PrepareStartupHighlightsAsync(SettingsService settings)
     {
         if (!settings.Current.ShowFeatureHighlights ||
             settings.Current.LastOnboardingVersionShown == GetCurrentVersionString())
-            return null;
+            return Task.FromResult<List<OnboardingPage>?>(null);
 
         var pages = BuildOnboardingPages();
 
-        // Pre-decode every screenshot/GIF into the shared frame cache so each
-        // page displays instantly when the user navigates to it.
-        var preloads = new List<Task>();
-        foreach (var page in pages)
+        // Pre-decode screenshots/GIFs in the background so the dialog can open
+        // immediately while assets continue to cache for faster page navigation.
+        _ = Task.Run(async () =>
         {
-            if (string.IsNullOrEmpty(page.Screenshot)) continue;
-            if (Converters.AssetPathConverter.Instance.Convert(page.Screenshot, typeof(string), null, System.Globalization.CultureInfo.InvariantCulture) is string localPath)
-                preloads.Add(Controls.AnimatedImage.PreloadAsync(localPath));
-        }
-        await Task.WhenAll(preloads);
+            foreach (var page in pages)
+            {
+                foreach (var shot in page.Screenshots)
+                {
+                    if (string.IsNullOrEmpty(shot)) continue;
+                    if (Converters.AssetPathConverter.Instance.Convert(shot, typeof(string), null, System.Globalization.CultureInfo.InvariantCulture) is string localPath)
+                        await Controls.AnimatedImage.PreloadAsync(localPath);
+                }
+            }
+        });
 
-        return pages;
+        return Task.FromResult<List<OnboardingPage>?>(pages);
     }
 
     /// <summary>
@@ -218,56 +327,98 @@ public partial class App : Application
         {
             new()
             {
-                Title = "Pixivision",
-                Subtitle = "Curated editorial content",
-                Description = "Browse official Pixivision articles, artist interviews and featured spotlights without leaving the app. You can also go back and look at previous articles using the built-in calendar.",
-                IconKey = "GlobeIcon",
-                Screenshot = "avares://Pikura/Assets/FeatureHighlights/pixivision.png"
-            },
-            new()
-            {
-                Title = "Search Tab",
-                Subtitle = "Find everything in one place",
-                Description = "Open the Search tab to look up artworks, artists, novels, and users with a single query across the app.",
-                IconKey = "SearchIcon",
-                Screenshot = "avares://Pikura/Assets/FeatureHighlights/search-tab.gif"
-            },
-            new()
-            {
-                Title = "Artwork Background Overlay",
-                Subtitle = "Set any artwork as your background",
-                Description = "Use any artwork as a full-window background overlay. Tune opacity, brighten/darken, pan and zoom per image, or cycle through up to five favorites.",
-                IconKey = "ImageIcon",
-                Screenshot = "avares://Pikura/Assets/FeatureHighlights/background-overlay.gif"
-            },
-            new()
-            {
-                Title = "Viewed Tab",
-                Subtitle = "Revisit what you've already seen",
-                Description = "Every artwork you open is remembered in the new Viewed tab. Scroll back through your viewing history to rediscover images you've come across, or use the built-in calendar to jump to what you viewed on any past day.",
-                IconKey = "ClockIcon",
-                Screenshot = "avares://Pikura/Assets/FeatureHighlights/viewed.png"
-            },
-            new()
-            {
-                Title = "Gallery Search",
-                Subtitle = "Search and filter inside the gallery",
-                Description = "Search within the gallery by tag, title, artist, caption, date range, R-18 mode, AI generation and more. Combine filters and sorting to narrow down the displayed collection quickly.",
-                IconKey = "SearchIcon"
-            },
-            new()
-            {
-                Title = "Advanced Filtering",
-                Subtitle = "Fine-grained control over your view",
-                Description = "Filter by AI generation, R-18 type, blocklist scope, tags, titles and artists. Apply filters independently in Gallery, Rankings, Discover, Search and Pixivision.",
-                IconKey = "FilterIcon"
-            },
-            new()
-            {
-                Title = "Performance Improvements",
-                Subtitle = "Faster, smoother experience",
-                Description = "Reduced memory usage, faster startup, smoother gallery scrolling, and more responsive download coordination across the board.",
+                Title = "Pikura 2.1.0",
+                Subtitle = "What's new in this update",
+                Description = "This release focuses on making Pikura feel more connected to Pixiv and easier to work with. Tabs reorder like a browser, collages behave like first-class tabs, and likes, bookmarks, follows, and comments now talk directly to Pixiv.",
                 IconKey = "RefreshIcon"
+            },
+            new()
+            {
+                Title = "Refreshed Light & Dark Themes",
+                Subtitle = "A cleaner look in both modes",
+                Description = "The light and dark themes have been refined with better contrast, smoother button highlights, and improved readability for toggles, caption buttons, and the inline viewer.",
+                IconKey = "PaletteIcon",
+                Screenshots =
+                [
+                    "avares://Pikura/Assets/FeatureHighlights/light-mode.png",
+                    "avares://Pikura/Assets/FeatureHighlights/dark-mode.png",
+                    "avares://Pikura/Assets/FeatureHighlights/light-dark-mode-toggle.gif"
+                ],
+                IsNew = true
+            },
+            new()
+            {
+                Title = "Chrome-Style Tab Reordering",
+                Subtitle = "Drag tabs to reorder",
+                Description = "Grab any inline viewer tab and drag it left or right. The tab lifts and scales while the other tabs smoothly slide out of the way, just like in a web browser.",
+                IconKey = "NewTabIcon"
+            },
+            new()
+            {
+                Title = "Collage",
+                Subtitle = "Unique collage tabs",
+                Description = "Open any selection of artworks as a single collage tab. Add or remove individual images, open each image in its own tab, or download the whole collage in one go.",
+                IconKey = "ImageIcon",
+                Screenshot = "avares://Pikura/Assets/FeatureHighlights/collage.gif",
+                IsNew = true
+            },
+            new()
+            {
+                Title = "View in New Tabs",
+                Subtitle = "Open selections individually",
+                Description = "From Gallery, Discover, Rankings, Pixivision, Bookmarks, Search, and Collections, open selected artworks as separate inline viewer tabs so you can compare them side by side.",
+                IconKey = "PopupIcon"
+            },
+            new()
+            {
+                Title = "Pixiv-Connected Actions",
+                Subtitle = "Real likes, bookmarks, follows, and comments",
+                Description = "Likes, public/private bookmarks, follows, unfollows, views, comments, replies, stickers, and Pixiv emoji now operate on your real Pixiv account and stay in sync across the app.",
+                IconKey = "HeartFilledIcon",
+                Screenshots =
+                [
+                    "avares://Pikura/Assets/FeatureHighlights/follows-bookmarks-favorites.png",
+                    "avares://Pikura/Assets/FeatureHighlights/comments.gif"
+                ],
+                IsNew = true
+            },
+            new()
+            {
+                Title = "Collections",
+                Subtitle = "A new way Pixiv artists curate their work",
+                Description = "Browse Featured and All Pixiv collections, open collection details, download selected works or an entire collection, bookmark collections, and read and post collection comments.",
+                IconKey = "FolderIcon",
+                Screenshots =
+                [
+                    "avares://Pikura/Assets/FeatureHighlights/collections.png",
+                    "avares://Pikura/Assets/FeatureHighlights/collections-see-view.gif"
+                ],
+                IsNew = true
+            },
+            new()
+            {
+                Title = "Bookmarks Improvements",
+                Subtitle = "Liked artworks and collections, all in one place",
+                Description = "The Bookmarks section now includes every artwork you've liked on Pixiv — even ones that aren't bookmarked — alongside your public/private bookmarks and bookmarked collections, all kept in sync as you browse.",
+                IconKey = "BookmarkFilledIcon",
+                Screenshots =
+                [
+                    "avares://Pikura/Assets/FeatureHighlights/bookmarks.png",
+                    "avares://Pikura/Assets/FeatureHighlights/follows-bookmarks-favorites.png"
+                ],
+                IsNew = true
+            },
+            new()
+            {
+                Title = "Search Improvements",
+                Subtitle = "History and popular tags",
+                Description = "Jump back to a previous search from the History dropdown under the search box — your last 25 queries are remembered along with the filters you used. Popular tags are also shown as clickable chips so you can search by tag with one click. Click anywhere outside the History dropdown to close it.",
+                IconKey = "SearchIcon",
+                Screenshots =
+                [
+                    "avares://Pikura/Assets/FeatureHighlights/search-history.png",
+                    "avares://Pikura/Assets/FeatureHighlights/popular-tags.png"
+                ]
             },
         };
     }

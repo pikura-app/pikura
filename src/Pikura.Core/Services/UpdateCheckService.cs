@@ -219,6 +219,49 @@ public sealed class UpdateCheckService
         catch { return null; }
     }
 
+    /// <summary>
+    /// Fetches the full published release history from GitHub (newest first), for the About
+    /// page's "View Changelog" button — unlike <see cref="FetchReleaseNotesAsync"/>, which only
+    /// returns the single current-version release. GitHub's list endpoint paginates at 30 per
+    /// page by default; <paramref name="maxReleases"/> caps how many pages we walk.
+    /// </summary>
+    public async Task<List<UpdateInfo>> FetchAllReleasesAsync(int maxReleases = 100, CancellationToken ct = default)
+    {
+        var result = new List<UpdateInfo>();
+        try
+        {
+            const int perPage = 100;
+            var page = 1;
+            while (result.Count < maxReleases)
+            {
+                var url = $"https://api.github.com/repos/{Owner}/{Repo}/releases?per_page={perPage}&page={page}";
+                var releases = await _http.GetFromJsonAsync<GitHubRelease[]>(url, ct).ConfigureAwait(false);
+                if (releases is null || releases.Length == 0) break;
+
+                foreach (var r in releases)
+                {
+                    if (string.IsNullOrWhiteSpace(r.TagName)) continue;
+                    var version = r.TagName.TrimStart('v');
+                    result.Add(new UpdateInfo(
+                        version,
+                        r.Name ?? $"Pikura v{version}",
+                        r.Body ?? string.Empty,
+                        ReleasesPageUrl,
+                        null));
+                    if (result.Count >= maxReleases) break;
+                }
+
+                if (releases.Length < perPage) break; // last page
+                page++;
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "FetchAllReleases failed (non-fatal)");
+        }
+        return result;
+    }
+
     // ── Download ──────────────────────────────────────────────────────────────
 
     /// <summary>

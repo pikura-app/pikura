@@ -10,12 +10,12 @@
     <Grid RowDefinitions="Auto,*,Auto">
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#1F2937" Padding="16,10">
+        <Border Grid.Row="0" Background="{DynamicResource Container2BackgroundBrush}" Padding="16,10">
             <StackPanel Spacing="2">
-                <TextBlock Text="Sign in to Pixiv" FontSize="14" FontWeight="SemiBold" Foreground="#F9FAFB"/>
+                <TextBlock Text="Sign in to Pixiv" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource DefaultForegroundBrush}"/>
                 <TextBlock x:Name="StatusText"
                            Text="Sign in with your Pixiv account below. Your session will be captured automatically."
-                           FontSize="12" Foreground="#9CA3AF"/>
+                           FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
             </StackPanel>
         </Border>
 
@@ -26,9 +26,9 @@
                        NavigationCompleted="WebView_NavigationCompleted"/>
 
         <!-- Footer -->
-        <Border Grid.Row="2" Background="#1F2937" Padding="12,8">
+        <Border Grid.Row="2" Background="{DynamicResource Container2BackgroundBrush}" Padding="12,8">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
-                <Button x:Name="CancelButton" Content="Cancel" Click="Cancel_Click" CornerRadius="6"/>
+                <Button x:Name="CancelButton" Content="Cancel" Click="Cancel_Click"/>
             </StackPanel>
         </Border>
     </Grid>

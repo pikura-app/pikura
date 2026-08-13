@@ -11,13 +11,13 @@
 
     <Grid RowDefinitions="*,Auto,Auto">
         <!-- Live preview area -->
-        <Border Grid.Row="0" Background="{actipro:ThemeResource Container3BackgroundBrush}"
+        <Border Grid.Row="0" Background="{DynamicResource Container3BackgroundBrush}"
                 ClipToBounds="True" Margin="12,12,12,0"
                 CornerRadius="8"
-                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                BorderBrush="{DynamicResource Container1BorderBrush}"
                 BorderThickness="1">
             <Panel x:Name="PreviewPanel" ClipToBounds="True"
-                   Background="{actipro:ThemeResource Container3BackgroundBrush}"
+                   Background="{DynamicResource Container3BackgroundBrush}"
                    MinHeight="400">
                 <Panel x:Name="OpacityPanel">
                     <Image x:Name="PreviewImage"
@@ -42,8 +42,8 @@
 
         <!-- Adjustment sliders -->
         <Border Grid.Row="1" Margin="12,8"
-                Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                Background="{DynamicResource Container1BackgroundBrush}"
+                BorderBrush="{DynamicResource Container1BorderBrush}"
                 BorderThickness="1" CornerRadius="8" Padding="20,16">
             <StackPanel Spacing="10">
                 <Grid ColumnDefinitions="100,*,50">
@@ -82,12 +82,9 @@
         <!-- Action buttons -->
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right"
                     Spacing="10" Margin="12,0,12,12">
-            <Button Content="Reset Position" Click="OnResetPosition"
-                    FontSize="12" Padding="14,7" CornerRadius="6"/>
-            <Button Content="Cancel" Click="OnCancel"
-                    FontSize="12" Padding="14,7" CornerRadius="6"/>
-            <Button Content="Apply" Click="OnApply" Classes="accent"
-                    FontSize="12" Padding="14,7" CornerRadius="6"/>
+            <Button Content="Reset Position" Click="OnResetPosition" FontSize="12"/>
+            <Button Content="Cancel" Click="OnCancel" FontSize="12"/>
+            <Button Content="Apply" Click="OnApply" Classes="accent" FontSize="12"/>
         </StackPanel>
     </Grid>
 </Window>

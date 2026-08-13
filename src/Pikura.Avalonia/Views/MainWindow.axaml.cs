@@ -190,6 +190,27 @@ public partial class MainWindow : Window
 
         LoadStartupTab(AppServices.Get<SettingsService>().Current);
 
+        // Reopen whatever inline-viewer tabs (artwork + collage) were open when the app last
+        // closed. Fire-and-forget: each tab re-fetches its artwork from Pixiv individually,
+        // so a failure on one tab shouldn't block the others or the rest of startup.
+        _ = Task.Run(() => AppServices.Get<Pikura.Avalonia.ViewModels.GalleryViewModel>().RestoreViewerTabsAsync());
+
+        // Pre-warm the bookmark-ID cache in the background so bookmark badges are correct
+        // wherever an artwork card shows up (Gallery, Discover, Rankings, Search) without
+        // requiring the user to visit the Bookmarks tab first. Fire-and-forget; failures here
+        // shouldn't block startup — badges will just stay unresolved until the user visits
+        // Bookmarks manually, same as before this existed.
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                var bookmarksVm = AppServices.Get<Pikura.Avalonia.ViewModels.BookmarksViewModel>();
+                await bookmarksVm.LoadTabAsync(0); // Public
+                await bookmarksVm.LoadTabAsync(1); // Private
+            }
+            catch { /* non-fatal — badges just won't be pre-warmed this session */ }
+        });
+
         // Wire up overlay image pan + zoom transform using the same normalized
         // pan coordinates the preview window produces.  The transform is applied
         // to the OverlayTransformPanel (which wraps the Image + tint rectangles)
@@ -286,6 +307,12 @@ public partial class MainWindow : Window
     {
         try
         {
+            AppServices.Get<ViewModels.GalleryViewModel>().SaveViewerTabsState();
+        }
+        catch { /* non-fatal */ }
+
+        try
+        {
             var settings = AppServices.Get<SettingsService>();
             var currentState = WindowState;
 
@@ -362,6 +389,7 @@ public partial class MainWindow : Window
     private Pikura.Avalonia.Views.History.HistoryView? _historyView;
     private Pikura.Avalonia.Views.History.ViewedHistoryView? _viewedHistoryView;
     private Pikura.Avalonia.Views.Pixivision.PixivisionView? _pixivisionView;
+    private Pikura.Avalonia.Views.Collections.CollectionsView? _collectionsView;
 
     private void SetSectionTitle(string section) => Title = $"Pikura — {section}";
 
@@ -373,6 +401,7 @@ public partial class MainWindow : Window
             _galleryView ??= new Pikura.Avalonia.Views.Gallery.GalleryView { DataContext = vm };
             MainContentControl.Content = _galleryView;
             SetSectionTitle("Gallery");
+            vm.RefreshLikedBookmarkedFavoriteFlags();
         }
         catch (Exception ex)
         {
@@ -413,6 +442,7 @@ public partial class MainWindow : Window
             _rankingsView ??= new Pikura.Avalonia.Views.Rankings.EnhancedRankingsView { DataContext = vm };
             MainContentControl.Content = _rankingsView;
             SetSectionTitle("Rankings");
+            vm.RefreshLikedBookmarkedFavoriteFlags();
         }
         catch
         {
@@ -429,6 +459,7 @@ public partial class MainWindow : Window
             MainContentControl.Content = _discoverView;
             SetSectionTitle("Discover");
             vm.OnNavigatedTo();
+            vm.RefreshLikedBookmarkedFavoriteFlags();
         }
         catch (Exception ex)
         {
@@ -444,6 +475,7 @@ public partial class MainWindow : Window
             _searchView ??= new Pikura.Avalonia.Views.Search.GlobalSearchView { DataContext = vm };
             MainContentControl.Content = _searchView;
             SetSectionTitle("Search");
+            vm.RefreshPopularTags();
         }
         catch (Exception ex)
         {
@@ -491,15 +523,36 @@ public partial class MainWindow : Window
         try
         {
             var vm = AppServices.Get<Pikura.Avalonia.ViewModels.ViewedHistoryViewModel>();
+            var isFirstLoad = _viewedHistoryView == null;
             _viewedHistoryView ??= new Pikura.Avalonia.Views.History.ViewedHistoryView { DataContext = vm };
             MainContentControl.Content = _viewedHistoryView;
             SetSectionTitle("Viewed");
+            if (!isFirstLoad)
+                _ = vm.RefreshOnActivateAsync();
         }
         catch (Exception ex)
         {
             MainContentControl.Content = new TextBlock { Text = $"Viewed — error: {ex.Message}", FontSize = 18, Foreground = Brush.Parse("#9CA3AF"), VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center };
         }
     }
+
+    public Pikura.Avalonia.ViewModels.CollectionsViewModel LoadCollectionsView()
+    {
+        var vm = AppServices.Get<Pikura.Avalonia.ViewModels.CollectionsViewModel>();
+        try
+        {
+            _collectionsView ??= new Pikura.Avalonia.Views.Collections.CollectionsView { DataContext = vm };
+            MainContentControl.Content = _collectionsView;
+            SetSectionTitle("Collections");
+        }
+        catch (Exception ex)
+        {
+            MainContentControl.Content = new TextBlock { Text = $"Collections — error: {ex.Message}", FontSize = 18, Foreground = Brush.Parse("#9CA3AF"), VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center };
+        }
+        return vm;
+    }
+
+    private void CollectionsButton_Click(object? sender, RoutedEventArgs e) => LoadCollectionsView();
 
     private void PixivisionButton_Click(object? sender, RoutedEventArgs e)
     {
@@ -623,9 +676,25 @@ public partial class MainWindow : Window
 
     private void MaximizeBtn_Click(object? sender, RoutedEventArgs e)
     {
-        WindowState = WindowState == WindowState.Maximized
-            ? WindowState.Normal
-            : WindowState.Maximized;
+        if (WindowState == WindowState.Maximized)
+        {
+            WindowState = WindowState.Normal;
+
+            // Avalonia's borderless/custom-chrome windows on Windows don't always
+            // restore the pre-maximize position correctly (the window can snap to
+            // the top-left corner instead). Restore explicitly from the bounds we
+            // tracked the last time the window was in the Normal state.
+            if (_normalWidth > 0 && _normalHeight > 0)
+            {
+                Width = _normalWidth;
+                Height = _normalHeight;
+                Position = new PixelPoint(_normalX, _normalY);
+            }
+        }
+        else
+        {
+            WindowState = WindowState.Maximized;
+        }
     }
 
     private void FullscreenBtn_Click(object? sender, RoutedEventArgs e)
@@ -790,9 +859,11 @@ public partial class MainWindow : Window
             exitItem.Click += (_, _) =>
             {
                 // Unsubscribing OnClosing bypasses the hide-to-tray branch so Exit always
-                // really quits — but that also skips the Hoshi session flush inside it, so
-                // any in-flight fire-and-forget chat save gets lost. Flush it here instead.
+                // really quits — but that also skips the Hoshi session flush and viewer-tab
+                // save inside it, so do both here instead.
                 try { AppServices.Get<AiViewModel>().SaveCurrentSessionAsync().GetAwaiter().GetResult(); }
+                catch { /* best-effort */ }
+                try { AppServices.Get<ViewModels.GalleryViewModel>().SaveViewerTabsState(); }
                 catch { /* best-effort */ }
                 Closing -= OnClosing;
                 Close();

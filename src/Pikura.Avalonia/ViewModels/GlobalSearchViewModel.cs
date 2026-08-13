@@ -274,6 +274,7 @@ public partial class GlobalSearchViewModel : ViewModelBase
     [ObservableProperty] private bool _isListView;
     [ObservableProperty] private bool _showInfo = true;
     [ObservableProperty] private bool _showTags = true;
+    [ObservableProperty] private bool _showBadges = true;
     [ObservableProperty] private bool _showPreview;
     [ObservableProperty] private int _selectedCount;
 
@@ -431,6 +432,7 @@ public partial class GlobalSearchViewModel : ViewModelBase
         _cardSize = _settingsService.Current.CardSize;
         _usePagination = _settingsService.Current.SearchUsePagination;
         _itemsPerPage = _settingsService.Current.SearchItemsPerPage;
+        _showBadges = _settingsService.Current.ShowBadges;
 
         _settingsService.Changed += (_, _) =>
         {
@@ -451,7 +453,28 @@ public partial class GlobalSearchViewModel : ViewModelBase
         {
             if (e.PropertyName == nameof(GalleryViewModel.HasTabs) && !GalleryVm.HasTabs)
             { ShowPreview = false; IsViewerExpanded = false; }
+            if (e.PropertyName is nameof(GalleryViewModel.IsCollageMode)
+                               or nameof(GalleryViewModel.HasStoredCollage)
+                               or nameof(GalleryViewModel.CollageItems)
+                               or nameof(GalleryViewModel.CanViewSelectedAsCollage))
+            {
+                OnPropertyChanged(nameof(CanViewSelectedAsCollage));
+                ViewSelectedAsCollageCommand.NotifyCanExecuteChanged();
+            }
         };
+
+        foreach (var e in _settingsService.Current.SearchHistory) SearchHistory.Add(e);
+
+        // Popular tags come from Rankings' loaded items, but Rankings only loads once the user
+        // actually visits that tab — previously PopularTags only ever got (re)built when the
+        // user happened to navigate back to Search *after* that, which felt like "switch tabs
+        // and back to make it work". Subscribing directly to Rankings' own collection means tags
+        // appear as soon as that data exists, with no dependency on revisiting Search at all.
+        try
+        {
+            AppServices.Get<EnhancedRankingsViewModel>().Items.CollectionChanged += (_, _) => RefreshPopularTags();
+        }
+        catch { /* Rankings view not constructed yet — fine, RefreshPopularTags() is still called on navigation */ }
     }
 
     partial void OnCardSizeChanged(int value)
@@ -461,11 +484,41 @@ public partial class GlobalSearchViewModel : ViewModelBase
             _settingsService.Update(s => s.CardSize = value);
     }
 
+    partial void OnShowBadgesChanged(bool value) => _settingsService.Update(s => s.ShowBadges = value);
     partial void OnIsFixedHeightChanged(bool value) { OnPropertyChanged(nameof(ShowFixedGrid)); OnPropertyChanged(nameof(ShowNaturalGrid)); }
     partial void OnIsNaturalHeightChanged(bool value) { OnPropertyChanged(nameof(ShowFixedGrid)); OnPropertyChanged(nameof(ShowNaturalGrid)); }
     partial void OnIsGridViewChanged(bool value) { OnPropertyChanged(nameof(ShowFixedGrid)); OnPropertyChanged(nameof(ShowNaturalGrid)); }
     partial void OnIsListViewChanged(bool value) { OnPropertyChanged(nameof(ShowFixedGrid)); OnPropertyChanged(nameof(ShowNaturalGrid)); }
-    partial void OnSelectedCountChanged(int value) => OnPropertyChanged(nameof(HasSelection));
+    partial void OnSelectedCountChanged(int value)
+    {
+        OnPropertyChanged(nameof(HasSelection));
+        OnPropertyChanged(nameof(CanViewSelectedAsCollage));
+        ViewSelectedAsCollageCommand.NotifyCanExecuteChanged();
+        OnPropertyChanged(nameof(CanViewSelectedInNewTabs));
+        ViewSelectedInNewTabsCommand.NotifyCanExecuteChanged();
+    }
+
+    public bool CanViewSelectedAsCollage => GalleryVm.CanCollage(SelectedCount);
+
+    [RelayCommand(CanExecute = nameof(CanViewSelectedAsCollage))]
+    private void ViewSelectedAsCollage()
+    {
+        var selected = Results.Where(c => c.IsSelected).ToList();
+        if (selected.Count == 0) return;
+        GalleryVm.AddSelectedToCollage(selected);
+    }
+
+    public bool CanViewSelectedInNewTabs => SelectedCount >= 1;
+
+    [RelayCommand(CanExecute = nameof(CanViewSelectedInNewTabs))]
+    private void ViewSelectedInNewTabs()
+    {
+        var selected = Results.Where(c => c.IsSelected).ToList();
+        if (selected.Count == 0) return;
+        foreach (var card in selected)
+            GalleryVm.OpenInNewTab(card, selected, selected.Count, source: ViewerSourceKey);
+        ShowPreview = true;
+    }
 
     // Re-run the search automatically when Mode (Safe/R-18/All) or Sort changes,
     // instead of requiring the user to click Search again.
@@ -484,6 +537,8 @@ public partial class GlobalSearchViewModel : ViewModelBase
         Results.Clear();
         NovelResults.Clear();
         UserResults.Clear();
+        RelatedTags.Clear();
+        OnPropertyChanged(nameof(HasRelatedTags));
         DisplayPage = 1;
         _knownTotal = null;
         SelectedCount = 0;
@@ -491,6 +546,8 @@ public partial class GlobalSearchViewModel : ViewModelBase
         IsLoading = true;
         _currentPage = 1;
         StatusMessage = "Searching…";
+
+        RecordSearchHistory();
 
         try
         {
@@ -512,9 +569,45 @@ public partial class GlobalSearchViewModel : ViewModelBase
         }
     }
 
+    /// <summary>Clears results and returns to the pre-search start screen (popular tags, etc.)
+    /// without needing to type over the search box or leave the tab.</summary>
+    [RelayCommand]
+    private void ResetSearch()
+    {
+        _cts?.Cancel();
+        SearchQuery = string.Empty;
+        IncludeAnyKeywords = string.Empty;
+        ExcludeKeywords = string.Empty;
+        Results.Clear();
+        DisplayResults.Clear(); // separate collection from Results — the grid/list bind to this one
+        NovelResults.Clear();
+        UserResults.Clear();
+        RelatedTags.Clear();
+        SelectedCount = 0;
+        _knownTotal = null;
+        _currentPage = 1;
+        CanLoadMore = false;
+        HasSearched = false;
+        StatusMessage = "Search all of Pixiv";
+        OnPropertyChanged(nameof(HasResults));
+        OnPropertyChanged(nameof(HasNovelResults));
+        OnPropertyChanged(nameof(HasUserResults));
+        OnPropertyChanged(nameof(HasRelatedTags));
+        RefreshPopularTags();
+    }
+
     private async Task SearchArtworksInternalAsync(CancellationToken ct)
     {
         var result = await _pixivClient.SearchArtworksAsync(BuildSearchWord(), SortOrder, SearchMode, _currentPage, AdvancedOptions, ct);
+        // Pixiv's own search response already includes tags related to the searched keyword —
+        // no separate endpoint call needed. Only populate on the first page of a fresh search
+        // (not on load-more/pagination) so the chip row doesn't keep resetting.
+        if (_currentPage == 1 && result?.RelatedTags is { Count: > 0 } related)
+        {
+            RelatedTags.Clear();
+            foreach (var tag in related) RelatedTags.Add(tag);
+            OnPropertyChanged(nameof(HasRelatedTags));
+        }
         var section = result?.IllustManga;
         var data = section?.Data;
         if (data is null || data.Count == 0) { StatusMessage = "No results found."; CanLoadMore = false; return; }
@@ -523,6 +616,187 @@ public partial class GlobalSearchViewModel : ViewModelBase
         UpdateKnownTotalAndCanLoadMore(section, data.Count);
         _currentPage++;
         StatusMessage = BuildResultsStatusMessage();
+    }
+
+    // ── Search history — mirrors Pixiv's own search-history dropdown ────────────
+    public ObservableCollection<SearchHistoryEntry> SearchHistory { get; } = [];
+    public bool HasSearchHistory => SearchHistory.Count > 0;
+    private const int MaxSearchHistoryEntries = 25;
+
+    /// <summary>Builds a short human-readable summary of the current filters, e.g.
+    /// "Illustrations and Manga" or "Novels · Group by series · Bundle works by the same creator" —
+    /// shown under the query text in the history dropdown, same idea as Pixiv's own UI.</summary>
+    private string BuildFilterSummary()
+    {
+        var parts = new List<string>();
+        parts.Add(SearchCategory switch
+        {
+            "illustrations" => "Illustrations",
+            "manga" => "Manga",
+            "novels" => "Novels",
+            "users" => "Users",
+            _ => "Illustrations and Manga",
+        });
+        if (SearchMode == "r18") parts.Add("R-18");
+        else if (SearchMode == "all") parts.Add("All ages + R-18");
+        if (AdvancedOptions?.AiType == 1) parts.Add("Hide AI-generated work");
+        return string.Join(" · ", parts);
+    }
+
+    /// <summary>Records the just-run search at the front of history, deduping any earlier entry
+    /// with the same query+category so re-running a search just bumps it to the top instead of
+    /// creating a duplicate.</summary>
+    private void RecordSearchHistory()
+    {
+        var query = SearchQuery.Trim();
+        if (string.IsNullOrEmpty(query)) return;
+
+        for (int i = SearchHistory.Count - 1; i >= 0; i--)
+            if (SearchHistory[i].Query.Equals(query, StringComparison.OrdinalIgnoreCase)
+                && SearchHistory[i].Category == SearchCategory)
+                SearchHistory.RemoveAt(i);
+
+        SearchHistory.Insert(0, new SearchHistoryEntry
+        {
+            Query = query,
+            Category = SearchCategory,
+            SortOrder = SortOrder,
+            SearchMode = SearchMode,
+            IncludeAnyKeywords = IncludeAnyKeywords,
+            ExcludeKeywords = ExcludeKeywords,
+            FilterSummary = BuildFilterSummary(),
+            SavedAt = DateTime.Now,
+        });
+        while (SearchHistory.Count > MaxSearchHistoryEntries)
+            SearchHistory.RemoveAt(SearchHistory.Count - 1);
+
+        OnPropertyChanged(nameof(HasSearchHistory));
+        _settingsService.Update(s => s.SearchHistory = SearchHistory.ToList());
+    }
+
+    [RelayCommand]
+    private async Task ApplyHistoryEntryAsync(SearchHistoryEntry entry)
+    {
+        SearchCategory = entry.Category;
+        SortOrder = entry.SortOrder;
+        SearchMode = entry.SearchMode;
+        IncludeAnyKeywords = entry.IncludeAnyKeywords;
+        ExcludeKeywords = entry.ExcludeKeywords;
+        SearchQuery = entry.Query;
+        await SearchAsync();
+    }
+
+    [RelayCommand]
+    private void RemoveHistoryEntry(SearchHistoryEntry entry)
+    {
+        SearchHistory.Remove(entry);
+        OnPropertyChanged(nameof(HasSearchHistory));
+        _settingsService.Update(s => s.SearchHistory = SearchHistory.ToList());
+    }
+
+    [RelayCommand]
+    private void ClearSearchHistory()
+    {
+        SearchHistory.Clear();
+        OnPropertyChanged(nameof(HasSearchHistory));
+        _settingsService.Update(s => s.SearchHistory = SearchHistory.ToList());
+    }
+
+    /// <summary>Tags related to the current search keyword, from Pixiv's own search response —
+    /// clicking one pivots the search to that tag.</summary>
+    public ObservableCollection<string> RelatedTags { get; } = [];
+    public bool HasRelatedTags => RelatedTags.Count > 0;
+
+    /// <summary>
+    /// "What's popular right now" tags shown before you've searched anything — there's no
+    /// unauthenticated Pixiv endpoint for a global trending-tags list (that data only exists
+    /// behind the App API's OAuth-gated trending-tags call, which this app deliberately doesn't
+    /// use). Instead, this aggregates tag frequency across whatever's currently loaded in
+    /// Rankings — a reasonable proxy for "popular right now" built entirely from data we
+    /// already have, no extra network calls needed. Each entry carries a representative
+    /// thumbnail (the first loaded Rankings card that has the tag) so the chips aren't bare text.
+    /// </summary>
+    public ObservableCollection<PopularTagInfo> PopularTags { get; } = [];
+    public bool HasPopularTags => PopularTags.Count > 0;
+
+    public void RefreshPopularTags()
+    {
+        try
+        {
+            var rankingsVm = AppServices.Get<EnhancedRankingsViewModel>();
+            var topTagGroups = rankingsVm.Items
+                .SelectMany(c => c.Tags.Select(t => (Tag: t, Card: c)))
+                .GroupBy(x => x.Tag, StringComparer.OrdinalIgnoreCase)
+                .OrderByDescending(g => g.Count())
+                .Take(24)
+                .ToList();
+            if (topTagGroups.Count == 0) return;
+            PopularTags.Clear();
+            // Diversify thumbnails: many top tags legitimately co-occur on the same handful of
+            // popular artworks (e.g. one Fate/GO piece tagged "FGO", "Fate/GrandOrder", "創作"
+            // all at once), so naively picking "the first card with this tag" for every tag
+            // makes several chips in a row show the exact same picture. Prefer a card that
+            // hasn't already been used as another tag's thumbnail, only reusing one if that
+            // tag genuinely has no other option.
+            var usedCardIds = new HashSet<string>();
+            var anyMissingThumbnail = false;
+            foreach (var g in topTagGroups)
+            {
+                var candidates = g.Select(x => x.Card).Where(c => c.Thumbnail != null).ToList();
+                var card = candidates.FirstOrDefault(c => !usedCardIds.Contains(c.Id)) ?? candidates.FirstOrDefault();
+                if (card == null) anyMissingThumbnail = true;
+                else usedCardIds.Add(card.Id);
+                PopularTags.Add(new PopularTagInfo(g.Key, card?.Thumbnail));
+            }
+            OnPropertyChanged(nameof(HasPopularTags));
+
+            // Rankings' own thumbnails decode asynchronously in the background — the very first
+            // time this runs (right after startup), most of them are still null, so the chips
+            // render blank until the user leaves and comes back. Retry a couple of times shortly
+            // after to backfill once those bitmaps have actually landed.
+            if (anyMissingThumbnail) _ = RetryPopularTagsThumbnailsAsync();
+        }
+        catch { /* Rankings view not initialized yet, or nothing loaded — leave PopularTags empty */ }
+    }
+
+    private async Task RetryPopularTagsThumbnailsAsync()
+    {
+        foreach (var delayMs in new[] { 1000, 2500, 5000 })
+        {
+            await Task.Delay(delayMs);
+            try
+            {
+                var rankingsVm = AppServices.Get<EnhancedRankingsViewModel>();
+                var usedCardIds = new HashSet<string>();
+                var byTag = rankingsVm.Items
+                    .SelectMany(c => c.Tags.Select(t => (Tag: t, Card: c)))
+                    .Where(x => x.Card.Thumbnail != null)
+                    .GroupBy(x => x.Tag, StringComparer.OrdinalIgnoreCase)
+                    .ToDictionary(
+                        g => g.Key,
+                        g => g.Select(x => x.Card).FirstOrDefault(c => !usedCardIds.Contains(c.Id)) ?? g.First().Card,
+                        StringComparer.OrdinalIgnoreCase);
+
+                for (int i = 0; i < PopularTags.Count; i++)
+                {
+                    var entry = PopularTags[i];
+                    if (entry.Thumbnail != null) continue;
+                    if (byTag.TryGetValue(entry.Tag, out var card) && card.Thumbnail != null)
+                        PopularTags[i] = entry with { Thumbnail = card.Thumbnail };
+                }
+            }
+            catch { /* Rankings view not initialized yet */ }
+        }
+    }
+
+    [RelayCommand]
+    private async Task SearchRelatedTagAsync(string tag)
+    {
+        if (string.IsNullOrWhiteSpace(tag)) return;
+        SearchQuery = tag;
+        IncludeAnyKeywords = string.Empty;
+        ExcludeKeywords = string.Empty;
+        await SearchAsync();
     }
 
     /// <summary>Runs the initial artworks search, then backfills additional pages (if any client-side
@@ -740,3 +1014,7 @@ public partial class GlobalSearchViewModel : ViewModelBase
     [RelayCommand] public void SelectAll() { foreach (var c in Results) c.IsSelected = true; NotifySelectionChanged(); }
     [RelayCommand] public void ClearSelection() { foreach (var c in Results) c.IsSelected = false; SelectedCount = 0; }
 }
+
+/// <summary>A popular tag paired with a representative thumbnail — see
+/// <see cref="GlobalSearchViewModel.RefreshPopularTags"/> for how this is built.</summary>
+public sealed record PopularTagInfo(string Tag, global::Avalonia.Media.Imaging.Bitmap? Thumbnail);

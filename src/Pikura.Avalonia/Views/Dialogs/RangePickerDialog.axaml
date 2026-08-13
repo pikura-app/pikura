@@ -6,20 +6,18 @@
         Width="440" Height="230"
         CanResize="False"
         WindowStartupLocation="CenterOwner"
-        Background="{actipro:ThemeResource Container2BackgroundBrush}">
+        Background="{DynamicResource Container2BackgroundBrush}">
 
     <StackPanel Margin="24,20" Spacing="14">
         <TextBlock x:Name="TitleText" FontWeight="SemiBold" FontSize="14"/>
-        <TextBlock x:Name="DescText" FontSize="12" Foreground="#9CA3AF"
+        <TextBlock x:Name="DescText" FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                    TextWrapping="Wrap"/>
         <TextBox x:Name="RangeInput"
                  PlaceholderText="e.g. 1-20 or 1,5-10,50"
                  CornerRadius="6" FontSize="13"/>
         <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Right">
-            <Button Content="Cancel" CornerRadius="6" Padding="14,7"
-                    Click="OnCancel"/>
-            <Button Content="OK" CornerRadius="6" Padding="14,7" Classes="accent"
-                    Click="OnOk"/>
+            <Button Content="Cancel" Click="OnCancel"/>
+            <Button Content="OK" Classes="accent" Click="OnOk"/>
         </StackPanel>
     </StackPanel>
 </Window>

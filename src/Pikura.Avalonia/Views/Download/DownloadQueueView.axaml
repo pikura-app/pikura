@@ -8,23 +8,23 @@
 
         <!-- Header -->
         <Border Grid.Row="0"
-                Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                Background="{DynamicResource Container1BackgroundBrush}"
+                BorderBrush="{DynamicResource Container1BorderBrush}"
                 BorderThickness="0,0,0,1" Padding="16,10">
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
                     <TextBlock Text="📋" FontSize="16" VerticalAlignment="Center"/>
                     <TextBlock Text="Download Queue" FontWeight="SemiBold" FontSize="15" VerticalAlignment="Center"/>
                     <TextBlock x:Name="JobCountLabel" FontSize="12"
-                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                               Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                VerticalAlignment="Center"/>
                 </StackPanel>
-                <Button Grid.Column="1" CornerRadius="6" Padding="10,6" FontSize="12"
+                <Button Grid.Column="1"  Padding="10,6" FontSize="12"
                         Click="OnRefresh">
                     <StackPanel Orientation="Horizontal" Spacing="4">
                         <PathIcon Data="{StaticResource RefreshIcon}" Width="14" Height="14"
                                   VerticalAlignment="Center"
-                                  Foreground="{actipro:ThemeResource DefaultForegroundBrush}"/>
+                                  Foreground="{Binding $parent[Button].Foreground}"/>
                         <TextBlock Text="Refresh" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
@@ -38,13 +38,13 @@
 
         <!-- Footer -->
         <Border Grid.Row="2"
-                Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                Background="{DynamicResource Container1BackgroundBrush}"
+                BorderBrush="{DynamicResource Container1BorderBrush}"
                 BorderThickness="0,1,0,0" Padding="12,8">
             <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
-                <Button x:Name="ClearCompletedBtn" Content="Clear Completed" CornerRadius="6" Padding="10,6" FontSize="12"
+                <Button x:Name="ClearCompletedBtn" Content="Clear Completed"  Padding="10,6" FontSize="12"
                         Click="OnClearCompleted"/>
-                <Button Content="Close" CornerRadius="6" Padding="12,6" FontSize="12"
+                <Button Content="Close"   FontSize="12"
                         Click="OnClose"/>
             </StackPanel>
         </Border>

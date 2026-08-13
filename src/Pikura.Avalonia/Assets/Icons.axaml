@@ -69,10 +69,15 @@
     <StreamGeometry x:Key="NewTabIcon">M4 4H20V20H4V4M12 8V16M8 12H16</StreamGeometry>
     <StreamGeometry x:Key="PopupIcon">M4 4H14V12H4V4M14 6H20V18H8V12</StreamGeometry>
     <StreamGeometry x:Key="HeartIcon">M12 21C12 21 4 15.5 4 9.5C4 6.5 6.5 4 9 4C10.7 4 12 5.2 12 5.2C12 5.2 13.3 4 15 4C17.5 4 20 6.5 20 9.5C20 15.5 12 21 12 21Z</StreamGeometry>
+    <StreamGeometry x:Key="HeartFilledIcon">M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z</StreamGeometry>
+    <StreamGeometry x:Key="BookmarkIcon">M6 2H18A2 2 0 0 1 20 4V22L12 18L4 22V4A2 2 0 0 1 6 2M8 6V9H16V6H8Z</StreamGeometry>
+    <StreamGeometry x:Key="EyeIcon">M2 12C5 7 9 5 12 5C15 5 19 7 22 12C19 17 15 19 12 19C9 19 5 17 2 12ZM12 15C13.7 15 15 13.7 15 12C15 10.3 13.7 9 12 9C10.3 9 9 10.3 9 12C9 13.7 10.3 15 12 15Z</StreamGeometry>
+    <StreamGeometry x:Key="CommentIcon">M4 4H20A2 2 0 0 1 22 6V16A2 2 0 0 1 20 18H9L4 22V18H4A2 2 0 0 1 2 16V6A2 2 0 0 1 4 4Z</StreamGeometry>
+    <StreamGeometry x:Key="BookmarkFilledIcon">M6 2H18A2 2 0 0 1 20 4V22L12 18L4 22V4A2 2 0 0 1 6 2</StreamGeometry>
     <StreamGeometry x:Key="FilterIcon">M4 4H20L14 12V20L10 18V12L4 4Z</StreamGeometry>
     <StreamGeometry x:Key="TagIcon">M4 4H12L20 12L12 20L4 12V4M8 8A2 2 0 1 1 12 8A2 2 0 0 1 8 8</StreamGeometry>
     <StreamGeometry x:Key="InfoIcon">M12 2C6.5 2 2 6.5 2 12S6.5 22 12 22S22 17.5 22 12S17.5 2 12 2M11 7H13V9H11V7M11 11H13V17H11V11</StreamGeometry>
-    <StreamGeometry x:Key="BookmarkIcon">M6 2H18A2 2 0 0 1 20 4V22L12 18L4 22V4A2 2 0 0 1 6 2M8 6V9H16V6H8Z</StreamGeometry>
     <StreamGeometry x:Key="LockIcon">M6 22H18A2 2 0 0 0 20 20V11A2 2 0 0 0 18 9H17V6A5 5 0 0 0 7 6V9H6A2 2 0 0 0 4 11V20A2 2 0 0 0 6 22M9 6A3 3 0 0 1 15 6V9H9V6M12 13A2 2 0 0 1 14 15A2 2 0 0 1 12 17A2 2 0 0 1 10 15A2 2 0 0 1 12 13Z</StreamGeometry>
+    <StreamGeometry x:Key="MonitorIcon">M4 4H20V15H4V4M2 17H22V19H2M9 20H15V22H9</StreamGeometry>
 
 </ResourceDictionary>

@@ -9,6 +9,7 @@ using Pikura.Core.Models;
 using Pikura.Core.Services;
 using Pikura.Core.Settings;
 using Pikura.Avalonia.Services;
+using SkiaSharp;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Threading;
@@ -26,7 +27,7 @@ public enum GallerySearchScope { CurrentArtist, AllFollowedArtists }
 
 public partial class ViewerTab : ObservableObject
 {
-    [ObservableProperty] private ArtworkCardViewModel _card;
+    [ObservableProperty] private ArtworkCardViewModel? _card;
     [ObservableProperty] private string _header;
 
     /// <summary>The ordered list this tab navigates through (artist gallery, ranking page, etc.).</summary>
@@ -41,12 +42,21 @@ public partial class ViewerTab : ObservableObject
     /// <summary>Which section opened this tab ("Gallery", "Discover", "Rankings", etc.). Informational only — tabs are global across all sections.</summary>
     public string Source { get; set; } = "Gallery";
 
-    public ViewerTab(ArtworkCardViewModel card, IReadOnlyList<ArtworkCardViewModel>? navList = null,
+    /// <summary>True if this is the special collage tab (no single card, displays a grid).</summary>
+    public bool IsCollage { get; set; }
+
+    /// <summary>The artworks displayed in this tab when <see cref="IsCollage"/> is true.</summary>
+    public ObservableCollection<ArtworkCardViewModel> CollageItems { get; } = [];
+
+    public ViewerTab(ArtworkCardViewModel? card, IReadOnlyList<ArtworkCardViewModel>? navList = null,
         int totalCount = 0, Func<Task<IReadOnlyList<ArtworkCardViewModel>>>? loadMoreAsync = null,
-        string source = "Gallery")
+        string source = "Gallery", string? header = null, bool isCollage = false)
     {
         _card = card;
-        _header = card.Title.Length > 24 ? card.Title[..24] + "…" : card.Title;
+        _header = header ?? (card is { Title.Length: > 0 }
+            ? (card.Title.Length > 24 ? card.Title[..24] + "…" : card.Title)
+            : "Untitled");
+        IsCollage = isCollage;
         NavList = navList != null ? new List<ArtworkCardViewModel>(navList) : [];
         TotalCount = totalCount > 0 ? totalCount : NavList.Count;
         LoadMoreAsync = loadMoreAsync;
@@ -85,8 +95,21 @@ public partial class GalleryViewModel : ViewModelBase
     private ArtistCardViewModel? _searchPreviousArtist;
     private bool _searchWasRecentFeedActive;
     private Task _artistLoadTask = Task.CompletedTask;
-    // Cache: artistUserId -> loaded card list (avoids re-fetching on back navigation)
+    // Cache: artistUserId -> loaded card list (avoids re-fetching on back navigation).
+    // Bounded to _artworkCacheCapacity most-recently-used artists — each entry holds up to
+    // 96 decoded thumbnail Bitmaps, so leaving this unbounded let memory grow without limit
+    // as a session visited more and more artists (e.g. browsing through Discover/Search).
+    // _artworkCacheOrder tracks MRU order for eviction; evicted entries have their bitmaps
+    // disposed immediately rather than waiting on the GC to reclaim native Skia memory.
     private readonly Dictionary<string, (List<ArtworkCardViewModel> Cards, List<string> AllIds, int TotalIds, int LoadedCount, bool CanMore)> _artworkCache = [];
+    private readonly List<string> _artworkCacheOrder = [];
+    private const int ArtworkCacheCapacity = 15;
+    // In-flight artwork-ID-list fetches started eagerly by LoadArtistByIdAsync so
+    // LoadArtistArtworksAsync can reuse them instead of re-issuing the same request —
+    // this lets the artist-profile fetch and the artwork-ID-list fetch run in parallel
+    // instead of one blocking the other, shaving a full network round trip off the
+    // time-to-first-card when opening an artist's gallery from Discover/Search/etc.
+    private readonly Dictionary<string, Task<UserProfileAll>> _profilePrefetch = [];
     private const int PageSize = 48;
     private const int InitialPages = 2; // load 96 works immediately
 
@@ -163,6 +186,13 @@ public partial class GalleryViewModel : ViewModelBase
     [ObservableProperty] private bool _showR18;
     [ObservableProperty] private ArtistCardViewModel? _selectedArtist;
     [ObservableProperty] private int _selectedCount;
+    partial void OnSelectedCountChanged(int value)
+    {
+        OnPropertyChanged(nameof(CanViewSelectedAsCollage));
+        ViewSelectedAsCollageCommand.NotifyCanExecuteChanged();
+        OnPropertyChanged(nameof(CanViewSelectedInNewTabs));
+        ViewSelectedInNewTabsCommand.NotifyCanExecuteChanged();
+    }
     [ObservableProperty] private bool _canLoadMore;
     [ObservableProperty] private int _artworksTotal;
     [ObservableProperty] private string _artistFilter = string.Empty;
@@ -191,8 +221,137 @@ public partial class GalleryViewModel : ViewModelBase
     [ObservableProperty] private bool _showFilters;
     [ObservableProperty] private bool _showTags = true;
     [ObservableProperty] private bool _showInfo = true;
+    [ObservableProperty] private bool _showBadges = true;
     [ObservableProperty] private bool _isRecentFeedActive;
     [ObservableProperty] private bool _showPreview;
+
+    // ── Collage mode — a single dedicated "Collage" tab in the global tab list. This lets
+    // the user switch between the collage and individual artwork tabs without destroying either.
+    public const int MaxCollageItems = 10;
+
+    private void OnCollageItemsChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+    {
+        OnPropertyChanged(nameof(CollageItems));
+        OnPropertyChanged(nameof(HasStoredCollage));
+        OnPropertyChanged(nameof(CanReturnToCollage));
+        OnPropertyChanged(nameof(CanViewSelectedAsCollage));
+        ViewSelectedAsCollageCommand.NotifyCanExecuteChanged();
+        ReturnToCollageCommand.NotifyCanExecuteChanged();
+    }
+
+    private ViewerTab GetOrCreateCollageTab()
+    {
+        var tab = ViewerTabs.FirstOrDefault(t => t.IsCollage);
+        if (tab == null)
+        {
+            tab = new ViewerTab(null, [], 0, null, "Collage", header: "Collage", isCollage: true);
+            tab.CollageItems.CollectionChanged += OnCollageItemsChanged;
+            ViewerTabs.Add(tab);
+        }
+        return tab;
+    }
+
+    /// <summary>True when the currently selected tab is the collage tab.</summary>
+    public bool IsCollageMode => SelectedViewerTab is { IsCollage: true };
+
+    /// <summary>The collage items for the active collage tab (null when no collage is selected).</summary>
+    public ObservableCollection<ArtworkCardViewModel>? CollageItems => SelectedViewerTab is { IsCollage: true } ? SelectedViewerTab.CollageItems : null;
+
+    /// <summary>True when there is an existing collage tab (whether currently selected or not).</summary>
+    public bool HasStoredCollage => ViewerTabs.Any(t => t.IsCollage);
+
+    /// <summary>True when the viewer has a stored collage tab that can be switched to.</summary>
+    public bool CanReturnToCollage => !IsCollageMode && HasStoredCollage;
+
+    /// <summary>Replace the contents of the collage tab with the given items.</summary>
+    public void ShowCollage(IEnumerable<ArtworkCardViewModel> items)
+    {
+        var tab = GetOrCreateCollageTab();
+        tab.CollageItems.Clear();
+        AddToCollage(items, tab);
+        SelectedViewerTab = tab;
+        ShowPreview = true;
+    }
+
+    /// <summary>Collage a cross-tab selection: append to existing collage if one exists,
+    /// otherwise start a new one.</summary>
+    public void AddSelectedToCollage(IEnumerable<ArtworkCardViewModel> selected)
+    {
+        var list = selected.ToList();
+        if (list.Count == 0) return;
+        if (HasStoredCollage || IsCollageMode)
+        {
+            AddToCollage(list);
+            return;
+        }
+        ShowCollage(list.Take(MaxCollageItems));
+    }
+
+    [RelayCommand]
+    public async Task DownloadCollageAsync()
+    {
+        if (CollageItems is not { Count: > 0 } items) return;
+
+        var baseRoot = _accountService?.GetEffectiveDownloadRoot() ?? _settingsService.Current.DownloadRoot;
+        int number;
+        string folder;
+        do
+        {
+            number = Random.Shared.Next(100000, 999999);
+            folder = Path.Combine(baseRoot, $"Collage_{number}");
+        } while (Directory.Exists(folder));
+        Directory.CreateDirectory(folder);
+
+        var acctOverride = BuildAccountSettingsOverride() ?? new SettingsOverride();
+        acctOverride.UseGlobalSettings = false;
+        acctOverride.DownloadRoot = folder;
+
+        var folderName = Path.GetFileName(folder);
+        StatusMessage = $"Downloading {items.Count} collage artworks to {folderName}…";
+        await DownloadCoreAsync(items.ToList(), acctOverride, jobName: folderName);
+    }
+
+    /// <summary>Add items to the existing collage tab (creating it if necessary).</summary>
+    public void AddToCollage(IEnumerable<ArtworkCardViewModel> items, ViewerTab? tab = null)
+    {
+        tab ??= GetOrCreateCollageTab();
+        var existing = tab.CollageItems.Select(c => c.Id).ToHashSet();
+        foreach (var item in items)
+        {
+            if (tab.CollageItems.Count >= MaxCollageItems) break;
+            if (existing.Add(item.Id)) tab.CollageItems.Add(item);
+        }
+        if (SelectedViewerTab?.IsCollage != true)
+            SelectedViewerTab = tab;
+        ShowPreview = true;
+    }
+
+    /// <summary>Remove an item from the active collage tab, closing the tab if it becomes empty.</summary>
+    public void RemoveFromCollage(ArtworkCardViewModel? card)
+    {
+        if (card == null) return;
+        if (SelectedViewerTab is not { IsCollage: true } collage) return;
+        collage.CollageItems.Remove(card);
+        if (collage.CollageItems.Count == 0)
+            CloseViewerTab(collage);
+    }
+
+    /// <summary>Close the collage tab.</summary>
+    public void CloseCollage()
+    {
+        if (SelectedViewerTab is { IsCollage: true } collage)
+            CloseViewerTab(collage);
+        else if (ViewerTabs.FirstOrDefault(t => t.IsCollage) is { } c)
+            CloseViewerTab(c);
+    }
+
+    [RelayCommand]
+    private void ReturnToCollage()
+    {
+        var tab = ViewerTabs.FirstOrDefault(t => t.IsCollage);
+        if (tab != null) SelectedViewerTab = tab;
+    }
+
     [ObservableProperty] private double _browsePanelWidth = 350;
     [ObservableProperty] private bool _showSearchInfo;
 
@@ -250,6 +409,11 @@ public partial class GalleryViewModel : ViewModelBase
         OnPropertyChanged(nameof(IsInlineViewerOpen));
         OnPropertyChanged(nameof(HasTabs));
         OnPropertyChanged(nameof(HasMultipleTabs));
+        OnPropertyChanged(nameof(HasStoredCollage));
+        OnPropertyChanged(nameof(CanReturnToCollage));
+        OnPropertyChanged(nameof(CanViewSelectedAsCollage));
+        ViewSelectedAsCollageCommand.NotifyCanExecuteChanged();
+        ReturnToCollageCommand.NotifyCanExecuteChanged();
         if (!GalleryVm_HasTabs()) { IsViewerExpanded = false; }
     }
     private bool GalleryVm_HasTabs() => ViewerTabs.Count > 0;
@@ -492,6 +656,7 @@ public partial class GalleryViewModel : ViewModelBase
         _sortMode = (ArtworkSortMode)Math.Clamp(s.SortModeIndex, 0, 5);
         _showTags = s.ShowTags;
         _showInfo = s.ShowInfo;
+        _showBadges = s.ShowBadges;
         _showPreview = s.ShowPreview;
         _browsePanelWidth = s.BrowsePanelWidth >= 200 ? s.BrowsePanelWidth : 350;
         _showR18 = s.GalleryShowR18;
@@ -581,10 +746,13 @@ public partial class GalleryViewModel : ViewModelBase
     partial void OnShowInfoChanged(bool value)
         => _settingsService.Update(s => s.ShowInfo = value);
 
+    partial void OnShowBadgesChanged(bool value)
+        => _settingsService.Update(s => s.ShowBadges = value);
+
     partial void OnInlineViewerCardChanged(ArtworkCardViewModel? value)
     {
         OnPropertyChanged(nameof(IsInlineViewerOpen));
-        if (value != null && _historyRepository != null)
+        if (value != null && _historyRepository != null && !_settingsService.ActiveIncognitoEnabled)
         {
             var entry = new Pikura.Core.Data.ViewedHistoryEntry
             {
@@ -608,6 +776,13 @@ public partial class GalleryViewModel : ViewModelBase
         InlineViewerCard = value?.Card;
         // Keep InlineViewerCardList in sync so the counter works for non-tab viewers too
         InlineViewerCardList = value?.NavList.Count > 0 ? value.NavList : null;
+        OnPropertyChanged(nameof(IsCollageMode));
+        OnPropertyChanged(nameof(CollageItems));
+        OnPropertyChanged(nameof(HasStoredCollage));
+        OnPropertyChanged(nameof(CanReturnToCollage));
+        OnPropertyChanged(nameof(CanViewSelectedAsCollage));
+        ViewSelectedAsCollageCommand.NotifyCanExecuteChanged();
+        ReturnToCollageCommand.NotifyCanExecuteChanged();
     }
 
     partial void OnShowPreviewChanged(bool value)
@@ -669,22 +844,15 @@ public partial class GalleryViewModel : ViewModelBase
         _suppressArtistChanged = true;
         try
         {
-            if (string.IsNullOrEmpty(q))
-            {
-                // Filter cleared — full rebuild to ensure no stale filtered subset remains.
-                FilteredArtists.Clear();
-                foreach (var a in Artists)
-                    FilteredArtists.Add(a);
-            }
-            else
-            {
-                // Filter text changed — full rebuild is necessary.
-                FilteredArtists.Clear();
-                foreach (var a in Artists)
-                    if (a.Name.Contains(q, StringComparison.OrdinalIgnoreCase)
-                        || a.UserId.Contains(q, StringComparison.OrdinalIgnoreCase))
-                        FilteredArtists.Add(a);
-            }
+            // Incremental diff instead of Clear()+re-Add() — this is called once per incoming
+            // page batch while ~1600 followed artists paginate in (17+ times per load), and a
+            // blunt Clear() briefly empties the sidebar ListBox on every single call, causing
+            // a visible flicker/scroll-reset each time instead of just growing smoothly.
+            List<ArtistCardViewModel> desired = string.IsNullOrEmpty(q)
+                ? Artists.ToList()
+                : Artists.Where(a => a.Name.Contains(q, StringComparison.OrdinalIgnoreCase)
+                                      || a.UserId.Contains(q, StringComparison.OrdinalIgnoreCase)).ToList();
+            SyncArtistCollection(FilteredArtists, desired);
 
             // Restore selection without re-triggering artwork load
             if (saved != null && FilteredArtists.Contains(saved))
@@ -693,6 +861,24 @@ public partial class GalleryViewModel : ViewModelBase
         finally
         {
             _suppressArtistChanged = false;
+        }
+    }
+
+    /// <summary>Updates <paramref name="dst"/> in place to match <paramref name="desired"/>
+    /// (same items, same order) without ever fully clearing it — see the identical helper in
+    /// BookmarksViewModel for the full rationale.</summary>
+    private static void SyncArtistCollection(ObservableCollection<ArtistCardViewModel> dst, List<ArtistCardViewModel> desired)
+    {
+        var desiredSet = new HashSet<ArtistCardViewModel>(desired);
+        for (int i = dst.Count - 1; i >= 0; i--)
+            if (!desiredSet.Contains(dst[i])) dst.RemoveAt(i);
+
+        for (int i = 0; i < desired.Count; i++)
+        {
+            if (i < dst.Count && ReferenceEquals(dst[i], desired[i])) continue;
+            var existingIndex = dst.IndexOf(desired[i]);
+            if (existingIndex >= 0) dst.Move(existingIndex, i);
+            else dst.Insert(i, desired[i]);
         }
     }
 
@@ -1049,6 +1235,14 @@ public partial class GalleryViewModel : ViewModelBase
     {
         IsIdSearchMode = false;
         IsRecentFeedActive = false;
+        // Kick off the artwork-ID-list fetch immediately, in parallel with whatever else
+        // this method does before the gallery load actually starts (checking the followed
+        // list, and — for unfollowed artists — fetching the artist profile below). Without
+        // this, those steps ran strictly before LoadArtistArtworksAsync's own fetch of the
+        // same data, adding a full extra network round trip to the time-to-first-card.
+        if (!_profilePrefetch.ContainsKey(userId))
+            _profilePrefetch[userId] = _pixivClient.GetUserProfileAllAsync(userId);
+
         // First, check if already in followed artists list — if so, just select
         var existing = Artists.FirstOrDefault(a => a.UserId == userId);
         if (existing != null)
@@ -1344,6 +1538,7 @@ public partial class GalleryViewModel : ViewModelBase
                             Artists.Add(vm);
                             _ = vm.LoadAvatarAsync(_imageLoader);
                         }
+                        ArtistsTotal = Artists.Count;
                         RebuildFilteredArtists();
                     });
                 }
@@ -1398,6 +1593,7 @@ public partial class GalleryViewModel : ViewModelBase
         await Dispatcher.UIThread.InvokeAsync(() =>
         {
             _artworkCache.Clear();
+            _artworkCacheOrder.Clear();
             _currentArtistAllIds.Clear();
             _currentArtistLoadedCount = 0;
             SelectedArtist = null;
@@ -1579,6 +1775,7 @@ public partial class GalleryViewModel : ViewModelBase
                 {
                     Artists.Add(vm);
                 }
+                ArtistsTotal = Artists.Count;
                 RebuildFilteredArtists();
                 
                 // Start avatar loading after UI update
@@ -1633,13 +1830,28 @@ public partial class GalleryViewModel : ViewModelBase
                         await pageGate.WaitAsync();
                         try
                         {
-                            var page = await _pixivClient.GetFollowedArtistsAsync(userId, offset, limit, hiddenCapture);
+                            // Retry once on transient failure (e.g. rate-limit) so a single
+                            // flaky request doesn't silently drop a whole page of artists.
+                            FollowingResponseBody? page = null;
+                            for (int attempt = 0; attempt < 2; attempt++)
+                            {
+                                try
+                                {
+                                    page = await _pixivClient.GetFollowedArtistsAsync(userId, offset, limit, hiddenCapture);
+                                    break;
+                                }
+                                catch (Exception ex) when (attempt == 0)
+                                {
+                                    Logger.LogWarning(ex, "Followed-artists fetch failed at offset {Off} (retrying)", offset);
+                                    await Task.Delay(500);
+                                }
+                            }
                             if (page?.Users?.Count > 0)
                                 await AddBatchAsync(page.Users);
                         }
                         catch (Exception ex)
                         {
-                            Logger.LogDebug(ex, "Followed-artists fetch failed at offset {Off}", offset);
+                            Logger.LogWarning(ex, "Followed-artists fetch failed at offset {Off} (giving up)", offset);
                         }
                         finally
                         {
@@ -1658,7 +1870,7 @@ public partial class GalleryViewModel : ViewModelBase
                         {
                             FollowingResponseBody? page;
                             try { page = await _pixivClient.GetFollowedArtistsAsync(userId, offset, limit, hiddenCapture); }
-                            catch (Exception ex) { Logger.LogDebug(ex, "Followed-artists fetch failed at offset {Off}", offset); break; }
+                            catch (Exception ex) { Logger.LogWarning(ex, "Followed-artists fetch failed at offset {Off}", offset); break; }
                             if (page?.Users == null || page.Users.Count == 0)
                             {
                                 if (++consecutiveEmpty >= 2) break;
@@ -1781,6 +1993,68 @@ public partial class GalleryViewModel : ViewModelBase
         finally { _autoLoadGuard = 0; }
     }
 
+    /// <summary>
+    /// Pushes an updated Liked/Bookmarked/Local-favorite flag onto every currently-loaded card
+    /// with a matching artwork ID — called by the artwork viewer right after a Like/Bookmark/
+    /// Favorite action succeeds, so a card already on screen in this Gallery view (e.g. the same
+    /// artist's gallery, or a "recent works" feed) reflects it immediately without needing a
+    /// reload. Only non-null parameters are applied.
+    /// </summary>
+    /// <summary>
+    /// Re-checks Liked/Bookmarked/Local-favorite status for every currently-loaded card against
+    /// the authoritative sources (settings, local favorites, Bookmarks cache). The live push in
+    /// SyncArtworkFlags only reaches a card if it's already loaded into VisibleArtworks at the
+    /// moment the action happens — if you like/bookmark something while it isn't loaded here yet
+    /// (e.g. you're looking at it from Bookmarks/Local Favorites instead), an already-realized
+    /// card sitting in this view never gets that update on its own. Call this whenever navigating
+    /// back to the Gallery so it's always correct, not just "correct if you got lucky with load
+    /// order".
+    /// </summary>
+    public void RefreshLikedBookmarkedFavoriteFlags()
+    {
+        SettingsService settings;
+        Pikura.Core.Services.LocalFavoritesService favorites;
+        BookmarksViewModel? bookmarksVm = null;
+        try { settings = AppServices.Get<SettingsService>(); } catch { return; }
+        try { favorites = AppServices.Get<Pikura.Core.Services.LocalFavoritesService>(); } catch { return; }
+        try { bookmarksVm = AppServices.Get<BookmarksViewModel>(); } catch { /* not initialized yet */ }
+
+        Logger.LogInformation("[RefreshFlags/Gallery] VisibleArtworks.Count={Count} ids={Ids}",
+            VisibleArtworks.Count, string.Join(",", VisibleArtworks.Select(a => a.Id).Take(50)));
+        foreach (var c in VisibleArtworks)
+        {
+            if (string.IsNullOrEmpty(c.Id)) continue;
+            c.IsLiked = settings.Current.PixivLikedArtworkIds.Contains(c.Id);
+            c.IsLocalFavorite = favorites.IsFavorite(c.Id);
+            if (bookmarksVm != null)
+            {
+                c.IsPixivBookmarked = bookmarksVm.IsKnownBookmarked(c.Id, out var isPrivate);
+                c.IsPixivPrivateBookmark = isPrivate;
+            }
+        }
+    }
+
+    public void SyncArtworkFlags(
+        string? id,
+        bool? isLiked = null,
+        bool? isPixivBookmarked = null,
+        bool? isPixivPrivateBookmark = null,
+        string? pixivBookmarkId = null,
+        bool bookmarkIdProvided = false,
+        bool? isLocalFavorite = null)
+    {
+        if (string.IsNullOrEmpty(id)) return;
+        foreach (var c in VisibleArtworks)
+        {
+            if (c.Id != id) continue;
+            if (isLiked.HasValue) c.IsLiked = isLiked.Value;
+            if (isPixivBookmarked.HasValue) c.IsPixivBookmarked = isPixivBookmarked.Value;
+            if (isPixivPrivateBookmark.HasValue) c.IsPixivPrivateBookmark = isPixivPrivateBookmark.Value;
+            if (bookmarkIdProvided) c.PixivBookmarkId = pixivBookmarkId;
+            if (isLocalFavorite.HasValue) c.IsLocalFavorite = isLocalFavorite.Value;
+        }
+    }
+
     // ─── Follow / unfollow ──────────────────────────────────────────────
 
     /// <summary>True when the given user id is in our followed-artists list.</summary>
@@ -1788,6 +2062,61 @@ public partial class GalleryViewModel : ViewModelBase
     {
         if (string.IsNullOrWhiteSpace(userId)) return false;
         return Artists.Any(a => a.UserId == userId);
+    }
+
+    /// <summary>Updates the local followed-artists list and all visible cards after a follow/unfollow.</summary>
+    public void SetArtistFollowed(string userId, string userName, bool followed)
+    {
+        if (string.IsNullOrWhiteSpace(userId)) return;
+
+        var existing = Artists.FirstOrDefault(a => a.UserId == userId);
+        if (followed)
+        {
+            if (existing == null)
+            {
+                var artist = new ArtistCardViewModel(new FollowedArtist
+                {
+                    UserId = userId,
+                    UserName = userName,
+                    ProfileImageUrl = null,
+                    Following = true
+                });
+                // Insert at the top — Pixiv's own followed-list sorts most-recently-followed
+                // first, and a full refresh would put it there too. Adding at the end made
+                // new follows invisible until the list was scrolled or manually refreshed.
+                Artists.Insert(0, artist);
+                // We don't have an avatar URL yet (the follow action only gives us id/name),
+                // so fetch the artist's profile in the background to populate it — otherwise
+                // the avatar stayed blank until a full refresh re-fetched the followed list.
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        var info = await _pixivClient.GetArtistAsync(userId);
+                        if (info?.ImageUrl is not { Length: > 0 } url) return;
+                        artist.ProfileImageUrl = url;
+                        await artist.LoadAvatarAsync(_imageLoader);
+                    }
+                    catch { /* non-fatal */ }
+                });
+            }
+            else
+            {
+                existing.IsFollowed = true;
+            }
+        }
+        else
+        {
+            if (existing != null)
+                Artists.Remove(existing);
+        }
+
+        foreach (var card in VisibleArtworks)
+            if (card.UserId == userId)
+                card.IsFollowed = followed;
+
+        ArtistsTotal = Artists.Count;
+        RebuildFilteredArtists();
     }
 
     private void UpdateCache(ArtistCardViewModel artist)
@@ -1798,6 +2127,19 @@ public partial class GalleryViewModel : ViewModelBase
             ArtworksTotal,
             _currentArtistLoadedCount,
             CanLoadMore);
+
+        // Refresh MRU order and evict least-recently-used entries beyond capacity. We don't
+        // dispose the evicted cards' Bitmaps here — a pinned viewer tab can still be holding
+        // a reference to one of them — just drop the cache's own reference so the GC can
+        // reclaim them once nothing else needs them.
+        _artworkCacheOrder.Remove(artist.UserId);
+        _artworkCacheOrder.Add(artist.UserId);
+        while (_artworkCacheOrder.Count > ArtworkCacheCapacity)
+        {
+            var evictId = _artworkCacheOrder[0];
+            _artworkCacheOrder.RemoveAt(0);
+            _artworkCache.Remove(evictId);
+        }
     }
 
     /// <summary>
@@ -1816,6 +2158,48 @@ public partial class GalleryViewModel : ViewModelBase
     {
         foreach (var a in VisibleArtworks) a.IsSelected = false;
         SelectedCount = 0;
+    }
+
+    /// <summary>Whether the given number of selected artworks can be collaged.
+    /// At least 1 starts a new collage; adding to an existing one is only allowed
+    /// if it has room (capped at <see cref="MaxCollageItems"/>).</summary>
+    public bool CanCollage(int selectedCount)
+    {
+        if (selectedCount == 0) return false;
+        if (!HasStoredCollage && !IsCollageMode) return true;
+        var collageTab = ViewerTabs.FirstOrDefault(t => t.IsCollage);
+        return collageTab is { CollageItems.Count: < MaxCollageItems };
+    }
+
+    public bool CanViewSelectedAsCollage => CanCollage(SelectedCount);
+
+    /// <summary>"View as Collage" for the currently-checked artworks. Opens them into a
+    /// dedicated collage tab. If a collage tab already exists, the selected artworks are
+    /// appended (up to the max).</summary>
+    [RelayCommand(CanExecute = nameof(CanViewSelectedAsCollage))]
+    private void ViewSelectedAsCollage()
+    {
+        var selected = VisibleArtworks.Where(a => a.IsSelected).ToList();
+        if (selected.Count == 0) return;
+        if (HasStoredCollage || IsCollageMode)
+        {
+            AddToCollage(selected);
+            return;
+        }
+        ShowCollage(selected.Take(MaxCollageItems));
+    }
+
+    public bool CanViewSelectedInNewTabs => SelectedCount >= 1;
+
+    /// <summary>Open every selected artwork in its own new viewer tab.</summary>
+    [RelayCommand(CanExecute = nameof(CanViewSelectedInNewTabs))]
+    private void ViewSelectedInNewTabs()
+    {
+        var selected = VisibleArtworks.Where(a => a.IsSelected).ToList();
+        if (selected.Count == 0) return;
+        foreach (var card in selected)
+            OpenInNewTab(card, selected, selected.Count, source: CurrentGalleryViewerSource);
+        ShowPreview = true;
     }
 
     [RelayCommand]
@@ -1851,6 +2235,8 @@ public partial class GalleryViewModel : ViewModelBase
     public void NotifySelectionChanged()
     {
         SelectedCount = VisibleArtworks.Count(a => a.IsSelected);
+        OnPropertyChanged(nameof(CanViewSelectedAsCollage));
+        ViewSelectedAsCollageCommand.NotifyCanExecuteChanged();
     }
 
     /// <summary>
@@ -1896,9 +2282,9 @@ public partial class GalleryViewModel : ViewModelBase
             };
         }
 
-        // Plain click: always replace the current tab in-place (if any), otherwise create one.
+        // Plain click: replace the current image tab in-place, but never overwrite the collage tab.
         ViewerSource = source;
-        if (SelectedViewerTab is { } active)
+        if (SelectedViewerTab is { IsCollage: false } active)
         {
             active.NavList.Clear();
             foreach (var c in list) active.NavList.Add(c);
@@ -1962,11 +2348,15 @@ public partial class GalleryViewModel : ViewModelBase
             };
         }
 
-        // "Open in new tab" always creates a new global tab
+        // "Open in new tab" always creates a new global tab. If the collage is currently visible,
+        // keep it visible and add the image tab in the background; the user can switch to it when ready.
         var tab = new ViewerTab(card, list, total, loadMore, source);
         ViewerTabs.Add(tab);
-        SelectedViewerTab = tab;
-        InlineViewerCard = card;
+        if (SelectedViewerTab?.IsCollage != true)
+        {
+            SelectedViewerTab = tab;
+            InlineViewerCard = card;
+        }
     }
 
     [RelayCommand]
@@ -1995,6 +2385,95 @@ public partial class GalleryViewModel : ViewModelBase
         SelectedViewerTab = null;
         InlineViewerCard = null;
         InlineViewerCardList = null;
+    }
+
+    /// <summary>
+    /// Snapshots the currently open viewer tabs (artwork IDs + collage contents) into settings
+    /// so they can be reopened next launch. Called on app shutdown.
+    /// </summary>
+    public void SaveViewerTabsState()
+    {
+        try
+        {
+            var entries = new List<Pikura.Core.Settings.PersistedViewerTab>();
+            foreach (var tab in ViewerTabs)
+            {
+                if (tab.IsCollage)
+                {
+                    if (tab.CollageItems.Count == 0) continue;
+                    entries.Add(new Pikura.Core.Settings.PersistedViewerTab
+                    {
+                        IsCollage = true,
+                        Source = tab.Source,
+                        Header = tab.Header,
+                        CollageArtworkIds = tab.CollageItems.Select(c => c.Id).ToList()
+                    });
+                }
+                else if (tab.Card != null)
+                {
+                    entries.Add(new Pikura.Core.Settings.PersistedViewerTab
+                    {
+                        IsCollage = false,
+                        Source = tab.Source,
+                        Header = tab.Header,
+                        ArtworkId = tab.Card.Id
+                    });
+                }
+            }
+
+            var selectedIndex = SelectedViewerTab != null ? ViewerTabs.IndexOf(SelectedViewerTab) : -1;
+            _settingsService.Update(s =>
+            {
+                s.PersistedViewerTabs = entries;
+                s.PersistedSelectedTabIndex = selectedIndex;
+            });
+        }
+        catch { /* non-fatal — worst case tabs just don't restore next launch */ }
+    }
+
+    /// <summary>
+    /// Reopens the viewer tabs that were open when the app last closed, re-fetching each
+    /// artwork from Pixiv. Called once at startup, after the main window is ready.
+    /// </summary>
+    public async Task RestoreViewerTabsAsync()
+    {
+        try
+        {
+            var entries = _settingsService.Current.PersistedViewerTabs;
+            if (entries == null || entries.Count == 0) return;
+
+            foreach (var entry in entries)
+            {
+                if (entry.IsCollage)
+                {
+                    if (entry.CollageArtworkIds is not { Count: > 0 }) continue;
+                    var cards = new List<ArtworkCardViewModel>();
+                    foreach (var id in entry.CollageArtworkIds)
+                    {
+                        var c = await BuildCardForArtworkAsync(id);
+                        if (c != null) cards.Add(c);
+                    }
+                    if (cards.Count == 0) continue;
+                    AddToCollage(cards);
+                }
+                else
+                {
+                    if (string.IsNullOrEmpty(entry.ArtworkId)) continue;
+                    var card = await BuildCardForArtworkAsync(entry.ArtworkId);
+                    if (card == null) continue;
+                    var list = new List<ArtworkCardViewModel> { card };
+                    OpenInNewTab(card, list, list.Count, null, entry.Source ?? "Gallery");
+                }
+            }
+
+            var selIdx = _settingsService.Current.PersistedSelectedTabIndex;
+            if (selIdx >= 0 && selIdx < ViewerTabs.Count)
+                SelectedViewerTab = ViewerTabs[selIdx];
+
+            if (ViewerTabs.Count > 0)
+                ShowPreview = true;
+        }
+        catch { /* non-fatal — worst case some/all tabs fail to restore */ }
     }
 
     public Task DownloadSingleAsync(ArtworkCardViewModel card)
@@ -2116,6 +2595,10 @@ public partial class GalleryViewModel : ViewModelBase
             CanLoadMore = cached.CanMore;
             IsLoading = false; // ensure spinner clears even if a prior load was in-flight
             UpdateArtworkCountStatus();
+            // Cached cards may have been constructed (or last touched) before a Like/Bookmark/
+            // Favorite happened elsewhere in the app — re-check them now that they're actually
+            // the visible list, rather than relying on a live push having reached them.
+            RefreshLikedBookmarkedFavoriteFlags();
             return;
         }
 
@@ -2129,7 +2612,17 @@ public partial class GalleryViewModel : ViewModelBase
 
         try
         {
-            var profile = await _pixivClient.GetUserProfileAllAsync(artist.UserId);
+            Task<UserProfileAll> profileTask;
+            if (_profilePrefetch.TryGetValue(artist.UserId, out var pending))
+            {
+                _profilePrefetch.Remove(artist.UserId);
+                profileTask = pending;
+            }
+            else
+            {
+                profileTask = _pixivClient.GetUserProfileAllAsync(artist.UserId);
+            }
+            var profile = await profileTask;
             ct.ThrowIfCancellationRequested();
 
             // Deduplicate: Pixiv API can return the same ID in multiple buckets (illusts + manga)
@@ -2149,6 +2642,10 @@ public partial class GalleryViewModel : ViewModelBase
             ct.ThrowIfCancellationRequested();
             IsLoading = false;
             UpdateArtworkCountStatus();
+            // Correct the Liked/Bookmarked/Favorite badges as soon as page 1 is visible —
+            // previously this only ran after page 2 finished too, so cards visibly sat with no
+            // badges for the full ~1-2s of both network round-trips before flipping correct.
+            RefreshLikedBookmarkedFavoriteFlags();
 
             // Continue loading page 2 in the background. The cache is updated only
             // after both pages finish so that revisits restore the full 96-card view.
@@ -2156,6 +2653,7 @@ public partial class GalleryViewModel : ViewModelBase
             {
                 await LoadArtworkPageAsync(artist, append: true, ct);
                 ct.ThrowIfCancellationRequested();
+                RefreshLikedBookmarkedFavoriteFlags();
             }
 
             if (!ct.IsCancellationRequested)
@@ -2620,11 +3118,11 @@ public partial class GalleryViewModel : ViewModelBase
         };
     }
 
-    private async Task DownloadCoreAsync(IReadOnlyList<ArtworkCardViewModel> cards)
+    private async Task DownloadCoreAsync(IReadOnlyList<ArtworkCardViewModel> cards, SettingsOverride? settingsOverride = null, string? jobName = null)
     {
         if (cards.Count == 0) return;
 
-        var acctOverride = BuildAccountSettingsOverride();
+        var acctOverride = settingsOverride ?? BuildAccountSettingsOverride();
 
         // Existing-file handling is governed universally by the Overwrite behavior
         // setting (Skip / Overwrite / Backup) inside PixivDownloadService — no
@@ -2645,8 +3143,11 @@ public partial class GalleryViewModel : ViewModelBase
             TargetId = c.Id, Name = c.Title, ThumbnailUrl = c.ThumbnailUrl, UserName = c.UserName, UserId = c.UserId, Type = TargetType.Artwork, Status = TargetStatus.Pending
         }).ToList();
 
-        var artistPrefix = SelectedArtist != null ? $"{SelectedArtist.Name}: " : "";
-        var jobName = approved.Count == 1 ? $"{artistPrefix}{approved[0].Title}" : $"{artistPrefix}{approved.Count} artworks";
+        if (string.IsNullOrWhiteSpace(jobName))
+        {
+            var artistPrefix = SelectedArtist != null ? $"{SelectedArtist.Name}: " : "";
+            jobName = approved.Count == 1 ? $"{artistPrefix}{approved[0].Title}" : $"{artistPrefix}{approved.Count} artworks";
+        }
         var activeJob = await _coordinator.CreateJobAsync(
             DownloadJobType.ImageId, jobName, targets,
             settingsOverride: acctOverride, startImmediately: false,
@@ -2795,7 +3296,7 @@ public partial class ArtistCardViewModel : ObservableObject
 
     public string UserId { get; }
     public string Name { get; }
-    public string? ProfileImageUrl { get; }
+    public string? ProfileImageUrl { get; set; }
     public string Initial => string.IsNullOrEmpty(Name) ? "?" : Name[0].ToString().ToUpperInvariant();
 
     public ArtistCardViewModel(FollowedArtist artist)
@@ -2836,6 +3337,9 @@ public partial class ArtworkCardViewModel : ObservableObject
     [ObservableProperty] private bool _isPixivBookmarked;
     [ObservableProperty] private bool _isPixivPrivateBookmark;
     [ObservableProperty] private string? _pixivBookmarkId;
+    /// <summary>True when this artwork's ID is in <c>SettingsService.PixivLikedArtworkIds</c> —
+    /// drives the heart badge shown on the thumbnail.</summary>
+    [ObservableProperty] private bool _isLiked;
 
     /// <summary>
     /// When true, the thumbnail is blurred (for R-18 content when blur setting is enabled).
@@ -2853,6 +3357,9 @@ public partial class ArtworkCardViewModel : ObservableObject
     /// own editorial caption for an embedded artwork gets attached here.</summary>
     public string? Caption { get; set; }
     public bool HasCaption => !string.IsNullOrWhiteSpace(Caption);
+    /// <summary>Optional "viewed at" label shown under the card. Only set by the Viewed tab.</summary>
+    public string? ViewedAtLabel { get; set; }
+    public bool HasViewedAt => !string.IsNullOrWhiteSpace(ViewedAtLabel);
     public string TypeLabel { get; }
     public int PageCount { get; }
     public int IllustType { get; }
@@ -2872,6 +3379,7 @@ public partial class ArtworkCardViewModel : ObservableObject
     public string DateLabel => HasDate ? DateCreated.ToString("MMM d, yyyy") : string.Empty;
     public int BookmarkCount { get; }
     public int LikeCount { get; }
+    public int ViewCount { get; }
     public int? ViewerPosition { get; set; }
     /// <summary>Height for natural mode: CardSize * AspectRatio.</summary>
     public double NaturalHeight(double width) => width * AspectRatio;
@@ -2895,6 +3403,31 @@ public partial class ArtworkCardViewModel : ObservableObject
         DateCreated = artwork.CreateDate?.DateTime ?? DateTime.MinValue;
         BookmarkCount = artwork.BookmarkCount ?? 0;
         LikeCount = artwork.LikeCount ?? 0;
+        ViewCount = artwork.ViewCount ?? 0;
+        // Centralized here (rather than at every call site) so the Liked heart badge shows up
+        // consistently everywhere a card is built — Gallery, Discover, Rankings, Pixivision,
+        // Search, Viewed History, Hoshi, etc. — without having to touch each of those call
+        // sites individually. This is just a local list lookup, not a network call, so it's
+        // cheap to do unconditionally.
+        try { _isLiked = AppServices.Get<SettingsService>().Current.PixivLikedArtworkIds.Contains(Id); }
+        catch { /* AppServices not initialized yet, e.g. design-time */ }
+        // Same reasoning as IsLiked above — local favorites are a purely local, in-memory
+        // JSON-backed lookup (no network call), so it's cheap to check unconditionally here
+        // and get the yellow star badge showing correctly everywhere without touching every
+        // place a card gets constructed.
+        try { _isLocalFavorite = AppServices.Get<Pikura.Core.Services.LocalFavoritesService>().IsFavorite(Id); }
+        catch { /* AppServices not initialized yet, e.g. design-time */ }
+        // Bookmark status genuinely can't be cheaply centralized the same way (it's not stored
+        // locally, only known via a live Pixiv check) — but once the Public/Private bookmark
+        // tabs have been loaded at least once this session (or a bookmark add/remove has
+        // happened), BookmarksViewModel keeps a fast lookup cache of known-bookmarked IDs that
+        // any newly-constructed card can piggyback on for free.
+        try
+        {
+            _isPixivBookmarked = AppServices.Get<BookmarksViewModel>().IsKnownBookmarked(Id, out var isPrivate);
+            _isPixivPrivateBookmark = isPrivate;
+        }
+        catch { /* AppServices/BookmarksViewModel not initialized yet, e.g. design-time */ }
     }
 
     /// <summary>
@@ -2911,9 +3444,8 @@ public partial class ArtworkCardViewModel : ObservableObject
         //   /custom-thumb/img/...   <id>_p0_custom1200.jpg   (square social-share crop)
         //   /img-master/img/...     <id>_p0_master1200.jpg   (aspect-preserved, max 1200)
         //   /c/{W}x{H}_.../img-master/...                    (server-side resize/crop)
-        // We want the master1200 variant for natural-aspect display. If the URL
-        // points at /custom-thumb/, both the prefix AND the filename suffix have
-        // to be rewritten — a partial rewrite produces a 404.
+        // We want the img-master master1200 variant while keeping the /c/ resize
+        // directive so PixivImageLoader can later swap it to the requested size.
         var upgraded = url;
         if (upgraded.Contains("/custom-thumb/"))
         {
@@ -2921,17 +3453,14 @@ public partial class ArtworkCardViewModel : ObservableObject
                                .Replace("_custom1200", "_master1200");
         }
         upgraded = upgraded.Replace("_square1200", "_master1200");
-
-        // Strip any "c/<WxH>_..." crop/resize prefix so we get the raw
-        // /img-master/ master1200 file (aspect-preserved, max 1200 long edge).
-        upgraded = System.Text.RegularExpressions.Regex.Replace(
-            upgraded, @"/c/\d+x\d+[^/]*/", "/");
         return upgraded;
     }
 
     public async Task LoadThumbnailAsync(PixivImageLoader loader, ThumbnailSize size = ThumbnailSize.Medium, CancellationToken ct = default)
     {
-        if (string.IsNullOrWhiteSpace(ThumbnailUrl)) return;
+        var preferred = ThumbnailUrl;
+        var fallback = Artwork.ThumbnailUrl;
+        if (string.IsNullOrWhiteSpace(preferred) && string.IsNullOrWhiteSpace(fallback)) return;
         try
         {
             // Default to Medium (_master1200, ≤540px long edge, preserves aspect ratio)
@@ -2940,7 +3469,12 @@ public partial class ArtworkCardViewModel : ObservableObject
             // is reserved for callers that explicitly want the tiny square crop.
             var effectiveSize = size;
 
-            var skBitmap = await loader.FetchBitmapAsync(ThumbnailUrl, effectiveSize, ct);
+            SKBitmap? skBitmap = null;
+            if (!string.IsNullOrWhiteSpace(preferred))
+                skBitmap = await loader.FetchBitmapAsync(preferred, effectiveSize, ct);
+            if (skBitmap is null && !string.IsNullOrWhiteSpace(fallback)
+                && !string.Equals(preferred, fallback, StringComparison.OrdinalIgnoreCase))
+                skBitmap = await loader.FetchBitmapAsync(fallback, effectiveSize, ct);
             if (skBitmap is null || ct.IsCancellationRequested) return;
 
             // Fast SKBitmap → Avalonia Bitmap conversion via direct pixel copy

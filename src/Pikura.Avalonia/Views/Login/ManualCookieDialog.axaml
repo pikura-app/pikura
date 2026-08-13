@@ -6,18 +6,18 @@
         Width="520" Height="270"
         CanResize="False"
         WindowStartupLocation="CenterOwner"
-        Background="{actipro:ThemeResource Container2BackgroundBrush}">
+        Background="{DynamicResource Container2BackgroundBrush}">
 
     <StackPanel Margin="24,20" Spacing="14">
 
         <TextBlock Text="Manual sign-in (emergency fallback)" FontWeight="SemiBold" FontSize="14"/>
 
         <TextBlock x:Name="ReasonText" TextWrapping="Wrap" FontSize="11"
-                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                    IsVisible="False"/>
 
         <TextBlock TextWrapping="Wrap" FontSize="12"
-                   Foreground="{actipro:ThemeResource DefaultForegroundBrushSecondary}">
+                   Foreground="{DynamicResource DefaultForegroundBrushSecondary}">
             Pikura couldn't open a sign-in window automatically, so paste your
             session cookie as a one-time workaround:
             open pixiv.net in your regular browser → DevTools → Application → Cookies →
@@ -30,10 +30,8 @@
                  CornerRadius="6" FontSize="13"/>
 
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
-            <Button Content="Cancel" CornerRadius="6" Padding="14,7"
-                    Click="OnCancel"/>
-            <Button Content="Confirm" Classes="accent" CornerRadius="6" Padding="14,7"
-                    Click="OnConfirm"/>
+            <Button Content="Cancel" Click="OnCancel"/>
+            <Button Content="Confirm" Classes="accent" Click="OnConfirm"/>
         </StackPanel>
 
     </StackPanel>

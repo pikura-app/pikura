@@ -58,11 +58,20 @@ public sealed class PixivHttpClientFactory : IDisposable
     private void ApplyCookies()
     {
         var sid = _settings.Current.PhpSessId;
-        if (string.IsNullOrWhiteSpace(sid)) return;
+        if (!string.IsNullOrWhiteSpace(sid))
+        {
+            // Replace any existing PHPSESSID by setting a new cookie with same name on the same domain.
+            _handler.CookieContainer.Add(new Cookie("PHPSESSID", sid, "/", ".pixiv.net"));
+        }
 
-        var pixivUri = new Uri("https://www.pixiv.net");
-        // Replace any existing PHPSESSID by setting a new cookie with same name on the same domain.
-        _handler.CookieContainer.Add(new Cookie("PHPSESSID", sid, "/", ".pixiv.net"));
+        // cf_clearance is required by some pixiv.net subdomains' Cloudflare bot-management
+        // (confirmed: embed.pixiv.net, used for Collection collage thumbnails) even when
+        // PHPSESSID alone is valid. Obtained separately — see CloudflareSessionService.
+        var cf = _settings.Current.CfClearance;
+        if (!string.IsNullOrWhiteSpace(cf))
+        {
+            _handler.CookieContainer.Add(new Cookie("cf_clearance", cf, "/", ".pixiv.net"));
+        }
     }
 
     public void Dispose()

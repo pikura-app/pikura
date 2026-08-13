@@ -14,8 +14,8 @@
 
     <Grid RowDefinitions="Auto,*">
         <!-- Header -->
-        <Border Grid.Row="0" Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+        <Border Grid.Row="0" Background="{DynamicResource Container1BackgroundBrush}"
+                BorderBrush="{DynamicResource Container1BorderBrush}"
                 BorderThickness="0,0,0,1" Padding="16,10"
                 Margin="0,32,0,0">
             <Grid ColumnDefinitions="Auto,*,Auto">
@@ -30,7 +30,7 @@
                 <!-- RIGHT: Queue button -->
                 <Button Grid.Column="2"
                         Command="{Binding OpenQueueCommand}"
-                        CornerRadius="6" Padding="12,8" FontSize="12"
+                          FontSize="12"
                         ToolTip.Tip="Download Queue">
                     <StackPanel Orientation="Horizontal" Spacing="6">
                         <TextBlock Text="📋" FontSize="14" VerticalAlignment="Center"/>
@@ -46,8 +46,8 @@
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel Spacing="16" Margin="20">
                         <!-- Artist Selection -->
-                        <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                                BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                        <Border Background="{DynamicResource Container2BackgroundBrush}"
+                                BorderBrush="{DynamicResource Container2BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="16">
                             <StackPanel Spacing="12">
                                 <DockPanel LastChildFill="False">
@@ -56,13 +56,13 @@
                                                    AutomationProperties.Name="Selected Artists Header"
                                                    AutomationProperties.HelpText="List of artists selected for download"/>
                                         <TextBlock Text="{Binding ArtistViewModel.SelectedArtists.Count, StringFormat='{}{0} artists'}"
-                                                   FontSize="13" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}" VerticalAlignment="Center"
+                                                   FontSize="13" Foreground="{DynamicResource DefaultForegroundBrushTertiary}" VerticalAlignment="Center"
                                                    AutomationProperties.Name="{Binding ArtistViewModel.SelectedArtists.Count, StringFormat='{}{0} artists selected'}"/>
                                         <TextBlock Text="•"
-                                                   FontSize="13" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}" VerticalAlignment="Center"
+                                                   FontSize="13" Foreground="{DynamicResource DefaultForegroundBrushTertiary}" VerticalAlignment="Center"
                                                    IsVisible="{Binding ArtistViewModel.SelectedArtists.Count}"/>
                                         <TextBlock Text="{Binding ArtistViewModel.EstimatedItemCount, StringFormat='~{}{0} items'}"
-                                                   FontSize="13" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}" VerticalAlignment="Center"
+                                                   FontSize="13" Foreground="{DynamicResource DefaultForegroundBrushTertiary}" VerticalAlignment="Center"
                                                    IsVisible="{Binding ArtistViewModel.SelectedArtists.Count}"
                                                    AutomationProperties.Name="{Binding ArtistViewModel.EstimatedItemCount, StringFormat='Approximately {0} items to download'}"/>
                                     </StackPanel>
@@ -71,11 +71,11 @@
                                             Command="{Binding ArtistViewModel.ClearArtistsCommand}"
                                             IsVisible="{Binding ArtistViewModel.SelectedArtists.Count}"
                                             ToolTip.Tip="Remove all selected artists"
-                                            CornerRadius="6" Padding="10,4" FontSize="12"/>
+                                             Padding="10,4" FontSize="12"/>
                                 </DockPanel>
 
-                                <Border Background="{actipro:ThemeResource Container3BackgroundBrush}"
-                                        BorderBrush="{actipro:ThemeResource Container3BorderBrush}"
+                                <Border Background="{DynamicResource Container3BackgroundBrush}"
+                                        BorderBrush="{DynamicResource Container3BorderBrush}"
                                         BorderThickness="1" CornerRadius="6" Height="150">
                                     <ScrollViewer VerticalScrollBarVisibility="Auto">
                                         <ItemsControl ItemsSource="{Binding ArtistViewModel.SelectedArtists}" Margin="8">
@@ -84,23 +84,23 @@
                                             </ItemsControl.ItemsPanel>
                                             <ItemsControl.ItemTemplate>
                                                 <DataTemplate DataType="vm:SelectedArtist">
-                                                    <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                                                            BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                                                    <Border Background="{DynamicResource Container2BackgroundBrush}"
+                                                            BorderBrush="{DynamicResource Container2BorderBrush}"
                                                             BorderThickness="1" CornerRadius="6"
                                                             Padding="8,4" Margin="0,0,6,6">
                                                         <DockPanel LastChildFill="False">
                                                             <Button DockPanel.Dock="Right" Content="✕"
-                                                                    FontSize="10" CornerRadius="3" Padding="4,0" Margin="6,0,0,0"
+                                                                    FontSize="10"  Padding="4,0" Margin="6,0,0,0"
                                                                     ToolTip.Tip="Remove artist"
                                                                     Command="{Binding $parent[ItemsControl].DataContext.ArtistViewModel.RemoveArtistCommand}"
                                                                     CommandParameter="{Binding}"/>
                                                             <Button DockPanel.Dock="Right" Content="⚙"
-                                                                    FontSize="10" CornerRadius="3" Padding="4,0" Margin="6,0,0,0"
+                                                                    FontSize="10"  Padding="4,0" Margin="6,0,0,0"
                                                                     ToolTip.Tip="Configure custom download settings for this artist"
                                                                     Command="{Binding $parent[ItemsControl].DataContext.ArtistViewModel.ConfigureArtistSettingsCommand}"
                                                                     CommandParameter="{Binding}"/>
                                                             <Border DockPanel.Dock="Right" IsVisible="{Binding HasCustomSettings}"
-                                                                    Background="{actipro:ThemeResource ControlBackgroundBrushSolidAccent}"
+                                                                    Background="{DynamicResource ControlBackgroundBrushSolidAccent}"
                                                                     CornerRadius="3" Padding="3,0" Margin="6,0,0,0"
                                                                     ToolTip.Tip="Has custom download settings">
                                                                 <TextBlock Text="●" FontSize="10" VerticalAlignment="Center"/>
@@ -118,18 +118,18 @@
                                     <Button Content="+ Add Followed Artists"
                                             Command="{Binding ArtistViewModel.AddFollowedArtistsCommand}"
                                             ToolTip.Tip="Add all artists you follow on Pixiv to the download list"
-                                            CornerRadius="6" Padding="12,8"/>
+                                             />
                                     <Button Content="📁 Import from File"
                                             Command="{Binding ArtistViewModel.ImportArtistsFromFileAsync}"
                                             ToolTip.Tip="Import a list of artist IDs from a text file (one per line)"
-                                            CornerRadius="6" Padding="12,8"/>
+                                             />
                                 </StackPanel>
 
                                 <StackPanel Spacing="8">
                                     <DockPanel LastChildFill="False">
                                         <TextBlock DockPanel.Dock="Left" Text="Artist IDs or URLs" FontSize="14" FontWeight="SemiBold"/>
                                         <TextBlock DockPanel.Dock="Right" Text="{Binding ArtistViewModel.ParsedArtistIds.Count, StringFormat='{}{0} IDs detected'}"
-                                                   FontSize="13" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}" VerticalAlignment="Center"/>
+                                                   FontSize="13" Foreground="{DynamicResource DefaultForegroundBrushTertiary}" VerticalAlignment="Center"/>
                                     </DockPanel>
 
                                     <TextBox Text="{Binding ArtistViewModel.NewArtistId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -145,18 +145,18 @@
                                         <Button Content="📋 Paste"
                                                 Command="{Binding ArtistViewModel.PasteFromClipboardCommand}"
                                                 ToolTip.Tip="Paste last copied ID"
-                                                CornerRadius="6" Padding="10,6"
+                                                 Padding="10,6"
                                                 IsVisible="{Binding ArtistViewModel.HasClipboardContent}"/>
                                         <Button Content="✕ Clear"
                                                 Command="{Binding ArtistViewModel.ClearInputCommand}"
                                                 ToolTip.Tip="Clear the input box"
-                                                CornerRadius="6" Padding="10,6"
+                                                 Padding="10,6"
                                                 IsVisible="{Binding ArtistViewModel.ParsedArtistIds.Count}"/>
                                         <Button Content="+ Add Artists"
                                                 Command="{Binding ArtistViewModel.AddArtistByIdCommand}"
                                                 IsEnabled="{Binding ArtistViewModel.ParsedArtistIds.Count}"
                                                 ToolTip.Tip="Add artists by ID or Pixiv profile URL"
-                                                CornerRadius="6" Padding="12,6"
+                                                 
                                                 AutomationProperties.Name="Add Artists Button"
                                                 AutomationProperties.HelpText="Click to add all valid artist IDs entered above"/>
                                     </StackPanel>
@@ -164,13 +164,13 @@
 
                                 <!-- Artist Preview Card -->
                                 <Border IsVisible="{Binding ArtistViewModel.ShowArtistPreview}"
-                                        Background="{actipro:ThemeResource Container3BackgroundBrush}"
-                                        BorderBrush="{actipro:ThemeResource Container3BorderBrush}"
+                                        Background="{DynamicResource Container3BackgroundBrush}"
+                                        BorderBrush="{DynamicResource Container3BorderBrush}"
                                         BorderThickness="1" CornerRadius="8" Padding="12">
                                     <Grid ColumnDefinitions="Auto,*,Auto">
                                         <!-- Avatar -->
                                         <Border Grid.Column="0" Width="40" Height="40" CornerRadius="20"
-                                                Background="{actipro:ThemeResource Container2BackgroundBrush}">
+                                                Background="{DynamicResource Container2BackgroundBrush}">
                                             <TextBlock Text="👤" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                         </Border>
 
@@ -178,21 +178,21 @@
                                         <StackPanel Grid.Column="1" Margin="12,0" VerticalAlignment="Center" Spacing="2">
                                             <TextBlock Text="{Binding ArtistViewModel.PreviewArtistName}" FontWeight="SemiBold" FontSize="13"/>
                                             <TextBlock Text="{Binding ArtistViewModel.PreviewArtistId, StringFormat='ID: {0}'}"
-                                                       FontSize="11" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                       FontSize="11" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                         </StackPanel>
 
                                         <!-- Add Button -->
                                         <Button Grid.Column="2" Content="+ Add"
                                                 Command="{Binding ArtistViewModel.AddArtistByIdCommand}"
-                                                CornerRadius="6" Padding="12,6"/>
+                                                 />
                                     </Grid>
                                 </Border>
                             </StackPanel>
                         </Border>
 
                         <!-- Page Range Settings -->
-                        <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                                BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                        <Border Background="{DynamicResource Container2BackgroundBrush}"
+                                BorderBrush="{DynamicResource Container2BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="16">
                             <StackPanel Spacing="10">
                                 <TextBlock Text="Default Page Range (All Artists)" FontSize="15" FontWeight="SemiBold"
@@ -204,7 +204,7 @@
                                              PlaceholderText="e.g., 0, 1-5, 2,4,6-10"
                                              ToolTip.Tip="Enter page numbers: 0 or 'all' for all pages, '1-5' for range, '2,4,6' for specific pages"/>
                                     <TextBlock Margin="0,2,0,0"
-                                               FontSize="11" Foreground="{actipro:ThemeResource DefaultForegroundBrushDisabled}"
+                                               FontSize="11" Foreground="{DynamicResource DefaultForegroundBrushDisabled}"
                                                TextWrapping="Wrap"
                                                Text="Format: 0 or 'all' = all pages, '2' = page 2, '1-5' = pages 1-5, '2,4,6-10' = specific pages"/>
                                 </StackPanel>
@@ -219,18 +219,18 @@
 
                                 <!-- Per-Artist Page Ranges + Settings (visible when enabled) -->
                                 <Border IsVisible="{Binding ArtistViewModel.UsePerArtistPageRanges}"
-                                        Background="{actipro:ThemeResource Container3BackgroundBrush}"
-                                        BorderBrush="{actipro:ThemeResource Container3BorderBrush}"
+                                        Background="{DynamicResource Container3BackgroundBrush}"
+                                        BorderBrush="{DynamicResource Container3BorderBrush}"
                                         BorderThickness="1" CornerRadius="6" Padding="8">
                                     <StackPanel>
                                         <!-- Header row -->
                                         <Grid ColumnDefinitions="*,120,Auto" ColumnSpacing="8" Margin="4,4,4,4">
                                             <TextBlock Grid.Column="0" Text="Artist" FontSize="11" FontWeight="SemiBold"
-                                                       Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                       Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                             <TextBlock Grid.Column="1" Text="Page Range" FontSize="11" FontWeight="SemiBold"
-                                                       Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                       Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                             <TextBlock Grid.Column="2" Text="Custom Settings" FontSize="11" FontWeight="SemiBold"
-                                                       Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                       Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                         </Grid>
                                         <ItemsControl ItemsSource="{Binding ArtistViewModel.SelectedArtists}"
                                                       Margin="4,0,4,4">
@@ -242,7 +242,7 @@
                                                                        VerticalAlignment="Center"
                                                                        TextTrimming="CharacterEllipsis"/>
                                                             <Border IsVisible="{Binding HasCustomSettings}"
-                                                                    Background="{actipro:ThemeResource ControlBackgroundBrushSolidAccent}"
+                                                                    Background="{DynamicResource ControlBackgroundBrushSolidAccent}"
                                                                     CornerRadius="3" Padding="4,1"
                                                                     ToolTip.Tip="Has custom download settings">
                                                                 <TextBlock Text="Custom" FontSize="10"/>
@@ -255,8 +255,8 @@
                                                                  FontSize="12"/>
                                                         <Button Grid.Column="2"
                                                                 Content="⚙ Settings"
-                                                                FontSize="11" CornerRadius="4"
-                                                                Padding="8,4"
+                                                                FontSize="11" 
+                                                                
                                                                 ToolTip.Tip="Configure custom download settings for this artist"
                                                                 Command="{Binding $parent[ItemsControl].DataContext.ArtistViewModel.ConfigureArtistSettingsCommand}"
                                                                 CommandParameter="{Binding}"/>
@@ -270,8 +270,8 @@
                         </Border>
 
                         <!-- Settings Section -->
-                        <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                                BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                        <Border Background="{DynamicResource Container2BackgroundBrush}"
+                                BorderBrush="{DynamicResource Container2BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="16">
                             <StackPanel Spacing="12">
                                 <TextBlock Text="Download Settings" FontSize="15" FontWeight="SemiBold"/>
@@ -312,13 +312,13 @@
                                     <!-- Content Filters -->
                                     <StackPanel Spacing="8">
                                         <TextBlock Text="Content Filters" FontSize="12" FontWeight="SemiBold"/>
-                                        <Border Background="{actipro:ThemeResource Container3BackgroundBrush}"
-                                                BorderBrush="{actipro:ThemeResource Container3BorderBrush}"
+                                        <Border Background="{DynamicResource Container3BackgroundBrush}"
+                                                BorderBrush="{DynamicResource Container3BorderBrush}"
                                                 BorderThickness="1" CornerRadius="6" Padding="12,10">
                                             <StackPanel Spacing="10">
 
                                                 <TextBlock Text="Skip content types:" FontSize="11"
-                                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                           Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                                 <WrapPanel>
                                                     <CheckBox Content="AI-generated" Margin="0,0,16,4"
                                                               IsChecked="{Binding ArtistViewModel.CustomSettings.FilterAiGenerated, Mode=TwoWay}"
@@ -368,13 +368,13 @@
                                                   FontSize="12"/>
                                         <StackPanel Orientation="Horizontal" Spacing="16" IsVisible="{Binding ArtistViewModel.CustomSettings.AutoRetryFailedDownloads}">
                                             <StackPanel Spacing="4">
-                                                <TextBlock Text="Max Retries" FontSize="11" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                <TextBlock Text="Max Retries" FontSize="11" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                                 <NumericUpDown Value="{Binding ArtistViewModel.CustomSettings.MaxRetryAttempts, Mode=TwoWay}"
                                                                Minimum="1" Maximum="10"
                                                                Width="80" FontSize="12"/>
                                             </StackPanel>
                                             <StackPanel Spacing="4">
-                                                <TextBlock Text="Retry Delay (sec)" FontSize="11" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                <TextBlock Text="Retry Delay (sec)" FontSize="11" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                                 <NumericUpDown Value="{Binding ArtistViewModel.CustomSettings.RetryDelaySeconds, Mode=TwoWay}"
                                                                Minimum="1" Maximum="60"
                                                                Width="100" FontSize="12"/>
@@ -387,8 +387,8 @@
 
                         <!-- Progress Section (visible when downloading) -->
                         <Border IsVisible="{Binding ArtistViewModel.HasActiveJob}"
-                                Background="{actipro:ThemeResource Container3BackgroundBrush}"
-                                BorderBrush="{actipro:ThemeResource Container3BorderBrush}"
+                                Background="{DynamicResource Container3BackgroundBrush}"
+                                BorderBrush="{DynamicResource Container3BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="16">
                             <StackPanel Spacing="8">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
@@ -406,25 +406,25 @@
                                                AutomationProperties.Name="{Binding ArtistViewModel.ProgressPercent, StringFormat='Download is {0:F0} percent complete'}"/>
                                 </StackPanel>
                                 <TextBlock Text="{Binding ArtistViewModel.ProgressStatusMessage}"
-                                           FontSize="12" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                           FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                            TextTrimming="CharacterEllipsis"
                                            AutomationProperties.Name="{Binding ArtistViewModel.ProgressStatusMessage}"/>
                                 <TextBlock Text="{Binding ArtistViewModel.CompletedItemCount, StringFormat='Completed {0} of {1} items', TargetNullValue='Starting...'}"
-                                           FontSize="11" Foreground="{actipro:ThemeResource DefaultForegroundBrushDisabled}"
+                                           FontSize="11" Foreground="{DynamicResource DefaultForegroundBrushDisabled}"
                                            IsVisible="{Binding ArtistViewModel.EstimatedItemCount}"/>
                             </StackPanel>
                         </Border>
 
                         <!-- Download Preview (visible when not downloading) -->
                         <Border IsVisible="{Binding !ArtistViewModel.HasActiveJob}"
-                                Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                                BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                                Background="{DynamicResource Container2BackgroundBrush}"
+                                BorderBrush="{DynamicResource Container2BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="12">
                             <StackPanel Orientation="Horizontal" Spacing="8">
                                 <TextBlock Text="📊" FontSize="16" VerticalAlignment="Center"/>
                                 <TextBlock Text="{Binding ArtistViewModel.DownloadPreviewText}"
                                            FontSize="13"
-                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                           Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                            VerticalAlignment="Center"
                                            AutomationProperties.Name="Download Preview"
                                            AutomationProperties.HelpText="Shows what will be downloaded"/>
@@ -437,14 +437,14 @@
                                 <Button Content="💾 Save"
                                         Command="{Binding ArtistViewModel.SavePresetCommand}"
                                         ToolTip.Tip="Save current artist list and settings as a reusable preset"
-                                        CornerRadius="6" Padding="12,8"
+                                         
                                         AutomationProperties.Name="Save Preset Button"
                                         AutomationProperties.HelpText="Save current configuration for later use"
                                         KeyboardNavigation.TabIndex="10"/>
                                 <Button Content="📂 Load"
                                         Command="{Binding ArtistViewModel.LoadPresetCommand}"
                                         ToolTip.Tip="Load a previously saved preset with artist list and settings"
-                                        CornerRadius="6" Padding="12,8"
+                                         
                                         AutomationProperties.Name="Load Preset Button"
                                         AutomationProperties.HelpText="Load a previously saved configuration"
                                         KeyboardNavigation.TabIndex="11"/>
@@ -453,14 +453,14 @@
                                 <Button Content="+ Add to Queue"
                                         Command="{Binding ArtistViewModel.AddToQueueCommand}"
                                         IsEnabled="{Binding ArtistViewModel.SelectedArtists.Count}"
-                                        CornerRadius="6" Padding="14,12" FontWeight="SemiBold"
+                                          
                                         ToolTip.Tip="Add to queue without starting immediately — start from the Queue window"
                                         KeyboardNavigation.TabIndex="19"/>
                                 <Button Content="▶ Start Download"
                                         Command="{Binding ArtistViewModel.StartDownloadCommand}"
                                         IsEnabled="{Binding ArtistViewModel.SelectedArtists.Count}"
                                         Classes="accent"
-                                        CornerRadius="6" Padding="20,12" FontWeight="SemiBold"
+                                         Padding="20,12" 
                                         ToolTip.Tip="Begin downloading artworks from all selected artists immediately"
                                         AutomationProperties.Name="Start Download Button"
                                         AutomationProperties.HelpText="Click to begin downloading from all selected artists"
@@ -474,14 +474,14 @@
             <TabItem Header="🖼️ By Image ID">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel Spacing="16" Margin="20">
-                        <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                                BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                        <Border Background="{DynamicResource Container2BackgroundBrush}"
+                                BorderBrush="{DynamicResource Container2BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="16">
                             <StackPanel Spacing="12">
                                 <DockPanel LastChildFill="False">
                                     <TextBlock DockPanel.Dock="Left" Text="Image IDs or URLs" FontSize="15" FontWeight="SemiBold"/>
                                     <TextBlock DockPanel.Dock="Right" Text="{Binding ImageIdViewModel.ParsedIds.Count, StringFormat='{}{0} IDs detected'}"
-                                               FontSize="13" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}" VerticalAlignment="Center"/>
+                                               FontSize="13" Foreground="{DynamicResource DefaultForegroundBrushTertiary}" VerticalAlignment="Center"/>
                                 </DockPanel>
 
                                 <TextBox Text="{Binding ImageIdViewModel.InputText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -496,10 +496,10 @@
                                 <StackPanel Orientation="Horizontal" Spacing="8">
                                     <Button Content="📁 Import from File"
                                             Command="{Binding ImageIdViewModel.ImportFromFileAsync}"
-                                            CornerRadius="6" Padding="12,8"/>
+                                             />
                                     <Button Content="Clear"
                                             Command="{Binding ImageIdViewModel.ClearInputCommand}"
-                                            CornerRadius="6" Padding="12,8"/>
+                                             />
                                 </StackPanel>
                             </StackPanel>
                         </Border>
@@ -509,7 +509,58 @@
                                 IsEnabled="{Binding ImageIdViewModel.ParsedIds.Count}"
                                 Classes="accent"
                                 HorizontalAlignment="Right"
-                                CornerRadius="6" Padding="20,12" FontWeight="SemiBold"/>
+                                 Padding="20,12" />
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <TabItem Header="🗂️ By Collection">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Spacing="16" Margin="20">
+                        <Border Background="{DynamicResource Container2BackgroundBrush}"
+                                BorderBrush="{DynamicResource Container2BorderBrush}"
+                                BorderThickness="1" CornerRadius="8" Padding="16">
+                            <StackPanel Spacing="12">
+                                <DockPanel LastChildFill="False">
+                                    <TextBlock DockPanel.Dock="Left" Text="Collection URLs or IDs" FontSize="15" FontWeight="SemiBold"/>
+                                    <TextBlock DockPanel.Dock="Right" Text="{Binding CollectionViewModel.ParsedIds.Count, StringFormat='{}{0} collection(s) detected'}"
+                                               FontSize="13" Foreground="{DynamicResource DefaultForegroundBrushTertiary}" VerticalAlignment="Center"/>
+                                </DockPanel>
+
+                                <TextBox Text="{Binding CollectionViewModel.InputText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                         AcceptsReturn="True"
+                                         TextWrapping="Wrap"
+                                         PlaceholderText="Enter collection IDs or URLs, one per line...&#x0a;Example: 99928968526562868893&#x0a;https://www.pixiv.net/collections/99928968526562868893"
+                                         Height="160"
+                                         CornerRadius="6"
+                                         FontFamily="Consolas, monospace"
+                                         FontSize="13"/>
+
+                                <TextBlock Text="{Binding CollectionViewModel.InvalidEntriesSummary}" FontSize="11"
+                                           Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
+                                           IsVisible="{Binding CollectionViewModel.HasInvalidInput}"/>
+
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <Button Content="Clear"
+                                            Command="{Binding CollectionViewModel.ClearInputCommand}"
+                                             />
+                                    <CheckBox Content="Keep each collection in its own folder" FontSize="12"
+                                              IsChecked="{Binding CollectionViewModel.UseCollectionFolder, Mode=TwoWay}"
+                                              VerticalAlignment="Center"
+                                              ToolTip.Tip="On: each collection's works go into their own Collections\{title} folder. Off: still nests everything under a Collections\ folder, but keeps your normal per-artist/artwork folder structure beneath it."/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <TextBlock Text="{Binding CollectionViewModel.StatusMessage}" FontSize="12"
+                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
+
+                        <Button Content="▶ Start Collection Download"
+                                Command="{Binding CollectionViewModel.StartDownloadCommand}"
+                                IsEnabled="{Binding CollectionViewModel.ParsedIds.Count}"
+                                Classes="accent"
+                                HorizontalAlignment="Right"
+                                 Padding="20,12" />
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>
@@ -517,8 +568,8 @@
             <TabItem Header="🔖 Bookmarks">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel Spacing="16" Margin="20">
-                        <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                                BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                        <Border Background="{DynamicResource Container2BackgroundBrush}"
+                                BorderBrush="{DynamicResource Container2BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="16">
                             <StackPanel Spacing="12">
                                 <TextBlock Text="Source" FontSize="15" FontWeight="SemiBold"/>
@@ -529,8 +580,8 @@
                             </StackPanel>
                         </Border>
 
-                        <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                                BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                        <Border Background="{DynamicResource Container2BackgroundBrush}"
+                                BorderBrush="{DynamicResource Container2BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="16">
                             <StackPanel Spacing="12">
                                 <TextBlock Text="Visibility" FontSize="15" FontWeight="SemiBold"/>
@@ -545,8 +596,8 @@
                             </StackPanel>
                         </Border>
 
-                        <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                                BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                        <Border Background="{DynamicResource Container2BackgroundBrush}"
+                                BorderBrush="{DynamicResource Container2BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="16">
                             <StackPanel Spacing="12">
                                 <TextBlock Text="Filter Options" FontSize="15" FontWeight="SemiBold"/>
@@ -562,24 +613,24 @@
                                 Command="{Binding BookmarksViewModel.StartDownloadCommand}"
                                 Classes="accent"
                                 HorizontalAlignment="Right"
-                                CornerRadius="6" Padding="20,12" FontWeight="SemiBold"
+                                 Padding="20,12" 
                                 ToolTip.Tip="Download from Pixiv bookmarks (Public/Private)"/>
 
                         <!-- Local Favorites Download Options -->
-                        <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                                BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                        <Border Background="{DynamicResource Container2BackgroundBrush}"
+                                BorderBrush="{DynamicResource Container2BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="16">
                             <StackPanel Spacing="12">
                                 <TextBlock Text="Local Favorites" FontSize="15" FontWeight="SemiBold"/>
                                 <StackPanel Spacing="8">
                                     <Button Content="↓ Download All Favorites"
                                             Command="{Binding BookmarksViewModel.DownloadAllFavoritesCommand}"
-                                            CornerRadius="6" Padding="12,6" FontSize="12"
+                                              FontSize="12"
                                             HorizontalAlignment="Stretch"/>
                                     
                                     <StackPanel Spacing="4" IsVisible="{Binding BookmarksViewModel.HasFolders}">
                                         <TextBlock Text="Download from folder:" FontSize="12"
-                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                         <Grid ColumnDefinitions="*,Auto">
                                             <ComboBox Grid.Column="0"
                                                       ItemsSource="{Binding BookmarksViewModel.AvailableFolders}"
@@ -588,7 +639,7 @@
                                                       CornerRadius="6" Padding="8,4" FontSize="12"/>
                                             <Button Grid.Column="1" Content="Download"
                                                     Command="{Binding BookmarksViewModel.DownloadFromFolderCommand}"
-                                                    CornerRadius="6" Padding="12,6" FontSize="12"
+                                                      FontSize="12"
                                                     Margin="8,0,0,0"/>
                                         </Grid>
                                     </StackPanel>
@@ -613,10 +664,10 @@
                     <StackPanel Spacing="16" Margin="20">
                         <TextBlock Text="📋 Download from List" FontSize="24" FontWeight="SemiBold" HorizontalAlignment="Center"/>
                         <TextBlock Text="Download from list.txt or tags.txt files&#x0a;Import URLs, IDs, or tags from a text file"
-                                   TextAlignment="Center" Opacity="0.7"/>
+                                   TextAlignment="Center" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                         
-                        <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                                BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                        <Border Background="{DynamicResource Container2BackgroundBrush}"
+                                BorderBrush="{DynamicResource Container2BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="16">
                             <StackPanel Spacing="12">
                                 <Grid ColumnDefinitions="*,Auto" HorizontalAlignment="Stretch">
@@ -627,12 +678,12 @@
                                              CornerRadius="6" Padding="8,4" FontSize="12"/>
                                     <Button Grid.Column="1" Content="📁 Browse"
                                             Command="{Binding FromListViewModel.SelectListFileCommand}"
-                                            CornerRadius="6" Padding="12,6" FontSize="12"
+                                              FontSize="12"
                                             Margin="8,0,0,0"/>
                                 </Grid>
                                 
-                                <Border Background="{actipro:ThemeResource Container3BackgroundBrush}"
-                                        BorderBrush="{actipro:ThemeResource Container3BorderBrush}"
+                                <Border Background="{DynamicResource Container3BackgroundBrush}"
+                                        BorderBrush="{DynamicResource Container3BorderBrush}"
                                         BorderThickness="1" CornerRadius="6" Padding="12"
                                         MaxHeight="200">
                                     <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -646,7 +697,7 @@
                                 
                                 <StackPanel Orientation="Horizontal" Spacing="8">
                                     <TextBlock Text="Items:" FontSize="12" 
-                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                               Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                     <TextBlock Text="{Binding FromListViewModel.ItemCount}" 
                                                FontWeight="SemiBold" FontSize="12"/>
                                 </StackPanel>
@@ -654,12 +705,12 @@
                                 <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
                                     <Button Content="Clear" 
                                             Command="{Binding FromListViewModel.ClearListCommand}"
-                                            CornerRadius="6" Padding="12,6" FontSize="12"/>
+                                              FontSize="12"/>
                                     <Button Content="▶ Start Download" 
                                             Command="{Binding FromListViewModel.StartDownloadCommand}"
                                             Classes="accent"
                                             IsEnabled="{Binding FromListViewModel.HasItems}"
-                                            CornerRadius="6" Padding="16,6" FontSize="12" FontWeight="SemiBold"/>
+                                              FontSize="12" />
                                 </StackPanel>
                             </StackPanel>
                         </Border>
@@ -670,8 +721,8 @@
             <TabItem Header="🔍 Search">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel Spacing="16" Margin="20">
-                        <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                                BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                        <Border Background="{DynamicResource Container2BackgroundBrush}"
+                                BorderBrush="{DynamicResource Container2BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="16">
                             <StackPanel Spacing="12">
                                 <TextBlock Text="Search Keyword" FontSize="14" FontWeight="SemiBold"/>
@@ -682,7 +733,7 @@
                                 <Grid ColumnDefinitions="*,*,*" HorizontalAlignment="Stretch">
                                     <StackPanel Grid.Column="0" Spacing="4">
                                         <TextBlock Text="Mode" FontSize="12" 
-                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                         <ComboBox SelectedValue="{Binding SearchViewModel.SearchMode, Mode=TwoWay}"
                                                   SelectedValueBinding="{ReflectionBinding Tag}"
                                                   CornerRadius="6" FontSize="12">
@@ -694,7 +745,7 @@
                                     <StackPanel Grid.Column="1" Spacing="4" Margin="8,0,0,0">
                                         <StackPanel Orientation="Horizontal" Spacing="4">
                                             <TextBlock Text="Sort Order" FontSize="12"
-                                                       Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                       Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                             <TextBlock Text="👑" FontSize="10" VerticalAlignment="Center"
                                                        IsVisible="{Binding !SearchViewModel.IsPremiumAccount}"
                                                        ToolTip.Tip="Popularity sort requires Pixiv Premium"/>
@@ -711,7 +762,7 @@
                                     </StackPanel>
                                     <StackPanel Grid.Column="2" Spacing="4" Margin="8,0,0,0">
                                         <TextBlock Text="Max Results" FontSize="12" 
-                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                         <NumericUpDown Value="{Binding SearchViewModel.MaxResults, Mode=TwoWay}"
                                                      Minimum="1" Maximum="500"
                                                      CornerRadius="6" FontSize="12"/>
@@ -721,24 +772,24 @@
                                 <Button Content="🔍 Search"
                                         Command="{Binding SearchViewModel.SearchCommand}"
                                         IsEnabled="{Binding !SearchViewModel.IsSearching}"
-                                        CornerRadius="6" Padding="12,6" FontSize="12"
+                                          FontSize="12"
                                         HorizontalAlignment="Stretch"/>
                             </StackPanel>
                         </Border>
                         
-                        <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                                BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                        <Border Background="{DynamicResource Container2BackgroundBrush}"
+                                BorderBrush="{DynamicResource Container2BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="16"
                                 IsVisible="{Binding SearchViewModel.HasResults}">
                             <StackPanel Spacing="12">
                                 <Grid ColumnDefinitions="*,Auto">
                                     <TextBlock Grid.Column="0" Text="Results" FontSize="14" FontWeight="SemiBold"/>
                                     <TextBlock Grid.Column="1" Text="{Binding SearchViewModel.ResultCount, StringFormat='{}{0} items'}"
-                                               FontSize="12" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                               FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                 </Grid>
                                 
-                                <Border Background="{actipro:ThemeResource Container3BackgroundBrush}"
-                                        BorderBrush="{actipro:ThemeResource Container3BorderBrush}"
+                                <Border Background="{DynamicResource Container3BackgroundBrush}"
+                                        BorderBrush="{DynamicResource Container3BorderBrush}"
                                         BorderThickness="1" CornerRadius="6" Padding="12"
                                         MaxHeight="400">
                                     <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -750,15 +801,15 @@
                                             </ItemsControl.ItemsPanel>
                                             <ItemsControl.ItemTemplate>
                                                 <DataTemplate>
-                                                    <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                                                            BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                                                    <Border Background="{DynamicResource Container2BackgroundBrush}"
+                                                            BorderBrush="{DynamicResource Container2BorderBrush}"
                                                             BorderThickness="1" CornerRadius="6" Padding="8" Margin="0,0,8,8"
                                                             Width="150">
                                                         <StackPanel Spacing="6">
                                                             <!-- Thumbnail -->
-                                                            <Border BorderBrush="{actipro:ThemeResource Container3BorderBrush}"
+                                                            <Border BorderBrush="{DynamicResource Container3BorderBrush}"
                                                                     BorderThickness="1" CornerRadius="4"
-                                                                    Height="150" Background="{actipro:ThemeResource Container3BackgroundBrush}">
+                                                                    Height="150" Background="{DynamicResource Container3BackgroundBrush}">
                                                                 <Image Source="{Binding Thumbnail}"
                                                                        Stretch="UniformToFill"
                                                                        HorizontalAlignment="Center"
@@ -768,18 +819,18 @@
                                                             <TextBlock Text="{Binding Title}" FontSize="11" 
                                                                        TextTrimming="CharacterEllipsis" MaxLines="2"/>
                                                             <TextBlock Text="{Binding ArtistName}" FontSize="10"
-                                                                       Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                                                       Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                                                        TextTrimming="CharacterEllipsis"/>
                                                             <StackPanel Orientation="Horizontal" Spacing="4">
                                                                 <TextBlock Text="{Binding PageCount, StringFormat='{}{0}p'}" FontSize="9"
-                                                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                                           Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                                                 <TextBlock Text="•" FontSize="9"
-                                                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                                                           Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                                                            IsVisible="{Binding IsR18}"/>
                                                                 <TextBlock Text="R-18" FontSize="9" Foreground="Red"
                                                                            IsVisible="{Binding IsR18}"/>
                                                                 <TextBlock Text="•" FontSize="9"
-                                                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                                                           Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                                                            IsVisible="{Binding IsAiGenerated}"/>
                                                                 <TextBlock Text="AI" FontSize="9" Foreground="Orange"
                                                                            IsVisible="{Binding IsAiGenerated}"/>
@@ -795,11 +846,11 @@
                                 <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
                                     <Button Content="Clear Results" 
                                             Command="{Binding SearchViewModel.ClearResultsCommand}"
-                                            CornerRadius="6" Padding="12,6" FontSize="12"/>
+                                              FontSize="12"/>
                                     <Button Content="▶ Start Download" 
                                             Command="{Binding SearchViewModel.StartDownloadCommand}"
                                             Classes="accent"
-                                            CornerRadius="6" Padding="16,6" FontSize="12" FontWeight="SemiBold"/>
+                                              FontSize="12" />
                                 </StackPanel>
                             </StackPanel>
                         </Border>
@@ -810,8 +861,8 @@
             <TabItem Header="📦 FANBOX">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel Spacing="16" Margin="20">
-                        <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                                BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                        <Border Background="{DynamicResource Container2BackgroundBrush}"
+                                BorderBrush="{DynamicResource Container2BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="16">
                             <StackPanel Spacing="12">
                                 <TextBlock Text="Search by Post ID" FontSize="14" FontWeight="SemiBold"/>
@@ -822,7 +873,7 @@
                                     <Button Grid.Column="1" Content="🔍 Search"
                                             Command="{Binding FanboxViewModel.SearchByPostIdCommand}"
                                             IsEnabled="{Binding !FanboxViewModel.IsSearching}"
-                                            CornerRadius="6" Padding="12,6" FontSize="12" Margin="8,0,0,0"/>
+                                              FontSize="12" Margin="8,0,0,0"/>
                                 </Grid>
                                 <Separator/>
                                 <TextBlock Text="Search by Creator ID" FontSize="14" FontWeight="SemiBold"/>
@@ -833,61 +884,61 @@
                                     <Button Grid.Column="1" Content="🔍 Search"
                                             Command="{Binding FanboxViewModel.SearchByCreatorIdCommand}"
                                             IsEnabled="{Binding !FanboxViewModel.IsSearching}"
-                                            CornerRadius="6" Padding="12,6" FontSize="12" Margin="8,0,0,0"/>
+                                              FontSize="12" Margin="8,0,0,0"/>
                                 </Grid>
                                 <TextBlock Text="{Binding FanboxViewModel.SearchResult}"
-                                           FontSize="12" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                           FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                             </StackPanel>
                         </Border>
                         
-                        <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                                BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                        <Border Background="{DynamicResource Container2BackgroundBrush}"
+                                BorderBrush="{DynamicResource Container2BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="16"
                                 IsVisible="{Binding FanboxViewModel.Posts.Count}">
                             <StackPanel Spacing="12">
                                 <Grid ColumnDefinitions="*,Auto">
                                     <TextBlock Grid.Column="0" Text="Results" FontSize="14" FontWeight="SemiBold"/>
                                     <TextBlock Grid.Column="1" Text="{Binding FanboxViewModel.Posts.Count, StringFormat='{}{0} posts'}"
-                                               FontSize="12" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                               FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                 </Grid>
                                 
-                                <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                                        BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                                <Border Background="{DynamicResource Container2BackgroundBrush}"
+                                        BorderBrush="{DynamicResource Container2BorderBrush}"
                                         BorderThickness="1" CornerRadius="6" Padding="12"
                                         MaxHeight="300">
                                     <ScrollViewer VerticalScrollBarVisibility="Auto">
                                         <ItemsControl ItemsSource="{Binding FanboxViewModel.Posts}">
                                             <ItemsControl.ItemTemplate>
                                                 <DataTemplate>
-                                                    <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                                                            BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                                                    <Border Background="{DynamicResource Container2BackgroundBrush}"
+                                                            BorderBrush="{DynamicResource Container2BorderBrush}"
                                                             BorderThickness="1" CornerRadius="4" Padding="8" Margin="0,0,0,4">
                                                         <StackPanel Spacing="4">
                                                             <TextBlock Text="{Binding Post.Title}" FontSize="12" FontWeight="SemiBold"/>
                                                             <TextBlock Text="{Binding Post.User.Name, StringFormat='{}By {0}'}" FontSize="11"
-                                                                       Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                                       Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                                             <TextBlock Text="{Binding Post.PublishedDatetime, StringFormat='{}{0:yyyy-MM-dd}'}" FontSize="10"
-                                                                       Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                                       Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                                             <TextBlock Text="{Binding Post.Images.Count, StringFormat='{}{0} images'}" FontSize="10"
-                                                                       Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                                       Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                                             <Separator Margin="0,4,0,4"/>
                                                             <TextBlock Text="Cover Filename:" FontSize="9" FontWeight="SemiBold"
-                                                                       Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                                       Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                                             <TextBlock Text="{Binding CoverFilename}" FontSize="9"
-                                                                       Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                                                       Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                                                        TextWrapping="Wrap"/>
                                                             <TextBlock Text="Info Filename:" FontSize="9" FontWeight="SemiBold"
-                                                                       Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                                       Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                                             <TextBlock Text="{Binding InfoFilename}" FontSize="9"
-                                                                       Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                                                       Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                                                        TextWrapping="Wrap"/>
                                                             <TextBlock Text="Image Filenames:" FontSize="9" FontWeight="SemiBold"
-                                                                       Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                                       Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                                             <ItemsControl ItemsSource="{Binding ImageFilenames}">
                                                                 <ItemsControl.ItemTemplate>
                                                                     <DataTemplate>
                                                                         <TextBlock Text="{Binding}" FontSize="9"
-                                                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                                                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                                                                    TextWrapping="Wrap"/>
                                                                     </DataTemplate>
                                                                 </ItemsControl.ItemTemplate>
@@ -903,11 +954,11 @@
                                 <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
                                     <Button Content="Clear Results" 
                                             Command="{Binding FanboxViewModel.ClearResultsCommand}"
-                                            CornerRadius="6" Padding="12,6" FontSize="12"/>
+                                              FontSize="12"/>
                                     <Button Content="▶ Download" 
                                             Command="{Binding FanboxViewModel.DownloadSelectedCommand}"
                                             Classes="accent"
-                                            CornerRadius="6" Padding="16,6" FontSize="12" FontWeight="SemiBold"/>
+                                              FontSize="12" />
                                 </StackPanel>
                             </StackPanel>
                         </Border>
@@ -921,15 +972,15 @@
                     <Grid RowDefinitions="Auto,*">
                         <!-- Toolbar -->
                         <Border Grid.Row="0" Padding="16,10"
-                                BorderBrush="{actipro:ThemeResource Container2BorderBrush}" BorderThickness="0,0,0,1">
+                                BorderBrush="{DynamicResource Container2BorderBrush}" BorderThickness="0,0,0,1">
                             <DockPanel LastChildFill="False">
                                 <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
                                     <TextBlock Text="{Binding SchedulesViewModel.Schedules.Count, StringFormat='{}{0} schedules'}"
-                                               FontSize="12" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                               FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                                VerticalAlignment="Center"
                                                IsVisible="{Binding !SchedulesViewModel.IsEditing}"/>
                                     <TextBlock Text="{Binding SchedulesViewModel.StatusMessage}"
-                                               FontSize="12" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                               FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                                VerticalAlignment="Center"
                                                IsVisible="{Binding SchedulesViewModel.StatusMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
                                 </StackPanel>
@@ -939,14 +990,14 @@
                                             Command="{Binding SchedulesViewModel.AddNewCommand}"
                                             IsVisible="{Binding !SchedulesViewModel.IsEditing}"
                                             Classes="accent"
-                                            CornerRadius="6" Padding="12,6" FontSize="12"/>
+                                              FontSize="12"/>
                                     <Button Command="{Binding SchedulesViewModel.RefreshCommand}"
                                             IsVisible="{Binding !SchedulesViewModel.IsEditing}"
-                                            CornerRadius="6" Padding="10,4" FontSize="12">
+                                             Padding="10,4" FontSize="12">
                                         <StackPanel Orientation="Horizontal" Spacing="4">
                                             <PathIcon Data="{StaticResource RefreshIcon}" Width="14" Height="14"
                                                       VerticalAlignment="Center"
-                                                      Foreground="{actipro:ThemeResource DefaultForegroundBrush}"/>
+                                                      Foreground="{Binding $parent[Button].Foreground}"/>
                                             <TextBlock Text="Refresh" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </Button>
@@ -954,7 +1005,7 @@
                                     <Button Content="← Back to Schedules"
                                             Command="{Binding SchedulesViewModel.CancelEditCommand}"
                                             IsVisible="{Binding SchedulesViewModel.IsEditing}"
-                                            CornerRadius="6" Padding="10,6" FontSize="12"/>
+                                             Padding="10,6" FontSize="12"/>
                                 </StackPanel>
                             </DockPanel>
                         </Border>
@@ -968,8 +1019,8 @@
                                 <ItemsControl ItemsSource="{Binding SchedulesViewModel.Schedules}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate DataType="vm:ScheduleRowViewModel">
-                                            <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                                                    BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                                            <Border Background="{DynamicResource Container2BackgroundBrush}"
+                                                    BorderBrush="{DynamicResource Container2BorderBrush}"
                                                     BorderThickness="1" CornerRadius="6"
                                                     Padding="12,10" Margin="0,0,0,8">
                                                 <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto">
@@ -983,10 +1034,10 @@
                                                     <StackPanel Grid.Column="1" Spacing="3" VerticalAlignment="Center">
                                                         <StackPanel Orientation="Horizontal" Spacing="8">
                                                             <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="13"/>
-                                                            <Border Background="{actipro:ThemeResource Container3BackgroundBrush}"
+                                                            <Border Background="{DynamicResource Container3BackgroundBrush}"
                                                                     CornerRadius="3" Padding="5,1">
                                                                 <TextBlock Text="{Binding TypeLabel}" FontSize="10"
-                                                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                                           Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                                             </Border>
                                                             <Border Background="#1A7F37" CornerRadius="3" Padding="5,1"
                                                                     IsVisible="{Binding IsRunning}">
@@ -995,17 +1046,17 @@
                                                         </StackPanel>
                                                         <StackPanel Orientation="Horizontal" Spacing="12">
                                                             <TextBlock Text="{Binding TriggerLabel}" FontSize="11"
-                                                                       Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                                       Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                                             <TextBlock Text="{Binding ArtistsSummary}" FontSize="11"
-                                                                       Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                                                       Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                                                        IsVisible="{Binding HasArtists}"
                                                                        TextTrimming="CharacterEllipsis" MaxWidth="200"/>
                                                         </StackPanel>
                                                         <StackPanel Orientation="Horizontal" Spacing="12">
                                                             <TextBlock Text="{Binding LastRun, StringFormat='Last: {0}'}" FontSize="10"
-                                                                       Foreground="{actipro:ThemeResource DefaultForegroundBrushDisabled}"/>
+                                                                       Foreground="{DynamicResource DefaultForegroundBrushDisabled}"/>
                                                             <TextBlock Text="{Binding NextRun, StringFormat='Next: {0}'}" FontSize="10"
-                                                                       Foreground="{actipro:ThemeResource DefaultForegroundBrushDisabled}"/>
+                                                                       Foreground="{DynamicResource DefaultForegroundBrushDisabled}"/>
                                                         </StackPanel>
                                                         <TextBlock Text="{Binding LastError, StringFormat='⚠ {0}'}" FontSize="10"
                                                                    Foreground="OrangeRed" IsVisible="{Binding HasError}"
@@ -1013,19 +1064,19 @@
                                                     </StackPanel>
                                                     <!-- Edit -->
                                                     <Button Grid.Column="2" Content="✏ Edit"
-                                                            FontSize="11" CornerRadius="4" Padding="8,4" Margin="6,0,0,0"
+                                                            FontSize="11"   Margin="6,0,0,0"
                                                             ToolTip.Tip="Edit this schedule"
                                                             Command="{Binding $parent[ItemsControl].DataContext.SchedulesViewModel.BeginEditCommand}"
                                                             CommandParameter="{Binding}"/>
                                                     <!-- Run Now -->
                                                     <Button Grid.Column="3" Content="▶ Run"
-                                                            FontSize="11" CornerRadius="4" Padding="8,4" Margin="4,0,0,0"
+                                                            FontSize="11"   Margin="4,0,0,0"
                                                             ToolTip.Tip="Run this schedule immediately"
                                                             Command="{Binding $parent[ItemsControl].DataContext.SchedulesViewModel.RunNowCommand}"
                                                             CommandParameter="{Binding}"/>
                                                     <!-- Delete -->
                                                     <Button Grid.Column="4" Content="🗑"
-                                                            FontSize="11" CornerRadius="4" Padding="6,4" Margin="4,0,0,0"
+                                                            FontSize="11"   Margin="4,0,0,0"
                                                             ToolTip.Tip="Delete this schedule"
                                                             Command="{Binding $parent[ItemsControl].DataContext.SchedulesViewModel.DeleteScheduleCommand}"
                                                             CommandParameter="{Binding}"/>
@@ -1035,7 +1086,7 @@
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
                                 <TextBlock Text="No schedules yet. Click '+ New Schedule' to create one."
-                                           FontSize="13" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                           FontSize="13" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                            IsVisible="{Binding !SchedulesViewModel.Schedules.Count}"
                                            Margin="0,8"/>
                             </StackPanel>
@@ -1058,16 +1109,16 @@
                                             <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
                                                 <TextBlock Text="Artists" FontSize="12" FontWeight="SemiBold"/>
                                                 <TextBlock Text="{Binding SchedulesViewModel.StagedArtists.Count, StringFormat='{}{0} added'}"
-                                                           FontSize="11" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                                           FontSize="11" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                                            VerticalAlignment="Center"/>
                                             </StackPanel>
                                             <Button DockPanel.Dock="Right" Content="✕ Clear all"
                                                     Command="{Binding SchedulesViewModel.ClearStagedArtistsCommand}"
                                                     IsVisible="{Binding SchedulesViewModel.HasStagedArtists}"
-                                                    CornerRadius="4" Padding="8,3" FontSize="11"/>
+                                                      FontSize="11"/>
                                         </DockPanel>
-                                        <Border Background="{actipro:ThemeResource Container3BackgroundBrush}"
-                                                BorderBrush="{actipro:ThemeResource Container3BorderBrush}"
+                                        <Border Background="{DynamicResource Container3BackgroundBrush}"
+                                                BorderBrush="{DynamicResource Container3BorderBrush}"
                                                 BorderThickness="1" CornerRadius="6" MinHeight="40" Padding="6">
                                             <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="120">
                                                 <ItemsControl ItemsSource="{Binding SchedulesViewModel.StagedArtists}">
@@ -1076,13 +1127,13 @@
                                                     </ItemsControl.ItemsPanel>
                                                     <ItemsControl.ItemTemplate>
                                                         <DataTemplate DataType="vm:StagedArtist">
-                                                            <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                                                                    BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                                                            <Border Background="{DynamicResource Container2BackgroundBrush}"
+                                                                    BorderBrush="{DynamicResource Container2BorderBrush}"
                                                                     BorderThickness="1" CornerRadius="5"
                                                                     Padding="8,3" Margin="0,0,5,5">
                                                                 <DockPanel LastChildFill="False">
                                                                     <Button DockPanel.Dock="Right" Content="✕"
-                                                                            FontSize="9" CornerRadius="2" Padding="3,0" Margin="5,0,0,0"
+                                                                            FontSize="9"  Padding="3,0" Margin="5,0,0,0"
                                                                             Command="{Binding $parent[ItemsControl].DataContext.SchedulesViewModel.RemoveArtistFromStagingCommand}"
                                                                             CommandParameter="{Binding}"/>
                                                                     <TextBlock Text="{Binding DisplayLabel}" FontSize="11" VerticalAlignment="Center"/>
@@ -1106,7 +1157,7 @@
                                             <Button Grid.Column="2" Content="+ Add"
                                                     Command="{Binding SchedulesViewModel.AddArtistToStagingCommand}"
                                                     IsEnabled="{Binding !SchedulesViewModel.IsResolvingArtist}"
-                                                    CornerRadius="6" Padding="10,6" FontSize="12"
+                                                     Padding="10,6" FontSize="12"
                                                     ToolTip.Tip="Resolve artist name and add to list"/>
                                         </Grid>
                                         <TextBlock Text="{Binding SchedulesViewModel.ResolveError}"
@@ -1126,8 +1177,8 @@
                                                          IsChecked="{Binding SchedulesViewModel.IsTriggerOnce, Mode=TwoWay}" FontSize="12"/>
                                         </StackPanel>
                                         <Border IsVisible="{Binding SchedulesViewModel.IsTriggerDaily}"
-                                                Background="{actipro:ThemeResource Container3BackgroundBrush}"
-                                                BorderBrush="{actipro:ThemeResource Container3BorderBrush}"
+                                                Background="{DynamicResource Container3BackgroundBrush}"
+                                                BorderBrush="{DynamicResource Container3BorderBrush}"
                                                 BorderThickness="1" CornerRadius="6" Padding="12,10">
                                             <StackPanel Spacing="8">
                                                 <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
@@ -1150,13 +1201,13 @@
                                                         <ComboBoxItem Content="3"/>
                                                     </ComboBox>
                                                 </StackPanel>
-                                                <TextBlock FontSize="11" Foreground="{actipro:ThemeResource DefaultForegroundBrushDisabled}"
+                                                <TextBlock FontSize="11" Foreground="{DynamicResource DefaultForegroundBrushDisabled}"
                                                            Text="2× = every 12 h  ·  3× = every 8 h, spread from the selected time"/>
                                             </StackPanel>
                                         </Border>
                                         <Border IsVisible="{Binding SchedulesViewModel.IsTriggerOnce}"
-                                                Background="{actipro:ThemeResource Container3BackgroundBrush}"
-                                                BorderBrush="{actipro:ThemeResource Container3BorderBrush}"
+                                                Background="{DynamicResource Container3BackgroundBrush}"
+                                                BorderBrush="{DynamicResource Container3BorderBrush}"
                                                 BorderThickness="1" CornerRadius="6" Padding="12,10">
                                             <StackPanel Spacing="8">
                                                 <TextBlock Text="Run once on:" FontSize="12"/>
@@ -1174,7 +1225,7 @@
                                                               SelectedItem="{Binding SchedulesViewModel.TriggerAmPm, Mode=TwoWay}"
                                                               FontSize="12" Width="65"/>
                                                 </StackPanel>
-                                                <TextBlock FontSize="11" Foreground="{actipro:ThemeResource DefaultForegroundBrushDisabled}"
+                                                <TextBlock FontSize="11" Foreground="{DynamicResource DefaultForegroundBrushDisabled}"
                                                            Text="The schedule will run exactly once and then be marked expired."/>
                                             </StackPanel>
                                         </Border>
@@ -1183,12 +1234,12 @@
                                     <!-- Content Filters -->
                                     <StackPanel Spacing="8">
                                         <TextBlock Text="Content Filters" FontSize="12" FontWeight="SemiBold"/>
-                                        <Border Background="{actipro:ThemeResource Container3BackgroundBrush}"
-                                                BorderBrush="{actipro:ThemeResource Container3BorderBrush}"
+                                        <Border Background="{DynamicResource Container3BackgroundBrush}"
+                                                BorderBrush="{DynamicResource Container3BorderBrush}"
                                                 BorderThickness="1" CornerRadius="6" Padding="12,10">
                                             <StackPanel Spacing="10">
                                                 <TextBlock Text="Skip content types:" FontSize="11"
-                                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                           Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                                 <WrapPanel>
                                                     <CheckBox Content="AI-generated" Margin="0,0,16,4"
                                                               IsChecked="{Binding SchedulesViewModel.FilterSkipAi, Mode=TwoWay}" FontSize="12"/>
@@ -1204,7 +1255,7 @@
                                                 </WrapPanel>
                                                 <StackPanel Spacing="4">
                                                     <TextBlock Text="Only download artworks posted:" FontSize="11"
-                                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                               Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                                     <ComboBox SelectedIndex="{Binding SchedulesViewModel.FilterDateLimitMode, Mode=TwoWay}"
                                                               CornerRadius="4" FontSize="12" HorizontalAlignment="Left" MinWidth="180">
                                                         <ComboBoxItem Content="All time"/>
@@ -1216,7 +1267,7 @@
                                                 </StackPanel>
                                                 <StackPanel Spacing="4">
                                                     <TextBlock Text="Max artworks per artist:" FontSize="11"
-                                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                               Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                                     <TextBox Text="{Binding SchedulesViewModel.FilterMaxArtworks, Mode=TwoWay}"
                                                              PlaceholderText="e.g. 10  (leave blank for all)"
                                                              CornerRadius="4" FontSize="12" HorizontalAlignment="Left" MinWidth="180"
@@ -1268,11 +1319,11 @@
                                     <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
                                         <Button Content="← Back to Schedules"
                                                 Command="{Binding SchedulesViewModel.CancelEditCommand}"
-                                                CornerRadius="6" Padding="12,8" FontSize="13"/>
+                                                  FontSize="13"/>
                                         <Button Content="{Binding SchedulesViewModel.AddButtonLabel}"
                                                 Command="{Binding SchedulesViewModel.AddScheduleCommand}"
                                                 Classes="accent"
-                                                CornerRadius="6" Padding="16,8" FontSize="13" FontWeight="SemiBold"/>
+                                                  FontSize="13" />
                                     </StackPanel>
 
                                 </StackPanel>

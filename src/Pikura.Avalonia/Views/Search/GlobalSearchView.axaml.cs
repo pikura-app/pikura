@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using Avalonia.Threading;
 using Avalonia.Input;
 using Avalonia.Input.Platform;
 using Avalonia.Interactivity;
@@ -30,6 +31,13 @@ public partial class GlobalSearchView : UserControl
         catch { }
 
         InitializeComponent();
+
+        // TextBox's own internal pointer handling (caret placement/selection) marks
+        // PointerPressed Handled during the tunnel pass, so a plain XAML-attached handler on it
+        // never actually fires — handledEventsToo:true is required to still see the click and
+        // reopen the search-history dropdown after light-dismiss has closed it.
+        SearchBox.AddHandler(PointerPressedEvent, OnSearchBoxPointerPressed,
+            RoutingStrategies.Tunnel | RoutingStrategies.Bubble, handledEventsToo: true);
 
         AttachedToVisualTree += (_, _) =>
         {
@@ -166,8 +174,41 @@ public partial class GlobalSearchView : UserControl
         if (e.Key == Key.Enter)
         {
             e.Handled = true;
+            SearchHistoryPopup.IsOpen = false;
             VM?.SearchCommand.Execute(null);
         }
+    }
+
+    // ── Search history dropdown ──────────────────────────────────────────────
+    private void OnSearchBoxGotFocus(object? sender, RoutedEventArgs e)
+    {
+        if (VM is { HasSearchHistory: true }) SearchHistoryPopup.IsOpen = true;
+    }
+
+    // Light-dismiss closes the popup on any outside click, but a click outside that lands on a
+    // non-focusable area (e.g. the artwork grid background) never moves focus away from the
+    // TextBox — so it stays focused and GotFocus never fires again to reopen the dropdown on the
+    // next click. Reopening on every press (not just focus changes) covers that case too.
+    private void OnSearchBoxPointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        if (VM is { HasSearchHistory: true } && !SearchHistoryPopup.IsOpen) SearchHistoryPopup.IsOpen = true;
+    }
+
+    private void OnSearchBoxLostFocus(object? sender, RoutedEventArgs e)
+    {
+        // Deferred so a click on a history row (which momentarily steals focus from the
+        // TextBox) doesn't close the popup before that click's own handler runs.
+        Dispatcher.UIThread.Post(() =>
+        {
+            if (!SearchBox.IsFocused) SearchHistoryPopup.IsOpen = false;
+        }, DispatcherPriority.Background);
+    }
+
+    private void OnHistoryEntryClicked(object? sender, PointerPressedEventArgs e)
+    {
+        if ((sender as Control)?.DataContext is not Pikura.Core.Settings.SearchHistoryEntry entry) return;
+        SearchHistoryPopup.IsOpen = false;
+        _ = VM?.ApplyHistoryEntryCommand.ExecuteAsync(entry);
     }
 
     private void OnCardClicked(object? sender, PointerPressedEventArgs e)
@@ -405,6 +446,38 @@ public partial class GlobalSearchView : UserControl
         var clipboard = TopLevel.GetTopLevel(this)?.Clipboard;
         if (clipboard == null) return;
         _ = clipboard.SetBitmapAsync(card.Thumbnail);
+    }
+
+    private void OnResetSearchClicked(object? sender, RoutedEventArgs e)
+    {
+        VM?.ResetSearchCommand.Execute(null);
+        // Avalonia doesn't always re-measure the empty-state ScrollViewer's extent after its
+        // content goes from 0 items to a full page of popular-tag chips in the same visibility
+        // toggle — confirmed by the fact that dragging the (unrelated) card-size slider "wakes
+        // it up" afterwards, since that triggers a real cascading layout invalidation elsewhere
+        // in the tree. Invalidating just the ScrollViewer wasn't enough; force the same kind of
+        // full top-down relayout by invalidating measure on the whole view.
+        Dispatcher.UIThread.Post(() =>
+        {
+            InvalidateMeasure();
+            EmptyStateScrollViewer.InvalidateMeasure();
+            EmptyStateScrollViewer.UpdateLayout();
+        }, DispatcherPriority.Loaded);
+    }
+
+    // ── Popular / related tag chips ──────────────────────────────────────────
+    // Using a Click handler here (rather than a Command binding) — the Command binding
+    // approach wasn't firing reliably for these chips.
+    private void OnTagChipClicked(object? sender, RoutedEventArgs e)
+    {
+        var tag = (sender as Button)?.DataContext switch
+        {
+            PopularTagInfo p => p.Tag,
+            string s => s,
+            _ => null,
+        };
+        if (string.IsNullOrWhiteSpace(tag)) return;
+        _ = VM?.SearchRelatedTagCommand.ExecuteAsync(tag);
     }
 
     private async void OnContextUseAsBackground(object? sender, RoutedEventArgs e)

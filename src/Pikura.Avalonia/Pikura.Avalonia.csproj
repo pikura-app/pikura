@@ -11,7 +11,7 @@
     <Product>Pikura</Product>
     <Company>mrplusultra</Company>
     <Copyright>© 2026 mrplusultra</Copyright>
-    <Version>2.0.0</Version>
+    <Version>2.1.0</Version>
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
     <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
   </PropertyGroup>

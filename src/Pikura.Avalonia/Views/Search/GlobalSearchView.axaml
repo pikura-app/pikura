@@ -6,6 +6,7 @@
              xmlns:services="using:Pikura.Avalonia.Services"
              xmlns:gallery="using:Pikura.Avalonia.Views.Gallery"
              xmlns:media="using:Avalonia.Media.Imaging"
+             xmlns:settings="using:Pikura.Core.Settings"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
@@ -44,11 +45,11 @@
 
         <!-- ══ Row 0: Title + search box + R-18 ══ -->
         <Border Grid.Row="0"
-                Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                Background="{DynamicResource Container1BackgroundBrush}"
+                BorderBrush="{DynamicResource Container1BorderBrush}"
                 BorderThickness="0,0,0,1" Padding="20,10"
                 Margin="0,32,0,0">
-            <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="Auto,*,Auto">
+            <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="Auto,*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
                     <TextBlock Text="Search" FontWeight="Bold" FontSize="20" VerticalAlignment="Center"/>
                     <ProgressBar IsIndeterminate="True" Width="70" Height="3"
@@ -57,12 +58,64 @@
 
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8"
                             HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="720">
-                    <TextBox Name="SearchBox" Text="{Binding SearchQuery, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                             PlaceholderText="Search all of Pixiv…"
-                             Width="360" CornerRadius="7" FontSize="12"
-                             KeyDown="OnSearchBoxKeyDown"/>
+                    <Panel>
+                        <TextBox Name="SearchBox" Text="{Binding SearchQuery, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                 PlaceholderText="Search all of Pixiv…"
+                                 Width="360" CornerRadius="7" FontSize="12"
+                                 KeyDown="OnSearchBoxKeyDown"
+                                 GotFocus="OnSearchBoxGotFocus" LostFocus="OnSearchBoxLostFocus"/>
+                        <!-- Search history dropdown — mirrors Pixiv's own "History" panel under the
+                             search box: past queries with the filters active at the time, an X per
+                             row to remove just that one, and "Clear history" for all of them. -->
+                        <Popup Name="SearchHistoryPopup" PlacementTarget="{Binding #SearchBox}"
+                               Placement="BottomEdgeAlignedLeft" IsLightDismissEnabled="True"
+                               Width="360" MaxHeight="360">
+                            <Border Background="{DynamicResource Container1BackgroundBrush}"
+                                    BorderBrush="{DynamicResource Container1BorderBrush}"
+                                    BorderThickness="1" CornerRadius="8" Margin="0,4,0,0"
+                                    BoxShadow="{DynamicResource DropdownShadow}">
+                                <StackPanel>
+                                    <Grid ColumnDefinitions="*,Auto" Margin="12,8">
+                                        <TextBlock Grid.Column="0" Text="History" FontWeight="SemiBold" FontSize="12"/>
+                                        <Button Grid.Column="1" Content="Clear history" FontSize="11"
+                                                Background="Transparent" BorderThickness="0" Padding="0"
+                                                Command="{Binding ClearSearchHistoryCommand}"/>
+                                    </Grid>
+                                    <ScrollViewer MaxHeight="300" VerticalScrollBarVisibility="Auto">
+                                        <ItemsControl ItemsSource="{Binding SearchHistory}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate x:DataType="settings:SearchHistoryEntry">
+                                                    <Grid ColumnDefinitions="*,Auto" Margin="12,6"
+                                                          Cursor="Hand" PointerPressed="OnHistoryEntryClicked">
+                                                        <StackPanel Grid.Column="0" Spacing="1">
+                                                            <TextBlock Text="{Binding Query}" FontSize="12"
+                                                                       TextTrimming="CharacterEllipsis"/>
+                                                            <TextBlock Text="{Binding FilterSummary}" FontSize="10"
+                                                                       Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
+                                                                       TextTrimming="CharacterEllipsis"/>
+                                                        </StackPanel>
+                                                        <Button Grid.Column="1" Content="✕" FontSize="11"
+                                                                Background="Transparent" BorderThickness="0" Padding="4"
+                                                                Command="{Binding $parent[UserControl].((vm:GlobalSearchViewModel)DataContext).RemoveHistoryEntryCommand}"
+                                                                CommandParameter="{Binding}"/>
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </ScrollViewer>
+                                    <TextBlock Text="No search history yet." FontSize="11" Margin="12,8"
+                                               IsVisible="{Binding !HasSearchHistory}"
+                                               Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
+                                </StackPanel>
+                            </Border>
+                        </Popup>
+                    </Panel>
                     <Button Content="Search" CornerRadius="6" Padding="12,6" FontSize="12"
                             Classes="accent" Command="{Binding SearchCommand}"/>
+                    <Button Content="✕ Reset" CornerRadius="6" Padding="10,6" FontSize="12"
+                            IsVisible="{Binding HasSearched}"
+                            Click="OnResetSearchClicked"
+                            ToolTip.Tip="Clear results and go back to the search start screen"/>
                     <ToggleButton IsChecked="{Binding ShowKeywordOptions, Mode=TwoWay}"
                                   Content="± Keywords" CornerRadius="6" Padding="10,6" FontSize="12"
                                   ToolTip.Tip="Show include/exclude keyword options"/>
@@ -75,8 +128,10 @@
                             <TextBlock Text="⚙ Options •" IsVisible="{Binding HasAdvancedFilters}"/>
                         </Panel>
                         <Button.Flyout>
-                            <Flyout Placement="BottomEdgeAlignedLeft" Opening="OnAdvancedFiltersOpening">
-                                <ScrollViewer MaxHeight="520">
+                            <Flyout Placement="BottomEdgeAlignedRight"
+                                    PlacementConstraintAdjustment="All"
+                                    Opening="OnAdvancedFiltersOpening">
+                                <ScrollViewer MaxHeight="420" VerticalScrollBarVisibility="Auto">
                                 <StackPanel Width="300" Spacing="10" Margin="4">
                                     <TextBlock Text="Search options" FontWeight="Bold" FontSize="13"/>
 
@@ -164,7 +219,7 @@
                                             <NumericUpDown Value="{Binding AdvancedFilterEdit.MaxBookmarks}" Grid.Column="2" FontSize="10" Minimum="0" FormatString="0"/>
                                         </Grid>
                                         <TextBlock Text="Pixiv Premium required" FontSize="9"
-                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                     </StackPanel>
 
                                     <Separator Margin="0,4"/>
@@ -191,7 +246,7 @@
                             IsVisible="{Binding ShowKeywordOptions}">
                     <StackPanel Orientation="Vertical" Spacing="2" Width="240">
                         <TextBlock Text="Include any of the keywords" FontSize="10"
-                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                         <TextBox Text="{Binding IncludeAnyKeywords, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                  PlaceholderText="e.g. cat, dog"
                                  FontSize="11" CornerRadius="6"
@@ -199,20 +254,43 @@
                     </StackPanel>
                     <StackPanel Orientation="Vertical" Spacing="2" Width="240">
                         <TextBlock Text="Exclude keywords" FontSize="10"
-                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                         <TextBox Text="{Binding ExcludeKeywords, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                  PlaceholderText="e.g. 3D, AI"
                                  FontSize="11" CornerRadius="6"
                                  KeyDown="OnSearchBoxKeyDown"/>
                     </StackPanel>
                 </StackPanel>
+
+                <!-- Related tags — comes straight from Pixiv's own search response for the
+                     current keyword, no extra API call needed. Clicking one pivots the search. -->
+                <ScrollViewer Grid.Row="2" Grid.Column="1" HorizontalScrollBarVisibility="Auto"
+                              VerticalScrollBarVisibility="Disabled" Margin="0,6,0,0"
+                              IsVisible="{Binding HasRelatedTags}">
+                    <StackPanel Orientation="Horizontal" Spacing="4" HorizontalAlignment="Center">
+                        <TextBlock Text="Related:" FontSize="11" VerticalAlignment="Center"
+                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
+                                   Margin="0,0,4,0"/>
+                        <ItemsControl ItemsSource="{Binding RelatedTags}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate><StackPanel Orientation="Horizontal" Spacing="4"/></ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="x:String">
+                                    <Button Content="{Binding}" FontSize="11" CornerRadius="10" Padding="10,3"
+                                            Cursor="Hand" Click="OnTagChipClicked"/>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </ScrollViewer>
             </Grid>
         </Border>
 
         <!-- ══ Row 1: Mode/Sort + view controls ══ -->
         <Border Grid.Row="1"
-                Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                Background="{DynamicResource Container1BackgroundBrush}"
+                BorderBrush="{DynamicResource Container1BorderBrush}"
                 BorderThickness="0,0,0,1" Padding="20,7">
             <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
             <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
@@ -228,7 +306,7 @@
                                   Content="User" Click="OnUsersCategoryClicked"/>
                 </StackPanel>
 
-                <Rectangle Width="1" Height="16" Fill="{actipro:ThemeResource Container1BorderBrush}"/>
+                <Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}"/>
 
                 <!-- Mode / Sort -->
                 <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center"
@@ -257,7 +335,7 @@
                     </ComboBox>
                 </StackPanel>
 
-                <Rectangle Width="1" Height="16" Fill="{actipro:ThemeResource Container1BorderBrush}"
+                <Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}"
                            IsVisible="{Binding !IsUsersCategory}"/>
 
                 <!-- View/size controls -->
@@ -266,33 +344,23 @@
                                   Command="{Binding SetGridViewCommand}">⊞ Grid</ToggleButton>
                     <ToggleButton IsChecked="{Binding IsListView}" CornerRadius="5" Padding="9,5" FontSize="11"
                                   Command="{Binding SetListViewCommand}">☰ List</ToggleButton>
-                    <Rectangle Width="1" Height="16" Fill="{actipro:ThemeResource Container1BorderBrush}" Margin="3,0"
+                    <Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}" Margin="3,0"
                                IsVisible="{Binding IsGridView}"/>
                     <ToggleButton IsChecked="{Binding IsFixedHeight}" CornerRadius="5" Padding="9,5" FontSize="11"
                                   Command="{Binding SetFixedHeightCommand}" IsVisible="{Binding IsGridView}">
-                        <ToggleButton.Styles>
-                            <Style Selector="ToggleButton:checked">
-                                <Setter Property="Background" Value="#3B82F6"/>
-                                <Setter Property="Foreground" Value="White"/>
-                            </Style>
-                        </ToggleButton.Styles>
+
                         Fixed
                     </ToggleButton>
                     <ToggleButton IsChecked="{Binding IsNaturalHeight}" CornerRadius="5" Padding="9,5" FontSize="11"
                                   Command="{Binding SetNaturalHeightCommand}" IsVisible="{Binding IsGridView}">
-                        <ToggleButton.Styles>
-                            <Style Selector="ToggleButton:checked">
-                                <Setter Property="Background" Value="#3B82F6"/>
-                                <Setter Property="Foreground" Value="White"/>
-                            </Style>
-                        </ToggleButton.Styles>
+
                         Natural
                     </ToggleButton>
-                    <Rectangle Width="1" Height="16" Fill="{actipro:ThemeResource Container1BorderBrush}" Margin="3,0"
+                    <Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}" Margin="3,0"
                                IsVisible="{Binding IsGridView}"/>
                     <Slider Value="{Binding CardSize}" Minimum="100" Maximum="320"
                             Width="90" VerticalAlignment="Center" IsVisible="{Binding IsGridView}"/>
-                    <Rectangle Width="1" Height="16" Fill="{actipro:ThemeResource Container1BorderBrush}" Margin="3,0"
+                    <Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}" Margin="3,0"
                                IsVisible="{Binding IsUsersCategory}"/>
                     <ToggleButton IsChecked="{Binding IsUsersCompactView}" CornerRadius="5" Padding="9,5" FontSize="11"
                                   Command="{Binding SetUsersCompactViewCommand}"
@@ -300,7 +368,7 @@
                     <ToggleButton IsChecked="{Binding IsUsersThumbnailView}" CornerRadius="5" Padding="9,5" FontSize="11"
                                   Command="{Binding SetUsersThumbnailViewCommand}"
                                   IsVisible="{Binding IsUsersCategory}">Thumbnails</ToggleButton>
-                    <Rectangle Width="1" Height="16" Fill="{actipro:ThemeResource Container1BorderBrush}" Margin="3,0"/>
+                    <Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}" Margin="3,0"/>
                     <ToggleButton IsChecked="{Binding ShowPreview}" CornerRadius="5" Padding="10,5" FontSize="11">
                         <StackPanel Orientation="Horizontal" Spacing="4">
                             <TextBlock Text="▣" FontSize="12"/>
@@ -310,6 +378,13 @@
                     </ToggleButton>
                     <ToggleButton IsChecked="{Binding ShowInfo}" CornerRadius="5" Padding="9,5" FontSize="11">Info</ToggleButton>
                     <ToggleButton IsChecked="{Binding ShowTags}" CornerRadius="5" Padding="9,5" FontSize="11">Tags</ToggleButton>
+                    <ToggleButton IsChecked="{Binding ShowBadges}" CornerRadius="5" Padding="9,5" FontSize="11"
+                                  ToolTip.Tip="Show/hide liked/bookmarked/favorite badges on cards">
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                            <PathIcon Data="{StaticResource HeartFilledIcon}" Width="12" Height="12" VerticalAlignment="Center" Foreground="{DynamicResource HeartBadgeIconBrush}" />
+                            <TextBlock Text="Badges" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </ToggleButton>
                 </StackPanel>
 
             </StackPanel>
@@ -318,8 +393,8 @@
 
         <!-- ══ Row 2: Action buttons (artwork downloads only) ══ -->
         <Border Grid.Row="2"
-                Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                Background="{DynamicResource Container1BackgroundBrush}"
+                BorderBrush="{DynamicResource Container1BorderBrush}"
                 BorderThickness="0,0,0,1" Padding="20,6"
                 IsVisible="{Binding IsArtworksCategory}">
             <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
@@ -331,6 +406,24 @@
                     <StackPanel Orientation="Horizontal" Spacing="5">
                         <TextBlock Text="↓" FontSize="12"/>
                         <TextBlock Text="{Binding SelectedCount, StringFormat='Download Selected ({0})'}"/>
+                    </StackPanel>
+                </Button>
+                <Button CornerRadius="6" Padding="12,6" FontSize="11"
+                        Command="{Binding ViewSelectedAsCollageCommand}"
+                        IsVisible="{Binding CanViewSelectedAsCollage}"
+                        ToolTip.Tip="Show the selected artworks tiled together in the side panel (up to 10)">
+                    <StackPanel Orientation="Horizontal" Spacing="5">
+                        <TextBlock Text="⊞" FontSize="12"/>
+                        <TextBlock Text="Collage" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+                <Button CornerRadius="6" Padding="12,6" FontSize="11"
+                        Command="{Binding ViewSelectedInNewTabsCommand}"
+                        IsVisible="{Binding CanViewSelectedInNewTabs}"
+                        ToolTip.Tip="Open each selected artwork in its own tab">
+                    <StackPanel Orientation="Horizontal" Spacing="5">
+                        <PathIcon Data="{StaticResource NewIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
+                        <TextBlock Text="View in New Tabs" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
                 <Button CornerRadius="6" Padding="12,6" FontSize="11"
@@ -356,7 +449,7 @@
 
         <!-- ══ Row 3: Results area ══ -->
         <Border Grid.Row="3"
-                Background="{actipro:ThemeResource Container3BackgroundBrush}"
+                Background="{DynamicResource Container3BackgroundBrush}"
                 Margin="0">
             <Grid Name="ContentGrid">
                 <Grid.ColumnDefinitions>
@@ -366,14 +459,14 @@
                 </Grid.ColumnDefinitions>
 
                 <GridSplitter Grid.Column="1" Width="4"
-                              Background="{actipro:ThemeResource Container1BorderBrush}"
+                              Background="{DynamicResource Container1BorderBrush}"
                               IsVisible="{Binding ShowPreview}"
                               ResizeBehavior="PreviousAndNext" ResizeDirection="Columns"
                               DragCompleted="OnSplitterDragCompleted"/>
 
                 <Border Grid.Column="2"
-                        Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                        BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                        Background="{DynamicResource Container1BackgroundBrush}"
+                        BorderBrush="{DynamicResource Container1BorderBrush}"
                         BorderThickness="1,0,0,0"
                         IsVisible="{Binding ShowPreview}">
                     <gallery:InlineArtworkViewer Name="SearchInlineViewer"
@@ -383,26 +476,77 @@
                 </Border>
 
                 <Panel Grid.Column="0" IsVisible="{Binding IsArtworksCategory}">
-                    <!-- Empty / loading hint -->
-                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="8"
-                                IsVisible="{Binding !HasResults}">
+                    <!-- Empty / loading hint. Wrapped in a ScrollViewer (rather than just
+                         VerticalAlignment="Center" in the bare Panel) — with a full row of
+                         popular-tag thumbnail chips this content easily exceeds the viewport
+                         height, and centering an over-tall block with no scroll container just
+                         pushes its top/bottom off-screen instead of showing a scrollbar. -->
+                    <ScrollViewer Name="EmptyStateScrollViewer" VerticalScrollBarVisibility="Auto" IsVisible="{Binding !HasResults}">
+                    <StackPanel HorizontalAlignment="Center" Spacing="12"
+                                Margin="0,40,0,40" MaxWidth="720">
                         <TextBlock Text="🔍 Search all of Pixiv" FontSize="15"
                                    IsVisible="{Binding !HasSearched}"
-                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                    HorizontalAlignment="Center"/>
                         <TextBlock Text="{Binding StatusMessage}"
                                    IsVisible="{Binding HasSearched}"
-                                   FontSize="13" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                   FontSize="13" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                    HorizontalAlignment="Center" TextWrapping="Wrap" MaxWidth="400"/>
+                        <!-- Popular tags — a proxy for "trending right now" built from whatever's
+                             currently loaded in Rankings (see GlobalSearchViewModel.PopularTags for
+                             why there's no direct "global trending tags" endpoint to call instead).
+                             Click a tag to search it directly. -->
+                        <StackPanel Spacing="6" IsVisible="{Binding !HasSearched}">
+                            <TextBlock Text="Popular tags right now" FontSize="12" FontWeight="SemiBold"
+                                       IsVisible="{Binding HasPopularTags}"
+                                       Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
+                                       HorizontalAlignment="Center"/>
+                            <ItemsControl ItemsSource="{Binding PopularTags}" HorizontalAlignment="Center">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate><WrapPanel HorizontalAlignment="Center"/></ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:PopularTagInfo">
+                                        <Button CornerRadius="12" Padding="8" Margin="5" Cursor="Hand"
+                                                Click="OnTagChipClicked">
+                                            <StackPanel Spacing="6" Width="150">
+                                                <Border Width="140" Height="140" CornerRadius="10" ClipToBounds="True"
+                                                        Background="{DynamicResource Container2BackgroundBrush}"
+                                                        HorizontalAlignment="Center">
+                                                    <Image Source="{Binding Thumbnail}" Stretch="UniformToFill"/>
+                                                </Border>
+                                                <TextBlock Text="{Binding Tag}" FontSize="12" TextWrapping="Wrap"
+                                                           TextAlignment="Center" MaxLines="2"
+                                                           TextTrimming="CharacterEllipsis"/>
+                                            </StackPanel>
+                                        </Button>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <TextBlock Text="Visit Rankings once to populate this with what's actually trending."
+                                       FontSize="10" IsVisible="{Binding !HasPopularTags}"
+                                       Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
+                                       HorizontalAlignment="Center" TextWrapping="Wrap"/>
+                        </StackPanel>
                     </StackPanel>
+                    </ScrollViewer>
 
-                    <!-- GRID view -->
+                    <!-- GRID view. IsHitTestVisible is tied to HasResults — even with no items,
+                         an IsVisible="True" ScrollViewer still occupies the full Panel area and
+                         (since it's declared after, thus on top in z-order) swallows clicks meant
+                         for the "Empty / loading hint" content underneath, e.g. the popular-tags
+                         chips before a search has run. -->
                     <ScrollViewer Name="GridScrollViewer"
                                   HorizontalScrollBarVisibility="Disabled"
                                   VerticalScrollBarVisibility="Auto"
                                   AllowAutoHide="False"
-                                  IsVisible="{Binding IsGridView}"
                                   ScrollChanged="OnScrollChanged">
+                        <ScrollViewer.IsVisible>
+                            <MultiBinding Converter="{x:Static BoolConverters.And}">
+                                <Binding Path="IsGridView"/>
+                                <Binding Path="HasResults"/>
+                            </MultiBinding>
+                        </ScrollViewer.IsVisible>
                         <ItemsControl ItemsSource="{Binding DisplayResults}" Margin="10,10,4,10">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
@@ -416,16 +560,16 @@
                                         <Border Margin="0,0,6,6"
                                                 Width="{Binding $parent[UserControl].((vm:GlobalSearchViewModel)DataContext).CardSize}"
                                                 IsVisible="{Binding $parent[UserControl].((vm:GlobalSearchViewModel)DataContext).ShowFixedGrid}"
-                                                Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                                                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                                                Background="{DynamicResource Container1BackgroundBrush}"
+                                                BorderBrush="{DynamicResource Container1BorderBrush}"
                                                 BorderThickness="1" CornerRadius="8"
-                                                BoxShadow="0 1 4 0 #28000000" Cursor="Hand"
+                                                BoxShadow="{DynamicResource CardShadow}" Cursor="Hand"
                                                 PointerPressed="OnCardClicked"
                                                 ContextMenu="{StaticResource SearchCardContextMenu}">
                                             <Border.Styles>
                                                 <Style Selector="Border:pointerover">
-                                                    <Setter Property="BoxShadow" Value="0 6 20 0 #55000000"/>
-                                                    <Setter Property="BorderBrush" Value="{actipro:ThemeResource ControlBackgroundBrushSolidAccent}"/>
+                                                    <Setter Property="BoxShadow" Value="{DynamicResource CardShadowHover}"/>
+                                                    <Setter Property="BorderBrush" Value="{DynamicResource ControlBackgroundBrushSolidAccent}"/>
                                                 </Style>
                                             </Border.Styles>
                                             <Grid RowDefinitions="*,Auto">
@@ -433,7 +577,7 @@
                                                         Height="{Binding $parent[UserControl].((vm:GlobalSearchViewModel)DataContext).FixedCardTotalHeight}"
                                                         CornerRadius="7,7,0,0" ClipToBounds="True">
                                                     <Panel>
-                                                        <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
+                                                        <Border Background="{DynamicResource Container2BackgroundBrush}"
                                                                 IsVisible="{Binding Thumbnail, Converter={x:Static ObjectConverters.IsNull}}"/>
                                                         <Image Source="{Binding Thumbnail}" Stretch="UniformToFill">
                                                             <Image.Effect>
@@ -453,6 +597,31 @@
                                                             Background="#BB000000" IsVisible="{Binding IsMultiPage}">
                                                         <TextBlock Text="{Binding PageCount, StringFormat='1/{0}'}" FontSize="9" Foreground="White"/>
                                                     </Border>
+                                                    <Panel IsVisible="{Binding $parent[UserControl].((vm:GlobalSearchViewModel)DataContext).ShowBadges}">
+                                                        <Border VerticalAlignment="Bottom" HorizontalAlignment="Right"
+                                                                Padding="5,3" CornerRadius="4" Background="#CC8B5CF6" IsVisible="{Binding IsLocalFavorite}">
+                                                            <Border.Margin>
+                                                                <MultiBinding Converter="{x:Static conv:BadgeStackMarginConverter.Instance}">
+                                                                    <Binding Path="IsPixivBookmarked"/>
+                                                                    <Binding Path="IsLiked"/>
+                                                                </MultiBinding>
+                                                            </Border.Margin>
+                                                            <PathIcon Data="{StaticResource StarIcon}" Width="9" Height="9" Foreground="White"/>
+                                                        </Border>
+                                                        <Border VerticalAlignment="Bottom" HorizontalAlignment="Right"
+                                                                Padding="5,3" CornerRadius="4" Background="#CC2563EB" IsVisible="{Binding IsPixivBookmarked}">
+                                                            <Border.Margin>
+                                                                <MultiBinding Converter="{x:Static conv:BadgeStackMarginConverter.Instance}">
+                                                                    <Binding Path="IsLiked"/>
+                                                                </MultiBinding>
+                                                            </Border.Margin>
+                                                            <PathIcon Data="{StaticResource BookmarkFilledIcon}" Width="9" Height="9" Foreground="White"/>
+                                                        </Border>
+                                                        <Border VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,6,6"
+                                                                Padding="5,3" CornerRadius="4" Background="#CCDB2777" IsVisible="{Binding IsLiked}">
+                                                            <PathIcon Data="{StaticResource HeartFilledIcon}" Width="9" Height="9" Foreground="White"/>
+                                                        </Border>
+                                                    </Panel>
                                                 </Panel>
                                                 <CheckBox Grid.Row="0" ZIndex="6"
                                                           IsChecked="{Binding IsSelected}"
@@ -464,7 +633,7 @@
                                                     <TextBlock Text="{Binding Title}" FontSize="11" FontWeight="SemiBold"
                                                                TextTrimming="CharacterEllipsis" MaxLines="1"/>
                                                     <TextBlock Text="{Binding UserName}" FontSize="10"
-                                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                                               Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                                                TextTrimming="CharacterEllipsis" MaxLines="1"/>
                                                     <ItemsControl ItemsSource="{Binding TopTags}" Margin="0,1,0,0"
                                                                   IsVisible="{Binding $parent[UserControl].((vm:GlobalSearchViewModel)DataContext).ShowTags}">
@@ -474,9 +643,9 @@
                                                         <ItemsControl.ItemTemplate>
                                                             <DataTemplate x:DataType="x:String">
                                                                 <Border Margin="0,1,3,1" Padding="5,2" CornerRadius="3"
-                                                                        Background="{actipro:ThemeResource Container2BackgroundBrush}">
+                                                                        Background="{DynamicResource Container2BackgroundBrush}">
                                                                     <TextBlock Text="{Binding}" FontSize="10"
-                                                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                                               Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                                                 </Border>
                                                             </DataTemplate>
                                                         </ItemsControl.ItemTemplate>
@@ -489,22 +658,22 @@
                                         <Border Margin="0,0,6,6"
                                                 Width="{Binding $parent[UserControl].((vm:GlobalSearchViewModel)DataContext).CardSize}"
                                                 IsVisible="{Binding $parent[UserControl].((vm:GlobalSearchViewModel)DataContext).ShowNaturalGrid}"
-                                                Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                                                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                                                Background="{DynamicResource Container1BackgroundBrush}"
+                                                BorderBrush="{DynamicResource Container1BorderBrush}"
                                                 BorderThickness="1" CornerRadius="8"
-                                                BoxShadow="0 1 4 0 #28000000" Cursor="Hand"
+                                                BoxShadow="{DynamicResource CardShadow}" Cursor="Hand"
                                                 PointerPressed="OnCardClicked"
                                                 ContextMenu="{StaticResource SearchCardContextMenu}">
                                             <Border.Styles>
                                                 <Style Selector="Border:pointerover">
-                                                    <Setter Property="BoxShadow" Value="0 6 20 0 #55000000"/>
-                                                    <Setter Property="BorderBrush" Value="{actipro:ThemeResource ControlBackgroundBrushSolidAccent}"/>
+                                                    <Setter Property="BoxShadow" Value="{DynamicResource CardShadowHover}"/>
+                                                    <Setter Property="BorderBrush" Value="{DynamicResource ControlBackgroundBrushSolidAccent}"/>
                                                 </Style>
                                             </Border.Styles>
                                             <Grid RowDefinitions="*,Auto">
                                                 <Border Grid.Row="0" CornerRadius="7,7,0,0" ClipToBounds="True">
                                                     <Panel>
-                                                        <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
+                                                        <Border Background="{DynamicResource Container2BackgroundBrush}"
                                                                 IsVisible="{Binding Thumbnail, Converter={x:Static ObjectConverters.IsNull}}"/>
                                                         <Image Source="{Binding Thumbnail}" Stretch="UniformToFill">
                                                             <Image.Height>
@@ -531,6 +700,31 @@
                                                             Background="#CCDC2626" IsVisible="{Binding IsR18}">
                                                         <TextBlock Text="R-18" FontSize="8" Foreground="White" FontWeight="Bold"/>
                                                     </Border>
+                                                    <Panel IsVisible="{Binding $parent[UserControl].((vm:GlobalSearchViewModel)DataContext).ShowBadges}">
+                                                        <Border VerticalAlignment="Bottom" HorizontalAlignment="Right"
+                                                                Padding="5,3" CornerRadius="4" Background="#CC8B5CF6" IsVisible="{Binding IsLocalFavorite}">
+                                                            <Border.Margin>
+                                                                <MultiBinding Converter="{x:Static conv:BadgeStackMarginConverter.Instance}">
+                                                                    <Binding Path="IsPixivBookmarked"/>
+                                                                    <Binding Path="IsLiked"/>
+                                                                </MultiBinding>
+                                                            </Border.Margin>
+                                                            <PathIcon Data="{StaticResource StarIcon}" Width="9" Height="9" Foreground="White"/>
+                                                        </Border>
+                                                        <Border VerticalAlignment="Bottom" HorizontalAlignment="Right"
+                                                                Padding="5,3" CornerRadius="4" Background="#CC2563EB" IsVisible="{Binding IsPixivBookmarked}">
+                                                            <Border.Margin>
+                                                                <MultiBinding Converter="{x:Static conv:BadgeStackMarginConverter.Instance}">
+                                                                    <Binding Path="IsLiked"/>
+                                                                </MultiBinding>
+                                                            </Border.Margin>
+                                                            <PathIcon Data="{StaticResource BookmarkFilledIcon}" Width="9" Height="9" Foreground="White"/>
+                                                        </Border>
+                                                        <Border VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,6,6"
+                                                                Padding="5,3" CornerRadius="4" Background="#CCDB2777" IsVisible="{Binding IsLiked}">
+                                                            <PathIcon Data="{StaticResource HeartFilledIcon}" Width="9" Height="9" Foreground="White"/>
+                                                        </Border>
+                                                    </Panel>
                                                 </Panel>
                                                 <CheckBox Grid.Row="0" ZIndex="6"
                                                           IsChecked="{Binding IsSelected}"
@@ -542,7 +736,7 @@
                                                     <TextBlock Text="{Binding Title}" FontSize="11" FontWeight="SemiBold"
                                                                TextTrimming="CharacterEllipsis" MaxLines="1"/>
                                                     <TextBlock Text="{Binding UserName}" FontSize="10"
-                                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                                               Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                                                TextTrimming="CharacterEllipsis" MaxLines="1"/>
                                                 </StackPanel>
                                             </Grid>
@@ -558,16 +752,21 @@
                                   HorizontalScrollBarVisibility="Disabled"
                                   VerticalScrollBarVisibility="Auto"
                                   AllowAutoHide="False"
-                                  IsVisible="{Binding IsListView}"
                                   ScrollChanged="OnScrollChanged">
+                        <ScrollViewer.IsVisible>
+                            <MultiBinding Converter="{x:Static BoolConverters.And}">
+                                <Binding Path="IsListView"/>
+                                <Binding Path="HasResults"/>
+                            </MultiBinding>
+                        </ScrollViewer.IsVisible>
                         <ItemsControl ItemsSource="{Binding DisplayResults}" Margin="8">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate x:DataType="vm:ArtworkCardViewModel">
                                     <Border Margin="0,0,0,4"
-                                            Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                                            BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                                            Background="{DynamicResource Container1BackgroundBrush}"
+                                            BorderBrush="{DynamicResource Container1BorderBrush}"
                                             BorderThickness="1" CornerRadius="6"
-                                            BoxShadow="0 1 3 0 #20000000" Cursor="Hand"
+                                            BoxShadow="{DynamicResource CardShadow}" Cursor="Hand"
                                             PointerPressed="OnCardClicked"
                                             ContextMenu="{StaticResource SearchCardContextMenu}">
                                         <Grid ColumnDefinitions="Auto,*,Auto" Margin="6,4">
@@ -578,10 +777,10 @@
                                                 <TextBlock Text="{Binding Title}" FontSize="12" FontWeight="SemiBold"
                                                            TextTrimming="CharacterEllipsis" MaxLines="1"/>
                                                 <TextBlock Text="{Binding UserName}" FontSize="10"
-                                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                           Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                             </StackPanel>
                                             <TextBlock Grid.Column="2" Text="{Binding DateLabel}" FontSize="10"
-                                                       Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                                       Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                                        VerticalAlignment="Center" Margin="12,0"/>
                                         </Grid>
                                     </Border>
@@ -599,7 +798,7 @@
                         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="8"
                                     IsVisible="{Binding !HasNovelResults}" Margin="0,60,0,0">
                             <TextBlock Text="{Binding StatusMessage}"
-                                       FontSize="13" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                       FontSize="13" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                        HorizontalAlignment="Center" TextWrapping="Wrap" MaxWidth="400"/>
                         </StackPanel>
                         <ItemsControl ItemsSource="{Binding NovelResults}" Margin="14">
@@ -609,13 +808,13 @@
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate x:DataType="vm:NovelCardViewModel">
                                     <Border Width="220" Margin="0,0,10,10"
-                                            Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                                            BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                                            Background="{DynamicResource Container1BackgroundBrush}"
+                                            BorderBrush="{DynamicResource Container1BorderBrush}"
                                             BorderThickness="1" CornerRadius="8" ClipToBounds="True" Cursor="Hand"
                                             PointerPressed="OnNovelCardClicked">
                                         <StackPanel>
                                             <Panel Height="150">
-                                                <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
+                                                <Border Background="{DynamicResource Container2BackgroundBrush}"
                                                         IsVisible="{Binding Thumbnail, Converter={x:Static ObjectConverters.IsNull}}"/>
                                                 <Image Source="{Binding Thumbnail}" Stretch="UniformToFill"/>
                                                 <Border VerticalAlignment="Top" HorizontalAlignment="Right"
@@ -628,7 +827,7 @@
                                                 <TextBlock Text="{Binding Title}" FontSize="12" FontWeight="SemiBold"
                                                            TextWrapping="Wrap" MaxLines="2"/>
                                                 <TextBlock Text="{Binding UserName}" FontSize="10"
-                                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                                           Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                                            TextTrimming="CharacterEllipsis" MaxLines="1"/>
                                                 <ItemsControl ItemsSource="{Binding Tags}" IsVisible="{Binding HasTags}">
                                                     <ItemsControl.ItemsPanel>
@@ -637,9 +836,9 @@
                                                     <ItemsControl.ItemTemplate>
                                                         <DataTemplate x:DataType="x:String">
                                                             <Border Margin="0,0,3,3" Padding="5,2" CornerRadius="3"
-                                                                    Background="{actipro:ThemeResource Container2BackgroundBrush}">
+                                                                    Background="{DynamicResource Container2BackgroundBrush}">
                                                                 <TextBlock Text="{Binding}" FontSize="9"
-                                                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                                           Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                                             </Border>
                                                         </DataTemplate>
                                                     </ItemsControl.ItemTemplate>
@@ -661,7 +860,7 @@
                         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="8"
                                     IsVisible="{Binding !HasUserResults}" Margin="0,60,0,0">
                             <TextBlock Text="{Binding StatusMessage}"
-                                       FontSize="13" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                       FontSize="13" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                        HorizontalAlignment="Center" TextWrapping="Wrap" MaxWidth="400"/>
                         </StackPanel>
                         <ItemsControl ItemsSource="{Binding UserResults}" Margin="14">
@@ -672,15 +871,15 @@
                                 <DataTemplate x:DataType="vm:UserSearchCardViewModel">
                                     <Panel Width="220" Margin="0,0,10,10">
                                         <!-- Compact view -->
-                                        <Border Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                                                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                                        <Border Background="{DynamicResource Container1BackgroundBrush}"
+                                                BorderBrush="{DynamicResource Container1BorderBrush}"
                                                 BorderThickness="1" CornerRadius="8" Cursor="Hand"
                                                 PointerPressed="OnUserCardClicked"
                                                 IsVisible="{Binding $parent[UserControl].((vm:GlobalSearchViewModel)DataContext).IsUsersCompactView}">
                                             <StackPanel Margin="12" Spacing="8" HorizontalAlignment="Center">
                                                 <Border Width="64" Height="64" CornerRadius="32" ClipToBounds="True">
                                                     <Panel>
-                                                        <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
+                                                        <Border Background="{DynamicResource Container2BackgroundBrush}"
                                                                 IsVisible="{Binding Avatar, Converter={x:Static ObjectConverters.IsNull}}"/>
                                                         <Image Source="{Binding Avatar}" Stretch="UniformToFill"/>
                                                     </Panel>
@@ -690,16 +889,16 @@
                                                            HorizontalAlignment="Center"/>
                                                 <TextBlock Text="{Binding RecentWorkCount, StringFormat='{}{0} recent work(s)'}"
                                                            FontSize="10" IsVisible="{Binding HasRecentWorks}"
-                                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                                           Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                                            HorizontalAlignment="Center"/>
                                                 <TextBlock Text="Open Gallery →" FontSize="10" HorizontalAlignment="Center"
-                                                           Foreground="{actipro:ThemeResource ControlBackgroundBrushSolidAccent}"/>
+                                                           Foreground="{DynamicResource ControlBackgroundBrushSolidAccent}"/>
                                             </StackPanel>
                                         </Border>
 
                                         <!-- Thumbnail-grid view: avatar + up to 4 recent thumbnails -->
-                                        <Border Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                                                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                                        <Border Background="{DynamicResource Container1BackgroundBrush}"
+                                                BorderBrush="{DynamicResource Container1BorderBrush}"
                                                 BorderThickness="1" CornerRadius="8" Cursor="Hand"
                                                 PointerPressed="OnUserCardClicked"
                                                 IsVisible="{Binding $parent[UserControl].((vm:GlobalSearchViewModel)DataContext).IsUsersThumbnailView}">
@@ -707,7 +906,7 @@
                                                 <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="8" Margin="0,0,0,8">
                                                     <Border Width="36" Height="36" CornerRadius="18" ClipToBounds="True">
                                                         <Panel>
-                                                            <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
+                                                            <Border Background="{DynamicResource Container2BackgroundBrush}"
                                                                     IsVisible="{Binding Avatar, Converter={x:Static ObjectConverters.IsNull}}"/>
                                                             <Image Source="{Binding Avatar}" Stretch="UniformToFill"/>
                                                         </Panel>
@@ -716,7 +915,7 @@
                                                                TextTrimming="CharacterEllipsis" MaxLines="1"
                                                                VerticalAlignment="Center" Width="140"/>
                                                 </StackPanel>
-                                                <Border Grid.Row="1" Background="{actipro:ThemeResource Container2BackgroundBrush}"
+                                                <Border Grid.Row="1" Background="{DynamicResource Container2BackgroundBrush}"
                                                         CornerRadius="6" ClipToBounds="True">
                                                     <ItemsControl ItemsSource="{Binding RecentThumbnails}">
                                                         <ItemsControl.ItemsPanel>
@@ -744,12 +943,12 @@
 
         <!-- ══ Row 4: Status bar ══ -->
         <Border Grid.Row="4"
-                Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                Background="{DynamicResource Container1BackgroundBrush}"
+                BorderBrush="{DynamicResource Container1BorderBrush}"
                 BorderThickness="0,1,0,0" Padding="14,8">
             <Grid ColumnDefinitions="*,Auto">
                 <TextBlock Grid.Column="0" FontSize="11"
-                           Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                           Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                            Text="{Binding StatusMessage}" VerticalAlignment="Center"/>
 
                 <!-- Autoload (scroll)/Load More vs. Pages toggle — mirrors Rankings/Pixivision's "Pages"

@@ -17,8 +17,8 @@
     <Grid ColumnDefinitions="350,*,300">
         <!-- LEFT: Preset Selection -->
         <Border Grid.Column="0"
-                Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                Background="{DynamicResource Container2BackgroundBrush}"
+                BorderBrush="{DynamicResource Container2BorderBrush}"
                 BorderThickness="0,0,1,0"
                 Padding="16">
             <Grid RowDefinitions="Auto,Auto,*,Auto,Auto" RowSpacing="12">
@@ -36,8 +36,8 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate x:DataType="dialogs:DownloadPresetWindow+PresetViewModel">
                                 <Border x:Name="PresetItem"
-                                        Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                                        BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                                        Background="{DynamicResource Container2BackgroundBrush}"
+                                        BorderBrush="{DynamicResource Container2BorderBrush}"
                                         BorderThickness="1"
                                         CornerRadius="8"
                                         Padding="12"
@@ -49,10 +49,10 @@
                                             <TextBlock Text="{Binding Preset.Name}" FontWeight="SemiBold" FontSize="14"/>
                                             <TextBlock Text="{Binding Preset.DevicePreset}"
                                                        FontSize="11"
-                                                       Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                       Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                             <TextBlock Text="{Binding Preset.Adjustments.HasAdjustments, StringFormat='Adjustments: {0}'}"
                                                        FontSize="10"
-                                                       Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                       Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                         </StackPanel>
                                         <RadioButton Grid.Column="1"
                                                      IsChecked="{Binding IsSelected, Mode=TwoWay}"
@@ -69,22 +69,12 @@
                 <!-- Orientation Toggle -->
                 <StackPanel Grid.Row="3" Orientation="Horizontal" Spacing="8">
                     <TextBlock Text="Orientation:" VerticalAlignment="Center"/>
-                    <ToggleButton x:Name="PortraitToggle"
-                                  Content="Portrait"
-                                  IsCheckedChanged="OnOrientationChanged"/>
-                    <ToggleButton x:Name="LandscapeToggle"
-                                  Content="Landscape"
-                                  IsChecked="True"
-                                  IsCheckedChanged="OnOrientationChanged"/>
+                    <ToggleButton x:Name="PortraitToggle" Content="Portrait" IsCheckedChanged="OnOrientationChanged"/>
+                    <ToggleButton x:Name="LandscapeToggle" Content="Landscape" IsChecked="True" IsCheckedChanged="OnOrientationChanged"/>
                 </StackPanel>
 
                 <!-- Custom Button -->
-                <Button Grid.Row="4"
-                        x:Name="CustomPresetButton"
-                        Content="✏️ Custom Edit..."
-                        HorizontalAlignment="Stretch"
-                        Classes="accent"
-                        Click="OnCustomEditClick"/>
+                <Button x:Name="CustomPresetButton" Content="✏️ Custom Edit..." HorizontalAlignment="Stretch" Classes="accent" Click="OnCustomEditClick"/>
             </Grid>
         </Border>
 
@@ -92,8 +82,8 @@
         <Grid Grid.Column="1" RowDefinitions="Auto,*,Auto">
             <!-- Selected Images Header -->
             <Border Grid.Row="0"
-                    Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                    BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                    Background="{DynamicResource Container2BackgroundBrush}"
+                    BorderBrush="{DynamicResource Container2BorderBrush}"
                     BorderThickness="0,0,0,1"
                     Padding="16">
                 <Grid ColumnDefinitions="*,Auto">
@@ -102,23 +92,20 @@
                         <TextBlock x:Name="SubmissionInfoText"
                                    Text="Submission 1 of 1"
                                    FontSize="12"
-                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                    IsVisible="False"/>
                         <TextBlock x:Name="MultiPageInfoText"
                                    Text="5 total pages across 2 submissions"
                                    FontSize="12"
-                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                    IsVisible="False"/>
                     </StackPanel>
                     <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
-                        <Button x:Name="PrevImageButton"
-                                Content="◀"
-                                Click="OnPrevImageClick"
-                                IsEnabled="False"/>
+                        <Button x:Name="PrevImageButton" Content="◀" Click="OnPrevImageClick" IsEnabled="False"/>
                         <!-- Submission indicator (shows X/Y for multi-selection) -->
                         <Border x:Name="SubmissionNumberBorder"
-                                Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                                BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                                Background="{DynamicResource Container2BackgroundBrush}"
+                                BorderBrush="{DynamicResource Container2BorderBrush}"
                                 BorderThickness="1"
                                 CornerRadius="4"
                                 Padding="8,4">
@@ -132,17 +119,14 @@
                                 IsVisible="False">
                             <TextBlock x:Name="PageNumberText" Text="Pg 1/3" VerticalAlignment="Center" FontSize="12" FontWeight="SemiBold" Foreground="White"/>
                         </Border>
-                        <Button x:Name="NextImageButton"
-                                Content="▶"
-                                Click="OnNextImageClick"
-                                IsEnabled="False"/>
+                        <Button x:Name="NextImageButton" Content="▶" Click="OnNextImageClick" IsEnabled="False"/>
                     </StackPanel>
                 </Grid>
             </Border>
 
             <!-- Image Canvas -->
             <Border Grid.Row="1"
-                    Background="{actipro:ThemeResource Container3BackgroundBrush}"
+                    Background="{DynamicResource Container3BackgroundBrush}"
                     Margin="16">
                 <Grid>
                     <!-- Loading Spinner -->
@@ -232,14 +216,14 @@
                                Text="Select an image to preview"
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"
-                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                               Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                 </Grid>
             </Border>
 
             <!-- Preview Controls -->
             <Border Grid.Row="2"
-                    Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                    BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                    Background="{DynamicResource Container2BackgroundBrush}"
+                    BorderBrush="{DynamicResource Container2BorderBrush}"
                     BorderThickness="0,1,0,0"
                     Padding="16">
                 <StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Center">
@@ -255,17 +239,15 @@
                               Content="Show Crop"
                               IsChecked="False"
                               IsCheckedChanged="OnShowCropChanged"/>
-                    <Button x:Name="ResetPreviewButton"
-                            Content="🔄 Reset"
-                            Click="OnResetPreviewClick"/>
+                    <Button x:Name="ResetPreviewButton" Content="🔄 Reset" Click="OnResetPreviewClick"/>
                 </StackPanel>
             </Border>
         </Grid>
 
         <!-- RIGHT: Output Options & Actions -->
         <Border Grid.Column="2"
-                Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                Background="{DynamicResource Container2BackgroundBrush}"
+                BorderBrush="{DynamicResource Container2BorderBrush}"
                 BorderThickness="1,0,0,0"
                 Padding="16">
             <Grid RowDefinitions="Auto,*,Auto,Auto,Auto" RowSpacing="16">
@@ -314,7 +296,7 @@
                         <StackPanel x:Name="UgoiraFormatPanel" Spacing="4" IsVisible="False">
                             <TextBlock Text="Animation Output Formats" FontWeight="SemiBold"/>
                             <TextBlock Text="Select which formats to create for animated ugoira:"
-                                       FontSize="12" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                       FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                             <WrapPanel>
                                 <CheckBox x:Name="UgoiraMp4Check" Content="MP4 (Recommended)" IsChecked="True"
                                           FontSize="13" Margin="0,4,16,4"/>
@@ -349,8 +331,8 @@
                                       IsChecked="False"
                                       IsCheckedChanged="OnBatchModeChanged"/>
                             <Border x:Name="BatchSubmissionsBorder"
-                                    Background="{actipro:ThemeResource Container3BackgroundBrush}"
-                                    BorderBrush="{actipro:ThemeResource Container3BorderBrush}"
+                                    Background="{DynamicResource Container3BackgroundBrush}"
+                                    BorderBrush="{DynamicResource Container3BorderBrush}"
                                     BorderThickness="1"
                                     CornerRadius="6"
                                     Padding="8"
@@ -373,10 +355,7 @@
                                      PlaceholderText="Select folder..."
                                      IsReadOnly="True"
                                      IsVisible="False"/>
-                            <Button x:Name="BrowseFolderButton"
-                                    Content="Browse..."
-                                    Click="OnBrowseFolderClick"
-                                    IsVisible="False"/>
+                            <Button x:Name="BrowseFolderButton" Content="Browse..." Click="OnBrowseFolderClick" IsVisible="False"/>
                         </StackPanel>
 
                         <!-- Divider -->
@@ -385,23 +364,16 @@
                         <!-- Preset Actions -->
                         <StackPanel Spacing="4">
                             <TextBlock Text="Preset Actions" FontWeight="SemiBold"/>
-                            <Button x:Name="SavePresetButton"
-                                    Content="💾 Save Current as Preset"
-                                    HorizontalAlignment="Stretch"
-                                    Click="OnSavePresetClick"/>
-                            <Button x:Name="DeletePresetButton"
-                                    Content="🗑 Delete Custom Preset"
-                                    HorizontalAlignment="Stretch"
-                                    IsEnabled="False"
-                                    Click="OnDeletePresetClick"/>
+                            <Button x:Name="SavePresetButton" Content="💾 Save Current as Preset" HorizontalAlignment="Stretch" Click="OnSavePresetClick"/>
+                            <Button x:Name="DeletePresetButton" Content="🗑 Delete Custom Preset" HorizontalAlignment="Stretch" IsEnabled="False" Click="OnDeletePresetClick"/>
                         </StackPanel>
                     </StackPanel>
                 </ScrollViewer>
 
                 <!-- Preset Info -->
                 <Border Grid.Row="2"
-                        Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                        BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                        Background="{DynamicResource Container2BackgroundBrush}"
+                        BorderBrush="{DynamicResource Container2BorderBrush}"
                         BorderThickness="1"
                         CornerRadius="8"
                         Padding="12">
@@ -411,34 +383,20 @@
                                    Text="No resize or adjustments"
                                    FontSize="11"
                                    TextWrapping="Wrap"
-                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                     </StackPanel>
                 </Border>
 
                 <!-- Apply Buttons -->
                 <StackPanel Grid.Row="3" Spacing="6">
                     <Grid ColumnDefinitions="*,4,*" RowDefinitions="Auto,4,Auto">
-                        <Button x:Name="ApplyToPageButton"
-                                Grid.Row="0" Grid.Column="0"
-                                Content="Page"
-                                HorizontalAlignment="Stretch"
-                                Height="34"
-                                FontSize="12"
-                                Click="OnApplyToPageClick"
-                                ToolTip.Tip="Apply current preset to this page only"/>
-                        <Button x:Name="ApplyToSelectedPagesButton"
-                                Grid.Row="0" Grid.Column="2"
-                                Content="Selected Pages"
-                                HorizontalAlignment="Stretch"
-                                Height="34"
-                                FontSize="12"
-                                Click="OnApplyToSelectedPagesClick"
-                                ToolTip.Tip="Apply current preset to a selected set of pages">
+                        <Button x:Name="ApplyToPageButton" Content="Page" HorizontalAlignment="Stretch" Height="34" FontSize="12" Click="OnApplyToPageClick"/>
+                        <Button x:Name="ApplyToSelectedPagesButton" Content="Selected Pages" HorizontalAlignment="Stretch" Height="34" FontSize="12" Click="OnApplyToSelectedPagesClick">
                             <Button.Flyout>
                                 <Flyout Placement="BottomEdgeAlignedRight"
                                         ShowMode="TransientWithDismissOnPointerMoveAway">
-                                    <Border Background="{actipro:ThemeResource Container3BackgroundBrush}"
-                                            BorderBrush="{actipro:ThemeResource Container3BorderBrush}"
+                                    <Border Background="{DynamicResource Container3BackgroundBrush}"
+                                            BorderBrush="{DynamicResource Container3BorderBrush}"
                                             BorderThickness="1"
                                             CornerRadius="6"
                                             Padding="12"
@@ -456,60 +414,23 @@
                                                        HorizontalAlignment="Center"
                                                        VerticalAlignment="Top"/>
                                             <Grid ColumnDefinitions="*,4,*,4,*">
-                                                <Button Grid.Column="0"
-                                                        Content="All"
-                                                        HorizontalAlignment="Stretch"
-                                                        FontSize="11"
-                                                        Click="OnPagePickerAllClick"/>
-                                                <Button Grid.Column="2"
-                                                        Content="None"
-                                                        HorizontalAlignment="Stretch"
-                                                        FontSize="11"
-                                                        Click="OnPagePickerNoneClick"/>
-                                                <Button Grid.Column="4"
-                                                        Content="Invert"
-                                                        HorizontalAlignment="Stretch"
-                                                        FontSize="11"
-                                                        Click="OnPagePickerInvertClick"/>
+                                                <Button Content="All" HorizontalAlignment="Stretch" FontSize="11" Click="OnPagePickerAllClick"/>
+                                                <Button Content="None" HorizontalAlignment="Stretch" FontSize="11" Click="OnPagePickerNoneClick"/>
+                                                <Button Content="Invert" HorizontalAlignment="Stretch" FontSize="11" Click="OnPagePickerInvertClick"/>
                                             </Grid>
-                                            <Button x:Name="PagePickerApplyButton"
-                                                    Content="Apply Preset"
-                                                    HorizontalAlignment="Stretch"
-                                                    Classes="accent"
-                                                    Height="34"
-                                                    Click="OnPagePickerApplyClick"/>
+                                            <Button x:Name="PagePickerApplyButton" Content="Apply Preset" HorizontalAlignment="Stretch" Classes="accent" Height="34" Click="OnPagePickerApplyClick"/>
                                         </StackPanel>
                                     </Border>
                                 </Flyout>
                             </Button.Flyout>
                         </Button>
-                        <Button x:Name="ApplyToArtworkButton"
-                                Grid.Row="2" Grid.Column="0"
-                                Content="Artwork"
-                                HorizontalAlignment="Stretch"
-                                Height="34"
-                                FontSize="12"
-                                Click="OnApplyToArtworkClick"
-                                ToolTip.Tip="Apply current preset to all pages of the current artwork"/>
-                        <Button x:Name="ApplyToAllButton"
-                                Grid.Row="2" Grid.Column="2"
-                                Content="All"
-                                HorizontalAlignment="Stretch"
-                                Height="34"
-                                FontSize="12"
-                                Click="OnApplyToAllClick"
-                                ToolTip.Tip="Apply current preset to all pages of all artworks"/>
+                        <Button x:Name="ApplyToArtworkButton" Content="Artwork" HorizontalAlignment="Stretch" Height="34" FontSize="12" Click="OnApplyToArtworkClick"/>
+                        <Button x:Name="ApplyToAllButton" Content="All" HorizontalAlignment="Stretch" Height="34" FontSize="12" Click="OnApplyToAllClick"/>
                     </Grid>
-                    <Button x:Name="ApplyToSelectedArtworksButton"
-                            Content="Apply to Selected Artworks"
-                            HorizontalAlignment="Stretch"
-                            Height="34"
-                            FontSize="12"
-                            Click="OnApplyToSelectedArtworksClick"
-                            ToolTip.Tip="Apply current preset to checked artworks in the list below"/>
+                    <Button x:Name="ApplyToSelectedArtworksButton" Content="Apply to Selected Artworks" HorizontalAlignment="Stretch" Height="34" FontSize="12" Click="OnApplyToSelectedArtworksClick"/>
                     <Border x:Name="ApplyToArtworksPanel"
-                            Background="{actipro:ThemeResource Container3BackgroundBrush}"
-                            BorderBrush="{actipro:ThemeResource Container3BorderBrush}"
+                            Background="{DynamicResource Container3BackgroundBrush}"
+                            BorderBrush="{DynamicResource Container3BorderBrush}"
                             BorderThickness="1"
                             CornerRadius="6"
                             Padding="8"
@@ -524,7 +445,7 @@
                                FontSize="11"
                                TextWrapping="Wrap"
                                HorizontalAlignment="Center"
-                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                               Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                IsVisible="False"/>
                 </StackPanel>
 
@@ -541,8 +462,8 @@
                                  FontSize="12"
                                  IsVisible="False"/>
                         <Border x:Name="DownloadArtworksPanel"
-                                Background="{actipro:ThemeResource Container3BackgroundBrush}"
-                                BorderBrush="{actipro:ThemeResource Container3BorderBrush}"
+                                Background="{DynamicResource Container3BackgroundBrush}"
+                                BorderBrush="{DynamicResource Container3BorderBrush}"
                                 BorderThickness="1"
                                 CornerRadius="6"
                                 Padding="8"
@@ -567,18 +488,8 @@
                                  PlaceholderText="e.g., 1,3,5 or 1-3,6 or 5-6"
                                  IsVisible="False"/>
                     </StackPanel>
-                    <Button x:Name="DownloadButton"
-                            Content="⬇ Download"
-                            HorizontalAlignment="Stretch"
-                            Classes="accent"
-                            Height="44"
-                            FontSize="14"
-                            Click="OnDownloadClick"/>
-                    <Button x:Name="CancelButton"
-                            Content="Cancel"
-                            HorizontalAlignment="Stretch"
-                            Height="36"
-                            Click="OnCancelClick"/>
+                    <Button x:Name="DownloadButton" Content="⬇ Download" HorizontalAlignment="Stretch" Classes="accent" Height="44" FontSize="14" Click="OnDownloadClick"/>
+                    <Button x:Name="CancelButton" Content="Cancel" HorizontalAlignment="Stretch" Height="36" Click="OnCancelClick"/>
                 </StackPanel>
             </Grid>
         </Border>

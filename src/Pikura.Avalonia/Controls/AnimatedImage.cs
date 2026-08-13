@@ -40,6 +40,12 @@ public sealed class AnimatedImage : Image
         set => SetValue(IsPlayingProperty, value);
     }
 
+    /// <summary>Raised every time playback completes a full loop back to the first frame — used
+    /// by callers (e.g. the feature-highlights carousel) that want to wait for a GIF to finish
+    /// playing before moving on, rather than advancing on a fixed timer. Never raised for
+    /// single-frame (static) sources.</summary>
+    public event EventHandler? AnimationCompleted;
+
     private Bitmap[]? _frames;
     private int[]? _frameDurationsMs;
     private int _frameIndex;
@@ -298,6 +304,21 @@ public sealed class AnimatedImage : Image
         });
     }
 
+    /// <summary>Total playback duration of one full loop of a preloaded/cached animated source,
+    /// in milliseconds — the sum of every frame's display delay. Returns null if <paramref
+    /// name="path"/> hasn't been decoded/cached yet (e.g. via <see cref="PreloadAsync"/>), or has
+    /// only a single frame (static image). Used by callers that want to time something to a
+    /// GIF's actual length rather than a fixed interval.</summary>
+    public static int? GetTotalDurationMs(string path)
+    {
+        if (!_frameCache.TryGetValue(path, out var cached) || cached.Delays.Length <= 1)
+            return null;
+
+        var total = 0;
+        foreach (var d in cached.Delays) total += Math.Max(20, d);
+        return total;
+    }
+
     /// <summary>Clears the shared decoded-frame cache and releases its bitmaps.</summary>
     public static void ClearCache()
     {
@@ -325,6 +346,7 @@ public sealed class AnimatedImage : Image
 
     private void OnTick(object? sender, EventArgs e)
     {
+        bool completedLoop;
         lock (_lock)
         {
             if (_frames == null || _frameDurationsMs == null || _frames.Length == 0)
@@ -333,6 +355,7 @@ public sealed class AnimatedImage : Image
                 return;
             }
             _frameIndex = (_frameIndex + 1) % _frames.Length;
+            completedLoop = _frameIndex == 0;
             var frame = _frames[_frameIndex];
             if (frame != null)
                 Source = frame;
@@ -342,6 +365,8 @@ public sealed class AnimatedImage : Image
             if (_timer != null)
                 _timer.Interval = TimeSpan.FromMilliseconds(Math.Max(20, _frameDurationsMs[_frameIndex]));
         }
+
+        if (completedLoop) AnimationCompleted?.Invoke(this, EventArgs.Empty);
     }
 
     /// <summary>

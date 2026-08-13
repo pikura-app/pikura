@@ -1,9 +1,12 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Documents;
+using Avalonia.Controls.Shapes;
 using Avalonia.Interactivity;
 using Avalonia.Media;
+using Pikura.Core.Services;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -20,10 +23,66 @@ public partial class ChangelogDialog : Window
         VersionLabel.Text = $"Pikura v{version}";
 
         var section = ExtractVersionSection(releaseNotes, version);
-        RenderMarkdown(string.IsNullOrWhiteSpace(section)
+        NotesPanel.Children.Clear();
+        AppendMarkdown(string.IsNullOrWhiteSpace(section)
             ? "No release notes available for this version."
             : section);
 
+        WireFooter(releasePageUrl);
+    }
+
+    /// <summary>
+    /// Shows the full published release history (newest first) instead of a single version's
+    /// notes — used by the About page's "View Changelog" button, per the user request that it
+    /// should showcase the entire history rather than just the current version.
+    /// </summary>
+    public ChangelogDialog(IReadOnlyList<UpdateInfo> releases, string releasePageUrl)
+    {
+        InitializeComponent();
+
+        Title = "Release History";
+        VersionLabel.Text = "Release History";
+        SubtitleLabel.Text = releases.Count == 0
+            ? "No published releases found."
+            : $"{releases.Count} release{(releases.Count == 1 ? "" : "s")} — newest first";
+        ReleasePageBtn.Content = "All releases on GitHub ↗";
+
+        NotesPanel.Children.Clear();
+        for (var i = 0; i < releases.Count; i++)
+        {
+            var r = releases[i];
+            if (i > 0)
+            {
+                NotesPanel.Children.Add(new Rectangle
+                {
+                    Height = 1,
+                    Margin = new Thickness(0, 16, 0, 12),
+                    Fill = new SolidColorBrush(Color.Parse("#33808080")),
+                });
+            }
+
+            var heading = string.IsNullOrWhiteSpace(r.Title) || r.Title == r.Version
+                ? $"v{r.Version}"
+                : $"v{r.Version} — {r.Title}";
+            NotesPanel.Children.Add(new TextBlock
+            {
+                Text = heading,
+                FontSize = 15,
+                FontWeight = FontWeight.Bold,
+                Margin = new Thickness(0, 0, 0, 4),
+                TextWrapping = TextWrapping.Wrap,
+            });
+
+            AppendMarkdown(string.IsNullOrWhiteSpace(r.ReleaseNotes)
+                ? "No release notes provided."
+                : r.ReleaseNotes);
+        }
+
+        WireFooter(releasePageUrl);
+    }
+
+    private void WireFooter(string releasePageUrl)
+    {
         ReleasePageBtn.Click += (_, _) =>
         {
             if (!string.IsNullOrEmpty(releasePageUrl))
@@ -62,10 +121,11 @@ public partial class ChangelogDialog : Window
         return sb.ToString().Trim();
     }
 
-    /// <summary>Renders a subset of markdown into the NotesPanel as formatted controls.</summary>
-    private void RenderMarkdown(string markdown)
+    /// <summary>Appends a subset of markdown into the NotesPanel as formatted controls, without
+    /// clearing what's already there — callers clear once up front so multiple releases can be
+    /// appended in sequence.</summary>
+    private void AppendMarkdown(string markdown)
     {
-        NotesPanel.Children.Clear();
         var lines = markdown.Replace("\r\n", "\n").Split('\n');
 
         foreach (var raw in lines)

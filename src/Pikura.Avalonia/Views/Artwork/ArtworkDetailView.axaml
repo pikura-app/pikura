@@ -16,7 +16,7 @@
         </Grid.RowDefinitions>
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#FFF8F8F8" Padding="16,12">
+        <Border Grid.Row="0" Background="{DynamicResource Container1BackgroundBrush}" Padding="16,12">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -24,7 +24,7 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <Button Grid.Column="0" Content="← Back" Command="{Binding GoBackCommand}"/>
+                <Button Content="← Back" Command="{Binding GoBackCommand}"/>
                 
                 <SelectableTextBlock Grid.Column="1" 
                                      Text="{Binding Artwork.Title}" 
@@ -49,10 +49,10 @@
 
             <!-- Image Display -->
             <Border Grid.Column="0" 
-                    Background="#FFF0F0F0" 
+                    Background="{DynamicResource ImageCanvasBackgroundBrush}" 
                     Margin="16"
                     CornerRadius="8"
-                    BorderBrush="#FFE0E0E0" 
+                    BorderBrush="{DynamicResource Container1BorderBrush}" 
                     BorderThickness="1">
                 <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
                     <TextBlock Text="Artwork Image" 
@@ -71,8 +71,8 @@
 
             <!-- Side Panel -->
             <Border Grid.Column="1" 
-                    Background="White" 
-                    BorderBrush="#FFE0E0E0" 
+                    Background="{DynamicResource Container1BackgroundBrush}" 
+                    BorderBrush="{DynamicResource Container1BorderBrush}" 
                     BorderThickness="1,0,0,0"
                     Width="300"
                     Padding="16">
@@ -92,6 +92,50 @@
                         <TextBlock Text="Pages:" FontWeight="SemiBold" Margin="0,8,0,0"/>
                         <TextBlock Text="{Binding Artwork.PageCount}"/>
 
+                        <StackPanel Orientation="Horizontal" Spacing="16" Margin="0,4,0,0">
+                            <StackPanel Orientation="Horizontal" Spacing="4" ToolTip.Tip="Bookmarks">
+                                <PathIcon Data="{StaticResource BookmarkIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="#3B82F6"/>
+                                <TextBlock Text="{Binding BookmarkCount, StringFormat='{}{0:N0}', TargetNullValue='—'}" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="4" ToolTip.Tip="Likes">
+                                <PathIcon Data="{StaticResource HeartIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="#EF4444"/>
+                                <TextBlock Text="{Binding LikeCount, StringFormat='{}{0:N0}', TargetNullValue='—'}" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="4" ToolTip.Tip="Views">
+                                <PathIcon Data="{StaticResource EyeIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="#10B981"/>
+                                <TextBlock Text="{Binding ViewCount, StringFormat='{}{0:N0}', TargetNullValue='—'}" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </StackPanel>
+
+
+                        <WrapPanel Orientation="Horizontal">
+                            <Button Command="{Binding LikeCommand}" IsEnabled="{Binding !IsLiked}" Margin="0,0,8,8" BorderThickness="0">
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <Path Width="14" Height="14" Stretch="Uniform" Data="{StaticResource HeartIcon}" Fill="#EF4444" IsVisible="{Binding !IsLiked}"/>
+                                    <Path Width="14" Height="14" Stretch="Uniform" Data="{StaticResource HeartFilledIcon}" Fill="#EF4444" IsVisible="{Binding IsLiked}"/>
+                                    <TextBlock Text="Like" FontSize="12" IsVisible="{Binding !IsLiked}"/>
+                                    <TextBlock Text="Liked" FontSize="12" IsVisible="{Binding IsLiked}"/>
+                                </StackPanel>
+                            </Button>
+
+                            <Button Command="{Binding ToggleBookmarkCommand}" IsEnabled="{Binding !IsActionLoading}" Margin="0,0,8,8" BorderThickness="0">
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <Path Width="14" Height="14" Stretch="Uniform" Data="{StaticResource BookmarkIcon}" Fill="#3B82F6" IsVisible="{Binding !IsBookmarked}"/>
+                                    <Path Width="14" Height="14" Stretch="Uniform" Data="{StaticResource BookmarkFilledIcon}" Fill="#3B82F6" IsVisible="{Binding IsBookmarked}"/>
+                                    <TextBlock Text="Bookmark" FontSize="12" IsVisible="{Binding !IsBookmarked}"/>
+                                    <TextBlock Text="Bookmarked" FontSize="12" IsVisible="{Binding IsBookmarked}"/>
+                                </StackPanel>
+                            </Button>
+
+                            <Button Command="{Binding ToggleFollowCommand}" IsEnabled="{Binding !IsActionLoading}" Margin="0,0,8,8" BorderThickness="0">
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <Path Width="14" Height="14" Stretch="Uniform" Data="{StaticResource PersonIcon}" Fill="#10B981"/>
+                                    <TextBlock Text="Follow" FontSize="12" IsVisible="{Binding !IsFollowing}"/>
+                                    <TextBlock Text="Following" FontSize="12" IsVisible="{Binding IsFollowing}"/>
+                                </StackPanel>
+                            </Button>
+                        </WrapPanel>
+
                         <TextBlock Text="Tags:" FontWeight="SemiBold" Margin="0,8,0,0"/>
                         <ItemsControl ItemsSource="{Binding Tags}">
                             <ItemsControl.ItemsPanel>
@@ -101,20 +145,10 @@
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate x:DataType="x:String">
-                                    <Button Content="{Binding}"
-                                            Margin="0,2,6,2"
-                                            Padding="10,5"
-                                            CornerRadius="14"
-                                            Background="#FFF0F0F0"
-                                            Foreground="#444"
-                                            FontSize="12"
-                                            FontWeight="Medium"
-                                            BorderThickness="0"
-                                            Command="{Binding $parent[UserControl].((vm:ArtworkDetailViewModel)DataContext).SearchByTagCommand}"
-                                            CommandParameter="{Binding}">
+                                    <Button Content="{Binding}" Margin="0,2,6,2" FontSize="12" BorderThickness="0" Command="{Binding $parent[UserControl].((vm:ArtworkDetailViewModel)DataContext).SearchByTagCommand}" CommandParameter="{Binding}">
                                         <Button.Styles>
                                             <Style Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-                                                <Setter Property="Background" Value="#FFE0E0E0"/>
+                                                <Setter Property="Background" Value="{DynamicResource ControlBackgroundBrushSoftAccent}"/>
                                             </Style>
                                         </Button.Styles>
                                     </Button>
@@ -128,9 +162,9 @@
 
         <!-- Navigation Footer -->
         <Border Grid.Row="2" 
-                Background="#FFF8F8F8" 
+                Background="{DynamicResource Container1BackgroundBrush}" 
                 Padding="16,8" 
-                BorderBrush="#FFE0E0E0" 
+                BorderBrush="{DynamicResource Container1BorderBrush}" 
                 BorderThickness="0,1,0,0">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -140,20 +174,14 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <Button Grid.Column="1" 
-                        Content="← Previous" 
-                        Command="{Binding GoToPreviousPageCommand}"
-                        IsEnabled="{Binding CanGoToPreviousPage}"/>
+                <Button Content="← Previous" Command="{Binding GoToPreviousPageCommand}" IsEnabled="{Binding CanGoToPreviousPage}"/>
                 
                 <TextBlock Grid.Column="2" 
                           Text="{Binding StatusMessage}" 
                           VerticalAlignment="Center"
                           Margin="16,0"/>
                 
-                <Button Grid.Column="3" 
-                        Content="Next →" 
-                        Command="{Binding GoToNextPageCommand}"
-                        IsEnabled="{Binding CanGoToNextPage}"/>
+                <Button Content="Next →" Command="{Binding GoToNextPageCommand}" IsEnabled="{Binding CanGoToNextPage}"/>
             </Grid>
         </Border>
 

@@ -19,7 +19,7 @@
         </Grid.RowDefinitions>
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#FFF8F8F8" Padding="16,12">
+        <Border Grid.Row="0" Background="{DynamicResource Container1BackgroundBrush}" Padding="16,12">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -42,8 +42,8 @@
 
         <!-- Main Content -->
         <Grid Grid.Row="1">
-            <Border Background="White" 
-                    BorderBrush="#FFE0E0E0" 
+            <Border Background="{DynamicResource Container1BackgroundBrush}" 
+                    BorderBrush="{DynamicResource Container1BorderBrush}" 
                     BorderThickness="1" 
                     CornerRadius="8"
                     Margin="16"
@@ -68,9 +68,9 @@
 
         <!-- Status Bar -->
         <Border Grid.Row="2" 
-                Background="#FFF8F8F8" 
+                Background="{DynamicResource Container1BackgroundBrush}" 
                 Padding="16,8" 
-                BorderBrush="#FFE0E0E0" 
+                BorderBrush="{DynamicResource Container1BorderBrush}" 
                 BorderThickness="0,1,0,0">
             <Grid>
                 <Grid.ColumnDefinitions>

@@ -13,22 +13,22 @@
 
         <!-- ── Left sidebar: sessions list ───────────────────────────────── -->
         <Border Grid.Column="0"
-                Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                Background="{DynamicResource Container1BackgroundBrush}"
+                BorderBrush="{DynamicResource Container1BorderBrush}"
                 BorderThickness="0,0,1,0">
             <Grid RowDefinitions="Auto,Auto,*">
                 <!-- Sidebar header -->
                 <Border Grid.Row="0" Padding="12,10"
-                        BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                        BorderBrush="{DynamicResource Container1BorderBrush}"
                         BorderThickness="0,0,0,1">
                     <Grid ColumnDefinitions="*,Auto,Auto">
                         <TextBlock Grid.Column="0" Text="Sessions" FontSize="13" FontWeight="SemiBold"
                                    VerticalAlignment="Center"/>
                         <Button Grid.Column="1" Content="Clear All" Name="ClearAllBtn"
-                                CornerRadius="4" Padding="8,3" FontSize="11" Margin="6,0"
+                                  FontSize="11" Margin="6,0"
                                 Click="OnClearAllSessionsClicked"/>
                         <Button Grid.Column="2" Content="✚ New" Name="NewSessionBtn"
-                                CornerRadius="4" Padding="8,3" FontSize="11"
+                                  FontSize="11"
                                 Click="OnNewSessionClicked"/>
                     </Grid>
                 </Border>
@@ -37,10 +37,10 @@
                 <StackPanel Grid.Row="1" Margin="14,18" Spacing="6"
                             IsVisible="{Binding Sessions.Count, Converter={x:Static svc:CountToBoolConverter.IsZero}}">
                     <TextBlock Text="No sessions yet"
-                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                               Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                FontSize="12" HorizontalAlignment="Center"/>
                     <TextBlock Text="Click ✚ New to start, then drop an image to begin."
-                               Foreground="{actipro:ThemeResource DefaultForegroundBrushDisabled}"
+                               Foreground="{DynamicResource DefaultForegroundBrushDisabled}"
                                FontSize="10" TextWrapping="Wrap" TextAlignment="Center"/>
                 </StackPanel>
 
@@ -50,7 +50,7 @@
                     <StackPanel Spacing="8" Margin="6,6">
                         <!-- Delete selected button -->
                         <Button Name="DeleteSelectedBtn" Content="Delete Selected" 
-                                CornerRadius="4" Padding="8,3" FontSize="11"
+                                  FontSize="11"
                                 Click="OnDeleteSelectedSessionsClicked"
                                 IsVisible="False"/>
                         <ItemsControl Name="SessionsList" ItemsSource="{Binding GroupedSessions}">
@@ -59,16 +59,16 @@
                                     <StackPanel Spacing="2">
                                         <!-- Date header (collapsible) -->
                                         <Border Padding="8,4" CornerRadius="4"
-                                                Background="{actipro:ThemeResource Container2BackgroundBrush}"
+                                                Background="{DynamicResource Container2BackgroundBrush}"
                                                 Cursor="Hand"
                                                 PointerPressed="OnGroupHeaderClicked"
                                                 Tag="{Binding}">
                                             <Grid ColumnDefinitions="*,Auto">
                                                 <TextBlock Grid.Column="0" Text="{Binding DisplayDate}" 
                                                            FontWeight="SemiBold" FontSize="11"
-                                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                           Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                                 <TextBlock Grid.Column="1" Text="▼" FontSize="10"
-                                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                                           Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                                            Name="ExpandIcon"/>
                                             </Grid>
                                         </Border>
@@ -78,8 +78,8 @@
                                             <ItemsControl.ItemTemplate>
                                                 <DataTemplate x:DataType="svc:HoshiSession">
                                                     <Border Margin="0,2" Padding="10,8" CornerRadius="6"
-                                                            Background="{actipro:ThemeResource Container3BackgroundBrush}"
-                                                            BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                                                            Background="{DynamicResource Container3BackgroundBrush}"
+                                                            BorderBrush="{DynamicResource Container1BorderBrush}"
                                                             BorderThickness="1"
                                                             Cursor="Hand"
                                                             Tag="{Binding}"
@@ -94,28 +94,28 @@
                                                                       Tag="{Binding}"/>
                                                             <StackPanel Grid.Column="1" Spacing="2">
                                                                 <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="12"
-                                                                           Foreground="{actipro:ThemeResource DefaultForegroundBrush}"/>
+                                                                           Foreground="{DynamicResource DefaultForegroundBrush}"/>
                                                                 <TextBlock Text="{Binding Subtitle}" FontSize="10"
-                                                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                                           Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                                             </StackPanel>
                                                         </Grid>
                                                         <Border.ContextMenu>
                                                             <ContextMenu>
                                                                 <ContextMenu.Styles>
                                                                     <Style Selector="ContextMenu">
-                                                                        <Setter Property="Background" Value="{actipro:ThemeResource Container1BackgroundBrush}"/>
-                                                                        <Setter Property="Foreground" Value="{actipro:ThemeResource DefaultForegroundBrush}"/>
+                                                                        <Setter Property="Background" Value="{DynamicResource Container1BackgroundBrush}"/>
+                                                                        <Setter Property="Foreground" Value="{DynamicResource DefaultForegroundBrush}"/>
                                                                     </Style>
                                                                     <Style Selector="MenuItem">
-                                                                        <Setter Property="Foreground" Value="{actipro:ThemeResource DefaultForegroundBrush}"/>
+                                                                        <Setter Property="Foreground" Value="{DynamicResource DefaultForegroundBrush}"/>
                                                                         <Setter Property="Background" Value="Transparent"/>
                                                                     </Style>
                                                                     <Style Selector="MenuItem:pointerover">
-                                                                        <Setter Property="Background" Value="{actipro:ThemeResource ControlBackgroundBrushSoftAccent}"/>
-                                                                        <Setter Property="Foreground" Value="{actipro:ThemeResource DefaultForegroundBrush}"/>
+                                                                        <Setter Property="Background" Value="{DynamicResource ControlBackgroundBrushSoftAccent}"/>
+                                                                        <Setter Property="Foreground" Value="{DynamicResource DefaultForegroundBrush}"/>
                                                                     </Style>
                                                                     <Style Selector="Separator">
-                                                                        <Setter Property="Background" Value="{actipro:ThemeResource Container1BorderBrush}"/>
+                                                                        <Setter Property="Background" Value="{DynamicResource Container1BorderBrush}"/>
                                                                     </Style>
                                                                 </ContextMenu.Styles>
                                                                 <MenuItem Header="Rename" Click="OnRenameSession" Tag="{Binding}"/>
@@ -142,8 +142,8 @@
 
             <!-- Header -->
             <Border Grid.Row="0"
-                    Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                    BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                    Background="{DynamicResource Container1BackgroundBrush}"
+                    BorderBrush="{DynamicResource Container1BorderBrush}"
                     BorderThickness="0,0,0,1" Padding="16,12">
                 <Grid ColumnDefinitions="*,Auto">
                     <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
@@ -151,11 +151,11 @@
                         <StackPanel Spacing="1">
                             <TextBlock Name="SessionTitleLabel" Text="Hoshi 星" FontSize="16" FontWeight="SemiBold"/>
                             <TextBlock Name="StatusLabel" Text="{Binding StatusText}" FontSize="11"
-                                       Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                       Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                         </StackPanel>
                     </StackPanel>
                     <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
-                        <Button Name="ToggleBtn" Content="Enable" CornerRadius="6" Padding="12,6"
+                        <Button Name="ToggleBtn" Content="Enable"  
                                 FontSize="11" Click="OnToggleClicked"/>
                     </StackPanel>
                 </Grid>
@@ -163,15 +163,15 @@
 
             <!-- Image preview strip (visible when an image is attached) -->
             <Border Grid.Row="1" Name="ImageStrip" Padding="12,10"
-                    BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                    BorderBrush="{DynamicResource Container1BorderBrush}"
                     BorderThickness="0,0,0,1"
-                    Background="{actipro:ThemeResource Container2BackgroundBrush}">
+                    Background="{DynamicResource Container2BackgroundBrush}">
                 <DockPanel>
                     <!-- Thumbnail — click to pop up a much larger preview since 100x100 is
                          still too small to make out details in a full-screen chat window. -->
                     <Border DockPanel.Dock="Left" Name="ImageThumbBorder" Width="100" Height="100" CornerRadius="6"
                             ClipToBounds="True" Cursor="Hand"
-                            Background="{actipro:ThemeResource Container3BackgroundBrush}"
+                            Background="{DynamicResource Container3BackgroundBrush}"
                             PointerPressed="OnImageThumbClicked"
                             ToolTip.Tip="Click to view larger">
                         <Image Name="ImageThumb" Stretch="UniformToFill"/>
@@ -189,7 +189,7 @@
                         <TextBlock Name="ImageHint"
                                    Text="Drop an image here, paste with Ctrl+V, or click 📂 Open"
                                    FontSize="10"
-                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                     </StackPanel>
                     <!-- Buttons (last child fills remaining width and wraps) -->
                     <WrapPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
@@ -198,18 +198,18 @@
                                 <Setter Property="Margin" Value="0,0,4,0"/>
                             </Style>
                         </WrapPanel.Styles>
-                        <Button Name="ViewArtworkBtn" Content="🖼 View Artwork" CornerRadius="4" Padding="8,4" FontSize="11"
+                        <Button Name="ViewArtworkBtn" Content="🖼 View Artwork"   FontSize="11"
                                 Click="OnViewArtworkClicked" IsVisible="False"
                                 ToolTip.Tip="Open this artwork in the Gallery viewer"/>
-                        <Button Name="OpenImageBtn" Content="📂 Open" CornerRadius="4" Padding="8,4" FontSize="11"
+                        <Button Name="OpenImageBtn" Content="📂 Open"   FontSize="11"
                                 Click="OnOpenImageClicked"
                                 ToolTip.Tip="Attach an image from your computer"/>
-                        <Button Content="📋 Paste" CornerRadius="4" Padding="8,4" FontSize="11"
+                        <Button Content="📋 Paste"   FontSize="11"
                                 Click="OnPasteImageClicked"
                                 ToolTip.Tip="Paste image from clipboard (Ctrl+V also works)"/>
-                        <Button Content="🌐 URL" CornerRadius="4" Padding="8,4" FontSize="11"
+                        <Button Content="🌐 URL"   FontSize="11"
                                 Click="OnUrlImageClicked"/>
-                        <Button Content="🗑 Clear Chat" CornerRadius="4" Padding="8,4" FontSize="11"
+                        <Button Content="🗑 Clear Chat"   FontSize="11"
                                 Click="OnClearClicked"
                                 ToolTip.Tip="Clears the conversation only — the attached image stays put."/>
                     </WrapPanel>
@@ -229,9 +229,9 @@
                                     <Border Grid.Column="0" Padding="6,2" CornerRadius="4" Margin="0,2,8,0"
                                             VerticalAlignment="Top"
                                             IsVisible="{Binding !IsUser}"
-                                            Background="{actipro:ThemeResource Container2BackgroundBrush}">
+                                            Background="{DynamicResource Container2BackgroundBrush}">
                                         <TextBlock Text="{Binding DisplayName}" FontSize="10" FontWeight="SemiBold"
-                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                     </Border>
                                     <Border Grid.Column="1" Padding="10,8" CornerRadius="8"
                                             Background="{Binding IsUser, Converter={x:Static conv:BoolToBubbleBrushConverter.Background}}"
@@ -240,31 +240,31 @@
                                         <StackPanel Spacing="8">
                                             <TextBlock Text="You" FontSize="10" FontWeight="SemiBold"
                                                        IsVisible="{Binding IsUser}"
-                                                       Foreground="#B8CCE8FF"/>
+                                                       Foreground="{DynamicResource DefaultForegroundBrush}"/>
                                             <!-- Image thumbnail (if present) -->
                                             <Border Name="MessageImage" Width="200" Height="150" CornerRadius="6"
                                                     ClipToBounds="True"
-                                                    Background="{actipro:ThemeResource Container3BackgroundBrush}"
+                                                    Background="{DynamicResource Container3BackgroundBrush}"
                                                     IsVisible="{Binding HasImage}">
                                                 <Image Stretch="UniformToFill" Source="{Binding ImageSource}"/>
                                             </Border>
                                             <!-- Message text -->
                                             <ctrl:LinkTextBlock LinkText="{Binding Content}" TextWrapping="Wrap" FontSize="12"
-                                                       Foreground="{actipro:ThemeResource DefaultForegroundBrush}"/>
+                                                       Foreground="{DynamicResource DefaultForegroundBrush}"/>
                                             <!-- Quick actions for artwork/artist results -->
                                             <StackPanel Orientation="Horizontal" Spacing="6"
                                                         IsVisible="{Binding HasAnyAction}">
-                                                <Button Content="🖼 View Artwork" Padding="6,2" FontSize="10" CornerRadius="4"
+                                                <Button Content="🖼 View Artwork"  FontSize="10" 
                                                         IsVisible="{Binding HasArtworkAction}"
                                                         Click="OnOpenArtworkFromChat"
                                                         Tag="{Binding ArtworkId}"
                                                         ToolTip.Tip="Open this artwork in a new viewer tab"/>
-                                                <Button Content="👤 Gallery" Padding="6,2" FontSize="10" CornerRadius="4"
+                                                <Button Content="👤 Gallery"  FontSize="10" 
                                                         IsVisible="{Binding HasArtistAction}"
                                                         Click="OnOpenArtistFromChat"
                                                         Tag="{Binding ArtistId}"
                                                         ToolTip.Tip="Open this artist's gallery"/>
-                                                <Button Content="🌐 Open URL" Padding="6,2" FontSize="10" CornerRadius="4"
+                                                <Button Content="🌐 Open URL"  FontSize="10" 
                                                         IsVisible="{Binding HasUrlAction}"
                                                         Click="OnOpenUrlFromChat"
                                                         Tag="{Binding PixivUrl}"
@@ -278,9 +278,9 @@
                     </ItemsControl>
                     <StackPanel HorizontalAlignment="Center" Margin="0,8"
                                 IsVisible="{Binding IsThinking}">
-                        <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
+                        <Border Background="{DynamicResource Container2BackgroundBrush}"
                                 CornerRadius="12" Padding="12,6"
-                                BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                                BorderBrush="{DynamicResource Container2BorderBrush}"
                                 BorderThickness="1">
                             <StackPanel Orientation="Horizontal" Spacing="6">
                                 <TextBlock Text="&#10022;" FontSize="10" VerticalAlignment="Center"
@@ -304,7 +304,7 @@
                                     </TextBlock.Styles>
                                 </TextBlock>
                                 <TextBlock Text="Hoshi is thinking…" FontSize="11"
-                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                           Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                            FontStyle="Italic" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Border>
@@ -314,14 +314,14 @@
 
             <!-- Quick actions + input -->
             <Border Grid.Row="3"
-                    Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                    BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                    Background="{DynamicResource Container1BackgroundBrush}"
+                    BorderBrush="{DynamicResource Container1BorderBrush}"
                     BorderThickness="0,1,0,0" Padding="10,8">
                 <StackPanel Spacing="8">
                     <WrapPanel Orientation="Horizontal">
                         <!-- Single-page submissions get a plain button; the "all pages" dropdown
                              only appears once a multi-page submission is actually detected. -->
-                        <Button Content="👁 Describe" CornerRadius="4" Padding="8,4" FontSize="10"
+                        <Button Content="👁 Describe"   FontSize="10"
                                 Margin="0,0,4,4" Name="DescribeBtn" Click="OnDescribeClicked"
                                 IsVisible="{Binding !IsCurrentSubmissionMultiPage}"
                                 IsEnabled="{Binding !IsThinking}"
@@ -339,20 +339,20 @@
                                 </MenuFlyout>
                             </SplitButton.Flyout>
                         </SplitButton>
-                        <Button Content="🏷 Tags" CornerRadius="4" Padding="8,4" FontSize="10"
+                        <Button Content="🏷 Tags"   FontSize="10"
                                 Margin="0,0,4,4" Name="TagsBtn" Click="OnTagsClicked"
                                 IsEnabled="{Binding !IsThinking}"/>
-                        <Button Content="� Similar Art" CornerRadius="4" Padding="8,4" FontSize="10"
+                        <Button Content="� Similar Art"   FontSize="10"
                                 Margin="0,0,4,4" Name="SimilarArtBtn" Click="OnSimilarArtworksClicked"
                                 IsEnabled="{Binding !IsThinking}"
                                 ToolTip.Tip="Recommend artworks similar to this image"/>
-                        <Button Content="🧑‍🎨 Similar Artists" CornerRadius="4" Padding="8,4" FontSize="10"
+                        <Button Content="🧑‍🎨 Similar Artists"   FontSize="10"
                                 Margin="0,0,4,4" Name="SimilarArtistsBtn" Click="OnSimilarArtistsClicked"
                                 IsEnabled="{Binding !IsThinking}"
                                 ToolTip.Tip="Recommend artists with a similar style"/>
-                        <Button Content="⭐ Fav" CornerRadius="4" Padding="8,4" FontSize="10"
+                        <Button Content="⭐ Fav"   FontSize="10"
                                 Margin="0,0,4,4" Name="FavBtn" Click="OnFavClicked"/>
-                        <Button Content="↓ DL" CornerRadius="4" Padding="8,4" FontSize="10"
+                        <Button Content="↓ DL"   FontSize="10"
                                 Margin="0,0,0,4" Name="DlBtn" Click="OnDlClicked"/>
                     </WrapPanel>
                     <Grid ColumnDefinitions="*,Auto">

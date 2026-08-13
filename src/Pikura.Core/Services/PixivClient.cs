@@ -1,4 +1,5 @@
 using System.Net.Http.Json;
+using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -609,6 +610,453 @@ public sealed partial class PixivClient
     [GeneratedRegex("<script id=\"__NEXT_DATA__\"[^>]*>(.*?)</script>", RegexOptions.Singleline)]
     private static partial Regex NextDataRegex();
 
+    /// <summary>
+    /// GET /collections/{id} — a Pixiv "Collection". There is no ajax/JSON endpoint for reading
+    /// one at all; the collection's metadata, its artwork tiles, full thumbnail data for every
+    /// work in it, AND the list of the same creator's other collection IDs are all embedded in
+    /// the page's own <c>__NEXT_DATA__</c> JSON (confirmed from a captured live page load), so
+    /// this scrapes that the same way <see cref="SearchUsersAsync"/> and CSRF token extraction
+    /// already do.
+    /// </summary>
+    /// <summary>
+    /// GET /ajax/collection/{collectionId} — a lightweight JSON endpoint (confirmed from a
+    /// captured live request) that, unlike the <c>embed.pixiv.net</c> collage-thumbnail
+    /// generator (which reliably 400s for reasons still unconfirmed — an app-level rejection,
+    /// not a Cloudflare block), returns real per-work thumbnails on the always-working
+    /// <c>i.pximg.net</c> CDN under <c>body.thumbnails.illust[]</c>. Used to build a 2x2
+    /// collage preview for browse tiles (an assortment of the collection's works, similar to
+    /// Pixiv's own collage look) instead of a single image. Also carries the collage's actual
+    /// tile layout under <c>body.data.detail.tiles[]</c> (position/size per work) for a future
+    /// true-mosaic rendering, though only the thumbnail list is used today.
+    /// </summary>
+    public async Task<IReadOnlyList<string>> GetCollectionThumbnailsAsync(
+        string collectionId, int maxCount = 4, CancellationToken ct = default)
+    {
+        var url = $"{BaseUrl}/ajax/collection/{collectionId}?lang={_settings.Current.Locale}";
+        var json = await GetAjaxRawAsync(url, $"{BaseUrl}/collections/{collectionId}", ct).ConfigureAwait(false);
+        if (json is null) return [];
+
+        try
+        {
+            using var doc = JsonDocument.Parse(json);
+            if (!doc.RootElement.TryGetProperty("body", out var body)) return [];
+            if (!body.TryGetProperty("thumbnails", out var thumbs) || thumbs.ValueKind != JsonValueKind.Object) return [];
+            if (!thumbs.TryGetProperty("illust", out var illusts) || illusts.ValueKind != JsonValueKind.Array)
+                return [];
+
+            var urls = new List<string>();
+            foreach (var item in illusts.EnumerateArray())
+            {
+                if (urls.Count >= maxCount) break;
+                if (item.TryGetProperty("url", out var urlEl) && urlEl.GetString() is { } u)
+                    urls.Add(u);
+            }
+            return urls;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogDebug(ex, "GetCollectionThumbnails {Id}: parse failed", collectionId);
+            return [];
+        }
+    }
+
+    public async Task<PixivCollection?> GetCollectionAsync(string collectionId, CancellationToken ct = default)
+    {
+        // No locale prefix — confirmed from a captured live request. Unlike /en/artworks/{id},
+        // /en/collections/{id} isn't a valid route (it 404s), only the bare path is.
+        var url = $"{BaseUrl}/collections/{collectionId}";
+        var client = _httpFactory.GetClient();
+        using var req = new HttpRequestMessage(HttpMethod.Get, url);
+        req.Headers.TryAddWithoutValidation("Referer", BaseUrl + "/");
+        req.Headers.TryAddWithoutValidation("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
+
+        using var resp = await client.SendAsync(req, ct).ConfigureAwait(false);
+        if (!resp.IsSuccessStatusCode)
+        {
+            _logger.LogWarning("GetCollection {Id} -> {Code}", collectionId, resp.StatusCode);
+            await WriteDiagAsync(url, $"HTTP {(int)resp.StatusCode} {resp.StatusCode}", ct);
+            return null;
+        }
+
+        var html = await resp.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+        var m = NextDataRegex().Match(html);
+        if (!m.Success)
+        {
+            _logger.LogWarning("GetCollection {Id}: __NEXT_DATA__ not found in response", collectionId);
+            var dumpPath = Path.Combine(Path.GetTempPath(), $"pikura_collection_dump_{collectionId}.html");
+            try { await File.WriteAllTextAsync(dumpPath, html, ct).ConfigureAwait(false); } catch { /* best-effort */ }
+            await WriteDiagAsync(url, $"__NEXT_DATA__ not found (htmlLen={html.Length}). Full HTML at {dumpPath}", ct);
+            return null;
+        }
+
+        try
+        {
+            using var doc = JsonDocument.Parse(m.Groups[1].Value);
+            var pageProps = doc.RootElement.GetProperty("props").GetProperty("pageProps");
+            if (!pageProps.TryGetProperty("collection", out var c) || c.ValueKind != JsonValueKind.Object)
+                return null;
+
+            var result = new PixivCollection
+            {
+                Id = c.TryGetProperty("id", out var idEl) ? idEl.GetString() ?? collectionId : collectionId,
+                Title = c.TryGetProperty("title", out var titleEl) ? titleEl.GetString() ?? "" : "",
+                UserId = c.TryGetProperty("userId", out var uidEl) ? uidEl.GetString() ?? "" : "",
+                UserName = c.TryGetProperty("userName", out var unameEl) ? unameEl.GetString() ?? "" : "",
+                UserProfileImageUrl = c.TryGetProperty("profileImageUrl", out var puEl) ? puEl.GetString() : null,
+                Caption = c.TryGetProperty("caption", out var capEl) ? capEl.GetString() : null,
+                BookmarkCount = c.TryGetProperty("bookmarkCount", out var bcEl) && bcEl.ValueKind == JsonValueKind.Number ? bcEl.GetInt32() : 0,
+                ViewCount = c.TryGetProperty("viewCount", out var vcEl) && vcEl.ValueKind == JsonValueKind.Number ? vcEl.GetInt32() : 0,
+                IsBookmarked = c.TryGetProperty("bookmarkData", out var bdEl) && bdEl.ValueKind == JsonValueKind.Object,
+            };
+
+            if (c.TryGetProperty("tags", out var tagsEl))
+            {
+                var tagList = new List<string>();
+                if (tagsEl.ValueKind == JsonValueKind.Object && tagsEl.TryGetProperty("tags", out var tagArrEl) && tagArrEl.ValueKind == JsonValueKind.Array)
+                    foreach (var t in tagArrEl.EnumerateArray())
+                        if (t.TryGetProperty("tag", out var tEl) && tEl.GetString() is { } tagStr) tagList.Add(tagStr);
+                result.Tags = tagList;
+            }
+
+            var siblingIds = new List<string>();
+            if (pageProps.TryGetProperty("userCollectionIds", out var idsEl) && idsEl.ValueKind == JsonValueKind.Array)
+                foreach (var idEl2 in idsEl.EnumerateArray())
+                    if (idEl2.GetString() is { } sid) siblingIds.Add(sid);
+            result.SiblingCollectionIds = siblingIds;
+
+            // Full ArtworkPreview data for every work, AND full metadata (title/thumbnail/counts)
+            // for every sibling collection, are both embedded separately (as a JSON string that
+            // needs its own parse pass) rather than inline — this gives sibling collections
+            // proper collage tiles for free instead of bare IDs.
+            var thumbMap = new Dictionary<string, ArtworkPreview>();
+            if (pageProps.TryGetProperty("serverSerializedPreloadedState", out var preEl) && preEl.ValueKind == JsonValueKind.String)
+            {
+                try
+                {
+                    using var preDoc = JsonDocument.Parse(preEl.GetString() ?? "{}");
+                    if (preDoc.RootElement.TryGetProperty("thumbnail", out var thumbEl) &&
+                        thumbEl.TryGetProperty("illust", out var illustMapEl) &&
+                        illustMapEl.ValueKind == JsonValueKind.Object)
+                    {
+                        foreach (var prop in illustMapEl.EnumerateObject())
+                        {
+                            var preview = System.Text.Json.JsonSerializer.Deserialize<ArtworkPreview>(prop.Value.GetRawText(), JsonOpts);
+                            if (preview != null) thumbMap[prop.Name] = preview;
+                        }
+                    }
+
+                    if (preDoc.RootElement.TryGetProperty("work", out var workEl) &&
+                        workEl.TryGetProperty("collection", out var collMapEl) &&
+                        collMapEl.ValueKind == JsonValueKind.Object)
+                    {
+                        var siblings = new List<PixivCollectionSummary>();
+                        foreach (var prop in collMapEl.EnumerateObject())
+                        {
+                            var cv = prop.Value;
+                            siblings.Add(new PixivCollectionSummary
+                            {
+                                Id = cv.TryGetProperty("id", out var sIdEl) ? sIdEl.GetString() ?? prop.Name : prop.Name,
+                                Title = cv.TryGetProperty("title", out var sTitleEl) ? sTitleEl.GetString() ?? "" : "",
+                                UserId = cv.TryGetProperty("userId", out var sUidEl) ? sUidEl.GetString() ?? "" : "",
+                                UserName = cv.TryGetProperty("userName", out var sUnameEl) ? sUnameEl.GetString() ?? "" : "",
+                                ThumbnailImageUrl = cv.TryGetProperty("thumbnailImageUrl", out var sThumbEl) ? sThumbEl.GetString() : null,
+                                BookmarkCount = cv.TryGetProperty("bookmarkCount", out var sBcEl) && sBcEl.ValueKind == JsonValueKind.Number ? sBcEl.GetInt32() : 0,
+                                ViewCount = cv.TryGetProperty("viewCount", out var sVcEl) && sVcEl.ValueKind == JsonValueKind.Number ? sVcEl.GetInt32() : 0,
+                            });
+                        }
+                        result.SiblingCollections = siblings;
+                    }
+                }
+                catch (Exception ex) { _logger.LogDebug(ex, "GetCollection {Id}: preloaded-state parse failed", collectionId); }
+            }
+
+            var works = new List<ArtworkPreview>();
+            if (c.TryGetProperty("tiles", out var tilesEl) && tilesEl.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var tile in tilesEl.EnumerateArray())
+                {
+                    if (!tile.TryGetProperty("type", out var typeEl) || typeEl.GetString() != "Work") continue;
+                    if (!tile.TryGetProperty("workId", out var workIdEl)) continue;
+                    var workId = workIdEl.GetString();
+                    if (workId != null && thumbMap.TryGetValue(workId, out var preview))
+                        works.Add(preview);
+                }
+            }
+            result.Works = works;
+
+            return result;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "GetCollection {Id} parse failed", collectionId);
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// GET /ajax/top/collection — the Collections landing page's actual data source (confirmed
+    /// from Pixiv's own JS bundle: <c>e.get("/ajax/top/collection", {})</c>, module 90351). Its
+    /// error-fallback shape — <c>body.page.{everyoneCollectionIds,myCollectionIds,
+    /// recommendCollectionIds,tagRecommendCollectionIds}</c> — is confirmed from the bundle; the
+    /// success shape is assumed to mirror it (populated arrays instead of empty ones), since
+    /// Pixiv's ajax endpoints consistently return the same shape whether or not there's an
+    /// error. Each ID list is then hydrated into full <see cref="PixivCollectionSummary"/> tiles
+    /// via <see cref="ResolveCollectionSummariesAsync"/>. "Featured" surfaces the recommendation
+    /// lists; "All" surfaces the "everyone" feed. If the endpoint's shape doesn't match, this
+    /// dumps the raw JSON to a temp file for diagnosis and returns empty lists rather than
+    /// throwing.
+    /// </summary>
+    public async Task<(IReadOnlyList<PixivCollectionSummary> Featured, IReadOnlyList<PixivCollectionSummary> All)>
+        GetFeaturedCollectionsAsync(CancellationToken ct = default)
+    {
+        var url = $"{BaseUrl}/ajax/top/collection";
+        var json = await GetAjaxRawAsync(url, BaseUrl + "/collection", ct).ConfigureAwait(false);
+        if (json is null)
+        {
+            _logger.LogWarning("GetFeaturedCollections: /ajax/top/collection request failed");
+            return ([], []);
+        }
+
+        List<string> everyoneIds, myIds, recommendIds, tagRecommendIds;
+        try
+        {
+            using var doc = JsonDocument.Parse(json);
+            var root = doc.RootElement;
+            if (!root.TryGetProperty("body", out var body) || body.ValueKind != JsonValueKind.Object)
+            {
+                await DumpTopCollectionJsonAsync(json, ct);
+                _logger.LogWarning("GetFeaturedCollections: /ajax/top/collection response missing body");
+                return ([], []);
+            }
+            // The bundle's fallback nests the lists under body.page; be tolerant of them living
+            // directly on body too, in case the real success shape differs from the fallback.
+            var page = body.TryGetProperty("page", out var pageEl) && pageEl.ValueKind == JsonValueKind.Object
+                ? pageEl : body;
+
+            everyoneIds = ReadStringArray(page, "everyoneCollectionIds");
+            myIds = ReadStringArray(page, "myCollectionIds");
+            recommendIds = ReadStringArray(page, "recommendCollectionIds");
+            tagRecommendIds = ReadStringArray(page, "tagRecommendCollectionIds");
+
+            if (everyoneIds.Count == 0 && myIds.Count == 0 && recommendIds.Count == 0 && tagRecommendIds.Count == 0)
+            {
+                await DumpTopCollectionJsonAsync(json, ct);
+                _logger.LogWarning("GetFeaturedCollections: no collection IDs found in /ajax/top/collection response");
+            }
+        }
+        catch (Exception ex)
+        {
+            await DumpTopCollectionJsonAsync(json, ct);
+            _logger.LogWarning(ex, "GetFeaturedCollections: /ajax/top/collection parse failed");
+            return ([], []);
+        }
+
+        var featuredIds = recommendIds.Count > 0 ? recommendIds : tagRecommendIds;
+        var featured = await ResolveCollectionSummariesAsync(featuredIds, ct).ConfigureAwait(false);
+        var all = await ResolveCollectionSummariesAsync(everyoneIds, ct).ConfigureAwait(false);
+        return (featured, all);
+    }
+
+    /// <summary>
+    /// GET /ajax/collections/search — the real paginated "All collections" listing (confirmed
+    /// from a captured live request: <c>?mode=safe&amp;limit=20&amp;offset=20&amp;lang=en</c>).
+    /// Unlike <see cref="GetFeaturedCollectionsAsync"/>'s <c>everyoneCollectionIds</c> (a fixed
+    /// ~10-item sample), this genuinely paginates — the same capture reported
+    /// <c>body.data.total</c> in the thousands. Response shape: <c>body.data.ids[]</c> (ordering)
+    /// + <c>body.thumbnails.collection[]</c> (full summary objects, same shape as
+    /// <see cref="ResolveCollectionSummariesAsync"/> already parses).
+    /// </summary>
+    /// <param name="mode">"safe" (all-ages only) or "all" (safe + R-18) — confirmed values from
+    /// the capture; mirrors the site's own "All ages ▾" filter dropdown.</param>
+    public async Task<(IReadOnlyList<PixivCollectionSummary> Items, int Total)> SearchCollectionsAsync(
+        string mode = "safe", int limit = 40, int offset = 0, CancellationToken ct = default)
+    {
+        var url = $"{BaseUrl}/ajax/collections/search?mode={mode}&limit={limit}&offset={offset}&lang={_settings.Current.Locale}";
+        var json = await GetAjaxRawAsync(url, $"{BaseUrl}/collections", ct).ConfigureAwait(false);
+        if (json is null) return ([], 0);
+
+        try
+        {
+            using var doc = JsonDocument.Parse(json);
+            if (!doc.RootElement.TryGetProperty("body", out var body)) return ([], 0);
+
+            var total = body.TryGetProperty("data", out var dataEl) && dataEl.TryGetProperty("total", out var totalEl)
+                && totalEl.ValueKind == JsonValueKind.Number ? totalEl.GetInt32() : 0;
+
+            var orderedIds = new List<string>();
+            if (dataEl.ValueKind == JsonValueKind.Object && dataEl.TryGetProperty("ids", out var idsEl) && idsEl.ValueKind == JsonValueKind.Array)
+                foreach (var idEl in idsEl.EnumerateArray())
+                    if (idEl.GetString() is { } s) orderedIds.Add(s);
+
+            var byId = new Dictionary<string, PixivCollectionSummary>();
+            if (body.TryGetProperty("thumbnails", out var thumbs) && thumbs.TryGetProperty("collection", out var collArr)
+                && collArr.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var item in collArr.EnumerateArray())
+                    if (ParseCollectionSummary(item) is { } sum) byId[sum.Id] = sum;
+            }
+
+            // Preserve the server's own ordering; fall back to whatever we parsed if the id
+            // list didn't line up (shouldn't happen, but don't drop data over it).
+            var items = orderedIds.Count > 0
+                ? orderedIds.Select(id => byId.TryGetValue(id, out var s) ? s : null).OfType<PixivCollectionSummary>().ToList()
+                : byId.Values.ToList();
+
+            if (items.Count == 0 && total == 0)
+            {
+                var dumpPath = Path.Combine(Path.GetTempPath(), "pikura_collections_search_dump.json");
+                try { await File.WriteAllTextAsync(dumpPath, json, ct).ConfigureAwait(false); } catch { }
+                _logger.LogWarning("SearchCollections: no items parsed. Raw JSON at {Path}", dumpPath);
+            }
+
+            return (items, total);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "SearchCollections: parse failed");
+            return ([], 0);
+        }
+    }
+
+    private static Task DumpTopCollectionJsonAsync(string json, CancellationToken ct)
+    {
+        var dumpPath = Path.Combine(Path.GetTempPath(), "pikura_top_collection_dump.json");
+        return File.WriteAllTextAsync(dumpPath, json, ct);
+    }
+
+    private static List<string> ReadStringArray(JsonElement obj, string propertyName)
+    {
+        var result = new List<string>();
+        if (!obj.TryGetProperty(propertyName, out var arr) || arr.ValueKind != JsonValueKind.Array)
+            return result;
+        foreach (var el in arr.EnumerateArray())
+        {
+            var s = el.ValueKind switch
+            {
+                JsonValueKind.String => el.GetString(),
+                JsonValueKind.Number => el.GetRawText(),
+                _ => null
+            };
+            if (!string.IsNullOrEmpty(s)) result.Add(s);
+        }
+        return result;
+    }
+
+    /// <summary>
+    /// GET /ajax/collection/recommend/collections?ids=... — hydrates a list of bare collection
+    /// IDs (as returned by <see cref="GetFeaturedCollectionsAsync"/>) into full tile metadata.
+    /// Confirmed to exist from the JS bundle (module ~82930s) but its response shape is
+    /// unconfirmed, so this tries several plausible envelope shapes (a bare array, a wrapper
+    /// object with a "collections"/"collection"/"list" array, or an id-keyed object) before
+    /// giving up and dumping the raw JSON for diagnosis.
+    /// </summary>
+    private async Task<IReadOnlyList<PixivCollectionSummary>> ResolveCollectionSummariesAsync(
+        IReadOnlyList<string> ids, CancellationToken ct)
+    {
+        if (ids.Count == 0) return [];
+
+        // Pixiv's frontend serializes array params with axios/qs using arrayFormat "brackets"
+        // (confirmed from the JS bundle), i.e. ids[]=1&ids[]=2 rather than ids=1&ids=2 — the
+        // latter was observed to fail with HTTP 400 "Invalid request."
+        var query = string.Join("&", ids.Select(id => $"ids%5B%5D={Uri.EscapeDataString(id)}"));
+        var url = $"{BaseUrl}/ajax/collection/recommend/collections?{query}";
+        var json = await GetAjaxRawAsync(url, BaseUrl + "/collection", ct).ConfigureAwait(false);
+        if (json is null)
+        {
+            _logger.LogWarning("ResolveCollectionSummaries: request failed for {Count} ids", ids.Count);
+            return [];
+        }
+
+        // TEMPORARY: always dump the raw response while the exact thumbnail/field names are
+        // still being confirmed against a live capture (tiles are populating with titles, but
+        // thumbnails are coming back blank) — remove once ParseCollectionSummary's property
+        // guesses are confirmed correct.
+        await DumpRecommendCollectionsJsonAsync(json, ct);
+
+        try
+        {
+            using var doc = JsonDocument.Parse(json);
+            if (!doc.RootElement.TryGetProperty("body", out var body))
+            {
+                await DumpRecommendCollectionsJsonAsync(json, ct);
+                return [];
+            }
+
+            var result = new List<PixivCollectionSummary>();
+            if (body.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var item in body.EnumerateArray())
+                    if (ParseCollectionSummary(item) is { } s) result.Add(s);
+            }
+            else if (body.ValueKind == JsonValueKind.Object)
+            {
+                if ((body.TryGetProperty("collections", out var listEl)
+                     || body.TryGetProperty("collection", out listEl)
+                     || body.TryGetProperty("list", out listEl))
+                    && listEl.ValueKind == JsonValueKind.Array)
+                {
+                    foreach (var item in listEl.EnumerateArray())
+                        if (ParseCollectionSummary(item) is { } s) result.Add(s);
+                }
+                else
+                {
+                    // Maybe body is itself keyed by collection ID -> collection object.
+                    foreach (var prop in body.EnumerateObject())
+                        if (ParseCollectionSummary(prop.Value, prop.Name) is { } s) result.Add(s);
+                }
+            }
+
+            if (result.Count == 0)
+            {
+                await DumpRecommendCollectionsJsonAsync(json, ct);
+                _logger.LogWarning("ResolveCollectionSummaries: no summaries parsed for {Count} ids", ids.Count);
+            }
+
+            return result;
+        }
+        catch (Exception ex)
+        {
+            await DumpRecommendCollectionsJsonAsync(json, ct);
+            _logger.LogWarning(ex, "ResolveCollectionSummaries: parse failed for {Count} ids", ids.Count);
+            return [];
+        }
+    }
+
+    private static Task DumpRecommendCollectionsJsonAsync(string json, CancellationToken ct)
+    {
+        var dumpPath = Path.Combine(Path.GetTempPath(), "pikura_collection_recommend_dump.json");
+        return File.WriteAllTextAsync(dumpPath, json, ct);
+    }
+
+    private static PixivCollectionSummary? ParseCollectionSummary(JsonElement item, string? fallbackId = null)
+    {
+        if (item.ValueKind != JsonValueKind.Object) return null;
+        string? id = item.TryGetProperty("id", out var idEl)
+            ? (idEl.ValueKind == JsonValueKind.String ? idEl.GetString() : idEl.GetRawText())
+            : fallbackId;
+        if (string.IsNullOrEmpty(id)) return null;
+
+        return new PixivCollectionSummary
+        {
+            Id = id,
+            Title = item.TryGetProperty("title", out var tEl) ? tEl.GetString() ?? "" : "",
+            UserId = item.TryGetProperty("userId", out var uEl)
+                ? (uEl.ValueKind == JsonValueKind.String ? uEl.GetString() ?? "" : uEl.GetRawText()) : "",
+            UserName = item.TryGetProperty("userName", out var unEl) ? unEl.GetString() ?? "" : "",
+            ThumbnailImageUrl = item.TryGetProperty("thumbnailImageUrl", out var thEl) ? thEl.GetString()
+                : item.TryGetProperty("thumbnail", out var th2El) ? th2El.GetString()
+                : item.TryGetProperty("url", out var urlEl) ? urlEl.GetString() : null,
+            BookmarkCount = item.TryGetProperty("bookmarkCount", out var bEl) && bEl.ValueKind == JsonValueKind.Number ? bEl.GetInt32() : 0,
+            ViewCount = item.TryGetProperty("viewCount", out var vEl) && vEl.ValueKind == JsonValueKind.Number ? vEl.GetInt32() : 0,
+            IsBookmarked = item.TryGetProperty("bookmarkData", out var bdEl) && bdEl.ValueKind == JsonValueKind.Object,
+            BookmarkId = item.TryGetProperty("bookmarkData", out var bd2El) && bd2El.ValueKind == JsonValueKind.Object
+                && bd2El.TryGetProperty("id", out var bdIdEl)
+                ? (bdIdEl.ValueKind == JsonValueKind.String ? bdIdEl.GetString() : bdIdEl.GetRawText())
+                : null,
+            XRestrict = item.TryGetProperty("xRestrict", out var xrEl) && xrEl.ValueKind == JsonValueKind.Number ? xrEl.GetInt32() : 0,
+        };
+    }
+
     // ─── New modern endpoints ──────────────────────────────────────────────
 
     /// <summary>
@@ -698,18 +1146,67 @@ public sealed partial class PixivClient
 
     /// <summary>Fetches the raw JSON body from a Pixiv /ajax endpoint
     /// without any deserialization — used by diagnostic dumps.</summary>
+    /// <summary>Same 429/503 backoff-and-retry behavior as <see cref="GetAjaxAsync{T}"/> (SafeMode),
+    /// which this previously lacked — every caller of this raw-JSON variant (Collections search,
+    /// featured/recommend resolution, comments, etc.) was treating a bare "HTTP 429
+    /// TooManyRequests" error body as if it were the actual JSON payload, immediately failing to
+    /// parse and silently returning empty results instead of backing off and retrying like the
+    /// rest of the app does.</summary>
     private async Task<string?> GetAjaxRawAsync(string url, string? referer, CancellationToken ct)
     {
         var client = _httpFactory.GetClient();
-        using var req = new HttpRequestMessage(HttpMethod.Get, url);
-        req.Headers.TryAddWithoutValidation("Referer", referer ?? BaseUrl + "/");
-        req.Headers.TryAddWithoutValidation("Accept", "application/json");
-        req.Headers.TryAddWithoutValidation("x-user-id", _settings.Current.UserId ?? string.Empty);
-        using var resp = await client.SendAsync(req, ct).ConfigureAwait(false);
-        var body = await resp.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
-        if (!resp.IsSuccessStatusCode)
-            return $"HTTP {(int)resp.StatusCode} {resp.StatusCode}\n{body}";
-        return body;
+        var backoffSeconds = new[] { 5, 10, 20, 60 };
+        var jitter = Random.Shared;
+        var safeMode = _settings.Current.SafeMode;
+        int attempt = 0;
+
+        while (true)
+        {
+            ct.ThrowIfCancellationRequested();
+
+            using var req = new HttpRequestMessage(HttpMethod.Get, url);
+            req.Headers.TryAddWithoutValidation("Referer", referer ?? BaseUrl + "/");
+            req.Headers.TryAddWithoutValidation("Accept", "application/json");
+            req.Headers.TryAddWithoutValidation("x-user-id", _settings.Current.UserId ?? string.Empty);
+
+            using var resp = await client.SendAsync(req, ct).ConfigureAwait(false);
+            var status = (int)resp.StatusCode;
+            var isRateLimited = status == 429 || status == 503;
+
+            if (isRateLimited && safeMode && attempt < backoffSeconds.Length)
+            {
+                var retryAfter = resp.Headers.RetryAfter;
+                TimeSpan wait;
+                if (retryAfter?.Delta is { } delta)
+                {
+                    wait = delta;
+                }
+                else if (retryAfter?.Date is { } date)
+                {
+                    wait = date - DateTimeOffset.UtcNow;
+                    if (wait < TimeSpan.Zero) wait = TimeSpan.FromSeconds(backoffSeconds[attempt]);
+                }
+                else
+                {
+                    var baseSec = backoffSeconds[attempt];
+                    var jitterFactor = 0.75 + (jitter.NextDouble() * 0.5);
+                    wait = TimeSpan.FromSeconds(baseSec * jitterFactor);
+                }
+                if (wait > TimeSpan.FromMinutes(5)) wait = TimeSpan.FromMinutes(5);
+
+                _logger.LogWarning("SafeMode: HTTP {Status} from {Url} — backing off {Seconds:F1}s (attempt {Attempt}/{TotalAttempts})",
+                    status, url, wait.TotalSeconds, attempt + 1, backoffSeconds.Length);
+
+                await Task.Delay(wait, ct).ConfigureAwait(false);
+                attempt++;
+                continue;
+            }
+
+            var body = await resp.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            if (!resp.IsSuccessStatusCode)
+                return $"HTTP {(int)resp.StatusCode} {resp.StatusCode}\n{body}";
+            return body;
+        }
     }
 
     private async Task<T?> GetAjaxAsync<T>(string url, CancellationToken ct, string? referer = null)
@@ -795,6 +1292,104 @@ public sealed partial class PixivClient
                 return envelope.Body;
             }
         }
+    }
+
+    /// <summary>
+    /// POST helper for Pixiv's web /ajax endpoints. Requires the PHPSESSID cookie and a valid
+    /// CSRF token. Returns the parsed body on success, or <c>default</c> if the request fails.
+    /// Does not retry on non-rate-limit failures to avoid duplicate write side-effects.
+    /// </summary>
+    private async Task<bool> PostAjaxSuccessAsync<TRequest>(
+        string url, TRequest payload, string? referer, string? illustId, CancellationToken ct)
+    {
+        var csrf = await GetCsrfTokenAsync(illustId, ct).ConfigureAwait(false);
+        if (string.IsNullOrWhiteSpace(csrf)) return false;
+
+        var client = _httpFactory.GetClient();
+        using var req = new HttpRequestMessage(HttpMethod.Post, url);
+        req.Headers.TryAddWithoutValidation("Referer", referer ?? BaseUrl + "/");
+        req.Headers.TryAddWithoutValidation("Accept", "application/json");
+        req.Headers.TryAddWithoutValidation("Origin", BaseUrl);
+        req.Headers.TryAddWithoutValidation("x-csrf-token", csrf);
+        if (!string.IsNullOrWhiteSpace(_settings.Current.UserId))
+            req.Headers.TryAddWithoutValidation("x-user-id", _settings.Current.UserId);
+
+        var json = System.Text.Json.JsonSerializer.Serialize(payload, JsonOpts);
+        req.Content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+
+        using var resp = await client.SendAsync(req, ct).ConfigureAwait(false);
+        var body = await resp.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+        if (!resp.IsSuccessStatusCode)
+        {
+            await WriteDiagAsync(url, $"HTTP {(int)resp.StatusCode} {resp.StatusCode}\nBody={body?[..Math.Min(500, body.Length)]}", ct);
+            return false;
+        }
+
+        PixivAjaxResponse<object>? envelope;
+        try { envelope = System.Text.Json.JsonSerializer.Deserialize<PixivAjaxResponse<object>>(body, JsonOpts); }
+        catch { return false; }
+
+        if (envelope is null || envelope.Error)
+        {
+            await WriteDiagAsync(url, $"error=true msg={envelope?.Message}\nBody={body?[..Math.Min(500, body.Length)]}", ct);
+
+            // Pixiv sometimes returns an error for "already liked / bookmarked" —
+            // treat those as success since the desired end-state already exists.
+            var msg = envelope?.Message ?? "";
+            if (msg.Contains("already", StringComparison.OrdinalIgnoreCase) ||
+                msg.Contains("exist", StringComparison.OrdinalIgnoreCase) ||
+                msg.Contains("duplicate", StringComparison.OrdinalIgnoreCase) ||
+                msg.Contains("before", StringComparison.OrdinalIgnoreCase) ||
+                msg.Contains("\u65e2\u306b", StringComparison.OrdinalIgnoreCase)) // 既に
+            {
+                return true;
+            }
+            return false;
+        }
+        return true;
+    }
+
+    private async Task<TResponse?> PostAjaxAsync<TRequest, TResponse>(
+        string url, TRequest payload, string? referer, string? illustId, CancellationToken ct)
+    {
+        var csrf = await GetCsrfTokenAsync(illustId, ct).ConfigureAwait(false);
+        if (string.IsNullOrWhiteSpace(csrf))
+        {
+            _logger.LogWarning("PostAjax {Url}: no CSRF token", url);
+            return default;
+        }
+
+        var client = _httpFactory.GetClient();
+        using var req = new HttpRequestMessage(HttpMethod.Post, url);
+        req.Headers.TryAddWithoutValidation("Referer", referer ?? BaseUrl + "/");
+        req.Headers.TryAddWithoutValidation("Accept", "application/json");
+        req.Headers.TryAddWithoutValidation("Origin", BaseUrl);
+        req.Headers.TryAddWithoutValidation("x-csrf-token", csrf);
+        if (!string.IsNullOrWhiteSpace(_settings.Current.UserId))
+            req.Headers.TryAddWithoutValidation("x-user-id", _settings.Current.UserId);
+
+        var json = System.Text.Json.JsonSerializer.Serialize(payload, JsonOpts);
+        req.Content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+
+        using var resp = await client.SendAsync(req, ct).ConfigureAwait(false);
+        var body = await resp.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+        if (!resp.IsSuccessStatusCode)
+        {
+            _logger.LogWarning("PostAjax {Url} -> {Code}: {Body}", url, resp.StatusCode, body?[..Math.Min(500, body.Length)] ?? "(null)");
+            await WriteDiagAsync(url, $"HTTP {(int)resp.StatusCode} {resp.StatusCode}\nBody={body?[..Math.Min(500, body.Length)]}", ct);
+            return default;
+        }
+
+        PixivAjaxResponse<TResponse>? envelope;
+        try { envelope = System.Text.Json.JsonSerializer.Deserialize<PixivAjaxResponse<TResponse>>(body, JsonOpts); }
+        catch (Exception ex) { _logger.LogWarning(ex, "PostAjax {Url} JSON parse failed", url); return default; }
+        if (envelope is null || envelope.Error)
+        {
+            _logger.LogWarning("PostAjax {Url} error: {Msg}", url, envelope?.Message);
+            await WriteDiagAsync(url, $"error=true msg={envelope?.Message}\nBody={body?[..Math.Min(500, body.Length)]}", ct);
+            return default;
+        }
+        return envelope.Body;
     }
 
     /// <summary>
@@ -914,6 +1509,487 @@ public sealed partial class PixivClient
         return info;
     }
 
+    // ─── Web AJAX write actions (PHPSESSID + CSRF token) ────────────────────
+
+    /// <summary>
+    /// GET /ajax/illusts/comments/roots — top-level comments on an artwork. Documented publicly
+    /// (unlike posting a comment) — see PixivComment for field-shape sourcing.
+    /// </summary>
+    public async Task<PixivCommentsRootsResponse?> GetCommentsAsync(
+        string illustId, int offset = 0, int limit = 20, CancellationToken ct = default)
+    {
+        var url = $"{BaseUrl}/ajax/illusts/comments/roots?illust_id={illustId}&offset={offset}&limit={limit}&lang={_settings.Current.Locale}";
+        return await GetAjaxAsync<PixivCommentsRootsResponse>(url, ct).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// GET /ajax/collections/comments/roots — top-level comments on a Collection *itself*
+    /// (distinct from any individual artwork's own comments — Pixiv Collections have their own
+    /// comment thread, shown below the collage). Confirmed from a captured live request:
+    /// <c>?collection_id={id}&amp;offset=0&amp;limit=3&amp;lang=en</c>. Reuses
+    /// <see cref="PixivCommentsRootsResponse"/> since Pixiv's comment UI/data shape is expected
+    /// to be shared across illust and collection comments; if that assumption is wrong for some
+    /// field, <see cref="GetAjaxAsync{T}"/>'s existing diagnostic dump-on-parse-failure will
+    /// surface it.
+    /// </summary>
+    public async Task<PixivCommentsRootsResponse?> GetCollectionCommentsAsync(
+        string collectionId, int offset = 0, int limit = 20, CancellationToken ct = default)
+    {
+        var url = $"{BaseUrl}/ajax/collections/comments/roots?collection_id={collectionId}&offset={offset}&limit={limit}&lang={_settings.Current.Locale}";
+        return await GetAjaxAsync<PixivCommentsRootsResponse>(url, ct, referer: $"{BaseUrl}/collections/{collectionId}").ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// POST /ajax/comments/collection/post — post a text comment on a Collection. Confirmed
+    /// from a captured live request: JSON body <c>{"workId":"{collectionId}","comment":"text"}</c>
+    /// (no <c>isStamp</c> field for plain text).
+    /// </summary>
+    public async Task<bool> PostCollectionCommentAsync(string collectionId, string commentText, CancellationToken ct = default)
+    {
+        var url = $"{BaseUrl}/ajax/comments/collection/post";
+        var referer = $"{BaseUrl}/collections/{collectionId}";
+        var payload = new { workId = collectionId, comment = commentText };
+        var body = await PostAjaxAsync<object, object>(url, payload, referer, null, ct).ConfigureAwait(false);
+        return body != null;
+    }
+
+    /// <summary>
+    /// POST /ajax/comments/collection/post — post a sticker on a Collection. Confirmed from a
+    /// captured live request: JSON body <c>{"workId":"{collectionId}","isStamp":1,"comment":306}</c>
+    /// — note <c>comment</c> is the numeric stamp ID here, not text.
+    /// </summary>
+    public async Task<bool> PostCollectionStickerAsync(string collectionId, int stampId, CancellationToken ct = default)
+    {
+        var url = $"{BaseUrl}/ajax/comments/collection/post";
+        var referer = $"{BaseUrl}/collections/{collectionId}";
+        var payload = new { workId = collectionId, isStamp = 1, comment = stampId };
+        var body = await PostAjaxAsync<object, object>(url, payload, referer, null, ct).ConfigureAwait(false);
+        return body != null;
+    }
+
+    /// <summary>
+    /// POST /ajax/comments/collection/delete — delete a comment you posted on a Collection.
+    /// Confirmed from a captured live request: JSON body
+    /// <c>{"commentId":"...","workId":"{collectionId}"}</c>.
+    /// </summary>
+    public async Task<bool> DeleteCollectionCommentAsync(string collectionId, string commentId, CancellationToken ct = default)
+    {
+        var url = $"{BaseUrl}/ajax/comments/collection/delete";
+        var referer = $"{BaseUrl}/collections/{collectionId}";
+        var payload = new { commentId, workId = collectionId };
+        var body = await PostAjaxAsync<object, object>(url, payload, referer, null, ct).ConfigureAwait(false);
+        return body != null;
+    }
+
+    /// <summary>GET /ajax/illusts/comments/replies — replies to a specific top-level comment.</summary>
+    public async Task<PixivCommentsRepliesResponse?> GetCommentRepliesAsync(
+        string commentId, int page = 1, CancellationToken ct = default)
+    {
+        var url = $"{BaseUrl}/ajax/illusts/comments/replies?comment_id={commentId}&page={page}&lang={_settings.Current.Locale}";
+        return await GetAjaxAsync<PixivCommentsRepliesResponse>(url, ct).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// POST /rpc/post_comment.php — post a comment/emoji (type=comment) or a sticker
+    /// (type=stamp), or a reply (if <paramref name="parentCommentId"/> is supplied), on an
+    /// artwork using the web session cookie and CSRF token.
+    /// <para>
+    /// This is a legacy PHP-RPC endpoint (not under <c>/ajax/</c> like every other write action
+    /// in this client) using <c>application/x-www-form-urlencoded</c> instead of JSON — confirmed
+    /// from captured live browser requests rather than guessed. A sticker post is a genuinely
+    /// different shape, not just an extra field on a text comment: <c>type=stamp</c> with
+    /// <c>stamp_id</c> and NO <c>comment</c> field at all, vs. <c>type=comment</c> with
+    /// <c>comment</c> and no <c>stamp_id</c>. Emoji (from Pixiv's "Emoji" tab, which uses the
+    /// open-source emoji-mart picker) are just plain Unicode emoji characters inserted into the
+    /// comment text — no special handling needed, they go through the ordinary <c>comment</c> field.
+    /// </para>
+    /// </summary>
+    public async Task<AddCommentResponse?> PostCommentAsync(
+        string illustId,
+        string authorUserId,
+        string commentText,
+        string? stampId = null,
+        string? parentCommentId = null,
+        CancellationToken ct = default)
+    {
+        var url = $"{BaseUrl}/rpc/post_comment.php";
+        var referer = $"{BaseUrl}/en/artworks/{illustId}";
+
+        var csrf = await GetCsrfTokenAsync(illustId, ct).ConfigureAwait(false);
+        if (string.IsNullOrWhiteSpace(csrf))
+        {
+            _logger.LogWarning("PostComment {Id}: no CSRF token", illustId);
+            return null;
+        }
+
+        var isStamp = !string.IsNullOrEmpty(stampId);
+        var fields = new List<KeyValuePair<string, string>>
+        {
+            new("type", isStamp ? "stamp" : "comment"),
+            new("illust_id", illustId),
+            new("author_user_id", authorUserId),
+        };
+        if (isStamp) fields.Add(new("stamp_id", stampId!));
+        else fields.Add(new("comment", commentText));
+        if (!string.IsNullOrEmpty(parentCommentId)) fields.Add(new("parent_id", parentCommentId));
+
+        var client = _httpFactory.GetClient();
+        using var req = new HttpRequestMessage(HttpMethod.Post, url);
+        req.Headers.TryAddWithoutValidation("Referer", referer);
+        req.Headers.TryAddWithoutValidation("Accept", "application/json");
+        req.Headers.TryAddWithoutValidation("Origin", BaseUrl);
+        req.Headers.TryAddWithoutValidation("x-csrf-token", csrf);
+        req.Content = new FormUrlEncodedContent(fields);
+
+        using var resp = await client.SendAsync(req, ct).ConfigureAwait(false);
+        var body = await resp.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+        if (!resp.IsSuccessStatusCode)
+        {
+            _logger.LogWarning("PostComment {Id} -> {Code}: {Body}", illustId, resp.StatusCode, body[..Math.Min(500, body.Length)]);
+            await WriteDiagAsync(url, $"HTTP {(int)resp.StatusCode} {resp.StatusCode}\nBody={body[..Math.Min(500, body.Length)]}", ct);
+            return null;
+        }
+
+        PixivAjaxResponse<AddCommentResponse>? envelope;
+        try { envelope = System.Text.Json.JsonSerializer.Deserialize<PixivAjaxResponse<AddCommentResponse>>(body, JsonOpts); }
+        catch (Exception ex) { _logger.LogWarning(ex, "PostComment {Id} JSON parse failed", illustId); return null; }
+
+        if (envelope is null || envelope.Error)
+        {
+            _logger.LogWarning("PostComment {Id} error: {Msg}", illustId, envelope?.Message);
+            await WriteDiagAsync(url, $"error=true msg={envelope?.Message}\nBody={body[..Math.Min(500, body.Length)]}", ct);
+            return null;
+        }
+
+        _logger.LogDebug("PostComment {Id} succeeded", illustId);
+        return envelope.Body;
+    }
+
+    /// <summary>POST /rpc_delete_comment.php — delete a comment you posted. Field names
+    /// (<c>i_id</c> = illust ID, <c>del_id</c> = comment ID) confirmed from a captured live
+    /// request.</summary>
+    public async Task<bool> DeleteCommentAsync(string illustId, string commentId, CancellationToken ct = default)
+    {
+        var url = $"{BaseUrl}/rpc_delete_comment.php";
+        var referer = $"{BaseUrl}/en/artworks/{illustId}";
+        var csrf = await GetCsrfTokenAsync(illustId, ct).ConfigureAwait(false);
+        if (string.IsNullOrWhiteSpace(csrf)) return false;
+
+        var fields = new List<KeyValuePair<string, string>>
+        {
+            new("i_id", illustId),
+            new("del_id", commentId),
+        };
+
+        var client = _httpFactory.GetClient();
+        using var req = new HttpRequestMessage(HttpMethod.Post, url);
+        req.Headers.TryAddWithoutValidation("Referer", referer);
+        req.Headers.TryAddWithoutValidation("Accept", "application/json");
+        req.Headers.TryAddWithoutValidation("Origin", BaseUrl);
+        req.Headers.TryAddWithoutValidation("x-csrf-token", csrf);
+        req.Content = new FormUrlEncodedContent(fields);
+
+        using var resp = await client.SendAsync(req, ct).ConfigureAwait(false);
+        if (!resp.IsSuccessStatusCode) return false;
+        var body = await resp.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+        try
+        {
+            var envelope = System.Text.Json.JsonSerializer.Deserialize<PixivAjaxResponse<object>>(body, JsonOpts);
+            return envelope is { Error: false };
+        }
+        catch { return false; }
+    }
+
+    /// <summary>
+    /// POST /ajax/illusts/like — like an artwork using the web session cookie and CSRF token.
+    /// This is the same endpoint the pixiv.net website uses. Returns true when the server
+    /// reports the artwork is now liked.
+    /// </summary>
+    public async Task<bool> LikeIllustAsync(string illustId, CancellationToken ct = default)
+    {
+        var url = $"{BaseUrl}/ajax/illusts/like";
+        var referer = $"{BaseUrl}/en/artworks/{illustId}";
+        var payload = new { illust_id = illustId };
+
+        var ok = await PostAjaxSuccessAsync(url, payload, referer, illustId, ct).ConfigureAwait(false);
+        if (!ok) _logger.LogWarning("Like {Id} failed", illustId);
+        else _logger.LogDebug("Like {Id} succeeded", illustId);
+        return ok;
+    }
+
+    /// <summary>
+    /// POST /ajax/illusts/bookmarks/add — add an artwork to Pixiv bookmarks using the web
+    /// session cookie and CSRF token. This matches the website's own bookmark button and
+    /// does not require an App API refresh token. Returns the bookmark id on success.
+    /// </summary>
+    public async Task<string?> AddWebBookmarkAsync(
+        string illustId,
+        bool isPrivate = false,
+        IEnumerable<string>? tags = null,
+        string? comment = null,
+        CancellationToken ct = default)
+    {
+        var url = $"{BaseUrl}/ajax/illusts/bookmarks/add";
+        var referer = $"{BaseUrl}/en/artworks/{illustId}";
+        var payload = new
+        {
+            illust_id = illustId,
+            restrict = isPrivate ? 1 : 0,
+            comment = comment ?? string.Empty,
+            tags = tags?.ToArray() ?? Array.Empty<string>(),
+        };
+
+        var body = await PostAjaxAsync<object, AddBookmarkBody>(url, payload, referer, illustId, ct).ConfigureAwait(false);
+        if (body == null)
+        {
+            _logger.LogWarning("AddWebBookmark {Id} failed", illustId);
+            return null;
+        }
+
+        var bookmarkId = body.LastBookmarkId ?? illustId;
+        _logger.LogDebug("AddWebBookmark {Id} succeeded with bookmark_id={BookmarkId}", illustId, bookmarkId);
+        return bookmarkId;
+    }
+
+    /// <summary>
+    /// POST /ajax/illusts/bookmarks/remove — remove bookmarks by their bookmark ids using
+    /// the web session cookie and CSRF token. Returns true on success.
+    /// </summary>
+    public async Task<bool> RemoveWebBookmarkAsync(
+        IEnumerable<string> bookmarkIds,
+        CancellationToken ct = default)
+    {
+        var ids = bookmarkIds?.ToList() ?? [];
+        if (ids.Count == 0) return true;
+
+        var url = $"{BaseUrl}/ajax/illusts/bookmarks/remove";
+        var payload = new { bookmarkIds = ids };
+
+        var body = await PostAjaxAsync<object, object>(url, payload, BaseUrl + "/", null, ct).ConfigureAwait(false);
+        if (body == null)
+        {
+            _logger.LogWarning("RemoveWebBookmark failed for {Count} ids", ids.Count);
+            return false;
+        }
+
+        _logger.LogDebug("RemoveWebBookmark succeeded for {Count} ids", ids.Count);
+        return true;
+    }
+
+    /// <summary>
+    /// POST /ajax/collections/bookmarks/add — bookmark a Collection itself (distinct from
+    /// bookmarking any individual artwork in it). Confirmed from the Pixiv JS bundle:
+    /// <c>e.post("/ajax/collections/bookmarks/add", {}, {collectionId, restrict})</c> where
+    /// <c>restrict</c> is 0 (public) or 1 (private) — same JSON-body convention as the illust
+    /// bookmark endpoints. Returns true on success.
+    /// </summary>
+    public async Task<bool> AddCollectionBookmarkAsync(string collectionId, bool isPrivate = false, CancellationToken ct = default)
+    {
+        var url = $"{BaseUrl}/ajax/collections/bookmarks/add";
+        var referer = $"{BaseUrl}/collections/{collectionId}";
+        var payload = new { collectionId, restrict = isPrivate ? 1 : 0 };
+
+        var ok = await PostAjaxSuccessAsync(url, payload, referer, null, ct).ConfigureAwait(false);
+        if (!ok) _logger.LogWarning("AddCollectionBookmark {Id} failed", collectionId);
+        else _logger.LogDebug("AddCollectionBookmark {Id} succeeded", collectionId);
+        return ok;
+    }
+
+    /// <summary>
+    /// POST /ajax/collections/bookmarks/remove — remove a Collection bookmark. Confirmed from
+    /// the bundle: <c>e.post("/ajax/collections/bookmarks/remove", {}, {bookmarkIds:[id]})</c>.
+    /// </summary>
+    public async Task<bool> RemoveCollectionBookmarkAsync(string bookmarkId, CancellationToken ct = default)
+    {
+        var url = $"{BaseUrl}/ajax/collections/bookmarks/remove";
+        var payload = new { bookmarkIds = new[] { bookmarkId } };
+
+        var body = await PostAjaxAsync<object, object>(url, payload, BaseUrl + "/", null, ct).ConfigureAwait(false);
+        if (body == null)
+        {
+            _logger.LogWarning("RemoveCollectionBookmark {Id} failed", bookmarkId);
+            return false;
+        }
+        _logger.LogDebug("RemoveCollectionBookmark {Id} succeeded", bookmarkId);
+        return true;
+    }
+
+    /// <summary>
+    /// GET /ajax/collection/{collectionId}/bookmarkData — current bookmark status for a
+    /// Collection. Confirmed from the bundle:
+    /// <c>e.get("/ajax/collection/:collectionId/bookmarkData", {collectionId})</c>.
+    /// </summary>
+    public async Task<CollectionBookmarkData?> GetCollectionBookmarkDataAsync(string collectionId, CancellationToken ct = default)
+    {
+        var url = $"{BaseUrl}/ajax/collection/{collectionId}/bookmarkData?lang={_settings.Current.Locale}";
+        return await GetAjaxAsync<CollectionBookmarkData>(url, ct, referer: $"{BaseUrl}/collections/{collectionId}").ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// GET /ajax/user/{userId}/collections/bookmarks — the current user's bookmarked
+    /// Collections. Confirmed from the bundle:
+    /// <c>e.get("/ajax/user/:userId/collections/bookmarks", {userId}, {offset, limit, rest})</c>.
+    /// </summary>
+    public async Task<IReadOnlyList<PixivCollectionSummary>> GetBookmarkedCollectionsAsync(
+        string userId, int offset = 0, int limit = 50, bool hidden = false, CancellationToken ct = default)
+    {
+        var rest = hidden ? "hide" : "show";
+        var url = $"{BaseUrl}/ajax/user/{userId}/collections/bookmarks?offset={offset}&limit={limit}&rest={rest}&lang={_settings.Current.Locale}";
+        var json = await GetAjaxRawAsync(url, BaseUrl + "/", ct).ConfigureAwait(false);
+        if (json is null) return [];
+
+        try
+        {
+            using var doc = JsonDocument.Parse(json);
+            if (!doc.RootElement.TryGetProperty("body", out var body)) return [];
+
+            // Unconfirmed exact shape — try the most likely candidates (mirrors the recommend
+            // endpoint's "collections" array, or could be "works"/a bare array) and fall back to
+            // dumping raw JSON for diagnosis if none match.
+            JsonElement listEl = default;
+            var found = body.TryGetProperty("collections", out listEl) || body.TryGetProperty("works", out listEl);
+            if (!found && body.ValueKind == JsonValueKind.Array) listEl = body;
+
+            var result = new List<PixivCollectionSummary>();
+            if (listEl.ValueKind == JsonValueKind.Array)
+                foreach (var item in listEl.EnumerateArray())
+                    if (ParseCollectionSummary(item) is { } s) result.Add(s);
+
+            if (result.Count == 0)
+            {
+                var dumpPath = Path.Combine(Path.GetTempPath(), "pikura_bookmarked_collections_dump.json");
+                try { await File.WriteAllTextAsync(dumpPath, json, ct).ConfigureAwait(false); } catch { }
+                _logger.LogWarning("GetBookmarkedCollections: no collections parsed. Raw JSON at {Path}", dumpPath);
+            }
+            return result;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "GetBookmarkedCollections: parse failed");
+            return [];
+        }
+    }
+
+    // ─── User follow actions ────────────────────────────────────────────────
+
+    /// <summary>
+    /// Follow a user via the web session (PHPSESSID + CSRF), the same mobile touch API
+    /// pixiv.net's own follow button uses. No App API refresh token needed.
+    /// </summary>
+    public Task<bool> FollowUserAsync(
+        string userId,
+        bool isPrivate = false,
+        CancellationToken ct = default)
+        => FollowUserWebAsync(userId, isPrivate, ct);
+
+    /// <summary>Unfollow a user via the web session.</summary>
+    public Task<bool> UnfollowUserAsync(
+        string userId,
+        CancellationToken ct = default)
+        => UnfollowUserWebAsync(userId, ct);
+
+    /// <summary>
+    /// POST https://www.pixiv.net/touch/ajax_api/ajax_api.php — Pixiv's mobile-web "touch" API.
+    /// This is what pixiv's own mobile site uses for follow/unfollow and is confirmed working
+    /// (unlike the desktop bookmark_add.php form, which no longer accepts plain GET/tt tokens,
+    /// and unlike /ajax/following/user/add, which 404s from this API path). Uses the PHPSESSID
+    /// cookie plus a CSRF token, sent as multipart/form-data.
+    /// </summary>
+    private async Task<bool> FollowUserWebAsync(
+        string userId,
+        bool isPrivate = false,
+        CancellationToken ct = default)
+    {
+        var form = new Dictionary<string, string>
+        {
+            ["mode"] = "add_bookmark_user",
+            ["user_id"] = userId,
+            ["restrict"] = isPrivate ? "1" : "0",
+        };
+
+        var ok = await PostTouchApiSuccessAsync(form, ct).ConfigureAwait(false);
+        if (ok) _logger.LogDebug("Web FollowUser {Id} succeeded", userId);
+        else _logger.LogWarning("Web FollowUser {Id} failed", userId);
+        return ok;
+    }
+
+    /// <summary>
+    /// POST https://www.pixiv.net/touch/ajax_api/ajax_api.php — unfollow via the mobile touch API.
+    /// </summary>
+    private async Task<bool> UnfollowUserWebAsync(
+        string userId,
+        CancellationToken ct = default)
+    {
+        var form = new Dictionary<string, string>
+        {
+            ["mode"] = "delete_bookmark_user",
+            ["user_id"] = userId,
+        };
+
+        var ok = await PostTouchApiSuccessAsync(form, ct).ConfigureAwait(false);
+        if (ok) _logger.LogDebug("Web UnfollowUser {Id} succeeded", userId);
+        else _logger.LogWarning("Web UnfollowUser {Id} failed", userId);
+        return ok;
+    }
+
+    /// <summary>
+    /// POST helper for Pixiv's mobile touch API (multipart/form-data + PHPSESSID + CSRF token).
+    /// </summary>
+    private async Task<bool> PostTouchApiSuccessAsync(
+        Dictionary<string, string> form,
+        CancellationToken ct)
+    {
+        var url = $"{BaseUrl}/touch/ajax_api/ajax_api.php";
+        try
+        {
+            var csrf = await GetCsrfTokenAsync(null, ct).ConfigureAwait(false);
+            if (string.IsNullOrWhiteSpace(csrf))
+            {
+                _logger.LogWarning("PostTouchApi {Url}: no CSRF token", url);
+                return false;
+            }
+
+            var client = _httpFactory.GetClient();
+            using var req = new HttpRequestMessage(HttpMethod.Post, url);
+            req.Headers.TryAddWithoutValidation("Referer", BaseUrl + "/");
+            req.Headers.TryAddWithoutValidation("Accept", "application/json");
+            req.Headers.TryAddWithoutValidation("x-csrf-token", csrf);
+
+            using var content = new MultipartFormDataContent();
+            foreach (var kv in form)
+                content.Add(new StringContent(kv.Value), kv.Key);
+            req.Content = content;
+
+            using var resp = await client.SendAsync(req, ct).ConfigureAwait(false);
+            var body = await resp.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            if (!resp.IsSuccessStatusCode)
+            {
+                await WriteDiagAsync(url, $"HTTP {(int)resp.StatusCode} {resp.StatusCode}\nBody={body?[..Math.Min(500, body.Length)]}", ct);
+                return false;
+            }
+
+            PixivAjaxResponse<object>? envelope;
+            try { envelope = System.Text.Json.JsonSerializer.Deserialize<PixivAjaxResponse<object>>(body, JsonOpts); }
+            catch
+            {
+                await WriteDiagAsync(url, $"parse failed\nBody={body?[..Math.Min(500, body.Length)]}", ct);
+                return false;
+            }
+
+            if (envelope is null || envelope.Error)
+            {
+                await WriteDiagAsync(url, $"error=true msg={envelope?.Message}\nBody={body?[..Math.Min(500, body.Length)]}", ct);
+                return false;
+            }
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogDebug(ex, "PostTouchApi failed for {Url}", url);
+            return false;
+        }
+    }
+
     private static Task WriteDiagAsync(string context, string detail, CancellationToken ct = default)
     {
         var path = System.IO.Path.Combine(Path.GetTempPath(), "pikura_api_diag.txt");
@@ -970,25 +2046,56 @@ public sealed partial class PixivClient
             }
             var html = await resp.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             // Try patterns in order of specificity
-            // 1) meta-global-data content blob
+            // 1) __NEXT_DATA__ -> props.pageProps.serverSerializedPreloadedState -> api.token
+            var nextData = ExtractNextDataToken(html);
+            if (!string.IsNullOrWhiteSpace(nextData)) return nextData;
+            // 2) meta-global-data content blob
             var metaM = MetaGlobalDataRegex().Match(html);
             if (metaM.Success)
             {
                 var inner = CsrfTokenRegex().Match(metaM.Groups[1].Value);
                 if (inner.Success) return inner.Groups[1].Value;
             }
-            // 2) "token":"..." anywhere
+            // 3) "token":"..." anywhere
             var tokM = CsrfTokenRegex().Match(html);
             if (tokM.Success) return tokM.Groups[1].Value;
-            // 3) "tt":"..." anywhere (Next.js pageProps)
+            // 4) "tt":"..." anywhere (Next.js pageProps)
             var ttM = TtTokenRegex().Match(html);
             if (ttM.Success) return ttM.Groups[1].Value;
-            // Dump the full HTML to disk one time so we can inspect the actual token format
-            var dumpPath = System.IO.Path.Combine(Path.GetTempPath(), "pikura_page_dump.html");
-            if (!File.Exists(dumpPath))
-                await File.WriteAllTextAsync(dumpPath, html, ct).ConfigureAwait(false);
+            // Dump the full HTML to disk so we can inspect the actual token format
+            var dumpPath = System.IO.Path.Combine(Path.GetTempPath(), $"pikura_page_dump_{Guid.NewGuid():N}.html");
+            await File.WriteAllTextAsync(dumpPath, html, ct).ConfigureAwait(false);
             await WriteDiagAsync(url, $"CSRF: no pattern matched (htmlLen={html.Length}). Full HTML at {dumpPath}", ct);
             return null;
+
+            string? ExtractNextDataToken(string page)
+            {
+                try
+                {
+                    var nextM = NextDataRegex().Match(page);
+                    if (!nextM.Success) return null;
+                    var nextJson = nextM.Groups[1].Value;
+                    using var nextDoc = JsonDocument.Parse(nextJson);
+                    if (!nextDoc.RootElement.TryGetProperty("props", out var props) ||
+                        !props.TryGetProperty("pageProps", out var pageProps) ||
+                        !pageProps.TryGetProperty("serverSerializedPreloadedState", out var preloaded) ||
+                        preloaded.ValueKind != JsonValueKind.String)
+                        return null;
+
+                    using var preDoc = JsonDocument.Parse(preloaded.GetString() ?? "{}");
+                    if (preDoc.RootElement.TryGetProperty("api", out var api) &&
+                        api.TryGetProperty("token", out var token) &&
+                        token.ValueKind == JsonValueKind.String)
+                    {
+                        return token.GetString();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogDebug(ex, "__NEXT_DATA__ CSRF parse failed for {Url}", url);
+                }
+                return null;
+            }
         }
         catch (Exception ex)
         {

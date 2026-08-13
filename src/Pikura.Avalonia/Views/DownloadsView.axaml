@@ -19,7 +19,7 @@
         </Grid.RowDefinitions>
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#FFF8F8F8" Padding="16,12">
+        <Border Grid.Row="0" Background="{DynamicResource Container1BackgroundBrush}" Padding="16,12">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -35,7 +35,7 @@
                 <Button Grid.Column="2" Command="{Binding RefreshDownloadsCommand}">
                     <StackPanel Orientation="Horizontal" Spacing="4">
                         <PathIcon Data="{StaticResource RefreshIcon}" Width="14" Height="14"
-                                  VerticalAlignment="Center"/>
+                                  VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                         <TextBlock Text="Refresh" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
@@ -44,8 +44,8 @@
 
         <!-- Main Content -->
         <Grid Grid.Row="1">
-            <Border Background="White" 
-                    BorderBrush="#FFE0E0E0" 
+            <Border Background="{DynamicResource Container1BackgroundBrush}" 
+                    BorderBrush="{DynamicResource Container1BorderBrush}" 
                     BorderThickness="1" 
                     CornerRadius="8"
                     Margin="16"
@@ -61,12 +61,12 @@
                               HorizontalAlignment="Center"/>
                     <TextBlock Text="Manage and monitor your downloads" 
                               TextAlignment="Center" 
-                              Opacity="0.7"/>
+                              Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                     <Button Command="{Binding RefreshDownloadsCommand}"
                             HorizontalAlignment="Center">
                         <StackPanel Orientation="Horizontal" Spacing="4">
                             <PathIcon Data="{StaticResource RefreshIcon}" Width="14" Height="14"
-                                      VerticalAlignment="Center"/>
+                                      VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                             <TextBlock Text="Refresh Downloads" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
@@ -84,9 +84,9 @@
 
         <!-- Status Bar -->
         <Border Grid.Row="2" 
-                Background="#FFF8F8F8" 
+                Background="{DynamicResource Container1BackgroundBrush}" 
                 Padding="16,8" 
-                BorderBrush="#FFE0E0E0" 
+                BorderBrush="{DynamicResource Container1BorderBrush}" 
                 BorderThickness="0,1,0,0">
             <Grid>
                 <Grid.ColumnDefinitions>

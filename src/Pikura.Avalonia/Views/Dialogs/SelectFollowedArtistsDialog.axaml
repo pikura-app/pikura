@@ -19,16 +19,14 @@
             <Grid Grid.Row="1" ColumnDefinitions="*,Auto,Auto">
                 <TextBox Grid.Column="0" x:Name="SearchTextBox" PlaceholderText="Search artist name or ID..."
                          CornerRadius="6" Margin="0,0,8,0"/>
-                <Button Grid.Column="1" x:Name="SearchButton" Content="Search"
-                        CornerRadius="6" Padding="16,6" Margin="0,0,8,0"/>
-                <Button Grid.Column="2" x:Name="ClearSearchButton" Content="Clear"
-                        CornerRadius="6" Padding="12,6"/>
+                <Button x:Name="SearchButton" Content="Search" Margin="0,0,8,0"/>
+                <Button x:Name="ClearSearchButton" Content="Clear"/>
             </Grid>
 
             <!-- Artist List -->
             <Border Grid.Row="2"
-                    Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                    BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                    Background="{DynamicResource Container2BackgroundBrush}"
+                    BorderBrush="{DynamicResource Container2BorderBrush}"
                     BorderThickness="1" CornerRadius="8">
                 <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="350">
                     <StackPanel x:Name="ArtistsPanel" Margin="8" Spacing="4"/>
@@ -37,24 +35,19 @@
 
             <!-- Pagination -->
             <Grid Grid.Row="3" ColumnDefinitions="Auto,*,Auto">
-                <Button x:Name="PrevPageButton" Content="← Previous"
-                        CornerRadius="6" Padding="12,6"/>
+                <Button x:Name="PrevPageButton" Content="← Previous"/>
                 <TextBlock x:Name="PageInfoText" Grid.Column="1"
                            HorizontalAlignment="Center" VerticalAlignment="Center"
                            Text="Page 1 of 1"/>
-                <Button x:Name="NextPageButton" Grid.Column="2" Content="Next →"
-                        CornerRadius="6" Padding="12,6"/>
+                <Button x:Name="NextPageButton" Content="Next →"/>
             </Grid>
 
             <!-- Bottom Controls -->
             <Grid Grid.Row="4" ColumnDefinitions="*,Auto,Auto,Auto">
                 <TextBlock Grid.Column="0" x:Name="SummaryText" VerticalAlignment="Center" Text=""/>
-                <Button Grid.Column="1" x:Name="SelectAllButton"
-                        Content="Select All" CornerRadius="6" Padding="12,8" Margin="0,0,8,0"/>
-                <Button Grid.Column="2" x:Name="CancelButton"
-                        Content="Cancel" CornerRadius="6" Padding="16,8" Margin="0,0,8,0"/>
-                <Button Grid.Column="3" x:Name="AddButton"
-                        Content="Add Selected" Classes="accent" CornerRadius="6" Padding="16,8"/>
+                <Button x:Name="SelectAllButton" Content="Select All" Margin="0,0,8,0"/>
+                <Button x:Name="CancelButton" Content="Cancel" Margin="0,0,8,0"/>
+                <Button x:Name="AddButton" Content="Add Selected" Classes="accent"/>
             </Grid>
         </Grid>
     </Border>

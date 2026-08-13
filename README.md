@@ -54,6 +54,18 @@
 
 > **macOS note:** Pikura is not notarised. On first launch right-click → Open to bypass Gatekeeper.
 
+## What's New in v2.1.0
+
+- **Collections** — full support for Pixiv's collection-curation feature: browse Featured and All collections, open details, download selected or entire collections, bookmark collections, and post/read collection comments.
+- **Collage** — open any selection of artworks as a single unique collage tab, add or remove individual images, and download the whole collage.
+- **Pixiv-connected actions** — likes, bookmarks, follows/unfollows, and comments now operate on your real Pixiv account; public/private bookmark state is supported and kept separate from local favorites.
+- **Chrome-style tab reordering** — drag inline viewer tabs left or right and watch the strip slide around the tab in real time.
+- **View in new tabs** — open selected artworks in their own inline viewer tabs from Gallery, Discover, Rankings, Pixivision, Bookmarks, Search, and Collections.
+- **Bookmarks improvements** — Bookmarks now includes every artwork you've liked on Pixiv (even ones that aren't bookmarked) alongside your public/private bookmarks and bookmarked collections.
+- **Search improvements** — a History dropdown lets you jump back to a previous search (with the filters used at the time), and Popular Tags are shown as clickable chips so you can search by tag with one click.
+- **Smoother sync** — likes, bookmarks, follows, and view counts update immediately across the gallery, Discover, Rankings, Search, Pixivision, and the inline viewer.
+- **Refreshed themes** — light and dark modes have been cleaned up with better contrast, rounded button hover highlights, visible caption-button hover states, and a working system-theme toggle.
+
 ## Requirements
 
 - A Pixiv account

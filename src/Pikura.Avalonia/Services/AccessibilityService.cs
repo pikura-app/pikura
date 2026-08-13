@@ -64,31 +64,22 @@ public class AccessibilityService
     private void ApplyHighContrast(bool enable)
     {
         if (Application.Current == null) return;
-        
+
         _isHighContrast = enable;
-        
+        var currentResources = Application.Current.Resources;
+
         if (enable)
         {
-            // Apply high contrast theme variant
-            Application.Current.RequestedThemeVariant = ThemeVariant.Light;
-            
-            // Set high contrast application resources
-            var currentResources = Application.Current.Resources;
-            currentResources["AccessibilityForeground"] = new SolidColorBrush(Colors.Black);
-            currentResources["AccessibilityBackground"] = new SolidColorBrush(Colors.White);
-            currentResources["AccessibilityBorder"] = new SolidColorBrush(Colors.Black);
+            // Use a high-visibility border colour that contrasts with the active theme.
+            // Do not flip the theme variant — high contrast should keep the user's light/dark/scheduled choice.
+            bool isDark = Application.Current.ActualThemeVariant == ThemeVariant.Dark;
+            currentResources["AccessibilityBorder"] = new SolidColorBrush(isDark ? Colors.White : Colors.Black);
         }
         else
         {
-            // Restore normal theme
-            var theme = _settingsService.Current.Theme == "Light" ? ThemeVariant.Light : ThemeVariant.Dark;
-            Application.Current.RequestedThemeVariant = theme;
-            
-            // Remove accessibility color overrides
-            var currentResources = Application.Current.Resources;
-            currentResources.Remove("AccessibilityForeground");
-            currentResources.Remove("AccessibilityBackground");
+            // Restore the user's chosen theme (System/Scheduled are handled by App.ApplyTheme).
             currentResources.Remove("AccessibilityBorder");
+            App.ApplyTheme();
         }
     }
 

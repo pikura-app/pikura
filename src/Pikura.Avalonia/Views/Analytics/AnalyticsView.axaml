@@ -14,24 +14,24 @@
 
     <Grid RowDefinitions="Auto,*">
         <!-- Header -->
-        <Border Grid.Row="0" Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+        <Border Grid.Row="0" Background="{DynamicResource Container1BackgroundBrush}"
+                BorderBrush="{DynamicResource Container1BorderBrush}"
                 BorderThickness="0,0,0,1" Padding="16,10"
                 Margin="0,32,0,0">
             <Grid ColumnDefinitions="Auto,*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
                     <TextBlock Text="📊" FontSize="18" VerticalAlignment="Center"/>
                     <TextBlock Text="Analytics" FontWeight="SemiBold" FontSize="16" VerticalAlignment="Center"/>
-                    <TextBlock Text="Download statistics and insights" FontSize="12" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}" VerticalAlignment="Center"/>
+                    <TextBlock Text="Download statistics and insights" FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}" VerticalAlignment="Center"/>
                 </StackPanel>
                 <Border Grid.Column="1"/>
                 <Button Grid.Column="2"
                         Command="{Binding LoadAnalyticsCommand}"
-                        CornerRadius="6" Padding="12,8" FontSize="12">
+                          FontSize="12">
                     <StackPanel Orientation="Horizontal" Spacing="6">
                         <PathIcon Data="{StaticResource RefreshIcon}" Width="14" Height="14"
                                   VerticalAlignment="Center"
-                                  Foreground="{actipro:ThemeResource DefaultForegroundBrush}"/>
+                                  Foreground="{Binding $parent[Button].Foreground}"/>
                         <TextBlock Text="Refresh" FontSize="12" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
@@ -43,35 +43,35 @@
             <StackPanel Spacing="20" Margin="20">
                 <!-- Overview Cards -->
                 <Grid ColumnDefinitions="*,*,*,*">
-                    <Border Grid.Column="0" Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                            BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                    <Border Grid.Column="0" Background="{DynamicResource Container2BackgroundBrush}"
+                            BorderBrush="{DynamicResource Container2BorderBrush}"
                             BorderThickness="1" CornerRadius="8" Padding="16" Margin="0,0,8,0">
                         <StackPanel Spacing="4">
-                            <TextBlock Text="Total Jobs" FontSize="12" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                            <TextBlock Text="Total Jobs" FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                             <TextBlock Text="{Binding TotalJobs}" FontSize="24" FontWeight="SemiBold"/>
                         </StackPanel>
                     </Border>
-                    <Border Grid.Column="1" Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                            BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                    <Border Grid.Column="1" Background="{DynamicResource Container2BackgroundBrush}"
+                            BorderBrush="{DynamicResource Container2BorderBrush}"
                             BorderThickness="1" CornerRadius="8" Padding="16" Margin="0,0,8,0">
                         <StackPanel Spacing="4">
-                            <TextBlock Text="Completed" FontSize="12" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                            <TextBlock Text="Completed" FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                             <TextBlock Text="{Binding CompletedJobs}" FontSize="24" FontWeight="SemiBold" Foreground="Green"/>
                         </StackPanel>
                     </Border>
-                    <Border Grid.Column="2" Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                            BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                    <Border Grid.Column="2" Background="{DynamicResource Container2BackgroundBrush}"
+                            BorderBrush="{DynamicResource Container2BorderBrush}"
                             BorderThickness="1" CornerRadius="8" Padding="16" Margin="0,0,8,0">
                         <StackPanel Spacing="4">
-                            <TextBlock Text="Failed" FontSize="12" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                            <TextBlock Text="Failed" FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                             <TextBlock Text="{Binding FailedJobs}" FontSize="24" FontWeight="SemiBold" Foreground="Red"/>
                         </StackPanel>
                     </Border>
-                    <Border Grid.Column="3" Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                            BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                    <Border Grid.Column="3" Background="{DynamicResource Container2BackgroundBrush}"
+                            BorderBrush="{DynamicResource Container2BorderBrush}"
                             BorderThickness="1" CornerRadius="8" Padding="16">
                         <StackPanel Spacing="4">
-                            <TextBlock Text="Success Rate" FontSize="12" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                            <TextBlock Text="Success Rate" FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                             <TextBlock Text="{Binding SuccessRate, StringFormat='{}{0:F1}%'}" FontSize="24" FontWeight="SemiBold"/>
                         </StackPanel>
                     </Border>
@@ -79,27 +79,27 @@
 
                 <!-- Download Stats -->
                 <Grid ColumnDefinitions="*,*">
-                    <Border Grid.Column="0" Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                            BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                    <Border Grid.Column="0" Background="{DynamicResource Container2BackgroundBrush}"
+                            BorderBrush="{DynamicResource Container2BorderBrush}"
                             BorderThickness="1" CornerRadius="8" Padding="16" Margin="0,0,8,0">
                         <StackPanel Spacing="4">
-                            <TextBlock Text="Total Downloaded Items" FontSize="12" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                            <TextBlock Text="Total Downloaded Items" FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                             <TextBlock Text="{Binding TotalDownloadedItems}" FontSize="20" FontWeight="SemiBold"/>
                         </StackPanel>
                     </Border>
-                    <Border Grid.Column="1" Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                            BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                    <Border Grid.Column="1" Background="{DynamicResource Container2BackgroundBrush}"
+                            BorderBrush="{DynamicResource Container2BorderBrush}"
                             BorderThickness="1" CornerRadius="8" Padding="16">
                         <StackPanel Spacing="4">
-                            <TextBlock Text="Total Failed Items" FontSize="12" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                            <TextBlock Text="Total Failed Items" FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                             <TextBlock Text="{Binding TotalFailedItems}" FontSize="20" FontWeight="SemiBold" Foreground="Red"/>
                         </StackPanel>
                     </Border>
                 </Grid>
 
                 <!-- Jobs by Type -->
-                <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                        BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                <Border Background="{DynamicResource Container2BackgroundBrush}"
+                        BorderBrush="{DynamicResource Container2BorderBrush}"
                         BorderThickness="1" CornerRadius="8" Padding="16">
                     <StackPanel Spacing="12">
                         <TextBlock Text="Jobs by Type" FontSize="14" FontWeight="SemiBold"/>
@@ -117,25 +117,25 @@
                 </Border>
 
                 <!-- Recent Activity -->
-                <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                        BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                <Border Background="{DynamicResource Container2BackgroundBrush}"
+                        BorderBrush="{DynamicResource Container2BorderBrush}"
                         BorderThickness="1" CornerRadius="8" Padding="16">
                     <StackPanel Spacing="12">
                         <TextBlock Text="Recent Activity" FontSize="14" FontWeight="SemiBold"/>
-                        <Border Background="{actipro:ThemeResource Container3BackgroundBrush}"
-                                BorderBrush="{actipro:ThemeResource Container3BorderBrush}"
+                        <Border Background="{DynamicResource Container3BackgroundBrush}"
+                                BorderBrush="{DynamicResource Container3BorderBrush}"
                                 BorderThickness="1" CornerRadius="6" MaxHeight="300">
                             <ScrollViewer VerticalScrollBarVisibility="Auto">
                                 <ItemsControl ItemsSource="{Binding RecentActivity}" Margin="8">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                                                    BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                                            <Border Background="{DynamicResource Container2BackgroundBrush}"
+                                                    BorderBrush="{DynamicResource Container2BorderBrush}"
                                                     BorderThickness="1" CornerRadius="4" Padding="8" Margin="0,0,0,4">
                                                 <Grid ColumnDefinitions="*,Auto,Auto">
                                                     <TextBlock Grid.Column="0" Text="{Binding Name}" FontSize="12" TextWrapping="Wrap"/>
                                                     <TextBlock Grid.Column="1" Text="{Binding Status}" FontSize="10" Margin="8,0,8,0" VerticalAlignment="Center"/>
-                                                    <TextBlock Grid.Column="2" Text="{Binding Date, StringFormat='{}{0:MMM d}'}" FontSize="10" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}" VerticalAlignment="Center"/>
+                                                    <TextBlock Grid.Column="2" Text="{Binding Date, StringFormat='{}{0:MMM d}'}" FontSize="10" Foreground="{DynamicResource DefaultForegroundBrushTertiary}" VerticalAlignment="Center"/>
                                                 </Grid>
                                             </Border>
                                         </DataTemplate>
@@ -148,8 +148,8 @@
 
                 <!-- Top Artists -->
                 <Grid ColumnDefinitions="*,*">
-                    <Border Grid.Column="0" Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                            BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                    <Border Grid.Column="0" Background="{DynamicResource Container2BackgroundBrush}"
+                            BorderBrush="{DynamicResource Container2BorderBrush}"
                             BorderThickness="1" CornerRadius="8" Padding="16" Margin="0,0,8,0">
                         <StackPanel Spacing="12">
                             <StackPanel Orientation="Horizontal" Spacing="8">
@@ -157,30 +157,30 @@
                                 <TextBlock Text="Most Downloaded Artists" FontSize="14" FontWeight="SemiBold"/>
                             </StackPanel>
                             <TextBlock Text="Ranked by total artworks downloaded" FontSize="11"
-                                       Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                       Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                             <ItemsControl ItemsSource="{Binding TopArtists}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
                                         <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,3,0,3">
                                             <TextBlock Grid.Column="0" Text="{Binding Rank}" FontSize="11"
-                                                       Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                                       Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                                        Width="22"/>
                                             <TextBlock Grid.Column="1" Text="{Binding Name}" FontSize="12"
                                                        TextTrimming="CharacterEllipsis"/>
                                             <TextBlock Grid.Column="2" Text="{Binding Count, StringFormat='{}{0} imgs'}"
                                                        FontSize="11" FontWeight="SemiBold"
-                                                       Foreground="{actipro:ThemeResource ControlForegroundBrushOutlineAccent}"/>
+                                                       Foreground="{DynamicResource ControlForegroundBrushOutlineAccent}"/>
                                         </Grid>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
-                            <TextBlock Text="No data yet" FontSize="12" Opacity="0.5" HorizontalAlignment="Center"
+                            <TextBlock Text="No data yet" FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}" HorizontalAlignment="Center"
                                        IsVisible="{Binding !TopArtists.Count}"/>
                         </StackPanel>
                     </Border>
 
-                    <Border Grid.Column="1" Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                            BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                    <Border Grid.Column="1" Background="{DynamicResource Container2BackgroundBrush}"
+                            BorderBrush="{DynamicResource Container2BorderBrush}"
                             BorderThickness="1" CornerRadius="8" Padding="16">
                         <StackPanel Spacing="12">
                             <StackPanel Orientation="Horizontal" Spacing="8">
@@ -188,24 +188,24 @@
                                 <TextBlock Text="Most Frequented Artists" FontSize="14" FontWeight="SemiBold"/>
                             </StackPanel>
                             <TextBlock Text="Ranked by number of download sessions" FontSize="11"
-                                       Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                       Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                             <ItemsControl ItemsSource="{Binding MostFrequentedArtists}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
                                         <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,3,0,3">
                                             <TextBlock Grid.Column="0" Text="{Binding Rank}" FontSize="11"
-                                                       Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                                       Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                                        Width="22"/>
                                             <TextBlock Grid.Column="1" Text="{Binding Name}" FontSize="12"
                                                        TextTrimming="CharacterEllipsis"/>
                                             <TextBlock Grid.Column="2" Text="{Binding Count, StringFormat='{}{0}x'}"
                                                        FontSize="11" FontWeight="SemiBold"
-                                                       Foreground="{actipro:ThemeResource ControlForegroundBrushOutlineAccent}"/>
+                                                       Foreground="{DynamicResource ControlForegroundBrushOutlineAccent}"/>
                                         </Grid>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
-                            <TextBlock Text="No data yet" FontSize="12" Opacity="0.5" HorizontalAlignment="Center"
+                            <TextBlock Text="No data yet" FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}" HorizontalAlignment="Center"
                                        IsVisible="{Binding !MostFrequentedArtists.Count}"/>
                         </StackPanel>
                     </Border>

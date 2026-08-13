@@ -25,9 +25,9 @@
         <!-- Tag chip template (used inside ItemsControl in all views) -->
         <DataTemplate x:Key="TagChipTemplate" x:DataType="x:String">
             <Border Margin="0,1,3,1" Padding="4,1" CornerRadius="3"
-                    Background="{actipro:ThemeResource Container2BackgroundBrush}">
+                    Background="{DynamicResource Container2BackgroundBrush}">
                 <TextBlock Text="{Binding}" FontSize="9"
-                           Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                           Foreground="{DynamicResource DefaultForegroundBrush}"/>
             </Border>
         </DataTemplate>
 
@@ -39,9 +39,9 @@
             <Border Width="{Binding $parent[UserControl].((vm:BookmarksViewModel)DataContext).CardSize}"
                     Height="{Binding $parent[UserControl].((vm:BookmarksViewModel)DataContext).FixedCardTotalHeight}"
                     Margin="0,0,6,6"
-                    Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                    BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
-                    BorderThickness="1" CornerRadius="8" BoxShadow="0 1 4 0 #28000000"
+                    Background="{DynamicResource Container1BackgroundBrush}"
+                    BorderBrush="{DynamicResource Container1BorderBrush}"
+                    BorderThickness="1" CornerRadius="8" BoxShadow="{DynamicResource CardShadow}"
                     Cursor="Hand" Tapped="OnCardTapped" DoubleTapped="OnCardDoubleTapped"
                     ClipToBounds="True"
                     Classes.selected="{Binding IsSelected}">
@@ -96,19 +96,21 @@
                 </Border.ContextMenu>
                 <Border.Styles>
                     <Style Selector="Border:pointerover">
-                        <Setter Property="BoxShadow"    Value="0 6 20 0 #55000000"/>
-                        <Setter Property="BorderBrush"  Value="{actipro:ThemeResource ControlBackgroundBrushSolidAccent}"/>
+                        <Setter Property="BoxShadow"    Value="{DynamicResource CardShadowHover}"/>
+                        <Setter Property="BorderBrush"  Value="{DynamicResource ControlBackgroundBrushSolidAccent}"/>
                     </Style>
                 </Border.Styles>
                 <Panel>
                     <Image Source="{Binding Thumbnail}" Stretch="UniformToFill">
                         <Image.Effect><BlurEffect Radius="{Binding IsBlurred, Converter={StaticResource BoolToBlurRadiusConverter}}"/></Image.Effect>
                     </Image>
-                    <!-- Selection checkbox -->
-                    <CheckBox ZIndex="6" IsChecked="{Binding IsSelected}"
-                              VerticalAlignment="Top" HorizontalAlignment="Left"
-                              Margin="6,6,0,0" MinWidth="0" MinHeight="0"
-                              Click="OnFavCardCheckboxClicked"/>
+                    <!-- Selection checkbox — wrapped in a background chip so it's visible over any image. -->
+                    <Border VerticalAlignment="Top" HorizontalAlignment="Left" Margin="6,6,0,0"
+                            Padding="2" CornerRadius="4" Background="#99000000">
+                        <CheckBox ZIndex="6" IsChecked="{Binding IsSelected}"
+                                  MinWidth="0" MinHeight="0"
+                                  Click="OnFavCardCheckboxClicked"/>
+                    </Border>
                     <!-- Info overlay -->
                     <Border VerticalAlignment="Bottom" Background="#CC000000" Padding="8,5"
                             IsVisible="{Binding $parent[UserControl].((vm:BookmarksViewModel)DataContext).ShowInfo}">
@@ -125,21 +127,40 @@
                     <!-- Badges -->
                     <Border VerticalAlignment="Bottom" HorizontalAlignment="Left"  Margin="6,0,0,6" Padding="5,2" CornerRadius="4" Background="#BB000000" IsVisible="{Binding IsMultiPage}"    IsHitTestVisible="False"><TextBlock Text="{Binding PageCount, StringFormat='1/{0}'}" FontSize="9" Foreground="White"/></Border>
                     <Border VerticalAlignment="Top"    HorizontalAlignment="Right" Margin="0,6,6,0"  Padding="5,2" CornerRadius="4" Background="#CCDC2626" IsVisible="{Binding IsR18}"          IsHitTestVisible="False"><TextBlock Text="R-18" FontSize="8" Foreground="White" FontWeight="Bold"/></Border>
-                    <!-- Favorite star — sits at the very top-right normally, and drops below the
-                         R-18 badge only when that badge is also showing, so it's never left
-                         floating in an empty gap or overlapping another badge. -->
-                    <Panel IsVisible="{Binding IsLocalFavorite}" IsHitTestVisible="False">
-                        <Border VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,6,6,0"  Padding="5,3" CornerRadius="4" Background="#CC8B5CF6" IsVisible="{Binding !IsR18}">
-                            <Path Data="{StaticResource FavoriteStarGeometry}" Width="9" Height="9" Stretch="Uniform" Fill="White"/>
+                    <!-- Liked heart + bookmarked badge + local favorite star — all bound to
+                         ShowBadges so they can be hidden as a group. Individually positioned
+                         (not a StackPanel) — a horizontal StackPanel here only renders its first
+                         child when this template is hosted inside MasonryPanel (Natural mode). -->
+                    <Panel IsVisible="{Binding $parent[UserControl].((vm:BookmarksViewModel)DataContext).ShowBadges}" IsHitTestVisible="False">
+                        <Border VerticalAlignment="Bottom" HorizontalAlignment="Right"
+                                Padding="5,3" CornerRadius="4" Background="#CC2563EB" IsVisible="{Binding IsPixivBookmarked}">
+                            <Border.Margin>
+                                <MultiBinding Converter="{x:Static conv:BadgeStackMarginConverter.Instance}">
+                                    <Binding Path="IsLiked"/>
+                                </MultiBinding>
+                            </Border.Margin>
+                            <PathIcon Data="{StaticResource BookmarkFilledIcon}" Width="9" Height="9" Foreground="White"/>
                         </Border>
-                        <Border VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,28,6,0" Padding="5,3" CornerRadius="4" Background="#CC8B5CF6" IsVisible="{Binding IsR18}">
-                            <Path Data="{StaticResource FavoriteStarGeometry}" Width="9" Height="9" Stretch="Uniform" Fill="White"/>
+                        <Border VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,6,6"
+                                Padding="5,3" CornerRadius="4" Background="#CCDB2777" IsVisible="{Binding IsLiked}">
+                            <PathIcon Data="{StaticResource HeartFilledIcon}" Width="9" Height="9" Foreground="White"/>
                         </Border>
+                        <!-- Favorite star — sits at the very top-right normally, and drops below the
+                             R-18 badge only when that badge is also showing, so it's never left
+                             floating in an empty gap or overlapping another badge. -->
+                        <Panel IsVisible="{Binding IsLocalFavorite}">
+                            <Border VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,6,6,0"  Padding="5,3" CornerRadius="4" Background="#CC8B5CF6" IsVisible="{Binding !IsR18}">
+                                <Path Data="{StaticResource FavoriteStarGeometry}" Width="9" Height="9" Stretch="Uniform" Fill="White"/>
+                            </Border>
+                            <Border VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,28,6,0" Padding="5,3" CornerRadius="4" Background="#CC8B5CF6" IsVisible="{Binding IsR18}">
+                                <Path Data="{StaticResource FavoriteStarGeometry}" Width="9" Height="9" Stretch="Uniform" Fill="White"/>
+                            </Border>
+                        </Panel>
                     </Panel>
                 </Panel>
             </Border>
             <Border Margin="0,0,6,6" IsVisible="{Binding IsSelected}" IsHitTestVisible="False"
-                    BorderBrush="#5B8DEF" BorderThickness="2" CornerRadius="8"/>
+                    BorderBrush="{DynamicResource ControlBackgroundBrushSolidAccent}" BorderThickness="2" CornerRadius="8"/>
             </Panel>
         </DataTemplate>
 
@@ -150,9 +171,9 @@
             <Panel>
             <Border Width="{Binding $parent[UserControl].((vm:BookmarksViewModel)DataContext).CardSize}"
                     Margin="0,0,6,6"
-                    Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                    BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
-                    BorderThickness="1" CornerRadius="8" BoxShadow="0 1 4 0 #28000000"
+                    Background="{DynamicResource Container1BackgroundBrush}"
+                    BorderBrush="{DynamicResource Container1BorderBrush}"
+                    BorderThickness="1" CornerRadius="8" BoxShadow="{DynamicResource CardShadow}"
                     Cursor="Hand" Tapped="OnCardTapped" DoubleTapped="OnCardDoubleTapped"
                     Classes.selected="{Binding IsSelected}">
                 <Border.ContextMenu>
@@ -206,8 +227,8 @@
                 </Border.ContextMenu>
                 <Border.Styles>
                     <Style Selector="Border:pointerover">
-                        <Setter Property="BoxShadow"   Value="0 6 20 0 #55000000"/>
-                        <Setter Property="BorderBrush" Value="{actipro:ThemeResource ControlBackgroundBrushSolidAccent}"/>
+                        <Setter Property="BoxShadow"   Value="{DynamicResource CardShadowHover}"/>
+                        <Setter Property="BorderBrush" Value="{DynamicResource ControlBackgroundBrushSolidAccent}"/>
                     </Style>
                 </Border.Styles>
                 <Panel>
@@ -215,7 +236,7 @@
                     <!-- Image section -->
                     <Border Grid.Row="0" CornerRadius="7,7,0,0" ClipToBounds="True" MinHeight="120">
                         <Panel>
-                            <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
+                            <Border Background="{DynamicResource Container2BackgroundBrush}"
                                     IsVisible="{Binding Thumbnail, Converter={x:Static ObjectConverters.IsNull}}"/>
                             <Image Source="{Binding Thumbnail}" Stretch="UniformToFill">
                                 <Image.Height>
@@ -227,15 +248,39 @@
                                 <Image.Effect><BlurEffect Radius="{Binding IsBlurred, Converter={StaticResource BoolToBlurRadiusConverter}}"/></Image.Effect>
                             </Image>
                             <Border VerticalAlignment="Bottom" HorizontalAlignment="Left"  Margin="6,0,0,6" Padding="5,2" CornerRadius="4" Background="#BB000000" IsVisible="{Binding IsMultiPage}"     IsHitTestVisible="False"><TextBlock Text="{Binding PageCount, StringFormat='1/{0}'}" FontSize="9" Foreground="White"/></Border>
-                            <Border VerticalAlignment="Top"    HorizontalAlignment="Left"  Margin="16,6,0,0" Padding="5,2" CornerRadius="4" Background="#CCDC2626" IsVisible="{Binding IsR18}"           IsHitTestVisible="False"><TextBlock Text="R-18" FontSize="8" Foreground="White" FontWeight="Bold"/></Border>
-                            <Border VerticalAlignment="Top"    HorizontalAlignment="Right" Margin="0,6,6,0" Padding="5,3" CornerRadius="4" Background="#CC8B5CF6" IsVisible="{Binding IsLocalFavorite}"  IsHitTestVisible="False"><Path Data="{StaticResource FavoriteStarGeometry}" Width="9" Height="9" Stretch="Uniform" Fill="White"/></Border>
+                            <Border VerticalAlignment="Top"    HorizontalAlignment="Left"  Margin="42,6,0,0" Padding="5,2" CornerRadius="4" Background="#CCDC2626" IsVisible="{Binding IsR18}"           IsHitTestVisible="False"><TextBlock Text="R-18" FontSize="8" Foreground="White" FontWeight="Bold"/></Border>
+                            <Panel IsVisible="{Binding $parent[UserControl].((vm:BookmarksViewModel)DataContext).ShowBadges}" IsHitTestVisible="False">
+                                <Border VerticalAlignment="Top"    HorizontalAlignment="Right" Margin="0,6,6,0" Padding="5,3" CornerRadius="4" Background="#CC8B5CF6" IsVisible="{Binding IsLocalFavorite}"><Path Data="{StaticResource FavoriteStarGeometry}" Width="9" Height="9" Stretch="Uniform" Fill="White"/></Border>
+                                <Border VerticalAlignment="Bottom" HorizontalAlignment="Right"
+                                        Padding="5,3" CornerRadius="4" Background="#CC2563EB" IsVisible="{Binding IsPixivBookmarked}">
+                                    <Border.Margin>
+                                        <MultiBinding Converter="{x:Static conv:BadgeStackMarginConverter.Instance}">
+                                            <Binding Path="IsLiked"/>
+                                        </MultiBinding>
+                                    </Border.Margin>
+                                    <PathIcon Data="{StaticResource BookmarkFilledIcon}" Width="9" Height="9" Foreground="White"/>
+                                </Border>
+                                <Border VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,6,6"
+                                        Padding="5,3" CornerRadius="4" Background="#CCDB2777" IsVisible="{Binding IsLiked}">
+                                    <PathIcon Data="{StaticResource HeartFilledIcon}" Width="9" Height="9" Foreground="White"/>
+                                </Border>
+                            </Panel>
+                            <!-- Selection checkbox — this template previously had none, which made
+                                 selection/Download Selected effectively unusable in Natural (masonry)
+                                 grid mode. Wrapped in a background chip so it's visible over any image. -->
+                            <Border VerticalAlignment="Top" HorizontalAlignment="Left" Margin="6,6,0,0"
+                                    Padding="2" CornerRadius="4" Background="#99000000">
+                                <CheckBox ZIndex="6" IsChecked="{Binding IsSelected}"
+                                          MinWidth="0" MinHeight="0"
+                                          Click="OnFavCardCheckboxClicked"/>
+                            </Border>
                         </Panel>
                     </Border>
                     <!-- Info strip -->
                     <StackPanel Grid.Row="1" Margin="8,6,8,8" Spacing="2"
                                 IsVisible="{Binding $parent[UserControl].((vm:BookmarksViewModel)DataContext).ShowInfo}">
                         <TextBlock Text="{Binding Title}"    FontSize="11" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" MaxLines="1"/>
-                        <TextBlock Text="{Binding UserName}" FontSize="10" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}" TextTrimming="CharacterEllipsis" MaxLines="1"/>
+                        <TextBlock Text="{Binding UserName}" FontSize="10" Foreground="{DynamicResource DefaultForegroundBrushTertiary}" TextTrimming="CharacterEllipsis" MaxLines="1"/>
                         <ItemsControl ItemsSource="{Binding TopTags}" Margin="0,2,0,0"
                                       IsVisible="{Binding $parent[UserControl].((vm:BookmarksViewModel)DataContext).ShowTags}"
                                       ItemTemplate="{StaticResource TagChipTemplate}">
@@ -246,7 +291,7 @@
                 </Panel>
             </Border>
             <Border Margin="0,0,6,6" IsVisible="{Binding IsSelected}" IsHitTestVisible="False"
-                    BorderBrush="#5B8DEF" BorderThickness="2" CornerRadius="8"/>
+                    BorderBrush="{DynamicResource ControlBackgroundBrushSolidAccent}" BorderThickness="2" CornerRadius="8"/>
             </Panel>
         </DataTemplate>
 
@@ -255,9 +300,9 @@
              ══════════════════════════════════════════════════════════════════ -->
         <DataTemplate x:Key="BookmarkListRowTemplate" x:DataType="vm:ArtworkCardViewModel">
             <Panel>
-            <Border Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                    BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
-                    BorderThickness="1" CornerRadius="8" BoxShadow="0 1 4 0 #28000000"
+            <Border Background="{DynamicResource Container1BackgroundBrush}"
+                    BorderBrush="{DynamicResource Container1BorderBrush}"
+                    BorderThickness="1" CornerRadius="8" BoxShadow="{DynamicResource CardShadow}"
                     Cursor="Hand" Tapped="OnCardTapped" DoubleTapped="OnCardDoubleTapped"
                     Classes.selected="{Binding IsSelected}">
                 <Border.ContextMenu>
@@ -311,20 +356,31 @@
                 </Border.ContextMenu>
                 <Border.Styles>
                     <Style Selector="Border:pointerover">
-                        <Setter Property="BoxShadow"   Value="0 6 20 0 #55000000"/>
-                        <Setter Property="BorderBrush" Value="{actipro:ThemeResource ControlBackgroundBrushSolidAccent}"/>
+                        <Setter Property="BoxShadow"   Value="{DynamicResource CardShadowHover}"/>
+                        <Setter Property="BorderBrush" Value="{DynamicResource ControlBackgroundBrushSolidAccent}"/>
                     </Style>
                 </Border.Styles>
                 <Panel>
-                <Grid ColumnDefinitions="72,*" Height="72">
-                    <Border Grid.Column="0" CornerRadius="7,0,0,7" ClipToBounds="True">
+                <Grid ColumnDefinitions="Auto,72,*" Height="72">
+                    <CheckBox Grid.Column="0" ZIndex="6" IsChecked="{Binding IsSelected}"
+                              VerticalAlignment="Center" Margin="6,0,2,0"
+                              MinWidth="0" MinHeight="0" Click="OnFavCardCheckboxClicked"/>
+                    <Border Grid.Column="1" CornerRadius="7,0,0,7" ClipToBounds="True">
                         <Image Source="{Binding Thumbnail}" Stretch="UniformToFill">
                             <Image.Effect><BlurEffect Radius="{Binding IsBlurred, Converter={StaticResource BoolToBlurRadiusConverter}}"/></Image.Effect>
                         </Image>
                     </Border>
-                    <StackPanel Grid.Column="1" Margin="10,0,10,0" Spacing="3" VerticalAlignment="Center">
-                        <TextBlock Text="{Binding Title}"    FontSize="12" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" MaxLines="1"/>
-                        <TextBlock Text="{Binding UserName}" FontSize="11" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}" TextTrimming="CharacterEllipsis" MaxLines="1"/>
+                    <StackPanel Grid.Column="2" Margin="10,0,10,0" Spacing="3" VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                            <Path Data="{StaticResource FavoriteStarGeometry}" Width="10" Height="10" Stretch="Uniform"
+                                  Fill="#EAB308" IsVisible="{Binding IsLocalFavorite}"/>
+                            <PathIcon Data="{StaticResource BookmarkFilledIcon}" Width="11" Height="11"
+                                      Foreground="#2563EB" IsVisible="{Binding IsPixivBookmarked}"/>
+                            <PathIcon Data="{StaticResource HeartFilledIcon}" Width="11" Height="11"
+                                      Foreground="#DB2777" IsVisible="{Binding IsLiked}"/>
+                            <TextBlock Text="{Binding Title}"    FontSize="12" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" MaxLines="1"/>
+                        </StackPanel>
+                        <TextBlock Text="{Binding UserName}" FontSize="11" Foreground="{DynamicResource DefaultForegroundBrushTertiary}" TextTrimming="CharacterEllipsis" MaxLines="1"/>
                         <ItemsControl ItemsSource="{Binding TopTags}"
                                       IsVisible="{Binding $parent[UserControl].((vm:BookmarksViewModel)DataContext).ShowTags}"
                                       ItemTemplate="{StaticResource TagChipTemplate}">
@@ -335,7 +391,7 @@
                 </Panel>
             </Border>
             <Border IsVisible="{Binding IsSelected}" IsHitTestVisible="False"
-                    BorderBrush="#5B8DEF" BorderThickness="2" CornerRadius="8"/>
+                    BorderBrush="{DynamicResource ControlBackgroundBrushSolidAccent}" BorderThickness="2" CornerRadius="8"/>
             </Panel>
         </DataTemplate>
 
@@ -347,9 +403,9 @@
             <Border Width="{Binding $parent[UserControl].((vm:BookmarksViewModel)DataContext).CardSize}"
                     Height="{Binding $parent[UserControl].((vm:BookmarksViewModel)DataContext).FixedCardTotalHeight}"
                     Margin="0,0,6,6"
-                    Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                    BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
-                    BorderThickness="1" CornerRadius="8" BoxShadow="0 1 4 0 #28000000"
+                    Background="{DynamicResource Container1BackgroundBrush}"
+                    BorderBrush="{DynamicResource Container1BorderBrush}"
+                    BorderThickness="1" CornerRadius="8" BoxShadow="{DynamicResource CardShadow}"
                     Cursor="Hand" Tapped="OnCardTapped" DoubleTapped="OnCardDoubleTapped"
                     ClipToBounds="True"
                     Classes.selected="{Binding IsSelected}">
@@ -378,18 +434,20 @@
                 </Border.ContextMenu>
                 <Border.Styles>
                     <Style Selector="Border:pointerover">
-                        <Setter Property="BoxShadow"   Value="0 6 20 0 #55000000"/>
-                        <Setter Property="BorderBrush" Value="{actipro:ThemeResource ControlBackgroundBrushSolidAccent}"/>
+                        <Setter Property="BoxShadow"   Value="{DynamicResource CardShadowHover}"/>
+                        <Setter Property="BorderBrush" Value="{DynamicResource ControlBackgroundBrushSolidAccent}"/>
                     </Style>
                 </Border.Styles>
                 <Panel>
                     <Image Source="{Binding Thumbnail}" Stretch="UniformToFill">
                         <Image.Effect><BlurEffect Radius="{Binding IsBlurred, Converter={StaticResource BoolToBlurRadiusConverter}}"/></Image.Effect>
                     </Image>
-                    <CheckBox ZIndex="6" IsChecked="{Binding IsSelected}"
-                              VerticalAlignment="Top" HorizontalAlignment="Left"
-                              Margin="6,6,0,0" MinWidth="0" MinHeight="0"
-                              Click="OnFavCardCheckboxClicked"/>
+                    <Border VerticalAlignment="Top" HorizontalAlignment="Left" Margin="6,6,0,0"
+                            Padding="2" CornerRadius="4" Background="#99000000">
+                        <CheckBox ZIndex="6" IsChecked="{Binding IsSelected}"
+                                  MinWidth="0" MinHeight="0"
+                                  Click="OnFavCardCheckboxClicked"/>
+                    </Border>
                     <!-- Info overlay -->
                     <Border VerticalAlignment="Bottom" Background="#CC000000" Padding="8,5"
                             IsVisible="{Binding $parent[UserControl].((vm:BookmarksViewModel)DataContext).ShowInfo}">
@@ -406,19 +464,34 @@
                     <!-- Badges -->
                     <Border VerticalAlignment="Bottom" HorizontalAlignment="Left"  Margin="6,0,0,6"  Padding="5,2" CornerRadius="4" Background="#BB000000" IsVisible="{Binding IsMultiPage}" IsHitTestVisible="False"><TextBlock Text="{Binding PageCount, StringFormat='1/{0}'}" FontSize="9" Foreground="White"/></Border>
                     <Border VerticalAlignment="Top"    HorizontalAlignment="Right" Margin="0,6,6,0" Padding="5,2" CornerRadius="4" Background="#CCDC2626" IsVisible="{Binding IsR18}"          IsHitTestVisible="False"><TextBlock Text="R-18" FontSize="8" Foreground="White" FontWeight="Bold"/></Border>
-                    <!-- Every card in this template is already a favorite, so the star always
-                         shows — it just needs to sit right below R-18 when that badge is also
-                         present, instead of always being offset down and leaving an empty gap. -->
-                    <Border VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,6,6,0"  Padding="5,3" CornerRadius="4" Background="#CC8B5CF6" IsVisible="{Binding !IsR18}" IsHitTestVisible="False">
-                        <Path Data="{StaticResource FavoriteStarGeometry}" Width="9" Height="9" Stretch="Uniform" Fill="White"/>
-                    </Border>
-                    <Border VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,28,6,0" Padding="5,3" CornerRadius="4" Background="#CC8B5CF6" IsVisible="{Binding IsR18}" IsHitTestVisible="False">
-                        <Path Data="{StaticResource FavoriteStarGeometry}" Width="9" Height="9" Stretch="Uniform" Fill="White"/>
-                    </Border>
+                    <Panel IsVisible="{Binding $parent[UserControl].((vm:BookmarksViewModel)DataContext).ShowBadges}" IsHitTestVisible="False">
+                        <Border VerticalAlignment="Bottom" HorizontalAlignment="Right"
+                                Padding="5,3" CornerRadius="4" Background="#CC2563EB" IsVisible="{Binding IsPixivBookmarked}">
+                            <Border.Margin>
+                                <MultiBinding Converter="{x:Static conv:BadgeStackMarginConverter.Instance}">
+                                    <Binding Path="IsLiked"/>
+                                </MultiBinding>
+                            </Border.Margin>
+                            <PathIcon Data="{StaticResource BookmarkFilledIcon}" Width="9" Height="9" Foreground="White"/>
+                        </Border>
+                        <Border VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,6,6"
+                                Padding="5,3" CornerRadius="4" Background="#CCDB2777" IsVisible="{Binding IsLiked}">
+                            <PathIcon Data="{StaticResource HeartFilledIcon}" Width="9" Height="9" Foreground="White"/>
+                        </Border>
+                        <!-- Every card in this template is already a favorite, so the star always
+                             shows — it just needs to sit right below R-18 when that badge is also
+                             present, instead of always being offset down and leaving an empty gap. -->
+                        <Border VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,6,6,0"  Padding="5,3" CornerRadius="4" Background="#CC8B5CF6" IsVisible="{Binding !IsR18}">
+                            <Path Data="{StaticResource FavoriteStarGeometry}" Width="9" Height="9" Stretch="Uniform" Fill="White"/>
+                        </Border>
+                        <Border VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,28,6,0" Padding="5,3" CornerRadius="4" Background="#CC8B5CF6" IsVisible="{Binding IsR18}">
+                            <Path Data="{StaticResource FavoriteStarGeometry}" Width="9" Height="9" Stretch="Uniform" Fill="White"/>
+                        </Border>
+                    </Panel>
                 </Panel>
             </Border>
             <Border Margin="0,0,6,6" IsVisible="{Binding IsSelected}" IsHitTestVisible="False"
-                    BorderBrush="#5B8DEF" BorderThickness="2" CornerRadius="8"/>
+                    BorderBrush="{DynamicResource ControlBackgroundBrushSolidAccent}" BorderThickness="2" CornerRadius="8"/>
             </Panel>
         </DataTemplate>
 
@@ -429,9 +502,9 @@
             <Panel>
             <Border Width="{Binding $parent[UserControl].((vm:BookmarksViewModel)DataContext).CardSize}"
                     Margin="0,0,6,6"
-                    Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                    BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
-                    BorderThickness="1" CornerRadius="8" BoxShadow="0 1 4 0 #28000000"
+                    Background="{DynamicResource Container1BackgroundBrush}"
+                    BorderBrush="{DynamicResource Container1BorderBrush}"
+                    BorderThickness="1" CornerRadius="8" BoxShadow="{DynamicResource CardShadow}"
                     Cursor="Hand" Tapped="OnCardTapped" DoubleTapped="OnCardDoubleTapped"
                     Classes.selected="{Binding IsSelected}">
                 <Border.ContextMenu>
@@ -459,8 +532,8 @@
                 </Border.ContextMenu>
                 <Border.Styles>
                     <Style Selector="Border:pointerover">
-                        <Setter Property="BoxShadow"   Value="0 6 20 0 #55000000"/>
-                        <Setter Property="BorderBrush" Value="{actipro:ThemeResource ControlBackgroundBrushSolidAccent}"/>
+                        <Setter Property="BoxShadow"   Value="{DynamicResource CardShadowHover}"/>
+                        <Setter Property="BorderBrush" Value="{DynamicResource ControlBackgroundBrushSolidAccent}"/>
                     </Style>
                 </Border.Styles>
                 <Panel>
@@ -468,7 +541,7 @@
                     <!-- Image area: natural height, clipped top corners — image ONLY inside clip -->
                     <Border Grid.Row="0" CornerRadius="7,7,0,0" ClipToBounds="True">
                         <Panel>
-                            <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
+                            <Border Background="{DynamicResource Container2BackgroundBrush}"
                                     IsVisible="{Binding Thumbnail, Converter={x:Static ObjectConverters.IsNull}}"/>
                             <Image Source="{Binding Thumbnail}" Stretch="UniformToFill"
                                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
@@ -502,26 +575,43 @@
                         </Border>
                         <!-- Moved to top-right (was top-left, directly overlapping the selection
                              checkbox below) — drops beneath R-18 when that badge is also shown. -->
-                        <Border VerticalAlignment="Top" HorizontalAlignment="Right"
-                                Margin="0,6,6,0" Padding="5,3" CornerRadius="4"
-                                Background="#CC8B5CF6" IsVisible="{Binding !IsR18}">
-                            <Path Data="{StaticResource FavoriteStarGeometry}" Width="9" Height="9" Stretch="Uniform" Fill="White"/>
-                        </Border>
-                        <Border VerticalAlignment="Top" HorizontalAlignment="Right"
-                                Margin="0,28,6,0" Padding="5,3" CornerRadius="4"
-                                Background="#CC8B5CF6" IsVisible="{Binding IsR18}">
-                            <Path Data="{StaticResource FavoriteStarGeometry}" Width="9" Height="9" Stretch="Uniform" Fill="White"/>
-                        </Border>
+                        <Panel IsVisible="{Binding $parent[UserControl].((vm:BookmarksViewModel)DataContext).ShowBadges}">
+                            <Border VerticalAlignment="Top" HorizontalAlignment="Right"
+                                    Margin="0,6,6,0" Padding="5,3" CornerRadius="4"
+                                    Background="#CC8B5CF6" IsVisible="{Binding !IsR18}">
+                                <Path Data="{StaticResource FavoriteStarGeometry}" Width="9" Height="9" Stretch="Uniform" Fill="White"/>
+                            </Border>
+                            <Border VerticalAlignment="Top" HorizontalAlignment="Right"
+                                    Margin="0,28,6,0" Padding="5,3" CornerRadius="4"
+                                    Background="#CC8B5CF6" IsVisible="{Binding IsR18}">
+                                <Path Data="{StaticResource FavoriteStarGeometry}" Width="9" Height="9" Stretch="Uniform" Fill="White"/>
+                            </Border>
+                            <Border VerticalAlignment="Bottom" HorizontalAlignment="Right"
+                                    Padding="5,3" CornerRadius="4" Background="#CC2563EB" IsVisible="{Binding IsPixivBookmarked}">
+                                <Border.Margin>
+                                    <MultiBinding Converter="{x:Static conv:BadgeStackMarginConverter.Instance}">
+                                        <Binding Path="IsLiked"/>
+                                    </MultiBinding>
+                                </Border.Margin>
+                                <PathIcon Data="{StaticResource BookmarkFilledIcon}" Width="9" Height="9" Foreground="White"/>
+                            </Border>
+                            <Border VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,6,6"
+                                    Padding="5,3" CornerRadius="4" Background="#CCDB2777" IsVisible="{Binding IsLiked}">
+                                <PathIcon Data="{StaticResource HeartFilledIcon}" Width="9" Height="9" Foreground="White"/>
+                            </Border>
+                        </Panel>
                     </Panel>
                     <!-- Selection checkbox — top-left (always inside card bounds) -->
-                    <CheckBox Grid.Row="0" VerticalAlignment="Top" HorizontalAlignment="Left"
-                              Margin="6,6,0,0" ZIndex="10" MinWidth="0" MinHeight="0"
-                              IsChecked="{Binding IsSelected}" Click="OnFavCardCheckboxClicked"/>
+                    <Border Grid.Row="0" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="6,6,0,0"
+                            ZIndex="10" Padding="2" CornerRadius="4" Background="#99000000">
+                        <CheckBox MinWidth="0" MinHeight="0"
+                                  IsChecked="{Binding IsSelected}" Click="OnFavCardCheckboxClicked"/>
+                    </Border>
                     <!-- Info strip below image -->
                     <StackPanel Grid.Row="1" Margin="8,6,8,8" Spacing="2"
                                 IsVisible="{Binding $parent[UserControl].((vm:BookmarksViewModel)DataContext).ShowInfo}">
                         <TextBlock Text="{Binding Title}"    FontSize="11" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" MaxLines="1"/>
-                        <TextBlock Text="{Binding UserName}" FontSize="10" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}" TextTrimming="CharacterEllipsis" MaxLines="1"/>
+                        <TextBlock Text="{Binding UserName}" FontSize="10" Foreground="{DynamicResource DefaultForegroundBrushTertiary}" TextTrimming="CharacterEllipsis" MaxLines="1"/>
                         <ItemsControl ItemsSource="{Binding TopTags}" Margin="0,2,0,0"
                                       IsVisible="{Binding $parent[UserControl].((vm:BookmarksViewModel)DataContext).ShowTags}"
                                       ItemTemplate="{StaticResource TagChipTemplate}">
@@ -532,7 +622,7 @@
                 </Panel>
             </Border>
             <Border Margin="0,0,6,6" IsVisible="{Binding IsSelected}" IsHitTestVisible="False"
-                    BorderBrush="#5B8DEF" BorderThickness="2" CornerRadius="8"/>
+                    BorderBrush="{DynamicResource ControlBackgroundBrushSolidAccent}" BorderThickness="2" CornerRadius="8"/>
             </Panel>
         </DataTemplate>
 
@@ -541,9 +631,9 @@
              ══════════════════════════════════════════════════════════════════ -->
         <DataTemplate x:Key="FavoriteListRowTemplate" x:DataType="vm:ArtworkCardViewModel">
             <Panel>
-            <Border Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                    BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
-                    BorderThickness="1" CornerRadius="8" BoxShadow="0 1 4 0 #28000000"
+            <Border Background="{DynamicResource Container1BackgroundBrush}"
+                    BorderBrush="{DynamicResource Container1BorderBrush}"
+                    BorderThickness="1" CornerRadius="8" BoxShadow="{DynamicResource CardShadow}"
                     Cursor="Hand" Tapped="OnCardTapped" DoubleTapped="OnCardDoubleTapped"
                     Classes.selected="{Binding IsSelected}">
                 <Border.ContextMenu>
@@ -571,8 +661,8 @@
                 </Border.ContextMenu>
                 <Border.Styles>
                     <Style Selector="Border:pointerover">
-                        <Setter Property="BoxShadow"   Value="0 6 20 0 #55000000"/>
-                        <Setter Property="BorderBrush" Value="{actipro:ThemeResource ControlBackgroundBrushSolidAccent}"/>
+                        <Setter Property="BoxShadow"   Value="{DynamicResource CardShadowHover}"/>
+                        <Setter Property="BorderBrush" Value="{DynamicResource ControlBackgroundBrushSolidAccent}"/>
                     </Style>
                 </Border.Styles>
                 <Panel>
@@ -586,8 +676,16 @@
                         </Image>
                     </Border>
                     <StackPanel Grid.Column="2" Margin="10,0,10,0" Spacing="3" VerticalAlignment="Center">
-                        <TextBlock Text="{Binding Title}"    FontSize="12" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" MaxLines="1"/>
-                        <TextBlock Text="{Binding UserName}" FontSize="11" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}" TextTrimming="CharacterEllipsis" MaxLines="1"/>
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                            <Path Data="{StaticResource FavoriteStarGeometry}" Width="10" Height="10" Stretch="Uniform"
+                                  Fill="#EAB308" IsVisible="{Binding IsLocalFavorite}"/>
+                            <PathIcon Data="{StaticResource BookmarkFilledIcon}" Width="11" Height="11"
+                                      Foreground="#2563EB" IsVisible="{Binding IsPixivBookmarked}"/>
+                            <PathIcon Data="{StaticResource HeartFilledIcon}" Width="11" Height="11"
+                                      Foreground="#DB2777" IsVisible="{Binding IsLiked}"/>
+                            <TextBlock Text="{Binding Title}"    FontSize="12" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" MaxLines="1"/>
+                        </StackPanel>
+                        <TextBlock Text="{Binding UserName}" FontSize="11" Foreground="{DynamicResource DefaultForegroundBrushTertiary}" TextTrimming="CharacterEllipsis" MaxLines="1"/>
                         <ItemsControl ItemsSource="{Binding TopTags}"
                                       IsVisible="{Binding $parent[UserControl].((vm:BookmarksViewModel)DataContext).ShowTags}"
                                       ItemTemplate="{StaticResource TagChipTemplate}">
@@ -598,7 +696,7 @@
                 </Panel>
             </Border>
             <Border IsVisible="{Binding IsSelected}" IsHitTestVisible="False"
-                    BorderBrush="#5B8DEF" BorderThickness="2" CornerRadius="8"/>
+                    BorderBrush="{DynamicResource ControlBackgroundBrushSolidAccent}" BorderThickness="2" CornerRadius="8"/>
             </Panel>
         </DataTemplate>
 
@@ -608,12 +706,12 @@
          ROOT LAYOUT
          ════════════════════════════════════════════════════════════════════════ -->
     <Grid RowDefinitions="Auto,*,Auto"
-          Background="{actipro:ThemeResource Container3BackgroundBrush}">
+          Background="{DynamicResource Container3BackgroundBrush}">
 
         <!-- ── Toolbar ─────────────────────────────────────────────────────── -->
         <Border Grid.Row="0"
-                Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                Background="{DynamicResource Container1BackgroundBrush}"
+                BorderBrush="{DynamicResource Container1BorderBrush}"
                 BorderThickness="0,0,0,1" Margin="0,32,0,0" Padding="10,7">
             <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
             <StackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Center">
@@ -621,44 +719,76 @@
                 <!-- Left: tabs + refresh + R-18 -->
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="5" VerticalAlignment="Center">
                     <ToggleButton IsChecked="{Binding IsPublicTab}"    CornerRadius="6" Padding="10,5" FontSize="12" Click="OnTabClicked" Tag="0">
-                        <StackPanel Orientation="Horizontal" Spacing="5"><PathIcon Data="{StaticResource BookmarkIcon}" Width="14" Height="14" VerticalAlignment="Center"/><TextBlock Text="Public" FontSize="12" VerticalAlignment="Center"/></StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="5"><PathIcon Data="{StaticResource BookmarkIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[ToggleButton].Foreground}" /><TextBlock Text="Public" FontSize="12" VerticalAlignment="Center"/></StackPanel>
                     </ToggleButton>
                     <ToggleButton IsChecked="{Binding IsPrivateTab}"   CornerRadius="6" Padding="10,5" FontSize="12" Click="OnTabClicked" Tag="1">
-                        <StackPanel Orientation="Horizontal" Spacing="5"><PathIcon Data="{StaticResource LockIcon}" Width="14" Height="14" VerticalAlignment="Center"/><TextBlock Text="Private" FontSize="12" VerticalAlignment="Center"/></StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="5"><PathIcon Data="{StaticResource LockIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[ToggleButton].Foreground}" /><TextBlock Text="Private" FontSize="12" VerticalAlignment="Center"/></StackPanel>
                     </ToggleButton>
                     <ToggleButton IsChecked="{Binding IsFavoritesTab}" CornerRadius="6" Padding="10,5" FontSize="12" Click="OnTabClicked" Tag="2">
-                        <StackPanel Orientation="Horizontal" Spacing="5"><PathIcon Data="{StaticResource StarIcon}" Width="13" Height="13" VerticalAlignment="Center"/><TextBlock Text="Local Favorites" FontSize="12" VerticalAlignment="Center"/></StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="5"><PathIcon Data="{StaticResource StarIcon}" Width="13" Height="13" VerticalAlignment="Center" Foreground="{Binding $parent[ToggleButton].Foreground}" /><TextBlock Text="Local Favorites" FontSize="12" VerticalAlignment="Center"/></StackPanel>
                     </ToggleButton>
-                    <Rectangle Width="1" Height="18" Fill="{actipro:ThemeResource Container1BorderBrush}" Margin="2,0"/>
+                    <ToggleButton IsChecked="{Binding IsLikedTab}" CornerRadius="6" Padding="10,5" FontSize="12" Click="OnTabClicked" Tag="3"
+                                  ToolTip.Tip="All artworks you've Liked (not just liked bookmarks)">
+                        <ToggleButton.Styles>
+                            <Style Selector="ToggleButton:checked">
+                                <Setter Property="Background" Value="#DB2777"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Style>
+                            <Style Selector="ToggleButton:pointerover:checked">
+                                <Setter Property="Background" Value="#BE185D"/>
+                            </Style>
+                        </ToggleButton.Styles>
+                        <StackPanel Orientation="Horizontal" Spacing="5"><PathIcon Data="{StaticResource HeartFilledIcon}" Width="13" Height="13" VerticalAlignment="Center" Foreground="{Binding $parent[ToggleButton].Foreground}" /><TextBlock Text="Liked" FontSize="12" VerticalAlignment="Center"/></StackPanel>
+                    </ToggleButton>
+                    <ToggleButton IsChecked="{Binding IsCollectionsTab}" CornerRadius="6" Padding="10,5" FontSize="12" Click="OnTabClicked" Tag="4"
+                                  ToolTip.Tip="Pixiv Collections you've bookmarked">
+                        <StackPanel Orientation="Horizontal" Spacing="5"><PathIcon Data="{StaticResource BookmarkFilledIcon}" Width="13" Height="13" VerticalAlignment="Center" Foreground="{Binding $parent[ToggleButton].Foreground}" /><TextBlock Text="Collections" FontSize="12" VerticalAlignment="Center"/></StackPanel>
+                    </ToggleButton>
+                    <Rectangle Width="1" Height="18" Fill="{DynamicResource Container1BorderBrush}" Margin="2,0"/>
                     <Button CornerRadius="6" Padding="9,5" FontSize="12"
                             Command="{Binding RefreshCommand}" ToolTip.Tip="Reload current tab">
                         <StackPanel Orientation="Horizontal" Spacing="4">
                             <PathIcon Data="{StaticResource RefreshIcon}" Width="14" Height="14"
                                       VerticalAlignment="Center"
-                                      Foreground="{actipro:ThemeResource DefaultForegroundBrush}"/>
+                                      Foreground="{Binding $parent[Button].Foreground}"/>
                             <TextBlock Text="Refresh" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
-                    <Rectangle Width="1" Height="18" Fill="{actipro:ThemeResource Container1BorderBrush}" Margin="2,0"
+                    <Rectangle Width="1" Height="18" Fill="{DynamicResource Container1BorderBrush}" Margin="2,0"
                                IsVisible="{Binding ShowR18Buttons}"/>
                     <ToggleButton IsChecked="{Binding ShowR18}" CornerRadius="6" Padding="9,5" FontSize="12"
                                   IsVisible="{Binding ShowR18Buttons}" ToolTip.Tip="Show / hide R-18 content">
                         <ToggleButton.Styles>
                             <Style Selector="ToggleButton:checked">
                                 <Setter Property="Background" Value="#DC2626"/>
-                                <Setter Property="Foreground" Value="White"/>
+                                <Setter Property="Foreground" Value="{DynamicResource R18ButtonForegroundBrush}"/>
+                            </Style>
+                            <Style Selector="ToggleButton:checked /template/ ContentPresenter">
+                                <Setter Property="Background" Value="#DC2626"/>
+                                <Setter Property="Foreground" Value="{DynamicResource R18ButtonForegroundBrush}"/>
                             </Style>
                             <Style Selector="ToggleButton:pointerover:checked">
                                 <Setter Property="Background" Value="#B91C1C"/>
                             </Style>
+                            <Style Selector="ToggleButton:pointerover:checked /template/ ContentPresenter">
+                                <Setter Property="Background" Value="#B91C1C"/>
+                            </Style>
+                            <Style Selector="ToggleButton:not(:checked)">
+                                <Setter Property="Background" Value="{DynamicResource ControlBackgroundBrushSoftAccent}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource DefaultForegroundBrush}"/>
+                            </Style>
+                            <Style Selector="ToggleButton:not(:checked) /template/ ContentPresenter">
+                                <Setter Property="Background" Value="{DynamicResource ControlBackgroundBrushSoftAccent}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource DefaultForegroundBrush}"/>
+                            </Style>
                         </ToggleButton.Styles>
-                        <StackPanel Orientation="Horizontal" Spacing="5"><PathIcon Data="{StaticResource WarningIcon}" Width="13" Height="13" VerticalAlignment="Center"/><TextBlock Text="R-18" FontSize="12" VerticalAlignment="Center"/></StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="5"><PathIcon Data="{StaticResource WarningIcon}" Width="13" Height="13" VerticalAlignment="Center" Foreground="{Binding $parent[ToggleButton].Foreground}" /><TextBlock Text="R-18" FontSize="12" VerticalAlignment="Center"/></StackPanel>
                     </ToggleButton>
-                    <Rectangle Width="1" Height="18" Fill="{actipro:ThemeResource Container1BorderBrush}" Margin="2,0"/>
+                    <Rectangle Width="1" Height="18" Fill="{DynamicResource Container1BorderBrush}" Margin="2,0"/>
                     <Button CornerRadius="6" Padding="9,5" FontSize="11"
                             Command="{Binding SelectAllFavoritesCommand}" ToolTip.Tip="Select all visible items">
                         <StackPanel Orientation="Horizontal" Spacing="4">
-                            <PathIcon Data="{StaticResource CheckIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                            <PathIcon Data="{StaticResource CheckIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                             <TextBlock Text="Select All" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
@@ -667,7 +797,7 @@
                             IsVisible="{Binding HasSelection}" ToolTip.Tip="Clear selection">
                         <StackPanel Orientation="Horizontal" Spacing="4">
                             <Path Data="{StaticResource CloseIcon}" Width="14" Height="14"
-                                  Stretch="Uniform" Stroke="{actipro:ThemeResource DefaultForegroundBrush}" StrokeThickness="2"
+                                  Stretch="Uniform" Stroke="{Binding $parent[Button].Foreground}" StrokeThickness="2"
                                   StrokeLineCap="Round" VerticalAlignment="Center" UseLayoutRounding="False"/>
                             <TextBlock Text="Deselect All" VerticalAlignment="Center"/>
                         </StackPanel>
@@ -676,14 +806,32 @@
                             IsVisible="{Binding HasSelection}"
                             Command="{Binding DownloadSelectedCommand}" ToolTip.Tip="Download selected bookmarks">
                         <StackPanel Orientation="Horizontal" Spacing="5">
-                            <PathIcon Data="{StaticResource DownloadIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                            <PathIcon Data="{StaticResource DownloadIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                             <TextBlock Text="{Binding SelectedCount, StringFormat='Download Selected ({0})'}" />
+                        </StackPanel>
+                    </Button>
+                    <Button CornerRadius="6" Padding="9,5" FontSize="11"
+                            Command="{Binding ViewSelectedAsCollageCommand}"
+                            IsVisible="{Binding CanViewSelectedAsCollage}"
+                            ToolTip.Tip="Show the selected artworks tiled together in the side panel (up to 10)">
+                        <StackPanel Orientation="Horizontal" Spacing="5">
+                            <TextBlock Text="⊞" FontSize="12"/>
+                            <TextBlock Text="Collage" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Button CornerRadius="6" Padding="9,5" FontSize="11"
+                            Command="{Binding ViewSelectedInNewTabsCommand}"
+                            IsVisible="{Binding CanViewSelectedInNewTabs}"
+                            ToolTip.Tip="Open each selected artwork in its own tab">
+                        <StackPanel Orientation="Horizontal" Spacing="5">
+                            <PathIcon Data="{StaticResource NewIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
+                            <TextBlock Text="View in New Tabs" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                     <Button CornerRadius="6" Padding="9,5" FontSize="12"
                             Command="{Binding DownloadAllCommand}" ToolTip.Tip="Download all bookmarks">
                         <StackPanel Orientation="Horizontal" Spacing="4">
-                            <PathIcon Data="{StaticResource DownloadIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                            <PathIcon Data="{StaticResource DownloadIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                             <TextBlock Text="Download All" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
@@ -691,14 +839,14 @@
                             Command="{Binding DownloadFolderCommand}" ToolTip.Tip="Download all bookmarks to folder"
                             IsVisible="{Binding IsFavoritesTab}">
                         <StackPanel Orientation="Horizontal" Spacing="4">
-                            <PathIcon Data="{StaticResource FolderIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                            <PathIcon Data="{StaticResource FolderIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                             <TextBlock Text="Download Folder" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                     <Button CornerRadius="6" Padding="9,5" FontSize="11"
                             Click="OnDownloadPresetClicked" ToolTip.Tip="Download with image processing preset">
                         <StackPanel Orientation="Horizontal" Spacing="4">
-                            <PathIcon Data="{StaticResource PaletteIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                            <PathIcon Data="{StaticResource PaletteIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                             <TextBlock Text="{Binding SelectedCount, StringFormat='Download Preset ({0})', TargetNullValue='Download Preset'}" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
@@ -709,38 +857,44 @@
                     <StackPanel Orientation="Horizontal" Spacing="4" IsVisible="{Binding IsGridView}">
                         <Button CornerRadius="6" Padding="8,4" FontSize="11" Command="{Binding SetFixedHeightCommand}"   IsEnabled="{Binding !IsFixedHeight}"   ToolTip.Tip="Fixed card height">Fixed</Button>
                         <Button CornerRadius="6" Padding="8,4" FontSize="11" Command="{Binding SetNaturalHeightCommand}" IsEnabled="{Binding !IsNaturalHeight}" ToolTip.Tip="Natural height">Natural</Button>
-                        <Rectangle Width="1" Height="16" Fill="{actipro:ThemeResource Container1BorderBrush}" Margin="2,0"/>
+                        <Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}" Margin="2,0"/>
                     </StackPanel>
                     <ToggleButton IsChecked="{Binding ShowTags,    Mode=TwoWay}" CornerRadius="6" Padding="8,4" FontSize="11" ToolTip.Tip="Show/hide tag chips">
                         <StackPanel Orientation="Horizontal" Spacing="4">
-                            <PathIcon Data="{StaticResource TagIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                            <PathIcon Data="{StaticResource TagIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[ToggleButton].Foreground}" />
                             <TextBlock Text="Tags" VerticalAlignment="Center"/>
                         </StackPanel>
                     </ToggleButton>
                     <ToggleButton IsChecked="{Binding ShowInfo,    Mode=TwoWay}" CornerRadius="6" Padding="8,4" FontSize="11" ToolTip.Tip="Show/hide info strip">
                         <StackPanel Orientation="Horizontal" Spacing="4">
-                            <PathIcon Data="{StaticResource InfoIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                            <PathIcon Data="{StaticResource InfoIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[ToggleButton].Foreground}" />
                             <TextBlock Text="Info" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </ToggleButton>
+                    <ToggleButton IsChecked="{Binding ShowBadges, Mode=TwoWay}" CornerRadius="6" Padding="8,4" FontSize="11" ToolTip.Tip="Show/hide liked/bookmarked/favorite badges on cards">
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                            <PathIcon Data="{StaticResource HeartFilledIcon}" Width="12" Height="12" VerticalAlignment="Center" Foreground="{DynamicResource HeartBadgeIconBrush}" />
+                            <TextBlock Text="Badges" VerticalAlignment="Center"/>
                         </StackPanel>
                     </ToggleButton>
                     <ToggleButton IsChecked="{Binding ShowPreview, Mode=TwoWay}" CornerRadius="6" Padding="8,4" FontSize="11" ToolTip.Tip="Toggle side panel">
                         <StackPanel Orientation="Horizontal" Spacing="4">
                             <Path Data="{StaticResource ShowPanelIcon}" Width="14" Height="14"
-                                  Stretch="Uniform" Stroke="{actipro:ThemeResource DefaultForegroundBrush}" StrokeThickness="1.5"
+                                  Stretch="Uniform" Stroke="{Binding $parent[ToggleButton].Foreground}" StrokeThickness="1.5"
                                   StrokeLineCap="Round" VerticalAlignment="Center" UseLayoutRounding="False"
                                   IsVisible="{Binding !ShowPreview}"/>
                             <Path Data="{StaticResource HidePanelIcon}" Width="14" Height="14"
-                                  Stretch="Uniform" Stroke="{actipro:ThemeResource DefaultForegroundBrush}" StrokeThickness="1.5"
+                                  Stretch="Uniform" Stroke="{Binding $parent[ToggleButton].Foreground}" StrokeThickness="1.5"
                                   StrokeLineCap="Round" VerticalAlignment="Center" UseLayoutRounding="False"
                                   IsVisible="{Binding ShowPreview}"/>
                             <TextBlock Text="Show Panel" FontSize="11" IsVisible="{Binding !ShowPreview}"/>
                             <TextBlock Text="Hide Panel" FontSize="11" IsVisible="{Binding ShowPreview}"/>
                         </StackPanel>
                     </ToggleButton>
-                    <Rectangle Width="1" Height="16" Fill="{actipro:ThemeResource Container1BorderBrush}" Margin="2,0"/>
+                    <Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}" Margin="2,0"/>
                     <TextBox x:Name="TagFilterBox" Text="{Binding TagFilter}" PlaceholderText="Filter by tag…"
                              CornerRadius="6" Width="140" FontSize="12" VerticalAlignment="Center"/>
-                    <Rectangle Width="1" Height="16" Fill="{actipro:ThemeResource Container1BorderBrush}" Margin="2,0"/>
+                    <Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}" Margin="2,0"/>
                     <ComboBox x:Name="SortComboBox"
                               ItemsSource="{Binding SortOptions}"
                               SelectedIndex="0"
@@ -748,7 +902,7 @@
                               CornerRadius="6" Padding="8,4"
                               ToolTip.Tip="Sort bookmarks"/>
                     <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center" IsVisible="{Binding IsGridView}">
-                        <Rectangle Width="1" Height="16" Fill="{actipro:ThemeResource Container1BorderBrush}" Margin="2,0"/>
+                        <Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}" Margin="2,0"/>
                         <TextBlock Text="Size" FontSize="11" VerticalAlignment="Center" Opacity="0.7"/>
                         <Slider Minimum="100" Maximum="320" Value="{Binding CardSize, Mode=TwoWay}"
                                 Width="80" VerticalAlignment="Center"
@@ -780,7 +934,7 @@
             <Border Grid.Column="1" Width="5" Name="BookmarksSplitter"
                     IsVisible="{Binding ShowPreview}"
                     Cursor="SizeWestEast"
-                    Background="{actipro:ThemeResource Container1BorderBrush}"
+                    Background="{DynamicResource Container1BorderBrush}"
                     PointerPressed="OnSplitterPointerPressed"/>
 
             <!-- Side-panel viewer -->
@@ -788,8 +942,8 @@
                     IsVisible="{Binding ShowPreview}"
                     Width="{Binding BrowsePanelWidth}"
                     MinWidth="300"
-                    Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                    BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                    Background="{DynamicResource Container1BackgroundBrush}"
+                    BorderBrush="{DynamicResource Container1BorderBrush}"
                     BorderThickness="1,0,0,0">
                 <local:InlineArtworkViewer x:Name="BookmarksInlineViewer" DataContext="{Binding GalleryVm}"
                                            IsExpanded="{Binding $parent[UserControl].((vm:BookmarksViewModel)DataContext).IsViewerExpanded}"
@@ -801,8 +955,8 @@
             <Grid Grid.Column="0" RowDefinitions="Auto,*" IsVisible="{Binding PublicTabVisible}">
                 <!-- Selection action bar -->
                 <Border Grid.Row="0" IsVisible="{Binding HasSelection}"
-                        Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                        BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                        Background="{DynamicResource Container2BackgroundBrush}"
+                        BorderBrush="{DynamicResource Container1BorderBrush}"
                         BorderThickness="0,0,0,1" Padding="10,6">
                     <WrapPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <TextBlock VerticalAlignment="Center" Margin="0,0,12,0" FontSize="12" FontWeight="SemiBold"
@@ -819,7 +973,7 @@
                         <TextBlock Text="No public bookmarks loaded yet."
                                    HorizontalAlignment="Center" VerticalAlignment="Center"
                                    Margin="0,40" FontSize="14"
-                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushDisabled}">
+                                   Foreground="{DynamicResource DefaultForegroundBrushDisabled}">
                             <TextBlock.IsVisible>
                                 <MultiBinding Converter="{x:Static BoolConverters.And}">
                                     <Binding Path="!HasPublic"/>
@@ -860,8 +1014,8 @@
             <Grid Grid.Column="0" RowDefinitions="Auto,*" IsVisible="{Binding PrivateTabVisible}">
                 <!-- Selection action bar -->
                 <Border Grid.Row="0" IsVisible="{Binding HasSelection}"
-                        Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                        BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                        Background="{DynamicResource Container2BackgroundBrush}"
+                        BorderBrush="{DynamicResource Container1BorderBrush}"
                         BorderThickness="0,0,0,1" Padding="10,6">
                     <WrapPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <TextBlock VerticalAlignment="Center" Margin="0,0,12,0" FontSize="12" FontWeight="SemiBold"
@@ -878,7 +1032,7 @@
                         <TextBlock Text="No private bookmarks loaded yet."
                                    HorizontalAlignment="Center" VerticalAlignment="Center"
                                    Margin="0,40" FontSize="14"
-                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushDisabled}">
+                                   Foreground="{DynamicResource DefaultForegroundBrushDisabled}">
                             <TextBlock.IsVisible>
                                 <MultiBinding Converter="{x:Static BoolConverters.And}">
                                     <Binding Path="!HasPrivate"/>
@@ -915,13 +1069,128 @@
                 </ScrollViewer>
             </Grid>
 
+            <!-- ── LIKED TAB (all artworks Liked via Pikura, not just liked bookmarks) ── -->
+            <Grid Grid.Column="0" RowDefinitions="Auto,*" IsVisible="{Binding LikedTabVisible}">
+                <!-- Selection action bar -->
+                <Border Grid.Row="0" IsVisible="{Binding HasSelection}"
+                        Background="{DynamicResource Container2BackgroundBrush}"
+                        BorderBrush="{DynamicResource Container1BorderBrush}"
+                        BorderThickness="0,0,0,1" Padding="10,6">
+                    <WrapPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock VerticalAlignment="Center" Margin="0,0,12,0" FontSize="12" FontWeight="SemiBold"
+                                   Text="{Binding SelectedCount, StringFormat='{}{0} selected'}"/>
+                        <Button Content="Select all"   CornerRadius="5" Padding="8,4" FontSize="11" Margin="0,0,6,0" Command="{Binding SelectAllFavoritesCommand}"/>
+                        <Button Content="Deselect All" CornerRadius="5" Padding="8,4" FontSize="11"                  Command="{Binding ClearFavoritesSelectionCommand}"/>
+                    </WrapPanel>
+                </Border>
+                <ScrollViewer Grid.Row="1" x:Name="LikedScrollViewer"
+                              VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled"
+                              AllowAutoHide="False">
+                    <StackPanel>
+                        <TextBlock Text="No liked artworks yet — the ♥ Like button on an artwork adds it here."
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                                   Margin="0,40" FontSize="14"
+                                   Foreground="{DynamicResource DefaultForegroundBrushDisabled}">
+                            <TextBlock.IsVisible>
+                                <MultiBinding Converter="{x:Static BoolConverters.And}">
+                                    <Binding Path="!HasLiked"/>
+                                    <Binding Path="!IsLoading"/>
+                                </MultiBinding>
+                            </TextBlock.IsVisible>
+                        </TextBlock>
+
+                        <!-- Fixed grid -->
+                        <ItemsControl ItemsSource="{Binding FilteredLiked}" Margin="10,10,4,10"
+                                      IsVisible="{Binding ShowFixedGrid}"
+                                      ItemTemplate="{StaticResource BookmarkFixedCardTemplate}">
+                            <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel Orientation="Horizontal"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                        </ItemsControl>
+
+                        <!-- Natural grid -->
+                        <ItemsControl ItemsSource="{Binding FilteredLiked}" Margin="10,10,4,10"
+                                      IsVisible="{Binding ShowNaturalGrid}"
+                                      ItemTemplate="{StaticResource BookmarkNaturalCardTemplate}">
+                            <ItemsControl.ItemsPanel><ItemsPanelTemplate><gallery:MasonryPanel ColumnWidth="{Binding $parent[UserControl].((vm:BookmarksViewModel)DataContext).CardSize}" ItemSpacing="6"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                        </ItemsControl>
+
+                        <!-- List -->
+                        <ItemsControl ItemsSource="{Binding FilteredLiked}" Margin="10"
+                                      IsVisible="{Binding IsListView}"
+                                      ItemTemplate="{StaticResource BookmarkListRowTemplate}">
+                            <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Spacing="4"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                        </ItemsControl>
+                    </StackPanel>
+                </ScrollViewer>
+            </Grid>
+
+            <!-- ── COLLECTIONS TAB (Pixiv Collections you've bookmarked) ───── -->
+            <Grid Grid.Column="0" IsVisible="{Binding CollectionsTabVisible}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="20" Spacing="16">
+                        <ProgressBar IsIndeterminate="True" Height="3" IsVisible="{Binding IsLoadingCollectionsUi}"/>
+                        <TextBlock Text="You haven't bookmarked any Collections yet."
+                                   Margin="0,40" FontSize="14" HorizontalAlignment="Center"
+                                   Foreground="{DynamicResource DefaultForegroundBrushDisabled}"
+                                   IsVisible="{Binding ShowEmptyCollectionsMessage}"/>
+                        <ItemsControl ItemsSource="{Binding BookmarkedCollections}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:CollectionTileViewModel">
+                                    <Border Width="220" Margin="0,0,12,12" CornerRadius="8" ClipToBounds="True"
+                                            Background="{DynamicResource Container1BackgroundBrush}">
+                                        <StackPanel>
+                                            <Button Height="220" Padding="0" CornerRadius="0" BorderThickness="0"
+                                                    Background="{DynamicResource Container2BackgroundBrush}"
+                                                    Cursor="Hand"
+                                                    Command="{Binding $parent[UserControl].((vm:BookmarksViewModel)DataContext).OpenBookmarkedCollectionCommand}"
+                                                    CommandParameter="{Binding}">
+                                                <Panel>
+                                                    <Image Source="{Binding Thumbnail}" Stretch="UniformToFill"
+                                                           IsVisible="{Binding !HasMultipleThumbnails}"/>
+                                                    <ItemsControl ItemsSource="{Binding CollageThumbnails}"
+                                                                  IsVisible="{Binding HasMultipleThumbnails}">
+                                                        <ItemsControl.ItemsPanel>
+                                                            <ItemsPanelTemplate><UniformGrid Columns="2" Rows="2"/></ItemsPanelTemplate>
+                                                        </ItemsControl.ItemsPanel>
+                                                        <ItemsControl.ItemTemplate>
+                                                            <DataTemplate>
+                                                                <Border ClipToBounds="True" Margin="0.5">
+                                                                    <Image Source="{Binding}" Stretch="UniformToFill"/>
+                                                                </Border>
+                                                            </DataTemplate>
+                                                        </ItemsControl.ItemTemplate>
+                                                    </ItemsControl>
+                                                    <Border VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,6,6,0"
+                                                            Padding="5,2" CornerRadius="4" Background="#CCDC2626"
+                                                            IsVisible="{Binding IsR18}" IsHitTestVisible="False">
+                                                        <TextBlock Text="R-18" FontSize="8" Foreground="White" FontWeight="Bold"/>
+                                                    </Border>
+                                                </Panel>
+                                            </Button>
+                                            <TextBlock Text="{Binding Title}" FontSize="12" Margin="8,6,8,0"
+                                                       TextTrimming="CharacterEllipsis" MaxLines="1"/>
+                                            <TextBlock Text="{Binding UserName}" FontSize="10" Margin="8,0,8,8"
+                                                       Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
+                                                       TextTrimming="CharacterEllipsis" MaxLines="1"/>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </ScrollViewer>
+            </Grid>
+
             <!-- ── LOCAL FAVORITES TAB ─────────────────────────────────────── -->
             <Grid Grid.Column="0" ColumnDefinitions="Auto,*" IsVisible="{Binding FavoritesTabVisible}">
 
                 <!-- Folder sidebar -->
                 <Border Grid.Column="0" Width="140"
-                        Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                        BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                        Background="{DynamicResource Container2BackgroundBrush}"
+                        BorderBrush="{DynamicResource Container1BorderBrush}"
                         BorderThickness="0,0,1,0"
                         IsVisible="{Binding AvailableFolders.Count, Converter={x:Static ObjectConverters.IsNotNull}}">
                     <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -964,20 +1233,20 @@
                                 </StackPanel.IsVisible>
                                 <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center">
                                     <PathIcon Data="{StaticResource StarIcon}" Width="16" Height="16" VerticalAlignment="Center"
-                                              Foreground="{actipro:ThemeResource DefaultForegroundBrushDisabled}"/>
+                                              Foreground="{DynamicResource DefaultForegroundBrushDisabled}"/>
                                     <TextBlock Text="No local favorites yet"
                                                HorizontalAlignment="Center" FontSize="14"
-                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushDisabled}"/>
+                                               Foreground="{DynamicResource DefaultForegroundBrushDisabled}"/>
                                 </StackPanel>
                                 <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center">
                                     <TextBlock Text="Right-click any artwork anywhere and choose"
                                                HorizontalAlignment="Center" FontSize="12"
-                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushDisabled}" VerticalAlignment="Center"/>
+                                               Foreground="{DynamicResource DefaultForegroundBrushDisabled}" VerticalAlignment="Center"/>
                                     <PathIcon Data="{StaticResource StarIcon}" Width="14" Height="14" VerticalAlignment="Center"
-                                              Foreground="{actipro:ThemeResource DefaultForegroundBrushDisabled}"/>
+                                              Foreground="{DynamicResource DefaultForegroundBrushDisabled}"/>
                                     <TextBlock Text="Add to favorites"
                                                HorizontalAlignment="Center" FontSize="12"
-                                               Foreground="{actipro:ThemeResource DefaultForegroundBrushDisabled}" VerticalAlignment="Center"/>
+                                               Foreground="{DynamicResource DefaultForegroundBrushDisabled}" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </StackPanel>
 
@@ -1027,11 +1296,11 @@
 
         <!-- ── Status bar ───────────────────────────────────────────────────── -->
         <Border Grid.Row="2"
-                Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                Background="{DynamicResource Container1BackgroundBrush}"
+                BorderBrush="{DynamicResource Container1BorderBrush}"
                 BorderThickness="0,1,0,0" Padding="16,6">
             <TextBlock Text="{Binding StatusMessage}" FontSize="11"
-                       Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                       Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                        VerticalAlignment="Center"/>
         </Border>
 

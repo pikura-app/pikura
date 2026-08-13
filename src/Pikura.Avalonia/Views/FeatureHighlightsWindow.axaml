@@ -21,8 +21,8 @@
     </Window.Resources>
 
     <Border x:Name="RootBorder" Margin="20"
-            Background="{actipro:ThemeResource Container1BackgroundBrush}"
-            BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+            Background="{DynamicResource Container1BackgroundBrush}"
+            BorderBrush="{DynamicResource Container1BorderBrush}"
             BorderThickness="1"
             CornerRadius="14"
             BoxShadow="0 16 48 0 #66000000"
@@ -37,12 +37,12 @@
         </Border.Transitions>
         <Grid ColumnDefinitions="260,*">
             <!-- Accent icon panel -->
-            <Border Grid.Column="0" Background="{actipro:ThemeResource ControlBackgroundBrushSolidAccent}"
+            <Border Grid.Column="0" Background="{DynamicResource ControlBackgroundBrushSolidAccent}"
                     CornerRadius="14,0,0,14" ClipToBounds="True">
                 <Path x:Name="PageIcon"
                       Data="{Binding CurrentPage.IconKey, Converter={StaticResource IconKeyToGeometryConverter}}"
                       Width="120" Height="120"
-                      Stroke="White" StrokeThickness="1.5" Fill="Transparent"
+                      Stroke="{DynamicResource ControlForegroundBrushSolidAccent}" StrokeThickness="1.5" Fill="Transparent"
                       Stretch="Uniform"
                       HorizontalAlignment="Center" VerticalAlignment="Center"
                       Opacity="0.95"/>
@@ -55,35 +55,35 @@
                     <Button Grid.Column="0"
                             Command="{Binding PreviousCommand}"
                             Background="Transparent" BorderThickness="0" Padding="8"
-                            Foreground="{actipro:ThemeResource DefaultForegroundBrush}"
+                            Foreground="{DynamicResource DefaultForegroundBrush}"
                             IsVisible="{Binding CanGoPrevious}"
                             ToolTip.Tip="Previous">
                         <Path Data="{StaticResource ChevronLeftIcon}" Width="18" Height="18"
-                              Stroke="{actipro:ThemeResource DefaultForegroundBrush}" StrokeThickness="2" Fill="Transparent"
+                              Stroke="{Binding $parent[Button].Foreground}" StrokeThickness="2" Fill="Transparent"
                               Stretch="Uniform"/>
                     </Button>
 
                     <TextBlock Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center"
-                               FontSize="12" Opacity="0.6"
+                               FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                Text="{Binding StepText}"/>
 
                     <Button Grid.Column="2" Content="Skip"
                             Command="{Binding SkipCommand}"
                             Background="Transparent" BorderThickness="0"
                             Padding="12,6" Margin="0,0,8,0"
-                            Foreground="{actipro:ThemeResource DefaultForegroundBrush}"
+                            Foreground="{DynamicResource DefaultForegroundBrush}"
                             IsVisible="{Binding !IsLastPage}"/>
 
                     <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="8">
                         <Button Content="Next" Command="{Binding NextCommand}"
                                 IsVisible="{Binding !IsLastPage}"
-                                Background="{actipro:ThemeResource ControlBackgroundBrushSolidAccent}"
-                                Foreground="White" BorderThickness="0"
+                                Background="{DynamicResource ControlBackgroundBrushSolidAccent}"
+                                Foreground="{DynamicResource ControlForegroundBrushSolidAccent}" BorderThickness="0"
                                 Padding="18,8" CornerRadius="6"/>
                         <Button Content="Finish" Command="{Binding FinishCommand}"
                                 IsVisible="{Binding IsLastPage}"
-                                Background="{actipro:ThemeResource ControlBackgroundBrushSolidAccent}"
-                                Foreground="White" BorderThickness="0"
+                                Background="{DynamicResource ControlBackgroundBrushSolidAccent}"
+                                Foreground="{DynamicResource ControlForegroundBrushSolidAccent}" BorderThickness="0"
                                 Padding="18,8" CornerRadius="6"/>
                     </StackPanel>
                 </Grid>
@@ -93,18 +93,59 @@
                     <TransitioningContentControl.ContentTemplate>
                         <DataTemplate DataType="models:OnboardingPage">
                             <StackPanel VerticalAlignment="Center" Spacing="10">
-                                <TextBlock Text="{Binding Title}" FontSize="22" FontWeight="Bold"
+                                <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding Title}" FontSize="22" FontWeight="Bold"
+                                               TextWrapping="Wrap"/>
+                                    <Border IsVisible="{Binding IsNew}" VerticalAlignment="Center"
+                                            Background="{DynamicResource ControlBackgroundBrushSolidAccent}"
+                                            CornerRadius="10" Padding="8,3">
+                                        <TextBlock Text="NEW" FontSize="10" FontWeight="Bold"
+                                                   Foreground="{DynamicResource ControlForegroundBrushSolidAccent}" LetterSpacing="1"/>
+                                    </Border>
+                                </StackPanel>
+                                <TextBlock Text="{Binding Subtitle}" FontSize="14"
+                                           Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                            TextWrapping="Wrap"/>
-                                <TextBlock Text="{Binding Subtitle}" FontSize="14" Opacity="0.85"
-                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                <TextBlock Text="{Binding Description}" FontSize="12" LineHeight="20"
+                                           Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                            TextWrapping="Wrap"/>
-                                <TextBlock Text="{Binding Description}" FontSize="12" Opacity="0.75" LineHeight="20"
-                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
-                                           TextWrapping="Wrap"/>
-                                <controls:AnimatedImage SourcePath="{Binding Screenshot, Converter={x:Static conv:AssetPathConverter.Instance}}"
-                                                        MaxHeight="380" MaxWidth="620" Stretch="Uniform"
-                                                        HorizontalAlignment="Center" Margin="0,16,0,0"
-                                                        RenderOptions.BitmapInterpolationMode="HighQuality"/>
+                                <Panel Margin="0,16,0,0" HorizontalAlignment="Center">
+                                    <controls:AnimatedImage SourcePath="{Binding SelectedScreenshot, Converter={x:Static conv:AssetPathConverter.Instance}}"
+                                                            MaxHeight="360" MaxWidth="620" Stretch="Uniform"
+                                                            RenderOptions.BitmapInterpolationMode="HighQuality"/>
+
+                                    <!-- Media selector — overlaid on the bottom edge of the image (rather
+                                         than taking its own row) so it never gets clipped by the window's
+                                         fixed height. Shown only when a page has more than one item;
+                                         each still autoplays on its own, and the highlights window also
+                                         auto-advances between them (see FeatureHighlightsWindow.axaml.cs). -->
+                                    <Border IsVisible="{Binding HasMultipleScreenshots}"
+                                            HorizontalAlignment="Center" VerticalAlignment="Bottom"
+                                            Margin="0,0,0,10" Padding="8,5" CornerRadius="14"
+                                            Background="#99000000">
+                                        <ItemsControl Name="MediaDots" ItemsSource="{Binding Screenshots}">
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate><StackPanel Orientation="Horizontal" Spacing="8"/></ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate x:DataType="x:String">
+                                                    <Button Tag="{Binding}" Click="OnMediaDotClicked"
+                                                            Padding="0" Background="Transparent" BorderThickness="0"
+                                                            CornerRadius="20">
+                                                        <Ellipse Width="8" Height="8">
+                                                            <Ellipse.Fill>
+                                                                <MultiBinding Converter="{x:Static conv:EqualityToBrushConverter.Instance}">
+                                                                    <Binding/>
+                                                                    <Binding Path="$parent[ItemsControl].((models:OnboardingPage)DataContext).SelectedScreenshot"/>
+                                                                </MultiBinding>
+                                                            </Ellipse.Fill>
+                                                        </Ellipse>
+                                                    </Button>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </Border>
+                                </Panel>
                             </StackPanel>
                         </DataTemplate>
                     </TransitioningContentControl.ContentTemplate>

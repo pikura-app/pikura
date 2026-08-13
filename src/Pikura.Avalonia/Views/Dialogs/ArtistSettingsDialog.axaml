@@ -15,8 +15,8 @@
 
         <!-- Header -->
         <Border DockPanel.Dock="Top"
-                Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                Background="{DynamicResource Container2BackgroundBrush}"
+                BorderBrush="{DynamicResource Container2BorderBrush}"
                 BorderThickness="0,0,0,1"
                 Padding="20,12">
             <Grid ColumnDefinitions="*,Auto">
@@ -24,7 +24,7 @@
                     <TextBlock x:Name="TitleTextBlock" FontSize="15" FontWeight="SemiBold"/>
                     <TextBlock Text="Leave fields blank to inherit global defaults."
                                FontSize="11"
-                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                               Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                 </StackPanel>
                 <CheckBox x:Name="UseGlobalSettingsCheckBox"
                           Grid.Column="1"
@@ -37,23 +37,15 @@
 
         <!-- Action bar -->
         <Border DockPanel.Dock="Bottom"
-                Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                Background="{DynamicResource Container2BackgroundBrush}"
+                BorderBrush="{DynamicResource Container2BorderBrush}"
                 BorderThickness="0,1,0,0"
                 Padding="16,10">
             <Grid ColumnDefinitions="Auto,*,Auto">
-                <Button Grid.Column="0" Content="Reset to defaults"
-                        Click="ResetButton_Click"
-                        CornerRadius="6" Padding="10,7" FontSize="12"
-                        ToolTip.Tip="Clear all per-artist overrides"/>
+                <Button Content="Reset to defaults" Click="ResetButton_Click" FontSize="12"/>
                 <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8">
-                    <Button x:Name="CancelBtn" Content="Cancel"
-                            Click="CancelButton_Click"
-                            CornerRadius="6" Padding="12,7"/>
-                    <Button Content="Save"
-                            Click="SaveButton_Click"
-                            Classes="accent"
-                            CornerRadius="6" Padding="14,7"/>
+                    <Button x:Name="CancelBtn" Content="Cancel" Click="CancelButton_Click"/>
+                    <Button Content="Save" Click="SaveButton_Click" Classes="accent"/>
                 </StackPanel>
             </Grid>
         </Border>
@@ -66,40 +58,36 @@
 
                 <!-- Location -->
                 <Border Grid.Column="0"
-                        Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                        BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                        Background="{DynamicResource Container2BackgroundBrush}"
+                        BorderBrush="{DynamicResource Container2BorderBrush}"
                         BorderThickness="1" CornerRadius="8" Padding="12">
                     <StackPanel Spacing="8">
                         <TextBlock Text="📁 Location" FontWeight="SemiBold" FontSize="12"/>
                         <TextBlock Text="Download folder"
                                    FontSize="10"
-                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                         <Grid ColumnDefinitions="*,Auto" ColumnSpacing="6">
                             <TextBox Grid.Column="0"
                                      x:Name="DownloadRootTextBox"
                                      PlaceholderText="Global folder"
                                      FontSize="11"
                                      CornerRadius="5"/>
-                            <Button Grid.Column="1"
-                                    Content="…"
-                                    Click="BrowseFolderButton_Click"
-                                    CornerRadius="5" Padding="10,5" FontSize="12"
-                                    ToolTip.Tip="Browse for folder"/>
+                            <Button Content="…" Click="BrowseFolderButton_Click" FontSize="12"/>
                         </Grid>
                     </StackPanel>
                 </Border>
 
                 <!-- Naming -->
                 <Border Grid.Column="2"
-                        Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                        BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                        Background="{DynamicResource Container2BackgroundBrush}"
+                        BorderBrush="{DynamicResource Container2BorderBrush}"
                         BorderThickness="1" CornerRadius="8" Padding="12">
                     <StackPanel Spacing="8">
                         <TextBlock Text="✏ Naming" FontWeight="SemiBold" FontSize="12"/>
                         <StackPanel Spacing="4">
                             <TextBlock Text="Folder template"
                                        FontSize="10"
-                                       Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                       Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                             <TextBox x:Name="FolderTemplateTextBox"
                                      PlaceholderText="%artist% (%member_id%)"
                                      FontSize="11" CornerRadius="5"/>
@@ -107,22 +95,22 @@
                         <StackPanel Spacing="4">
                             <TextBlock Text="Filename template"
                                        FontSize="10"
-                                       Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                       Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                             <TextBox x:Name="FilenameTemplateTextBox"
                                      PlaceholderText="%image_id% - %title%"
                                      FontSize="11" CornerRadius="5"/>
                         </StackPanel>
                         <TextBlock Text="%artist% %member_id% %image_id% %title% %page_index% %tags% %date%"
                                    FontSize="9"
-                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushDisabled}"
+                                   Foreground="{DynamicResource DefaultForegroundBrushDisabled}"
                                    TextWrapping="Wrap"/>
                     </StackPanel>
                 </Border>
             </Grid>
 
             <!-- Row 2: Filtering -->
-            <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                    BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+            <Border Background="{DynamicResource Container2BackgroundBrush}"
+                    BorderBrush="{DynamicResource Container2BorderBrush}"
                     BorderThickness="1" CornerRadius="8" Padding="12">
                 <Grid ColumnDefinitions="*,12,*,12,Auto">
 
@@ -134,7 +122,7 @@
                                  FontSize="11" CornerRadius="5"/>
                         <TextBlock Text="Only download artworks with these tags"
                                    FontSize="10"
-                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushDisabled}"
+                                   Foreground="{DynamicResource DefaultForegroundBrushDisabled}"
                                    TextWrapping="Wrap"/>
                     </StackPanel>
 
@@ -146,7 +134,7 @@
                                  FontSize="11" CornerRadius="5"/>
                         <TextBlock Text="Skip artworks that have these tags"
                                    FontSize="10"
-                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushDisabled}"
+                                   Foreground="{DynamicResource DefaultForegroundBrushDisabled}"
                                    TextWrapping="Wrap"/>
                     </StackPanel>
 
@@ -156,7 +144,7 @@
                         <StackPanel Spacing="4">
                             <TextBlock Text="From (YYYY-MM-DD)"
                                        FontSize="10"
-                                       Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                       Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                             <TextBox x:Name="DateFromTextBox"
                                      PlaceholderText="e.g. 2023-01-01"
                                      FontSize="11" CornerRadius="5"/>
@@ -164,23 +152,20 @@
                         <StackPanel Spacing="4">
                             <TextBlock Text="To (YYYY-MM-DD)"
                                        FontSize="10"
-                                       Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                       Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                             <TextBox x:Name="DateToTextBox"
                                      PlaceholderText="e.g. 2024-12-31"
                                      FontSize="11" CornerRadius="5"/>
                         </StackPanel>
-                        <Button Content="Clear dates"
-                                Click="ClearDatesButton_Click"
-                                HorizontalAlignment="Stretch"
-                                CornerRadius="4" Padding="6,4" FontSize="11"/>
+                        <Button Content="Clear dates" Click="ClearDatesButton_Click" HorizontalAlignment="Stretch" FontSize="11"/>
                     </StackPanel>
 
                 </Grid>
             </Border>
 
             <!-- Row 3: Behavior + AI (combined) -->
-            <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                    BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+            <Border Background="{DynamicResource Container2BackgroundBrush}"
+                    BorderBrush="{DynamicResource Container2BorderBrush}"
                     BorderThickness="1" CornerRadius="8" Padding="12,10">
                 <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto,Auto">
                     <TextBlock Grid.Column="0" Text="⚙ Download Behavior"
@@ -198,7 +183,7 @@
                               VerticalAlignment="Center"
                               Margin="12,0"/>
                     <Border Grid.Column="3" Width="1"
-                            Background="{actipro:ThemeResource Container2BorderBrush}"
+                            Background="{DynamicResource Container2BorderBrush}"
                             Margin="8,2" VerticalAlignment="Stretch"/>
                     <CheckBox x:Name="FilterAiCheckBox"
                               Grid.Column="4"

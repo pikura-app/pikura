@@ -199,6 +199,13 @@ public static class AppServices
                         provider.GetRequiredService<PixivImageLoader>(),
                         provider.GetRequiredService<SettingsService>(),
                         provider.GetRequiredService<Pikura.Core.Services.PixivisionSavedArticlesService>()));
+                services.AddSingleton<CollectionsViewModel>(provider =>
+                    new CollectionsViewModel(
+                        provider.GetRequiredService<PixivClient>(),
+                        provider.GetRequiredService<PixivImageLoader>(),
+                        provider.GetRequiredService<DownloadCoordinator>(),
+                        provider.GetRequiredService<SettingsService>(),
+                        provider.GetRequiredService<DialogService>()));
                 services.AddTransient<SettingsViewModel>(provider =>
                     new SettingsViewModel(
                         provider.GetRequiredService<SettingsService>(),
@@ -246,6 +253,11 @@ public static class AppServices
                         provider.GetRequiredService<DownloadCoordinator>(),
                         provider.GetRequiredService<DialogService>(),
                         provider.GetRequiredService<SettingsService>()));
+                services.AddTransient<DownloadByCollectionViewModel>(provider =>
+                    new DownloadByCollectionViewModel(
+                        provider.GetRequiredService<PixivClient>(),
+                        provider.GetRequiredService<SettingsService>(),
+                        provider.GetRequiredService<DownloadCoordinator>()));
                 services.AddTransient<BatchDownloadViewModel>(provider =>
                     new BatchDownloadViewModel(
                         provider.GetRequiredService<DownloadByArtistViewModel>(),
@@ -254,6 +266,7 @@ public static class AppServices
                         provider.GetRequiredService<DownloadFromListViewModel>(),
                         provider.GetRequiredService<DownloadBySearchViewModel>(),
                         provider.GetRequiredService<DownloadByFanboxViewModel>(),
+                        provider.GetRequiredService<DownloadByCollectionViewModel>(),
                         provider.GetRequiredService<SchedulesViewModel>(),
                         provider.GetRequiredService<SettingsViewModel>()));
                 services.AddSingleton<HistoryViewModel>(provider =>
@@ -272,7 +285,8 @@ public static class AppServices
                         provider.GetRequiredService<Pikura.Core.Services.LocalFavoritesService>(),
                         provider.GetRequiredService<GalleryViewModel>(),
                         provider.GetRequiredService<DownloadCoordinator>(),
-                        provider.GetRequiredService<DialogService>()));
+                        provider.GetRequiredService<DialogService>(),
+                        provider.GetRequiredService<ILogger<BookmarksViewModel>>()));
 
                 // Logging
                 services.AddLogging(builder =>

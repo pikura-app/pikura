@@ -1,0 +1,66 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Pikura.Avalonia.ViewModels"
+        xmlns:gallery="using:Pikura.Avalonia.Views.Gallery"
+        xmlns:local="using:Pikura.Avalonia.Views.Artwork"
+        x:Class="Pikura.Avalonia.Views.Artwork.CollageFullscreenWindow"
+        x:DataType="local:CollageFullscreenWindow"
+        Background="{DynamicResource ImageCanvasBackgroundBrush}"
+        WindowState="FullScreen"
+        ShowInTaskbar="False">
+
+    <Grid>
+        <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                      VerticalScrollBarVisibility="Auto"
+                      Background="{DynamicResource ImageCanvasBackgroundBrush}">
+            <ItemsControl x:Name="CollageItemsControl" Margin="20">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <gallery:MasonryPanel ColumnWidth="{Binding ZoomedColumnWidth, FallbackValue=360}" ItemSpacing="{Binding ZoomedItemSpacing, FallbackValue=16}"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:ArtworkCardViewModel">
+                        <Border CornerRadius="10"
+                                ClipToBounds="True"
+                                Background="{DynamicResource Container1BackgroundBrush}"
+                                Margin="8">
+                            <Grid RowDefinitions="Auto,Auto">
+                                <Image Grid.Row="0"
+                                       Source="{Binding Thumbnail}"
+                                       Stretch="Uniform"
+                                       RenderOptions.BitmapInterpolationMode="HighQuality"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Top"/>
+                                <Border Grid.Row="1"
+                                        Background="#CC000000"
+                                        Padding="8,5"
+                                        IsVisible="{Binding Title, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+                                    <TextBlock Text="{Binding Title}"
+                                               FontSize="11"
+                                               Foreground="White"
+                                               TextTrimming="CharacterEllipsis"
+                                               MaxLines="1"/>
+                                </Border>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+
+        <Button HorizontalAlignment="Right" VerticalAlignment="Top" Margin="20" FontSize="12" Background="#AA000000" Foreground="White" BorderThickness="0" Click="OnCloseClicked">
+            <TextBlock Text="✕"/>
+        </Button>
+
+        <TextBlock HorizontalAlignment="Left"
+                   VerticalAlignment="Top"
+                   Margin="20"
+                   Padding="10,6"
+                   FontSize="12"
+                   Background="#AA000000"
+                   Foreground="White"
+                   Text="{Binding Zoom, StringFormat='Zoom: {0:P0} (Ctrl + wheel)'}"
+                   IsHitTestVisible="False"/>
+    </Grid>
+</Window>

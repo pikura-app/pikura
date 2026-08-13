@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.Extensions.Logging;
@@ -42,6 +43,10 @@ public sealed class PixivImageLoader : IDisposable
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         "Pikura", "imgcache");
 
+    private static readonly string FailureLogPath = Path.Combine(
+        Path.GetTempPath(), "pikura_image_failures.txt");
+    private static readonly object FailureLogLock = new();
+
     private readonly PixivHttpClientFactory _factory;
     private readonly ILogger<PixivImageLoader> _logger;
     private readonly ConcurrentDictionary<string, Task<byte[]?>> _memoryCache = new(StringComparer.Ordinal);
@@ -69,9 +74,9 @@ public sealed class PixivImageLoader : IDisposable
         try { Directory.CreateDirectory(DiskCacheRoot); } catch { /* best-effort */ }
     }
 
-    public Task<byte[]?> FetchBytesAsync(string url, CancellationToken ct = default)
+    public async Task<byte[]?> FetchBytesAsync(string url, CancellationToken ct = default)
     {
-        if (string.IsNullOrWhiteSpace(url)) return Task.FromResult<byte[]?>(null);
+        if (string.IsNullOrWhiteSpace(url)) return null;
 
         // Hard cap on the in-memory map so it can't grow without bound.
         if (_memoryCache.Count > _maxMemoryEntries)
@@ -84,14 +89,23 @@ public sealed class PixivImageLoader : IDisposable
         // replace it so the next caller gets a fresh attempt.
         if (_memoryCache.TryGetValue(url, out var existing))
         {
-            if (existing.IsCompletedSuccessfully) return existing;
+            if (existing.IsCompletedSuccessfully)
+            {
+                // Don't cache a failed/null fetch forever — transient CDN errors
+                // or earlier HTTP/2 blocks should be retryable.
+                if (existing.Result is not null) return existing.Result;
+                _memoryCache.TryRemove(new KeyValuePair<string, Task<byte[]?>>(url, existing));
+            }
             if (existing.IsFaulted || existing.IsCanceled)
                 _memoryCache.TryRemove(new KeyValuePair<string, Task<byte[]?>>(url, existing));
         }
 
         // Use CancellationToken.None for the cached task so one caller
         // cancelling doesn't poison the shared result for others.
-        return _memoryCache.GetOrAdd(url, u => FetchInternalAsync(u, CancellationToken.None));
+        var task = _memoryCache.GetOrAdd(url, u => FetchInternalAsync(u, CancellationToken.None));
+        var bytes = await task.ConfigureAwait(false);
+        if (bytes is null) _memoryCache.TryRemove(url, out _);
+        return bytes;
     }
 
     private async Task<byte[]?> FetchInternalAsync(string url, CancellationToken ct)
@@ -148,10 +162,15 @@ public sealed class PixivImageLoader : IDisposable
             var client = _factory.GetClient();
             using var req = new HttpRequestMessage(HttpMethod.Get, url);
             req.Headers.TryAddWithoutValidation("Referer", Referer);
+            // i.pximg.net does not reliably serve images over HTTP/2 in all regions;
+            // force HTTP/1.1 for the CDN requests to match browser/curl behavior.
+            req.Version = HttpVersion.Version11;
+            req.VersionPolicy = HttpVersionPolicy.RequestVersionExact;
             using var resp = await client.SendAsync(req, ct).ConfigureAwait(false);
             if (!resp.IsSuccessStatusCode)
             {
                 _logger.LogWarning("Thumbnail {Url} -> {Code}", url, resp.StatusCode);
+                LogFailure(url, $"HTTP {(int)resp.StatusCode} {resp.StatusCode}");
                 return null;
             }
             return await resp.Content.ReadAsByteArrayAsync(ct).ConfigureAwait(false);
@@ -159,6 +178,7 @@ public sealed class PixivImageLoader : IDisposable
         catch (Exception ex)
         {
             _logger.LogWarning(ex, "Thumbnail fetch failed for {Url}", url);
+            LogFailure(url, ex.Message);
             return null;
         }
     }
@@ -255,10 +275,10 @@ public sealed class PixivImageLoader : IDisposable
         {
             ThumbnailSize.Small => url
                 .Replace("_master1200", "_square1200")
-                .Replace("/540x540_70_", "/250x250_80_a2/"),
+                .Replace("/540x540_70/", "/250x250_80_a2/"),
             ThumbnailSize.Medium => url
                 .Replace("_square1200", "_master1200")
-                .Replace("/250x250_80_a2/", "/540x540_70_/"),
+                .Replace("/250x250_80_a2/", "/540x540_70/"),
             ThumbnailSize.Original => ConvertToOriginalUrl(url),
             _ => url
         };
@@ -277,6 +297,17 @@ public sealed class PixivImageLoader : IDisposable
         original = original.Replace("/img-master/", "/img-original/", StringComparison.OrdinalIgnoreCase);
         original = System.Text.RegularExpressions.Regex.Replace(original, @"_(master|square)1200(\.[a-zA-Z0-9]+)$", "$2");
         return original;
+    }
+
+    private static void LogFailure(string url, string reason)
+    {
+        try
+        {
+            var line = $"[{DateTime.Now:O}] {url} | {reason}{Environment.NewLine}";
+            lock (FailureLogLock)
+                File.AppendAllText(FailureLogPath, line);
+        }
+        catch { /* logging must not break image loading */ }
     }
 
     public void Dispose()

@@ -61,7 +61,25 @@ public partial class SettingsViewModel : ViewModelBase
     public bool IsJpegOutputFormat => ResizeOutputFormatIndex == 1 || ResizeOutputFormatIndex == 2;
 
     [ObservableProperty]
-    private bool _isLightTheme;
+    private string _selectedTheme = "System";
+
+    [ObservableProperty]
+    private bool _isThemeLight;
+
+    [ObservableProperty]
+    private bool _isThemeDark;
+
+    [ObservableProperty]
+    private bool _isThemeSystem;
+
+    [ObservableProperty]
+    private bool _isThemeScheduled;
+
+    [ObservableProperty]
+    private TimeSpan _themeScheduleDarkStart = TimeSpan.FromHours(20);
+
+    [ObservableProperty]
+    private TimeSpan _themeScheduleDarkEnd = TimeSpan.FromHours(6);
 
     // Accessibility
     [ObservableProperty] private double _fontSizeScale = 1.0;
@@ -92,6 +110,8 @@ public partial class SettingsViewModel : ViewModelBase
     [ObservableProperty] private bool _blurR18Content;
     [ObservableProperty] private int _blurIntensity = 15;
     [ObservableProperty] private bool _filterAiGenerated;
+    // Incognito mode — suppresses new Viewed-history writes while enabled
+    [ObservableProperty] private bool _incognitoModeEnabled;
     // Viewed history auto-clear
     [ObservableProperty] private bool _autoClearViewedHistoryEnabled;
     [ObservableProperty] private bool _autoClearViewedHistoryWhileRunning;
@@ -548,7 +568,7 @@ public partial class SettingsViewModel : ViewModelBase
             global::Avalonia.Threading.Dispatcher.UIThread.Post(() => LoadAccountSettings());
             RefreshProfiles();
         };
-        IsLightTheme = settingsService.Current.Theme == "Light";
+        SelectTheme(settingsService.Current.Theme);
 
         // Check ffmpeg status on startup
         _ = CheckFfmpegAsync();
@@ -595,6 +615,7 @@ public partial class SettingsViewModel : ViewModelBase
         BlurR18Content = s.BlurR18Content;
         BlurIntensity = s.BlurIntensity;
         FilterAiGenerated = s.FilterAiGenerated;
+        IncognitoModeEnabled = s.IncognitoModeEnabled;
         AutoClearViewedHistoryEnabled = s.AutoClearViewedHistoryEnabled;
         AutoClearViewedHistoryWhileRunning = s.AutoClearViewedHistoryWhileRunning;
         AutoClearViewedHistoryValue = s.AutoClearViewedHistoryValue;
@@ -723,6 +744,12 @@ public partial class SettingsViewModel : ViewModelBase
         HoshiAnimeTaggerThreshold = s.HoshiAnimeTaggerThreshold;
         HoshiAnimeTaggerMaxTags = s.HoshiAnimeTaggerMaxTags;
         HoshiAnimeTaggerAutoTagDownloads = s.HoshiAnimeTaggerAutoTagDownloads;
+
+        // Theme
+        SelectTheme(s.Theme);
+        ThemeScheduleDarkStart = s.ThemeScheduleDarkStart;
+        ThemeScheduleDarkEnd = s.ThemeScheduleDarkEnd;
+
         RefreshTaggerInstallState();
     }
 
@@ -731,6 +758,18 @@ public partial class SettingsViewModel : ViewModelBase
 
     partial void OnShowFeatureHighlightsChanged(bool value)
         => _settingsService.Update(s => s.ShowFeatureHighlights = value);
+
+    partial void OnThemeScheduleDarkStartChanged(TimeSpan value)
+    {
+        _settingsService.Update(s => s.ThemeScheduleDarkStart = value);
+        if (SelectedTheme == "Scheduled") App.ApplyTheme();
+    }
+
+    partial void OnThemeScheduleDarkEndChanged(TimeSpan value)
+    {
+        _settingsService.Update(s => s.ThemeScheduleDarkEnd = value);
+        if (SelectedTheme == "Scheduled") App.ApplyTheme();
+    }
 
     [RelayCommand]
     private void SaveUpdateSettings()
@@ -781,10 +820,32 @@ public partial class SettingsViewModel : ViewModelBase
     [RelayCommand]
     private void SetTheme(string theme)
     {
-        if (Application.Current is null) return;
-        Application.Current.RequestedThemeVariant = theme == "Light" ? ThemeVariant.Light : ThemeVariant.Dark;
-        IsLightTheme = theme == "Light";
-        _settingsService.Update(s => s.Theme = theme);
+        if (Application.Current is null || string.IsNullOrWhiteSpace(theme)) return;
+        SelectTheme(theme);
+        _settingsService.Update(s =>
+        {
+            s.Theme = SelectedTheme;
+            s.ThemeScheduleDarkStart = ThemeScheduleDarkStart;
+            s.ThemeScheduleDarkEnd = ThemeScheduleDarkEnd;
+        });
+        App.ApplyTheme();
+    }
+
+    private void SelectTheme(string theme)
+    {
+        var normalized = theme switch
+        {
+            "Light" => "Light",
+            "Dark" => "Dark",
+            "System" or "Default" => "System",
+            "Scheduled" => "Scheduled",
+            _ => "System"
+        };
+        SelectedTheme = normalized;
+        IsThemeLight = normalized == "Light";
+        IsThemeDark = normalized == "Dark";
+        IsThemeSystem = normalized == "System";
+        IsThemeScheduled = normalized == "Scheduled";
     }
 
     [RelayCommand]
@@ -825,6 +886,36 @@ public partial class SettingsViewModel : ViewModelBase
         var login = AppServices.Get<Services.PixivLoginService>();
         var result = await login.LoginAsync(owner, clearCookies);
         return result.Success;
+    }
+
+    [ObservableProperty] private bool _isRefreshingCloudflareSession;
+
+    /// <summary>
+    /// Manually re-solves Pixiv's Cloudflare challenge to refresh <c>cf_clearance</c> — useful
+    /// if it's expired and the automatic startup/post-login refresh hasn't caught up yet.
+    /// Needed for pixiv.net subdomains (e.g. embed.pixiv.net, Collection collage thumbnails)
+    /// that reject plain PHPSESSID-only requests.
+    /// </summary>
+    [RelayCommand]
+    private async Task RefreshCloudflareSessionAsync()
+    {
+        if (IsRefreshingCloudflareSession) return;
+        IsRefreshingCloudflareSession = true;
+        try
+        {
+            var login = AppServices.Get<Services.PixivLoginService>();
+            await login.RefreshCloudflareSessionAsync();
+            await _dialogService.ShowMessageAsync("Cloudflare Session",
+                string.IsNullOrWhiteSpace(_settingsService.Current.CfClearance)
+                    ? "Couldn't obtain a Cloudflare clearance cookie. Some features (like Collection thumbnails) may not load."
+                    : "Cloudflare session refreshed.");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Cloudflare session refresh failed");
+            await _dialogService.ShowMessageAsync("Error", $"Failed to refresh Cloudflare session: {ex.Message}");
+        }
+        finally { IsRefreshingCloudflareSession = false; }
     }
 
     [RelayCommand]
@@ -930,6 +1021,16 @@ public partial class SettingsViewModel : ViewModelBase
 
     partial void OnFilterAiGeneratedChanged(bool value)
         => _settingsService.Update(s => s.FilterAiGenerated = value);
+
+    partial void OnIncognitoModeEnabledChanged(bool value)
+    {
+        // Persistent "on by default" setting. Also flips the actually-in-effect state right
+        // away — the Viewed tab's toolbar toggle only ever changes ActiveIncognitoEnabled for
+        // the current session (never this persisted setting), so it always resets back to
+        // whatever this checkbox says on the next launch.
+        _settingsService.Update(s => s.IncognitoModeEnabled = value);
+        _settingsService.ActiveIncognitoEnabled = value;
+    }
 
     partial void OnAutoClearViewedHistoryEnabledChanged(bool value)
     {

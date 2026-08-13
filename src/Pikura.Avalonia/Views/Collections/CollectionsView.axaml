@@ -1,0 +1,991 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:actipro="http://schemas.actiprosoftware.com/avaloniaui"
+             xmlns:vm="using:Pikura.Avalonia.ViewModels"
+             xmlns:gallery="using:Pikura.Avalonia.Views.Gallery"
+             xmlns:services="using:Pikura.Avalonia.Services"
+             xmlns:models="using:Pikura.Core.Models"
+             xmlns:conv="using:Pikura.Avalonia.Converters"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
+             x:Class="Pikura.Avalonia.Views.Collections.CollectionsView"
+             x:DataType="vm:CollectionsViewModel">
+
+    <UserControl.Resources>
+        <conv:BoolToBlurRadiusConverter x:Key="BoolToBlurRadiusConverter"/>
+    </UserControl.Resources>
+
+    <Grid RowDefinitions="Auto,Auto,*">
+        <!-- ══ Row 0: URL/ID input + browse toolbar ══ -->
+        <Border Grid.Row="0"
+                Background="{DynamicResource Container1BackgroundBrush}"
+                BorderBrush="{DynamicResource Container1BorderBrush}"
+                BorderThickness="0,0,0,1" Padding="20,10"
+                Margin="0,32,0,0">
+            <StackPanel Spacing="8">
+                <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                    <TextBlock Text="Collections" FontWeight="Bold" FontSize="20" VerticalAlignment="Center"/>
+                    <ProgressBar IsIndeterminate="True" Width="70" Height="3"
+                                 IsVisible="{Binding IsLoading}" VerticalAlignment="Center"/>
+                    <Button Content="← Back to Browse" FontSize="11" CornerRadius="6" Padding="10,4"
+                            Command="{Binding BackToBrowseCommand}"
+                            IsVisible="{Binding !IsBrowsing}"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <TextBox Text="{Binding CollectionUrlOrId, Mode=TwoWay}"
+                             Width="480" CornerRadius="7" FontSize="12"
+                             PlaceholderText="Paste a pixiv.net/collections/{id} URL or just the ID…"
+                             KeyDown="OnUrlBoxKeyDown"/>
+                    <Button Content="Load" CornerRadius="6" Padding="14,6" FontSize="12"
+                            Classes="accent" Command="{Binding LoadCommand}"/>
+                    <Button CornerRadius="6" Padding="14,6" FontSize="12"
+                            Command="{Binding DownloadCollectionCommand}"
+                            IsVisible="{Binding HasLoaded}"
+                            IsEnabled="{Binding !IsDownloading}"
+                            ToolTip.Tip="Download every work in this collection">
+                        <StackPanel Orientation="Horizontal" Spacing="5">
+                            <TextBlock Text="⊞"/>
+                            <TextBlock Text="Download Collection"/>
+                        </StackPanel>
+                    </Button>
+                    <CheckBox Content="Keep as one collection folder" FontSize="11"
+                              IsChecked="{Binding UseCollectionFolder, Mode=TwoWay}"
+                              IsVisible="{Binding HasLoaded}" VerticalAlignment="Center"
+                              ToolTip.Tip="On: all works go into one Collections\{title} folder. Off: still nests everything under a Collections\ folder, but keeps your normal per-artist/artwork folder structure beneath it."/>
+                </StackPanel>
+
+                <!-- Browse-mode bulk action toolbar (selecting collection tiles) -->
+                <StackPanel Orientation="Horizontal" Spacing="8" IsVisible="{Binding IsBrowsing}">
+                    <ToggleButton IsChecked="{Binding ShowR18, Mode=TwoWay}"
+                                  CornerRadius="6" Padding="10,5" FontSize="11"
+                                  ToolTip.Tip="Show/hide R-18 collections">
+                        <ToggleButton.Styles>
+                            <Style Selector="ToggleButton:checked">
+                                <Setter Property="Background" Value="#DC2626"/>
+                                <Setter Property="Foreground" Value="{DynamicResource R18ButtonForegroundBrush}"/>
+                            </Style>
+                            <Style Selector="ToggleButton:checked /template/ ContentPresenter">
+                                <Setter Property="Background" Value="#DC2626"/>
+                                <Setter Property="Foreground" Value="{DynamicResource R18ButtonForegroundBrush}"/>
+                            </Style>
+                            <Style Selector="ToggleButton:not(:checked)">
+                                <Setter Property="Background" Value="{DynamicResource ControlBackgroundBrushSoftAccent}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource DefaultForegroundBrush}"/>
+                            </Style>
+                            <Style Selector="ToggleButton:not(:checked) /template/ ContentPresenter">
+                                <Setter Property="Background" Value="{DynamicResource ControlBackgroundBrushSoftAccent}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource DefaultForegroundBrush}"/>
+                            </Style>
+                        </ToggleButton.Styles>
+                        <TextBlock Text="R-18" FontSize="11"/>
+                    </ToggleButton>
+                    <Rectangle Width="1" Height="18" Fill="{DynamicResource Container1BorderBrush}" Margin="2,0"/>
+                    <Button Content="Select All" FontSize="11" CornerRadius="6" Padding="10,5" Command="{Binding SelectAllCommand}"/>
+                    <Button Content="Clear Selection" FontSize="11" CornerRadius="6" Padding="10,5" Command="{Binding ClearSelectionCommand}"
+                            IsVisible="{Binding HasSelection}"/>
+                    <TextBlock Text="{Binding SelectedCount, StringFormat='{}{0} selected'}" FontSize="11" VerticalAlignment="Center"
+                               Foreground="{DynamicResource DefaultForegroundBrushTertiary}" IsVisible="{Binding HasSelection}"/>
+                    <Button Content="⊞ Download Selected" FontSize="11" CornerRadius="6" Padding="10,5"
+                            Command="{Binding DownloadSelectedCollectionsCommand}" IsVisible="{Binding HasSelection}"
+                            IsEnabled="{Binding !IsDownloading}"/>
+                    <Button Content="🎨 Download Selected with Preset" FontSize="11" CornerRadius="6" Padding="10,5"
+                            Command="{Binding DownloadSelectedWithPresetCommand}" IsVisible="{Binding HasSelection}"
+                            IsEnabled="{Binding !IsDownloading}"/>
+                    <Button Content="⊞ Download Loaded" FontSize="11" CornerRadius="6" Padding="10,5"
+                            Command="{Binding DownloadLoadedCollectionsCommand}"
+                            IsEnabled="{Binding !IsDownloading}"
+                            ToolTip.Tip="Download every collection currently shown below"/>
+                    <CheckBox Content="One folder per collection" FontSize="11"
+                              IsChecked="{Binding UseCollectionFolder, Mode=TwoWay}" VerticalAlignment="Center"/>
+                    <Button Content="↻ Refresh" FontSize="11" CornerRadius="6" Padding="10,5" Command="{Binding LoadBrowseCommand}"/>
+                    <Rectangle Width="1" Height="20" Fill="{DynamicResource Container1BorderBrush}" Margin="2,0"/>
+                    <ToggleButton IsChecked="{Binding ShowPreview, Mode=TwoWay}"
+                                  CornerRadius="6" Padding="10,5" FontSize="11"
+                                  ToolTip.Tip="Toggle the side panel (only shows content once a collection is open)">
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                            <PathIcon Data="{StaticResource ShowPanelIcon}" Width="14" Height="14" IsVisible="{Binding !ShowPreview}" Foreground="{Binding $parent[ToggleButton].Foreground}" />
+                            <PathIcon Data="{StaticResource HidePanelIcon}" Width="14" Height="14" IsVisible="{Binding ShowPreview}" Foreground="{Binding $parent[ToggleButton].Foreground}" />
+                            <TextBlock Text="Show Panel" FontSize="11" IsVisible="{Binding !ShowPreview}"/>
+                            <TextBlock Text="Hide Panel" FontSize="11" IsVisible="{Binding ShowPreview}"/>
+                        </StackPanel>
+                    </ToggleButton>
+                </StackPanel>
+
+                <!-- Detail-mode bulk action toolbar (selecting individual works in the open collection) -->
+                <StackPanel Orientation="Horizontal" Spacing="8" IsVisible="{Binding HasLoaded}">
+                    <Button CornerRadius="6" Padding="10,5" FontSize="11" Command="{Binding SelectAllWorksCommand}">
+                        <StackPanel Orientation="Horizontal" Spacing="5">
+                            <PathIcon Data="{StaticResource CheckIcon}" Width="12" Height="12" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
+                            <TextBlock Text="Select All" FontSize="11"/>
+                        </StackPanel>
+                    </Button>
+                    <Button CornerRadius="6" Padding="10,5" FontSize="11"
+                            Command="{Binding ClearWorksSelectionCommand}" IsVisible="{Binding HasWorksSelection}">
+                        <StackPanel Orientation="Horizontal" Spacing="5">
+                            <PathIcon Data="{StaticResource CloseIcon}" Width="12" Height="12" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
+                            <TextBlock Text="Clear Selection" FontSize="11"/>
+                        </StackPanel>
+                    </Button>
+                    <TextBlock Text="{Binding SelectedWorksCount, StringFormat='{}{0} selected'}" FontSize="11" VerticalAlignment="Center"
+                               Foreground="{DynamicResource DefaultForegroundBrushTertiary}" IsVisible="{Binding HasWorksSelection}"/>
+                    <Button CornerRadius="6" Padding="10,5" FontSize="11" IsVisible="{Binding CanViewSelectedWorksAsCollage}"
+                            Command="{Binding ViewSelectedWorksAsCollageCommand}"
+                            ToolTip.Tip="Show the checked artworks tiled together in the side panel (up to 10)">
+                        <StackPanel Orientation="Horizontal" Spacing="5">
+                            <TextBlock Text="⊞" FontSize="12"/>
+                            <TextBlock Text="View as Collage" FontSize="11" IsVisible="{Binding !GalleryVm.HasStoredCollage}"/>
+                            <TextBlock Text="Add to Collage" FontSize="11" IsVisible="{Binding GalleryVm.HasStoredCollage}"/>
+                        </StackPanel>
+                    </Button>
+                    <Button CornerRadius="6" Padding="10,5" FontSize="11" IsVisible="{Binding CanViewSelectedWorksInNewTabs}"
+                            Command="{Binding ViewSelectedWorksInNewTabsCommand}"
+                            ToolTip.Tip="Open each selected artwork in its own tab">
+                        <StackPanel Orientation="Horizontal" Spacing="5">
+                            <PathIcon Data="{StaticResource NewIcon}" Width="12" Height="12" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
+                            <TextBlock Text="View in New Tabs" FontSize="11" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Button CornerRadius="6" Padding="10,5" FontSize="11" Classes="accent"
+                            Command="{Binding DownloadSelectedWorksCommand}" IsVisible="{Binding HasWorksSelection}"
+                            IsEnabled="{Binding !IsDownloading}"
+                            ToolTip.Tip="Download only the checked artworks">
+                        <StackPanel Orientation="Horizontal" Spacing="5">
+                            <PathIcon Data="{StaticResource DownloadIcon}" Width="12" Height="12" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
+                            <TextBlock Text="{Binding SelectedWorksCount, StringFormat='Download Selected ({0})'}" FontSize="11"/>
+                        </StackPanel>
+                    </Button>
+                    <Button CornerRadius="6" Padding="10,5" FontSize="11"
+                            Command="{Binding DownloadSelectedWorksWithPresetCommand}"
+                            IsEnabled="{Binding !IsDownloading}"
+                            ToolTip.Tip="Download selected artworks (or all, if none checked) with an image preset">
+                        <StackPanel Orientation="Horizontal" Spacing="5">
+                            <PathIcon Data="{StaticResource PaletteIcon}" Width="12" Height="12" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
+                            <TextBlock Text="Download with Preset" FontSize="11"/>
+                        </StackPanel>
+                    </Button>
+                    <Button CornerRadius="6" Padding="10,5" FontSize="11"
+                            Command="{Binding DownloadCollectionCommand}"
+                            IsEnabled="{Binding !IsDownloading}"
+                            ToolTip.Tip="Download every artwork currently loaded in this collection">
+                        <StackPanel Orientation="Horizontal" Spacing="5">
+                            <PathIcon Data="{StaticResource DownloadIcon}" Width="12" Height="12" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
+                            <TextBlock Text="Download Loaded" FontSize="11"/>
+                        </StackPanel>
+                    </Button>
+                    <Rectangle Width="1" Height="20" Fill="{DynamicResource Container1BorderBrush}" Margin="2,0"/>
+                    <ToggleButton IsChecked="{Binding ShowPreview, Mode=TwoWay}"
+                                  CornerRadius="6" Padding="10,5" FontSize="11"
+                                  ToolTip.Tip="Toggle the side panel">
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                            <PathIcon Data="{StaticResource ShowPanelIcon}" Width="14" Height="14" IsVisible="{Binding !ShowPreview}" Foreground="{Binding $parent[ToggleButton].Foreground}" />
+                            <PathIcon Data="{StaticResource HidePanelIcon}" Width="14" Height="14" IsVisible="{Binding ShowPreview}" Foreground="{Binding $parent[ToggleButton].Foreground}" />
+                            <TextBlock Text="Show Panel" FontSize="11" IsVisible="{Binding !ShowPreview}"/>
+                            <TextBlock Text="Hide Panel" FontSize="11" IsVisible="{Binding ShowPreview}"/>
+                        </StackPanel>
+                    </ToggleButton>
+                    <ToggleButton IsChecked="{Binding IsCollectionBookmarked}"
+                                  Command="{Binding ToggleCollectionBookmarkCommand}"
+                                  IsEnabled="{Binding !IsTogglingBookmark}"
+                                  CornerRadius="6" Padding="10,5" FontSize="11"
+                                  ToolTip.Tip="Bookmark this collection on Pixiv (separate from your local download settings)">
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                            <PathIcon Data="{StaticResource BookmarkFilledIcon}" Width="12" Height="12" Foreground="{Binding $parent[ToggleButton].Foreground}" />
+                            <TextBlock Text="Bookmarked" FontSize="11" IsVisible="{Binding IsCollectionBookmarked}"/>
+                            <TextBlock Text="Bookmark" FontSize="11" IsVisible="{Binding !IsCollectionBookmarked}"/>
+                        </StackPanel>
+                    </ToggleButton>
+                </StackPanel>
+
+                <!-- View options — Fixed/Natural height, Tags, Info, Badges, card size, Grid/List.
+                     Mirrors Gallery/Bookmarks' identical toolbar group so a collection's artwork
+                     grid behaves the same way. -->
+                <WrapPanel Orientation="Horizontal" IsVisible="{Binding HasLoaded}">
+                    <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center"
+                                IsVisible="{Binding IsGridView}">
+                        <Button CornerRadius="6" Padding="8,4" FontSize="11" Command="{Binding SetFixedHeightCommand}"   IsEnabled="{Binding !IsFixedHeight}"   ToolTip.Tip="Fixed card height">Fixed</Button>
+                        <Button CornerRadius="6" Padding="8,4" FontSize="11" Command="{Binding SetNaturalHeightCommand}" IsEnabled="{Binding !IsNaturalHeight}" ToolTip.Tip="Natural height">Natural</Button>
+                        <Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}" Margin="2,0"/>
+                    </StackPanel>
+                    <ToggleButton IsChecked="{Binding ShowTags, Mode=TwoWay}" CornerRadius="6" Padding="8,4" FontSize="11" ToolTip.Tip="Show/hide tag chips">
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                            <PathIcon Data="{StaticResource TagIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[ToggleButton].Foreground}" />
+                            <TextBlock Text="Tags" FontSize="11"/>
+                        </StackPanel>
+                    </ToggleButton>
+                    <ToggleButton IsChecked="{Binding ShowInfo, Mode=TwoWay}" CornerRadius="6" Padding="8,4" FontSize="11" Margin="4,0,0,0" ToolTip.Tip="Show/hide card info strip">
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                            <PathIcon Data="{StaticResource InfoIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[ToggleButton].Foreground}" />
+                            <TextBlock Text="Info" FontSize="11"/>
+                        </StackPanel>
+                    </ToggleButton>
+                    <ToggleButton IsChecked="{Binding ShowBadges, Mode=TwoWay}" CornerRadius="6" Padding="8,4" FontSize="11" Margin="4,0,0,0" ToolTip.Tip="Show/hide liked/bookmarked/favorite badges">
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                            <PathIcon Data="{StaticResource HeartFilledIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{DynamicResource HeartBadgeIconBrush}" />
+                            <TextBlock Text="Badges" FontSize="11"/>
+                        </StackPanel>
+                    </ToggleButton>
+                    <Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}" Margin="6,0"/>
+                    <TextBlock Text="Size" FontSize="11" VerticalAlignment="Center" Margin="0,0,4,0"
+                               Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
+                    <Slider Value="{Binding CardSize}" Minimum="120" Maximum="300" Width="90"
+                            VerticalAlignment="Center"/>
+                    <Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}" Margin="6,0"/>
+                    <Button CornerRadius="6" Padding="8,4" FontSize="11" Command="{Binding SetGridViewCommand}" IsEnabled="{Binding !IsGridView}" ToolTip.Tip="Grid view">⊞ Grid</Button>
+                    <Button CornerRadius="6" Padding="8,4" FontSize="11" Margin="4,0,0,0" Command="{Binding SetListViewCommand}" IsEnabled="{Binding !IsListView}" ToolTip.Tip="List view">≡ List</Button>
+                </WrapPanel>
+
+                <TextBlock Text="{Binding StatusMessage}" FontSize="11"
+                           Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
+            </StackPanel>
+        </Border>
+
+        <!-- ══ Row 1: Collection info + sibling collections — detail mode only. Condensed to a
+             single line by default (title, artist, counts); caption/tags/sibling collections
+             are tucked behind an Expander so they don't eat vertical space unless wanted. ══ -->
+        <Border Grid.Row="1"
+                Background="{DynamicResource Container2BackgroundBrush}"
+                BorderBrush="{DynamicResource Container1BorderBrush}"
+                BorderThickness="0,0,0,1" Padding="20,8"
+                IsVisible="{Binding ShowCollectionDetail}">
+            <StackPanel Spacing="2">
+                <StackPanel Orientation="Horizontal" Spacing="10">
+                    <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="14" VerticalAlignment="Center"
+                               ToolTip.Tip="{Binding Caption}"/>
+                    <TextBlock Text="{Binding UserName, StringFormat='by {0}'}" FontSize="12"
+                               Foreground="{DynamicResource DefaultForegroundBrushTertiary}" VerticalAlignment="Center"/>
+                    <Border Background="{DynamicResource Container1BackgroundBrush}" CornerRadius="10" Padding="8,2">
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                            <PathIcon Data="{StaticResource StarIcon}" Width="11" Height="11" VerticalAlignment="Center"
+                                      Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
+                            <TextBlock Text="{Binding BookmarkCount}" FontSize="11"
+                                       Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Background="{DynamicResource Container1BackgroundBrush}" CornerRadius="10" Padding="8,2">
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                            <TextBlock Text="👁" FontSize="11" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding ViewCount}" FontSize="11"
+                                       Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Background="{DynamicResource Container1BackgroundBrush}" CornerRadius="10" Padding="8,2">
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                            <TextBlock Text="🖼" FontSize="11" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding Works.Count}" FontSize="11"
+                                       Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+                <!-- Manual collapsible section — a plain Expander here rendered with clipped
+                     corners and low-contrast chrome in light mode, so this uses the same
+                     ToggleButton + collapsible-panel pattern as the rest of the app instead. -->
+                <ToggleButton IsChecked="{Binding ShowCaptionSection, Mode=TwoWay}"
+                              HorizontalAlignment="Left" HorizontalContentAlignment="Left"
+                              CornerRadius="6" Padding="8,5" FontSize="11" Margin="0,4,0,0"
+                              Background="{DynamicResource ControlBackgroundBrush}"
+                              Foreground="{DynamicResource DefaultForegroundBrush}">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <PathIcon Data="{StaticResource ChevronDownIcon}" Width="11" Height="11" VerticalAlignment="Center"
+                                  Foreground="{Binding $parent[ToggleButton].Foreground}"
+                                  IsVisible="{Binding $parent[ToggleButton].IsChecked}"/>
+                        <PathIcon Data="{StaticResource ChevronRightIcon}" Width="11" Height="11" VerticalAlignment="Center"
+                                  Foreground="{Binding $parent[ToggleButton].Foreground}"
+                                  IsVisible="{Binding !$parent[ToggleButton].IsChecked}"/>
+                        <TextBlock Text="Caption, tags &amp; more from this creator" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </ToggleButton>
+                <StackPanel Spacing="8" Margin="0,8,0,0" IsVisible="{Binding ShowCaptionSection}">
+                        <TextBlock Text="{Binding Caption}" FontSize="12" TextWrapping="Wrap"
+                                   IsVisible="{Binding Caption, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                        <ItemsControl ItemsSource="{Binding TagsList}"
+                                      IsVisible="{Binding TagsList.Count}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="x:String">
+                                    <Border Background="{DynamicResource Container2BackgroundBrush}"
+                                            CornerRadius="10" Padding="8,2" Margin="0,0,6,0">
+                                        <TextBlock Text="{Binding}" FontSize="10"
+                                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <!-- Other collections by this creator — small collage tiles with real
+                             thumbnails, like a mini version of History's Grouped view, rather than
+                             plain ID chips. -->
+                        <TextBlock Text="More collections by this creator" FontSize="11" FontWeight="SemiBold"
+                                   IsVisible="{Binding SiblingCollections.Count}"/>
+                        <ItemsControl ItemsSource="{Binding SiblingCollections}"
+                                      IsVisible="{Binding SiblingCollections.Count}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:CollectionTileViewModel">
+                                    <Border Width="160" Margin="0,0,10,10" CornerRadius="8" ClipToBounds="True" Cursor="Hand"
+                                            Background="{DynamicResource Container1BackgroundBrush}"
+                                            PointerPressed="OnSiblingTileClicked"
+                                            ToolTip.Tip="View this collection">
+                                        <StackPanel>
+                                            <Border Height="130" ClipToBounds="True"
+                                                    Background="{DynamicResource Container2BackgroundBrush}">
+                                                <Image Source="{Binding Thumbnail}" Stretch="UniformToFill"/>
+                                            </Border>
+                                            <TextBlock Text="{Binding Title}" FontSize="10" Margin="6,4,6,6"
+                                                       TextTrimming="CharacterEllipsis" MaxLines="1"/>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- ══ Row 2: Browse collage (Featured + All) OR single-collection artwork view ══ -->
+        <Grid Grid.Row="2">
+            <!-- Browse collage -->
+            <ScrollViewer VerticalScrollBarVisibility="Auto" IsVisible="{Binding IsBrowsing}">
+                <StackPanel Margin="20" Spacing="16">
+                    <ProgressBar IsIndeterminate="True" Height="3" IsVisible="{Binding IsBrowseLoading}"/>
+
+                    <StackPanel Spacing="8" IsVisible="{Binding ShowFeaturedCollections}">
+                        <TextBlock Text="Featured" FontWeight="SemiBold" FontSize="14"/>
+                        <ItemsControl ItemsSource="{Binding FeaturedCollections}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:CollectionTileViewModel">
+                                    <Border Width="220" Margin="0,0,12,12" CornerRadius="8" ClipToBounds="True"
+                                            Background="{DynamicResource Container1BackgroundBrush}">
+                                        <Border.ContextMenu>
+                                            <ContextMenu>
+                                                <MenuItem Header="Open" Command="{Binding $parent[UserControl].((vm:CollectionsViewModel)DataContext).OpenCollectionTileCommand}" CommandParameter="{Binding}"/>
+                                                <MenuItem Header="Load into side panel" Command="{Binding $parent[UserControl].((vm:CollectionsViewModel)DataContext).LoadTileIntoSidePanelCommand}" CommandParameter="{Binding}">
+                                                    <MenuItem.Icon><PathIcon Data="{StaticResource ShowPanelIcon}" Width="14" Height="14"/></MenuItem.Icon>
+                                                </MenuItem>
+                                                <Separator/>
+                                                <MenuItem Header="Select" IsVisible="{Binding !IsSelected}" Command="{Binding $parent[UserControl].((vm:CollectionsViewModel)DataContext).ToggleTileSelectionCommand}" CommandParameter="{Binding}">
+                                                    <MenuItem.Icon><PathIcon Data="{StaticResource CheckIcon}" Width="14" Height="14"/></MenuItem.Icon>
+                                                </MenuItem>
+                                                <MenuItem Header="Deselect" IsVisible="{Binding IsSelected}" Command="{Binding $parent[UserControl].((vm:CollectionsViewModel)DataContext).ToggleTileSelectionCommand}" CommandParameter="{Binding}">
+                                                    <MenuItem.Icon><PathIcon Data="{StaticResource CheckIcon}" Width="14" Height="14"/></MenuItem.Icon>
+                                                </MenuItem>
+                                                <Separator/>
+                                                <MenuItem Header="Download Collection" Command="{Binding $parent[UserControl].((vm:CollectionsViewModel)DataContext).DownloadSingleTileCommand}" CommandParameter="{Binding}">
+                                                    <MenuItem.Icon><PathIcon Data="{StaticResource DownloadIcon}" Width="14" Height="14"/></MenuItem.Icon>
+                                                </MenuItem>
+                                                <Separator/>
+                                                <MenuItem Header="Bookmark" IsVisible="{Binding !IsBookmarked}" Command="{Binding $parent[UserControl].((vm:CollectionsViewModel)DataContext).ToggleTileBookmarkCommand}" CommandParameter="{Binding}">
+                                                    <MenuItem.Icon><PathIcon Data="{StaticResource BookmarkFilledIcon}" Width="14" Height="14"/></MenuItem.Icon>
+                                                </MenuItem>
+                                                <MenuItem Header="Remove bookmark" IsVisible="{Binding IsBookmarked}" Command="{Binding $parent[UserControl].((vm:CollectionsViewModel)DataContext).ToggleTileBookmarkCommand}" CommandParameter="{Binding}">
+                                                    <MenuItem.Icon><PathIcon Data="{StaticResource BookmarkFilledIcon}" Width="14" Height="14"/></MenuItem.Icon>
+                                                </MenuItem>
+                                                <Separator/>
+                                                <MenuItem Header="Copy collection ID" Click="OnContextCopyCollectionId"/>
+                                                <MenuItem Header="Copy collection link" Click="OnContextCopyCollectionLink">
+                                                    <MenuItem.Icon><PathIcon Data="{StaticResource CopyIcon}" Width="14" Height="14"/></MenuItem.Icon>
+                                                </MenuItem>
+                                            </ContextMenu>
+                                        </Border.ContextMenu>
+                                        <StackPanel>
+                                            <Grid>
+                                                <Border Height="220" ClipToBounds="True" Cursor="Hand"
+                                                        Background="{DynamicResource Container2BackgroundBrush}"
+                                                        PointerPressed="OnBrowseTileClicked">
+                                                    <Panel>
+                                                        <!-- Single work — full-bleed image -->
+                                                        <Image Source="{Binding Thumbnail}" Stretch="UniformToFill"
+                                                               IsVisible="{Binding !HasMultipleThumbnails}">
+                                                            <Image.Effect><BlurEffect Radius="{Binding IsBlurred, Converter={StaticResource BoolToBlurRadiusConverter}}"/></Image.Effect>
+                                                        </Image>
+                                                        <!-- Multiple works — 2x2 assortment, like Pixiv's own collage look -->
+                                                        <ItemsControl ItemsSource="{Binding CollageThumbnails}"
+                                                                      IsVisible="{Binding HasMultipleThumbnails}">
+                                                            <ItemsControl.Effect>
+                                                                <BlurEffect Radius="{Binding IsBlurred, Converter={StaticResource BoolToBlurRadiusConverter}}"/>
+                                                            </ItemsControl.Effect>
+                                                            <ItemsControl.ItemsPanel>
+                                                                <ItemsPanelTemplate><UniformGrid Columns="2" Rows="2"/></ItemsPanelTemplate>
+                                                            </ItemsControl.ItemsPanel>
+                                                            <ItemsControl.ItemTemplate>
+                                                                <DataTemplate>
+                                                                    <Border ClipToBounds="True" Margin="0.5">
+                                                                        <Image Source="{Binding}" Stretch="UniformToFill"/>
+                                                                    </Border>
+                                                                </DataTemplate>
+                                                            </ItemsControl.ItemTemplate>
+                                                        </ItemsControl>
+                                                        <Border VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,6,6"
+                                                                Padding="5,3" CornerRadius="4" Background="#CC2563EB"
+                                                                IsVisible="{Binding IsBookmarked}" IsHitTestVisible="False">
+                                                            <PathIcon Data="{StaticResource BookmarkFilledIcon}" Width="9" Height="9" Foreground="White"/>
+                                                        </Border>
+                                                        <Border VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,6,6,0"
+                                                                Padding="5,2" CornerRadius="4" Background="#CCDC2626"
+                                                                IsVisible="{Binding IsR18}" IsHitTestVisible="False">
+                                                            <TextBlock Text="R-18" FontSize="8" Foreground="White" FontWeight="Bold"/>
+                                                        </Border>
+                                                    </Panel>
+                                                </Border>
+                                                <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                                                          HorizontalAlignment="Left" VerticalAlignment="Top" Margin="4"
+                                                          Click="OnBrowseTileCheckboxClicked"/>
+                                            </Grid>
+                                            <TextBlock Text="{Binding Title}" FontSize="12" Margin="8,6,8,0"
+                                                       TextTrimming="CharacterEllipsis" MaxLines="1"/>
+                                            <TextBlock Text="{Binding UserName}" FontSize="10" Margin="8,0,8,10"
+                                                       Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
+                                                       TextTrimming="CharacterEllipsis" MaxLines="1"/>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+
+                    <StackPanel Spacing="8">
+                        <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                            <TextBlock Text="All Collections" FontWeight="SemiBold" FontSize="14"/>
+                            <TextBlock FontSize="12" VerticalAlignment="Center"
+                                       Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
+                                       IsVisible="{Binding AllCollectionsTotal}">
+                                <TextBlock.Text>
+                                    <MultiBinding StringFormat="{}{0} of {1}">
+                                        <Binding Path="AllCollections.Count"/>
+                                        <Binding Path="AllCollectionsTotal"/>
+                                    </MultiBinding>
+                                </TextBlock.Text>
+                            </TextBlock>
+                        </StackPanel>
+                        <TextBlock Text="No collections could be loaded — you can still paste a specific collection URL/ID above."
+                                   FontSize="12" TextWrapping="Wrap" MaxWidth="500"
+                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
+                                   IsVisible="{Binding !AllCollections.Count}"/>
+                        <ItemsControl ItemsSource="{Binding AllCollections}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:CollectionTileViewModel">
+                                    <Border Width="220" Margin="0,0,12,12" CornerRadius="8" ClipToBounds="True"
+                                            Background="{DynamicResource Container1BackgroundBrush}">
+                                        <Border.ContextMenu>
+                                            <ContextMenu>
+                                                <MenuItem Header="Open" Command="{Binding $parent[UserControl].((vm:CollectionsViewModel)DataContext).OpenCollectionTileCommand}" CommandParameter="{Binding}"/>
+                                                <MenuItem Header="Load into side panel" Command="{Binding $parent[UserControl].((vm:CollectionsViewModel)DataContext).LoadTileIntoSidePanelCommand}" CommandParameter="{Binding}">
+                                                    <MenuItem.Icon><PathIcon Data="{StaticResource ShowPanelIcon}" Width="14" Height="14"/></MenuItem.Icon>
+                                                </MenuItem>
+                                                <Separator/>
+                                                <MenuItem Header="Select" IsVisible="{Binding !IsSelected}" Command="{Binding $parent[UserControl].((vm:CollectionsViewModel)DataContext).ToggleTileSelectionCommand}" CommandParameter="{Binding}">
+                                                    <MenuItem.Icon><PathIcon Data="{StaticResource CheckIcon}" Width="14" Height="14"/></MenuItem.Icon>
+                                                </MenuItem>
+                                                <MenuItem Header="Deselect" IsVisible="{Binding IsSelected}" Command="{Binding $parent[UserControl].((vm:CollectionsViewModel)DataContext).ToggleTileSelectionCommand}" CommandParameter="{Binding}">
+                                                    <MenuItem.Icon><PathIcon Data="{StaticResource CheckIcon}" Width="14" Height="14"/></MenuItem.Icon>
+                                                </MenuItem>
+                                                <Separator/>
+                                                <MenuItem Header="Download Collection" Command="{Binding $parent[UserControl].((vm:CollectionsViewModel)DataContext).DownloadSingleTileCommand}" CommandParameter="{Binding}">
+                                                    <MenuItem.Icon><PathIcon Data="{StaticResource DownloadIcon}" Width="14" Height="14"/></MenuItem.Icon>
+                                                </MenuItem>
+                                                <Separator/>
+                                                <MenuItem Header="Bookmark" IsVisible="{Binding !IsBookmarked}" Command="{Binding $parent[UserControl].((vm:CollectionsViewModel)DataContext).ToggleTileBookmarkCommand}" CommandParameter="{Binding}">
+                                                    <MenuItem.Icon><PathIcon Data="{StaticResource BookmarkFilledIcon}" Width="14" Height="14"/></MenuItem.Icon>
+                                                </MenuItem>
+                                                <MenuItem Header="Remove bookmark" IsVisible="{Binding IsBookmarked}" Command="{Binding $parent[UserControl].((vm:CollectionsViewModel)DataContext).ToggleTileBookmarkCommand}" CommandParameter="{Binding}">
+                                                    <MenuItem.Icon><PathIcon Data="{StaticResource BookmarkFilledIcon}" Width="14" Height="14"/></MenuItem.Icon>
+                                                </MenuItem>
+                                                <Separator/>
+                                                <MenuItem Header="Copy collection ID" Click="OnContextCopyCollectionId"/>
+                                                <MenuItem Header="Copy collection link" Click="OnContextCopyCollectionLink">
+                                                    <MenuItem.Icon><PathIcon Data="{StaticResource CopyIcon}" Width="14" Height="14"/></MenuItem.Icon>
+                                                </MenuItem>
+                                            </ContextMenu>
+                                        </Border.ContextMenu>
+                                        <StackPanel>
+                                            <Grid>
+                                                <Border Height="220" ClipToBounds="True" Cursor="Hand"
+                                                        Background="{DynamicResource Container2BackgroundBrush}"
+                                                        PointerPressed="OnBrowseTileClicked">
+                                                    <Panel>
+                                                        <Image Source="{Binding Thumbnail}" Stretch="UniformToFill"
+                                                               IsVisible="{Binding !HasMultipleThumbnails}">
+                                                            <Image.Effect><BlurEffect Radius="{Binding IsBlurred, Converter={StaticResource BoolToBlurRadiusConverter}}"/></Image.Effect>
+                                                        </Image>
+                                                        <ItemsControl ItemsSource="{Binding CollageThumbnails}"
+                                                                      IsVisible="{Binding HasMultipleThumbnails}">
+                                                            <ItemsControl.Effect>
+                                                                <BlurEffect Radius="{Binding IsBlurred, Converter={StaticResource BoolToBlurRadiusConverter}}"/>
+                                                            </ItemsControl.Effect>
+                                                            <ItemsControl.ItemsPanel>
+                                                                <ItemsPanelTemplate><UniformGrid Columns="2" Rows="2"/></ItemsPanelTemplate>
+                                                            </ItemsControl.ItemsPanel>
+                                                            <ItemsControl.ItemTemplate>
+                                                                <DataTemplate>
+                                                                    <Border ClipToBounds="True" Margin="0.5">
+                                                                        <Image Source="{Binding}" Stretch="UniformToFill"/>
+                                                                    </Border>
+                                                                </DataTemplate>
+                                                            </ItemsControl.ItemTemplate>
+                                                        </ItemsControl>
+                                                        <Border VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,6,6"
+                                                                Padding="5,3" CornerRadius="4" Background="#CC2563EB"
+                                                                IsVisible="{Binding IsBookmarked}" IsHitTestVisible="False">
+                                                            <PathIcon Data="{StaticResource BookmarkFilledIcon}" Width="9" Height="9" Foreground="White"/>
+                                                        </Border>
+                                                        <Border VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,6,6,0"
+                                                                Padding="5,2" CornerRadius="4" Background="#CCDC2626"
+                                                                IsVisible="{Binding IsR18}" IsHitTestVisible="False">
+                                                            <TextBlock Text="R-18" FontSize="8" Foreground="White" FontWeight="Bold"/>
+                                                        </Border>
+                                                    </Panel>
+                                                </Border>
+                                                <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                                                          HorizontalAlignment="Left" VerticalAlignment="Top" Margin="4"
+                                                          Click="OnBrowseTileCheckboxClicked"/>
+                                            </Grid>
+                                            <TextBlock Text="{Binding Title}" FontSize="12" Margin="8,6,8,0"
+                                                       TextTrimming="CharacterEllipsis" MaxLines="1"/>
+                                            <TextBlock Text="{Binding UserName}" FontSize="10" Margin="8,0,8,10"
+                                                       Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
+                                                       TextTrimming="CharacterEllipsis" MaxLines="1"/>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <ProgressBar IsIndeterminate="True" Height="3" Margin="0,4,0,0"
+                                     IsVisible="{Binding IsLoadingMoreAllCollections}"/>
+                        <Rectangle Height="52" Fill="Transparent" IsVisible="{Binding AllCollectionsTotal}"/>
+                    </StackPanel>
+                </StackPanel>
+            </ScrollViewer>
+
+            <!-- Pages vs Load-more switch — docked at the bottom of this Grid.Row. -->
+            <Border VerticalAlignment="Bottom"
+                    Background="{DynamicResource Container1BackgroundBrush}"
+                    BorderBrush="{DynamicResource Container1BorderBrush}"
+                    BorderThickness="0,1,0,0" Padding="14,8"
+                    IsVisible="{Binding IsBrowsing}">
+                <Grid ColumnDefinitions="*,Auto">
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding AllCollections.Count, StringFormat='{}{0} shown'}" FontSize="11" Foreground="{DynamicResource DefaultForegroundBrushTertiary}" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding AllCollectionsTotal, StringFormat='of {0}'}" FontSize="11" Foreground="{DynamicResource DefaultForegroundBrushTertiary}" VerticalAlignment="Center" IsVisible="{Binding AllCollectionsTotal}"/>
+                        <ProgressBar IsIndeterminate="True" Width="60" Height="3" IsVisible="{Binding IsLoadingMoreAllCollections}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                        <ToggleButton IsChecked="{Binding UsePagination, Mode=OneWay}"
+                                      Command="{Binding TogglePaginationCommand}"
+                                      CornerRadius="6" Padding="8,4" FontSize="11"
+                                      ToolTip.Tip="Toggle numbered pages (off = Load more)">
+                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                <TextBlock Text="📄" FontSize="12" VerticalAlignment="Center"/>
+                                <TextBlock Text="Pages" FontSize="11" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </ToggleButton>
+                        <TextBlock Text="Show" FontSize="11" Foreground="{DynamicResource DefaultForegroundBrushTertiary}" VerticalAlignment="Center"/>
+                        <ComboBox SelectedItem="{Binding AllCollectionsPageSize, Mode=TwoWay}"
+                                  Width="70" FontSize="11" Padding="6,4" CornerRadius="6"
+                                  VerticalAlignment="Center"
+                                  ToolTip.Tip="Items per page">
+                            <x:Int32>20</x:Int32>
+                            <x:Int32>40</x:Int32>
+                            <x:Int32>60</x:Int32>
+                            <x:Int32>80</x:Int32>
+                            <x:Int32>100</x:Int32>
+                            <x:Int32>120</x:Int32>
+                        </ComboBox>
+                        <Button Content="Load more" CornerRadius="6" Padding="8,4" FontSize="11"
+                                Command="{Binding LoadMoreAllCollectionsCommand}"
+                                IsVisible="{Binding CanLoadMoreAllCollections}"/>
+                        <StackPanel Orientation="Horizontal" Spacing="6" IsVisible="{Binding UsePagination}">
+                            <Button Content="‹ Prev" CornerRadius="6" Padding="8,4" FontSize="11"
+                                    Command="{Binding PreviousAllCollectionsPageCommand}"/>
+                            <TextBlock Text="{Binding AllCollectionsPage, StringFormat='Page {0} of'}" FontSize="11" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding AllCollectionsTotalPages}" FontSize="11" VerticalAlignment="Center"/>
+                            <TextBox Text="{Binding AllCollectionsPageInput, Mode=TwoWay}" PlaceholderText="#"
+                                     Width="44" CornerRadius="6" Padding="6,4" FontSize="11"
+                                     VerticalContentAlignment="Center"
+                                     KeyDown="OnAllCollectionsPageInputKeyDown"
+                                     ToolTip.Tip="Type a page number and press Enter"/>
+                            <Button Content="Next ›" CornerRadius="6" Padding="8,4" FontSize="11"
+                                    Command="{Binding NextAllCollectionsPageCommand}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Single-collection artwork view + inline viewer side panel -->
+            <Grid Name="CollectionsContentGrid" ColumnDefinitions="*,Auto,Auto" IsVisible="{Binding !IsBrowsing}">
+                <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+                    <!-- Empty state — this collection has no artwork. Shown instead of leaving a
+                         blank gap between the caption bar and the comments section below. -->
+                    <StackPanel IsVisible="{Binding HasNoWorks}" Spacing="8" Margin="16,40"
+                                HorizontalAlignment="Center">
+                        <PathIcon Data="{StaticResource ImageIcon}" Width="32" Height="32"
+                                  Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
+                                  HorizontalAlignment="Center" Opacity="0.6"/>
+                        <TextBlock Text="This collection has no artwork yet." FontSize="13"
+                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
+                                   HorizontalAlignment="Center"/>
+                    </StackPanel>
+                    <ItemsControl ItemsSource="{Binding Works}" Margin="16" IsVisible="{Binding ShowFixedGrid}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:ArtworkCardViewModel">
+                                <Panel Width="{Binding $parent[UserControl].((vm:CollectionsViewModel)DataContext).CardSize}" Margin="8">
+                                <Border CornerRadius="8" ClipToBounds="True" Cursor="Hand"
+                                        Background="{DynamicResource Container1BackgroundBrush}"
+                                        PointerPressed="OnCardClicked">
+                                    <Border.ContextMenu>
+                                        <ContextMenu>
+                                            <MenuItem Header="Select" Click="OnContextToggleSelection" IsVisible="{Binding !IsSelected}">
+                                                <MenuItem.Icon><PathIcon Data="{StaticResource CheckIcon}" Width="14" Height="14"/></MenuItem.Icon>
+                                            </MenuItem>
+                                            <MenuItem Header="Deselect" Click="OnContextToggleSelection" IsVisible="{Binding IsSelected}">
+                                                <MenuItem.Icon><PathIcon Data="{StaticResource CheckIcon}" Width="14" Height="14"/></MenuItem.Icon>
+                                            </MenuItem>
+                                            <Separator/>
+                                            <MenuItem Header="Open in side panel" Click="OnContextOpenSidePanel">
+                                                <MenuItem.Icon><PathIcon Data="{StaticResource PanelIcon}" Width="14" Height="14"/></MenuItem.Icon>
+                                            </MenuItem>
+                                            <MenuItem Header="Open full screen" Click="OnContextOpenFullScreen">
+                                                <MenuItem.Icon><PathIcon Data="{StaticResource FullscreenIcon}" Width="14" Height="14"/></MenuItem.Icon>
+                                            </MenuItem>
+                                            <MenuItem Header="Open in new tab" Click="OnContextOpenInNewTab">
+                                                <MenuItem.Icon><PathIcon Data="{StaticResource NewTabIcon}" Width="14" Height="14"/></MenuItem.Icon>
+                                            </MenuItem>
+                                            <MenuItem Header="Open in popup" Click="OnContextOpenPopup">
+                                                <MenuItem.Icon><PathIcon Data="{StaticResource PopupIcon}" Width="14" Height="14"/></MenuItem.Icon>
+                                            </MenuItem>
+                                            <Separator/>
+                                            <MenuItem Header="Download all" Click="OnContextDownloadAll">
+                                                <MenuItem.Icon><PathIcon Data="{StaticResource DownloadIcon}" Width="14" Height="14"/></MenuItem.Icon>
+                                            </MenuItem>
+                                            <MenuItem Header="Download first page only" Click="OnContextDownloadThisPage" IsVisible="{Binding IsMultiPage}">
+                                                <MenuItem.Icon><PathIcon Data="{StaticResource DownloadIcon}" Width="14" Height="14"/></MenuItem.Icon>
+                                            </MenuItem>
+                                            <Separator/>
+                                            <MenuItem Header="Open artist gallery" Click="OnContextOpenArtistGallery">
+                                                <MenuItem.Icon><PathIcon Data="{StaticResource PersonIcon}" Width="14" Height="14"/></MenuItem.Icon>
+                                            </MenuItem>
+                                            <MenuItem Header="Open on pixiv.net" Click="OnContextOpenPixiv">
+                                                <MenuItem.Icon><PathIcon Data="{StaticResource GlobeIcon}" Width="14" Height="14"/></MenuItem.Icon>
+                                            </MenuItem>
+                                            <MenuItem Header="Follow artist" Click="OnContextToggleFollow" IsVisible="{Binding !IsFollowed}">
+                                                <MenuItem.Icon><PathIcon Data="{StaticResource HeartFilledIcon}" Width="14" Height="14"/></MenuItem.Icon>
+                                            </MenuItem>
+                                            <MenuItem Header="Unfollow artist" Click="OnContextToggleFollow" IsVisible="{Binding IsFollowed}">
+                                                <MenuItem.Icon><PathIcon Data="{StaticResource HeartFilledIcon}" Width="14" Height="14"/></MenuItem.Icon>
+                                            </MenuItem>
+                                            <Separator/>
+                                            <MenuItem Header="Add to local favorites" Click="OnContextToggleFavorite" IsVisible="{Binding !IsLocalFavorite}">
+                                                <MenuItem.Icon><PathIcon Data="{StaticResource StarIcon}" Width="14" Height="14"/></MenuItem.Icon>
+                                            </MenuItem>
+                                            <MenuItem Header="Remove from favorites" Click="OnContextToggleFavorite" IsVisible="{Binding IsLocalFavorite}">
+                                                <MenuItem.Icon><PathIcon Data="{StaticResource StarIcon}" Width="14" Height="14"/></MenuItem.Icon>
+                                            </MenuItem>
+                                            <Separator/>
+                                            <MenuItem Header="Copy artwork ID" Click="OnContextCopyId"/>
+                                            <MenuItem Header="Copy artist ID" Click="OnContextCopyArtistId"/>
+                                            <MenuItem Header="Copy image" Click="OnContextCopyImage">
+                                                <MenuItem.Icon><PathIcon Data="{StaticResource CopyIcon}" Width="14" Height="14"/></MenuItem.Icon>
+                                            </MenuItem>
+                                            <MenuItem Header="Use as app background" Click="OnContextUseAsBackground"
+                                                      IsVisible="{Binding IsEnabled, Source={x:Static services:AppServices.OverlayService}}">
+                                                <MenuItem.Icon><PathIcon Data="{StaticResource ImageIcon}" Width="14" Height="14"/></MenuItem.Icon>
+                                            </MenuItem>
+                                        </ContextMenu>
+                                    </Border.ContextMenu>
+                                    <Grid RowDefinitions="Auto,Auto">
+                                        <Border Grid.Row="0" Height="220" ClipToBounds="True">
+                                            <Panel>
+                                                <Image Source="{Binding Thumbnail}" Stretch="UniformToFill">
+                                                    <Image.Effect><BlurEffect Radius="{Binding IsBlurred, Converter={StaticResource BoolToBlurRadiusConverter}}"/></Image.Effect>
+                                                </Image>
+                                                <!-- Badges overlaid on the image -->
+                                                <Panel IsVisible="{Binding $parent[UserControl].((vm:CollectionsViewModel)DataContext).ShowBadges}">
+                                                    <Border VerticalAlignment="Bottom" HorizontalAlignment="Left"
+                                                            Margin="6,0,0,6" Padding="5,2" CornerRadius="4"
+                                                            Background="#BB000000" IsVisible="{Binding IsMultiPage}">
+                                                        <TextBlock Text="{Binding PageCount, StringFormat='1/{0}'}"
+                                                                   FontSize="9" Foreground="White"/>
+                                                    </Border>
+                                                    <Border VerticalAlignment="Top" HorizontalAlignment="Right"
+                                                            Margin="0,6,6,0" Padding="5,2" CornerRadius="4"
+                                                            Background="#CCDC2626" IsVisible="{Binding IsR18}">
+                                                        <TextBlock Text="R-18" FontSize="8" Foreground="White" FontWeight="Bold"/>
+                                                    </Border>
+                                                    <Border VerticalAlignment="Bottom" HorizontalAlignment="Right"
+                                                            Padding="5,3" CornerRadius="4" Background="#CC8B5CF6" IsVisible="{Binding IsLocalFavorite}">
+                                                        <Border.Margin>
+                                                            <MultiBinding Converter="{x:Static conv:BadgeStackMarginConverter.Instance}">
+                                                                <Binding Path="IsPixivBookmarked"/>
+                                                                <Binding Path="IsLiked"/>
+                                                            </MultiBinding>
+                                                        </Border.Margin>
+                                                        <PathIcon Data="{StaticResource StarIcon}" Width="9" Height="9" Foreground="White"/>
+                                                    </Border>
+                                                    <Border VerticalAlignment="Bottom" HorizontalAlignment="Right"
+                                                            Padding="5,3" CornerRadius="4" Background="#CC2563EB" IsVisible="{Binding IsPixivBookmarked}">
+                                                        <Border.Margin>
+                                                            <MultiBinding Converter="{x:Static conv:BadgeStackMarginConverter.Instance}">
+                                                                <Binding Path="IsLiked"/>
+                                                            </MultiBinding>
+                                                        </Border.Margin>
+                                                        <PathIcon Data="{StaticResource BookmarkFilledIcon}" Width="9" Height="9" Foreground="White"/>
+                                                    </Border>
+                                                    <Border VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,6,6"
+                                                            Padding="5,3" CornerRadius="4" Background="#CCDB2777" IsVisible="{Binding IsLiked}">
+                                                        <PathIcon Data="{StaticResource HeartFilledIcon}" Width="9" Height="9" Foreground="White"/>
+                                                    </Border>
+                                                </Panel>
+                                                <CheckBox VerticalAlignment="Top" HorizontalAlignment="Left"
+                                                          Margin="6,6,0,0" MinWidth="0" MinHeight="0"
+                                                          IsChecked="{Binding IsSelected}" Click="OnWorkCheckboxClicked"/>
+                                            </Panel>
+                                        </Border>
+                                        <StackPanel Grid.Row="1" Margin="8,6,8,8" Spacing="2"
+                                                     IsVisible="{Binding $parent[UserControl].((vm:CollectionsViewModel)DataContext).ShowInfo}">
+                                            <TextBlock Text="{Binding Title}" FontSize="11" FontWeight="SemiBold"
+                                                       TextTrimming="CharacterEllipsis" MaxLines="1"/>
+                                            <TextBlock Text="{Binding UserName}" FontSize="10"
+                                                       Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
+                                                       TextTrimming="CharacterEllipsis" MaxLines="1"/>
+                                            <ItemsControl ItemsSource="{Binding TopTags}" Margin="0,2,0,0"
+                                                          IsVisible="{Binding $parent[UserControl].((vm:CollectionsViewModel)DataContext).ShowTags}">
+                                                <ItemsControl.ItemsPanel>
+                                                    <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                                                </ItemsControl.ItemsPanel>
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate x:DataType="x:String">
+                                                        <Border Background="{DynamicResource Container2BackgroundBrush}"
+                                                                CornerRadius="8" Padding="6,1" Margin="0,0,4,3">
+                                                            <TextBlock Text="{Binding}" FontSize="9"
+                                                                       Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
+                                                        </Border>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                                <Border CornerRadius="8" IsHitTestVisible="False"
+                                        IsVisible="{Binding IsSelected}"
+                                        BorderBrush="{DynamicResource ControlBackgroundBrushSolidAccent}" BorderThickness="2"/>
+                                </Panel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <!-- Natural height mode — masonry layout, same card size control -->
+                    <ItemsControl ItemsSource="{Binding Works}" Margin="16" IsVisible="{Binding ShowNaturalGrid}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <gallery:MasonryPanel ColumnWidth="{Binding $parent[UserControl].((vm:CollectionsViewModel)DataContext).CardSize}" ItemSpacing="8"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:ArtworkCardViewModel">
+                                <Panel Margin="8">
+                                    <Border CornerRadius="8" ClipToBounds="True" Cursor="Hand"
+                                            Background="{DynamicResource Container1BackgroundBrush}"
+                                            PointerPressed="OnCardClicked">
+                                        <Border.ContextMenu>
+                                            <ContextMenu>
+                                                <MenuItem Header="Select" Click="OnContextToggleSelection" IsVisible="{Binding !IsSelected}"/>
+                                                <MenuItem Header="Deselect" Click="OnContextToggleSelection" IsVisible="{Binding IsSelected}"/>
+                                                <Separator/>
+                                                <MenuItem Header="Open in side panel" Click="OnContextOpenSidePanel"/>
+                                                <MenuItem Header="Open full screen" Click="OnContextOpenFullScreen"/>
+                                                <MenuItem Header="Download all" Click="OnContextDownloadAll"/>
+                                                <Separator/>
+                                                <MenuItem Header="Open artist gallery" Click="OnContextOpenArtistGallery"/>
+                                                <MenuItem Header="Open on pixiv.net" Click="OnContextOpenPixiv"/>
+                                            </ContextMenu>
+                                        </Border.ContextMenu>
+                                        <StackPanel>
+                                            <Panel>
+                                                <Image Source="{Binding Thumbnail}" Stretch="Uniform">
+                                                    <Image.Effect><BlurEffect Radius="{Binding IsBlurred, Converter={StaticResource BoolToBlurRadiusConverter}}"/></Image.Effect>
+                                                </Image>
+                                                <CheckBox VerticalAlignment="Top" HorizontalAlignment="Left"
+                                                          Margin="6,6,0,0" MinWidth="0" MinHeight="0"
+                                                          IsChecked="{Binding IsSelected}" Click="OnWorkCheckboxClicked"/>
+                                            </Panel>
+                                            <StackPanel Margin="8,6,8,8" Spacing="2"
+                                                        IsVisible="{Binding $parent[UserControl].((vm:CollectionsViewModel)DataContext).ShowInfo}">
+                                                <TextBlock Text="{Binding Title}" FontSize="11" FontWeight="SemiBold"
+                                                           TextTrimming="CharacterEllipsis" MaxLines="1"/>
+                                                <TextBlock Text="{Binding UserName}" FontSize="10"
+                                                           Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
+                                                           TextTrimming="CharacterEllipsis" MaxLines="1"/>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </Border>
+                                    <Border CornerRadius="8" IsHitTestVisible="False"
+                                            IsVisible="{Binding IsSelected}"
+                                            BorderBrush="{DynamicResource ControlBackgroundBrushSolidAccent}" BorderThickness="2"/>
+                                </Panel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <!-- List view mode -->
+                    <ItemsControl ItemsSource="{Binding Works}" Margin="16" IsVisible="{Binding IsListView}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate><StackPanel Spacing="4"/></ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:ArtworkCardViewModel">
+                                <Border CornerRadius="8" Cursor="Hand" Padding="8"
+                                        Background="{DynamicResource Container1BackgroundBrush}"
+                                        PointerPressed="OnCardClicked">
+                                    <Grid ColumnDefinitions="Auto,Auto,*,Auto">
+                                        <CheckBox Grid.Column="0" VerticalAlignment="Center"
+                                                  IsChecked="{Binding IsSelected}" Click="OnWorkCheckboxClicked"/>
+                                        <Border Grid.Column="1" Width="56" Height="56" CornerRadius="6" ClipToBounds="True" Margin="8,0">
+                                            <Image Source="{Binding Thumbnail}" Stretch="UniformToFill">
+                                                <Image.Effect><BlurEffect Radius="{Binding IsBlurred, Converter={StaticResource BoolToBlurRadiusConverter}}"/></Image.Effect>
+                                            </Image>
+                                        </Border>
+                                        <StackPanel Grid.Column="2" VerticalAlignment="Center" Spacing="2">
+                                            <TextBlock Text="{Binding Title}" FontSize="12" FontWeight="SemiBold"
+                                                       TextTrimming="CharacterEllipsis" MaxLines="1"/>
+                                            <TextBlock Text="{Binding UserName}" FontSize="11"
+                                                       Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
+                                                       TextTrimming="CharacterEllipsis" MaxLines="1"/>
+                                        </StackPanel>
+                                        <Border Grid.Column="3" CornerRadius="4" Padding="5,2" VerticalAlignment="Center"
+                                                Background="#CCDC2626" IsVisible="{Binding IsR18}">
+                                            <TextBlock Text="R-18" FontSize="9" Foreground="White" FontWeight="Bold"/>
+                                        </Border>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <!-- ══ Comments on the Collection itself — a top-level thread distinct from
+                         any individual artwork's own comments, matching pixiv.net's layout
+                         (below the collage). ══ -->
+                    <StackPanel Margin="16,0,16,24" Spacing="10" MaxWidth="640">
+                        <Rectangle Height="1" Fill="{DynamicResource Container1BorderBrush}" Margin="0,0,0,8"/>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <TextBlock Text="Comments" FontWeight="SemiBold" FontSize="14"/>
+                            <ProgressBar IsIndeterminate="True" Width="60" Height="3"
+                                         IsVisible="{Binding IsLoadingComments}" VerticalAlignment="Center"/>
+                        </StackPanel>
+
+                        <!-- Populated in code-behind (not a declarative DataTemplate) so stickers and
+                             emoji shortcodes can render as actual images — same technique as
+                             InlineArtworkViewer's own comment list, since a plain {Binding Comment}
+                             TextBlock only ever shows literal "(normal)"/"[sticker]" text. -->
+                        <StackPanel Name="CollectionCommentsPanel"/>
+
+                        <TextBlock Text="No comments yet." FontSize="12"
+                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
+                                   IsVisible="{Binding !CollectionComments.Count}"/>
+
+                        <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,4,0,0">
+                            <Panel Grid.Column="0">
+                                <Button Name="CollectionStickerPickerBtn" Content="😊" FontSize="14"
+                                        CornerRadius="6,0,0,0" Padding="7,5" Margin="0,0,-1,0"
+                                        Click="OnCollectionStickerPickerClicked"
+                                        ToolTip.Tip="Send a sticker or insert an emoji"/>
+                                <Popup Name="CollectionStickerPickerPopup" PlacementTarget="{Binding #CollectionStickerPickerBtn}"
+                                       Placement="Top" IsLightDismissEnabled="True"
+                                       Width="280" MaxHeight="280">
+                                    <Border Background="{DynamicResource Container1BackgroundBrush}"
+                                            BorderBrush="{DynamicResource Container1BorderBrush}"
+                                            BorderThickness="1" CornerRadius="8" Margin="0,0,0,4"
+                                            BoxShadow="{DynamicResource DropdownShadow}">
+                                        <StackPanel>
+                                            <!-- Same Emoji/Stickers split as the artwork viewer's own picker —
+                                                 Emoji inserts a shortcode into the text box, Stickers posts immediately. -->
+                                            <StackPanel Orientation="Horizontal" Spacing="4" Margin="8,8,8,0">
+                                                <ToggleButton Name="CollectionEmojiTabBtn" Content="Emoji" FontSize="11"
+                                                              Padding="8,3" CornerRadius="5" IsChecked="True"
+                                                              Click="OnCollectionEmojiTabClicked"/>
+                                                <ToggleButton Name="CollectionStickersTabBtn" Content="Stickers" FontSize="11"
+                                                              Padding="8,3" CornerRadius="5"
+                                                              Click="OnCollectionStickersTabClicked"/>
+                                            </StackPanel>
+                                            <ScrollViewer Name="CollectionEmojiScrollViewer" MaxHeight="240" VerticalScrollBarVisibility="Auto">
+                                                <WrapPanel Name="CollectionEmojiGrid" Margin="8"/>
+                                            </ScrollViewer>
+                                            <StackPanel Name="CollectionStickerLoadingPanel" Spacing="6"
+                                                        HorizontalAlignment="Center" Margin="12" IsVisible="False">
+                                                <ProgressBar IsIndeterminate="True" Width="100" Height="3"/>
+                                                <TextBlock Text="Loading stickers…" FontSize="11"
+                                                           Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
+                                            </StackPanel>
+                                            <ScrollViewer Name="CollectionStickerScrollViewer" MaxHeight="240" VerticalScrollBarVisibility="Auto" IsVisible="False">
+                                                <WrapPanel Name="CollectionStickerGrid" Margin="8"/>
+                                            </ScrollViewer>
+                                        </StackPanel>
+                                    </Border>
+                                </Popup>
+                            </Panel>
+                            <TextBox Name="NewCollectionCommentBox" Grid.Column="1" Text="{Binding NewCollectionComment, Mode=TwoWay}"
+                                     PlaceholderText="Leave a comment" FontSize="12" CornerRadius="0"
+                                     KeyDown="OnCommentBoxKeyDown"/>
+                            <Button Grid.Column="2" Content="Send" Classes="accent" CornerRadius="0,6,6,0"
+                                    FontSize="12" Padding="14,0"
+                                    Command="{Binding PostCollectionCommentCommand}"
+                                    IsEnabled="{Binding !IsPostingComment}"/>
+                        </Grid>
+                    </StackPanel>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- Custom splitter (Border with pointer events) — avoids GridSplitter's direct column manipulation.
+                     Mirrors GalleryView's identical drag-resize pattern. -->
+                <Border Grid.Column="1" Width="4" Name="CollectionsSplitter"
+                        Cursor="SizeWestEast"
+                        Background="{DynamicResource Container1BorderBrush}"
+                        IsVisible="{Binding ShowPreview}"
+                        PointerPressed="OnSplitterPointerPressed"
+                        PointerMoved="OnSplitterPointerMoved"
+                        PointerReleased="OnSplitterPointerReleased"/>
+
+                <Border Grid.Column="2" Width="{Binding PanelWidth}"
+                        MinWidth="350"
+                        ClipToBounds="True"
+                        Background="{DynamicResource Container1BackgroundBrush}"
+                        BorderBrush="{DynamicResource Container1BorderBrush}"
+                        BorderThickness="1,0,0,0"
+                        IsVisible="{Binding ShowPreview}">
+                    <gallery:InlineArtworkViewer Name="CollectionsInlineViewer"
+                                                 DataContext="{Binding GalleryVm}"
+                                                 IsExpanded="{Binding $parent[UserControl].((vm:CollectionsViewModel)DataContext).IsViewerExpanded}"
+                                                 IsPanelOpen="{Binding $parent[UserControl].((vm:CollectionsViewModel)DataContext).ShowPreview}"/>
+                </Border>
+            </Grid>
+        </Grid>
+
+        <!-- Full-screen viewer overlay — covers the entire view including toolbars. Without
+             this, the side panel's own "Expand"/"Fullscreen" button had nowhere to expand INTO,
+             so it rendered its expanded internal layout squeezed into the narrow side-panel
+             column, causing the header row's title/username/Follow button and action-button
+             row to overlap/crowd. Mirrors GalleryView/BookmarksView's identical pattern. -->
+        <gallery:InlineArtworkViewer Name="CollectionsFullViewer"
+                                     Grid.Row="0" Grid.RowSpan="3"
+                                     Margin="0,32,0,0"
+                                     ZIndex="10"
+                                     DataContext="{Binding GalleryVm}"
+                                     IsVisible="{Binding $parent[UserControl].((vm:CollectionsViewModel)DataContext).IsViewerExpanded}"
+                                     IsExpanded="{Binding $parent[UserControl].((vm:CollectionsViewModel)DataContext).IsViewerExpanded}"
+                                     IsPanelOpen="{Binding $parent[UserControl].((vm:CollectionsViewModel)DataContext).ShowPreview}"/>
+    </Grid>
+</UserControl>

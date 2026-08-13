@@ -12,6 +12,25 @@ namespace Pikura.Avalonia.Views.Gallery;
 /// </summary>
 public class MasonryPanel : Panel
 {
+    public MasonryPanel()
+    {
+        // Belt-and-suspenders: explicitly invalidate layout whenever a child is added/removed/
+        // moved (e.g. an ObservableCollection Insert() from an ItemsControl binding). This
+        // panel caches per-child sizes/columns between Measure and Arrange (_cachedSizes); if a
+        // child changes without a fresh Measure pass picking it up first — which has been
+        // observed after inserting a single new item into an already-realized, non-empty
+        // ItemsControl — an item can be fully generated as a control but never get arranged
+        // into a visible position until *something else* forces a new layout pass (e.g.
+        // toggling a filter). Force both explicitly so a bound collection change always
+        // results in a visible update immediately.
+        Children.CollectionChanged += (_, _) =>
+        {
+            _cachedSizes = null;
+            InvalidateMeasure();
+            InvalidateArrange();
+        };
+    }
+
     public static readonly StyledProperty<double> ColumnWidthProperty =
         AvaloniaProperty.Register<MasonryPanel, double>(nameof(ColumnWidth), 200);
 

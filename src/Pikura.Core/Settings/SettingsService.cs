@@ -22,10 +22,36 @@ public sealed class SettingsService
     /// <summary>Raised on the calling thread after every <see cref="Update"/> call.</summary>
     public event EventHandler? Changed;
 
+    private bool _activeIncognito;
+
+    /// <summary>
+    /// The incognito state actually in effect right now — checked by everything that
+    /// records viewing history. Distinct from <see cref="AppSettings.IncognitoModeEnabled"/>
+    /// (the persistent "on by default" setting from Settings → Advanced): this in-memory
+    /// flag is what the Viewed tab's toolbar toggle flips for the current session only, and
+    /// it always resets to <see cref="AppSettings.IncognitoModeEnabled"/> on the next launch
+    /// rather than persisting its own value. Changing the persistent setting also updates
+    /// this immediately, so turning it on in Settings takes effect right away.
+    /// </summary>
+    public bool ActiveIncognitoEnabled
+    {
+        get => _activeIncognito;
+        set
+        {
+            if (_activeIncognito == value) return;
+            _activeIncognito = value;
+            ActiveIncognitoChanged?.Invoke(this, EventArgs.Empty);
+        }
+    }
+
+    /// <summary>Raised whenever <see cref="ActiveIncognitoEnabled"/> changes (from either the persistent setting or the session-only toggle).</summary>
+    public event EventHandler? ActiveIncognitoChanged;
+
     public SettingsService(string? overridePath = null)
     {
         _path = overridePath ?? DefaultPath();
         Load();
+        _activeIncognito = Current.IncognitoModeEnabled;
     }
 
     public static string DefaultPath()
@@ -53,6 +79,7 @@ public sealed class SettingsService
                 // Decrypt sensitive fields (handles both legacy plaintext and ENC: prefixed values)
                 loaded.PhpSessId    = CredentialStore.Unprotect(loaded.PhpSessId);
                 loaded.RefreshToken = CredentialStore.Unprotect(loaded.RefreshToken);
+                loaded.CfClearance  = CredentialStore.Unprotect(loaded.CfClearance);
                 // Migrate legacy blacklists into the unified blocklist format.
                 loaded.MigrateLegacyBlocklists();
                 Current = loaded;
@@ -100,6 +127,7 @@ public sealed class SettingsService
         var copy = JsonSerializer.Deserialize<AppSettings>(json, JsonOptions)!;
         copy.PhpSessId    = CredentialStore.Protect(s.PhpSessId);
         copy.RefreshToken = CredentialStore.Protect(s.RefreshToken);
+        copy.CfClearance  = CredentialStore.Protect(s.CfClearance);
         return copy;
     }
 }

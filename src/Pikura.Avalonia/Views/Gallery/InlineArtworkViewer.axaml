@@ -6,18 +6,18 @@
              xmlns:anim="using:Pikura.Avalonia.Controls"
              xmlns:conv="using:Pikura.Avalonia.Converters"
              xmlns:services="using:Pikura.Avalonia.Services"
+             xmlns:local="using:Pikura.Avalonia.Views.Gallery"
              x:Class="Pikura.Avalonia.Views.Gallery.InlineArtworkViewer"
              x:DataType="vm:GalleryViewModel"
              x:Name="ViewerRoot"
-             Background="{actipro:ThemeResource Container3BackgroundBrush}">
+             Background="{DynamicResource Container1BackgroundBrush}">
 
     <Grid Name="RootGrid" RowDefinitions="Auto,Auto,Auto,*,Auto,Auto">
 
         <!-- ── Tab strip ── -->
         <Border Grid.Row="0"
-                Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
-                BorderThickness="0,0,0,1" Padding="6,4">
+                Background="{DynamicResource Container1BackgroundBrush}"
+                Padding="6,4">
             <Grid ColumnDefinitions="Auto,*,Auto">
                 <!-- Browse gallery alongside tabs -->
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="4" Margin="0,0,8,0">
@@ -27,11 +27,11 @@
                             ToolTip.Tip="Hide or show the side panel">
                         <StackPanel Orientation="Horizontal" Spacing="5">
                             <Path x:Name="ShowPanelIcon" Data="{StaticResource ShowPanelIcon}" Width="14" Height="14"
-                                  Stretch="Uniform" Stroke="{actipro:ThemeResource DefaultForegroundBrush}" StrokeThickness="1.5"
+                                  Stretch="Uniform" Stroke="{Binding $parent[Button].Foreground}" StrokeThickness="1.5"
                                   StrokeLineCap="Round"
                                   VerticalAlignment="Center" UseLayoutRounding="False"/>
                             <Path x:Name="HidePanelIcon" Data="{StaticResource HidePanelIcon}" Width="14" Height="14"
-                                  Stretch="Uniform" Stroke="{actipro:ThemeResource DefaultForegroundBrush}" StrokeThickness="1.5"
+                                  Stretch="Uniform" Stroke="{Binding $parent[Button].Foreground}" StrokeThickness="1.5"
                                   StrokeLineCap="Round"
                                   VerticalAlignment="Center" UseLayoutRounding="False" IsVisible="False"/>
                             <TextBlock x:Name="ShowPanelLabel" Text="Show Panel" FontSize="12" VerticalAlignment="Center"/>
@@ -42,7 +42,7 @@
                             Click="OnExpandButtonClicked"
                             ToolTip.Tip="Expand to full screen / restore side panel">
                         <StackPanel Orientation="Horizontal" Spacing="5">
-                            <PathIcon Data="{StaticResource FullscreenEnterIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                            <PathIcon Data="{StaticResource FullscreenEnterIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                             <TextBlock x:Name="ExpandLabel" Text="Expand" FontSize="12" VerticalAlignment="Center"/>
                             <TextBlock x:Name="RestoreLabel" Text="Restore" FontSize="12" VerticalAlignment="Center" IsVisible="False"/>
                         </StackPanel>
@@ -52,7 +52,7 @@
                             Click="OnFullscreen"
                             ToolTip.Tip="Open in fullscreen window (F11)">
                         <StackPanel Orientation="Horizontal" Spacing="5">
-                            <PathIcon Data="{StaticResource FullscreenEnterIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                            <PathIcon Data="{StaticResource FullscreenEnterIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                             <TextBlock Text="Fullscreen" FontSize="12" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
@@ -61,7 +61,7 @@
                             ToolTip.Tip="Close all tabs">
                         <StackPanel Orientation="Horizontal" Spacing="5">
                             <Path Data="{StaticResource CloseIcon}" Width="14" Height="14"
-                                  Stretch="Uniform" Stroke="{actipro:ThemeResource DefaultForegroundBrush}" StrokeThickness="2"
+                                  Stretch="Uniform" Stroke="{Binding $parent[Button].Foreground}" StrokeThickness="2"
                                   StrokeLineCap="Round"
                                   VerticalAlignment="Center" UseLayoutRounding="False"/>
                             <TextBlock Text="Close all" FontSize="12" VerticalAlignment="Center"/>
@@ -71,7 +71,8 @@
 
                 <!-- Scrollable tab list -->
                 <ScrollViewer Grid.Column="1" HorizontalScrollBarVisibility="Auto"
-                              VerticalScrollBarVisibility="Disabled">
+                              VerticalScrollBarVisibility="Disabled"
+                              IsVisible="{Binding HasTabs}">
                     <ItemsControl Name="TabStrip" ItemsSource="{Binding ViewerTabs}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
@@ -80,12 +81,28 @@
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
                             <DataTemplate x:DataType="vm:ViewerTab">
-                                <Border Name="TabItem" CornerRadius="6,6,0,0"
-                                        Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                                        BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
-                                        BorderThickness="1,1,1,0"
+                                <Border Name="TabItem" CornerRadius="6"
+                                        Background="{DynamicResource Container2BackgroundBrush}"
+                                        BorderThickness="0"
+                                        Padding="4,2"
                                         MinWidth="80" MaxWidth="200"
-                                        PointerPressed="OnTabPointerPressed">
+                                        RenderTransformOrigin="0.5,0.5"
+                                        RenderTransform="scale(1)">
+                                    <Border.Transitions>
+                                        <Transitions>
+                                            <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.15" Easing="CubicEaseOut"/>
+                                            <DoubleTransition Property="Opacity" Duration="0:0:0.15" Easing="CubicEaseOut"/>
+                                        </Transitions>
+                                    </Border.Transitions>
+                                    <Border.Styles>
+                                        <Style Selector="Border:pointerover">
+                                            <Setter Property="RenderTransform" Value="scale(1.05)"/>
+                                        </Style>
+                                        <Style Selector="Border.drag-over">
+                                            <Setter Property="RenderTransform" Value="scale(1.08)"/>
+                                            <Setter Property="Opacity" Value="0.85"/>
+                                        </Style>
+                                    </Border.Styles>
                                     <StackPanel Orientation="Horizontal" Spacing="0">
                                         <TextBlock Text="{Binding Header}"
                                                    FontSize="12" VerticalAlignment="Center"
@@ -97,7 +114,7 @@
                                                 Click="OnTabCloseClick"
                                                 ToolTip.Tip="Close this tab">
                                             <Path Data="{StaticResource CloseIcon}" Width="10" Height="10"
-                                              Stretch="Uniform" Stroke="{actipro:ThemeResource DefaultForegroundBrush}" StrokeThickness="2"
+                                              Stretch="Uniform" Stroke="{Binding $parent[Button].Foreground}" StrokeThickness="2"
                                               StrokeLineCap="Round"
                                               VerticalAlignment="Center" UseLayoutRounding="False"/>
                                         </Button>
@@ -112,12 +129,17 @@
                 <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center" Margin="6,0,4,0">
                     <Button Name="TabListBtn" Padding="9,5" CornerRadius="6"
                             ToolTip.Tip="All open tabs"
-                            Click="OnTabListClick"
-                            IsVisible="{Binding HasMultipleTabs}">
-                        <PathIcon Data="{StaticResource HamburgerIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                            Click="OnTabListClick">
+                        <Button.IsVisible>
+                            <MultiBinding Converter="{x:Static BoolConverters.And}">
+                                <Binding Path="HasMultipleTabs"/>
+                                <Binding Path="!IsCollageMode"/>
+                            </MultiBinding>
+                        </Button.IsVisible>
+                        <PathIcon Data="{StaticResource HamburgerIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                     </Button>
                     <TextBlock Name="ZoomLabel" FontSize="12"
-                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                               Foreground="{DynamicResource DefaultForegroundBrushSecondary}"
                                VerticalAlignment="Center"/>
                 </StackPanel>
             </Grid>
@@ -125,31 +147,73 @@
 
         <!-- ── Active artwork info row ── -->
         <Border Grid.Row="1"
-                Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
-                BorderThickness="0,0,0,1" Padding="10,6">
+                Background="{DynamicResource Container1BackgroundBrush}"
+                BorderBrush="{DynamicResource Container1BorderBrush}"
+                BorderThickness="0,0,0,1" Padding="10,6"
+                IsVisible="{Binding !IsCollageMode}">
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
                     <SelectableTextBlock Text="{Binding InlineViewerCard.Title}"
                                          FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center"
-                                         TextTrimming="CharacterEllipsis"/>
+                                         TextTrimming="CharacterEllipsis"
+                                         MaxWidth="340"/>
                     <SelectableTextBlock Text="{Binding InlineViewerCard.UserName}"
-                                         FontSize="12" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}" VerticalAlignment="Center"
+                                         FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushSecondary}" VerticalAlignment="Center"
                                          Cursor="Hand"
+                                         MaxWidth="160"
                                          ToolTip.Tip="Click to copy artist ID"
                                          PointerPressed="OnArtistNamePressed"/>
                     <Button Name="FollowToggleBtn" CornerRadius="6" Padding="8,3" FontSize="12"
                             Click="OnFollowToggleClicked" VerticalAlignment="Center"
                             IsVisible="{Binding InlineViewerCard, Converter={x:Static ObjectConverters.IsNotNull}}"
-                            ToolTip.Tip="Follow or unfollow this artist"/>
+                            ToolTip.Tip="Follow or unfollow this artist">
+                        <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                            <PathIcon Data="{StaticResource PersonIcon}" Width="12" Height="12" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
+                            <TextBlock Name="FollowToggleLabel" Text="Follow" FontSize="12" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
                     <Border Background="#7F374151" CornerRadius="4" Padding="6,2"
                             IsVisible="{Binding InlineViewerCard.IsR18}">
                         <TextBlock Text="R-18" FontSize="10" Foreground="#FC8181" FontWeight="Bold"/>
                     </Border>
+
+                    <Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}" Margin="4,0"
+                               IsVisible="{Binding InlineViewerCard, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+
+                    <ToggleButton Name="ShowStatsBtn" CornerRadius="6" Padding="6,3" FontSize="12"
+                                  Click="OnShowStatsToggled" IsChecked="True"
+                                  MinHeight="24" MinWidth="28"
+                                  VerticalAlignment="Center"
+                                  HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                                  ToolTip.Tip="Show / hide Pixiv like / bookmark / view counts"
+                                  IsVisible="{Binding InlineViewerCard, Converter={x:Static ObjectConverters.IsNotNull}}">
+                        <PathIcon Data="{StaticResource EyeIcon}" Width="14" Height="14" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="{Binding $parent[ToggleButton].Foreground}" />
+                    </ToggleButton>
+                    <StackPanel Name="StatsStackPanel" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center"
+                                IsVisible="{Binding InlineViewerCard, Converter={x:Static ObjectConverters.IsNotNull}}">
+                        <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center" ToolTip.Tip="Likes">
+                            <PathIcon Data="{StaticResource HeartIcon}" Width="12" Height="12" VerticalAlignment="Center"
+                                      Foreground="{DynamicResource DefaultForegroundBrushSecondary}"/>
+                            <TextBlock Name="LikeCountLabel" FontSize="12" VerticalAlignment="Center"
+                                       Foreground="{DynamicResource DefaultForegroundBrushSecondary}"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center" ToolTip.Tip="Bookmarks">
+                            <PathIcon Data="{StaticResource BookmarkIcon}" Width="12" Height="12" VerticalAlignment="Center"
+                                      Foreground="{DynamicResource DefaultForegroundBrushSecondary}"/>
+                            <TextBlock Name="BookmarkCountLabel" FontSize="12" VerticalAlignment="Center"
+                                       Foreground="{DynamicResource DefaultForegroundBrushSecondary}"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center" ToolTip.Tip="Views">
+                            <PathIcon Data="{StaticResource EyeIcon}" Width="12" Height="12" VerticalAlignment="Center"
+                                      Foreground="{DynamicResource DefaultForegroundBrushSecondary}"/>
+                            <TextBlock Name="ViewCountLabel" FontSize="12" VerticalAlignment="Center"
+                                       Foreground="{DynamicResource DefaultForegroundBrushSecondary}"/>
+                        </StackPanel>
+                    </StackPanel>
                 </StackPanel>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
                     <TextBlock Name="ArtworkCounterLabel" FontSize="12"
-                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                               Foreground="{DynamicResource DefaultForegroundBrushSecondary}"
                                VerticalAlignment="Center"/>
                     <TextBox Name="ArtworkJumpBox" Width="52" Height="28" Padding="6,3"
                              FontSize="12" TextAlignment="Center" VerticalContentAlignment="Center"
@@ -158,23 +222,23 @@
                     <Button Name="FirstArtworkBtn" CornerRadius="6" Padding="9,5" FontSize="12"
                             Click="OnFirstArtwork" ToolTip.Tip="First artwork">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Spacing="-2">
-                            <PathIcon Data="{StaticResource ChevronLeftIcon}" Width="10" Height="10" VerticalAlignment="Center"/>
-                            <PathIcon Data="{StaticResource ChevronLeftIcon}" Width="10" Height="10" VerticalAlignment="Center"/>
+                            <PathIcon Data="{StaticResource ChevronLeftIcon}" Width="10" Height="10" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
+                            <PathIcon Data="{StaticResource ChevronLeftIcon}" Width="10" Height="10" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                         </StackPanel>
                     </Button>
                     <Button Name="PrevArtworkBtn" CornerRadius="6" Padding="9,5" FontSize="12"
                             Click="OnPrevArtwork" ToolTip.Tip="Previous artwork">
-                        <PathIcon Data="{StaticResource ChevronLeftIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                        <PathIcon Data="{StaticResource ChevronLeftIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                     </Button>
                     <Button Name="NextArtworkBtn" CornerRadius="6" Padding="9,5" FontSize="12"
                             Click="OnNextArtwork" ToolTip.Tip="Next artwork">
-                        <PathIcon Data="{StaticResource ChevronRightIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                        <PathIcon Data="{StaticResource ChevronRightIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                     </Button>
                     <Button Name="LastArtworkBtn" CornerRadius="6" Padding="9,5" FontSize="12"
                             Click="OnLastArtwork" ToolTip.Tip="Last artwork">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Spacing="-2">
-                            <PathIcon Data="{StaticResource ChevronRightIcon}" Width="10" Height="10" VerticalAlignment="Center"/>
-                            <PathIcon Data="{StaticResource ChevronRightIcon}" Width="10" Height="10" VerticalAlignment="Center"/>
+                            <PathIcon Data="{StaticResource ChevronRightIcon}" Width="10" Height="10" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
+                            <PathIcon Data="{StaticResource ChevronRightIcon}" Width="10" Height="10" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                         </StackPanel>
                     </Button>
                 </StackPanel>
@@ -183,26 +247,28 @@
 
         <!-- ── Action bar (scrollable so it never clips) ── -->
         <Border Grid.Row="2"
-                Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
-                BorderThickness="0,0,0,1" Padding="8,5">
-            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" AllowAutoHide="False">
-                <StackPanel Orientation="Horizontal" Spacing="4">
+                Background="{DynamicResource Container1BackgroundBrush}"
+                Padding="8,5">
+            <Grid ColumnDefinitions="*,Auto">
+                <ScrollViewer Grid.Column="0" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" AllowAutoHide="False"
+                              VerticalAlignment="Center"
+                              IsVisible="{Binding !IsCollageMode}">
+                    <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
                     <!-- Zoom controls -->
                     <Button CornerRadius="6" Padding="9,5" FontSize="14"
                             Name="ZoomOutBtn" Click="OnZoomOut" ToolTip.Tip="Zoom out">
-                        <PathIcon Data="{StaticResource MinusIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                        <PathIcon Data="{StaticResource MinusIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                     </Button>
                     <Button CornerRadius="6" Padding="9,5" FontSize="12"
                             Name="ZoomFitBtn" Click="OnZoomFit" ToolTip.Tip="Fit to window">
-                        <PathIcon Data="{StaticResource MaximizeIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                        <PathIcon Data="{StaticResource MaximizeIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                     </Button>
                     <Button CornerRadius="6" Padding="9,5" FontSize="14"
                             Name="ZoomInBtn" Click="OnZoomIn" ToolTip.Tip="Zoom in">
-                        <PathIcon Data="{StaticResource PlusIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                        <PathIcon Data="{StaticResource PlusIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                     </Button>
 
-                    <Rectangle Width="1" Height="16" Fill="{actipro:ThemeResource Container1BorderBrush}" Margin="4,0"/>
+                    <Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}" Margin="4,0"/>
 
                     <!-- Page navigation (multi-page only) -->
                     <Button CornerRadius="6" Padding="9,5" FontSize="12"
@@ -210,14 +276,14 @@
                             IsVisible="{Binding InlineViewerCard.IsMultiPage}"
                             ToolTip.Tip="Previous page">
                         <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
-                            <PathIcon Data="{StaticResource ChevronLeftIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                            <PathIcon Data="{StaticResource ChevronLeftIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                             <TextBlock Text="Prev" FontSize="12" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
-                    <Border Background="{actipro:ThemeResource Container1BackgroundBrush}"
+                    <Border Background="{DynamicResource Container1BackgroundBrush}"
                             CornerRadius="6" Padding="9,5"
                             IsVisible="{Binding InlineViewerCard.IsMultiPage}">
-                        <TextBlock Name="PageIndicatorText" FontSize="12" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                        <TextBlock Name="PageIndicatorText" FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushSecondary}"/>
                     </Border>
                     <Button CornerRadius="6" Padding="9,5" FontSize="12"
                             Name="NextPageBtn" Click="OnNextPage"
@@ -225,18 +291,18 @@
                             ToolTip.Tip="Next page">
                         <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
                             <TextBlock Text="Next" FontSize="12" VerticalAlignment="Center"/>
-                            <PathIcon Data="{StaticResource ChevronRightIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                            <PathIcon Data="{StaticResource ChevronRightIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                         </StackPanel>
                     </Button>
 
-                    <Rectangle Width="1" Height="16" Fill="{actipro:ThemeResource Container1BorderBrush}" Margin="4,0"/>
+                    <Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}" Margin="4,0"/>
 
                     <!-- Downloads -->
                     <Button CornerRadius="6" Padding="9,5" FontSize="12"
                             Name="DlPageBtn" Click="OnDownloadCurrentPage"
                             ToolTip.Tip="Download current page">
                         <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
-                            <PathIcon Data="{StaticResource DownloadIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                            <PathIcon Data="{StaticResource DownloadIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                             <TextBlock Text="Page" FontSize="12" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
@@ -245,7 +311,7 @@
                             IsVisible="{Binding InlineViewerCard.IsMultiPage}"
                             ToolTip.Tip="Download all pages">
                         <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
-                            <PathIcon Data="{StaticResource DownloadIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                            <PathIcon Data="{StaticResource DownloadIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                             <TextBlock Text="All pages" FontSize="12" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
@@ -254,7 +320,7 @@
                             IsVisible="{Binding InlineViewerCard.IsMultiPage}"
                             ToolTip.Tip="Download page range">
                         <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
-                            <PathIcon Data="{StaticResource DownloadIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                            <PathIcon Data="{StaticResource DownloadIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                             <TextBlock Text="Range…" FontSize="12" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
@@ -262,18 +328,18 @@
                             Name="DlPresetBtn" Click="OnDownloadWithPreset"
                             ToolTip.Tip="Download with image processing preset">
                         <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
-                            <PathIcon Data="{StaticResource PaletteIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                            <PathIcon Data="{StaticResource PaletteIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                             <TextBlock Text="Preset" FontSize="12" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
 
-                    <Rectangle Width="1" Height="16" Fill="{actipro:ThemeResource Container1BorderBrush}" Margin="4,0"/>
+                    <Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}" Margin="4,0"/>
 
                     <Button CornerRadius="6" Padding="9,5" FontSize="12"
                             Name="OpenPixivBtn" Click="OnOpenInPixiv"
                             ToolTip.Tip="Open on pixiv.net">
                         <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
-                            <PathIcon Data="{StaticResource GlobeIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                            <PathIcon Data="{StaticResource GlobeIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                             <TextBlock Text="Pixiv" FontSize="12" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
@@ -282,7 +348,7 @@
                             Click="OnGoToArtist"
                             ToolTip.Tip="Open this artist's gallery">
                         <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
-                            <PathIcon Data="{StaticResource PersonIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                            <PathIcon Data="{StaticResource PersonIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                             <TextBlock Text="Artist" FontSize="12" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
@@ -290,7 +356,7 @@
                             Click="OnOpenPopup"
                             ToolTip.Tip="Open in floating popup window">
                         <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
-                            <PathIcon Data="{StaticResource PopupIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                            <PathIcon Data="{StaticResource PopupIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                             <TextBlock Text="Popup" FontSize="12" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
@@ -298,52 +364,228 @@
                             Click="OnCopyImage"
                             ToolTip.Tip="Copy this image to the clipboard">
                         <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
-                            <PathIcon Data="{StaticResource CopyIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                            <PathIcon Data="{StaticResource CopyIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                             <TextBlock Text="Copy" FontSize="12" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
 
-                    <Rectangle Width="1" Height="16" Fill="{actipro:ThemeResource Container1BorderBrush}" Margin="4,0"/>
+                    <Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}" Margin="4,0"/>
 
                     <!-- ★ Local favorite toggle -->
                     <Button Name="LocalFavBtn" CornerRadius="6" Padding="9,5" FontSize="12"
                             Click="OnToggleLocalFavorite"
                             ToolTip.Tip="Add / remove from local favorites">
                         <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
-                            <PathIcon Data="{StaticResource StarIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                            <PathIcon Data="{StaticResource StarIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                             <TextBlock Name="LocalFavLabel" Text="Favorite" FontSize="12" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
 
-                    <Rectangle Width="1" Height="16" Fill="{actipro:ThemeResource Container1BorderBrush}" Margin="4,0"/>
+                    <Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}" Margin="4,0"/>
+
+                    <!-- Pixiv Like -->
+                    <Button Name="LikeBtn" CornerRadius="6" Padding="9,5" FontSize="12"
+                            Click="OnLikeClicked"
+                            IsVisible="{Binding InlineViewerCard, Converter={x:Static ObjectConverters.IsNotNull}}"
+                            ToolTip.Tip="Like this artwork on Pixiv">
+                        <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                            <PathIcon Data="{StaticResource HeartIcon}" Width="14" Height="14" VerticalAlignment="Center" Name="LikeBtnIcon" Foreground="{Binding $parent[Button].Foreground}" />
+                            <TextBlock Name="LikeBtnLabel" Text="Like" FontSize="12" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                    <!-- Pixiv Bookmark -->
+                    <SplitButton Name="BookmarkSplitBtn" CornerRadius="6" Padding="9,5" FontSize="12"
+                                 Click="OnBookmarkMainClicked"
+                                 IsVisible="{Binding InlineViewerCard, Converter={x:Static ObjectConverters.IsNotNull}}"
+                                 ToolTip.Tip="Main click adds a public Pixiv bookmark (or removes the current one). Use the arrow to choose public/private.">
+                        <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                            <PathIcon Data="{StaticResource BookmarkIcon}" Width="14" Height="14" VerticalAlignment="Center" Name="BookmarkBtnIcon"/>
+                            <TextBlock Name="BookmarkBtnLabel" Text="Bookmark" FontSize="12" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <SplitButton.Flyout>
+                            <MenuFlyout Placement="BottomEdgeAlignedLeft">
+                                <MenuItem Header="Public bookmark" Click="OnBookmarkPublicClicked" Name="BookmarkPublicMenuItem"
+                                          ToolTip.Tip="Add as a public Pixiv bookmark (or switch to public if already private)"/>
+                                <MenuItem Header="Private bookmark" Click="OnBookmarkPrivateClicked" Name="BookmarkPrivateMenuItem"
+                                          ToolTip.Tip="Add as a private Pixiv bookmark (or switch to private if already public)"/>
+                            </MenuFlyout>
+                        </SplitButton.Flyout>
+                    </SplitButton>
+
+                    <!-- Comments -->
+                    <Panel>
+                        <Button Name="CommentsBtn" CornerRadius="6" Padding="9,5" FontSize="12"
+                                Click="OnCommentsClicked"
+                                IsVisible="{Binding InlineViewerCard, Converter={x:Static ObjectConverters.IsNotNull}}"
+                                ToolTip.Tip="View and post comments">
+                            <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                                <PathIcon Data="{StaticResource CommentIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
+                                <TextBlock Name="CommentsBtnLabel" Text="Comments" FontSize="12" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        <Popup Name="CommentsPopup" PlacementTarget="{Binding #CommentsBtn}"
+                               Placement="BottomEdgeAlignedLeft" IsLightDismissEnabled="True"
+                               Width="380" MaxHeight="480" Closed="OnCommentsPopupClosed">
+                            <Border Background="{DynamicResource Container1BackgroundBrush}"
+                                    BorderBrush="{DynamicResource Container1BorderBrush}"
+                                    BorderThickness="1" CornerRadius="8" Margin="0,4,0,0"
+                                    BoxShadow="0 4 16 0 #55000000">
+                                <Grid RowDefinitions="Auto,*,Auto" MaxHeight="480">
+                                    <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="12,10,12,6">
+                                        <TextBlock Grid.Column="0" Text="Comments" FontWeight="SemiBold" FontSize="13"/>
+                                        <TextBlock Grid.Column="1" Name="CommentsCountLabel" FontSize="11"
+                                                   Foreground="{DynamicResource DefaultForegroundBrushSecondary}"
+                                                   VerticalAlignment="Center"/>
+                                    </Grid>
+                                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" MaxHeight="320"
+                                                  Name="CommentsScrollViewer" ScrollChanged="OnCommentsScrollChanged">
+                                        <StackPanel Name="CommentsListPanel" Spacing="10" Margin="12,0,12,8"/>
+                                    </ScrollViewer>
+                                    <StackPanel Grid.Row="1" Name="CommentsEmptyPanel" Spacing="8"
+                                                HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                Margin="12,30" IsVisible="False">
+                                        <ProgressBar Name="CommentsLoadingBar" IsIndeterminate="True" Width="120" Height="3"/>
+                                        <TextBlock Name="CommentsEmptyLabel" Text="Loading comments…" FontSize="11"
+                                                   Foreground="{DynamicResource DefaultForegroundBrushSecondary}"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Row="2" Spacing="4" Margin="12,8">
+                                        <Grid Name="ReplyingToRow" ColumnDefinitions="*,Auto" IsVisible="False">
+                                            <TextBlock Grid.Column="0" Name="ReplyingToLabel" FontSize="10"
+                                                       Foreground="{DynamicResource DefaultForegroundBrushSecondary}"/>
+                                            <Button Grid.Column="1" Content="✕" FontSize="10" Padding="4,0"
+                                                    Background="Transparent" BorderThickness="0"
+                                                    Click="OnCancelReplyClicked" ToolTip.Tip="Cancel reply"/>
+                                        </Grid>
+                                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="6">
+                                            <Panel Grid.Column="0">
+                                                <Button Name="StickerPickerBtn" Content="😊" FontSize="14"
+                                                        CornerRadius="6" Padding="7,5" Click="OnStickerPickerClicked"
+                                                        ToolTip.Tip="Send a sticker"/>
+                                                <Popup Name="StickerPickerPopup" PlacementTarget="{Binding #StickerPickerBtn}"
+                                                       Placement="Top" IsLightDismissEnabled="True"
+                                                       Width="280" MaxHeight="280">
+                                                    <Border Background="{DynamicResource Container1BackgroundBrush}"
+                                                            BorderBrush="{DynamicResource Container1BorderBrush}"
+                                                            BorderThickness="1" CornerRadius="8" Margin="0,0,0,4"
+                                                            BoxShadow="0 4 16 0 #55000000">
+                                                        <StackPanel>
+                                                            <!-- Mirrors Pixiv's own Emoji/Stickers tabs — Emoji inserts a
+                                                                 plain Unicode character into the comment text (click "Post"
+                                                                 yourself after), Stickers sends immediately on click. -->
+                                                            <StackPanel Orientation="Horizontal" Spacing="4" Margin="8,8,8,0">
+                                                                <ToggleButton Name="EmojiTabBtn" Content="Emoji" FontSize="11"
+                                                                              Padding="8,3" CornerRadius="5" IsChecked="True"
+                                                                              Click="OnEmojiTabClicked"/>
+                                                                <ToggleButton Name="StickersTabBtn" Content="Stickers" FontSize="11"
+                                                                              Padding="8,3" CornerRadius="5"
+                                                                              Click="OnStickersTabClicked"/>
+                                                            </StackPanel>
+                                                            <ScrollViewer Name="EmojiScrollViewer" MaxHeight="240" VerticalScrollBarVisibility="Auto">
+                                                                <WrapPanel Name="EmojiGrid" Margin="8"/>
+                                                            </ScrollViewer>
+                                                            <StackPanel Name="StickerLoadingPanel" Spacing="6"
+                                                                        HorizontalAlignment="Center" Margin="12" IsVisible="False">
+                                                                <ProgressBar IsIndeterminate="True" Width="100" Height="3"/>
+                                                                <TextBlock Text="Loading stickers…" FontSize="11"
+                                                                           Foreground="{DynamicResource DefaultForegroundBrushSecondary}"/>
+                                                            </StackPanel>
+                                                            <ScrollViewer Name="StickerScrollViewer" MaxHeight="240" VerticalScrollBarVisibility="Auto" IsVisible="False">
+                                                                <WrapPanel Name="StickerGrid" Margin="8"/>
+                                                            </ScrollViewer>
+                                                        </StackPanel>
+                                                    </Border>
+                                                </Popup>
+                                            </Panel>
+                                            <TextBox Grid.Column="1" Name="NewCommentBox" FontSize="12"
+                                                     PlaceholderText="Add a comment…" CornerRadius="6"
+                                                     AcceptsReturn="False" KeyDown="OnNewCommentKeyDown"/>
+                                            <Button Grid.Column="2" Content="Post" CornerRadius="6" Padding="10,5"
+                                                    FontSize="12" Classes="accent" Click="OnPostCommentClicked"
+                                                    Name="PostCommentBtn"/>
+                                        </Grid>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </Popup>
+                    </Panel>
+
+                    <!-- Collage mode is entered via a "View as Collage" button in each tab's own
+                         multi-select toolbar (Gallery/Bookmarks/Collections/etc.) for 2–10
+                         selected artworks — once IN it, this button exits back to normal tabs. -->
+                    <Button CornerRadius="6" Padding="9,5" FontSize="12"
+                            Click="OnExitCollageClicked"
+                            IsVisible="{Binding IsCollageMode}"
+                            ToolTip.Tip="Exit collage view">
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                            <PathIcon Data="{StaticResource CloseIcon}" Width="12" Height="12" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
+                            <TextBlock Text="Exit Collage" FontSize="12" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Button CornerRadius="6" Padding="9,5" FontSize="12"
+                            Command="{Binding ReturnToCollageCommand}"
+                            IsVisible="{Binding CanReturnToCollage}"
+                            ToolTip.Tip="Return to the stored collage view">
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                            <TextBlock Text="⊞" FontSize="12" VerticalAlignment="Center"/>
+                            <TextBlock Text="Return to Collage" FontSize="12" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}" Margin="4,0"/>
 
                     <!-- Hoshi AI assistant toggle -->
                     <Button Name="AiToggleBtn" CornerRadius="6" Padding="9,5" FontSize="12"
                             Click="OnAiToggleClicked"
                             ToolTip.Tip="Toggle Hoshi (星) — AI assistant">
                         <StackPanel Orientation="Horizontal" Spacing="4">
-                            <PathIcon Data="{StaticResource NewIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
+                            <PathIcon Data="{StaticResource NewIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                             <TextBlock Name="AiToggleBtnLabel" Text="Hoshi" FontSize="12" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                 </StackPanel>
             </ScrollViewer>
+
+            <!-- Collage-only action bar: exit or download the whole collage. -->
+            <StackPanel Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal" Spacing="4"
+                        VerticalAlignment="Center" IsVisible="{Binding IsCollageMode}">
+                <Button CornerRadius="6" Padding="9,5" FontSize="12"
+                        Click="OnExitCollageClicked"
+                        ToolTip.Tip="Close the collage tab">
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                        <PathIcon Data="{StaticResource CloseIcon}" Width="12" Height="12" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
+                        <TextBlock Text="Exit Collage" FontSize="12" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+                <Button CornerRadius="6" Padding="9,5" FontSize="12"
+                        Command="{Binding DownloadCollageCommand}"
+                        ToolTip.Tip="Download all collage artworks into a Collage_###### folder">
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                        <PathIcon Data="{StaticResource DownloadIcon}" Width="12" Height="12" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
+                        <TextBlock Text="Download Collage" FontSize="12" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+
+            </Grid>
         </Border>
 
         <!-- ── Zoomable image canvas ── -->
         <Border Grid.Row="3" ClipToBounds="True" Name="ImageCanvas"
-                Background="{actipro:ThemeResource Container3BackgroundBrush}"
-                Margin="10,8" CornerRadius="12"
+                Background="{DynamicResource ImageCanvasBackgroundBrush}"
+                BorderThickness="0"
                 PointerWheelChanged="OnImageWheel"
                 PointerPressed="OnImagePointerPressed"
                 PointerMoved="OnImagePointerMoved"
                 PointerReleased="OnImagePointerReleased">
             <Panel>
                 <!-- No artwork selected placeholder -->
-                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="8"
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="10"
                             IsVisible="{Binding InlineViewerCard, Converter={x:Static ObjectConverters.IsNull}}">
+                    <TextBlock Text="Preview" FontSize="16" FontWeight="SemiBold"
+                               Foreground="{DynamicResource DefaultForegroundBrush}"
+                               HorizontalAlignment="Center" TextAlignment="Center"/>
                     <TextBlock Text="Click an image to preview it here" FontSize="13"
-                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                               Foreground="{DynamicResource DefaultForegroundBrushSecondary}"
                                HorizontalAlignment="Center" TextAlignment="Center"/>
                 </StackPanel>
 
@@ -351,14 +593,14 @@
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="12"
                             Name="LoadingPanel" IsVisible="False">
                     <ProgressBar IsIndeterminate="True" Width="180"/>
-                    <TextBlock Text="Loading…" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}" HorizontalAlignment="Center"/>
+                    <TextBlock Text="Loading…" Foreground="{DynamicResource DefaultForegroundBrushSecondary}" HorizontalAlignment="Center"/>
                 </StackPanel>
 
                 <!-- Load error panel (e.g. HTTP 429 rate limit) -->
                 <StackPanel Name="ErrorPanel" HorizontalAlignment="Center" VerticalAlignment="Center"
                             Spacing="10" IsVisible="False">
                     <TextBlock Name="ErrorText" FontSize="13" TextAlignment="Center"
-                               Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                               Foreground="{DynamicResource DefaultForegroundBrushSecondary}"
                                HorizontalAlignment="Center" TextWrapping="Wrap" MaxWidth="300"/>
                     <Button Name="RetryBtn" Content="↺ Retry" HorizontalAlignment="Center"
                             CornerRadius="6" Padding="16,6" Click="OnRetryLoad"/>
@@ -369,6 +611,7 @@
                        Stretch="Uniform"
                        HorizontalAlignment="Center"
                        VerticalAlignment="Center"
+                       Margin="16"
                        RenderTransformOrigin="0.5,0.5">
                     <Image.RenderTransform>
                         <TransformGroup>
@@ -416,6 +659,7 @@
                                     Stretch="Uniform"
                                     HorizontalAlignment="Center"
                                     VerticalAlignment="Center"
+                                    Margin="16"
                                     RenderTransformOrigin="0.5,0.5"
                                     IsVisible="False">
                     <anim:AnimatedImage.RenderTransform>
@@ -425,27 +669,78 @@
                         </TransformGroup>
                     </anim:AnimatedImage.RenderTransform>
                 </anim:AnimatedImage>
+
+                <!-- ── Collage overlay — every image in the current tab's nav list, tiled.
+                     Populated in code-behind (ItemsSource set manually) rather than a compiled
+                     binding, since it needs to reflect whichever tab/nav-list is active and
+                     refresh on toggle without a dedicated ViewModel property. Clicking a tile
+                     exits collage mode and shows that image normally. -->
+                <Border Name="CollagePanel" IsVisible="{Binding IsCollageMode}"
+                        HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                        Background="{DynamicResource Container1BackgroundBrush}">
+                    <Panel>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                        <!-- Natural-height masonry, like a traditional photo collage — each tile
+                             keeps its own aspect ratio instead of being cropped to a fixed square. -->
+                        <ItemsControl Name="CollageGrid" Margin="10" ItemsSource="{Binding CollageItems}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <local:MasonryPanel ColumnWidth="200" ItemSpacing="6"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:ArtworkCardViewModel">
+                                    <Border Margin="6" CornerRadius="8" ClipToBounds="True" Cursor="Hand"
+                                            Background="{DynamicResource Container2BackgroundBrush}"
+                                            PointerReleased="OnCollageTileReleased">
+                                        <Grid RowDefinitions="Auto,Auto">
+                                            <Grid Grid.Row="0">
+                                                <Image Source="{Binding Thumbnail}" Stretch="Uniform"
+                                                       Width="200" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                                       Height="{Binding ClampedAspectRatio, Converter={x:Static conv:AspectRatioToHeightConverter.Instance}, ConverterParameter=200}"/>
+                                                <Button Content="×" FontSize="14" Padding="4,0" CornerRadius="12"
+                                                        HorizontalAlignment="Right" VerticalAlignment="Top" Margin="4"
+                                                        Background="#CC000000" Foreground="White" BorderThickness="0"
+                                                        Click="OnRemoveCollageItemClicked"
+                                                        Tapped="OnRemoveCollageItemTapped"
+                                                        ToolTip.Tip="Remove from collage"/>
+                                            </Grid>
+                                            <Border Grid.Row="1" Background="#CC000000" Padding="6,4"
+                                                    IsVisible="{Binding Title, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+                                                <TextBlock Text="{Binding Title}" FontSize="10" Foreground="White"
+                                                           TextTrimming="CharacterEllipsis" MaxLines="1"/>
+                                            </Border>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                    </Panel>
+                </Border>
+
             </Panel>
         </Border>
 
         <!-- ── Hoshi AI panel (collapsible) ── -->
         <Border Grid.Row="5" Name="AiPanel"
-                Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                Background="{DynamicResource Container1BackgroundBrush}"
+                BorderBrush="{DynamicResource Container1BorderBrush}"
                 BorderThickness="0,1,0,0"
                 IsVisible="False">
             <Grid RowDefinitions="Auto,*,Auto">
 
                 <!-- Header -->
                 <Grid Grid.Row="0" ColumnDefinitions="Auto,*"
-                      Background="{actipro:ThemeResource Container2BackgroundBrush}"
+                      Background="{DynamicResource Container2BackgroundBrush}"
                       Margin="0,0,0,0">
                     <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="6"
                                 VerticalAlignment="Center" Margin="10,5,0,5">
                         <TextBlock Text="✦ Hoshi 星" FontSize="12" FontWeight="SemiBold"
                                    VerticalAlignment="Center"/>
                         <TextBlock Name="AiStatusLabel" FontSize="10"
-                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                   Foreground="{DynamicResource DefaultForegroundBrushSecondary}"
                                    VerticalAlignment="Center"/>
                         <Button Content="⤢ Full View" Name="AiFullViewBtn" Click="OnAiFullViewClicked"
                                 CornerRadius="4" Padding="7,3" FontSize="10"
@@ -517,11 +812,11 @@
                                             MaxWidth="340">
                                         <ctrl:LinkTextBlock LinkText="{Binding Content}" FontSize="12"
                                                    TextWrapping="Wrap"
-                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrush}"/>
+                                                   Foreground="{DynamicResource DefaultForegroundBrush}"/>
                                     </Border>
                                     <!-- Assistant bubble -->
                                     <Border IsVisible="{Binding IsAssistant}"
-                                            Background="{actipro:ThemeResource Container2BackgroundBrush}"
+                                            Background="{DynamicResource Container2BackgroundBrush}"
                                             CornerRadius="10,10,10,2"
                                             Padding="10,7" Margin="0,0,50,0"
                                             HorizontalAlignment="Left"
@@ -529,7 +824,7 @@
                                         <StackPanel Spacing="6">
                                             <ctrl:LinkTextBlock LinkText="{Binding Content}" FontSize="12"
                                                        TextWrapping="Wrap"
-                                                       Foreground="{actipro:ThemeResource DefaultForegroundBrush}"/>
+                                                       Foreground="{DynamicResource DefaultForegroundBrush}"/>
                                             <StackPanel Orientation="Horizontal" Spacing="6"
                                                         IsVisible="{Binding HasAnyAction}">
                                                 <Button Content="🖼 View Artwork" Padding="5,2" FontSize="10" CornerRadius="4"
@@ -555,7 +850,7 @@
                                             Padding="4,2" HorizontalAlignment="Center">
                                         <ctrl:LinkTextBlock LinkText="{Binding Content}" FontSize="10"
                                                    TextWrapping="Wrap" FontStyle="Italic"
-                                                   Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                                   Foreground="{DynamicResource DefaultForegroundBrushSecondary}"
                                                    HorizontalAlignment="Center"/>
                                     </Border>
                                 </Panel>
@@ -566,9 +861,9 @@
                          GalleryViewModel, not AiViewModel, so IsVisible is toggled in
                          code-behind (see UpdateThinkingIndicator) instead of a direct binding. -->
                     <StackPanel HorizontalAlignment="Center" Margin="0,8" Name="AiThinkingIndicator" IsVisible="False">
-                        <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
+                        <Border Background="{DynamicResource Container2BackgroundBrush}"
                                 CornerRadius="12" Padding="12,6"
-                                BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                                BorderBrush="{DynamicResource Container2BorderBrush}"
                                 BorderThickness="1">
                             <StackPanel Orientation="Horizontal" Spacing="6">
                                 <TextBlock Text="&#10022;" FontSize="10" VerticalAlignment="Center"
@@ -592,7 +887,7 @@
                                     </TextBlock.Styles>
                                 </TextBlock>
                                 <TextBlock Text="Hoshi is thinking…" FontSize="12"
-                                           Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"
+                                           Foreground="{DynamicResource DefaultForegroundBrushSecondary}"
                                            FontStyle="Italic" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Border>
@@ -615,13 +910,13 @@
 
         <!-- ── Info strip with clickable tags ── -->
         <Border Grid.Row="4"
-                Background="{actipro:ThemeResource Container1BackgroundBrush}"
-                BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+                Background="{DynamicResource Container1BackgroundBrush}"
+                BorderBrush="{DynamicResource Container1BorderBrush}"
                 BorderThickness="0,1,0,0" Padding="14,10">
             <Grid ColumnDefinitions="Auto,Auto,*,Auto">
                 <TextBlock Grid.Column="0" Text="{Binding InlineViewerCard.TypeLabel}"
-                           FontSize="12" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}" VerticalAlignment="Center" Margin="0,0,16,0"/>
-                <TextBlock Grid.Column="1" FontSize="12" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}" VerticalAlignment="Center"
+                           FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushSecondary}" VerticalAlignment="Center" Margin="0,0,16,0"/>
+                <TextBlock Grid.Column="1" FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushSecondary}" VerticalAlignment="Center"
                            Text="{Binding InlineViewerCard.PageCount, StringFormat='{}{0} pages'}"
                            IsVisible="{Binding InlineViewerCard.IsMultiPage}" Margin="0,0,16,0"/>
                 <!-- Clickable tag chips -->
@@ -635,29 +930,26 @@
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
                             <DataTemplate x:DataType="x:String">
-                                <Border Padding="6,2"
-                                        CornerRadius="8"
-                                        Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                                        BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
-                                        BorderThickness="1"
+                                <Border Classes="badge"
                                         Cursor="Hand"
                                         PointerPressed="OnTagPressed">
                                     <Border.Styles>
-                                        <Style Selector="Border:pointerover">
-                                            <Setter Property="Background" Value="{actipro:ThemeResource Container3BackgroundBrush}"/>
+                                        <Style Selector="Border.badge:pointerover">
+                                            <Setter Property="Background" Value="{DynamicResource ControlBackgroundBrushSoftAccent}"/>
+                                            <Setter Property="BorderBrush" Value="{DynamicResource ControlBackgroundBrushSoftAccentPressed}"/>
                                         </Style>
-                                        <Style Selector="Border:pointerover TextBlock">
-                                            <Setter Property="Foreground" Value="#5B8DEF"/>
+                                        <Style Selector="Border.badge:pointerover TextBlock">
+                                            <Setter Property="Foreground" Value="{DynamicResource ControlForegroundBrushOutlineAccent}"/>
                                             <Setter Property="TextDecorations" Value="Underline"/>
                                         </Style>
                                     </Border.Styles>
-                                    <TextBlock Text="{Binding}" FontSize="10" Foreground="{actipro:ThemeResource DefaultForegroundBrushTertiary}"/>
+                                    <TextBlock Text="{Binding}" FontSize="10" Foreground="{DynamicResource DefaultForegroundBrushSecondary}"/>
                                 </Border>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
                 </ScrollViewer>
-                <TextBlock Grid.Column="3" FontSize="10" Foreground="{actipro:ThemeResource DefaultForegroundBrushDisabled}"
+                <TextBlock Grid.Column="3" FontSize="10" Foreground="{DynamicResource DefaultForegroundBrushDisabled}"
                            Text="Click tag: filter • Shift+click: search global"
                            VerticalAlignment="Center" Margin="12,0,0,0"/>
             </Grid>

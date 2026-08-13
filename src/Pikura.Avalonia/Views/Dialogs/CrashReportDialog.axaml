@@ -10,7 +10,7 @@
         MinWidth="400"
         MinHeight="350">
 
-    <Border Background="{actipro:ThemeResource Container1BackgroundBrush}"
+    <Border Background="{DynamicResource Container1BackgroundBrush}"
             Padding="24">
         <Grid RowDefinitions="Auto,*,Auto" ColumnDefinitions="Auto,*">
             <!-- Header with Icon -->
@@ -43,8 +43,8 @@
             <!-- Crash Details -->
             <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Spacing="16">
                 <!-- Crash Info Card -->
-                <Border Background="{actipro:ThemeResource Container2BackgroundBrush}"
-                        BorderBrush="{actipro:ThemeResource Container2BorderBrush}"
+                <Border Background="{DynamicResource Container2BackgroundBrush}"
+                        BorderBrush="{DynamicResource Container2BorderBrush}"
                         BorderThickness="1"
                         CornerRadius="8"
                         Padding="16">
@@ -105,22 +105,11 @@
                         HorizontalAlignment="Right"
                         Spacing="12"
                         Margin="0,16,0,0">
-                <Button x:Name="ViewLogButton"
-                        Content="View Log File"
-                        Click="OnViewLogClick"/>
-                <Button x:Name="OpenFolderButton"
-                        Content="Open Log Folder"
-                        Click="OnOpenFolderClick"/>
-                <Button x:Name="CopyPathButton"
-                        Content="Copy Path"
-                        Click="OnCopyPathClick"/>
-                <Button x:Name="CopyContentsButton"
-                        Content="Copy Contents"
-                        Click="OnCopyContentsClick"/>
-                <Button x:Name="DismissButton"
-                        Content="Dismiss"
-                        Classes="accent"
-                        Click="OnDismissClick"/>
+                <Button x:Name="ViewLogButton" Content="View Log File" Click="OnViewLogClick"/>
+                <Button x:Name="OpenFolderButton" Content="Open Log Folder" Click="OnOpenFolderClick"/>
+                <Button x:Name="CopyPathButton" Content="Copy Path" Click="OnCopyPathClick"/>
+                <Button x:Name="CopyContentsButton" Content="Copy Contents" Click="OnCopyContentsClick"/>
+                <Button x:Name="DismissButton" Content="Dismiss" Classes="accent" Click="OnDismissClick"/>
             </StackPanel>
         </Grid>
     </Border>

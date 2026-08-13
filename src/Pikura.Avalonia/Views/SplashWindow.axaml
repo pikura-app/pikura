@@ -12,8 +12,8 @@
         Background="Transparent"
         TransparencyLevelHint="Transparent">
 
-    <Border Background="{actipro:ThemeResource Container1BackgroundBrush}"
-            BorderBrush="{actipro:ThemeResource Container1BorderBrush}"
+    <Border Background="{DynamicResource Container1BackgroundBrush}"
+            BorderBrush="{DynamicResource Container1BorderBrush}"
             BorderThickness="1"
             CornerRadius="12"
             BoxShadow="0 12 40 0 #66000000"

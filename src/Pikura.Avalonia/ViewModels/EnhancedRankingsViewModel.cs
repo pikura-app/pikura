@@ -41,6 +41,7 @@ public partial class EnhancedRankingsViewModel : ViewModelBase
     [ObservableProperty] private bool _isListView;
     [ObservableProperty] private bool _showInfo = true;
     [ObservableProperty] private bool _showTags = true;
+    [ObservableProperty] private bool _showBadges = true;
     [ObservableProperty] private bool _showPreview;
 
     [ObservableProperty] private bool _isViewerExpanded;
@@ -145,6 +146,7 @@ public partial class EnhancedRankingsViewModel : ViewModelBase
         _isNaturalHeight = s.RankingsCardHeightMode == "Natural";
         _showInfo = s.RankingsShowInfo;
         _showTags = s.RankingsShowTags;
+        _showBadges = s.ShowBadges;
 
         // Listen for global settings changes (excluded tags, R18Mode, blur) — not Rankings-specific ones
         _settingsService.Changed += (_, _) =>
@@ -169,6 +171,14 @@ public partial class EnhancedRankingsViewModel : ViewModelBase
         {
             if (e.PropertyName == nameof(GalleryViewModel.HasTabs) && !GalleryVm.HasTabs)
             { ShowPreview = false; IsViewerExpanded = false; }
+            if (e.PropertyName is nameof(GalleryViewModel.IsCollageMode)
+                               or nameof(GalleryViewModel.HasStoredCollage)
+                               or nameof(GalleryViewModel.CollageItems)
+                               or nameof(GalleryViewModel.CanViewSelectedAsCollage))
+            {
+                OnPropertyChanged(nameof(CanViewSelectedAsCollage));
+                ViewSelectedAsCollageCommand.NotifyCanExecuteChanged();
+            }
         };
 
         // Auto-load daily/overall on startup
@@ -239,6 +249,7 @@ public partial class EnhancedRankingsViewModel : ViewModelBase
 
     partial void OnShowInfoChanged(bool value) => _settingsService.Update(s => s.RankingsShowInfo = value);
     partial void OnShowTagsChanged(bool value) => _settingsService.Update(s => s.RankingsShowTags = value);
+    partial void OnShowBadgesChanged(bool value) => _settingsService.Update(s => s.ShowBadges = value);
 
     partial void OnSelectedContentChanged(string value)
     {
@@ -547,11 +558,49 @@ public partial class EnhancedRankingsViewModel : ViewModelBase
     private void OnCardPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
         if (e.PropertyName == nameof(RankingCardViewModel.IsSelected))
+        {
             SelectedCount = Items.Count(c => c.IsSelected);
+            OnPropertyChanged(nameof(CanViewSelectedAsCollage));
+            ViewSelectedAsCollageCommand.NotifyCanExecuteChanged();
+            OnPropertyChanged(nameof(CanViewSelectedInNewTabs));
+            ViewSelectedInNewTabsCommand.NotifyCanExecuteChanged();
+        }
     }
 
     public void NotifySelectionChanged()
-        => SelectedCount = Items.Count(c => c.IsSelected);
+    {
+        SelectedCount = Items.Count(c => c.IsSelected);
+        OnPropertyChanged(nameof(CanViewSelectedAsCollage));
+        ViewSelectedAsCollageCommand.NotifyCanExecuteChanged();
+        OnPropertyChanged(nameof(CanViewSelectedInNewTabs));
+        ViewSelectedInNewTabsCommand.NotifyCanExecuteChanged();
+    }
+
+    public bool CanViewSelectedAsCollage => GalleryVm.CanCollage(SelectedCount);
+
+    [RelayCommand(CanExecute = nameof(CanViewSelectedAsCollage))]
+    private void ViewSelectedAsCollage()
+    {
+        var selected = Items.Where(c => c.IsSelected && !c.IsNovel)
+                            .Select(c => new ArtworkCardViewModel(c.ToPreview()))
+                            .ToList();
+        if (selected.Count == 0) return;
+        GalleryVm.AddSelectedToCollage(selected);
+    }
+
+    public bool CanViewSelectedInNewTabs => SelectedCount >= 1;
+
+    [RelayCommand(CanExecute = nameof(CanViewSelectedInNewTabs))]
+    private void ViewSelectedInNewTabs()
+    {
+        var selected = Items.Where(c => c.IsSelected && !c.IsNovel)
+                            .Select(c => new ArtworkCardViewModel(c.ToPreview()))
+                            .ToList();
+        if (selected.Count == 0) return;
+        foreach (var card in selected)
+            GalleryVm.OpenInNewTab(card, selected, selected.Count, source: ViewerSourceKey);
+        ShowPreview = true;
+    }
 
     [RelayCommand]
     public void SelectAll() { foreach (var c in Items) c.IsSelected = true; NotifySelectionChanged(); }
@@ -737,6 +786,51 @@ public partial class EnhancedRankingsViewModel : ViewModelBase
     /// <summary>
     /// Updates FilteredItems based on R-18 filter and pagination settings.
     /// </summary>
+    /// <summary>
+    /// Pushes an updated Liked/Bookmarked/Local-favorite flag onto every currently-loaded card
+    /// with a matching artwork ID — called by the artwork viewer right after a Like/Bookmark/
+    /// Favorite action succeeds, mirroring GalleryViewModel.SyncArtworkFlags.
+    /// </summary>
+    public void SyncArtworkFlags(
+        string? id,
+        bool? isLiked = null,
+        bool? isPixivBookmarked = null,
+        bool? isPixivPrivateBookmark = null,
+        string? pixivBookmarkId = null,
+        bool bookmarkIdProvided = false,
+        bool? isLocalFavorite = null)
+    {
+        if (string.IsNullOrEmpty(id)) return;
+        foreach (var c in Items)
+        {
+            if (c.Id != id) continue;
+            if (isLiked.HasValue) c.IsLiked = isLiked.Value;
+            if (isPixivBookmarked.HasValue) c.IsPixivBookmarked = isPixivBookmarked.Value;
+            if (isLocalFavorite.HasValue) c.IsLocalFavorite = isLocalFavorite.Value;
+        }
+    }
+
+    /// <summary>Re-checks Liked/Bookmarked/Local-favorite status for every currently-loaded
+    /// card against the authoritative sources — see GalleryViewModel's equivalent for the full
+    /// rationale. Call this whenever navigating to Rankings.</summary>
+    public void RefreshLikedBookmarkedFavoriteFlags()
+    {
+        Pikura.Core.Settings.SettingsService settings;
+        LocalFavoritesService favorites;
+        Pikura.Avalonia.ViewModels.BookmarksViewModel? bookmarksVm = null;
+        try { settings = AppServices.Get<Pikura.Core.Settings.SettingsService>(); } catch { return; }
+        try { favorites = AppServices.Get<LocalFavoritesService>(); } catch { return; }
+        try { bookmarksVm = AppServices.Get<Pikura.Avalonia.ViewModels.BookmarksViewModel>(); } catch { /* not initialized yet */ }
+
+        foreach (var c in Items)
+        {
+            if (string.IsNullOrEmpty(c.Id)) continue;
+            c.IsLiked = settings.Current.PixivLikedArtworkIds.Contains(c.Id);
+            c.IsLocalFavorite = favorites.IsFavorite(c.Id);
+            if (bookmarksVm != null) c.IsPixivBookmarked = bookmarksVm.IsKnownBookmarked(c.Id, out _);
+        }
+    }
+
     public void UpdateFilteredItems()
     {
         // Filter based on R-18 settings
