@@ -727,20 +727,7 @@
                     <ToggleButton IsChecked="{Binding IsFavoritesTab}" CornerRadius="6" Padding="10,5" FontSize="12" Click="OnTabClicked" Tag="2">
                         <StackPanel Orientation="Horizontal" Spacing="5"><PathIcon Data="{StaticResource StarIcon}" Width="13" Height="13" VerticalAlignment="Center" Foreground="{Binding $parent[ToggleButton].Foreground}" /><TextBlock Text="Local Favorites" FontSize="12" VerticalAlignment="Center"/></StackPanel>
                     </ToggleButton>
-                    <ToggleButton IsChecked="{Binding IsLikedTab}" CornerRadius="6" Padding="10,5" FontSize="12" Click="OnTabClicked" Tag="3"
-                                  ToolTip.Tip="All artworks you've Liked (not just liked bookmarks)">
-                        <ToggleButton.Styles>
-                            <Style Selector="ToggleButton:checked">
-                                <Setter Property="Background" Value="#DB2777"/>
-                                <Setter Property="Foreground" Value="White"/>
-                            </Style>
-                            <Style Selector="ToggleButton:pointerover:checked">
-                                <Setter Property="Background" Value="#BE185D"/>
-                            </Style>
-                        </ToggleButton.Styles>
-                        <StackPanel Orientation="Horizontal" Spacing="5"><PathIcon Data="{StaticResource HeartFilledIcon}" Width="13" Height="13" VerticalAlignment="Center" Foreground="{Binding $parent[ToggleButton].Foreground}" /><TextBlock Text="Liked" FontSize="12" VerticalAlignment="Center"/></StackPanel>
-                    </ToggleButton>
-                    <ToggleButton IsChecked="{Binding IsCollectionsTab}" CornerRadius="6" Padding="10,5" FontSize="12" Click="OnTabClicked" Tag="4"
+                    <ToggleButton IsChecked="{Binding IsCollectionsTab}" CornerRadius="6" Padding="10,5" FontSize="12" Click="OnTabClicked" Tag="3"
                                   ToolTip.Tip="Pixiv Collections you've bookmarked">
                         <StackPanel Orientation="Horizontal" Spacing="5"><PathIcon Data="{StaticResource BookmarkFilledIcon}" Width="13" Height="13" VerticalAlignment="Center" Foreground="{Binding $parent[ToggleButton].Foreground}" /><TextBlock Text="Collections" FontSize="12" VerticalAlignment="Center"/></StackPanel>
                     </ToggleButton>
@@ -1065,61 +1052,6 @@
                         <Button Content="Load more…" Command="{Binding LoadMoreCommand}"
                                 IsVisible="{Binding CanLoadMore}"
                                 HorizontalAlignment="Center" Margin="0,8" CornerRadius="6" Padding="16,8"/>
-                    </StackPanel>
-                </ScrollViewer>
-            </Grid>
-
-            <!-- ── LIKED TAB (all artworks Liked via Pikura, not just liked bookmarks) ── -->
-            <Grid Grid.Column="0" RowDefinitions="Auto,*" IsVisible="{Binding LikedTabVisible}">
-                <!-- Selection action bar -->
-                <Border Grid.Row="0" IsVisible="{Binding HasSelection}"
-                        Background="{DynamicResource Container2BackgroundBrush}"
-                        BorderBrush="{DynamicResource Container1BorderBrush}"
-                        BorderThickness="0,0,0,1" Padding="10,6">
-                    <WrapPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock VerticalAlignment="Center" Margin="0,0,12,0" FontSize="12" FontWeight="SemiBold"
-                                   Text="{Binding SelectedCount, StringFormat='{}{0} selected'}"/>
-                        <Button Content="Select all"   CornerRadius="5" Padding="8,4" FontSize="11" Margin="0,0,6,0" Command="{Binding SelectAllFavoritesCommand}"/>
-                        <Button Content="Deselect All" CornerRadius="5" Padding="8,4" FontSize="11"                  Command="{Binding ClearFavoritesSelectionCommand}"/>
-                    </WrapPanel>
-                </Border>
-                <ScrollViewer Grid.Row="1" x:Name="LikedScrollViewer"
-                              VerticalScrollBarVisibility="Auto"
-                              HorizontalScrollBarVisibility="Disabled"
-                              AllowAutoHide="False">
-                    <StackPanel>
-                        <TextBlock Text="No liked artworks yet — the ♥ Like button on an artwork adds it here."
-                                   HorizontalAlignment="Center" VerticalAlignment="Center"
-                                   Margin="0,40" FontSize="14"
-                                   Foreground="{DynamicResource DefaultForegroundBrushDisabled}">
-                            <TextBlock.IsVisible>
-                                <MultiBinding Converter="{x:Static BoolConverters.And}">
-                                    <Binding Path="!HasLiked"/>
-                                    <Binding Path="!IsLoading"/>
-                                </MultiBinding>
-                            </TextBlock.IsVisible>
-                        </TextBlock>
-
-                        <!-- Fixed grid -->
-                        <ItemsControl ItemsSource="{Binding FilteredLiked}" Margin="10,10,4,10"
-                                      IsVisible="{Binding ShowFixedGrid}"
-                                      ItemTemplate="{StaticResource BookmarkFixedCardTemplate}">
-                            <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel Orientation="Horizontal"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
-                        </ItemsControl>
-
-                        <!-- Natural grid -->
-                        <ItemsControl ItemsSource="{Binding FilteredLiked}" Margin="10,10,4,10"
-                                      IsVisible="{Binding ShowNaturalGrid}"
-                                      ItemTemplate="{StaticResource BookmarkNaturalCardTemplate}">
-                            <ItemsControl.ItemsPanel><ItemsPanelTemplate><gallery:MasonryPanel ColumnWidth="{Binding $parent[UserControl].((vm:BookmarksViewModel)DataContext).CardSize}" ItemSpacing="6"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
-                        </ItemsControl>
-
-                        <!-- List -->
-                        <ItemsControl ItemsSource="{Binding FilteredLiked}" Margin="10"
-                                      IsVisible="{Binding IsListView}"
-                                      ItemTemplate="{StaticResource BookmarkListRowTemplate}">
-                            <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Spacing="4"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
-                        </ItemsControl>
                     </StackPanel>
                 </ScrollViewer>
             </Grid>

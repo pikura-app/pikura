@@ -38,7 +38,6 @@
             <Setter Property="Cursor" Value="Hand"/>
         </Style>
         <Style Selector="Border.jobCard:pointerover">
-            <Setter Property="RenderTransform" Value="translateY(-1px)"/>
             <Setter Property="BorderBrush" Value="{DynamicResource ControlBackgroundBrushSolidAccent}"/>
         </Style>
         <!-- Drag grip fades in on hover -->

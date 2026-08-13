@@ -27,22 +27,19 @@ public partial class BookmarksViewModel : ViewModelBase
     private CancellationTokenSource? _cts;
     private bool _isLoadingPublic;
     private bool _isLoadingPrivate;
-    private bool _isLoadingLiked;
     private bool _isLoadingCollections;
-    private int _likedLoadGeneration;
     private int _loadedOffsetPublic;
     private int _loadedOffsetPrivate;
 
     // ── Tab ────────────────────────────────────────────────────────────────
-    // 0 = Public  1 = Private  2 = Local Favorites  3 = Liked  4 = Collections
-    [ObservableProperty] private int _selectedTabIndex = 2; 
+    // 0 = Public  1 = Private  2 = Local Favorites  3 = Collections
+    [ObservableProperty] private int _selectedTabIndex = 2;
     public bool IsPublicTab      => SelectedTabIndex == 0;
     public bool IsPrivateTab     => SelectedTabIndex == 1;
     public bool IsFavoritesTab   => SelectedTabIndex == 2;
-    public bool IsLikedTab       => SelectedTabIndex == 3;
     /// <summary>Bookmarked Pixiv Collections (the collection itself, not artworks inside one) —
-    /// distinct from every other tab, which lists bookmarked/liked/favorited artworks.</summary>
-    public bool IsCollectionsTab => SelectedTabIndex == 4;
+    /// distinct from every other tab, which lists bookmarked/favorited artworks.</summary>
+    public bool IsCollectionsTab => SelectedTabIndex == 3;
 
     // ── Status ─────────────────────────────────────────────────────────────
     [ObservableProperty] private bool _isLoading;
@@ -82,10 +79,6 @@ public partial class BookmarksViewModel : ViewModelBase
         _privateBookmarkedIds.Clear();
         foreach (var c in PrivateBookmarks) _privateBookmarkedIds.Add(c.Id);
     }
-    /// <summary>Every artwork Liked via Pikura's Like action (from SettingsService.PixivLikedArtworkIds),
-    /// regardless of whether it's also bookmarked — this is the full liked list, not a filter over bookmarks.</summary>
-    public ObservableCollection<ArtworkCardViewModel> LikedArtworks { get; } = [];
-
     /// <summary>Pixiv Collections the user has bookmarked (the collection itself, not any
     /// artwork inside it) — see <see cref="PixivClient.GetBookmarkedCollectionsAsync"/>.</summary>
     public ObservableCollection<CollectionTileViewModel> BookmarkedCollections { get; } = [];
@@ -97,12 +90,10 @@ public partial class BookmarksViewModel : ViewModelBase
     public ObservableCollection<ArtworkCardViewModel> FilteredPublic { get; } = [];
     public ObservableCollection<ArtworkCardViewModel> FilteredPrivate { get; } = [];
     public ObservableCollection<ArtworkCardViewModel> FilteredFavorites { get; } = [];
-    public ObservableCollection<ArtworkCardViewModel> FilteredLiked { get; } = [];
 
     public bool HasPublic => PublicBookmarks.Count > 0;
     public bool HasPrivate => PrivateBookmarks.Count > 0;
     public bool HasFavorites => LocalFavorites.Count > 0;
-    public bool HasLiked => LikedArtworks.Count > 0;
 
     // ── View options ───────────────────────────────────────────────────────
     [ObservableProperty] private int _cardSize = 180;
@@ -128,7 +119,7 @@ public partial class BookmarksViewModel : ViewModelBase
     public string ViewerSourceKey => $"Bookmarks:{SelectedTabIndex}:{ShowR18}:{TagFilter}:{FolderFilter}";
     public bool HasTabs => GalleryVm.HasTabs;
     [ObservableProperty] private bool _isViewerExpanded;
-    partial void OnIsViewerExpandedChanged(bool value) { OnPropertyChanged(nameof(IsViewerFullScreen)); OnPropertyChanged(nameof(ShowGridLayer)); OnPropertyChanged(nameof(PublicTabVisible)); OnPropertyChanged(nameof(PrivateTabVisible)); OnPropertyChanged(nameof(FavoritesTabVisible)); OnPropertyChanged(nameof(LikedTabVisible)); OnPropertyChanged(nameof(CollectionsTabVisible)); }
+    partial void OnIsViewerExpandedChanged(bool value) { OnPropertyChanged(nameof(IsViewerFullScreen)); OnPropertyChanged(nameof(ShowGridLayer)); OnPropertyChanged(nameof(PublicTabVisible)); OnPropertyChanged(nameof(PrivateTabVisible)); OnPropertyChanged(nameof(FavoritesTabVisible)); OnPropertyChanged(nameof(CollectionsTabVisible)); }
     /// <summary>True when the viewer is expanded to fill the full content area.</summary>
     public bool IsViewerFullScreen => IsViewerExpanded;
     /// <summary>True when the artwork grid should be visible.</summary>
@@ -136,7 +127,6 @@ public partial class BookmarksViewModel : ViewModelBase
     public bool PublicTabVisible => IsPublicTab && ShowGridLayer;
     public bool PrivateTabVisible => IsPrivateTab && ShowGridLayer;
     public bool FavoritesTabVisible => IsFavoritesTab && ShowGridLayer;
-    public bool LikedTabVisible => IsLikedTab && ShowGridLayer;
     public bool CollectionsTabVisible => IsCollectionsTab && ShowGridLayer;
 
     // Grid view mode combined with height mode (for ScrollViewer visibility)
@@ -146,12 +136,11 @@ public partial class BookmarksViewModel : ViewModelBase
     // ── Selection mode (all tabs) ──────────────────────────────────────────
     [ObservableProperty] private bool _isSelectionMode;
 
-    // Unified selection helpers — works across all four tabs
+    // Unified selection helpers — works across all three artwork tabs
     private ObservableCollection<ArtworkCardViewModel> ActiveCollection => SelectedTabIndex switch
     {
         0 => FilteredPublic,
         1 => FilteredPrivate,
-        3 => FilteredLiked,
         _ => FilteredFavorites
     };
 
@@ -313,7 +302,6 @@ public partial class BookmarksViewModel : ViewModelBase
             OnPropertyChanged(nameof(PublicTabVisible));
             OnPropertyChanged(nameof(PrivateTabVisible));
             OnPropertyChanged(nameof(FavoritesTabVisible));
-            OnPropertyChanged(nameof(LikedTabVisible));
             if (!GalleryVm.HasTabs) IsViewerExpanded = false;
         }
 
@@ -421,12 +409,10 @@ public partial class BookmarksViewModel : ViewModelBase
         OnPropertyChanged(nameof(IsPublicTab));
         OnPropertyChanged(nameof(IsPrivateTab));
         OnPropertyChanged(nameof(IsFavoritesTab));
-        OnPropertyChanged(nameof(IsLikedTab));
         OnPropertyChanged(nameof(IsCollectionsTab));
         OnPropertyChanged(nameof(PublicTabVisible));
         OnPropertyChanged(nameof(PrivateTabVisible));
         OnPropertyChanged(nameof(FavoritesTabVisible));
-        OnPropertyChanged(nameof(LikedTabVisible));
         OnPropertyChanged(nameof(CollectionsTabVisible));
         switch (value)
         {
@@ -445,13 +431,7 @@ public partial class BookmarksViewModel : ViewModelBase
             case 2:
                 ReloadLocalFavorites();
                 break;
-            case 3 when LikedArtworks.Count == 0 && !_isLoadingLiked:
-                _ = LoadLikedArtworksAsync();
-                break;
-            case 3:
-                UpdateFiltered();
-                break;
-            case 4 when BookmarkedCollections.Count == 0 && !_isLoadingCollections:
+            case 3 when BookmarkedCollections.Count == 0 && !_isLoadingCollections:
                 _ = LoadBookmarkedCollectionsAsync();
                 break;
         }
@@ -675,168 +655,6 @@ public partial class BookmarksViewModel : ViewModelBase
         }
     }
 
-    // ── Liked artworks (all Pikura Likes, not just liked bookmarks) ────────
-    /// <summary>
-    /// Loads every artwork the user has Liked via Pikura, regardless of whether it's also
-    /// bookmarked. Unlike Public/Private, there's no Pixiv listing endpoint for "things I've
-    /// liked" — we only have the ID list persisted in settings — so each artwork's detail is
-    /// fetched individually (bounded concurrency) to get its thumbnail/title/stats.
-    /// </summary>
-    [RelayCommand]
-    public async Task LoadLikedArtworksAsync()
-    {
-        // Generation counter — belt-and-suspenders against any overlapping call ever applying
-        // its results after a newer call has started (which previously showed each liked
-        // artwork twice). Whichever call is still "current" when its fetch finishes is the
-        // only one allowed to touch LikedArtworks.
-        var myGeneration = ++_likedLoadGeneration;
-        _isLoadingLiked = true;
-
-        _cts?.Cancel();
-        _cts = new CancellationTokenSource();
-        var ct = _cts.Token;
-
-        IsLoading = true;
-        // Don't clear the existing collection immediately — if the batch fetch fails
-        // (rate-limit, network error, etc.), the previously-loaded or SyncLiked-added
-        // artworks would disappear and the user would see an empty tab. We only replace
-        // the collection once we have verified results.
-        var previousLiked = LikedArtworks.ToList();
-
-        try
-        {
-            // Newest-liked-first: IDs are appended to the list as they're liked.
-            // Distinct() guards against stale duplicate IDs some earlier sessions may have
-            // persisted (before de-duplication was added to the Like action) — without it,
-            // every duplicate ID re-fetched and re-added its own separate card.
-            var likedIds = _settingsService.Current.PixivLikedArtworkIds;
-            var deduped = likedIds.Distinct().ToList();
-            if (deduped.Count != likedIds.Count)
-            {
-                likedIds.Clear();
-                likedIds.AddRange(deduped);
-                _settingsService.Save();
-            }
-            var ids = deduped.AsEnumerable().Reverse().ToList();
-            if (ids.Count == 0)
-            {
-                LikedArtworks.Clear();
-                StatusMessage = "No liked artworks yet — the ♥ Like button on an artwork adds it here.";
-                return;
-            }
-
-            StatusMessage = $"Loading {ids.Count} liked artworks…";
-            var blurR18 = _settingsService.Current.BlurR18Content;
-            var results = new ArtworkCardViewModel?[ids.Count];
-            int failedCount = 0;
-
-            // Low concurrency: Pixiv's detail endpoint is very sensitive to bursts and
-            // will return 403/429 if we hit it too hard. 2 parallel requests keeps the tab
-            // reasonably fast without triggering rate limits.
-            using var gate = new SemaphoreSlim(2, 2);
-            await Task.WhenAll(ids.Select((id, i) => Task.Run(async () =>
-            {
-                await gate.WaitAsync(ct).ConfigureAwait(false);
-                try
-                {
-                    var detailTask = _pixivClient.GetArtworkDetailAsync(id, ct);
-                    var bookmarkTask = _pixivClient.GetBookmarkStateAsync(id, ct);
-                    await Task.WhenAll(detailTask, bookmarkTask).ConfigureAwait(false);
-                    var detail = await detailTask.ConfigureAwait(false);
-                    if (detail is null)
-                    {
-                        Interlocked.Increment(ref failedCount);
-                        return;
-                    }
-                    var bookmark = await bookmarkTask.ConfigureAwait(false);
-                    var preview = new ArtworkPreview
-                    {
-                        Id = detail.IllustId ?? id,
-                        Title = detail.IllustTitle ?? id,
-                        UserName = detail.UserName ?? string.Empty,
-                        UserId = detail.UserId ?? string.Empty,
-                        ThumbnailUrl = detail.ThumbnailUrl,
-                        PageCount = detail.PageCount > 0 ? detail.PageCount : 1,
-                        IllustType = detail.IllustType,
-                        XRestrict = detail.XRestrict,
-                        AiType = detail.AiType,
-                        Width = detail.Width,
-                        Height = detail.Height,
-                        BookmarkCount = detail.BookmarkCount,
-                        LikeCount = detail.LikeCount,
-                        ViewCount = detail.ViewCount,
-                        Tags = detail.Tags?.Tags?.Select(t => t.Tag ?? string.Empty).ToList() ?? []
-                    };
-                    results[i] = new ArtworkCardViewModel(preview)
-                    {
-                        IsBlurred = blurR18 && preview.IsR18,
-                        IsLocalFavorite = _favoritesService.IsFavorite(id),
-                        IsLiked = true,
-                        // A liked artwork may also be bookmarked on Pixiv — check its live
-                        // bookmark state so the bookmark badge shows here too, not just on
-                        // the Public/Private tabs.
-                        IsPixivBookmarked = bookmark?.IsBookmarked ?? false,
-                        IsPixivPrivateBookmark = bookmark?.IsPrivate ?? false,
-                        PixivBookmarkId = bookmark?.BookmarkId,
-                    };
-                }
-                catch (OperationCanceledException) { throw; }
-                catch (Exception ex)
-                {
-                    // Log the failure but don't remove the ID — it may be a transient
-                    // network error or rate-limit, not a permanently deleted artwork.
-                    Interlocked.Increment(ref failedCount);
-                    Logger.LogWarning(ex, "[LikedArtworks] Failed to fetch artwork {Id}", id);
-                }
-                finally { gate.Release(); }
-            }, ct))).ConfigureAwait(false);
-
-            ct.ThrowIfCancellationRequested();
-            Logger.LogInformation("[LikedArtworks] generation={Gen} currentGen={CurGen} idsCount={IdsCount} resultsNonNull={ResultsCount} failed={Failed}",
-                myGeneration, _likedLoadGeneration, ids.Count, results.Count(r => r != null), failedCount);
-            if (myGeneration != _likedLoadGeneration) return; // a newer call superseded this one
-
-            var successful = results.Where(r => r != null).ToList();
-            if (successful.Count == 0 && previousLiked.Count > 0)
-            {
-                // Fetch failed entirely (likely rate-limited). Keep the existing collection
-                // so the user doesn't see their liked artworks vanish, and tell them why.
-                StatusMessage = $"Could not refresh liked artworks ({failedCount} failed — likely rate-limited). Showing {previousLiked.Count} previously loaded.";
-                Logger.LogWarning("[LikedArtworks] Keeping {Count} previous artworks because fetch returned none", previousLiked.Count);
-                return;
-            }
-
-            LikedArtworks.Clear();
-            var seen = new HashSet<string>();
-            foreach (var vm in successful)
-            {
-                if (vm is null || !seen.Add(vm.Id)) continue;
-                LikedArtworks.Add(vm);
-                _ = vm.LoadThumbnailAsync(_imageLoader, ct: ct);
-            }
-
-            Logger.LogInformation("[LikedArtworks] after add: LikedArtworks.Count={Count} ids={Ids}",
-                LikedArtworks.Count, string.Join(",", LikedArtworks.Select(a => a.Id)));
-            if (failedCount > 0)
-                StatusMessage = $"{LikedArtworks.Count} liked artworks ({failedCount} could not be loaded — they may be deleted or Pixiv may be rate-limiting)";
-            else
-                StatusMessage = $"{LikedArtworks.Count} liked artworks";
-        }
-        catch (OperationCanceledException) { }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "Failed to load liked artworks");
-            StatusMessage = $"Failed to load liked artworks: {ex.Message}";
-        }
-        finally
-        {
-            _isLoadingLiked = false;
-            IsLoading = false;
-            if (myGeneration == _likedLoadGeneration) UpdateFiltered();
-            OnPropertyChanged(nameof(HasLiked));
-        }
-    }
-
     public void ToggleFavorite(ArtworkCardViewModel card)
     {
         _favoritesService.Toggle(card.Artwork);
@@ -846,7 +664,7 @@ public partial class BookmarksViewModel : ViewModelBase
     }
 
     /// <summary>Public alias so the artwork viewer can push a local-favorite change into every
-    /// card already loaded across the Bookmarks tabs (Public/Private/Favorites/Liked).</summary>
+    /// card already loaded across the Bookmarks tabs (Public/Private/Favorites).</summary>
     public void SyncFavoriteEverywhere(string id, bool value) => SyncFavoriteFlag(id, value);
 
     private void SyncFavoriteFlag(string id, bool value)
@@ -856,48 +674,17 @@ public partial class BookmarksViewModel : ViewModelBase
     }
 
     private IEnumerable<ArtworkCardViewModel> AllLoadedCards() =>
-        PublicBookmarks.Concat(PrivateBookmarks).Concat(LocalFavorites).Concat(LikedArtworks);
+        PublicBookmarks.Concat(PrivateBookmarks).Concat(LocalFavorites);
 
     /// <summary>
-    /// Called by the artwork viewer right after a Like/Unlike succeeds, so the Liked tab (and
-    /// the heart badge on any matching card already loaded elsewhere) updates immediately
-    /// instead of requiring a manual Refresh.
+    /// Called by the artwork viewer right after a Like succeeds, so the heart badge on any
+    /// matching card already loaded in the Bookmarks tabs updates immediately.
     /// </summary>
     public void SyncLiked(ArtworkCardViewModel card, bool liked)
     {
         if (string.IsNullOrEmpty(card.Id)) return;
-        Logger.LogInformation("[SyncLiked] id={Id} liked={Liked} alreadyInLikedArtworks={Already} likedArtworksCountBefore={CountBefore}",
-            card.Id, liked, LikedArtworks.Any(a => a.Id == card.Id), LikedArtworks.Count);
-
         foreach (var c in AllLoadedCards())
             if (c.Id == card.Id) c.IsLiked = liked;
-
-        if (liked)
-        {
-            if (!LikedArtworks.Any(a => a.Id == card.Id))
-            {
-                var clone = new ArtworkCardViewModel(card.Artwork)
-                {
-                    IsBlurred = card.IsBlurred,
-                    IsLocalFavorite = card.IsLocalFavorite,
-                    IsPixivBookmarked = card.IsPixivBookmarked,
-                    IsPixivPrivateBookmark = card.IsPixivPrivateBookmark,
-                    PixivBookmarkId = card.PixivBookmarkId,
-                    IsLiked = true,
-                };
-                LikedArtworks.Insert(0, clone); // newest-liked-first, matches full-reload order
-                _ = clone.LoadThumbnailAsync(_imageLoader);
-            }
-        }
-        else
-        {
-            var existing = LikedArtworks.FirstOrDefault(a => a.Id == card.Id);
-            if (existing != null) LikedArtworks.Remove(existing);
-        }
-
-        Logger.LogInformation("[SyncLiked] after: likedArtworksCountAfter={CountAfter} selectedTab={Tab}", LikedArtworks.Count, SelectedTabIndex);
-        UpdateFiltered();
-        OnPropertyChanged(nameof(HasLiked));
     }
 
     /// <summary>
@@ -958,9 +745,6 @@ public partial class BookmarksViewModel : ViewModelBase
         ApplyFilter(PublicBookmarks,  FilteredPublic);
         ApplyFilter(PrivateBookmarks, FilteredPrivate);
         ApplyFilter(LocalFavorites,   FilteredFavorites, applyFolder: true);
-        ApplyFilter(LikedArtworks,    FilteredLiked);
-        Logger.LogInformation("[LikedArtworks] UpdateFiltered: LikedArtworks.Count={Src} FilteredLiked.Count={Dst} filteredIds={Ids}",
-            LikedArtworks.Count, FilteredLiked.Count, string.Join(",", FilteredLiked.Select(a => a.Id)));
 
         // Tab-aware status message
         switch (SelectedTabIndex)
@@ -981,10 +765,7 @@ public partial class BookmarksViewModel : ViewModelBase
                 StatusMessage = $"{FilteredFavorites.Count} local favorites";
                 break;
             case 3:
-                var likedHidden = !ShowR18 ? LikedArtworks.Count(a => a.Artwork.IsR18) : 0;
-                StatusMessage = likedHidden > 0
-                    ? $"{FilteredLiked.Count} liked artworks  ·  {likedHidden} R-18 hidden — click R-18 to show"
-                    : $"{FilteredLiked.Count} liked artworks";
+                StatusMessage = $"{BookmarkedCollections.Count} bookmarked collections";
                 break;
         }
     }
@@ -1110,7 +891,7 @@ public partial class BookmarksViewModel : ViewModelBase
             case 0: await LoadTabAsync(0); break;
             case 1: await LoadTabAsync(1); break;
             case 2: ReloadLocalFavorites(); break;
-            case 3: await LoadLikedArtworksAsync(); break;
+            case 3: await LoadBookmarkedCollectionsAsync(); break;
         }
     }
 
@@ -1125,10 +906,10 @@ public partial class BookmarksViewModel : ViewModelBase
             return;
         }
 
-        var tabName = SelectedTabIndex switch { 0 => "public", 1 => "private", 3 => "liked", _ => "favorites" };
+        var tabName = SelectedTabIndex switch { 0 => "public", 1 => "private", 2 => "favorites", 3 => "collections", _ => "bookmarks" };
         var confirmed = await _dialogService.ShowConfirmationAsync(
             "Download Selected",
-            $"Download {selected.Count} selected {tabName} bookmarks?");
+            $"Download {selected.Count} selected {tabName} items?");
         if (!confirmed) return;
 
         await QueueArtworksAsync(selected, $"Selected {selected.Count} {tabName} bookmarks");
@@ -1144,10 +925,10 @@ public partial class BookmarksViewModel : ViewModelBase
             return;
         }
 
-        var tabName = SelectedTabIndex switch { 0 => "public", 1 => "private", 3 => "liked", _ => "favorites" };
+        var tabName = SelectedTabIndex switch { 0 => "public", 1 => "private", 2 => "favorites", 3 => "collections", _ => "bookmarks" };
         var confirmed = await _dialogService.ShowConfirmationAsync(
             "Download All",
-            $"Download all {list.Count} {tabName} bookmarks?");
+            $"Download all {list.Count} {tabName} items?");
         if (!confirmed) return;
 
         await QueueArtworksAsync(list.ToList(), $"All {tabName} bookmarks ({list.Count})");
