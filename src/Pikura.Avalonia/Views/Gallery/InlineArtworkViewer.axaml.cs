@@ -650,7 +650,10 @@ public partial class InlineArtworkViewer : UserControl
         // and they all subscribe to the same VM. Only the visible one should load.
         if (!IsEffectivelyVisible) return;
 
-        if (card == null) { ClearViewer(); return; }
+        if (card == null || card.Id == null) { ClearViewer(); return; }
+        // Captured once, non-null — member narrowing of card.Id doesn't survive the awaits
+        // further down in this method, so the string parameter calls below use this instead.
+        var cardId = card.Id;
 
         // Skip only if the same card is already fully loaded successfully.
         // We must NOT dedupe on _currentCard alone — _currentCard is set
@@ -773,11 +776,11 @@ public partial class InlineArtworkViewer : UserControl
         {
             if (card.IllustType == 2)
             {
-                succeeded = await LoadUgoiraAsync(card.Id, ct);
+                succeeded = await LoadUgoiraAsync(cardId, ct);
             }
             else
             {
-                var pages = await _pixivClient.GetArtworkPagesAsync(card.Id);
+                var pages = await _pixivClient.GetArtworkPagesAsync(cardId);
                 if (ct.IsCancellationRequested) return;
                 _pages = pages;
                 UpdatePageIndicator();
@@ -1659,24 +1662,29 @@ if (result != null && presetWindow.DownloadClicked)
 
     private async void OnLikeClicked(object? sender, RoutedEventArgs e)
     {
-        if (_currentCard == null || _isLiked || VM == null) return;
+        // Capture into a local — nullable flow analysis doesn't narrow fields across the
+        // await below (another card switch could reassign _currentCard mid-flight), so
+        // reading _currentCard directly after the guard still produces null-ref warnings.
+        var card = _currentCard;
+        var vm = VM;
+        if (card == null || _isLiked || vm == null) return;
         LikeBtn!.IsEnabled = false;
         try
         {
-            var ok = await _pixivClient.LikeIllustAsync(_currentCard.Id);
+            var ok = await _pixivClient.LikeIllustAsync(card.Id);
             if (ok)
             {
                 _isLiked = true;
                 _likeCount++;
-                _currentCard.IsLiked = true;
+                card.IsLiked = true;
                 UpdateLikeButton();
                 UpdateStatsLabel();
                 try
                 {
-                    var service = VM?.SettingsService;
-                    if (service != null && _currentCard?.Id != null && !service.Current.PixivLikedArtworkIds.Contains(_currentCard.Id))
+                    var service = vm.SettingsService;
+                    if (service != null && card.Id != null && !service.Current.PixivLikedArtworkIds.Contains(card.Id))
                     {
-                        service.Current.PixivLikedArtworkIds.Add(_currentCard.Id);
+                        service.Current.PixivLikedArtworkIds.Add(card.Id);
                         service.Save();
                     }
                 }
@@ -1684,14 +1692,14 @@ if (result != null && presetWindow.DownloadClicked)
                 {
                     System.Diagnostics.Debug.WriteLine($"[InlineArtworkViewer] Could not persist liked artwork: {ex.Message}");
                 }
-                try { AppServices.Get<BookmarksViewModel>().SyncLiked(_currentCard, true); }
+                try { AppServices.Get<BookmarksViewModel>().SyncLiked(card, true); }
                 catch { /* Bookmarks view not initialized yet — nothing to sync into */ }
                 SyncCardFlagsEverywhere(isLiked: true);
-                VM.StatusMessage = "Liked on Pixiv";
+                vm.StatusMessage = "Liked on Pixiv";
             }
             else
             {
-                VM.StatusMessage = "Could not like artwork";
+                vm.StatusMessage = "Could not like artwork";
             }
         }
         finally { LikeBtn.IsEnabled = true; }
@@ -1974,8 +1982,11 @@ if (result != null && presetWindow.DownloadClicked)
         return panel;
     }
 
+    // EmojiCatalog is declared later in this file; the null-forgiving operator below is safe
+    // because this Lazy factory only runs on first .Value access (well after all static field
+    // initializers have completed), but the compiler's forward-reference analysis can't see that.
     private static readonly Lazy<System.Text.RegularExpressions.Regex> EmojiShortcodeRegexLazy = new(() =>
-        new System.Text.RegularExpressions.Regex(@"\((" + string.Join("|", EmojiCatalog.Select(e => System.Text.RegularExpressions.Regex.Escape(e.Shortcode))) + @")\)"));
+        new System.Text.RegularExpressions.Regex(@"\((" + string.Join("|", EmojiCatalog!.Select(e => System.Text.RegularExpressions.Regex.Escape(e.Shortcode))) + @")\)"));
     private static System.Text.RegularExpressions.Regex EmojiShortcodeRegex => EmojiShortcodeRegexLazy.Value;
 
     private void BeginReply(Pikura.Core.Models.PixivComment c)

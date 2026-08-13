@@ -27,11 +27,11 @@ public partial class RankingCardViewModel : ObservableObject
 
     private void InitLikedBookmarkedFavorite()
     {
-        try { _isLiked = AppServices.Get<SettingsService>().Current.PixivLikedArtworkIds.Contains(Id); }
+        try { IsLiked = AppServices.Get<SettingsService>().Current.PixivLikedArtworkIds.Contains(Id); }
         catch { /* AppServices not initialized yet, e.g. design-time */ }
-        try { _isLocalFavorite = AppServices.Get<Pikura.Core.Services.LocalFavoritesService>().IsFavorite(Id); }
+        try { IsLocalFavorite = AppServices.Get<Pikura.Core.Services.LocalFavoritesService>().IsFavorite(Id); }
         catch { /* AppServices not initialized yet */ }
-        try { _isPixivBookmarked = AppServices.Get<BookmarksViewModel>().IsKnownBookmarked(Id, out _); }
+        try { IsPixivBookmarked = AppServices.Get<BookmarksViewModel>().IsKnownBookmarked(Id, out _); }
         catch { /* AppServices/BookmarksViewModel not initialized yet */ }
     }
 
