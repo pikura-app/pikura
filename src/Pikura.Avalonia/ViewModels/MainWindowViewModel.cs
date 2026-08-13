@@ -477,6 +477,12 @@ public partial class MainWindowViewModel : ViewModelBase
             - Comment threads support correct-thread replies, stickers, Pixiv custom-emoji shortcodes, and deletion of your own comments after confirmation
             - Refined light and dark themes with better contrast, rounded button hover highlights, visible caption-button hover states, and a working system-theme toggle
             - Fixed the inline viewer **Liked** button readability in both themes
+            - Collections tile context menu now has an "Open on pixiv.net" link alongside Copy collection link
+            - The Windows uninstaller can now fully remove Pikura (settings, saved Pixiv login, download history/database, cached images, and downloaded AI tagging models) or keep that data in place for a future reinstall
+
+            ### Fixed
+            - Pixivision Monthly Ranking/Featured sidebar banners were unreadable in light/dark mode; both now use a fixed black background with white text
+            - Updated the Pixiv-connected actions preview GIF used on the feature highlights page
             """,
             "https://github.com/pikura-app/pikura/releases/latest",
             null),
