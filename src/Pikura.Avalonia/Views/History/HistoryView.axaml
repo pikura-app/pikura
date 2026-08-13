@@ -558,7 +558,7 @@
                                     <Border Background="{DynamicResource Container2BackgroundBrush}"
                                             BorderBrush="{DynamicResource Container2BorderBrush}"
                                             BorderThickness="1" CornerRadius="6" Margin="0,0,0,8"
-                                            Padding="10,10,12,10" ClipToBounds="True">
+                                            Padding="10,10,12,10">
                                         <Grid ColumnDefinitions="Auto,*,Auto">
                                             <Border Grid.Column="0" Width="96" Height="96" CornerRadius="10" ClipToBounds="True"
                                                     VerticalAlignment="Center" Margin="0,0,14,0"
@@ -574,13 +574,20 @@
                                             </Border>
                                             <StackPanel Grid.Column="1" Spacing="4" Margin="0,0,16,0" VerticalAlignment="Center">
                                                 <TextBlock Text="{Binding Job.Name}" FontWeight="SemiBold" FontSize="15" TextTrimming="CharacterEllipsis" MaxLines="1"/>
-                                                <TextBlock FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}">
+                                                <TextBlock FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
+                                                           TextTrimming="CharacterEllipsis" MaxLines="1">
                                                     <TextBlock.Text>
                                                         <MultiBinding StringFormat="{}{0} • {1:MMM d, yyyy HH:mm}">
                                                             <Binding Path="TypeLabel"/>
                                                             <Binding Path="Job.CompletedAt"/>
                                                         </MultiBinding>
                                                     </TextBlock.Text>
+                                                    <ToolTip.Tip>
+                                                        <MultiBinding StringFormat="{}{0} • {1:MMM d, yyyy HH:mm}">
+                                                            <Binding Path="TypeLabel"/>
+                                                            <Binding Path="Job.CompletedAt"/>
+                                                        </MultiBinding>
+                                                    </ToolTip.Tip>
                                                 </TextBlock>
                                                 <TextBlock Text="{Binding ArtistInfo}" FontSize="12"
                                                            Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
@@ -752,7 +759,7 @@
                                     <Border Background="{DynamicResource Container2BackgroundBrush}"
                                             BorderBrush="{DynamicResource Container2BorderBrush}"
                                             BorderThickness="1" CornerRadius="6" Margin="0,0,0,8"
-                                            Padding="10,10,12,10" ClipToBounds="True">
+                                            Padding="10,10,12,10">
                                         <Grid ColumnDefinitions="Auto,*,Auto">
                                             <Border Grid.Column="0" Width="96" Height="96" CornerRadius="10" ClipToBounds="True"
                                                     VerticalAlignment="Center" Margin="0,0,14,0"
@@ -768,13 +775,20 @@
                                             </Border>
                                             <StackPanel Grid.Column="1" Spacing="4" Margin="0,0,16,0" VerticalAlignment="Center">
                                                 <TextBlock Text="{Binding Job.Name}" FontWeight="SemiBold" FontSize="15" TextTrimming="CharacterEllipsis" MaxLines="1"/>
-                                                <TextBlock FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}">
+                                                <TextBlock FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
+                                                           TextTrimming="CharacterEllipsis" MaxLines="1">
                                                     <TextBlock.Text>
                                                         <MultiBinding StringFormat="{}{0} • {1:MMM d, yyyy HH:mm}">
                                                             <Binding Path="TypeLabel"/>
                                                             <Binding Path="Job.CompletedAt"/>
                                                         </MultiBinding>
                                                     </TextBlock.Text>
+                                                    <ToolTip.Tip>
+                                                        <MultiBinding StringFormat="{}{0} • {1:MMM d, yyyy HH:mm}">
+                                                            <Binding Path="TypeLabel"/>
+                                                            <Binding Path="Job.CompletedAt"/>
+                                                        </MultiBinding>
+                                                    </ToolTip.Tip>
                                                 </TextBlock>
                                                 <TextBlock Text="{Binding ArtistInfo}" FontSize="12"
                                                            Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
@@ -939,7 +953,7 @@
                                     <Border Background="{DynamicResource Container2BackgroundBrush}"
                                             BorderBrush="{DynamicResource Container2BorderBrush}"
                                             BorderThickness="1" CornerRadius="6" Margin="0,0,0,8"
-                                            Padding="10,10,12,10" ClipToBounds="True">
+                                            Padding="10,10,12,10">
                                         <Grid ColumnDefinitions="Auto,*,Auto">
                                             <Border Grid.Column="0" Width="96" Height="96" CornerRadius="10" ClipToBounds="True"
                                                     VerticalAlignment="Center" Margin="0,0,14,0"
@@ -955,13 +969,20 @@
                                             </Border>
                                             <StackPanel Grid.Column="1" Spacing="4" Margin="0,0,16,0" VerticalAlignment="Center">
                                                 <TextBlock Text="{Binding Job.Name}" FontWeight="SemiBold" FontSize="15" TextTrimming="CharacterEllipsis" MaxLines="1"/>
-                                                <TextBlock FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}">
+                                                <TextBlock FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
+                                                           TextTrimming="CharacterEllipsis" MaxLines="1">
                                                     <TextBlock.Text>
                                                         <MultiBinding StringFormat="{}{0} • {1:MMM d, yyyy HH:mm}">
                                                             <Binding Path="TypeLabel"/>
                                                             <Binding Path="Job.CompletedAt"/>
                                                         </MultiBinding>
                                                     </TextBlock.Text>
+                                                    <ToolTip.Tip>
+                                                        <MultiBinding StringFormat="{}{0} • {1:MMM d, yyyy HH:mm}">
+                                                            <Binding Path="TypeLabel"/>
+                                                            <Binding Path="Job.CompletedAt"/>
+                                                        </MultiBinding>
+                                                    </ToolTip.Tip>
                                                 </TextBlock>
                                                 <TextBlock Text="{Binding ArtistInfo}" FontSize="12"
                                                            Foreground="{DynamicResource DefaultForegroundBrushTertiary}"

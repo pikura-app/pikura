@@ -668,6 +668,68 @@ public partial class InlineArtworkViewer : UserControl
                 return;
         }
 
+        // ── Per-tab bitmap cache: save outgoing, restore incoming ────────
+        // Before clearing the viewer, snapshot the current bitmap onto the
+        // outgoing ViewerTab so we can restore it instantly if the user
+        // switches back.
+        var vm = VM;
+        if (_currentCard?.Id != card.Id && vm != null)
+        {
+            var outgoing = vm.ViewerTabs.FirstOrDefault(t => t.Card?.Id == _currentCard?.Id);
+            if (outgoing != null && ViewerImage?.Source is Bitmap outBmp)
+            {
+                outgoing.CachedBitmap = outBmp;
+                outgoing.CachedPageIndex = _currentPageIndex;
+            }
+        }
+
+        // Check whether the incoming tab already has a cached bitmap we can
+        // restore immediately — avoids re-decoding bytes that are sitting in
+        // the PixivImageLoader byte cache but no longer decoded.
+        var incomingTab = vm?.SelectedViewerTab;
+        if (incomingTab?.CachedBitmap != null && incomingTab.Card?.Id == card.Id)
+        {
+            // Cancel any in-flight load — we don't need it.
+            _loadCts?.Cancel();
+            _loadCts?.Dispose();
+            _loadCts = null;
+
+            if (ViewerImage != null)
+            {
+                ViewerImage.Source = incomingTab.CachedBitmap;
+                ViewerImage.IsVisible = true;
+            }
+            if (UgoiraImage != null) { UgoiraImage.SourcePath = null; UgoiraImage.IsPlaying = false; }
+            _currentCard = card;
+            _currentPageIndex = incomingTab.CachedPageIndex;
+            _loadedCardId = card.Id;
+            SetLoading(false);
+            if (ErrorPanel != null) ErrorPanel.IsVisible = false;
+
+            _isLiked = card.Id is not null &&
+                       (vm?.SettingsService?.Current?.PixivLikedArtworkIds.Contains(card.Id) ?? false);
+            card.IsLiked = _isLiked;
+            _isBookmarked = card.IsPixivBookmarked;
+            _isPrivateBookmark = card.IsPixivPrivateBookmark;
+            _isFollowing = card.IsFollowed;
+            _bookmarkId = card.PixivBookmarkId;
+            if (card.Id is not null && _statsCache.TryGetValue(card.Id, out var cached))
+            {
+                _likeCount = cached.Likes; _bookmarkCount = cached.Bookmarks; _viewCount = cached.Views;
+                _statsLoaded = true;
+            }
+            else
+            {
+                _bookmarkCount = card.BookmarkCount; _likeCount = card.LikeCount; _viewCount = card.ViewCount;
+                _statsLoaded = false;
+            }
+            UpdateStatsLabel(); UpdateFollowButton(); UpdateLikeButton();
+            UpdateBookmarkButtons(); UpdateFavoriteButton(card);
+            UpdatePageIndicator(); UpdateArtworkCounter();
+            ResetZoom();
+            return;
+        }
+
         // Cancel any in-flight load and start fresh
         _loadCts?.Cancel();
         _loadCts?.Dispose();
@@ -675,8 +737,7 @@ public partial class InlineArtworkViewer : UserControl
         _loadCts = cts;
         var ct = cts.Token;
 
-        // Immediately clear previous content so user doesn't see stale animation/image
-        // while we fetch the new card's data over the network.
+        // Clear previous content — we're loading a genuinely new card with no cache.
         if (UgoiraImage != null)
         {
             UgoiraImage.SourcePath = null;
@@ -883,6 +944,13 @@ public partial class InlineArtworkViewer : UserControl
                     if (ErrorPanel != null) ErrorPanel.IsVisible = false;
                     displayed = true;
                     ResetZoom();
+                    // Cache the decoded bitmap on the active tab so switching back
+                    // to this tab later restores the image instantly.
+                    if (VM?.SelectedViewerTab is { } activeTab && activeTab.Card?.Id == _currentCard?.Id)
+                    {
+                        activeTab.CachedBitmap = bmp;
+                        activeTab.CachedPageIndex = index;
+                    }
                     // Clear loading state now that the bitmap is applied — avoids the
                     // blank-frame race where SetLoading(false) ran before Source was set.
                     SetLoading(false);
@@ -1072,9 +1140,12 @@ public partial class InlineArtworkViewer : UserControl
         await Dispatcher.UIThread.InvokeAsync(() =>
         {
             if (_currentOriginalUrl != originalUrl) { bmp.Dispose(); return; }
-            var old = ViewerImage.Source as Bitmap;
             ViewerImage.Source = bmp;
-            old?.Dispose();
+            // Update the tab cache with the higher-res bitmap.
+            if (VM?.SelectedViewerTab is { } activeTab && activeTab.Card?.Id == _currentCard?.Id)
+            {
+                activeTab.CachedBitmap = bmp;
+            }
         });
     }
 

@@ -48,6 +48,13 @@ public partial class ViewerTab : ObservableObject
     /// <summary>The artworks displayed in this tab when <see cref="IsCollage"/> is true.</summary>
     public ObservableCollection<ArtworkCardViewModel> CollageItems { get; } = [];
 
+    /// <summary>Cached decoded bitmap for this tab's current artwork page, so switching
+    /// back to a previously-viewed tab restores the image instantly without re-decoding.</summary>
+    public Bitmap? CachedBitmap { get; set; }
+
+    /// <summary>The page index the cached bitmap corresponds to.</summary>
+    public int CachedPageIndex { get; set; }
+
     public ViewerTab(ArtworkCardViewModel? card, IReadOnlyList<ArtworkCardViewModel>? navList = null,
         int totalCount = 0, Func<Task<IReadOnlyList<ArtworkCardViewModel>>>? loadMoreAsync = null,
         string source = "Gallery", string? header = null, bool isCollage = false)
@@ -66,6 +73,10 @@ public partial class ViewerTab : ObservableObject
     /// <summary>Move to a different card in this tab's nav list and update the header.</summary>
     public void NavigateTo(ArtworkCardViewModel card)
     {
+        // Clear cached bitmap when navigating within the same tab to a different artwork —
+        // the old bitmap is no longer relevant and would waste memory.
+        if (Card?.Id != card.Id)
+            CachedBitmap = null;
         Card = card;
         Header = card.Title.Length > 24 ? card.Title[..24] + "…" : card.Title;
     }

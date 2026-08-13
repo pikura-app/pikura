@@ -697,8 +697,11 @@ public partial class BookmarksViewModel : ViewModelBase
         var ct = _cts.Token;
 
         IsLoading = true;
-        LikedArtworks.Clear();
-        FilteredLiked.Clear();
+        // Don't clear the existing collection immediately — if the batch fetch fails
+        // (rate-limit, network error, etc.), the previously-loaded or SyncLiked-added
+        // artworks would disappear and the user would see an empty tab. We only replace
+        // the collection once we have verified results.
+        var previousLiked = LikedArtworks.ToList();
 
         try
         {
@@ -717,6 +720,7 @@ public partial class BookmarksViewModel : ViewModelBase
             var ids = deduped.AsEnumerable().Reverse().ToList();
             if (ids.Count == 0)
             {
+                LikedArtworks.Clear();
                 StatusMessage = "No liked artworks yet — the ♥ Like button on an artwork adds it here.";
                 return;
             }
@@ -724,8 +728,12 @@ public partial class BookmarksViewModel : ViewModelBase
             StatusMessage = $"Loading {ids.Count} liked artworks…";
             var blurR18 = _settingsService.Current.BlurR18Content;
             var results = new ArtworkCardViewModel?[ids.Count];
+            int failedCount = 0;
 
-            using var gate = new SemaphoreSlim(8, 8);
+            // Low concurrency: Pixiv's detail endpoint is very sensitive to bursts and
+            // will return 403/429 if we hit it too hard. 2 parallel requests keeps the tab
+            // reasonably fast without triggering rate limits.
+            using var gate = new SemaphoreSlim(2, 2);
             await Task.WhenAll(ids.Select((id, i) => Task.Run(async () =>
             {
                 await gate.WaitAsync(ct).ConfigureAwait(false);
@@ -735,7 +743,11 @@ public partial class BookmarksViewModel : ViewModelBase
                     var bookmarkTask = _pixivClient.GetBookmarkStateAsync(id, ct);
                     await Task.WhenAll(detailTask, bookmarkTask).ConfigureAwait(false);
                     var detail = await detailTask.ConfigureAwait(false);
-                    if (detail is null) return;
+                    if (detail is null)
+                    {
+                        Interlocked.Increment(ref failedCount);
+                        return;
+                    }
                     var bookmark = await bookmarkTask.ConfigureAwait(false);
                     var preview = new ArtworkPreview
                     {
@@ -768,18 +780,35 @@ public partial class BookmarksViewModel : ViewModelBase
                         PixivBookmarkId = bookmark?.BookmarkId,
                     };
                 }
-                catch { /* artwork deleted/private since being liked — skip it */ }
+                catch (OperationCanceledException) { throw; }
+                catch (Exception ex)
+                {
+                    // Log the failure but don't remove the ID — it may be a transient
+                    // network error or rate-limit, not a permanently deleted artwork.
+                    Interlocked.Increment(ref failedCount);
+                    Logger.LogWarning(ex, "[LikedArtworks] Failed to fetch artwork {Id}", id);
+                }
                 finally { gate.Release(); }
             }, ct))).ConfigureAwait(false);
 
             ct.ThrowIfCancellationRequested();
-            Logger.LogInformation("[LikedArtworks] generation={Gen} currentGen={CurGen} idsCount={IdsCount} resultsNonNull={ResultsCount}",
-                myGeneration, _likedLoadGeneration, ids.Count, results.Count(r => r != null));
+            Logger.LogInformation("[LikedArtworks] generation={Gen} currentGen={CurGen} idsCount={IdsCount} resultsNonNull={ResultsCount} failed={Failed}",
+                myGeneration, _likedLoadGeneration, ids.Count, results.Count(r => r != null), failedCount);
             if (myGeneration != _likedLoadGeneration) return; // a newer call superseded this one
 
-            LikedArtworks.Clear(); // in case a superseded call added anything before being superseded
+            var successful = results.Where(r => r != null).ToList();
+            if (successful.Count == 0 && previousLiked.Count > 0)
+            {
+                // Fetch failed entirely (likely rate-limited). Keep the existing collection
+                // so the user doesn't see their liked artworks vanish, and tell them why.
+                StatusMessage = $"Could not refresh liked artworks ({failedCount} failed — likely rate-limited). Showing {previousLiked.Count} previously loaded.";
+                Logger.LogWarning("[LikedArtworks] Keeping {Count} previous artworks because fetch returned none", previousLiked.Count);
+                return;
+            }
+
+            LikedArtworks.Clear();
             var seen = new HashSet<string>();
-            foreach (var vm in results)
+            foreach (var vm in successful)
             {
                 if (vm is null || !seen.Add(vm.Id)) continue;
                 LikedArtworks.Add(vm);
@@ -788,7 +817,10 @@ public partial class BookmarksViewModel : ViewModelBase
 
             Logger.LogInformation("[LikedArtworks] after add: LikedArtworks.Count={Count} ids={Ids}",
                 LikedArtworks.Count, string.Join(",", LikedArtworks.Select(a => a.Id)));
-            StatusMessage = $"{LikedArtworks.Count} liked artworks";
+            if (failedCount > 0)
+                StatusMessage = $"{LikedArtworks.Count} liked artworks ({failedCount} could not be loaded — they may be deleted or Pixiv may be rate-limiting)";
+            else
+                StatusMessage = $"{LikedArtworks.Count} liked artworks";
         }
         catch (OperationCanceledException) { }
         catch (Exception ex)
@@ -949,7 +981,10 @@ public partial class BookmarksViewModel : ViewModelBase
                 StatusMessage = $"{FilteredFavorites.Count} local favorites";
                 break;
             case 3:
-                StatusMessage = $"{FilteredLiked.Count} liked artworks";
+                var likedHidden = !ShowR18 ? LikedArtworks.Count(a => a.Artwork.IsR18) : 0;
+                StatusMessage = likedHidden > 0
+                    ? $"{FilteredLiked.Count} liked artworks  ·  {likedHidden} R-18 hidden — click R-18 to show"
+                    : $"{FilteredLiked.Count} liked artworks";
                 break;
         }
     }
