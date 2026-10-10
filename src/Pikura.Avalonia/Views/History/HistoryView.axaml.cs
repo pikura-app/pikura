@@ -18,6 +18,93 @@ namespace Pikura.Avalonia.Views.History;
 
 public partial class HistoryView : UserControl
 {
+    /// <summary>
+    /// Exports metadata for every artwork in a finished job. Jobs only persist target IDs, so the
+    /// details (size, upload date, views, bookmarks, tags) are re-fetched from Pixiv here.
+    /// </summary>
+    private async void OnExportJobMetadata(object? sender, RoutedEventArgs e)
+    {
+        if ((sender as Control)?.DataContext is not DownloadJobViewModel jobVm) return;
+        if (TopLevel.GetTopLevel(this) is not Window window) return;
+
+        var client = Services.AppServices.Get<Pikura.Core.Services.PixivClient>();
+        var exporter = Services.AppServices.Get<Services.MetadataExportService>();
+        if (client is null || exporter is null) return;
+
+        // The metadata endpoint is per-artist, so group the artwork IDs by the artist that owns
+        // them. Artist targets already record which artworks completed; single-artwork targets
+        // carry the owning user id when it was known at queue time.
+        var byArtist = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
+        var unknownArtist = new List<string>();
+
+        void Track(string? userId, string? artworkId)
+        {
+            if (string.IsNullOrWhiteSpace(artworkId)) return;
+            if (string.IsNullOrWhiteSpace(userId)) { unknownArtist.Add(artworkId); return; }
+
+            if (!byArtist.TryGetValue(userId, out var set))
+                byArtist[userId] = set = new HashSet<string>(StringComparer.Ordinal);
+            set.Add(artworkId);
+        }
+
+        foreach (var target in jobVm.Job.Targets)
+        {
+            switch (target.Type)
+            {
+                case Pikura.Core.Models.TargetType.Artist:
+                    foreach (var id in target.CompletedArtworkIds) Track(target.TargetId, id);
+                    break;
+                case Pikura.Core.Models.TargetType.Artwork:
+                    Track(target.UserId, target.TargetId);
+                    break;
+            }
+        }
+
+        // Nothing recorded (e.g. a FANBOX-only job) — there's nothing to export.
+        if (byArtist.Count == 0 && unknownArtist.Count == 0) return;
+
+        var artworks = new List<Pikura.Core.Models.ArtworkPreview>();
+
+        foreach (var (userId, ids) in byArtist)
+        {
+            try
+            {
+                var meta = await client.GetArtworksMetadataAsync(userId, ids.ToList(), false);
+                artworks.AddRange(meta.Values);
+            }
+            catch { /* skip this artist, keep whatever else resolved */ }
+        }
+
+        foreach (var id in unknownArtist)
+        {
+            try
+            {
+                var detail = await client.GetArtworkDetailAsync(id);
+                if (detail is null) continue;
+                artworks.Add(new Pikura.Core.Models.ArtworkPreview
+                {
+                    Id = detail.IllustId ?? id,
+                    Title = detail.IllustTitle ?? "",
+                    UserId = detail.UserId ?? "",
+                    UserName = detail.UserName ?? "",
+                    ThumbnailUrl = detail.ThumbnailUrl,
+                    PageCount = detail.PageCount,
+                    Width = detail.Width,
+                    Height = detail.Height,
+                    AiType = detail.AiType,
+                    Tags = detail.Tags?.Tags.Select(t => t.Tag ?? "").Where(t => t.Length > 0).ToList() ?? [],
+                });
+            }
+            catch { /* skip */ }
+        }
+
+        // Every lookup failed (offline, rate-limited, deleted works) — don't open a save dialog
+        // that would write an empty file.
+        if (artworks.Count == 0) return;
+
+        await exporter.ExportAsync(artworks, window, $"{jobVm.Job.Name}-metadata");
+    }
+
     private bool _dragging;
     private int  _dragFromIndex = -1;
     private Point _dragStart;

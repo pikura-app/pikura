@@ -656,6 +656,11 @@ public sealed class DownloadCoordinator : IDisposable
         var completedCount = job.Targets.Count(t => t.Status == TargetStatus.Completed);
         var totalCount = job.Targets.Count;
 
+        // Metadata for every artwork actually saved, so an optional sidecar file can be written
+        // alongside the images when the job finishes. ConcurrentBag because artist downloads
+        // process artworks in parallel.
+        var jobArtworks = new ConcurrentBag<ArtworkPreview>();
+
         // Emit initial progress immediately so the UI shows correct counts on resume
         ReportProgress(job.Id, new JobProgress(
             job.Id,
@@ -784,6 +789,7 @@ public sealed class DownloadCoordinator : IDisposable
                                     _ = _jobRepository.SaveJobAsync(job, ct);
                                 }
                             },
+                            onArtwork: jobArtworks.Add,
                             onFirstThumbnail: url =>
                             {
                                 // Always update to the first artwork thumbnail — these are
@@ -807,7 +813,8 @@ public sealed class DownloadCoordinator : IDisposable
                                         job.OutputFolder = folder;
                                         _ = _jobRepository.SaveJobAsync(job, ct);
                                     }
-                                }),
+                                },
+                                onArtwork: jobArtworks.Add),
                             TargetType.Post    => await DownloadFanboxPostAsync(target, targetSettings, ct),
                             _ => throw new NotSupportedException($"Target type {target.Type} not supported")
                         };
@@ -878,6 +885,8 @@ public sealed class DownloadCoordinator : IDisposable
             }
         }
 
+        await WriteMetadataSidecarAsync(job, jobArtworks, ct);
+
         ReportProgress(job.Id, new JobProgress(
             job.Id,
             JobStatus.Completed,
@@ -889,6 +898,53 @@ public sealed class DownloadCoordinator : IDisposable
         ));
     }
 
+    /// <summary>
+    /// Optionally writes a metadata file next to a finished job's images, listing every artwork
+    /// that was saved. Controlled by <see cref="AppSettings.ExportMetadataWithDownloads"/>;
+    /// failures here are logged but never fail the download itself.
+    /// </summary>
+    private async Task WriteMetadataSidecarAsync(
+        DownloadJob job,
+        IReadOnlyCollection<ArtworkPreview> artworks,
+        CancellationToken ct)
+    {
+        var settings = _settingsService.Current;
+        if (!settings.ExportMetadataWithDownloads) return;
+        if (artworks.Count == 0 || string.IsNullOrWhiteSpace(job.OutputFolder)) return;
+
+        try
+        {
+            var format = ArtworkMetadataExporter.FormatFromPath("x." + settings.MetadataExportFormat);
+            var ext = ArtworkMetadataExporter.ExtensionFor(format);
+
+            // Deduplicate: a multi-target job can legitimately save the same artwork twice.
+            var ordered = artworks
+                .GroupBy(a => a.Id, StringComparer.Ordinal)
+                .Select(g => g.First())
+                .OrderBy(a => a.Id, StringComparer.Ordinal)
+                .ToList();
+
+            var safeName = string.Concat((job.Name ?? "job")
+                .Select(c => Path.GetInvalidFileNameChars().Contains(c) ? '_' : c))
+                .Trim();
+            if (safeName.Length == 0) safeName = "job";
+            if (safeName.Length > 60) safeName = safeName[..60].TrimEnd();
+
+            Directory.CreateDirectory(job.OutputFolder);
+            var path = Path.Combine(job.OutputFolder, $"{safeName}-metadata.{ext}");
+
+            var content = ArtworkMetadataExporter.Export(ordered, format);
+            // UTF-8 with BOM so Excel reads Japanese titles and tags correctly.
+            await File.WriteAllTextAsync(path, content, new UTF8Encoding(true), ct);
+
+            _logger.LogInformation("Wrote metadata for {Count} artworks to {Path}", ordered.Count, path);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to write metadata sidecar for job {JobId}", job.Id);
+        }
+    }
+
     private async Task<(int Found, int Downloaded, long Bytes)> DownloadArtistAsync(
         Guid jobId,
         DownloadTarget target,
@@ -898,7 +954,8 @@ public sealed class DownloadCoordinator : IDisposable
         int jobArtworkTotal = 0,
         Action<int>? onArtistTotalKnown = null,
         Action<string>? onOutputFolder = null,
-        Action<string>? onFirstThumbnail = null)
+        Action<string>? onFirstThumbnail = null,
+        Action<ArtworkPreview>? onArtwork = null)
     {
         // Get all artwork IDs for this artist
         var profile = await _client.GetUserProfileAllAsync(target.TargetId, ct);
@@ -1124,6 +1181,7 @@ public sealed class DownloadCoordinator : IDisposable
                         Volatile.Write(ref outputFolderCaptured, true);
                         onOutputFolder?.Invoke(Path.GetDirectoryName(savedFiles[0])!);
                     }
+                    if (savedFiles.Count > 0) onArtwork?.Invoke(artwork);
                     if (!string.IsNullOrEmpty(artwork.ThumbnailUrl) && !Volatile.Read(ref thumbnailCaptured))
                     {
                         Volatile.Write(ref thumbnailCaptured, true);
@@ -1178,7 +1236,8 @@ public sealed class DownloadCoordinator : IDisposable
         DownloadTarget target,
         SettingsOverride settings,
         CancellationToken ct,
-        Action<string>? onOutputFolder = null)
+        Action<string>? onOutputFolder = null,
+        Action<ArtworkPreview>? onArtwork = null)
     {
         var detail = await _client.GetArtworkDetailAsync(target.TargetId, ct);
         if (detail == null)
@@ -1229,7 +1288,10 @@ public sealed class DownloadCoordinator : IDisposable
 
         var savedFiles = await _downloadService.DownloadArtworkPagesAsync(artworkPreview, pageIndices, null, ct, settings);
         if (savedFiles.Count > 0)
+        {
             onOutputFolder?.Invoke(Path.GetDirectoryName(savedFiles[0])!);
+            onArtwork?.Invoke(artworkPreview);
+        }
 
         return (1, 1);
     }

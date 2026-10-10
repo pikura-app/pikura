@@ -347,6 +347,43 @@ public partial class GalleryView : UserControl
         CopyToClipboard(card.Id);
     }
 
+    /// <summary>Exports the right-clicked artwork's metadata to a file.</summary>
+    private async void OnContextExportMetadata(object? sender, RoutedEventArgs e)
+    {
+        if (GetCardFromMenu(sender) is not { } card) return;
+        await ExportMetadataAsync([card.Artwork], $"{card.Id} - {card.Title}");
+    }
+
+    /// <summary>
+    /// Exports every selected artwork. Falls back to the right-clicked one when nothing is
+    /// selected, so the menu item is never a dead end.
+    /// </summary>
+    private async void OnContextExportSelectedMetadata(object? sender, RoutedEventArgs e)
+    {
+        var selected = VM?.FilteredArtworks.Where(a => a.IsSelected).ToList() ?? [];
+
+        if (selected.Count == 0)
+        {
+            if (GetCardFromMenu(sender) is not { } card) return;
+            selected = [card];
+        }
+
+        await ExportMetadataAsync(
+            selected.Select(c => c.Artwork).ToList(),
+            $"pikura-{selected.Count}-artworks");
+    }
+
+    private async Task ExportMetadataAsync(IReadOnlyList<Pikura.Core.Models.ArtworkPreview> artworks, string suggestedName)
+    {
+        if (TopLevel.GetTopLevel(this) is not Window window) return;
+
+        var exporter = AppServices.Get<Services.MetadataExportService>();
+        var count = await exporter.ExportAsync(artworks, window, suggestedName);
+
+        if (VM != null && count > 0)
+            VM.StatusMessage = $"Exported metadata for {count} artwork(s)";
+    }
+
     // "Copy artist ID" on artwork cards — answers the user request to grab an
     // unfollowed artist's ID without first having to follow them. Mirrors the
     // same routing as the inline viewer's context menu so behaviour is

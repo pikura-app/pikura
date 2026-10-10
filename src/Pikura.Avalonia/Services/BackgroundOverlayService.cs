@@ -206,6 +206,128 @@ public sealed partial class BackgroundOverlayService : ObservableObject
         }
     }
 
+    /// <summary>Outcome of a bulk add, so the UI can report what actually happened.</summary>
+    /// <param name="Added">Entries that resolved and were added.</param>
+    /// <param name="Failed">Entries that couldn't be resolved to an image.</param>
+    /// <param name="Skipped">Entries dropped because the list is already at <see cref="MaxImageItems"/>.</param>
+    public readonly record struct OverlayAddResult(int Added, int Failed, int Skipped);
+
+    /// <summary>
+    /// Adds any number of overlay images from one blob of text. Entries may be artwork IDs,
+    /// pixiv.net links, direct image URLs or local file paths, freely mixed, separated by new
+    /// lines, commas or semicolons. A <c>.txt</c>/<c>.csv</c>/<c>.list</c> path is read as a list
+    /// of further entries rather than treated as an image.
+    /// </summary>
+    public async Task<OverlayAddResult> AddManyAsync(string? raw, Window? owner)
+    {
+        var entries = ParseEntries(raw);
+        if (entries.Count == 0) return default;
+
+        // A single entry keeps the familiar preview/adjust dialog. For a batch, putting ten modal
+        // dialogs in the user's way would be worse than useless, so those are added directly.
+        if (entries.Count == 1)
+        {
+            var before = ImagePaths.Count;
+            await AddImageWithPreviewAsync(entries[0], owner).ConfigureAwait(false);
+            return ImagePaths.Count > before
+                ? new OverlayAddResult(1, 0, 0)
+                : new OverlayAddResult(0, 1, 0);
+        }
+
+        int added = 0, failed = 0, skipped = 0;
+        foreach (var token in entries)
+        {
+            // Stop at the cap rather than letting AddImageCore evict the images already in
+            // rotation — silently rotating out what the user just added would be baffling.
+            if (ImagePaths.Count >= MaxImageItems) { skipped++; continue; }
+
+            try
+            {
+                if (await TryAddResolvedAsync(token).ConfigureAwait(false)) added++;
+                else failed++;
+            }
+            catch (Exception ex)
+            {
+                failed++;
+                _logger.LogDebug(ex, "Bulk overlay add failed for entry {Entry}", token);
+            }
+        }
+
+        return new OverlayAddResult(added, failed, skipped);
+    }
+
+    private async Task<bool> TryAddResolvedAsync(string token)
+    {
+        var resolved = await ResolveToOriginalAsync(token.Trim(), null).ConfigureAwait(false);
+        if (string.IsNullOrWhiteSpace(resolved)) return false;
+
+        var newEntry = new OverlayImageEntry { Path = resolved };
+        await Dispatcher.UIThread.InvokeAsync(() => AddImageCore(resolved, newEntry));
+        return true;
+    }
+
+    /// <summary>
+    /// Splits a blob of user input into individual overlay entries, expanding any list files and
+    /// removing duplicates while preserving order.
+    /// </summary>
+    public static IReadOnlyList<string> ParseEntries(string? raw)
+    {
+        if (string.IsNullOrWhiteSpace(raw)) return [];
+
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var result = new List<string>();
+
+        foreach (var token in SplitTokens(raw))
+        {
+            if (IsListFile(token))
+            {
+                try
+                {
+                    // One level deep only — a list referencing further lists isn't worth the
+                    // cycle-detection it would need.
+                    foreach (var line in File.ReadAllLines(token))
+                        foreach (var inner in SplitTokens(line))
+                            if (!IsListFile(inner) && seen.Add(inner))
+                                result.Add(inner);
+                    continue;
+                }
+                catch
+                {
+                    // Unreadable — fall through and let it be treated as an ordinary entry.
+                }
+            }
+
+            if (seen.Add(token)) result.Add(token);
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    /// Separators: new lines, commas and semicolons. Commas are accepted because that's how people
+    /// naturally paste a list; the trade-off is that a URL or filename containing a literal comma
+    /// would be split, which is rare enough to be worth it.
+    /// <para>
+    /// Blank lines and <c>#</c>/<c>//</c> comments are ignored, since hand-written list files
+    /// routinely contain both and reporting them as failed entries would be noise.
+    /// </para>
+    /// </summary>
+    private static IEnumerable<string> SplitTokens(string raw) =>
+        raw.Split(['\n', '\r', ',', ';'],
+                  StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+           .Where(t => t.Length > 0
+                       && !t.StartsWith('#')
+                       && !t.StartsWith("//", StringComparison.Ordinal));
+
+    private static bool IsListFile(string token)
+    {
+        if (token.StartsWith("http", StringComparison.OrdinalIgnoreCase)) return false;
+        var ext = Path.GetExtension(token);
+        if (ext is not (".txt" or ".csv" or ".list")) return false;
+        try { return File.Exists(token); }
+        catch { return false; }
+    }
+
     private async Task AddImageAsync(string? pathOrUrl, OverlayImageEntry? entry)
     {
         try

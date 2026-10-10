@@ -796,6 +796,10 @@
                                                         <MenuItem Header="Copy artist ID" Click="OnContextCopyArtistId"/>
                                                         <MenuItem Header="📋 Copy image" Click="OnContextCopyImage"/>
                                                         <MenuItem Header="🖼 Use as app background" Click="OnContextUseAsBackground" IsVisible="{Binding IsEnabled, Source={x:Static services:AppServices.OverlayService}}"/>
+                                                        <Separator/>
+                                                        <MenuItem Header="💾 Export metadata…" Click="OnContextExportMetadata"
+                                                                  ToolTip.Tip="Save id, artist, link, size, upload date, views, bookmarks and tags to CSV/TSV/JSON/TXT"/>
+                                                        <MenuItem Header="💾 Export metadata of selected…" Click="OnContextExportSelectedMetadata"/>
                                                     </ContextMenu>
                                                 </Border.ContextMenu>
                                             <Border.Styles>
@@ -976,6 +980,10 @@
                                                         <MenuItem Header="Copy artist ID" Click="OnContextCopyArtistId"/>
                                                         <MenuItem Header="📋 Copy image" Click="OnContextCopyImage"/>
                                                         <MenuItem Header="🖼 Use as app background" Click="OnContextUseAsBackground" IsVisible="{Binding IsEnabled, Source={x:Static services:AppServices.OverlayService}}"/>
+                                                        <Separator/>
+                                                        <MenuItem Header="💾 Export metadata…" Click="OnContextExportMetadata"
+                                                                  ToolTip.Tip="Save id, artist, link, size, upload date, views, bookmarks and tags to CSV/TSV/JSON/TXT"/>
+                                                        <MenuItem Header="💾 Export metadata of selected…" Click="OnContextExportSelectedMetadata"/>
                                                     </ContextMenu>
                                                 </Border.ContextMenu>
                                             <Border.Styles>

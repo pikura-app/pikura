@@ -344,13 +344,31 @@ public partial class SettingsView : UserControl
         var top = TopLevel.GetTopLevel(this);
         if (top is not Window window) return;
 
-        var url = OverlayUrlTextBox?.Text?.Trim();
-        if (string.IsNullOrWhiteSpace(url)) return;
+        var raw = OverlayUrlTextBox?.Text;
+        if (string.IsNullOrWhiteSpace(raw)) return;
 
-        await vm.OverlayService.AddImageWithPreviewAsync(url, window);
+        // Handles one entry or many: IDs, pixiv links, image URLs, local paths, or a .txt list,
+        // separated by new lines / commas / semicolons.
+        var result = await vm.OverlayService.AddManyAsync(raw, window);
+        ReportOverlayAdd(result);
 
-        if (OverlayUrlTextBox is not null)
+        // Only clear on a clean run, so a failed entry stays visible to be corrected.
+        if (OverlayUrlTextBox is not null && result.Failed == 0 && result.Skipped == 0)
             OverlayUrlTextBox.Text = string.Empty;
+    }
+
+    /// <summary>Shows the outcome of an overlay add next to the Add button.</summary>
+    private void ReportOverlayAdd(BackgroundOverlayService.OverlayAddResult result)
+    {
+        if (OverlayAddStatus is null) return;
+
+        var parts = new List<string>();
+        if (result.Added > 0) parts.Add($"added {result.Added}");
+        if (result.Failed > 0) parts.Add($"{result.Failed} failed");
+        if (result.Skipped > 0) parts.Add($"{result.Skipped} skipped (limit {BackgroundOverlayService.MaxImageItems})");
+
+        OverlayAddStatus.Text = parts.Count > 0 ? string.Join(", ", parts) : null;
+        OverlayAddStatus.IsVisible = parts.Count > 0;
     }
 
     private async void OnAddOverlayFilesClick(object? sender, RoutedEventArgs e)
@@ -362,25 +380,37 @@ public partial class SettingsView : UserControl
 
         var options = new FilePickerOpenOptions
         {
-            Title = "Choose overlay images",
+            Title = "Choose overlay images or a list file",
             AllowMultiple = true,
             FileTypeFilter = new List<FilePickerFileType>
             {
+                new FilePickerFileType("Images and lists")
+                {
+                    Patterns = new[] { "*.png", "*.jpg", "*.jpeg", "*.gif", "*.bmp", "*.webp", "*.txt", "*.csv", "*.list" },
+                },
                 new FilePickerFileType("Image files")
                 {
                     Patterns = new[] { "*.png", "*.jpg", "*.jpeg", "*.gif", "*.bmp", "*.webp" },
                     MimeTypes = new[] { "image/*" }
-                }
+                },
+                new FilePickerFileType("Link lists")
+                {
+                    Patterns = new[] { "*.txt", "*.csv", "*.list" },
+                },
             }
         };
 
         var files = await window.StorageProvider.OpenFilePickerAsync(options);
-        foreach (var file in files)
-        {
-            if (file is null) continue;
-            var path = file.TryGetLocalPath();
-            if (!string.IsNullOrWhiteSpace(path))
-                await vm.OverlayService.AddImageWithPreviewAsync(path, window);
-        }
+        if (files.Count == 0) return;
+
+        // Feed the picked paths through the same parser as the text box, so a chosen .txt is
+        // expanded into the entries it lists rather than being treated as an image.
+        var joined = string.Join("\n", files
+            .Select(f => f?.TryGetLocalPath())
+            .Where(p => !string.IsNullOrWhiteSpace(p)));
+
+        if (string.IsNullOrWhiteSpace(joined)) return;
+
+        ReportOverlayAdd(await vm.OverlayService.AddManyAsync(joined, window));
     }
 }

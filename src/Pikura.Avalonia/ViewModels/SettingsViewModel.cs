@@ -130,6 +130,23 @@ public partial class SettingsViewModel : ViewModelBase
     [ObservableProperty] private bool _setLastModified = true;
     [ObservableProperty] private bool _useLocalTimezone;
 
+    // Metadata export alongside downloads
+    [ObservableProperty] private bool _exportMetadataWithDownloads;
+    [ObservableProperty] private int _metadataExportFormatIndex;
+
+    /// <summary>Format choices for the download metadata sidecar, in index order.</summary>
+    public string[] MetadataExportFormatOptions { get; } =
+        ["CSV (spreadsheet)", "TSV (tab-separated)", "JSON", "Plain text"];
+
+    private static readonly string[] MetadataFormatCodes = ["csv", "tsv", "json", "txt"];
+
+    partial void OnExportMetadataWithDownloadsChanged(bool value)
+        => _settingsService.Update(s => s.ExportMetadataWithDownloads = value);
+
+    partial void OnMetadataExportFormatIndexChanged(int value)
+        => _settingsService.Update(s =>
+            s.MetadataExportFormat = MetadataFormatCodes[Math.Clamp(value, 0, MetadataFormatCodes.Length - 1)]);
+
     // Image Processing
     [ObservableProperty] private bool _enableImageProcessing;
     [ObservableProperty] private int _activeResizePresetIndex; // 0=None, 1-12=presets, 13=custom
@@ -630,6 +647,10 @@ public partial class SettingsViewModel : ViewModelBase
         VerifyImage = s.VerifyImage;
         SetLastModified = s.SetLastModified;
         UseLocalTimezone = s.UseLocalTimezone;
+
+        // Metadata export
+        ExportMetadataWithDownloads = s.ExportMetadataWithDownloads;
+        MetadataExportFormatIndex = Math.Max(0, Array.IndexOf(MetadataFormatCodes, s.MetadataExportFormat ?? "csv"));
 
         // Image Processing
         EnableImageProcessing = s.EnableImageProcessing;

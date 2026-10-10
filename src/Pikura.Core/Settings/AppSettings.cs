@@ -904,6 +904,17 @@ public sealed class AppSettings
     /// <summary>Default image resize/edit preset for post-download processing (null = no processing).</summary>
     public ImageEditPreset? ImagePreset { get; set; }
 
+    /// <summary>
+    /// When true, every download job also writes a metadata sidecar file (id, artist, link, size,
+    /// upload date, views, bookmarks, tags…) into its output folder. Off by default — it's an
+    /// opt-in extra, and exporting metadata on its own is available from the artwork context menu
+    /// without downloading any images.
+    /// </summary>
+    public bool ExportMetadataWithDownloads { get; set; } = false;
+
+    /// <summary>Format of the download metadata sidecar: "csv", "tsv", "json" or "txt".</summary>
+    public string MetadataExportFormat { get; set; } = "csv";
+
     #endregion
 
     #region Window geometry

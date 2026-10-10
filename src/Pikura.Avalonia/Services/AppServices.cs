@@ -162,6 +162,9 @@ public static class AppServices
                 // Background artwork overlay
                 services.AddSingleton<BackgroundOverlayService>();
 
+                // Artwork metadata export (CSV/TSV/JSON/TXT)
+                services.AddSingleton<MetadataExportService>();
+
                 // ViewModels
                 services.AddSingleton<MainWindowViewModel>();
                 services.AddSingleton<GalleryViewModel>(provider =>

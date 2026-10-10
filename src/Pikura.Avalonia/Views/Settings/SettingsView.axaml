@@ -213,15 +213,27 @@
                                             Click="OnClearAllOverlayImagesClick"/>
 
                                     <Grid ColumnDefinitions="*,Auto,Auto" Margin="0,8,0,0">
+                                        <!-- Multi-line so a pasted list of IDs/links works as-is. -->
                                         <TextBox Grid.Column="0" x:Name="OverlayUrlTextBox"
-                                                 PlaceholderText="Artwork ID (e.g. 40594), pixiv.net link, image URL, or local file path"
+                                                 AcceptsReturn="True" TextWrapping="Wrap"
+                                                 MinHeight="58" MaxHeight="140"
+                                                 VerticalContentAlignment="Top"
+                                                 PlaceholderText="One or more entries — artwork IDs (40594), pixiv.net links, image URLs or local paths. Separate with new lines or commas."
                                                  CornerRadius="6" FontSize="12" Margin="0,0,8,0"
-                                                 ToolTip.Tip="Accepts a Pixiv artwork ID, a pixiv.net/artworks/… link, a direct image URL, or a path to a local image."/>
-                                        <Button Grid.Column="1" Content="Add" FontSize="12"
-                                                Padding="10,4" Margin="0,0,8,0"
-                                                Click="OnAddOverlayUrlClick"/>
-                                        <Button Grid.Column="2" Content="Browse files…" FontSize="12"
-                                                Padding="10,4"
+                                                 ToolTip.Tip="Mix and match Pixiv artwork IDs, pixiv.net/artworks/… links, direct image URLs and local image paths. Separate entries with new lines, commas or semicolons. You can also paste the path of a .txt/.csv file containing a list of entries."/>
+                                        <StackPanel Grid.Column="1" Spacing="6" VerticalAlignment="Top" Margin="0,0,8,0">
+                                            <Button Content="Add" FontSize="12"
+                                                    Padding="10,4" HorizontalAlignment="Stretch"
+                                                    HorizontalContentAlignment="Center"
+                                                    Click="OnAddOverlayUrlClick"/>
+                                            <TextBlock x:Name="OverlayAddStatus" FontSize="10"
+                                                       TextWrapping="Wrap" MaxWidth="110"
+                                                       IsVisible="False"
+                                                       Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
+                                        </StackPanel>
+                                        <Button Grid.Column="2" Content="Browse images / list…" FontSize="12"
+                                                Padding="10,4" VerticalAlignment="Top"
+                                                ToolTip.Tip="Pick image files, or a .txt/.csv/.list file containing artwork IDs and links — the list is read and each entry added."
                                                 Click="OnAddOverlayFilesClick"/>
                                     </Grid>
 
@@ -653,6 +665,22 @@
                                 <TextBlock FontSize="11"
                                            Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                            Text="When enabled, all downloaded images will be processed according to the active preset below."/>
+
+                                <Separator/>
+
+                                <CheckBox Content="Also export artwork metadata with downloads"
+                                          IsChecked="{Binding ExportMetadataWithDownloads, Mode=TwoWay}"
+                                          FontSize="14" FontWeight="SemiBold"/>
+                                <TextBlock FontSize="11" TextWrapping="Wrap"
+                                           Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
+                                           Text="Writes a metadata file next to each job's images listing id, title, artist, link, size, upload date, views, bookmarks and tags. To export metadata without downloading anything, right-click an artwork and choose “Export metadata…”."/>
+                                <Grid ColumnDefinitions="120,*" IsVisible="{Binding ExportMetadataWithDownloads}">
+                                    <TextBlock Grid.Column="0" Text="File format" FontSize="12"
+                                               VerticalAlignment="Center"/>
+                                    <ComboBox Grid.Column="1" HorizontalAlignment="Left" MinWidth="220"
+                                              ItemsSource="{Binding MetadataExportFormatOptions}"
+                                              SelectedIndex="{Binding MetadataExportFormatIndex, Mode=TwoWay}"/>
+                                </Grid>
                             </StackPanel>
                         </Border>
 
