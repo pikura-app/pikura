@@ -150,7 +150,7 @@ public sealed class ArtistMonitorService : IDisposable
         }
 
         // Get metadata to check dates
-        var metadata = await _client.GetArtworksMetadataAsync(artist.UserId, artworkIds, ct);
+        var metadata = await _client.GetArtworksMetadataAsync(artist.UserId, artworkIds, true, ct);
 
         // Find new submissions (not in our known list)
         var newSubmissions = new List<NewSubmission>();

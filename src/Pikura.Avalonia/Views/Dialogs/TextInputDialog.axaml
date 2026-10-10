@@ -1,0 +1,27 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Pikura.Avalonia.Views.Dialogs.TextInputDialog"
+        x:Name="This"
+        Title="{Binding DialogTitle, ElementName=This}"
+        Width="440" Height="180"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource Container2BackgroundBrush}"
+        MinHeight="160" MinWidth="320">
+    <StackPanel Margin="24,20" Spacing="14">
+        <TextBlock x:Name="DescriptionText"
+                   Text="{Binding Description, ElementName=This}"
+                   FontSize="13"
+                   TextWrapping="Wrap"
+                   Foreground="{DynamicResource DefaultForegroundBrush}"/>
+        <TextBox x:Name="InputTextBox"
+                 CornerRadius="6"
+                 FontSize="13"
+                 PlaceholderText="Enter value..."
+                 Text="{Binding InitialValue, ElementName=This}"/>
+        <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Right">
+            <Button Content="Cancel" Click="OnCancel"/>
+            <Button Content="OK" Classes="accent" Click="OnOk" IsDefault="True"/>
+        </StackPanel>
+    </StackPanel>
+</Window>

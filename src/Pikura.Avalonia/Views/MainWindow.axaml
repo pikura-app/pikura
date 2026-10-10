@@ -365,12 +365,13 @@
                  so the overlay covers the entire window. The outer Panel carries the image
                  opacity so brightness/darkness rectangles are composited *inside* the
                  semi-transparent layer rather than tinting the entire window. -->
-            <Panel Grid.Column="0" Grid.ColumnSpan="2" ZIndex="9"
-                   IsVisible="{Binding OverlayService.IsEnabled}"
-                   Opacity="{Binding OverlayService.ImageOpacity}"
-                   ClipToBounds="True"
-                   IsHitTestVisible="False">
-                <Panel x:Name="OverlayTransformPanel">
+            <Canvas Grid.Column="0" Grid.ColumnSpan="2" ZIndex="9"
+                    x:Name="OverlayCanvas"
+                    IsVisible="{Binding OverlayService.IsEnabled}"
+                    Opacity="{Binding OverlayService.ImageOpacity}"
+                    ClipToBounds="True"
+                    IsHitTestVisible="False">
+                <Panel x:Name="OverlayImageHost">
                     <Image x:Name="OverlayImage"
                            Source="{Binding OverlayService.CurrentImage}"
                            Stretch="Uniform"
@@ -381,7 +382,7 @@
                     <Rectangle Fill="White" Opacity="{Binding OverlayService.Brightness}"
                                IsHitTestVisible="False"/>
                 </Panel>
-            </Panel>
+            </Canvas>
 
             <!-- Title bar background — covers full width to hide OS-rendered title text.
                  Hidden when the artwork overlay is active so the overlay covers the title bar too. -->

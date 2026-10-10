@@ -9,6 +9,7 @@ using Pikura.Core.Models;
 using Pikura.Core.Services;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -48,6 +49,12 @@ public partial class ArtworkViewerViewModel : ObservableObject
     public string PageIndicator => $"{CurrentPageIndex + 1} / {PageCount}";
     public string TagsText => _artwork.Tags.Count > 0 ? string.Join("  ·  ", _artwork.Tags.Take(8)) : string.Empty;
 
+    /// <summary>Numbered page list shown in the fullscreen page strip.</summary>
+    public ObservableCollection<PageThumbnailItem> PageList { get; private set; } = [];
+
+    [ObservableProperty] private bool _isPageGridVisible;
+
+
     public ArtworkViewerViewModel(ArtworkPreview artwork, GalleryViewModel gallery, Window owner)
     {
         _artwork = artwork;
@@ -61,6 +68,60 @@ public partial class ArtworkViewerViewModel : ObservableObject
         _jobRepository = AppServices.Get<DownloadJobRepository>();
     }
 
+    /// <summary>Navigate directly to a specific page index (0-based).</summary>
+    public async Task GoToPageAsync(int index)
+    {
+        await LoadPageAsync(index);
+    }
+
+    /// <summary>Fetch a small thumbnail for every page so the "all pages" grid can show them.
+    /// This runs in the background after the first page is loaded.</summary>
+    private async Task LoadPageThumbnailsAsync()
+    {
+        for (int i = 0; i < _pages.Count; i++)
+        {
+            try
+            {
+                var url = _pages[i].Urls.Small
+                       ?? _pages[i].Urls.Regular
+                       ?? _pages[i].Urls.ThumbMini;
+                if (string.IsNullOrEmpty(url)) continue;
+
+                var skBitmap = await _imageLoader.FetchBitmapAsync(url, ThumbnailSize.Medium);
+                if (skBitmap is null) continue;
+
+                var bmp = await Task.Run(() =>
+                    (Bitmap?)BitmapInterop.SkiaToAvalonia(skBitmap));
+                skBitmap.Dispose();
+
+                if (bmp is not null && i < PageList.Count)
+                {
+                    await Dispatcher.UIThread.InvokeAsync(() =>
+                    {
+                        if (i < PageList.Count)
+                            PageList[i].Thumbnail = bmp;
+                    });
+                }
+            }
+            catch { /* best-effort page thumbnails */ }
+        }
+    }
+
+    /// <summary>Ensure all property-changed notifications are raised on the UI thread.
+    /// This matters for bindings like <c>IsVisible</c> and the page overlay in the
+    /// fullscreen window, which are updated from background load operations.</summary>
+    protected override void OnPropertyChanged(System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (Dispatcher.UIThread.CheckAccess())
+        {
+            base.OnPropertyChanged(e);
+        }
+        else
+        {
+            Dispatcher.UIThread.Post(() => base.OnPropertyChanged(e));
+        }
+    }
+
     public async Task LoadFirstPageAsync()
     {
         IsLoadingPage = true;
@@ -70,6 +131,8 @@ public partial class ArtworkViewerViewModel : ObservableObject
             if (_artwork.IllustType == 2)
             {
                 IsUgoira = true;
+                PageList = new ObservableCollection<PageThumbnailItem>();
+                OnPropertyChanged(nameof(PageList));
                 OnPropertyChanged(nameof(HasMultiplePages));
                 var path = await _ugoiraService.GetOrCreatePreviewAsync(_artwork.Id);
                 UgoiraPreviewPath = path;
@@ -79,15 +142,22 @@ public partial class ArtworkViewerViewModel : ObservableObject
             {
                 IsUgoira = false;
                 _pages = await _pixivClient.GetArtworkPagesAsync(_artwork.Id);
+                PageList = new ObservableCollection<PageThumbnailItem>(
+                    _pages.Select((_, i) => new PageThumbnailItem(i, i + 1)));
                 OnPropertyChanged(nameof(PageCount));
                 OnPropertyChanged(nameof(HasMultiplePages));
                 OnPropertyChanged(nameof(PageIndicator));
-                await LoadPageAsync(0);
+                OnPropertyChanged(nameof(PageList));
+                _ = LoadPageThumbnailsAsync();
+                var startIndex = Math.Clamp(_artwork.PageIndex, 0, _pages.Count - 1);
+                await LoadPageAsync(startIndex);
             }
         }
         catch (Exception ex)
         {
-            _ = ex;
+            // Don't swallow silently — a failure here leaves the viewer completely blank, which is
+            // impossible to diagnose without a trace of why.
+            System.Diagnostics.Debug.WriteLine($"LoadFirstPage failed for {_artwork.Id}: {ex}");
         }
         finally
         {
@@ -95,32 +165,58 @@ public partial class ArtworkViewerViewModel : ObservableObject
         }
     }
 
+    /// <summary>Incremented on every page load so a slow Original download belonging to a page the
+    /// user has already navigated away from can't overwrite the current image.</summary>
+    private int _pageLoadToken;
+
     private async Task LoadPageAsync(int index)
     {
         if (_pages.Count == 0 || index < 0 || index >= _pages.Count) return;
         IsLoadingPage = true;
 
-        var url = _pages[index].Urls.Original
-               ?? _pages[index].Urls.Regular
-               ?? _pages[index].Urls.Small
-               ?? _pages[index].Urls.ThumbMini;
-
-        if (!string.IsNullOrEmpty(url))
-        {
-            var bytes = await _imageLoader.FetchBytesAsync(url);
-            if (bytes != null)
-            {
-                await Dispatcher.UIThread.InvokeAsync(() =>
-                {
-                    using var ms = new MemoryStream(bytes);
-                    CurrentPageBitmap = new Bitmap(ms);
-                });
-            }
-        }
-
+        // Update the indicator up front — it describes which page we're *on*, and waiting for the
+        // download left the counter stale while the image loaded.
         CurrentPageIndex = index;
         OnPropertyChanged(nameof(PageIndicator));
-        IsLoadingPage = false;
+
+        var urls = _pages[index].Urls;
+        var original = urls.Original;
+        var preview = urls.Regular ?? urls.Small ?? urls.ThumbMini;
+
+        var token = ++_pageLoadToken;
+
+        try
+        {
+            // Two-stage load. Previously this fetched Original first and only assigned the bitmap
+            // once the whole multi-megabyte file had arrived, so the viewer sat completely blank
+            // until then — very obvious in fullscreen. Show the much smaller Regular immediately,
+            // then transparently swap in the full-resolution Original.
+            if (!string.IsNullOrEmpty(preview))
+                await SetPageBitmapAsync(preview, token);
+
+            if (!string.IsNullOrEmpty(original) && original != preview)
+                await SetPageBitmapAsync(original, token);
+        }
+        finally
+        {
+            if (token == _pageLoadToken) IsLoadingPage = false;
+        }
+    }
+
+    /// <summary>Fetches and decodes <paramref name="url"/>, assigning it as the current page image
+    /// only if this load is still the newest one.</summary>
+    private async Task SetPageBitmapAsync(string url, int token)
+    {
+        // priority: foreground viewer image — must not queue behind background thumbnail fetches.
+        var bytes = await _imageLoader.FetchBytesAsync(url, default, priority: true);
+        if (bytes == null || token != _pageLoadToken) return;
+
+        await Dispatcher.UIThread.InvokeAsync(() =>
+        {
+            if (token != _pageLoadToken) return;
+            using var ms = new MemoryStream(bytes);
+            CurrentPageBitmap = new Bitmap(ms);
+        });
     }
 
     [RelayCommand]
@@ -202,4 +298,48 @@ public partial class ArtworkViewerViewModel : ObservableObject
 
     [RelayCommand]
     private void Close() => _owner.Close();
+
+    [RelayCommand]
+    private void TogglePageGrid() => IsPageGridVisible = !IsPageGridVisible;
+
+    [RelayCommand]
+    private async Task SelectPageFromGrid(PageThumbnailItem? item)
+    {
+        if (item is null) return;
+        IsPageGridVisible = false;
+        await GoToPageAsync(item.Index);
+    }
+}
+
+/// <summary>Page tile shown in the fullscreen "all pages" grid and page strip.</summary>
+public partial class PageThumbnailItem : ObservableObject
+{
+    public int Index { get; }
+    public int Number { get; }
+
+    [ObservableProperty] private Bitmap? _thumbnail;
+    [ObservableProperty] private double _aspectRatio;
+
+    partial void OnThumbnailChanged(Bitmap? value)
+    {
+        if (value is null)
+        {
+            AspectRatio = 1.0;
+            return;
+        }
+        // height / width — the all-pages grid computes its tile height as
+        // width × AspectRatio (see AspectRatioToHeightConverter), so this must be
+        // height-over-width. It used to be width/height, which inverted every tile:
+        // portrait pages came out squat and got cropped, landscape ones came out
+        // over-tall. Matches ArtworkCardViewModel.AspectRatio's convention.
+        var ps = value.PixelSize;
+        AspectRatio = ps.Width > 0 ? (double)ps.Height / ps.Width : 1.0;
+    }
+
+    public PageThumbnailItem(int index, int number)
+    {
+        Index = index;
+        Number = number;
+        AspectRatio = 1.0;
+    }
 }

@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- Japanese. Machine-assisted — please have a native speaker review before release.
+       Missing keys fall back to Strings.resx (English). -->
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <data name="Common_OK" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="Common_Cancel" xml:space="preserve">
+    <value>キャンセル</value>
+  </data>
+  <data name="Common_Add" xml:space="preserve">
+    <value>追加</value>
+  </data>
+  <data name="Common_Close" xml:space="preserve">
+    <value>閉じる</value>
+  </data>
+  <data name="Common_Dismiss" xml:space="preserve">
+    <value>非表示</value>
+  </data>
+  <data name="Common_Rename" xml:space="preserve">
+    <value>名前を変更</value>
+  </data>
+
+  <data name="Settings_Title" xml:space="preserve">
+    <value>設定</value>
+  </data>
+  <data name="Settings_RestartRequired" xml:space="preserve">
+    <value>一部の変更は再起動後に反映されます。</value>
+  </data>
+  <data name="Settings_RestartNow" xml:space="preserve">
+    <value>今すぐ再起動</value>
+  </data>
+
+  <data name="Settings_Language" xml:space="preserve">
+    <value>言語</value>
+  </data>
+  <data name="Settings_AppLanguage" xml:space="preserve">
+    <value>アプリの言語</value>
+  </data>
+  <data name="Settings_ApiLanguage" xml:space="preserve">
+    <value>API の言語</value>
+  </data>
+
+  <data name="Collage_ViewAsCollage" xml:space="preserve">
+    <value>コラージュで表示</value>
+  </data>
+  <data name="Collage_AddToCollage" xml:space="preserve">
+    <value>コラージュに追加</value>
+  </data>
+  <data name="Collage_ChooseCollage" xml:space="preserve">
+    <value>コラージュを選択…</value>
+  </data>
+  <data name="Collage_Exit" xml:space="preserve">
+    <value>コラージュを終了</value>
+  </data>
+  <data name="Collage_Download" xml:space="preserve">
+    <value>コラージュをダウンロード</value>
+  </data>
+  <data name="Collage_Return" xml:space="preserve">
+    <value>コラージュに戻る</value>
+  </data>
+  <data name="Collage_ViewSelectedAsCollage" xml:space="preserve">
+    <value>選択項目をコラージュで表示</value>
+  </data>
+  <data name="Collage_AddSelectedToCollage" xml:space="preserve">
+    <value>選択項目をコラージュに追加</value>
+  </data>
+  <data name="Collage_ViewAllAsCollage" xml:space="preserve">
+    <value>すべてコラージュで表示</value>
+  </data>
+  <data name="Collage_AddAllToCollage" xml:space="preserve">
+    <value>すべてコラージュに追加</value>
+  </data>
+
+  <data name="CollagePicker_WindowTitle" xml:space="preserve">
+    <value>コラージュに追加</value>
+  </data>
+  <data name="CollagePicker_Hint" xml:space="preserve">
+    <value>これらの作品を追加するコラージュを 1 つ以上選択してください。</value>
+  </data>
+  <data name="CollagePicker_Empty" xml:space="preserve">
+    <value>コラージュがまだありません — 下の「＋ 新しいコラージュ」をご利用ください。</value>
+  </data>
+  <data name="CollagePicker_NewCollage" xml:space="preserve">
+    <value>＋ 新しいコラージュ</value>
+  </data>
+  <data name="CollagePicker_NamePlaceholder" xml:space="preserve">
+    <value>コラージュ名（任意）</value>
+  </data>
+  <data name="CollagePicker_Full" xml:space="preserve">
+    <value>満杯</value>
+  </data>
+  <data name="CollagePicker_SelectAtLeastOne" xml:space="preserve">
+    <value>コラージュを 1 つ以上選択してください。</value>
+  </data>
+  <data name="CollagePicker_Title" xml:space="preserve">
+    <value>{0} 件の作品を追加…</value>
+  </data>
+  <data name="CollagePicker_Summary" xml:space="preserve">
+    <value>{0} 件の作品 → {1} 個のコラージュ</value>
+  </data>
+</root>

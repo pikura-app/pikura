@@ -435,8 +435,8 @@ public sealed class AppSettings
 
     #region Network / Proxy
 
-    /// <summary>When true, uses proxy for all connections.</summary>
-    public bool UseProxy { get; set; } = false;
+    /// <summary>When true, uses proxy for all connections. Default true so system/VPN proxies are honored.</summary>
+    public bool UseProxy { get; set; } = true;
 
     /// <summary>Proxy server address (e.g., http://127.0.0.1:8080).</summary>
     public string? ProxyAddress { get; set; }
@@ -531,6 +531,10 @@ public sealed class AppSettings
 
     /// <summary>Display language for the Pikura UI: "English", "日本語", "中文", "한국어".</summary>
     public string AppLanguage { get; set; } = "English";
+
+    /// <summary>Width of the Pixivision "Monthly Ranking" / "Featured" sidebar, in pixels.
+    /// Sidebar thumbnail and title sizes scale from this.</summary>
+    public double PixivisionSidebarWidth { get; set; } = 230;
 
     /// <summary>App theme: "Light", "Dark", "System", "Scheduled".</summary>
     public string Theme { get; set; } = "System";
@@ -856,6 +860,12 @@ public sealed class AppSettings
 
     /// <summary>UTC timestamp of the last update check.</summary>
     public DateTime? LastUpdateCheck { get; set; }
+
+    /// <summary>The update version the user explicitly dismissed. The banner and toast stay hidden
+    /// for this version so dismissing actually sticks instead of reappearing on every launch and
+    /// every periodic re-check. Cleared when the user manually checks for updates, and naturally
+    /// superseded once a newer version ships.</summary>
+    public string? DismissedUpdateVersion { get; set; }
 
     /// <summary>The version that was running last time the app launched — used to show changelog on first run after update.</summary>
     public string? LastSeenVersion { get; set; }

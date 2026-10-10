@@ -178,6 +178,10 @@ public partial class EnhancedRankingsViewModel : ViewModelBase
             {
                 OnPropertyChanged(nameof(CanViewSelectedAsCollage));
                 ViewSelectedAsCollageCommand.NotifyCanExecuteChanged();
+                OnPropertyChanged(nameof(CanAddSelectedAsCollage));
+                AddSelectedAsCollageCommand.NotifyCanExecuteChanged();
+                OnPropertyChanged(nameof(CanChooseCollageTarget));
+                AddSelectedAsCollagePickCommand.NotifyCanExecuteChanged();
             }
         };
 
@@ -210,7 +214,18 @@ public partial class EnhancedRankingsViewModel : ViewModelBase
         _ = ReloadAsync();
     }
 
-    partial void OnSelectedCountChanged(int value) => OnPropertyChanged(nameof(HasSelection));
+    partial void OnSelectedCountChanged(int value)
+    {
+        OnPropertyChanged(nameof(HasSelection));
+        OnPropertyChanged(nameof(CanViewSelectedAsCollage));
+        ViewSelectedAsCollageCommand.NotifyCanExecuteChanged();
+        OnPropertyChanged(nameof(CanAddSelectedAsCollage));
+        AddSelectedAsCollageCommand.NotifyCanExecuteChanged();
+        OnPropertyChanged(nameof(CanChooseCollageTarget));
+        AddSelectedAsCollagePickCommand.NotifyCanExecuteChanged();
+        OnPropertyChanged(nameof(CanViewSelectedInNewTabs));
+        ViewSelectedInNewTabsCommand.NotifyCanExecuteChanged();
+    }
 
     partial void OnCardSizeChanged(int value)
     {
@@ -562,6 +577,8 @@ public partial class EnhancedRankingsViewModel : ViewModelBase
             SelectedCount = Items.Count(c => c.IsSelected);
             OnPropertyChanged(nameof(CanViewSelectedAsCollage));
             ViewSelectedAsCollageCommand.NotifyCanExecuteChanged();
+            OnPropertyChanged(nameof(CanAddSelectedAsCollage));
+            AddSelectedAsCollageCommand.NotifyCanExecuteChanged();
             OnPropertyChanged(nameof(CanViewSelectedInNewTabs));
             ViewSelectedInNewTabsCommand.NotifyCanExecuteChanged();
         }
@@ -572,6 +589,10 @@ public partial class EnhancedRankingsViewModel : ViewModelBase
         SelectedCount = Items.Count(c => c.IsSelected);
         OnPropertyChanged(nameof(CanViewSelectedAsCollage));
         ViewSelectedAsCollageCommand.NotifyCanExecuteChanged();
+        OnPropertyChanged(nameof(CanAddSelectedAsCollage));
+        AddSelectedAsCollageCommand.NotifyCanExecuteChanged();
+        OnPropertyChanged(nameof(CanChooseCollageTarget));
+        AddSelectedAsCollagePickCommand.NotifyCanExecuteChanged();
         OnPropertyChanged(nameof(CanViewSelectedInNewTabs));
         ViewSelectedInNewTabsCommand.NotifyCanExecuteChanged();
     }
@@ -585,7 +606,36 @@ public partial class EnhancedRankingsViewModel : ViewModelBase
                             .Select(c => new ArtworkCardViewModel(c.ToPreview()))
                             .ToList();
         if (selected.Count == 0) return;
-        GalleryVm.AddSelectedToCollage(selected);
+        GalleryVm.ShowCollage(selected.Take(GalleryViewModel.MaxCollageItems));
+    }
+
+    /// <summary>Only requires that a collage exists — not that one is selected, and not that it has
+    /// room. Keeping this permissive keeps the SplitButton's "Choose collage…" flyout reachable.</summary>
+    public bool CanAddSelectedAsCollage => SelectedCount > 0 && GalleryVm.HasStoredCollage;
+
+    [RelayCommand(CanExecute = nameof(CanAddSelectedAsCollage))]
+    private void AddSelectedAsCollage()
+    {
+        var selected = Items.Where(c => c.IsSelected && !c.IsNovel)
+                            .Select(c => new ArtworkCardViewModel(c.ToPreview()))
+                            .ToList();
+        if (selected.Count == 0) return;
+        StatusMessage = GalleryVm.AddToPrimaryCollage(selected);
+    }
+
+    /// <summary>The picker can always be opened for a non-empty selection — it can create a collage
+    /// from scratch, so no existing collage is required.</summary>
+    public bool CanChooseCollageTarget => SelectedCount > 0;
+
+    /// <summary>"Choose collage…" — pick one or more collages to add the checked artworks to.</summary>
+    [RelayCommand(CanExecute = nameof(CanChooseCollageTarget))]
+    private async Task AddSelectedAsCollagePickAsync()
+    {
+        var selected = Items.Where(c => c.IsSelected && !c.IsNovel)
+                            .Select(c => new ArtworkCardViewModel(c.ToPreview()))
+                            .ToList();
+        var summary = await GalleryVm.AddItemsToCollageWithPickerAsync(selected);
+        if (summary != null) StatusMessage = summary;
     }
 
     public bool CanViewSelectedInNewTabs => SelectedCount >= 1;

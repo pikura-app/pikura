@@ -1,5 +1,6 @@
-<UserControl xmlns="https://github.com/avaloniaui"
+﻿<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:loc="using:Pikura.Avalonia.Localization"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:actipro="http://schemas.actiprosoftware.com/avaloniaui"
@@ -101,7 +102,7 @@
                     </Style>
                 </Border.Styles>
                 <Panel>
-                    <Image Source="{Binding Thumbnail}" Stretch="UniformToFill">
+                    <Image Source="{Binding Thumbnail}" Stretch="UniformToFill" RenderOptions.BitmapInterpolationMode="HighQuality" UseLayoutRounding="True">
                         <Image.Effect><BlurEffect Radius="{Binding IsBlurred, Converter={StaticResource BoolToBlurRadiusConverter}}"/></Image.Effect>
                     </Image>
                     <!-- Selection checkbox — wrapped in a background chip so it's visible over any image. -->
@@ -125,7 +126,7 @@
                         </StackPanel>
                     </Border>
                     <!-- Badges -->
-                    <Border VerticalAlignment="Bottom" HorizontalAlignment="Left"  Margin="6,0,0,6" Padding="5,2" CornerRadius="4" Background="#BB000000" IsVisible="{Binding IsMultiPage}"    IsHitTestVisible="False"><TextBlock Text="{Binding PageCount, StringFormat='1/{0}'}" FontSize="9" Foreground="White"/></Border>
+                    <Border VerticalAlignment="Bottom" HorizontalAlignment="Left"  Margin="6,0,0,6" Padding="5,2" CornerRadius="4" Background="#BB000000" IsVisible="{Binding IsMultiPage}"    IsHitTestVisible="False"><TextBlock Text="{Binding PageCount, StringFormat='{}{0}'}" FontSize="9" Foreground="White"/></Border>
                     <Border VerticalAlignment="Top"    HorizontalAlignment="Right" Margin="0,6,6,0"  Padding="5,2" CornerRadius="4" Background="#CCDC2626" IsVisible="{Binding IsR18}"          IsHitTestVisible="False"><TextBlock Text="R-18" FontSize="8" Foreground="White" FontWeight="Bold"/></Border>
                     <!-- Liked heart + bookmarked badge + local favorite star — all bound to
                          ShowBadges so they can be hidden as a group. Individually positioned
@@ -238,7 +239,7 @@
                         <Panel>
                             <Border Background="{DynamicResource Container2BackgroundBrush}"
                                     IsVisible="{Binding Thumbnail, Converter={x:Static ObjectConverters.IsNull}}"/>
-                            <Image Source="{Binding Thumbnail}" Stretch="UniformToFill">
+                            <Image Source="{Binding Thumbnail}" Stretch="UniformToFill" RenderOptions.BitmapInterpolationMode="HighQuality" UseLayoutRounding="True">
                                 <Image.Height>
                                     <MultiBinding Converter="{x:Static conv:MultiplyByAspectRatioConverter.Instance}">
                                         <Binding Path="$parent[UserControl].((vm:BookmarksViewModel)DataContext).CardSize"/>
@@ -247,7 +248,7 @@
                                 </Image.Height>
                                 <Image.Effect><BlurEffect Radius="{Binding IsBlurred, Converter={StaticResource BoolToBlurRadiusConverter}}"/></Image.Effect>
                             </Image>
-                            <Border VerticalAlignment="Bottom" HorizontalAlignment="Left"  Margin="6,0,0,6" Padding="5,2" CornerRadius="4" Background="#BB000000" IsVisible="{Binding IsMultiPage}"     IsHitTestVisible="False"><TextBlock Text="{Binding PageCount, StringFormat='1/{0}'}" FontSize="9" Foreground="White"/></Border>
+                            <Border VerticalAlignment="Bottom" HorizontalAlignment="Left"  Margin="6,0,0,6" Padding="5,2" CornerRadius="4" Background="#BB000000" IsVisible="{Binding IsMultiPage}"     IsHitTestVisible="False"><TextBlock Text="{Binding PageCount, StringFormat='{}{0}'}" FontSize="9" Foreground="White"/></Border>
                             <Border VerticalAlignment="Top"    HorizontalAlignment="Left"  Margin="42,6,0,0" Padding="5,2" CornerRadius="4" Background="#CCDC2626" IsVisible="{Binding IsR18}"           IsHitTestVisible="False"><TextBlock Text="R-18" FontSize="8" Foreground="White" FontWeight="Bold"/></Border>
                             <Panel IsVisible="{Binding $parent[UserControl].((vm:BookmarksViewModel)DataContext).ShowBadges}" IsHitTestVisible="False">
                                 <Border VerticalAlignment="Top"    HorizontalAlignment="Right" Margin="0,6,6,0" Padding="5,3" CornerRadius="4" Background="#CC8B5CF6" IsVisible="{Binding IsLocalFavorite}"><Path Data="{StaticResource FavoriteStarGeometry}" Width="9" Height="9" Stretch="Uniform" Fill="White"/></Border>
@@ -366,7 +367,7 @@
                               VerticalAlignment="Center" Margin="6,0,2,0"
                               MinWidth="0" MinHeight="0" Click="OnFavCardCheckboxClicked"/>
                     <Border Grid.Column="1" CornerRadius="7,0,0,7" ClipToBounds="True">
-                        <Image Source="{Binding Thumbnail}" Stretch="UniformToFill">
+                        <Image Source="{Binding Thumbnail}" Stretch="UniformToFill" RenderOptions.BitmapInterpolationMode="HighQuality" UseLayoutRounding="True">
                             <Image.Effect><BlurEffect Radius="{Binding IsBlurred, Converter={StaticResource BoolToBlurRadiusConverter}}"/></Image.Effect>
                         </Image>
                     </Border>
@@ -439,7 +440,7 @@
                     </Style>
                 </Border.Styles>
                 <Panel>
-                    <Image Source="{Binding Thumbnail}" Stretch="UniformToFill">
+                    <Image Source="{Binding Thumbnail}" Stretch="UniformToFill" RenderOptions.BitmapInterpolationMode="HighQuality" UseLayoutRounding="True">
                         <Image.Effect><BlurEffect Radius="{Binding IsBlurred, Converter={StaticResource BoolToBlurRadiusConverter}}"/></Image.Effect>
                     </Image>
                     <Border VerticalAlignment="Top" HorizontalAlignment="Left" Margin="6,6,0,0"
@@ -462,7 +463,7 @@
                         </StackPanel>
                     </Border>
                     <!-- Badges -->
-                    <Border VerticalAlignment="Bottom" HorizontalAlignment="Left"  Margin="6,0,0,6"  Padding="5,2" CornerRadius="4" Background="#BB000000" IsVisible="{Binding IsMultiPage}" IsHitTestVisible="False"><TextBlock Text="{Binding PageCount, StringFormat='1/{0}'}" FontSize="9" Foreground="White"/></Border>
+                    <Border VerticalAlignment="Bottom" HorizontalAlignment="Left"  Margin="6,0,0,6"  Padding="5,2" CornerRadius="4" Background="#BB000000" IsVisible="{Binding IsMultiPage}" IsHitTestVisible="False"><TextBlock Text="{Binding PageCount, StringFormat='{}{0}'}" FontSize="9" Foreground="White"/></Border>
                     <Border VerticalAlignment="Top"    HorizontalAlignment="Right" Margin="0,6,6,0" Padding="5,2" CornerRadius="4" Background="#CCDC2626" IsVisible="{Binding IsR18}"          IsHitTestVisible="False"><TextBlock Text="R-18" FontSize="8" Foreground="White" FontWeight="Bold"/></Border>
                     <Panel IsVisible="{Binding $parent[UserControl].((vm:BookmarksViewModel)DataContext).ShowBadges}" IsHitTestVisible="False">
                         <Border VerticalAlignment="Bottom" HorizontalAlignment="Right"
@@ -544,7 +545,8 @@
                             <Border Background="{DynamicResource Container2BackgroundBrush}"
                                     IsVisible="{Binding Thumbnail, Converter={x:Static ObjectConverters.IsNull}}"/>
                             <Image Source="{Binding Thumbnail}" Stretch="UniformToFill"
-                                   HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                   HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                   RenderOptions.BitmapInterpolationMode="HighQuality" UseLayoutRounding="True">
                                 <Image.Height>
                                     <MultiBinding Converter="{x:Static conv:MultiplyByAspectRatioConverter.Instance}">
                                         <Binding Path="$parent[UserControl].((vm:BookmarksViewModel)DataContext).CardSize"/>
@@ -571,7 +573,7 @@
                         <Border VerticalAlignment="Bottom" HorizontalAlignment="Left"
                                 Margin="6,0,0,6" Padding="5,2" CornerRadius="4"
                                 Background="#BB000000" IsVisible="{Binding IsMultiPage}">
-                            <TextBlock Text="{Binding PageCount, StringFormat='1/{0}'}" FontSize="9" Foreground="White"/>
+                            <TextBlock Text="{Binding PageCount, StringFormat='{}{0}'}" FontSize="9" Foreground="White"/>
                         </Border>
                         <!-- Moved to top-right (was top-left, directly overlapping the selection
                              checkbox below) — drops beneath R-18 when that badge is also shown. -->
@@ -671,7 +673,7 @@
                               VerticalAlignment="Center" Margin="6,0,2,0"
                               MinWidth="0" MinHeight="0" Click="OnFavCardCheckboxClicked"/>
                     <Border Grid.Column="1" CornerRadius="7,0,0,7" ClipToBounds="True">
-                        <Image Source="{Binding Thumbnail}" Stretch="UniformToFill">
+                        <Image Source="{Binding Thumbnail}" Stretch="UniformToFill" RenderOptions.BitmapInterpolationMode="HighQuality" UseLayoutRounding="True">
                             <Image.Effect><BlurEffect Radius="{Binding IsBlurred, Converter={StaticResource BoolToBlurRadiusConverter}}"/></Image.Effect>
                         </Image>
                     </Border>
@@ -806,6 +808,21 @@
                             <TextBlock Text="Collage" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
+                    <SplitButton CornerRadius="6" Padding="9,5" FontSize="11"
+                            Command="{Binding AddSelectedAsCollageCommand}"
+                            IsVisible="{Binding CanAddSelectedAsCollage}"
+                            ToolTip.Tip="Add the selected artworks to the active collage. Use the arrow to choose which collage.">
+                        <StackPanel Orientation="Horizontal" Spacing="5">
+                            <TextBlock Text="⊞" FontSize="12"/>
+                            <TextBlock Text="{loc:Tr Collage_AddToCollage}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <SplitButton.Flyout>
+                            <MenuFlyout>
+                                <MenuItem Header="{loc:Tr Collage_ChooseCollage}"
+                                          Command="{Binding AddSelectedAsCollagePickCommand}"/>
+                            </MenuFlyout>
+                        </SplitButton.Flyout>
+                    </SplitButton>
                     <Button CornerRadius="6" Padding="9,5" FontSize="11"
                             Command="{Binding ViewSelectedInNewTabsCommand}"
                             IsVisible="{Binding CanViewSelectedInNewTabs}"
@@ -1081,7 +1098,8 @@
                                                     CommandParameter="{Binding}">
                                                 <Panel>
                                                     <Image Source="{Binding Thumbnail}" Stretch="UniformToFill"
-                                                           IsVisible="{Binding !HasMultipleThumbnails}"/>
+                                                           IsVisible="{Binding !HasMultipleThumbnails}"
+                                                           RenderOptions.BitmapInterpolationMode="HighQuality" UseLayoutRounding="True"/>
                                                     <ItemsControl ItemsSource="{Binding CollageThumbnails}"
                                                                   IsVisible="{Binding HasMultipleThumbnails}">
                                                         <ItemsControl.ItemsPanel>

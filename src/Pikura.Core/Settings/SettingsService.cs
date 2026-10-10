@@ -72,6 +72,7 @@ public sealed class SettingsService
                 Current = new AppSettings();
                 return;
             }
+            var saveAfterLoad = false;
             try
             {
                 using var fs = File.OpenRead(_path);
@@ -82,6 +83,15 @@ public sealed class SettingsService
                 loaded.CfClearance  = CredentialStore.Unprotect(loaded.CfClearance);
                 // Migrate legacy blacklists into the unified blocklist format.
                 loaded.MigrateLegacyBlocklists();
+
+                // Thumbnail fetching (especially through VPN/proxy software) relies on the
+                // system proxy being honored. Older settings had this off by default.
+                if (!loaded.UseProxy && string.IsNullOrWhiteSpace(loaded.ProxyAddress))
+                {
+                    loaded.UseProxy = true;
+                    saveAfterLoad = true;
+                }
+
                 Current = loaded;
             }
             catch
@@ -89,6 +99,8 @@ public sealed class SettingsService
                 // Corrupt file; reset.
                 Current = new AppSettings();
             }
+            if (saveAfterLoad)
+                Save();
         }
     }
 

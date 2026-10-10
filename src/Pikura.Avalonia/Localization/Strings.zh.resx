@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- Simplified Chinese. Machine-assisted — please have a native speaker review before release.
+       Missing keys fall back to Strings.resx (English). -->
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <data name="Common_OK" xml:space="preserve">
+    <value>确定</value>
+  </data>
+  <data name="Common_Cancel" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="Common_Add" xml:space="preserve">
+    <value>添加</value>
+  </data>
+  <data name="Common_Close" xml:space="preserve">
+    <value>关闭</value>
+  </data>
+  <data name="Common_Dismiss" xml:space="preserve">
+    <value>忽略</value>
+  </data>
+  <data name="Common_Rename" xml:space="preserve">
+    <value>重命名</value>
+  </data>
+
+  <data name="Settings_Title" xml:space="preserve">
+    <value>设置</value>
+  </data>
+  <data name="Settings_RestartRequired" xml:space="preserve">
+    <value>部分更改需要重启后才能生效。</value>
+  </data>
+  <data name="Settings_RestartNow" xml:space="preserve">
+    <value>立即重启</value>
+  </data>
+
+  <data name="Settings_Language" xml:space="preserve">
+    <value>语言</value>
+  </data>
+  <data name="Settings_AppLanguage" xml:space="preserve">
+    <value>应用语言</value>
+  </data>
+  <data name="Settings_ApiLanguage" xml:space="preserve">
+    <value>API 语言</value>
+  </data>
+
+  <data name="Collage_ViewAsCollage" xml:space="preserve">
+    <value>以拼贴查看</value>
+  </data>
+  <data name="Collage_AddToCollage" xml:space="preserve">
+    <value>添加到拼贴</value>
+  </data>
+  <data name="Collage_ChooseCollage" xml:space="preserve">
+    <value>选择拼贴…</value>
+  </data>
+  <data name="Collage_Exit" xml:space="preserve">
+    <value>退出拼贴</value>
+  </data>
+  <data name="Collage_Download" xml:space="preserve">
+    <value>下载拼贴</value>
+  </data>
+  <data name="Collage_Return" xml:space="preserve">
+    <value>返回拼贴</value>
+  </data>
+  <data name="Collage_ViewSelectedAsCollage" xml:space="preserve">
+    <value>将所选项以拼贴查看</value>
+  </data>
+  <data name="Collage_AddSelectedToCollage" xml:space="preserve">
+    <value>将所选项添加到拼贴</value>
+  </data>
+  <data name="Collage_ViewAllAsCollage" xml:space="preserve">
+    <value>全部以拼贴查看</value>
+  </data>
+  <data name="Collage_AddAllToCollage" xml:space="preserve">
+    <value>全部添加到拼贴</value>
+  </data>
+
+  <data name="CollagePicker_WindowTitle" xml:space="preserve">
+    <value>添加到拼贴</value>
+  </data>
+  <data name="CollagePicker_Hint" xml:space="preserve">
+    <value>勾选一个或多个拼贴以添加这些作品。</value>
+  </data>
+  <data name="CollagePicker_Empty" xml:space="preserve">
+    <value>尚未打开任何拼贴 — 请使用下方的“＋ 新建拼贴”。</value>
+  </data>
+  <data name="CollagePicker_NewCollage" xml:space="preserve">
+    <value>＋ 新建拼贴</value>
+  </data>
+  <data name="CollagePicker_NamePlaceholder" xml:space="preserve">
+    <value>拼贴名称（可选）</value>
+  </data>
+  <data name="CollagePicker_Full" xml:space="preserve">
+    <value>已满</value>
+  </data>
+  <data name="CollagePicker_SelectAtLeastOne" xml:space="preserve">
+    <value>请至少选择一个拼贴。</value>
+  </data>
+  <data name="CollagePicker_Title" xml:space="preserve">
+    <value>将 {0} 个作品添加到…</value>
+  </data>
+  <data name="CollagePicker_Summary" xml:space="preserve">
+    <value>{0} 个作品 → {1} 个拼贴</value>
+  </data>
+</root>

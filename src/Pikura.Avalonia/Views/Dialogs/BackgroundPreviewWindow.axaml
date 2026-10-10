@@ -16,28 +16,40 @@
                 CornerRadius="8"
                 BorderBrush="{DynamicResource Container1BorderBrush}"
                 BorderThickness="1">
-            <Panel x:Name="PreviewPanel" ClipToBounds="True"
-                   Background="{DynamicResource Container3BackgroundBrush}"
-                   MinHeight="400">
-                <Panel x:Name="OpacityPanel">
-                    <Image x:Name="PreviewImage"
-                           Stretch="Uniform"
-                           RenderOptions.BitmapInterpolationMode="HighQuality"
-                           IsHitTestVisible="True"
-                           Cursor="Hand"/>
-                    <Rectangle x:Name="DarknessRect" Fill="Black" Opacity="0"
-                               IsHitTestVisible="False"/>
-                    <Rectangle x:Name="BrightnessRect" Fill="White" Opacity="0"
-                               IsHitTestVisible="False"/>
-                </Panel>
-                <!-- Drag hint -->
-                <TextBlock Text="Drag to reposition · Scroll to zoom"
-                           FontSize="11" Opacity="0.5"
-                           IsHitTestVisible="False"
-                           HorizontalAlignment="Center"
-                           VerticalAlignment="Bottom"
-                           Margin="0,0,0,8"/>
-            </Panel>
+            <Grid>
+                <Canvas x:Name="PreviewCanvas"
+                        Background="{DynamicResource Container3BackgroundBrush}"
+                        ClipToBounds="True">
+                    <Panel x:Name="PreviewImageHost">
+                        <Image x:Name="PreviewImage"
+                               Stretch="Uniform"
+                               RenderOptions.BitmapInterpolationMode="HighQuality"
+                               IsHitTestVisible="True"
+                               Cursor="Hand"/>
+                        <Rectangle x:Name="DarknessRect" Fill="Black" Opacity="0"
+                                   IsHitTestVisible="False"/>
+                        <Rectangle x:Name="BrightnessRect" Fill="White" Opacity="0"
+                                   IsHitTestVisible="False"/>
+                    </Panel>
+                    <TextBlock x:Name="HintText"
+                               Text="Drag to reposition · Scroll to zoom"
+                               FontSize="11" Opacity="0.5"
+                               IsHitTestVisible="False"
+                               TextAlignment="Center"/>
+                </Canvas>
+
+                <StackPanel x:Name="LoadingOverlay"
+                            IsVisible="False"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Orientation="Vertical">
+                    <ProgressBar IsIndeterminate="True" Width="120" />
+                    <TextBlock Text="Loading full-resolution image…"
+                               FontSize="12" Opacity="0.7"
+                               TextAlignment="Center"
+                               Margin="0,8,0,0" />
+                </StackPanel>
+            </Grid>
         </Border>
 
         <!-- Adjustment sliders -->

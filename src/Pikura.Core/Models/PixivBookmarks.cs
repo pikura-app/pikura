@@ -9,6 +9,18 @@ public sealed class BookmarkedArtworksResponse
     [JsonPropertyName("works")] public List<BookmarkedArtwork> Works { get; set; } = new();
     [JsonPropertyName("total")] public int Total { get; set; }
     [JsonPropertyName("bookmarkRanges")] public List<BookmarkRange> BookmarkRanges { get; set; } = new();
+    [JsonPropertyName("thumbnails")] public BookmarkedThumbnails? Thumbnails { get; set; }
+}
+
+public sealed class BookmarkedThumbnails
+{
+    [JsonPropertyName("illust")] public List<BookmarkedThumbnail>? Illust { get; set; }
+}
+
+public sealed class BookmarkedThumbnail
+{
+    [JsonPropertyName("id"), JsonConverter(typeof(FlexibleStringConverter))] public string Id { get; set; } = string.Empty;
+    [JsonPropertyName("url")] public string Url { get; set; } = string.Empty;
 }
 
 public sealed class BookmarkedArtwork

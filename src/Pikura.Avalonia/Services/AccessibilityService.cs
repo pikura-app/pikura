@@ -61,6 +61,21 @@ public class AccessibilityService
         Application.Current.Resources["AccessibilityFontSize"] = _baseFontSize * effectiveScale;
     }
 
+    /// <summary>
+    /// Container/control border-brush resources that views bind to directly via
+    /// DynamicResource (e.g. "BorderBrush={DynamicResource Container1BorderBrush}"). Because
+    /// almost every Border in the app sets BorderBrush as a local XAML value, the generic
+    /// "Style Selector=Border" override in App.axaml never wins against that local value —
+    /// so overriding it alone made High Contrast Mode look like it did nothing. Overriding
+    /// these resource keys instead reaches every border throughout the app since they're all
+    /// already wired up to re-evaluate on DynamicResource changes.
+    /// </summary>
+    private static readonly string[] HighContrastBorderKeys =
+    {
+        "Container1BorderBrush", "Container2BorderBrush", "Container3BorderBrush",
+        "Container4BorderBrush", "ControlBorderBrush",
+    };
+
     private void ApplyHighContrast(bool enable)
     {
         if (Application.Current == null) return;
@@ -73,12 +88,17 @@ public class AccessibilityService
             // Use a high-visibility border colour that contrasts with the active theme.
             // Do not flip the theme variant — high contrast should keep the user's light/dark/scheduled choice.
             bool isDark = Application.Current.ActualThemeVariant == ThemeVariant.Dark;
-            currentResources["AccessibilityBorder"] = new SolidColorBrush(isDark ? Colors.White : Colors.Black);
+            var borderBrush = new SolidColorBrush(isDark ? Colors.White : Colors.Black);
+            currentResources["AccessibilityBorder"] = borderBrush;
+            foreach (var key in HighContrastBorderKeys)
+                currentResources[key] = borderBrush;
         }
         else
         {
             // Restore the user's chosen theme (System/Scheduled are handled by App.ApplyTheme).
             currentResources.Remove("AccessibilityBorder");
+            foreach (var key in HighContrastBorderKeys)
+                currentResources.Remove(key);
             App.ApplyTheme();
         }
     }

@@ -1,5 +1,6 @@
-<UserControl xmlns="https://github.com/avaloniaui"
+﻿<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:loc="using:Pikura.Avalonia.Localization"
              xmlns:actipro="http://schemas.actiprosoftware.com/avaloniaui"
              xmlns:vm="using:Pikura.Avalonia.ViewModels"
              xmlns:local="using:Pikura.Avalonia.Views.Gallery"
@@ -172,13 +173,27 @@
                         <Button CornerRadius="8" Padding="10,6" FontSize="11"
                                 Command="{Binding ViewSelectedAsCollageCommand}"
                                 IsVisible="{Binding CanViewSelectedAsCollage}"
-                                ToolTip.Tip="Show the checked artworks tiled together in the side panel (up to 10)">
+                                ToolTip.Tip="Show the checked artworks in a new collage tab (up to 100)">
                             <StackPanel Orientation="Horizontal" Spacing="5">
                                 <TextBlock Text="⊞" FontSize="12"/>
-                                <TextBlock Text="View as Collage" IsVisible="{Binding !HasStoredCollage}"/>
-                                <TextBlock Text="Add to Collage" IsVisible="{Binding HasStoredCollage}"/>
+                                <TextBlock Text="{loc:Tr Collage_ViewAsCollage}" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
+                        <SplitButton CornerRadius="8" Padding="10,6" FontSize="11"
+                                Command="{Binding AddSelectedToCollageCommand}"
+                                IsVisible="{Binding CanAddSelectedToCollage}"
+                                ToolTip.Tip="Add the checked artworks to the active collage. Use the arrow to choose which collage.">
+                            <StackPanel Orientation="Horizontal" Spacing="5">
+                                <TextBlock Text="⊞" FontSize="12"/>
+                                <TextBlock Text="{loc:Tr Collage_AddToCollage}" VerticalAlignment="Center"/>
+                            </StackPanel>
+                            <SplitButton.Flyout>
+                                <MenuFlyout>
+                                    <MenuItem Header="{loc:Tr Collage_ChooseCollage}"
+                                              Command="{Binding AddSelectedToCollagePickCommand}"/>
+                                </MenuFlyout>
+                            </SplitButton.Flyout>
+                        </SplitButton>
                         <Button CornerRadius="8" Padding="10,6" FontSize="11"
                                 Command="{Binding ViewSelectedInNewTabsCommand}"
                                 IsVisible="{Binding CanViewSelectedInNewTabs}"
@@ -820,7 +835,8 @@
                                                             </StackPanel>
                                                         </Panel>
                                                         <Image Source="{Binding Thumbnail}" Stretch="UniformToFill"
-                                                               HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                                               HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                                               RenderOptions.BitmapInterpolationMode="HighQuality" UseLayoutRounding="True">
                                                             <Image.Effect>
                                                                 <BlurEffect Radius="{Binding IsBlurred, Converter={StaticResource BoolToBlurRadiusConverter}}" />
                                                             </Image.Effect>
@@ -832,7 +848,7 @@
                                                     <Border VerticalAlignment="Bottom" HorizontalAlignment="Left"
                                                             Margin="6,0,0,6" Padding="5,2" CornerRadius="4"
                                                             Background="#BB000000" IsVisible="{Binding IsMultiPage}">
-                                                        <TextBlock Text="{Binding PageCount, StringFormat='1/{0}'}"
+                                                        <TextBlock Text="{Binding PageCount, StringFormat='{}{0}'}"
                                                                    FontSize="9" Foreground="White"/>
                                                     </Border>
                                                     <Border VerticalAlignment="Top" HorizontalAlignment="Right"
@@ -997,7 +1013,8 @@
                                                             </StackPanel>
                                                         </Panel>
                                                         <Image Source="{Binding Thumbnail}" Stretch="UniformToFill"
-                                                               HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                                               HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                                               RenderOptions.BitmapInterpolationMode="HighQuality" UseLayoutRounding="True">
                                                             <Image.Height>
                                                                 <MultiBinding Converter="{x:Static conv:MultiplyByAspectRatioConverter.Instance}">
                                                                     <Binding Path="$parent[UserControl].((vm:GalleryViewModel)DataContext).CardSize"/>
@@ -1021,7 +1038,7 @@
                                                     <Border VerticalAlignment="Bottom" HorizontalAlignment="Left"
                                                             Margin="6,0,0,6" Padding="5,2" CornerRadius="4"
                                                             Background="#BB000000" IsVisible="{Binding IsMultiPage}">
-                                                        <TextBlock Text="{Binding PageCount, StringFormat='1/{0}'}"
+                                                        <TextBlock Text="{Binding PageCount, StringFormat='{}{0}'}"
                                                                    FontSize="9" Foreground="White"/>
                                                     </Border>
                                                     <Border VerticalAlignment="Top" HorizontalAlignment="Right"
@@ -1205,7 +1222,8 @@
                                                             </StackPanel>
                                                         </Panel>
                                                         <Image Source="{Binding Thumbnail}" Stretch="UniformToFill"
-                                                               HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                                               HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                                               RenderOptions.BitmapInterpolationMode="HighQuality" UseLayoutRounding="True">
                                                             <Image.Height>
                                                                 <MultiBinding Converter="{x:Static conv:MultiplyByAspectRatioConverter.Instance}">
                                                                     <Binding Path="$parent[UserControl].((vm:GalleryViewModel)DataContext).CardSize"/>
@@ -1228,7 +1246,7 @@
                                                     <Border VerticalAlignment="Bottom" HorizontalAlignment="Left"
                                                             Margin="6,0,0,6" Padding="5,2" CornerRadius="4"
                                                             Background="#BB000000" IsVisible="{Binding IsMultiPage}">
-                                                        <TextBlock Text="{Binding PageCount, StringFormat='1/{0}'}"
+                                                        <TextBlock Text="{Binding PageCount, StringFormat='{}{0}'}"
                                                                    FontSize="9" Foreground="White"/>
                                                     </Border>
                                                     <Border VerticalAlignment="Top" HorizontalAlignment="Right"
@@ -1372,7 +1390,7 @@
                                             <Border Grid.Column="1" Width="56" Height="56" CornerRadius="4"
                                                     ClipToBounds="True" Margin="4,0,10,0"
                                                     Background="{DynamicResource Container1BackgroundBrush}">
-                                                <Image Source="{Binding Thumbnail}" Stretch="UniformToFill"/>
+                                                <Image Source="{Binding Thumbnail}" Stretch="UniformToFill" RenderOptions.BitmapInterpolationMode="HighQuality" UseLayoutRounding="True"/>
                                             </Border>
                                             <StackPanel Grid.Column="2" VerticalAlignment="Center" Spacing="3">
                                                 <StackPanel Orientation="Horizontal" Spacing="4">

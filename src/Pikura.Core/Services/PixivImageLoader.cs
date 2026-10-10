@@ -17,6 +17,8 @@ public enum ThumbnailSize
     Small,
     /// <summary>540px on long edge (default, keeps aspect ratio).</summary>
     Medium,
+    /// <summary>1200px on long edge (master1200, sharp at high zoom).</summary>
+    Large,
     /// <summary>Full original (slowest, best quality).</summary>
     Original
 }
@@ -54,6 +56,16 @@ public sealed class PixivImageLoader : IDisposable
     private readonly SemaphoreSlim _gate;
     private readonly SemaphoreSlim _bitmapGate = new(1, 1); // Protects bitmap cache eviction
 
+    /// <summary>
+    /// Separate lane for images the user is actually looking at (the viewer's Regular/Original),
+    /// as opposed to the background flood of gallery thumbnails. Without this, opening an artwork
+    /// while a grid is still populating meant the full-resolution image queued behind — and then
+    /// split bandwidth with — dozens of equal-priority thumbnail fetches, so the viewer stayed
+    /// soft for far longer than the download itself warranted. Small on purpose: it exists to
+    /// bypass the thumbnail queue, not to add more parallelism.
+    /// </summary>
+    private readonly SemaphoreSlim _priorityGate = new(4, 4);
+
     // Device-aware limits — scaled by DeviceCapabilityService instead of hardcoded constants,
     // so a low-end machine doesn't open as many concurrent sockets or hold as many decoded
     // bitmaps in memory as a high-end desktop would. Pixiv's i.pximg.net is HTTP/2 multiplexed
@@ -74,7 +86,11 @@ public sealed class PixivImageLoader : IDisposable
         try { Directory.CreateDirectory(DiskCacheRoot); } catch { /* best-effort */ }
     }
 
-    public async Task<byte[]?> FetchBytesAsync(string url, CancellationToken ct = default)
+    /// <param name="priority">
+    /// True for images the user is directly viewing, so they use the dedicated priority lane
+    /// instead of competing with background thumbnail traffic.
+    /// </param>
+    public async Task<byte[]?> FetchBytesAsync(string url, CancellationToken ct = default, bool priority = false)
     {
         if (string.IsNullOrWhiteSpace(url)) return null;
 
@@ -102,13 +118,13 @@ public sealed class PixivImageLoader : IDisposable
 
         // Use CancellationToken.None for the cached task so one caller
         // cancelling doesn't poison the shared result for others.
-        var task = _memoryCache.GetOrAdd(url, u => FetchInternalAsync(u, CancellationToken.None));
+        var task = _memoryCache.GetOrAdd(url, u => FetchInternalAsync(u, CancellationToken.None, priority));
         var bytes = await task.ConfigureAwait(false);
         if (bytes is null) _memoryCache.TryRemove(url, out _);
         return bytes;
     }
 
-    private async Task<byte[]?> FetchInternalAsync(string url, CancellationToken ct)
+    private async Task<byte[]?> FetchInternalAsync(string url, CancellationToken ct, bool priority = false)
     {
         // Try the on-disk cache first — avoids hitting Pixiv's CDN at all
         // for thumbnails the user has seen before.
@@ -129,18 +145,30 @@ public sealed class PixivImageLoader : IDisposable
             _logger.LogDebug(ex, "Disk-cache read failed for {Url}", url);
         }
 
-        // Throttle network fetches so we don't open dozens of sockets at once.
-        await _gate.WaitAsync(ct).ConfigureAwait(false);
-        byte[]? bytes;
+        // Throttle network fetches so we don't open dozens of sockets at once. Foreground viewer
+        // images use their own lane so they never wait behind queued thumbnails.
+        var gate = priority ? _priorityGate : _gate;
+        await gate.WaitAsync(ct).ConfigureAwait(false);
+        byte[]? bytes = null;
         try
         {
-            bytes = await DownloadAsync(url, ct).ConfigureAwait(false);
+            for (var attempt = 0; attempt < 3; attempt++)
+            {
+                var result = await DownloadAsync(url, ct).ConfigureAwait(false);
+                if (result.Bytes is { Length: > 0 }) { bytes = result.Bytes; break; }
+                if (!result.IsRetryable) break;
+                if (attempt < 2)
+                {
+                    _logger.LogDebug("Thumbnail {Url} transient failure, retry {Attempt}/2", url, attempt + 1);
+                    try { await Task.Delay(TimeSpan.FromSeconds(Math.Pow(2, attempt)), ct).ConfigureAwait(false); } catch (OperationCanceledException) { break; }
+                }
+            }
         }
         finally
         {
             // Release immediately after download so the slot is free for the next fetch
             // while we do the (potentially slow) disk write below.
-            _gate.Release();
+            gate.Release();
         }
         if (bytes is not null && bytes.Length > 0)
         {
@@ -155,13 +183,15 @@ public sealed class PixivImageLoader : IDisposable
         return bytes;
     }
 
-    private async Task<byte[]?> DownloadAsync(string url, CancellationToken ct)
+    private async Task<DownloadResult> DownloadAsync(string url, CancellationToken ct)
     {
         try
         {
             var client = _factory.GetClient();
             using var req = new HttpRequestMessage(HttpMethod.Get, url);
-            req.Headers.TryAddWithoutValidation("Referer", Referer);
+            // Pixiv's CDN requires a pixiv.net referer; other hosts may reject one, so only add it for i.pximg.net.
+            if (url.Contains("pximg.net", StringComparison.OrdinalIgnoreCase))
+                req.Headers.TryAddWithoutValidation("Referer", Referer);
             // i.pximg.net does not reliably serve images over HTTP/2 in all regions;
             // force HTTP/1.1 for the CDN requests to match browser/curl behavior.
             req.Version = HttpVersion.Version11;
@@ -171,17 +201,23 @@ public sealed class PixivImageLoader : IDisposable
             {
                 _logger.LogWarning("Thumbnail {Url} -> {Code}", url, resp.StatusCode);
                 LogFailure(url, $"HTTP {(int)resp.StatusCode} {resp.StatusCode}");
-                return null;
+                // 4xx (e.g. 404 NotFound) means the URL is wrong; don't keep hammering it.
+                var isRetryable = (int)resp.StatusCode >= 500 || (int)resp.StatusCode == 429;
+                return new DownloadResult(null, isRetryable);
             }
-            return await resp.Content.ReadAsByteArrayAsync(ct).ConfigureAwait(false);
+            var bytes = await resp.Content.ReadAsByteArrayAsync(ct).ConfigureAwait(false);
+            return new DownloadResult(bytes, false);
         }
         catch (Exception ex)
         {
             _logger.LogWarning(ex, "Thumbnail fetch failed for {Url}", url);
             LogFailure(url, ex.Message);
-            return null;
+            // Transient socket/HTTP errors may self-heal on a retry.
+            return new DownloadResult(null, true);
         }
     }
+
+    private readonly record struct DownloadResult(byte[]? Bytes, bool IsRetryable);
 
     private static string GetDiskPath(string url)
     {
@@ -264,24 +300,57 @@ public sealed class PixivImageLoader : IDisposable
     /// Converts a Pixiv thumbnail URL to request a specific size.
     /// Pixiv uses URL patterns to control thumbnail size:
     /// - square1200: 250x250 crop (small)
-    /// - master1200: 540px on long edge (medium)
+    /// - master1200 (with /c/540x540_70/ directive): 540px on long edge (medium)
+    /// - master1200 (raw, no /c/ directive): 1200px on long edge (large)
     /// - original: full resolution
     /// </summary>
     public static string ConvertUrlForThumbnailSize(string url, ThumbnailSize size)
     {
         if (string.IsNullOrEmpty(url)) return url;
 
-        return size switch
+        if (size == ThumbnailSize.Original) return ConvertToOriginalUrl(url);
+        if (size == ThumbnailSize.Large) return ConvertToLargeUrl(url);
+
+        // Normalize any custom/square variant down to master1200 under /img-master/.
+        var normalized = url
+            .Replace("/custom-thumb/", "/img-master/", StringComparison.OrdinalIgnoreCase)
+            .Replace("_custom1200", "_master1200", StringComparison.OrdinalIgnoreCase)
+            .Replace("_square1200", "_master1200", StringComparison.OrdinalIgnoreCase);
+
+        if (size == ThumbnailSize.Small)
         {
-            ThumbnailSize.Small => url
-                .Replace("_master1200", "_square1200")
-                .Replace("/540x540_70/", "/250x250_80_a2/"),
-            ThumbnailSize.Medium => url
-                .Replace("_square1200", "_master1200")
-                .Replace("/250x250_80_a2/", "/540x540_70/"),
-            ThumbnailSize.Original => ConvertToOriginalUrl(url),
-            _ => url
-        };
+            // 250x250 square crop. Replace or add the resize directive, then use square1200.
+            var small = System.Text.RegularExpressions.Regex.Replace(normalized, @"/c/[^/]+/", "/c/250x250_80_a2/");
+            if (!small.Contains("/c/", StringComparison.OrdinalIgnoreCase))
+                small = small.Replace("/img-master/", "/c/250x250_80_a2/img-master/");
+            small = small.Replace("_master1200", "_square1200");
+            return small;
+        }
+
+        // Medium: 540x540 master1200. Pixiv serves this without the trailing _a2.
+        var medium = System.Text.RegularExpressions.Regex.Replace(normalized, @"/c/[^/]+/", "/c/540x540_70/");
+        if (!medium.Contains("/c/", StringComparison.OrdinalIgnoreCase))
+            medium = medium.Replace("/img-master/", "/c/540x540_70/img-master/");
+        return medium;
+    }
+
+    private static string ConvertToLargeUrl(string url)
+    {
+        // Return the raw master1200 file (≤1200 px on long edge) by stripping any
+        // server-side /c/{W}x{H}_.../ resize directive. Also normalize custom/square
+        // variants to master1200 so callers can pass any thumbnail URL.
+        if (string.IsNullOrEmpty(url)) return url;
+
+        var large = url;
+        large = large.Replace("/custom-thumb/", "/img-master/", StringComparison.OrdinalIgnoreCase)
+                     .Replace("_custom1200", "_master1200", StringComparison.OrdinalIgnoreCase)
+                     .Replace("_square1200", "_master1200", StringComparison.OrdinalIgnoreCase);
+
+        // Strip the /c/{W}x{H}_.../ resize prefix and collapse any resulting "//".
+        large = System.Text.RegularExpressions.Regex.Replace(large, @"/c/[^/]+/", "/");
+        large = large.Replace("i.pximg.net//", "i.pximg.net/");
+
+        return large;
     }
 
     private static string ConvertToOriginalUrl(string url)
@@ -313,6 +382,7 @@ public sealed class PixivImageLoader : IDisposable
     public void Dispose()
     {
         _gate.Dispose();
+        _priorityGate.Dispose();
         _bitmapGate.Dispose();
         // Dispose all cached bitmaps
         foreach (var kv in _bitmapCache)

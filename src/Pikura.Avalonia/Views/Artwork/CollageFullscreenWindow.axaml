@@ -10,9 +10,13 @@
         ShowInTaskbar="False">
 
     <Grid>
-        <ScrollViewer HorizontalScrollBarVisibility="Auto"
+        <ScrollViewer Name="ScrollViewer" HorizontalScrollBarVisibility="Auto"
                       VerticalScrollBarVisibility="Auto"
-                      Background="{DynamicResource ImageCanvasBackgroundBrush}">
+                      Background="{DynamicResource ImageCanvasBackgroundBrush}"
+                      PointerPressed="OnPanPointerPressed"
+                      PointerMoved="OnPanPointerMoved"
+                      PointerReleased="OnPanPointerReleased"
+                      PointerCaptureLost="OnPanPointerCaptureLost">
             <ItemsControl x:Name="CollageItemsControl" Margin="20">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -24,14 +28,29 @@
                         <Border CornerRadius="10"
                                 ClipToBounds="True"
                                 Background="{DynamicResource Container1BackgroundBrush}"
-                                Margin="8">
+                                Margin="8"
+                                PointerReleased="OnTileReleased"
+                                Cursor="Hand">
+                            <Border.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="Open in new tab" Click="OnOpenTileInNewTab"/>
+                                    <MenuItem Header="Open all tiles in separate tabs" Click="OnOpenAllTilesInNewTabs"/>
+                                </ContextMenu>
+                            </Border.ContextMenu>
                             <Grid RowDefinitions="Auto,Auto">
-                                <Image Grid.Row="0"
-                                       Source="{Binding Thumbnail}"
-                                       Stretch="Uniform"
-                                       RenderOptions.BitmapInterpolationMode="HighQuality"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Top"/>
+                                <Panel Grid.Row="0">
+                                    <Image Source="{Binding Thumbnail}"
+                                           Stretch="Uniform"
+                                           RenderOptions.BitmapInterpolationMode="HighQuality"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Top"/>
+                                    <Border VerticalAlignment="Bottom" HorizontalAlignment="Left"
+                                            Margin="6" Padding="5,2" CornerRadius="4"
+                                            Background="#BB000000" IsVisible="{Binding IsMultiPage}">
+                                        <TextBlock Text="{Binding PageCountText}"
+                                                   FontSize="10" Foreground="White" FontWeight="SemiBold"/>
+                                    </Border>
+                                </Panel>
                                 <Border Grid.Row="1"
                                         Background="#CC000000"
                                         Padding="8,5"
@@ -49,9 +68,73 @@
             </ItemsControl>
         </ScrollViewer>
 
-        <Button HorizontalAlignment="Right" VerticalAlignment="Top" Margin="20" FontSize="12" Background="#AA000000" Foreground="White" BorderThickness="0" Click="OnCloseClicked">
-            <TextBlock Text="✕"/>
-        </Button>
+        <StackPanel HorizontalAlignment="Right" VerticalAlignment="Top" Margin="20"
+                    Orientation="Horizontal" Spacing="8">
+            <ToggleButton FontSize="12" Padding="10,6" CornerRadius="6"
+                          Background="#AA000000" Foreground="White" BorderThickness="0"
+                          IsChecked="{Binding ShowTileStrip, Mode=TwoWay}"
+                          ToolTip.Tip="Show the tile strip to jump to any artwork in this collage">
+                <TextBlock Text="☰ Tiles"/>
+            </ToggleButton>
+
+            <Button FontSize="12" Padding="10,6" CornerRadius="6"
+                    Background="#AA000000" Foreground="White" BorderThickness="0"
+                    Click="OnCloseClicked">
+                <TextBlock Text="✕"/>
+            </Button>
+        </StackPanel>
+
+        <!-- Tile jump strip — mirrors the multi-page strip in the single-artwork viewer, but with
+             thumbnails so a specific tile can be picked by sight instead of by number. -->
+        <Border VerticalAlignment="Bottom" Background="#DD000000" Padding="10,8"
+                IsVisible="{Binding ShowTileStrip}">
+          <Grid RowDefinitions="Auto,Auto" RowSpacing="7">
+
+            <!-- Source picker: every open tab and collage by name, so moving between collages is
+                 an explicit choice instead of a hidden cycling toggle. -->
+            <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="8">
+                <TextBlock Text="Show" FontSize="11" Foreground="#BBFFFFFF" VerticalAlignment="Center"/>
+                <ComboBox MinWidth="250" FontSize="11" CornerRadius="5"
+                          ItemsSource="{Binding Sources}"
+                          SelectedItem="{Binding SelectedSource, Mode=TwoWay}"
+                          ToolTip.Tip="Choose which tab, collage, or combined set the strip below shows"/>
+                <TextBlock FontSize="11" Foreground="#88FFFFFF" VerticalAlignment="Center"
+                           Text="{Binding StripHint}"/>
+            </StackPanel>
+
+            <ScrollViewer Grid.Row="1"
+                          HorizontalScrollBarVisibility="Auto"
+                          VerticalScrollBarVisibility="Disabled"
+                          AllowAutoHide="False">
+                <ItemsControl ItemsSource="{Binding StripItems}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" Spacing="6"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:ArtworkCardViewModel">
+                            <Button Padding="0" Background="Transparent" BorderThickness="0"
+                                    Cursor="Hand" Click="OnTileStripClick"
+                                    ToolTip.Tip="{Binding Title}">
+                                <Button.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Header="Open in new tab" Click="OnOpenTileInNewTab"/>
+                                        <MenuItem Header="Open all tiles in separate tabs" Click="OnOpenAllTilesInNewTabs"/>
+                                    </ContextMenu>
+                                </Button.ContextMenu>
+                                <Border Width="68" Height="68" CornerRadius="5" ClipToBounds="True"
+                                        Background="{DynamicResource Container2BackgroundBrush}">
+                                    <Image Source="{Binding Thumbnail}" Stretch="UniformToFill"
+                                           RenderOptions.BitmapInterpolationMode="HighQuality"/>
+                                </Border>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+          </Grid>
+        </Border>
 
         <TextBlock HorizontalAlignment="Left"
                    VerticalAlignment="Top"

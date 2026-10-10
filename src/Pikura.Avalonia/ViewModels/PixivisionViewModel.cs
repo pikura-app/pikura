@@ -184,6 +184,26 @@ public partial class PixivisionViewModel : ViewModelBase
     // Hides the "Monthly Ranking" / "Featured" sidebar next to the article list.
     [ObservableProperty] private bool _showSidebarWidgets = true;
 
+    /// <summary>
+    /// Width of the "Monthly Ranking" / "Featured" sidebar. Used to be hard-coded to 230px, which
+    /// left the thumbnails tiny and every title truncated. User-adjustable and persisted.
+    /// </summary>
+    [ObservableProperty] private double _sidebarWidth = 230;
+
+    /// <summary>Thumbnail edge length for sidebar rows, scaled from <see cref="SidebarWidth"/> so
+    /// widening the sidebar actually enlarges the images rather than just the text column.</summary>
+    public double SidebarThumbSize => Math.Round(Math.Clamp(SidebarWidth * 0.26, 48, 140));
+
+    /// <summary>Title font size for sidebar rows, nudged up as the sidebar widens.</summary>
+    public double SidebarTitleFontSize => Math.Round(Math.Clamp(SidebarWidth / 20.0, 11, 16));
+
+    partial void OnSidebarWidthChanged(double value)
+    {
+        OnPropertyChanged(nameof(SidebarThumbSize));
+        OnPropertyChanged(nameof(SidebarTitleFontSize));
+        _settingsService.Update(s => s.PixivisionSidebarWidth = value);
+    }
+
     [ObservableProperty] private bool _isViewingArticle;
     [ObservableProperty] private long _currentArticleId;
     [ObservableProperty] private string? _articleTitle;
@@ -278,6 +298,10 @@ public partial class PixivisionViewModel : ViewModelBase
         OnPropertyChanged(nameof(HasSelection));
         OnPropertyChanged(nameof(CanViewSelectedAsCollage));
         ViewSelectedAsCollageCommand.NotifyCanExecuteChanged();
+        OnPropertyChanged(nameof(CanAddSelectedAsCollage));
+        AddSelectedAsCollageCommand.NotifyCanExecuteChanged();
+        OnPropertyChanged(nameof(CanChooseCollageTarget));
+        AddSelectedAsCollagePickCommand.NotifyCanExecuteChanged();
         OnPropertyChanged(nameof(CanViewSelectedInNewTabs));
         ViewSelectedInNewTabsCommand.NotifyCanExecuteChanged();
     }
@@ -313,6 +337,7 @@ public partial class PixivisionViewModel : ViewModelBase
         _cardSize = _settingsService.Current.CardSize;
         _showBadges = _settingsService.Current.ShowBadges;
         _isAutoloadMode = !_settingsService.Current.PixivisionUsePagination;
+        _sidebarWidth = Math.Clamp(_settingsService.Current.PixivisionSidebarWidth, 200, 520);
 
         GalleryVm.PropertyChanged += (_, e) =>
         {
@@ -325,6 +350,10 @@ public partial class PixivisionViewModel : ViewModelBase
             {
                 OnPropertyChanged(nameof(CanViewSelectedAsCollage));
                 ViewSelectedAsCollageCommand.NotifyCanExecuteChanged();
+                OnPropertyChanged(nameof(CanAddSelectedAsCollage));
+                AddSelectedAsCollageCommand.NotifyCanExecuteChanged();
+                OnPropertyChanged(nameof(CanChooseCollageTarget));
+                AddSelectedAsCollagePickCommand.NotifyCanExecuteChanged();
             }
         };
 
@@ -953,6 +982,8 @@ public partial class PixivisionViewModel : ViewModelBase
         SelectedCount = FeaturedWorks.Count(c => c.IsSelected);
         OnPropertyChanged(nameof(CanViewSelectedAsCollage));
         ViewSelectedAsCollageCommand.NotifyCanExecuteChanged();
+        OnPropertyChanged(nameof(CanAddSelectedAsCollage));
+        AddSelectedAsCollageCommand.NotifyCanExecuteChanged();
     }
 
     public bool CanViewSelectedAsCollage => GalleryVm.CanCollage(SelectedCount);
@@ -962,7 +993,32 @@ public partial class PixivisionViewModel : ViewModelBase
     {
         var selected = FeaturedWorks.Where(c => c.IsSelected).ToList();
         if (selected.Count == 0) return;
-        GalleryVm.AddSelectedToCollage(selected);
+        GalleryVm.ShowCollage(selected.Take(GalleryViewModel.MaxCollageItems));
+    }
+
+    /// <summary>Only requires that a collage exists — not that one is selected, and not that it has
+    /// room. Keeping this permissive keeps the SplitButton's "Choose collage…" flyout reachable.</summary>
+    public bool CanAddSelectedAsCollage => SelectedCount > 0 && GalleryVm.HasStoredCollage;
+
+    [RelayCommand(CanExecute = nameof(CanAddSelectedAsCollage))]
+    private void AddSelectedAsCollage()
+    {
+        var selected = FeaturedWorks.Where(c => c.IsSelected).ToList();
+        if (selected.Count == 0) return;
+        StatusMessage = GalleryVm.AddToPrimaryCollage(selected);
+    }
+
+    /// <summary>The picker can always be opened for a non-empty selection — it can create a collage
+    /// from scratch, so no existing collage is required.</summary>
+    public bool CanChooseCollageTarget => SelectedCount > 0;
+
+    /// <summary>"Choose collage…" — pick one or more collages to add the checked artworks to.</summary>
+    [RelayCommand(CanExecute = nameof(CanChooseCollageTarget))]
+    private async Task AddSelectedAsCollagePickAsync()
+    {
+        var selected = FeaturedWorks.Where(c => c.IsSelected).ToList();
+        var summary = await GalleryVm.AddItemsToCollageWithPickerAsync(selected);
+        if (summary != null) StatusMessage = summary;
     }
 
     public bool CanViewSelectedInNewTabs => SelectedCount >= 1;
@@ -1077,10 +1133,11 @@ public partial class PixivisionArticleCardViewModel : ObservableObject
 
     public async Task LoadThumbnailAsync(PixivImageLoader loader, CancellationToken ct = default)
     {
+        if (Thumbnail is not null) return;
         if (string.IsNullOrWhiteSpace(ThumbnailUrl)) return;
         try
         {
-            var skBitmap = await loader.FetchBitmapAsync(ThumbnailUrl, ThumbnailSize.Small, ct);
+            var skBitmap = await loader.FetchBitmapAsync(ThumbnailUrl, ThumbnailSize.Medium, ct);
             if (skBitmap is null || ct.IsCancellationRequested) return;
             var bmp = await Task.Run(() => (Bitmap?)BitmapInterop.SkiaToAvalonia(skBitmap), ct);
             skBitmap.Dispose();

@@ -1,5 +1,6 @@
-<UserControl xmlns="https://github.com/avaloniaui"
+﻿<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:loc="using:Pikura.Avalonia.Localization"
              xmlns:actipro="http://schemas.actiprosoftware.com/avaloniaui"
              xmlns:vm="using:Pikura.Avalonia.ViewModels"
              xmlns:conv="using:Pikura.Avalonia.Converters"
@@ -278,6 +279,21 @@
                             <TextBlock Text="Collage" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
+                    <SplitButton CornerRadius="6" Padding="10,6" FontSize="11"
+                            Command="{Binding AddSelectedAsCollageCommand}"
+                            IsVisible="{Binding CanAddSelectedAsCollage}"
+                            ToolTip.Tip="Add the selected artworks to the active collage. Use the arrow to choose which collage.">
+                        <StackPanel Orientation="Horizontal" Spacing="5">
+                            <TextBlock Text="⊞" FontSize="12"/>
+                            <TextBlock Text="{loc:Tr Collage_AddToCollage}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <SplitButton.Flyout>
+                            <MenuFlyout>
+                                <MenuItem Header="{loc:Tr Collage_ChooseCollage}"
+                                          Command="{Binding AddSelectedAsCollagePickCommand}"/>
+                            </MenuFlyout>
+                        </SplitButton.Flyout>
+                    </SplitButton>
                     <Button CornerRadius="6" Padding="10,6" FontSize="11"
                             Command="{Binding ViewSelectedInNewTabsCommand}"
                             IsVisible="{Binding CanViewSelectedInNewTabs}"
@@ -415,7 +431,7 @@
                                                     <Panel>
                                                         <Border Background="{DynamicResource Container2BackgroundBrush}"
                                                                 IsVisible="{Binding Thumbnail, Converter={x:Static ObjectConverters.IsNull}}"/>
-                                                        <Image Source="{Binding Thumbnail}" Stretch="UniformToFill">
+                                                        <Image Source="{Binding Thumbnail}" Stretch="UniformToFill" RenderOptions.BitmapInterpolationMode="HighQuality" UseLayoutRounding="True">
                                                             <Image.Effect>
                                                                 <BlurEffect Radius="{Binding IsBlurred, Converter={StaticResource BoolToBlurRadiusConverter}}"/>
                                                             </Image.Effect>
@@ -433,7 +449,7 @@
                                                             Margin="6,0,0,6" Padding="5,2" CornerRadius="4"
                                                             Background="#BB000000" IsVisible="{Binding IsMultiPage}"
                                                             IsHitTestVisible="False">
-                                                        <TextBlock Text="{Binding PageCount, StringFormat='1/{0}'}" FontSize="9" Foreground="White"/>
+                                                        <TextBlock Text="{Binding PageCount, StringFormat='{}{0}'}" FontSize="9" Foreground="White"/>
                                                     </Border>
                                                     <!-- R-18 badge -->
                                                     <Border VerticalAlignment="Top" HorizontalAlignment="Right"
@@ -542,7 +558,7 @@
                                                     <Panel>
                                                         <Border Background="{DynamicResource Container2BackgroundBrush}"
                                                                 IsVisible="{Binding Thumbnail, Converter={x:Static ObjectConverters.IsNull}}"/>
-                                                        <Image Source="{Binding Thumbnail}" Stretch="UniformToFill">
+                                                        <Image Source="{Binding Thumbnail}" Stretch="UniformToFill" RenderOptions.BitmapInterpolationMode="HighQuality" UseLayoutRounding="True">
                                                             <Image.Height>
                                                                 <MultiBinding Converter="{x:Static conv:MultiplyByAspectRatioConverter.Instance}">
                                                                     <Binding Path="$parent[UserControl].((vm:DiscoverViewModel)DataContext).CardSize"/>
@@ -572,7 +588,7 @@
                                                             Margin="6,0,0,6" Padding="5,2" CornerRadius="4"
                                                             Background="#BB000000" IsVisible="{Binding IsMultiPage}"
                                                             IsHitTestVisible="False">
-                                                        <TextBlock Text="{Binding PageCount, StringFormat='1/{0}'}" FontSize="9" Foreground="White"/>
+                                                        <TextBlock Text="{Binding PageCount, StringFormat='{}{0}'}" FontSize="9" Foreground="White"/>
                                                     </Border>
                                                     <!-- R-18 badge -->
                                                     <Border VerticalAlignment="Top" HorizontalAlignment="Right"
@@ -690,7 +706,7 @@
                                             <Border Grid.Column="0" Width="56" Height="56" CornerRadius="4"
                                                     ClipToBounds="True" Margin="0,0,10,0"
                                                     Background="{DynamicResource Container2BackgroundBrush}">
-                                                <Image Source="{Binding Thumbnail}" Stretch="UniformToFill"/>
+                                                <Image Source="{Binding Thumbnail}" Stretch="UniformToFill" RenderOptions.BitmapInterpolationMode="HighQuality" UseLayoutRounding="True"/>
                                             </Border>
                                             <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="3">
                                                 <StackPanel Orientation="Horizontal" Spacing="4">
@@ -980,7 +996,7 @@
                                                                 <Panel>
                                                                     <Border Background="{DynamicResource Container2BackgroundBrush}"
                                                                             IsVisible="{Binding Thumbnail, Converter={x:Static ObjectConverters.IsNull}}"/>
-                                                                    <Image Source="{Binding Thumbnail}" Stretch="UniformToFill">
+                                                                    <Image Source="{Binding Thumbnail}" Stretch="UniformToFill" RenderOptions.BitmapInterpolationMode="HighQuality" UseLayoutRounding="True">
                                                                         <Image.Effect>
                                                                             <BlurEffect Radius="{Binding IsBlurred, Converter={StaticResource BoolToBlurRadiusConverter}}"/>
                                                                         </Image.Effect>
@@ -991,7 +1007,7 @@
                                                                 <Border VerticalAlignment="Bottom" HorizontalAlignment="Left"
                                                                         Margin="6,0,0,6" Padding="5,2" CornerRadius="4"
                                                                         Background="#BB000000" IsVisible="{Binding IsMultiPage}">
-                                                                    <TextBlock Text="{Binding PageCount, StringFormat='1/{0}'}" FontSize="9" Foreground="White"/>
+                                                                    <TextBlock Text="{Binding PageCount, StringFormat='{}{0}'}" FontSize="9" Foreground="White"/>
                                                                 </Border>
                                                                 <Border VerticalAlignment="Top" HorizontalAlignment="Right"
                                                                         Margin="0,6,6,0" Padding="5,2" CornerRadius="4"
@@ -1088,7 +1104,7 @@
                                                                 <Panel>
                                                                     <Border Background="{DynamicResource Container2BackgroundBrush}"
                                                                             IsVisible="{Binding Thumbnail, Converter={x:Static ObjectConverters.IsNull}}"/>
-                                                                    <Image Source="{Binding Thumbnail}" Stretch="UniformToFill">
+                                                                    <Image Source="{Binding Thumbnail}" Stretch="UniformToFill" RenderOptions.BitmapInterpolationMode="HighQuality" UseLayoutRounding="True">
                                                                         <Image.Height>
                                                                             <MultiBinding Converter="{x:Static conv:MultiplyByAspectRatioConverter.Instance}">
                                                                                 <Binding Path="$parent[UserControl].((vm:DiscoverViewModel)DataContext).CardSize"/>
@@ -1105,7 +1121,7 @@
                                                                 <Border VerticalAlignment="Bottom" HorizontalAlignment="Left"
                                                                         Margin="6,0,0,6" Padding="5,2" CornerRadius="4"
                                                                         Background="#BB000000" IsVisible="{Binding IsMultiPage}">
-                                                                    <TextBlock Text="{Binding PageCount, StringFormat='1/{0}'}" FontSize="9" Foreground="White"/>
+                                                                    <TextBlock Text="{Binding PageCount, StringFormat='{}{0}'}" FontSize="9" Foreground="White"/>
                                                                 </Border>
                                                                 <Border VerticalAlignment="Top" HorizontalAlignment="Right"
                                                                         Margin="0,6,6,0" Padding="5,2" CornerRadius="4"
@@ -1198,7 +1214,7 @@
                                                     <Grid ColumnDefinitions="Auto,*">
                                                         <Border Grid.Column="0" Width="60" Height="60"
                                                                 CornerRadius="4" ClipToBounds="True" Margin="0,0,10,0">
-                                                            <Image Source="{Binding Thumbnail}" Stretch="UniformToFill">
+                                                            <Image Source="{Binding Thumbnail}" Stretch="UniformToFill" RenderOptions.BitmapInterpolationMode="HighQuality" UseLayoutRounding="True">
                                                                 <Image.Effect>
                                                                     <BlurEffect Radius="{Binding IsBlurred, Converter={StaticResource BoolToBlurRadiusConverter}}"/>
                                                                 </Image.Effect>

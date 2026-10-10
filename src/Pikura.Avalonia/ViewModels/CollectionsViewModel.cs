@@ -155,6 +155,12 @@ public partial class CollectionsViewModel : ObservableObject
     {
         OnPropertyChanged(nameof(SelectedCount));
         OnPropertyChanged(nameof(HasSelection));
+        OnPropertyChanged(nameof(CanViewSelectedCollectionsAsCollage));
+        ViewSelectedCollectionsAsCollageCommand.NotifyCanExecuteChanged();
+        OnPropertyChanged(nameof(CanAddSelectedCollectionsToCollage));
+        AddSelectedCollectionsToCollageCommand.NotifyCanExecuteChanged();
+        OnPropertyChanged(nameof(CanChooseCollageTargetForCollections));
+        AddSelectedCollectionsToCollagePickCommand.NotifyCanExecuteChanged();
     }
 
     /// <summary>Selection state over <see cref="Works"/> — for downloading a subset of the
@@ -167,6 +173,10 @@ public partial class CollectionsViewModel : ObservableObject
         OnPropertyChanged(nameof(HasWorksSelection));
         OnPropertyChanged(nameof(CanViewSelectedWorksAsCollage));
         ViewSelectedWorksAsCollageCommand.NotifyCanExecuteChanged();
+        OnPropertyChanged(nameof(CanAddSelectedWorksToCollage));
+        AddSelectedWorksToCollageCommand.NotifyCanExecuteChanged();
+        OnPropertyChanged(nameof(CanChooseCollageTargetForWorks));
+        AddSelectedWorksToCollagePickCommand.NotifyCanExecuteChanged();
         OnPropertyChanged(nameof(CanViewSelectedWorksInNewTabs));
         ViewSelectedWorksInNewTabsCommand.NotifyCanExecuteChanged();
     }
@@ -263,10 +273,35 @@ public partial class CollectionsViewModel : ObservableObject
             {
                 OnPropertyChanged(nameof(CanViewSelectedWorksAsCollage));
                 ViewSelectedWorksAsCollageCommand.NotifyCanExecuteChanged();
+                OnPropertyChanged(nameof(CanAddSelectedWorksToCollage));
+                AddSelectedWorksToCollageCommand.NotifyCanExecuteChanged();
+                OnPropertyChanged(nameof(CanChooseCollageTargetForWorks));
+                AddSelectedWorksToCollagePickCommand.NotifyCanExecuteChanged();
+                OnPropertyChanged(nameof(CanViewAllWorksAsCollage));
+                ViewAllWorksAsCollageCommand.NotifyCanExecuteChanged();
+                OnPropertyChanged(nameof(CanAddAllWorksToCollage));
+                AddAllWorksToCollageCommand.NotifyCanExecuteChanged();
+                OnPropertyChanged(nameof(CanChooseCollageTargetForAllWorks));
+                AddAllWorksToCollagePickCommand.NotifyCanExecuteChanged();
+                OnPropertyChanged(nameof(CanViewSelectedCollectionsAsCollage));
+                ViewSelectedCollectionsAsCollageCommand.NotifyCanExecuteChanged();
+                OnPropertyChanged(nameof(CanAddSelectedCollectionsToCollage));
+                AddSelectedCollectionsToCollageCommand.NotifyCanExecuteChanged();
+                OnPropertyChanged(nameof(CanChooseCollageTargetForCollections));
+                AddSelectedCollectionsToCollagePickCommand.NotifyCanExecuteChanged();
             }
         };
 
-        Works.CollectionChanged += (_, _) => OnPropertyChanged(nameof(HasNoWorks));
+        Works.CollectionChanged += (_, _) =>
+        {
+            OnPropertyChanged(nameof(HasNoWorks));
+            OnPropertyChanged(nameof(CanViewAllWorksAsCollage));
+            ViewAllWorksAsCollageCommand.NotifyCanExecuteChanged();
+            OnPropertyChanged(nameof(CanAddAllWorksToCollage));
+            AddAllWorksToCollageCommand.NotifyCanExecuteChanged();
+            OnPropertyChanged(nameof(CanChooseCollageTargetForAllWorks));
+            AddAllWorksToCollagePickCommand.NotifyCanExecuteChanged();
+        };
 
         _ = LoadBrowseAsync();
     }
@@ -635,6 +670,154 @@ public partial class CollectionsViewModel : ObservableObject
         await DownloadCollectionTilesAsync(selected, "selected");
     }
 
+    /// <summary>Whether the selected browse tiles can be loaded into a new collage tab.</summary>
+    public bool CanViewSelectedCollectionsAsCollage => SelectedCount > 0;
+
+    /// <summary>Loads every artwork from each selected collection into a single new collage tab.</summary>
+    [RelayCommand(CanExecute = nameof(CanViewSelectedCollectionsAsCollage))]
+    private async Task ViewSelectedCollectionsAsCollageAsync()
+    {
+        var selected = AllCollections.Concat(FeaturedCollections).Where(t => t.IsSelected).DistinctBy(t => t.Id).ToList();
+        if (selected.Count == 0) return;
+
+        IsLoading = true;
+        try
+        {
+            StatusMessage = $"Loading {selected.Count} collection(s) for collage…";
+            var cards = new List<ArtworkCardViewModel>();
+            foreach (var tile in selected)
+            {
+                if (cards.Count >= GalleryViewModel.MaxCollageItems) break;
+                var c = await ResolveCollectionAsync(tile.Id);
+                if (c == null || c.Works.Count == 0) continue;
+                foreach (var w in c.Works)
+                {
+                    if (cards.Count >= GalleryViewModel.MaxCollageItems) break;
+                    cards.Add(new ArtworkCardViewModel(w));
+                }
+            }
+
+            if (cards.Count == 0)
+            {
+                StatusMessage = "No artworks found in the selected collections.";
+                return;
+            }
+
+            GalleryVm.ShowCollage(cards);
+            ShowPreview = true;
+            StatusMessage = $"Opened {cards.Count} artwork(s) from {selected.Count} collection(s) as a collage.";
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Failed to view selected collections as collage: {ex}");
+            StatusMessage = $"Collage failed: {ex.Message}";
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    /// <summary>Whether the selected browse tiles can be sent to a collage. Only requires that a
+    /// collage exists — keeps the SplitButton's "Choose collage…" flyout reachable.</summary>
+    public bool CanAddSelectedCollectionsToCollage =>
+        SelectedCount > 0 && GalleryVm.HasStoredCollage;
+
+    /// <summary>The picker can always be opened for a non-empty selection — it can create a collage
+    /// from scratch, so no existing collage is required.</summary>
+    public bool CanChooseCollageTargetForCollections => SelectedCount > 0;
+
+    /// <summary>Resolves every artwork from each currently-selected browse tile, up to
+    /// <paramref name="cap"/> cards. Returns the cards plus how many collections contributed, so
+    /// callers can build an accurate status message.</summary>
+    private async Task<(List<ArtworkCardViewModel> Cards, int CollectionCount)> ResolveSelectedCollectionWorksAsync(int cap)
+    {
+        var selected = AllCollections.Concat(FeaturedCollections).Where(t => t.IsSelected).DistinctBy(t => t.Id).ToList();
+        var cards = new List<ArtworkCardViewModel>();
+        if (selected.Count == 0 || cap <= 0) return (cards, 0);
+
+        StatusMessage = $"Loading {selected.Count} collection(s) for collage…";
+        foreach (var tile in selected)
+        {
+            if (cards.Count >= cap) break;
+            var c = await ResolveCollectionAsync(tile.Id);
+            if (c == null || c.Works.Count == 0) continue;
+            foreach (var w in c.Works)
+            {
+                if (cards.Count >= cap) break;
+                cards.Add(new ArtworkCardViewModel(w));
+            }
+        }
+        return (cards, selected.Count);
+    }
+
+    /// <summary>Appends every artwork from each selected collection to the primary collage target.</summary>
+    [RelayCommand(CanExecute = nameof(CanAddSelectedCollectionsToCollage))]
+    private async Task AddSelectedCollectionsToCollageAsync()
+    {
+        IsLoading = true;
+        try
+        {
+            var target = GalleryVm.PrimaryCollageTarget;
+            var remaining = target == null
+                ? GalleryViewModel.MaxCollageItems
+                : GalleryViewModel.MaxCollageItems - target.CollageItems.Count;
+            if (remaining <= 0)
+            {
+                StatusMessage = $"\"{target!.Header}\" is full. Use \"Choose collage…\" to pick another.";
+                return;
+            }
+
+            var (cards, _) = await ResolveSelectedCollectionWorksAsync(remaining);
+            if (cards.Count == 0)
+            {
+                StatusMessage = "No artworks found in the selected collections.";
+                return;
+            }
+
+            StatusMessage = GalleryVm.AddToPrimaryCollage(cards);
+            ShowPreview = true;
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Failed to add selected collections to collage: {ex}");
+            StatusMessage = $"Add to collage failed: {ex.Message}";
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    /// <summary>"Choose collage…" for every artwork in the selected collections. Resolves up to the
+    /// full item cap first so each chosen collage can apply its own remaining capacity.</summary>
+    [RelayCommand(CanExecute = nameof(CanChooseCollageTargetForCollections))]
+    private async Task AddSelectedCollectionsToCollagePickAsync()
+    {
+        IsLoading = true;
+        try
+        {
+            var (cards, _) = await ResolveSelectedCollectionWorksAsync(GalleryViewModel.MaxCollageItems);
+            if (cards.Count == 0)
+            {
+                StatusMessage = "No artworks found in the selected collections.";
+                return;
+            }
+
+            var summary = await GalleryVm.AddItemsToCollageWithPickerAsync(cards);
+            StatusMessage = summary ?? "Add to collage cancelled.";
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Failed to add selected collections to collage: {ex}");
+            StatusMessage = $"Add to collage failed: {ex.Message}";
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
     [RelayCommand]
     private async Task DownloadLoadedCollectionsAsync()
     {
@@ -773,25 +956,81 @@ public partial class CollectionsViewModel : ObservableObject
         }
     }
 
-    /// <summary>Whether "View as Collage" should be enabled. Needs at least 2 checked artworks
-    /// to start a new collage, or 1 checked artwork to add to an existing/stored collage (capped at
-    /// <see cref="GalleryViewModel.MaxCollageItems"/>).</summary>
+    /// <summary>Whether "View as Collage" should be enabled. Any non-empty selection can start a
+    /// new collage tab.</summary>
     public bool CanViewSelectedWorksAsCollage => GalleryVm.CanCollage(SelectedWorksCount);
 
     /// <summary>"View as Collage" for the currently-checked artworks in an open collection.
-    /// Opens the artworks into a dedicated collage tab. If a collage tab already exists,
-    /// the newly-selected artworks are appended to it.</summary>
+    /// Always opens them in a new collage tab so multiple collages can be open at once.</summary>
     [RelayCommand(CanExecute = nameof(CanViewSelectedWorksAsCollage))]
     private void ViewSelectedWorksAsCollage()
     {
         var selected = Works.Where(w => w.IsSelected).ToList();
         if (selected.Count == 0) return;
-        if (GalleryVm.HasStoredCollage || GalleryVm.IsCollageMode)
-        {
-            GalleryVm.AddToCollage(selected);
-            return;
-        }
         GalleryVm.ShowCollage(selected.Take(GalleryViewModel.MaxCollageItems));
+    }
+
+    /// <summary>True when the checked artworks can be sent to a collage. Only requires that a collage
+    /// exists — being permissive keeps the SplitButton's "Choose collage…" flyout reachable.</summary>
+    public bool CanAddSelectedWorksToCollage =>
+        SelectedWorksCount > 0 && GalleryVm.HasStoredCollage;
+
+    /// <summary>Append the checked artworks to the primary collage target.</summary>
+    [RelayCommand(CanExecute = nameof(CanAddSelectedWorksToCollage))]
+    private void AddSelectedWorksToCollage()
+    {
+        var selected = Works.Where(w => w.IsSelected).ToList();
+        if (selected.Count == 0) return;
+        StatusMessage = GalleryVm.AddToPrimaryCollage(selected);
+    }
+
+    /// <summary>The picker can always be opened for a non-empty selection — it can create a collage
+    /// from scratch, so no existing collage is required.</summary>
+    public bool CanChooseCollageTargetForWorks => SelectedWorksCount > 0;
+
+    /// <summary>"Choose collage…" for the checked artworks in the open collection.</summary>
+    [RelayCommand(CanExecute = nameof(CanChooseCollageTargetForWorks))]
+    private async Task AddSelectedWorksToCollagePickAsync()
+    {
+        var selected = Works.Where(w => w.IsSelected).ToList();
+        var summary = await GalleryVm.AddItemsToCollageWithPickerAsync(selected);
+        if (summary != null) StatusMessage = summary;
+    }
+
+    /// <summary>Whether the entire open collection can be viewed as a new collage tab.</summary>
+    public bool CanViewAllWorksAsCollage => Works.Count > 0 && GalleryVm.CanCollage(Works.Count);
+
+    /// <summary>View every artwork in the currently-open collection as a new collage tab.</summary>
+    [RelayCommand(CanExecute = nameof(CanViewAllWorksAsCollage))]
+    private void ViewAllWorksAsCollage()
+    {
+        if (Works.Count == 0) return;
+        GalleryVm.ShowCollage(Works.Take(GalleryViewModel.MaxCollageItems));
+    }
+
+    /// <summary>Whether all artworks in the open collection can be sent to a collage. Only requires
+    /// that a collage exists — keeps the SplitButton's "Choose collage…" flyout reachable.</summary>
+    public bool CanAddAllWorksToCollage => Works.Count > 0 && GalleryVm.HasStoredCollage;
+
+    /// <summary>Append every artwork in the currently-open collection to the primary collage target.</summary>
+    [RelayCommand(CanExecute = nameof(CanAddAllWorksToCollage))]
+    private void AddAllWorksToCollage()
+    {
+        if (Works.Count == 0) return;
+        StatusMessage = GalleryVm.AddToPrimaryCollage(Works.ToList());
+    }
+
+    /// <summary>The picker can always be opened when the collection has works — it can create a
+    /// collage from scratch, so no existing collage is required.</summary>
+    public bool CanChooseCollageTargetForAllWorks => Works.Count > 0;
+
+    /// <summary>"Choose collage…" for every artwork in the open collection.</summary>
+    [RelayCommand(CanExecute = nameof(CanChooseCollageTargetForAllWorks))]
+    private async Task AddAllWorksToCollagePickAsync()
+    {
+        if (Works.Count == 0) return;
+        var summary = await GalleryVm.AddItemsToCollageWithPickerAsync(Works.ToList());
+        if (summary != null) StatusMessage = summary;
     }
 
     public bool CanViewSelectedWorksInNewTabs => SelectedWorksCount >= 1;
@@ -821,11 +1060,13 @@ public partial class CollectionsViewModel : ObservableObject
                 {
                     tile.IsBookmarked = false;
                     tile.BookmarkId = null;
+                    SyncCollectionBookmarksToBookmarksTab();
                 }
             }
             else if (await _pixivClient.AddCollectionBookmarkAsync(tile.Id))
             {
                 tile.IsBookmarked = true;
+                SyncCollectionBookmarksToBookmarksTab();
             }
         }
         catch { /* non-fatal */ }
@@ -944,7 +1185,13 @@ public partial class CollectionsViewModel : ObservableObject
             {
                 if (CollectionBookmarkId == null) return;
                 var ok = await _pixivClient.RemoveCollectionBookmarkAsync(CollectionBookmarkId);
-                if (ok) { IsCollectionBookmarked = false; CollectionBookmarkId = null; StatusMessage = "Removed collection bookmark."; }
+                if (ok)
+                {
+                    IsCollectionBookmarked = false;
+                    CollectionBookmarkId = null;
+                    StatusMessage = "Removed collection bookmark.";
+                    SyncCollectionBookmarksToBookmarksTab();
+                }
                 else StatusMessage = "Failed to remove collection bookmark.";
             }
             else
@@ -955,11 +1202,24 @@ public partial class CollectionsViewModel : ObservableObject
                     IsCollectionBookmarked = true;
                     StatusMessage = "Bookmarked this collection.";
                     _ = LoadCollectionBookmarkStateAsync(_currentCollection.Id); // pick up the real bookmark id
+                    SyncCollectionBookmarksToBookmarksTab();
                 }
                 else StatusMessage = "Failed to bookmark collection.";
             }
         }
         finally { IsTogglingBookmark = false; }
+    }
+
+    /// <summary>Refreshes the Bookmarks > Collections tab so a collection bookmarked here
+    /// (or unbookmarked) is reflected there without requiring a manual refresh or restart.</summary>
+    private static void SyncCollectionBookmarksToBookmarksTab()
+    {
+        try
+        {
+            var bvm = AppServices.Get<BookmarksViewModel>();
+            if (bvm != null) _ = bvm.LoadBookmarkedCollectionsAsync();
+        }
+        catch { /* BookmarksViewModel may not be initialized yet — non-fatal */ }
     }
 
     [RelayCommand]
@@ -1220,6 +1480,7 @@ public partial class CollectionTileViewModel : ObservableObject
 
     public async Task LoadThumbnailAsync(PixivImageLoader loader, string url)
     {
+        if (Thumbnail is not null) return;
         var bmp = await FetchBitmapAsync(loader, url);
         if (bmp != null) Thumbnail = bmp;
     }
@@ -1227,7 +1488,7 @@ public partial class CollectionTileViewModel : ObservableObject
     /// <summary>Loads up to 4 real work thumbnails for the 2x2 collage grid, in parallel.</summary>
     public async Task LoadCollageThumbnailsAsync(PixivImageLoader loader, IReadOnlyList<string> urls)
     {
-        if (urls.Count == 0) return;
+        if (urls.Count == 0 || CollageThumbnails.Count > 0) return;
         var bitmaps = await Task.WhenAll(urls.Take(4).Select(u => FetchBitmapAsync(loader, u)));
         CollageThumbnails.Clear();
         foreach (var bmp in bitmaps)

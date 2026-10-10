@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Security.Cryptography.X509Certificates;
 using Pikura.Core.Settings;
 
 namespace Pikura.Core.Http;
@@ -31,6 +32,7 @@ public sealed class PixivHttpClientFactory : IDisposable
             // Prefer HTTP/2 so multiple image fetches multiplex over fewer TCP connections.
             EnableMultipleHttp2Connections = true,
         };
+        ApplyNetworkSettings();
         _client = new HttpClient(_handler, disposeHandler: false)
         {
             Timeout = TimeSpan.FromSeconds(30),
@@ -72,6 +74,36 @@ public sealed class PixivHttpClientFactory : IDisposable
         {
             _handler.CookieContainer.Add(new Cookie("cf_clearance", cf, "/", ".pixiv.net"));
         }
+    }
+
+    private void ApplyNetworkSettings()
+    {
+        // Proxy: when the user enables "Use proxy", honor it. An empty address means
+        // "use the system proxy" (e.g. VPN/proxy software); a provided address uses that
+        // explicit WebProxy. When disabled, do not use any proxy.
+        if (_settings.Current.UseProxy)
+        {
+            _handler.UseProxy = true;
+            _handler.Proxy = string.IsNullOrWhiteSpace(_settings.Current.ProxyAddress)
+                ? null
+                : new WebProxy(_settings.Current.ProxyAddress);
+        }
+        else
+        {
+            _handler.UseProxy = false;
+            _handler.Proxy = null;
+        }
+
+        // SSL certificate verification
+        _handler.SslOptions.RemoteCertificateValidationCallback =
+            _settings.Current.EnableSSLVerification
+                ? null
+                : (sender, cert, chain, errors) => true;
+
+        // Keep a sensible TLS version range.
+        _handler.SslOptions.EnabledSslProtocols =
+            System.Security.Authentication.SslProtocols.Tls12 |
+            System.Security.Authentication.SslProtocols.Tls13;
     }
 
     public void Dispose()

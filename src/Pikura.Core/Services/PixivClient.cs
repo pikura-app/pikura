@@ -1,4 +1,5 @@
 using System.Net.Http.Json;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
@@ -154,25 +155,118 @@ public sealed partial class PixivClient
         var url = $"{BaseUrl}/ajax/user/{userId}/illusts/bookmarks?tag={Uri.EscapeDataString(tag ?? "")}&offset={offset}&limit={limit}&rest={rest}&lang={_settings.Current.Locale}";
         var referer = $"{BaseUrl}/users/{userId}/bookmarks/artworks";
 
-        // For private bookmarks, also dump raw response to diag so failures are visible
-        if (hidden)
+        // Always fetch raw JSON so we can pull real thumbnail URLs from body.thumbnails.illust.
+        // Pixiv's /illusts/bookmarks endpoint returns the work list under body.works but the
+        // usable master1200 URLs under body.thumbnails.illust[]; body.works[].url is often a
+        // /custom-thumb/ crop that 400s or otherwise fails. This parse path handles both an
+        // array and an id-keyed object for thumbnails.illust.
+        var raw = await GetAjaxRawAsync(url, referer, ct).ConfigureAwait(false);
+
+        // Dump the raw response once per call while we are diagnosing thumbnail issues.
+        try
         {
-            var raw = await GetAjaxRawAsync(url, referer, ct).ConfigureAwait(false);
-            await WriteDiagAsync(url, $"[private-bookmarks raw]\n{raw ?? "(null — HTTP error)"}", ct).ConfigureAwait(false);
-            if (raw != null)
+            var diagPath = Path.Combine(Path.GetTempPath(), "pikura_bookmarked_artworks_dump.json");
+            await File.WriteAllTextAsync(diagPath, raw ?? "(null — HTTP error)", ct).ConfigureAwait(false);
+        }
+        catch { /* diagnostic write is best-effort */ }
+
+        if (raw is null) return new();
+
+        try
+        {
+            var thumbMap = new Dictionary<string, string>(StringComparer.Ordinal);
+            using var doc = JsonDocument.Parse(raw);
+            if (doc.RootElement.TryGetProperty("body", out var body)
+                && body.ValueKind == JsonValueKind.Object)
             {
-                try
+                thumbMap = ExtractIllustThumbnailMap(body);
+
+                if (body.TryGetProperty("works", out var worksEl)
+                    && worksEl.ValueKind == JsonValueKind.Array)
                 {
-                    var envelope = System.Text.Json.JsonSerializer.Deserialize<PixivAjaxResponse<BookmarkedArtworksResponse>>(raw, JsonOpts);
-                    if (envelope != null && !envelope.Error && envelope.Body != null)
-                        return envelope.Body;
+                    var works = System.Text.Json.JsonSerializer.Deserialize<List<BookmarkedArtwork>>(worksEl.GetRawText(), JsonOpts) ?? new();
+                    var total = 0;
+                    if (body.TryGetProperty("total", out var totalEl) && totalEl.ValueKind == JsonValueKind.Number)
+                        total = totalEl.GetInt32();
+
+                    int mapped = 0;
+                    foreach (var work in works)
+                    {
+                        if (thumbMap.TryGetValue(work.Id, out var u) && !string.IsNullOrWhiteSpace(u))
+                        {
+                            work.Url = u;
+                            mapped++;
+                        }
+                    }
+
+                    _logger.LogDebug("GetBookmarkedArtworks {User} {Rest}: works={Works}, thumbnails={Thumbs}, mapped={Mapped}",
+                        userId, rest, works.Count, thumbMap.Count, mapped);
+
+                    var ranges = new List<BookmarkRange>();
+                    if (body.TryGetProperty("bookmarkRanges", out var rangesEl) && rangesEl.ValueKind == JsonValueKind.Array)
+                        ranges = System.Text.Json.JsonSerializer.Deserialize<List<BookmarkRange>>(rangesEl.GetRawText(), JsonOpts) ?? ranges;
+
+                    return new BookmarkedArtworksResponse
+                    {
+                        Works = works,
+                        Total = total,
+                        BookmarkRanges = ranges,
+                        Thumbnails = new BookmarkedThumbnails
+                        {
+                            Illust = thumbMap.Select(kv => new BookmarkedThumbnail { Id = kv.Key, Url = kv.Value }).ToList()
+                        }
+                    };
                 }
-                catch { }
             }
-            return new();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "GetBookmarkedArtworks {User} parse failed; raw dumped", userId);
         }
 
-        return await GetAjaxAsync<BookmarkedArtworksResponse>(url, ct, referer).ConfigureAwait(false) ?? new();
+        return new();
+    }
+
+    private static Dictionary<string, string> ExtractIllustThumbnailMap(JsonElement body)
+    {
+        var map = new Dictionary<string, string>(StringComparer.Ordinal);
+        if (!body.TryGetProperty("thumbnails", out var thumbsEl) || thumbsEl.ValueKind != JsonValueKind.Object)
+            return map;
+        if (!thumbsEl.TryGetProperty("illust", out var illustEl))
+            return map;
+
+        if (illustEl.ValueKind == JsonValueKind.Array)
+        {
+            foreach (var item in illustEl.EnumerateArray())
+            {
+                if (item.ValueKind != JsonValueKind.Object) continue;
+                if (TryReadIdUrl(item, out var id, out var url))
+                    map[id] = url;
+            }
+        }
+        else if (illustEl.ValueKind == JsonValueKind.Object)
+        {
+            // Some endpoints return thumbnails keyed by id instead of an array.
+            foreach (var prop in illustEl.EnumerateObject())
+            {
+                if (TryReadIdUrl(prop.Value, out var id, out var url))
+                    map[id] = url;
+            }
+        }
+
+        return map;
+
+        static bool TryReadIdUrl(JsonElement item, out string id, out string url)
+        {
+            id = string.Empty;
+            url = string.Empty;
+            if (!item.TryGetProperty("id", out var idEl) || !item.TryGetProperty("url", out var urlEl))
+                return false;
+            if (idEl.ValueKind == JsonValueKind.String) id = idEl.GetString() ?? string.Empty;
+            else if (idEl.ValueKind == JsonValueKind.Number) id = idEl.GetRawText();
+            url = urlEl.GetString() ?? string.Empty;
+            return !string.IsNullOrEmpty(id) && !string.IsNullOrWhiteSpace(url);
+        }
     }
 
     /// <summary>
@@ -228,15 +322,16 @@ public sealed partial class PixivClient
     /// — returns metadata for up to ~50 artworks per call.
     /// </summary>
     public async Task<IReadOnlyDictionary<string, ArtworkPreview>> GetArtworksMetadataAsync(
-        string userId, IEnumerable<string> ids, CancellationToken ct = default)
+        string userId, IEnumerable<string> ids, bool isFirstPage = false, CancellationToken ct = default)
     {
         var idList = ids.Distinct().ToList();
         if (idList.Count == 0) return new Dictionary<string, ArtworkPreview>();
 
         // Pixiv accepts repeated ids[]= query params.
         var query = string.Join("&", idList.Select(id => "ids%5B%5D=" + Uri.EscapeDataString(id)));
+        var firstPageFlag = isFirstPage ? "1" : "0";
         var url = $"{BaseUrl}/ajax/user/{userId}/profile/illusts?{query}" +
-                  $"&work_category=illustManga&is_first_page=0&lang={_settings.Current.Locale}";
+                  $"&work_category=illustManga&is_first_page={firstPageFlag}&lang={_settings.Current.Locale}";
         var body = await GetAjaxAsync<UserProfileIllusts>(url, ct).ConfigureAwait(false);
         return body?.Works ?? new Dictionary<string, ArtworkPreview>();
     }
@@ -660,6 +755,103 @@ public sealed partial class PixivClient
         }
     }
 
+    /// <summary>
+    /// GET /ajax/collection/{id} — lightweight JSON endpoint. Returns the collection's ordered
+    /// artwork tiles (under <c>body.data.detail.tiles</c>) and full thumbnail objects for each
+    /// work (under <c>body.thumbnails.illust</c>). This is used as a fallback when the HTML page
+    /// only embeds the first few tiles in <c>__NEXT_DATA__</c>.
+    /// </summary>
+    public async Task<IReadOnlyList<ArtworkPreview>> GetCollectionWorksAsync(
+        string collectionId, CancellationToken ct = default)
+    {
+        var url = $"{BaseUrl}/ajax/collection/{collectionId}?lang={_settings.Current.Locale}";
+        var json = await GetAjaxRawAsync(url, $"{BaseUrl}/collections/{collectionId}", ct).ConfigureAwait(false);
+        if (json is null) return [];
+
+        try
+        {
+            using var doc = JsonDocument.Parse(json);
+            if (!doc.RootElement.TryGetProperty("body", out var body) || body.ValueKind != JsonValueKind.Object)
+                return [];
+
+            // Thumbnail previews may be an array or a dictionary depending on the endpoint/response.
+            var thumbMap = new Dictionary<string, ArtworkPreview>();
+            if (body.TryGetProperty("thumbnails", out var thumbs) && thumbs.ValueKind == JsonValueKind.Object)
+            {
+                if (thumbs.TryGetProperty("illust", out var illusts))
+                {
+                    if (illusts.ValueKind == JsonValueKind.Array)
+                    {
+                        foreach (var item in illusts.EnumerateArray())
+                        {
+                            var preview = JsonSerializer.Deserialize<ArtworkPreview>(item.GetRawText(), JsonOpts);
+                            if (preview != null && !string.IsNullOrWhiteSpace(preview.Id))
+                                thumbMap[preview.Id] = preview;
+                        }
+                    }
+                    else if (illusts.ValueKind == JsonValueKind.Object)
+                    {
+                        foreach (var prop in illusts.EnumerateObject())
+                        {
+                            var preview = JsonSerializer.Deserialize<ArtworkPreview>(prop.Value.GetRawText(), JsonOpts);
+                            if (preview != null && !string.IsNullOrWhiteSpace(preview.Id))
+                                thumbMap[preview.Id] = preview;
+                        }
+                    }
+                }
+            }
+
+            if (thumbMap.Count == 0) return [];
+
+            // Use the tile order if available; otherwise fall back to thumbnail order.
+            var orderedIds = new List<string>();
+            if (body.TryGetProperty("data", out var data) && data.ValueKind == JsonValueKind.Object
+                && data.TryGetProperty("detail", out var detail) && detail.ValueKind == JsonValueKind.Object
+                && detail.TryGetProperty("tiles", out var tiles) && tiles.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var tile in tiles.EnumerateArray())
+                {
+                    if (tile.TryGetProperty("workId", out var workIdEl) && workIdEl.GetString() is { } wid)
+                        orderedIds.Add(wid);
+                }
+            }
+
+            if (orderedIds.Count == 0)
+            {
+                using var orderDoc = JsonDocument.Parse(json);
+                if (orderDoc.RootElement.TryGetProperty("body", out var body2) &&
+                    body2.TryGetProperty("thumbnails", out var thumbs2) &&
+                    thumbs2.TryGetProperty("illust", out var illusts2) && illusts2.ValueKind == JsonValueKind.Array)
+                {
+                    foreach (var item in illusts2.EnumerateArray())
+                    {
+                        if (item.TryGetProperty("id", out var idEl) && idEl.GetString() is { } id)
+                            orderedIds.Add(id);
+                    }
+                }
+            }
+
+            var works = new List<ArtworkPreview>();
+            foreach (var id in orderedIds)
+            {
+                if (thumbMap.TryGetValue(id, out var p)) works.Add(p);
+            }
+
+            // Ensure any unordered thumbnails are still included.
+            foreach (var p in thumbMap.Values)
+            {
+                if (!works.Any(w => w.Id == p.Id)) works.Add(p);
+            }
+
+            return works;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogDebug(ex, "GetCollectionWorks {Id}: parse failed", collectionId);
+            return [];
+        }
+    }
+
     public async Task<PixivCollection?> GetCollectionAsync(string collectionId, CancellationToken ct = default)
     {
         // No locale prefix — confirmed from a captured live request. Unlike /en/artworks/{id},
@@ -783,6 +975,25 @@ public sealed partial class PixivClient
                 }
             }
             result.Works = works;
+
+            // The HTML page may only embed a few initial tiles. Try the dedicated /ajax/collection
+            // endpoint to backfill the complete work list, preferring the richer HTML previews when
+            // both sources contain the same artwork.
+            try
+            {
+                var ajaxWorks = await GetCollectionWorksAsync(collectionId, ct).ConfigureAwait(false);
+                if (ajaxWorks.Count > works.Count)
+                {
+                    var merged = new List<ArtworkPreview>(ajaxWorks.Count);
+                    foreach (var a in ajaxWorks)
+                    {
+                        if (thumbMap.TryGetValue(a.Id, out var rich)) merged.Add(rich);
+                        else merged.Add(a);
+                    }
+                    result.Works = merged;
+                }
+            }
+            catch (Exception ex) { _logger.LogDebug(ex, "GetCollection {Id}: ajax work backfill failed", collectionId); }
 
             return result;
         }
@@ -1815,27 +2026,31 @@ public sealed partial class PixivClient
     }
 
     /// <summary>
-    /// GET /ajax/collection/{collectionId}/bookmarkData — current bookmark status for a
-    /// Collection. Confirmed from the bundle:
-    /// <c>e.get("/ajax/collection/:collectionId/bookmarkData", {collectionId})</c>.
+    /// GET /ajax/collections/{collectionId}/bookmarkData — current bookmark status for a
+    /// Collection. Confirmed from live Pixiv traffic; plural "collections" matches the add/remove
+    /// endpoints (<c>/ajax/collections/bookmarks/add</c> and <c>/remove</c>).
     /// </summary>
     public async Task<CollectionBookmarkData?> GetCollectionBookmarkDataAsync(string collectionId, CancellationToken ct = default)
     {
-        var url = $"{BaseUrl}/ajax/collection/{collectionId}/bookmarkData?lang={_settings.Current.Locale}";
+        var url = $"{BaseUrl}/ajax/collections/{collectionId}/bookmarkData?lang={_settings.Current.Locale}";
         return await GetAjaxAsync<CollectionBookmarkData>(url, ct, referer: $"{BaseUrl}/collections/{collectionId}").ConfigureAwait(false);
     }
 
     /// <summary>
     /// GET /ajax/user/{userId}/collections/bookmarks — the current user's bookmarked
-    /// Collections. Confirmed from the bundle:
-    /// <c>e.get("/ajax/user/:userId/collections/bookmarks", {userId}, {offset, limit, rest})</c>.
+    /// Collections. Confirmed from live Pixiv traffic:
+    /// <c>GET /ajax/user/{userId}/collections/bookmarks?offset=...&amp;limit=...&amp;rest=show&amp;lang=...</c>
+    /// with the referer set to the user's Bookmarks &gt; Collections page.
+    /// The response places the collection list under <c>body.works</c> and
+    /// <c>body.thumbnails.collection</c>; both are tried.
     /// </summary>
     public async Task<IReadOnlyList<PixivCollectionSummary>> GetBookmarkedCollectionsAsync(
         string userId, int offset = 0, int limit = 50, bool hidden = false, CancellationToken ct = default)
     {
         var rest = hidden ? "hide" : "show";
         var url = $"{BaseUrl}/ajax/user/{userId}/collections/bookmarks?offset={offset}&limit={limit}&rest={rest}&lang={_settings.Current.Locale}";
-        var json = await GetAjaxRawAsync(url, BaseUrl + "/", ct).ConfigureAwait(false);
+        var referer = $"{BaseUrl}/en/users/{userId}/bookmarks/collections?rest={rest}";
+        var json = await GetAjaxRawAsync(url, referer, ct).ConfigureAwait(false);
         if (json is null) return [];
 
         try
@@ -1843,17 +2058,22 @@ public sealed partial class PixivClient
             using var doc = JsonDocument.Parse(json);
             if (!doc.RootElement.TryGetProperty("body", out var body)) return [];
 
-            // Unconfirmed exact shape — try the most likely candidates (mirrors the recommend
-            // endpoint's "collections" array, or could be "works"/a bare array) and fall back to
-            // dumping raw JSON for diagnosis if none match.
-            JsonElement listEl = default;
-            var found = body.TryGetProperty("collections", out listEl) || body.TryGetProperty("works", out listEl);
-            if (!found && body.ValueKind == JsonValueKind.Array) listEl = body;
-
             var result = new List<PixivCollectionSummary>();
-            if (listEl.ValueKind == JsonValueKind.Array)
-                foreach (var item in listEl.EnumerateArray())
-                    if (ParseCollectionSummary(item) is { } s) result.Add(s);
+
+            // Live Pixiv response puts bookmarked collections under body.works, and also mirrors
+            // them under body.thumbnails.collection. Try both, plus the legacy "collections" field.
+            AddIfCollectionArray(result, body, "works");
+            AddIfCollectionArray(result, body, "collections");
+
+            if (body.TryGetProperty("thumbnails", out var thumbs)
+                && thumbs.ValueKind == JsonValueKind.Object
+                && thumbs.TryGetProperty("collection", out var collArr)
+                && collArr.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var item in collArr.EnumerateArray())
+                    if (ParseCollectionSummary(item) is { } s && !result.Any(r => r.Id == s.Id))
+                        result.Add(s);
+            }
 
             if (result.Count == 0)
             {
@@ -1868,6 +2088,14 @@ public sealed partial class PixivClient
             _logger.LogWarning(ex, "GetBookmarkedCollections: parse failed");
             return [];
         }
+    }
+
+    private static void AddIfCollectionArray(List<PixivCollectionSummary> result, JsonElement body, string propertyName)
+    {
+        if (body.TryGetProperty(propertyName, out var arr) && arr.ValueKind == JsonValueKind.Array)
+            foreach (var item in arr.EnumerateArray())
+                if (ParseCollectionSummary(item) is { } s && !result.Any(r => r.Id == s.Id))
+                    result.Add(s);
     }
 
     // ─── User follow actions ────────────────────────────────────────────────

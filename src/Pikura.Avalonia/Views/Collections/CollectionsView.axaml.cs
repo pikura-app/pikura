@@ -65,7 +65,7 @@ public partial class CollectionsView : UserControl
     private void OnSplitterPointerMoved(object? sender, PointerEventArgs e)
     {
         if (!_isDraggingSplitter || VM == null) return;
-        var contentGrid = this.FindControl<Grid>("CollectionsContentGrid");
+        var contentGrid = this.FindControl<Grid>("CollectionsRootGrid") ?? this.FindControl<Grid>("CollectionsContentGrid");
         if (contentGrid == null) return;
         var available = contentGrid.Bounds.Width;
         if (available <= 0) return;
@@ -97,7 +97,7 @@ public partial class CollectionsView : UserControl
         // Clamp persisted PanelWidth to current container width so it can't exceed window
         if (VM is { } vm0)
         {
-            var contentGrid = this.FindControl<Grid>("CollectionsContentGrid");
+            var contentGrid = this.FindControl<Grid>("CollectionsRootGrid") ?? this.FindControl<Grid>("CollectionsContentGrid");
             var available = contentGrid?.Bounds.Width ?? 0;
             if (available > 450)
             {
@@ -583,35 +583,11 @@ public partial class CollectionsView : UserControl
 
     private async void OnContextUseAsBackground(object? sender, RoutedEventArgs e)
     {
-        try { if (!AppServices.Get<BackgroundOverlayService>().IsEnabled) return; }
-        catch { return; }
         if (GetCard(sender) is not { } card || string.IsNullOrWhiteSpace(card.ThumbnailUrl)) return;
         try
         {
-            var overlay = AppServices.Get<BackgroundOverlayService>();
-            var bytes = await overlay.FetchImageBytesAsync(card.ThumbnailUrl);
-            var window = TopLevel.GetTopLevel(this) as Window;
-            if (window == null) { overlay.AddImage(card.ThumbnailUrl); return; }
-
-            var seedEntry = new Pikura.Core.Settings.OverlayImageEntry
-            {
-                Path = card.ThumbnailUrl,
-                Title = card.Title,
-                UserName = card.UserName,
-                UserId = card.UserId,
-                IllustId = card.Id,
-            };
-            var preview = new Pikura.Avalonia.Views.Dialogs.BackgroundPreviewWindow(card.ThumbnailUrl, bytes, seedEntry);
-            await preview.ShowDialog(window);
-
-            if (preview.Result is { } result)
-            {
-                result.Title = card.Title;
-                result.UserName = card.UserName;
-                result.UserId = card.UserId;
-                result.IllustId = card.Id;
-                overlay.AddImage(card.ThumbnailUrl, result);
-            }
+            await AppServices.Get<BackgroundOverlayService>()
+                .UseAsBackgroundFromCardAsync(card, window: TopLevel.GetTopLevel(this) as Window);
         }
         catch { /* non-fatal */ }
     }

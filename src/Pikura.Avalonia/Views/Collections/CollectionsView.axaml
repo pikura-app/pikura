@@ -1,5 +1,6 @@
-<UserControl xmlns="https://github.com/avaloniaui"
+﻿<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:loc="using:Pikura.Avalonia.Localization"
              xmlns:actipro="http://schemas.actiprosoftware.com/avaloniaui"
              xmlns:vm="using:Pikura.Avalonia.ViewModels"
              xmlns:gallery="using:Pikura.Avalonia.Views.Gallery"
@@ -82,7 +83,7 @@
                     </ToggleButton>
                     <Rectangle Width="1" Height="18" Fill="{DynamicResource Container1BorderBrush}" Margin="2,0"/>
                     <Button Content="Select All" FontSize="11" CornerRadius="6" Padding="10,5" Command="{Binding SelectAllCommand}"/>
-                    <Button Content="Clear Selection" FontSize="11" CornerRadius="6" Padding="10,5" Command="{Binding ClearSelectionCommand}"
+                    <Button Content="Deselect All" FontSize="11" CornerRadius="6" Padding="10,5" Command="{Binding ClearSelectionCommand}"
                             IsVisible="{Binding HasSelection}"/>
                     <TextBlock Text="{Binding SelectedCount, StringFormat='{}{0} selected'}" FontSize="11" VerticalAlignment="Center"
                                Foreground="{DynamicResource DefaultForegroundBrushTertiary}" IsVisible="{Binding HasSelection}"/>
@@ -92,6 +93,28 @@
                     <Button Content="🎨 Download Selected with Preset" FontSize="11" CornerRadius="6" Padding="10,5"
                             Command="{Binding DownloadSelectedWithPresetCommand}" IsVisible="{Binding HasSelection}"
                             IsEnabled="{Binding !IsDownloading}"/>
+                    <Button CornerRadius="6" Padding="10,5" FontSize="11" IsVisible="{Binding CanViewSelectedCollectionsAsCollage}"
+                            Command="{Binding ViewSelectedCollectionsAsCollageCommand}"
+                            ToolTip.Tip="Show all artworks from each selected collection in a new collage tab (up to 100)">
+                        <StackPanel Orientation="Horizontal" Spacing="5">
+                            <TextBlock Text="⊞" FontSize="12"/>
+                            <TextBlock Text="{loc:Tr Collage_ViewSelectedAsCollage}" FontSize="11" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <SplitButton CornerRadius="6" Padding="10,5" FontSize="11" IsVisible="{Binding CanAddSelectedCollectionsToCollage}"
+                            Command="{Binding AddSelectedCollectionsToCollageCommand}"
+                            ToolTip.Tip="Add all artworks from each selected collection to the active collage. Use the arrow to choose which collage.">
+                        <StackPanel Orientation="Horizontal" Spacing="5">
+                            <TextBlock Text="⊞" FontSize="12"/>
+                            <TextBlock Text="{loc:Tr Collage_AddSelectedToCollage}" FontSize="11" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <SplitButton.Flyout>
+                            <MenuFlyout>
+                                <MenuItem Header="{loc:Tr Collage_ChooseCollage}"
+                                          Command="{Binding AddSelectedCollectionsToCollagePickCommand}"/>
+                            </MenuFlyout>
+                        </SplitButton.Flyout>
+                    </SplitButton>
                     <Button Content="⊞ Download Loaded" FontSize="11" CornerRadius="6" Padding="10,5"
                             Command="{Binding DownloadLoadedCollectionsCommand}"
                             IsEnabled="{Binding !IsDownloading}"
@@ -124,20 +147,55 @@
                             Command="{Binding ClearWorksSelectionCommand}" IsVisible="{Binding HasWorksSelection}">
                         <StackPanel Orientation="Horizontal" Spacing="5">
                             <PathIcon Data="{StaticResource CloseIcon}" Width="12" Height="12" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
-                            <TextBlock Text="Clear Selection" FontSize="11"/>
+                            <TextBlock Text="Deselect All" FontSize="11"/>
                         </StackPanel>
                     </Button>
                     <TextBlock Text="{Binding SelectedWorksCount, StringFormat='{}{0} selected'}" FontSize="11" VerticalAlignment="Center"
                                Foreground="{DynamicResource DefaultForegroundBrushTertiary}" IsVisible="{Binding HasWorksSelection}"/>
                     <Button CornerRadius="6" Padding="10,5" FontSize="11" IsVisible="{Binding CanViewSelectedWorksAsCollage}"
                             Command="{Binding ViewSelectedWorksAsCollageCommand}"
-                            ToolTip.Tip="Show the checked artworks tiled together in the side panel (up to 10)">
+                            ToolTip.Tip="Show the checked artworks in a new collage tab (up to 100)">
                         <StackPanel Orientation="Horizontal" Spacing="5">
                             <TextBlock Text="⊞" FontSize="12"/>
-                            <TextBlock Text="View as Collage" FontSize="11" IsVisible="{Binding !GalleryVm.HasStoredCollage}"/>
-                            <TextBlock Text="Add to Collage" FontSize="11" IsVisible="{Binding GalleryVm.HasStoredCollage}"/>
+                            <TextBlock Text="{loc:Tr Collage_ViewAsCollage}" FontSize="11" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
+                    <SplitButton CornerRadius="6" Padding="10,5" FontSize="11" IsVisible="{Binding CanAddSelectedWorksToCollage}"
+                            Command="{Binding AddSelectedWorksToCollageCommand}"
+                            ToolTip.Tip="Add the checked artworks to the active collage. Use the arrow to choose which collage.">
+                        <StackPanel Orientation="Horizontal" Spacing="5">
+                            <TextBlock Text="⊞" FontSize="12"/>
+                            <TextBlock Text="{loc:Tr Collage_AddToCollage}" FontSize="11" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <SplitButton.Flyout>
+                            <MenuFlyout>
+                                <MenuItem Header="{loc:Tr Collage_ChooseCollage}"
+                                          Command="{Binding AddSelectedWorksToCollagePickCommand}"/>
+                            </MenuFlyout>
+                        </SplitButton.Flyout>
+                    </SplitButton>
+                    <Button CornerRadius="6" Padding="10,5" FontSize="11" IsVisible="{Binding CanViewAllWorksAsCollage}"
+                            Command="{Binding ViewAllWorksAsCollageCommand}"
+                            ToolTip.Tip="Show every artwork in this collection in a new collage tab (up to 100)">
+                        <StackPanel Orientation="Horizontal" Spacing="5">
+                            <TextBlock Text="⊞" FontSize="12"/>
+                            <TextBlock Text="{loc:Tr Collage_ViewAllAsCollage}" FontSize="11" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <SplitButton CornerRadius="6" Padding="10,5" FontSize="11" IsVisible="{Binding CanAddAllWorksToCollage}"
+                            Command="{Binding AddAllWorksToCollageCommand}"
+                            ToolTip.Tip="Add every artwork in this collection to the active collage. Use the arrow to choose which collage.">
+                        <StackPanel Orientation="Horizontal" Spacing="5">
+                            <TextBlock Text="⊞" FontSize="12"/>
+                            <TextBlock Text="{loc:Tr Collage_AddAllToCollage}" FontSize="11" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <SplitButton.Flyout>
+                            <MenuFlyout>
+                                <MenuItem Header="{loc:Tr Collage_ChooseCollage}"
+                                          Command="{Binding AddAllWorksToCollagePickCommand}"/>
+                            </MenuFlyout>
+                        </SplitButton.Flyout>
+                    </SplitButton>
                     <Button CornerRadius="6" Padding="10,5" FontSize="11" IsVisible="{Binding CanViewSelectedWorksInNewTabs}"
                             Command="{Binding ViewSelectedWorksInNewTabsCommand}"
                             ToolTip.Tip="Open each selected artwork in its own tab">
@@ -334,7 +392,7 @@
                                         <StackPanel>
                                             <Border Height="130" ClipToBounds="True"
                                                     Background="{DynamicResource Container2BackgroundBrush}">
-                                                <Image Source="{Binding Thumbnail}" Stretch="UniformToFill"/>
+                                                <Image Source="{Binding Thumbnail}" Stretch="UniformToFill" RenderOptions.BitmapInterpolationMode="HighQuality" UseLayoutRounding="True"/>
                                             </Border>
                                             <TextBlock Text="{Binding Title}" FontSize="10" Margin="6,4,6,6"
                                                        TextTrimming="CharacterEllipsis" MaxLines="1"/>
@@ -347,10 +405,10 @@
             </StackPanel>
         </Border>
 
-        <!-- ══ Row 2: Browse collage (Featured + All) OR single-collection artwork view ══ -->
-        <Grid Grid.Row="2">
+        <!-- ══ Row 2: Browse collage (Featured + All) OR single-collection artwork view, with a shared side panel ══ -->
+        <Grid Name="CollectionsRootGrid" Grid.Row="2" ColumnDefinitions="*,Auto,Auto">
             <!-- Browse collage -->
-            <ScrollViewer VerticalScrollBarVisibility="Auto" IsVisible="{Binding IsBrowsing}">
+            <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto" IsVisible="{Binding IsBrowsing}">
                 <StackPanel Margin="20" Spacing="16">
                     <ProgressBar IsIndeterminate="True" Height="3" IsVisible="{Binding IsBrowseLoading}"/>
 
@@ -376,6 +434,9 @@
                                                 </MenuItem>
                                                 <MenuItem Header="Deselect" IsVisible="{Binding IsSelected}" Command="{Binding $parent[UserControl].((vm:CollectionsViewModel)DataContext).ToggleTileSelectionCommand}" CommandParameter="{Binding}">
                                                     <MenuItem.Icon><PathIcon Data="{StaticResource CheckIcon}" Width="14" Height="14"/></MenuItem.Icon>
+                                                </MenuItem>
+                                                <MenuItem Header="Deselect all" Command="{Binding $parent[UserControl].((vm:CollectionsViewModel)DataContext).ClearSelectionCommand}">
+                                                    <MenuItem.Icon><PathIcon Data="{StaticResource CloseIcon}" Width="14" Height="14"/></MenuItem.Icon>
                                                 </MenuItem>
                                                 <Separator/>
                                                 <MenuItem Header="Download Collection" Command="{Binding $parent[UserControl].((vm:CollectionsViewModel)DataContext).DownloadSingleTileCommand}" CommandParameter="{Binding}">
@@ -406,7 +467,8 @@
                                                     <Panel>
                                                         <!-- Single work — full-bleed image -->
                                                         <Image Source="{Binding Thumbnail}" Stretch="UniformToFill"
-                                                               IsVisible="{Binding !HasMultipleThumbnails}">
+                                                               IsVisible="{Binding !HasMultipleThumbnails}"
+                                                               RenderOptions.BitmapInterpolationMode="HighQuality" UseLayoutRounding="True">
                                                             <Image.Effect><BlurEffect Radius="{Binding IsBlurred, Converter={StaticResource BoolToBlurRadiusConverter}}"/></Image.Effect>
                                                         </Image>
                                                         <!-- Multiple works — 2x2 assortment, like Pixiv's own collage look -->
@@ -493,6 +555,9 @@
                                                 <MenuItem Header="Deselect" IsVisible="{Binding IsSelected}" Command="{Binding $parent[UserControl].((vm:CollectionsViewModel)DataContext).ToggleTileSelectionCommand}" CommandParameter="{Binding}">
                                                     <MenuItem.Icon><PathIcon Data="{StaticResource CheckIcon}" Width="14" Height="14"/></MenuItem.Icon>
                                                 </MenuItem>
+                                                <MenuItem Header="Deselect all" Command="{Binding $parent[UserControl].((vm:CollectionsViewModel)DataContext).ClearSelectionCommand}">
+                                                    <MenuItem.Icon><PathIcon Data="{StaticResource CloseIcon}" Width="14" Height="14"/></MenuItem.Icon>
+                                                </MenuItem>
                                                 <Separator/>
                                                 <MenuItem Header="Download Collection" Command="{Binding $parent[UserControl].((vm:CollectionsViewModel)DataContext).DownloadSingleTileCommand}" CommandParameter="{Binding}">
                                                     <MenuItem.Icon><PathIcon Data="{StaticResource DownloadIcon}" Width="14" Height="14"/></MenuItem.Icon>
@@ -521,7 +586,8 @@
                                                         PointerPressed="OnBrowseTileClicked">
                                                     <Panel>
                                                         <Image Source="{Binding Thumbnail}" Stretch="UniformToFill"
-                                                               IsVisible="{Binding !HasMultipleThumbnails}">
+                                                               IsVisible="{Binding !HasMultipleThumbnails}"
+                                                               RenderOptions.BitmapInterpolationMode="HighQuality" UseLayoutRounding="True">
                                                             <Image.Effect><BlurEffect Radius="{Binding IsBlurred, Converter={StaticResource BoolToBlurRadiusConverter}}"/></Image.Effect>
                                                         </Image>
                                                         <ItemsControl ItemsSource="{Binding CollageThumbnails}"
@@ -575,7 +641,7 @@
             </ScrollViewer>
 
             <!-- Pages vs Load-more switch — docked at the bottom of this Grid.Row. -->
-            <Border VerticalAlignment="Bottom"
+            <Border Grid.Column="0" VerticalAlignment="Bottom"
                     Background="{DynamicResource Container1BackgroundBrush}"
                     BorderBrush="{DynamicResource Container1BorderBrush}"
                     BorderThickness="0,1,0,0" Padding="14,8"
@@ -628,9 +694,9 @@
                 </Grid>
             </Border>
 
-            <!-- Single-collection artwork view + inline viewer side panel -->
-            <Grid Name="CollectionsContentGrid" ColumnDefinitions="*,Auto,Auto" IsVisible="{Binding !IsBrowsing}">
-                <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto">
+            <!-- Single-collection artwork view -->
+            <Grid Name="CollectionsContentGrid" Grid.Column="0" IsVisible="{Binding !IsBrowsing}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel>
                     <!-- Empty state — this collection has no artwork. Shown instead of leaving a
                          blank gap between the caption bar and the comments section below. -->
@@ -716,7 +782,7 @@
                                     <Grid RowDefinitions="Auto,Auto">
                                         <Border Grid.Row="0" Height="220" ClipToBounds="True">
                                             <Panel>
-                                                <Image Source="{Binding Thumbnail}" Stretch="UniformToFill">
+                                                <Image Source="{Binding Thumbnail}" Stretch="UniformToFill" RenderOptions.BitmapInterpolationMode="HighQuality" UseLayoutRounding="True">
                                                     <Image.Effect><BlurEffect Radius="{Binding IsBlurred, Converter={StaticResource BoolToBlurRadiusConverter}}"/></Image.Effect>
                                                 </Image>
                                                 <!-- Badges overlaid on the image -->
@@ -724,7 +790,7 @@
                                                     <Border VerticalAlignment="Bottom" HorizontalAlignment="Left"
                                                             Margin="6,0,0,6" Padding="5,2" CornerRadius="4"
                                                             Background="#BB000000" IsVisible="{Binding IsMultiPage}">
-                                                        <TextBlock Text="{Binding PageCount, StringFormat='1/{0}'}"
+                                                        <TextBlock Text="{Binding PageCount, StringFormat='{}{0}'}"
                                                                    FontSize="9" Foreground="White"/>
                                                     </Border>
                                                     <Border VerticalAlignment="Top" HorizontalAlignment="Right"
@@ -822,7 +888,7 @@
                                         </Border.ContextMenu>
                                         <StackPanel>
                                             <Panel>
-                                                <Image Source="{Binding Thumbnail}" Stretch="Uniform">
+                                                <Image Source="{Binding Thumbnail}" Stretch="Uniform" RenderOptions.BitmapInterpolationMode="HighQuality" UseLayoutRounding="True">
                                                     <Image.Effect><BlurEffect Radius="{Binding IsBlurred, Converter={StaticResource BoolToBlurRadiusConverter}}"/></Image.Effect>
                                                 </Image>
                                                 <CheckBox VerticalAlignment="Top" HorizontalAlignment="Left"
@@ -861,7 +927,7 @@
                                         <CheckBox Grid.Column="0" VerticalAlignment="Center"
                                                   IsChecked="{Binding IsSelected}" Click="OnWorkCheckboxClicked"/>
                                         <Border Grid.Column="1" Width="56" Height="56" CornerRadius="6" ClipToBounds="True" Margin="8,0">
-                                            <Image Source="{Binding Thumbnail}" Stretch="UniformToFill">
+                                            <Image Source="{Binding Thumbnail}" Stretch="UniformToFill" RenderOptions.BitmapInterpolationMode="HighQuality" UseLayoutRounding="True">
                                                 <Image.Effect><BlurEffect Radius="{Binding IsBlurred, Converter={StaticResource BoolToBlurRadiusConverter}}"/></Image.Effect>
                                             </Image>
                                         </Border>
@@ -954,30 +1020,30 @@
                     </StackPanel>
                     </StackPanel>
                 </ScrollViewer>
-
-                <!-- Custom splitter (Border with pointer events) — avoids GridSplitter's direct column manipulation.
-                     Mirrors GalleryView's identical drag-resize pattern. -->
-                <Border Grid.Column="1" Width="4" Name="CollectionsSplitter"
-                        Cursor="SizeWestEast"
-                        Background="{DynamicResource Container1BorderBrush}"
-                        IsVisible="{Binding ShowPreview}"
-                        PointerPressed="OnSplitterPointerPressed"
-                        PointerMoved="OnSplitterPointerMoved"
-                        PointerReleased="OnSplitterPointerReleased"/>
-
-                <Border Grid.Column="2" Width="{Binding PanelWidth}"
-                        MinWidth="350"
-                        ClipToBounds="True"
-                        Background="{DynamicResource Container1BackgroundBrush}"
-                        BorderBrush="{DynamicResource Container1BorderBrush}"
-                        BorderThickness="1,0,0,0"
-                        IsVisible="{Binding ShowPreview}">
-                    <gallery:InlineArtworkViewer Name="CollectionsInlineViewer"
-                                                 DataContext="{Binding GalleryVm}"
-                                                 IsExpanded="{Binding $parent[UserControl].((vm:CollectionsViewModel)DataContext).IsViewerExpanded}"
-                                                 IsPanelOpen="{Binding $parent[UserControl].((vm:CollectionsViewModel)DataContext).ShowPreview}"/>
-                </Border>
             </Grid>
+
+            <!-- Custom splitter (Border with pointer events) — shared by browse and detail columns.
+                 Mirrors GalleryView's identical drag-resize pattern. -->
+            <Border Grid.Column="1" Width="4" Name="CollectionsSplitter"
+                    Cursor="SizeWestEast"
+                    Background="{DynamicResource Container1BorderBrush}"
+                    IsVisible="{Binding ShowPreview}"
+                    PointerPressed="OnSplitterPointerPressed"
+                    PointerMoved="OnSplitterPointerMoved"
+                    PointerReleased="OnSplitterPointerReleased"/>
+
+            <Border Grid.Column="2" Width="{Binding PanelWidth}"
+                    MinWidth="350"
+                    ClipToBounds="True"
+                    Background="{DynamicResource Container1BackgroundBrush}"
+                    BorderBrush="{DynamicResource Container1BorderBrush}"
+                    BorderThickness="1,0,0,0"
+                    IsVisible="{Binding ShowPreview}">
+                <gallery:InlineArtworkViewer Name="CollectionsInlineViewer"
+                                             DataContext="{Binding GalleryVm}"
+                                             IsExpanded="{Binding $parent[UserControl].((vm:CollectionsViewModel)DataContext).IsViewerExpanded}"
+                                             IsPanelOpen="{Binding $parent[UserControl].((vm:CollectionsViewModel)DataContext).ShowPreview}"/>
+            </Border>
         </Grid>
 
         <!-- Full-screen viewer overlay — covers the entire view including toolbars. Without

@@ -368,36 +368,12 @@ public partial class GalleryView : UserControl
 
     private async void OnContextUseAsBackground(object? sender, RoutedEventArgs e)
     {
-        try { if (!AppServices.Get<BackgroundOverlayService>().IsEnabled) return; }
-        catch { return; }
         if (GetCardFromMenu(sender) is not { } card) return;
         if (string.IsNullOrWhiteSpace(card.ThumbnailUrl)) return;
         try
         {
-            var overlay = AppServices.Get<BackgroundOverlayService>();
-            var bytes = await overlay.FetchImageBytesAsync(card.ThumbnailUrl);
-            var window = TopLevel.GetTopLevel(this) as Window;
-            if (window == null) { overlay.AddImage(card.ThumbnailUrl); return; }
-
-            var seedEntry = new Pikura.Core.Settings.OverlayImageEntry
-            {
-                Path = card.ThumbnailUrl,
-                Title = card.Title,
-                UserName = card.UserName,
-                UserId = card.UserId,
-                IllustId = card.Id,
-            };
-            var preview = new BackgroundPreviewWindow(card.ThumbnailUrl, bytes, seedEntry);
-            await preview.ShowDialog(window);
-
-            if (preview.Result is { } result)
-            {
-                result.Title = card.Title;
-                result.UserName = card.UserName;
-                result.UserId = card.UserId;
-                result.IllustId = card.Id;
-                overlay.AddImage(card.ThumbnailUrl, result);
-            }
+            await AppServices.Get<BackgroundOverlayService>()
+                .UseAsBackgroundFromCardAsync(card, window: TopLevel.GetTopLevel(this) as Window);
         }
         catch { /* non-fatal */ }
     }

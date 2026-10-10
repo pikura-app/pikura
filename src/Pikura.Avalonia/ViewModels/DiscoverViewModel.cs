@@ -61,7 +61,18 @@ public partial class DiscoverViewModel : ViewModelBase
     // Selection tracking for multi-select download
     [ObservableProperty] private int _selectedCount;
     public bool HasSelection => SelectedCount > 0;
-    partial void OnSelectedCountChanged(int value) => OnPropertyChanged(nameof(HasSelection));
+    partial void OnSelectedCountChanged(int value)
+    {
+        OnPropertyChanged(nameof(HasSelection));
+        OnPropertyChanged(nameof(CanViewSelectedAsCollage));
+        ViewSelectedAsCollageCommand.NotifyCanExecuteChanged();
+        OnPropertyChanged(nameof(CanAddSelectedAsCollage));
+        AddSelectedAsCollageCommand.NotifyCanExecuteChanged();
+        OnPropertyChanged(nameof(CanChooseCollageTarget));
+        AddSelectedAsCollagePickCommand.NotifyCanExecuteChanged();
+        OnPropertyChanged(nameof(CanViewSelectedInNewTabs));
+        ViewSelectedInNewTabsCommand.NotifyCanExecuteChanged();
+    }
 
     // Filtered view (tag filter applied)
     public ObservableCollection<ArtworkCardViewModel> FilteredWorks { get; } = [];
@@ -227,6 +238,10 @@ public partial class DiscoverViewModel : ViewModelBase
         SelectedCount = RecommendedWorks.Count(c => c.IsSelected) + ArtistWorks.Count(c => c.IsSelected);
         OnPropertyChanged(nameof(CanViewSelectedAsCollage));
         ViewSelectedAsCollageCommand.NotifyCanExecuteChanged();
+        OnPropertyChanged(nameof(CanAddSelectedAsCollage));
+        AddSelectedAsCollageCommand.NotifyCanExecuteChanged();
+        OnPropertyChanged(nameof(CanChooseCollageTarget));
+        AddSelectedAsCollagePickCommand.NotifyCanExecuteChanged();
         OnPropertyChanged(nameof(CanViewSelectedInNewTabs));
         ViewSelectedInNewTabsCommand.NotifyCanExecuteChanged();
     }
@@ -239,7 +254,34 @@ public partial class DiscoverViewModel : ViewModelBase
         var works = IsWorksTab ? RecommendedWorks : ArtistWorks;
         var selected = works.Where(c => c.IsSelected).ToList();
         if (selected.Count == 0) return;
-        GalleryVm.AddSelectedToCollage(selected);
+        GalleryVm.ShowCollage(selected.Take(GalleryViewModel.MaxCollageItems));
+    }
+
+    /// <summary>Only requires that a collage exists — not that one is selected, and not that it has
+    /// room. Keeping this permissive keeps the SplitButton's "Choose collage…" flyout reachable.</summary>
+    public bool CanAddSelectedAsCollage => SelectedCount > 0 && GalleryVm.HasStoredCollage;
+
+    /// <summary>The picker can always be opened for a non-empty selection — it can create a collage
+    /// from scratch, so no existing collage is required.</summary>
+    public bool CanChooseCollageTarget => SelectedCount > 0;
+
+    /// <summary>"Choose collage…" — pick one or more collages to add the checked artworks to.</summary>
+    [RelayCommand(CanExecute = nameof(CanChooseCollageTarget))]
+    private async Task AddSelectedAsCollagePickAsync()
+    {
+        var works = IsWorksTab ? RecommendedWorks : ArtistWorks;
+        var selected = works.Where(c => c.IsSelected).ToList();
+        var summary = await GalleryVm.AddItemsToCollageWithPickerAsync(selected);
+        if (summary != null) StatusMessage = summary;
+    }
+
+    [RelayCommand(CanExecute = nameof(CanAddSelectedAsCollage))]
+    private void AddSelectedAsCollage()
+    {
+        var works = IsWorksTab ? RecommendedWorks : ArtistWorks;
+        var selected = works.Where(c => c.IsSelected).ToList();
+        if (selected.Count == 0) return;
+        StatusMessage = GalleryVm.AddToPrimaryCollage(selected);
     }
 
     public bool CanViewSelectedInNewTabs => SelectedCount >= 1;
@@ -314,7 +356,7 @@ public partial class DiscoverViewModel : ViewModelBase
             for (int i = 0; i < allIds.Count; i += batchSize)
             {
                 var batchIds = allIds.Skip(i).Take(batchSize).ToList();
-                var batch = await _pixivClient.GetArtworksMetadataAsync(SelectedUser.UserId, batchIds);
+                var batch = await _pixivClient.GetArtworksMetadataAsync(SelectedUser.UserId, batchIds, isFirstPage: i == 0);
                 if (batch != null)
                 {
                     allPreviews.AddRange(batch.Values);
@@ -381,6 +423,10 @@ public partial class DiscoverViewModel : ViewModelBase
             {
                 OnPropertyChanged(nameof(CanViewSelectedAsCollage));
                 ViewSelectedAsCollageCommand.NotifyCanExecuteChanged();
+                OnPropertyChanged(nameof(CanAddSelectedAsCollage));
+                AddSelectedAsCollageCommand.NotifyCanExecuteChanged();
+                OnPropertyChanged(nameof(CanChooseCollageTarget));
+                AddSelectedAsCollagePickCommand.NotifyCanExecuteChanged();
             }
         };
         GalleryVm.ViewerTabs.CollectionChanged += (_, _) =>
@@ -660,7 +706,7 @@ public partial class DiscoverViewModel : ViewModelBase
 
             // Step 2: fetch metadata for first 48 IDs
             var batch = allIds.Take(48).ToList();
-            var works = await _pixivClient.GetArtworksMetadataAsync(userId, batch, ct);
+            var works = await _pixivClient.GetArtworksMetadataAsync(userId, batch, true, ct);
             ct.ThrowIfCancellationRequested();
 
             foreach (var id in batch)

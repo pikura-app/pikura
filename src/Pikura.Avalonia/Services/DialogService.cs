@@ -2,6 +2,7 @@
 using Avalonia.Threading;
 using Avalonia.Styling;
 using Microsoft.Extensions.Logging;
+using Pikura.Avalonia.ViewModels;
 using Pikura.Core.Data;
 using Pikura.Core.Http;
 using Pikura.Core.Models;
@@ -112,37 +113,42 @@ public class DialogService
     {
         try
         {
-            var isDarkMode = global::Avalonia.Application.Current?.RequestedThemeVariant == ThemeVariant.Dark;
-            var textBox = new TextBox { Text = defaultValue };
-            var messageTextBlock = new TextBlock 
-            { 
-                Text = message,
-                Foreground = isDarkMode ? Brushes.White : Brushes.Black
-            };
-            var panel = new StackPanel { Spacing = 10 };
-            panel.Children.Add(messageTextBlock);
-            panel.Children.Add(textBox);
-
-            var dialog = new ContentDialog
+            if (_ownerWindow == null) return null;
+            var dialog = new Views.Dialogs.TextInputDialog
             {
-                Title = title,
-                Content = panel,
-                PrimaryButtonText = "OK",
-                SecondaryButtonText = "Cancel",
-                IsDarkMode = isDarkMode
+                DialogTitle = title,
+                Description = message,
+                InitialValue = defaultValue
             };
-
-            if (_ownerWindow != null)
-            {
-                var result = await dialog.ShowAsync(_ownerWindow);
-                return result == ContentDialogResult.Primary ? textBox.Text : null;
-            }
-
-            return null;
+            var result = await dialog.ShowDialog<string?>(_ownerWindow);
+            return result;
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to show input dialog");
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// Shows the "add to collage" picker. Lets the user check one or more of the currently open
+    /// collages — and optionally create a new one — as targets for a set of artworks.
+    /// Returns null when the dialog is cancelled.
+    /// </summary>
+    public async Task<CollagePickerResult?> ShowCollagePickerAsync(
+        IReadOnlyList<ViewerTab> collages,
+        int itemCount,
+        ViewerTab? preselect = null)
+    {
+        try
+        {
+            if (_ownerWindow == null) return null;
+            var dialog = new Views.Dialogs.CollagePickerDialog(collages, itemCount, preselect);
+            return await dialog.ShowDialog<CollagePickerResult?>(_ownerWindow);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to show collage picker dialog");
             return null;
         }
     }

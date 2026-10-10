@@ -25,6 +25,25 @@ public partial class BookmarksViewModel : ViewModelBase
     private readonly DialogService _dialogService;
 
     private CancellationTokenSource? _cts;
+
+    /// <summary>
+    /// Separate lifetime for thumbnail downloads, cancelled only when a tab is reloaded (and the
+    /// collection cleared) — never by Load More.
+    /// <para>
+    /// Thumbnails used to ride on <see cref="_cts"/>, which <see cref="LoadMoreAsync"/> cancels at
+    /// the top of every call. Fetching the next page therefore aborted every still-downloading
+    /// image from the previous page, leaving rows of blank cards that only filled in after a
+    /// manual Refresh. Images outliving the request that queued them is correct: the cards stay
+    /// on screen regardless.
+    /// </para>
+    /// <para>
+    /// Kept per tab, because <see cref="_cts"/> is shared across Public/Private — loading one tab
+    /// would otherwise cancel the other's images too.
+    /// </para>
+    /// </summary>
+    private CancellationTokenSource? _thumbCtsPublic;
+    private CancellationTokenSource? _thumbCtsPrivate;
+
     private bool _isLoadingPublic;
     private bool _isLoadingPrivate;
     private bool _isLoadingCollections;
@@ -33,7 +52,7 @@ public partial class BookmarksViewModel : ViewModelBase
 
     // ── Tab ────────────────────────────────────────────────────────────────
     // 0 = Public  1 = Private  2 = Local Favorites  3 = Collections
-    [ObservableProperty] private int _selectedTabIndex = 2;
+    [ObservableProperty] private int _selectedTabIndex = 0;
     public bool IsPublicTab      => SelectedTabIndex == 0;
     public bool IsPrivateTab     => SelectedTabIndex == 1;
     public bool IsFavoritesTab   => SelectedTabIndex == 2;
@@ -157,6 +176,10 @@ public partial class BookmarksViewModel : ViewModelBase
         OnPropertyChanged(nameof(HasSelection));
         OnPropertyChanged(nameof(CanViewSelectedAsCollage));
         ViewSelectedAsCollageCommand.NotifyCanExecuteChanged();
+        OnPropertyChanged(nameof(CanAddSelectedAsCollage));
+        AddSelectedAsCollageCommand.NotifyCanExecuteChanged();
+        OnPropertyChanged(nameof(CanChooseCollageTarget));
+        AddSelectedAsCollagePickCommand.NotifyCanExecuteChanged();
         OnPropertyChanged(nameof(CanViewSelectedInNewTabs));
         ViewSelectedInNewTabsCommand.NotifyCanExecuteChanged();
     }
@@ -168,7 +191,32 @@ public partial class BookmarksViewModel : ViewModelBase
     {
         var selected = ActiveCollection.Where(c => c.IsSelected).ToList();
         if (selected.Count == 0) return;
-        GalleryVm.AddSelectedToCollage(selected);
+        GalleryVm.ShowCollage(selected.Take(GalleryViewModel.MaxCollageItems));
+    }
+
+    /// <summary>Only requires that a collage exists — not that one is selected, and not that it has
+    /// room. Keeping this permissive keeps the SplitButton's "Choose collage…" flyout reachable.</summary>
+    public bool CanAddSelectedAsCollage => SelectedCount > 0 && GalleryVm.HasStoredCollage;
+
+    [RelayCommand(CanExecute = nameof(CanAddSelectedAsCollage))]
+    private void AddSelectedAsCollage()
+    {
+        var selected = ActiveCollection.Where(c => c.IsSelected).ToList();
+        if (selected.Count == 0) return;
+        StatusMessage = GalleryVm.AddToPrimaryCollage(selected);
+    }
+
+    /// <summary>The picker can always be opened for a non-empty selection — it can create a collage
+    /// from scratch, so no existing collage is required.</summary>
+    public bool CanChooseCollageTarget => SelectedCount > 0;
+
+    /// <summary>"Choose collage…" — pick one or more collages to add the checked artworks to.</summary>
+    [RelayCommand(CanExecute = nameof(CanChooseCollageTarget))]
+    private async Task AddSelectedAsCollagePickAsync()
+    {
+        var selected = ActiveCollection.Where(c => c.IsSelected).ToList();
+        var summary = await GalleryVm.AddItemsToCollageWithPickerAsync(selected);
+        if (summary != null) StatusMessage = summary;
     }
 
     public bool CanViewSelectedInNewTabs => SelectedCount >= 1;
@@ -316,6 +364,10 @@ public partial class BookmarksViewModel : ViewModelBase
             {
                 OnPropertyChanged(nameof(CanViewSelectedAsCollage));
                 ViewSelectedAsCollageCommand.NotifyCanExecuteChanged();
+                OnPropertyChanged(nameof(CanAddSelectedAsCollage));
+                AddSelectedAsCollageCommand.NotifyCanExecuteChanged();
+                OnPropertyChanged(nameof(CanChooseCollageTarget));
+                AddSelectedAsCollagePickCommand.NotifyCanExecuteChanged();
             }
         };
         GalleryVm.ViewerTabs.CollectionChanged += (_, _) => NotifyViewerState();
@@ -449,6 +501,22 @@ public partial class BookmarksViewModel : ViewModelBase
         _cts = new CancellationTokenSource();
         var ct = _cts.Token;
 
+        // Reloading the tab clears its collection, so any thumbnails still in flight are for
+        // cards that no longer exist — this is the one place it's right to cancel them. Only the
+        // tab being reloaded is affected.
+        if (isPrivate)
+        {
+            _thumbCtsPrivate?.Cancel();
+            _thumbCtsPrivate?.Dispose();
+            _thumbCtsPrivate = new CancellationTokenSource();
+        }
+        else
+        {
+            _thumbCtsPublic?.Cancel();
+            _thumbCtsPublic?.Dispose();
+            _thumbCtsPublic = new CancellationTokenSource();
+        }
+
         IsLoading = true;
         StatusMessage = $"Loading {(isPrivate ? "private" : "public")} bookmarks…";
 
@@ -536,10 +604,28 @@ public partial class BookmarksViewModel : ViewModelBase
         loadedOffset += response.Works.Count;
         CanLoadMore = loadedOffset < TotalCount;
 
+        // Pixiv returns the real thumbnail URLs under body.thumbnails.illust[], keyed by work id.
+        // Prefer those over the body.works[].url (which is often a /custom-thumb/ crop that fails).
+        if (response.Thumbnails?.Illust is { } thumbs)
+        {
+            var byId = thumbs
+                .Where(t => !string.IsNullOrWhiteSpace(t.Id) && !string.IsNullOrWhiteSpace(t.Url))
+                .ToDictionary(t => t.Id, t => t.Url, StringComparer.Ordinal);
+            foreach (var work in response.Works)
+            {
+                if (byId.TryGetValue(work.Id, out var url) && !string.IsNullOrWhiteSpace(url))
+                    work.Url = url;
+            }
+        }
+
         // Bookmarks sometimes arrive with no usable thumbnail URL (or a custom-thumb crop
         // that won't load). Fetch each author's profile/illusts metadata once per batch to
         // backfill a proper /img-master/ URL for those works.
         await BackfillBookmarkThumbnailUrlsAsync(response.Works, ct);
+
+        // Image downloads use this tab's long-lived thumbnail token, not the per-request one —
+        // the next Load More cancels `ct` and would otherwise kill these mid-download.
+        var thumbCt = (hidden ? _thumbCtsPrivate : _thumbCtsPublic)?.Token ?? CancellationToken.None;
 
         var blurR18 = _settingsService.Current.BlurR18Content;
         var likedIds = _settingsService.Current.PixivLikedArtworkIds;
@@ -558,13 +644,105 @@ public partial class BookmarksViewModel : ViewModelBase
                 IsPixivPrivateBookmark = hidden,
             };
             collection.Add(vm);
-            _ = vm.LoadThumbnailAsync(_imageLoader, ct: ct);
+            _ = vm.LoadThumbnailAsync(_imageLoader, ct: thumbCt);
         }
+
+        // Network fetches can fail transiently (socket permission, 429, timeout). Give the
+        // first batch a moment to settle, then re-try any cards that still have no bitmap.
+        // Also on the thumbnail token: its retries run on delays long enough that a Load More
+        // would otherwise always cancel them before they fired.
+        _ = RetryMissingThumbnailsAsync(collection, thumbCt);
 
         StatusMessage = CanLoadMore
             ? $"Loaded {loadedOffset} / {TotalCount}"
             : $"{collection.Count} bookmarks";
         return loadedOffset;
+    }
+
+    private async Task RetryMissingThumbnailsAsync(ObservableCollection<ArtworkCardViewModel> collection, CancellationToken ct)
+    {
+        try
+        {
+            // First retry after a short delay — transient failures often clear themselves.
+            await Task.Delay(1500, ct).ConfigureAwait(false);
+            var missing = collection
+                .Where(vm => vm.Thumbnail is null && !string.IsNullOrWhiteSpace(vm.ThumbnailUrl))
+                .ToList();
+            foreach (var vm in missing)
+                _ = vm.LoadThumbnailAsync(_imageLoader, ct: ct);
+
+            // Second pass: try the master1200 URL shape, which can succeed when the square/master
+            // forms fail.
+            //
+            // This used to request ThumbnailSize.Original and that was actively harmful: for a
+            // grid of 48 bookmarks it kicked off multi-megabyte full-resolution downloads that
+            // mostly hit the 30s HttpClient timeout, and because the loader retries 3 times each
+            // failure occupied a shared concurrency slot for ~90 seconds. A handful of them
+            // saturated the image loader and starved every *other* thumbnail — which is why whole
+            // pages of bookmarks rendered blank. Large is a different URL shape (so it still
+            // works as a retry) at a fraction of the bytes.
+            await Task.Delay(3500, ct).ConfigureAwait(false);
+            missing = collection
+                .Where(vm => vm.Thumbnail is null && !string.IsNullOrWhiteSpace(vm.ThumbnailUrl))
+                .ToList();
+            foreach (var vm in missing)
+                _ = vm.LoadThumbnailAsync(_imageLoader, ThumbnailSize.Large, ct);
+
+            // Last resort: fetch fresh artwork metadata and update the thumbnail URL, then try again.
+            //
+            // Deliberately NOT filtered on having a ThumbnailUrl. This pass exists precisely to
+            // *obtain* a URL, but it used to skip any card that didn't already have one — so a
+            // bookmark that arrived from Pixiv with a blank url was excluded from every retry
+            // path and stayed permanently blank. It never even attempted a fetch, which is why
+            // nothing showed up in the image failure log for those cards.
+            await Task.Delay(3000, ct).ConfigureAwait(false);
+            missing = collection.Where(vm => vm.Thumbnail is null).ToList();
+            if (missing.Count > 0)
+                await BackfillMissingThumbnailUrlsAsync(missing, ct).ConfigureAwait(false);
+
+            // Give the backfilled loads a moment, then record anything still blank. A card with
+            // no URL at this point never reaches the image loader, so it leaves no trace in the
+            // image failure log — without this there's nothing to diagnose from.
+            await Task.Delay(4000, ct).ConfigureAwait(false);
+            var stillBlank = collection.Count(vm => vm.Thumbnail is null);
+            if (stillBlank > 0)
+            {
+                Logger.LogWarning(
+                    "{Blank} of {Total} bookmark thumbnails still missing after all retries; {NoUrl} have no thumbnail URL, {NoUser} have no user id",
+                    stillBlank,
+                    collection.Count,
+                    collection.Count(vm => vm.Thumbnail is null && string.IsNullOrWhiteSpace(vm.ThumbnailUrl)),
+                    collection.Count(vm => vm.Thumbnail is null && string.IsNullOrWhiteSpace(vm.UserId)));
+            }
+        }
+        catch (OperationCanceledException) { }
+        catch (Exception ex) { Logger.LogDebug(ex, "Retry missing thumbnails failed"); }
+    }
+
+    private async Task BackfillMissingThumbnailUrlsAsync(List<ArtworkCardViewModel> missing, CancellationToken ct)
+    {
+        var byUser = missing.Where(vm => !string.IsNullOrWhiteSpace(vm.UserId)).GroupBy(vm => vm.UserId).ToList();
+        foreach (var group in byUser)
+        {
+            ct.ThrowIfCancellationRequested();
+            try
+            {
+                var ids = group.Select(vm => vm.Id).Distinct().ToList();
+                var meta = await _pixivClient.GetArtworksMetadataAsync(group.Key, ids, false, ct).ConfigureAwait(false);
+                foreach (var vm in group)
+                {
+                    if (meta.TryGetValue(vm.Id, out var preview)
+                        && !string.IsNullOrWhiteSpace(preview.ThumbnailUrl))
+                    {
+                        vm.RefreshThumbnailUrl(preview.ThumbnailUrl);
+                        if (vm.Thumbnail is null)
+                            _ = vm.LoadThumbnailAsync(_imageLoader, ct: ct);
+                    }
+                }
+            }
+            catch (OperationCanceledException) { throw; }
+            catch { /* best-effort */ }
+        }
     }
 
     private async Task BackfillBookmarkThumbnailUrlsAsync(List<BookmarkedArtwork> works, CancellationToken ct)
@@ -581,7 +759,7 @@ public partial class BookmarksViewModel : ViewModelBase
             try
             {
                 var ids = group.Select(w => w.Id).Distinct().ToList();
-                var meta = await _pixivClient.GetArtworksMetadataAsync(group.Key, ids, ct).ConfigureAwait(false);
+                var meta = await _pixivClient.GetArtworksMetadataAsync(group.Key, ids, false, ct).ConfigureAwait(false);
                 foreach (var work in group)
                 {
                     if (meta.TryGetValue(work.Id, out var preview)
@@ -745,6 +923,22 @@ public partial class BookmarksViewModel : ViewModelBase
         ApplyFilter(PublicBookmarks,  FilteredPublic);
         ApplyFilter(PrivateBookmarks, FilteredPrivate);
         ApplyFilter(LocalFavorites,   FilteredFavorites, applyFolder: true);
+
+        // While a fetch is still in flight the collection is only partly populated, so reporting
+        // its current size reads as a wrong total. Selecting the Public tab during its initial
+        // load hit exactly this and announced "0 public bookmarks". Report progress against the
+        // real total instead, and let the normal count message take over once loading finishes.
+        var loadingPublic  = SelectedTabIndex == 0 && (_isLoadingPublic  || IsLoading);
+        var loadingPrivate = SelectedTabIndex == 1 && (_isLoadingPrivate || IsLoading);
+        if (loadingPublic || loadingPrivate)
+        {
+            var label  = loadingPrivate ? "private" : "public";
+            var loaded = loadingPrivate ? PrivateBookmarks.Count : PublicBookmarks.Count;
+            StatusMessage = TotalCount > 0
+                ? $"Loading {label} bookmarks… {loaded} / {TotalCount}"
+                : $"Loading {label} bookmarks…";
+            return;
+        }
 
         // Tab-aware status message
         switch (SelectedTabIndex)

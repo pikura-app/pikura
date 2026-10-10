@@ -472,7 +472,6 @@ public partial class SettingsViewModel : ViewModelBase
 
     // Settings that require restart
     [ObservableProperty] private bool _restartRequired;
-    private string _pendingRestartChange = "";
 
     // ── Hoshi AI Model Management ────────────────────────────────────────────
     private readonly OllamaService _ollama;
@@ -790,8 +789,14 @@ public partial class SettingsViewModel : ViewModelBase
         UpdateStatusMessage = "Checking for updates...";
         try
         {
-            // Force a check regardless of frequency
-            _settingsService.Update(s => s.LastUpdateCheck = null);
+            // Force a check regardless of frequency. Also clear any previous dismissal — asking
+            // explicitly is clear intent to see the update again, otherwise a dismissed version
+            // could never be surfaced.
+            _settingsService.Update(s =>
+            {
+                s.LastUpdateCheck = null;
+                s.DismissedUpdateVersion = null;
+            });
 
             var mainVm = AppServices.Get<MainWindowViewModel>();
             await mainVm.CheckForUpdateAsync().ConfigureAwait(false);
@@ -1076,8 +1081,9 @@ public partial class SettingsViewModel : ViewModelBase
 
     partial void OnAppLanguageChanged(string value)
     {
-        RestartRequired = true;
-        _pendingRestartChange = $"Language changed to {value}. Application language requires restart to fully apply.";
+        // Applies live — every translated string is bound through LocalizationService's indexer, so
+        // switching languages re-reads them in place. No restart prompt.
+        Localization.LocalizationService.Instance.SetLanguage(value);
     }
 
     // Manga & Templates
@@ -1303,13 +1309,22 @@ public partial class SettingsViewModel : ViewModelBase
         // Save any pending changes
         _settingsService.Save();
 
-        // Get the current executable path (entry assembly is .dll, need .exe)
-        var dllPath = System.Reflection.Assembly.GetEntryAssembly()?.Location;
-        if (string.IsNullOrEmpty(dllPath)) return;
+        // Environment.ProcessPath is the real host executable. The previous approach took
+        // Assembly.GetEntryAssembly()?.Location and swapped ".dll" for ".exe", which silently
+        // did nothing in two cases: Location returns "" for single-file published apps (so the
+        // method just returned), and the naive Replace also corrupted any path containing
+        // ".dll" earlier in it. That's why "Restart Now" appeared dead.
+        var exePath = Environment.ProcessPath;
 
-        // Replace .dll with .exe to get the actual executable path
-        var exePath = dllPath.Replace(".dll", ".exe", StringComparison.OrdinalIgnoreCase);
-        if (!File.Exists(exePath)) return;
+        // Fall back to the old derivation for unusual hosts where ProcessPath is unavailable.
+        if (string.IsNullOrEmpty(exePath) || !File.Exists(exePath))
+        {
+            var dllPath = System.Reflection.Assembly.GetEntryAssembly()?.Location;
+            if (string.IsNullOrEmpty(dllPath)) return;
+            exePath = Path.ChangeExtension(dllPath, ".exe");
+        }
+
+        if (string.IsNullOrEmpty(exePath) || !File.Exists(exePath)) return;
 
         // Start new instance
         var psi = new System.Diagnostics.ProcessStartInfo
@@ -1328,7 +1343,6 @@ public partial class SettingsViewModel : ViewModelBase
     private void DismissRestartNotification()
     {
         RestartRequired = false;
-        _pendingRestartChange = "";
     }
 
     [RelayCommand]
@@ -1351,7 +1365,7 @@ public partial class SettingsViewModel : ViewModelBase
     [RelayCommand]
     private void SetAppLanguage(string language)
     {
-        AppLanguage = language;
+        AppLanguage = language;   // OnAppLanguageChanged applies it to LocalizationService
         _settingsService.Update(s => s.AppLanguage = language);
     }
 

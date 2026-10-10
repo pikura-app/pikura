@@ -1,11 +1,15 @@
 using System;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
+using Avalonia.Threading;
+using Pikura.Avalonia.Services;
 using Pikura.Core.Settings;
 
 namespace Pikura.Avalonia.Views.Dialogs;
@@ -17,16 +21,13 @@ namespace Pikura.Avalonia.Views.Dialogs;
 public partial class BackgroundPreviewWindow : Window
 {
     private Bitmap? _bitmap;
+    private PixelSize _naturalSize;
     private bool _isDragging;
     private Point _dragStart;
     private double _panX;
     private double _panY;
     private double _zoom = 1.0;
-    private double _baseScale = 1.0;
-    private PixelSize _naturalSize;
-    private readonly TranslateTransform _translateTransform = new();
-    private readonly ScaleTransform _scaleTransform = new(1.0, 1.0);
-    private readonly TransformGroup _transformGroup;
+    private CancellationTokenSource? _loadCts;
 
     /// <summary>The resulting per-image entry after the user clicks Apply. Null if cancelled.</summary>
     public OverlayImageEntry? Result { get; private set; }
@@ -41,23 +42,19 @@ public partial class BackgroundPreviewWindow : Window
         ImagePath = imagePath;
         InitializeComponent();
 
-        _transformGroup = new TransformGroup();
-        _transformGroup.Children.Add(_scaleTransform);
-        _transformGroup.Children.Add(_translateTransform);
-        OpacityPanel.RenderTransform = _transformGroup;
-        OpacityPanel.RenderTransformOrigin = new RelativePoint(0.5, 0.5, RelativeUnit.Relative);
-
         // Wire slider changes to live preview
         OpacitySlider.PropertyChanged += OnSliderChanged;
         BrightnessSlider.PropertyChanged += OnSliderChanged;
         DarknessSlider.PropertyChanged += OnSliderChanged;
 
-        // Wire drag and zoom events on the preview panel
-        PreviewPanel.PointerPressed += OnImagePointerPressed;
-        PreviewPanel.PointerMoved += OnImagePointerMoved;
-        PreviewPanel.PointerReleased += OnImagePointerReleased;
-        PreviewPanel.PointerWheelChanged += OnPreviewWheelChanged;
-        OpacityPanel.LayoutUpdated += OnPreviewLayoutUpdated;
+        // Wire drag and zoom events on the preview area
+        PreviewCanvas.PointerPressed += OnImagePointerPressed;
+        PreviewCanvas.PointerMoved += OnImagePointerMoved;
+        PreviewCanvas.PointerReleased += OnImagePointerReleased;
+        PreviewCanvas.PointerWheelChanged += OnPreviewWheelChanged;
+
+        // Update the image host size/position whenever the viewport or zoom/pan changes
+        PreviewCanvas.LayoutUpdated += OnPreviewCanvasLayoutUpdated;
 
         // Load existing settings if editing
         if (existingEntry != null)
@@ -70,7 +67,8 @@ public partial class BackgroundPreviewWindow : Window
             _zoom = Math.Max(0.1, existingEntry.Zoom);
         }
 
-        // Load image
+        // Load image immediately if bytes were supplied; otherwise start an async load
+        // so the preview window opens right away while the full-resolution image downloads.
         if (imageBytes != null && imageBytes.Length > 0)
         {
             try
@@ -82,10 +80,61 @@ public partial class BackgroundPreviewWindow : Window
             }
             catch { /* non-fatal */ }
         }
+        else if (!string.IsNullOrWhiteSpace(imagePath))
+        {
+            _loadCts = new CancellationTokenSource();
+            LoadingOverlay.IsVisible = true;
+            _ = LoadImageAsync(imagePath, existingEntry?.IllustId, _loadCts.Token);
+        }
 
-        UpdateBaseScale();
-        UpdateTransform();
+        UpdateImageHost();
+        UpdatePreview();
         UpdateLabels();
+    }
+
+    private async Task LoadImageAsync(string imagePath, string? illustId, CancellationToken ct)
+    {
+        try
+        {
+            var overlay = AppServices.Get<BackgroundOverlayService>();
+            var bytes = await overlay.FetchImageBytesAsync(imagePath, illustId, ct).ConfigureAwait(false);
+
+            if (bytes is null || bytes.Length == 0 || ct.IsCancellationRequested)
+                return;
+
+            var bmp = await Task.Run(() =>
+            {
+                try
+                {
+                    using var ms = new MemoryStream(bytes);
+                    return new Bitmap(ms);
+                }
+                catch { return null; }
+            }, ct).ConfigureAwait(false);
+
+            if (bmp is null || ct.IsCancellationRequested)
+                return;
+
+            await Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                if (ct.IsCancellationRequested) return;
+                _bitmap = bmp;
+                _naturalSize = bmp.PixelSize;
+                PreviewImage.Source = _bitmap;
+                LoadingOverlay.IsVisible = false;
+                UpdateImageHost();
+            }, DispatcherPriority.Background);
+        }
+        catch (OperationCanceledException) { /* expected on close */ }
+        catch
+        {
+            await Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                LoadingOverlay.IsVisible = false;
+                HintText.Text = "Could not load image preview";
+                HintText.Opacity = 1;
+            }, DispatcherPriority.Background);
+        }
     }
 
     private void OnSliderChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
@@ -97,7 +146,7 @@ public partial class BackgroundPreviewWindow : Window
 
     private void UpdatePreview()
     {
-        OpacityPanel.Opacity = OpacitySlider.Value;
+        PreviewImageHost.Opacity = OpacitySlider.Value;
         DarknessRect.Opacity = DarknessSlider.Value;
         BrightnessRect.Opacity = BrightnessSlider.Value;
     }
@@ -107,61 +156,86 @@ public partial class BackgroundPreviewWindow : Window
         OpacityLabel.Text = $"{OpacitySlider.Value:F2}";
         BrightnessLabel.Text = $"{BrightnessSlider.Value:F2}";
         DarknessLabel.Text = $"{DarknessSlider.Value:F2}";
-        UpdatePreview();
     }
 
-    private void UpdateBaseScale()
+    private void OnPreviewCanvasLayoutUpdated(object? sender, EventArgs e)
+        => UpdateImageHost();
+
+    /// <summary>
+    /// Computes the image host's displayed size and position so the image is fitted
+    /// inside the viewport by default, then translated/zoomed by the user's pan/zoom.
+    /// </summary>
+    private void UpdateImageHost()
     {
-        var bounds = OpacityPanel.Bounds;
-        if (_naturalSize.Width <= 0 || _naturalSize.Height <= 0 || bounds.Width <= 0 || bounds.Height <= 0)
+        if (PreviewImage?.Source is not Bitmap bmp) return;
+
+        var viewport = PreviewCanvas.Bounds;
+        if (_naturalSize.Width <= 0 || _naturalSize.Height <= 0 ||
+            viewport.Width <= 0 || viewport.Height <= 0)
             return;
 
-        _baseScale = Math.Min(bounds.Width / _naturalSize.Width, bounds.Height / _naturalSize.Height);
-    }
+        // Fit the image inside the viewport, then apply user zoom on top.
+        var baseScale = Math.Min(viewport.Width / _naturalSize.Width, viewport.Height / _naturalSize.Height);
+        var effectiveScale = baseScale * _zoom;
 
-    private void UpdateTransform()
-    {
-        _scaleTransform.ScaleX = _zoom;
-        _scaleTransform.ScaleY = _zoom;
-        _translateTransform.X = _panX * _naturalSize.Width * _baseScale * _zoom;
-        _translateTransform.Y = _panY * _naturalSize.Height * _baseScale * _zoom;
-    }
+        var displayWidth = _naturalSize.Width * effectiveScale;
+        var displayHeight = _naturalSize.Height * effectiveScale;
 
-    private void OnPreviewLayoutUpdated(object? sender, EventArgs e)
-    {
-        UpdateBaseScale();
-        UpdateTransform();
+        PreviewImageHost.Width = displayWidth;
+        PreviewImageHost.Height = displayHeight;
+
+        // Center in viewport, then apply normalized pan (-1..1 = half the displayed image).
+        var x = (viewport.Width - displayWidth) / 2.0 + _panX * displayWidth;
+        var y = (viewport.Height - displayHeight) / 2.0 + _panY * displayHeight;
+
+        Canvas.SetLeft(PreviewImageHost, x);
+        Canvas.SetTop(PreviewImageHost, y);
+
+        // Keep the hint text anchored at the bottom of the viewport.
+        if (HintText != null)
+        {
+            HintText.Width = viewport.Width;
+            Canvas.SetLeft(HintText, 0);
+            Canvas.SetTop(HintText, Math.Max(0, viewport.Height - 24));
+        }
     }
 
     private void OnPreviewWheelChanged(object? sender, PointerWheelEventArgs e)
     {
         var factor = e.Delta.Y > 0 ? 1.1 : 1.0 / 1.1;
         _zoom = Math.Clamp(_zoom * factor, 0.1, 5.0);
-        UpdateTransform();
+        UpdateImageHost();
         e.Handled = true;
     }
 
     private void OnImagePointerPressed(object? sender, PointerPressedEventArgs e)
     {
-        if (!e.GetCurrentPoint(PreviewPanel).Properties.IsLeftButtonPressed) return;
+        if (!e.GetCurrentPoint(PreviewCanvas).Properties.IsLeftButtonPressed) return;
         _isDragging = true;
-        _dragStart = e.GetPosition(PreviewPanel);
-        e.Pointer.Capture(PreviewPanel);
+        _dragStart = e.GetPosition(PreviewCanvas);
+        e.Pointer.Capture(PreviewCanvas);
         e.Handled = true;
     }
 
     private void OnImagePointerMoved(object? sender, PointerEventArgs e)
     {
         if (!_isDragging) return;
-        var pos = e.GetPosition(PreviewPanel);
+        var pos = e.GetPosition(PreviewCanvas);
         var dx = pos.X - _dragStart.X;
         var dy = pos.Y - _dragStart.Y;
-        var scaledWidth = _naturalSize.Width * _baseScale * _zoom;
-        var scaledHeight = _naturalSize.Height * _baseScale * _zoom;
-        if (scaledWidth > 0) _panX += dx / scaledWidth;
-        if (scaledHeight > 0) _panY += dy / scaledHeight;
 
-        UpdateTransform();
+        var viewport = PreviewCanvas.Bounds;
+        var baseScale = Math.Min(viewport.Width / _naturalSize.Width, viewport.Height / _naturalSize.Height);
+        var displayWidth = _naturalSize.Width * baseScale * _zoom;
+        var displayHeight = _naturalSize.Height * baseScale * _zoom;
+
+        if (displayWidth > 0) _panX += dx / displayWidth;
+        if (displayHeight > 0) _panY += dy / displayHeight;
+
+        _panX = Math.Clamp(_panX, -1.0, 1.0);
+        _panY = Math.Clamp(_panY, -1.0, 1.0);
+
+        UpdateImageHost();
         _dragStart = pos;
         e.Handled = true;
     }
@@ -179,7 +253,7 @@ public partial class BackgroundPreviewWindow : Window
         _panX = 0;
         _panY = 0;
         _zoom = 1.0;
-        UpdateTransform();
+        UpdateImageHost();
     }
 
     private void OnCancel(object? sender, RoutedEventArgs e)
@@ -205,6 +279,13 @@ public partial class BackgroundPreviewWindow : Window
 
     protected override void OnClosed(EventArgs e)
     {
+        try
+        {
+            _loadCts?.Cancel();
+            _loadCts?.Dispose();
+            _loadCts = null;
+        }
+        catch { /* non-fatal */ }
         base.OnClosed(e);
     }
 }

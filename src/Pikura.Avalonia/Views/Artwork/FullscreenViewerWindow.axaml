@@ -2,13 +2,14 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:Pikura.Avalonia.ViewModels"
         xmlns:anim="using:Pikura.Avalonia.Controls"
+        xmlns:gallery="using:Pikura.Avalonia.Views.Gallery"
+        xmlns:conv="using:Pikura.Avalonia.Converters"
         x:Class="Pikura.Avalonia.Views.Artwork.FullscreenViewerWindow"
         x:DataType="vm:ArtworkViewerViewModel"
         Background="{DynamicResource ImageCanvasBackgroundBrush}"
         WindowState="FullScreen"
         ShowInTaskbar="False">
-    
-    <!-- Just the image, nothing else -->
+
     <Canvas Name="Canvas" ClipToBounds="True" Background="{DynamicResource ImageCanvasBackgroundBrush}">
         <Image Name="Image"
                Source="{Binding CurrentPageBitmap}"
@@ -22,5 +23,203 @@
                             Stretch="Uniform"
                             RenderTransformOrigin="0,0"
                             IsVisible="{Binding IsUgoira}"/>
+
+        <!-- Page counter — top-right, only for multi-page artworks -->
+        <Border Canvas.Right="20" Canvas.Top="20"
+                IsVisible="{Binding HasMultiplePages}"
+                Background="#88000000"
+                CornerRadius="4"
+                Padding="8,4">
+            <TextBlock Text="{Binding PageIndicator}"
+                       FontSize="14"
+                       Foreground="White"/>
+        </Border>
+
+        <!-- Artwork jump strip toggle -->
+        <ToggleButton x:Name="ArtworkStripToggle"
+                      Canvas.Right="20" Canvas.Top="56"
+                      FontSize="12" Padding="10,6" CornerRadius="6"
+                      Background="#AA000000" Foreground="White" BorderThickness="0"
+                      IsCheckedChanged="OnArtworkStripToggled"
+                      ToolTip.Tip="Show the artwork strip to jump to any artwork in this list">
+            <TextBlock Text="☰ Artworks"/>
+        </ToggleButton>
+
+
+
+        <!-- Artwork jump strip — thumbnails of every artwork in the current nav list, so you can
+             jump straight to one instead of arrow-keying through them. Width/position are set in
+             code-behind because a Canvas doesn't stretch its children. -->
+        <Border x:Name="ArtworkStrip" Canvas.Left="0"
+                IsVisible="False"
+                Background="#DD000000" Padding="10,8">
+          <Grid RowDefinitions="Auto,Auto" RowSpacing="7">
+
+            <!-- Source picker: names every open tab and collage explicitly, so switching between
+                 them is a visible choice rather than a hidden cycling toggle. -->
+            <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="8">
+                <TextBlock Text="Show" FontSize="11" Foreground="#BBFFFFFF" VerticalAlignment="Center"/>
+                <ComboBox x:Name="ArtworkSourceCombo"
+                          MinWidth="250" FontSize="11" CornerRadius="5"
+                          SelectionChanged="OnArtworkSourceChanged"
+                          ToolTip.Tip="Choose which tab, collage, or combined set the strip below shows"/>
+                <Button x:Name="LoadMoreButton"
+                        FontSize="11" Padding="9,4" CornerRadius="5"
+                        Background="#33FFFFFF" Foreground="White" BorderThickness="0"
+                        IsVisible="False"
+                        Click="OnLoadMoreClicked"
+                        ToolTip.Tip="Fetch the next page of this source"/>
+                <Button x:Name="LoadAllButton"
+                        FontSize="11" Padding="9,4" CornerRadius="5"
+                        Background="#33FFFFFF" Foreground="White" BorderThickness="0"
+                        IsVisible="False"
+                        Click="OnLoadAllClicked"
+                        ToolTip.Tip="Keep fetching until this source is fully loaded"/>
+                <TextBlock x:Name="ArtworkStripHint" FontSize="11" Foreground="#88FFFFFF"
+                           VerticalAlignment="Center"/>
+            </StackPanel>
+
+            <ScrollViewer Grid.Row="1"
+                          x:Name="ArtworkStripScroll"
+                          HorizontalScrollBarVisibility="Auto"
+                          VerticalScrollBarVisibility="Disabled"
+                          AllowAutoHide="False">
+                <ItemsControl x:Name="ArtworkStripList">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" Spacing="6"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:ArtworkCardViewModel">
+                            <Button Padding="0" Background="Transparent" BorderThickness="0"
+                                    Cursor="Hand" Click="OnArtworkStripClick"
+                                    ToolTip.Tip="{Binding Title}">
+                                <Button.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Header="Open in new tab" Click="OnOpenArtworkInNewTab"/>
+                                    </ContextMenu>
+                                </Button.ContextMenu>
+                                <Border Width="68" Height="68" CornerRadius="5" ClipToBounds="True"
+                                        Background="#22FFFFFF">
+                                    <Image Source="{Binding Thumbnail}" Stretch="UniformToFill"
+                                           RenderOptions.BitmapInterpolationMode="HighQuality"/>
+                                </Border>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+          </Grid>
+        </Border>
+
+        <!-- Page strip — bottom, clickable page numbers for quick jumps -->
+        <Border x:Name="PageStrip"
+                Canvas.Left="0" Canvas.Right="0" Canvas.Bottom="0"
+                Height="54"
+                IsVisible="{Binding HasMultiplePages}"
+                Background="#CC000000"
+                Padding="8,4">
+            <Grid ColumnDefinitions="*,Auto">
+                <ScrollViewer Grid.Column="0"
+                              HorizontalScrollBarVisibility="Auto"
+                              VerticalScrollBarVisibility="Disabled">
+                    <ItemsControl ItemsSource="{Binding PageList}"
+                                  HorizontalAlignment="Center">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal" Spacing="6"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:PageThumbnailItem">
+                                <Button Content="{Binding Number}"
+                                        CornerRadius="4"
+                                        Padding="8,4"
+                                        FontSize="11"
+                                        Click="OnPageStripClick"
+                                        Background="{DynamicResource Container2BackgroundBrush}"
+                                        Foreground="White"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+                <Button Grid.Column="1"
+                        Content="All"
+                        CornerRadius="4"
+                        Padding="10,4"
+                        FontSize="11"
+                        Margin="8,0,0,0"
+                        Command="{Binding TogglePageGridCommand}"
+                        Background="{DynamicResource Container2BackgroundBrush}"
+                        Foreground="White"
+                        ToolTip.Tip="Show all pages"/>
+            </Grid>
+        </Border>
+
+        <!-- All-pages grid overlay -->
+        <Border x:Name="PageGridOverlay"
+                Canvas.Left="0" Canvas.Top="0"
+                IsVisible="{Binding IsPageGridVisible}"
+                Background="#E6000000"
+                Padding="40">
+            <Grid RowDefinitions="Auto,*">
+                <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+                    <TextBlock Text="All pages"
+                               FontSize="16"
+                               Foreground="White"
+                               VerticalAlignment="Center"/>
+                    <Button Content="✕"
+                            FontSize="14"
+                            Padding="8,4"
+                            CornerRadius="4"
+                            Click="OnClosePageGrid"
+                            Background="{DynamicResource Container2BackgroundBrush}"
+                            Foreground="White"/>
+                </StackPanel>
+                <ScrollViewer Grid.Row="1"
+                              HorizontalScrollBarVisibility="Auto"
+                              VerticalScrollBarVisibility="Auto">
+                    <ItemsControl ItemsSource="{Binding PageList}"
+                                  HorizontalAlignment="Stretch"
+                                  VerticalAlignment="Stretch">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <gallery:MasonryPanel ColumnWidth="540" ItemSpacing="16" PreserveOrder="True"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:PageThumbnailItem">
+                                <Button Margin="8" Padding="0"
+                                        Background="Transparent"
+                                        Click="OnPageGridItemClick">
+                                    <Border CornerRadius="10"
+                                            ClipToBounds="True"
+                                            Background="{DynamicResource Container1BackgroundBrush}">
+                                        <Grid RowDefinitions="Auto,Auto">
+                                            <Image Grid.Row="0"
+                                                   Source="{Binding Thumbnail}"
+                                                   Stretch="Uniform"
+                                                   Width="540"
+                                                   Height="{Binding AspectRatio, Converter={x:Static conv:AspectRatioToHeightConverter.Instance}, ConverterParameter=540}"
+                                                   RenderOptions.BitmapInterpolationMode="HighQuality"
+                                                   UseLayoutRounding="True"/>
+                                            <Border Grid.Row="1"
+                                                    Background="#CC000000"
+                                                    Padding="8,5">
+                                                <TextBlock Text="{Binding Number}"
+                                                           HorizontalAlignment="Center"
+                                                           Foreground="White"
+                                                           FontSize="12"/>
+                                            </Border>
+                                        </Grid>
+                                    </Border>
+                                </Button>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Grid>
+        </Border>
     </Canvas>
 </Window>

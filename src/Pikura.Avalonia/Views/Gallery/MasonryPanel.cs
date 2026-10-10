@@ -1,7 +1,13 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
+using Avalonia.Media;
+using Avalonia.VisualTree;
+using Pikura.Avalonia.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Linq;
 
 namespace Pikura.Avalonia.Views.Gallery;
@@ -23,12 +29,7 @@ public class MasonryPanel : Panel
         // into a visible position until *something else* forces a new layout pass (e.g.
         // toggling a filter). Force both explicitly so a bound collection change always
         // results in a visible update immediately.
-        Children.CollectionChanged += (_, _) =>
-        {
-            _cachedSizes = null;
-            InvalidateMeasure();
-            InvalidateArrange();
-        };
+        Children.CollectionChanged += OnChildrenCollectionChanged;
     }
 
     public static readonly StyledProperty<double> ColumnWidthProperty =
@@ -71,14 +72,107 @@ public class MasonryPanel : Panel
     private Size[]? _cachedSizes;
     private double _cachedColumnWidth;
     private int _cachedColumnCount;
+    private ScrollViewer? _parentScrollViewer;
+    private readonly Dictionary<ArtworkCardViewModel, Control> _cardSubscriptions = new();
+
+    protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        base.OnAttachedToVisualTree(e);
+
+        var sv = this.GetVisualAncestors().OfType<ScrollViewer>().FirstOrDefault();
+        if (sv != null)
+        {
+            _parentScrollViewer = sv;
+            _parentScrollViewer.PropertyChanged += OnScrollViewerPropertyChanged;
+            _cachedSizes = null;
+            InvalidateMeasure();
+        }
+    }
+
+    protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        base.OnDetachedFromVisualTree(e);
+        if (_parentScrollViewer != null)
+        {
+            _parentScrollViewer.PropertyChanged -= OnScrollViewerPropertyChanged;
+            _parentScrollViewer = null;
+        }
+    }
+
+    private void OnScrollViewerPropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
+    {
+        if (e.Property == ScrollViewer.ViewportProperty ||
+            e.Property == ScrollViewer.HorizontalScrollBarVisibilityProperty)
+        {
+            _cachedSizes = null;
+            InvalidateMeasure();
+        }
+    }
+
+    private void OnChildrenCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        _cachedSizes = null;
+        InvalidateMeasure();
+        InvalidateArrange();
+
+        if (e.NewItems != null)
+        {
+            foreach (Control child in e.NewItems.OfType<Control>())
+            {
+                if (child.DataContext is ArtworkCardViewModel card && !_cardSubscriptions.ContainsKey(card))
+                {
+                    _cardSubscriptions[card] = child;
+                    card.PropertyChanged += OnCardPropertyChanged;
+                }
+            }
+        }
+
+        if (e.OldItems != null)
+        {
+            foreach (Control child in e.OldItems.OfType<Control>())
+            {
+                if (child.DataContext is ArtworkCardViewModel card && _cardSubscriptions.TryGetValue(card, out var c) && c == child)
+                {
+                    _cardSubscriptions.Remove(card);
+                    card.PropertyChanged -= OnCardPropertyChanged;
+                }
+            }
+        }
+    }
+
+    private void OnCardPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName is nameof(ArtworkCardViewModel.ClampedAspectRatio)
+                         or nameof(ArtworkCardViewModel.AspectRatio)
+                         or nameof(ArtworkCardViewModel.Thumbnail))
+        {
+            _cachedSizes = null;
+            InvalidateMeasure();
+        }
+    }
 
     protected override Size MeasureOverride(Size availableSize)
     {
         if (Children.Count == 0) return new Size(0, 0);
 
         var availableWidth = availableSize.Width;
-        if (double.IsInfinity(availableWidth) || availableWidth <= 0)
-            availableWidth = ColumnWidth * 4;
+        if (double.IsInfinity(availableWidth) || availableWidth <= 0 || double.IsNaN(availableWidth))
+        {
+            if (_parentScrollViewer?.HorizontalScrollBarVisibility == ScrollBarVisibility.Disabled)
+            {
+                var viewport = _parentScrollViewer.Viewport;
+                availableWidth = viewport.Width > 0 ? viewport.Width : ColumnWidth;
+            }
+            else if (_parentScrollViewer?.HorizontalScrollBarVisibility is ScrollBarVisibility.Auto or ScrollBarVisibility.Visible or ScrollBarVisibility.Hidden)
+            {
+                availableWidth = ColumnWidth * 4;
+            }
+            else
+            {
+                // No scroll viewer yet; use one column until we attach and get a real viewport.
+                availableWidth = ColumnWidth;
+            }
+        }
 
         var columnCount = Math.Max(1, (int)Math.Floor((availableWidth + ItemSpacing) / (ColumnWidth + ItemSpacing)));
         // Use the exact ColumnWidth (don't stretch to fill). This keeps card width
@@ -98,6 +192,7 @@ public class MasonryPanel : Panel
         for (int i = 0; i < Children.Count; i++)
         {
             var child = Children[i];
+
             child.Measure(childSize);
 
             // If the child is a Panel wrapper containing Fixed+Natural cards, only count
@@ -139,25 +234,24 @@ public class MasonryPanel : Panel
         if (Children.Count == 0 || _cachedSizes == null) return finalSize;
 
         var availableWidth = finalSize.Width;
-        var columnCount = _cachedColumnCount;
         var actualColumnWidth = _cachedColumnWidth;
 
-        // Recalculate if width changed significantly
-        if (Math.Abs(availableWidth - finalSize.Width) > 1)
-        {
-            columnCount = Math.Max(1, (int)Math.Floor((availableWidth + ItemSpacing) / (ColumnWidth + ItemSpacing)));
-            actualColumnWidth = ColumnWidth;
-        }
+        // Recalculate column count from the final arrange width so the panel always fits
+        // inside the viewport even if Measure used a fallback/wider width.
+        var columnCount = double.IsInfinity(availableWidth) || availableWidth <= 0
+            ? _cachedColumnCount
+            : Math.Max(1, (int)Math.Floor((availableWidth + ItemSpacing) / (actualColumnWidth + ItemSpacing)));
 
         var columnHeights = new double[columnCount];
 
-        // Bias cards toward the left margin: give the left gutter ~20% of the
-        // leftover space and the right gutter the remainder. This keeps cards
-        // visually anchored near the panel's left edge while still leaving some
-        // breathing room and preventing all leftover from piling on one side.
+        // When horizontal scrolling is disabled, the panel must stay inside the
+        // viewport, so start the first column flush with the left edge. Otherwise
+        // keep a slight left bias so the masonry looks anchored rather than centered.
         var contentWidth = columnCount * actualColumnWidth + (columnCount - 1) * ItemSpacing;
         var leftover = Math.Max(0, availableWidth - contentWidth);
-        var offsetX = leftover * 0.2;
+        var offsetX = _parentScrollViewer?.HorizontalScrollBarVisibility == ScrollBarVisibility.Disabled
+            ? 0
+            : leftover * 0.2;
 
         for (int i = 0; i < Children.Count && i < _cachedSizes.Length; i++)
         {
@@ -170,7 +264,12 @@ public class MasonryPanel : Panel
             columnHeights[col] += size.Height + ItemSpacing;
         }
 
-        return finalSize;
+        var maxHeight = columnHeights.Length > 0 ? columnHeights.Max() : 0;
+        if (maxHeight > 0) maxHeight -= ItemSpacing;
+
+        // Return the actual content extent so the parent (e.g. ScrollViewer) knows
+        // the full size and can scroll properly rather than clipping.
+        return new Size(contentWidth + leftover, maxHeight);
     }
 
     private static int FindShortestColumn(double[] heights)

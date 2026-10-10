@@ -181,6 +181,12 @@ public partial class MainWindowViewModel : ViewModelBase
         if (info is null) return;
 
         var settings = AppServices.Get<SettingsService>();
+
+        // The user already dismissed this exact version — stay quiet. Without this the banner came
+        // back on every launch and every periodic poll, so "Dismiss" felt like it did nothing.
+        if (string.Equals(settings.Current.DismissedUpdateVersion, info.Version, StringComparison.OrdinalIgnoreCase))
+            return;
+
         var shouldToast = settings.Current.NotifyOnUpdate
                           && _lastNotifiedVersion != info.Version;
 
@@ -248,6 +254,15 @@ public partial class MainWindowViewModel : ViewModelBase
         UpdateReadyToInstall = false;
         UpdateDownloading    = false;
         _downloadCts?.Cancel();
+
+        // Remember the dismissal so this version stops re-prompting. Previously this was in-memory
+        // only, so the banner returned on the next launch/poll.
+        var version = _pendingUpdate?.Version ?? UpdateVersion;
+        if (!string.IsNullOrWhiteSpace(version))
+        {
+            _lastNotifiedVersion = version;
+            AppServices.Get<SettingsService>().Update(s => s.DismissedUpdateVersion = version);
+        }
     }
 
     [RelayCommand]

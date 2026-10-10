@@ -113,7 +113,7 @@ public partial class RankingCardViewModel : ObservableObject
         YesterdayRank = entry.YesRank;
         RatingCount = entry.RatingCount;
         ViewCount = entry.ViewCount;
-        ThumbnailUrl = UpgradeThumbnailUrl(entry.ThumbnailUrl);
+        ThumbnailUrl = UpgradeThumbnailUrl(entry.ThumbnailUrl, PageCount);
         Date = entry.Date.Length == 8
             ? $"{entry.Date[..4]}-{entry.Date[4..6]}-{entry.Date[6..8]}"
             : entry.Date;
@@ -141,7 +141,7 @@ public partial class RankingCardViewModel : ObservableObject
         YesterdayRank = entry.YesRank;
         RatingCount = entry.RatingCount;
         ViewCount = entry.ViewCount ?? 0;
-        ThumbnailUrl = UpgradeThumbnailUrl(entry.ThumbnailUrl);
+        ThumbnailUrl = UpgradeThumbnailUrl(entry.ThumbnailUrl, PageCount);
         Date = string.Empty;
         ClampedAspectRatio = 1.4; // novel covers are typically portrait-ish; fixed ratio, no real dims from this endpoint
         Tags = entry.Tags;
@@ -150,7 +150,7 @@ public partial class RankingCardViewModel : ObservableObject
         InitLikedBookmarkedFavorite();
     }
 
-    private static string? UpgradeThumbnailUrl(string? url)
+    private static string? UpgradeThumbnailUrl(string? url, int pageCount = 1)
     {
         if (string.IsNullOrEmpty(url)) return url;
         // /custom-thumb/ hosts only square _custom1200 files. Rewriting just the
@@ -162,12 +162,23 @@ public partial class RankingCardViewModel : ObservableObject
             upgraded = upgraded.Replace("/custom-thumb/", "/img-master/")
                                .Replace("_custom1200", "_master1200");
         }
-        return upgraded.Replace("_square1200", "_master1200")
-                       .Replace("/250x250_80_a2/", "/540x540_70/");
+        upgraded = upgraded.Replace("_square1200", "_master1200")
+                           .Replace("/250x250_80_a2/", "/540x540_70/");
+
+        // Multi-page works sometimes omit the _p0 token. Pixiv only serves the first
+        // page under the bare ID, so insert _p0 for multi-page thumbnails.
+        if (pageCount > 1 && !System.Text.RegularExpressions.Regex.IsMatch(upgraded, @"_p\d+_"))
+        {
+            upgraded = upgraded.Replace("_master1200", "_p0_master1200")
+                               .Replace("_square1200", "_p0_square1200")
+                               .Replace("_custom1200", "_p0_custom1200");
+        }
+        return upgraded;
     }
 
     public async Task LoadThumbnailAsync(PixivImageLoader loader, ThumbnailSize size = ThumbnailSize.Medium, CancellationToken ct = default)
     {
+        if (Thumbnail is not null) return;
         if (string.IsNullOrWhiteSpace(ThumbnailUrl)) return;
         try
         {

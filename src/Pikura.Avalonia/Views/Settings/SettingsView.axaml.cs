@@ -1,10 +1,12 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
+using Avalonia.Platform.Storage;
 using Avalonia.VisualTree;
 using Pikura.Avalonia.Services;
 using Pikura.Avalonia.ViewModels;
@@ -282,7 +284,7 @@ public partial class SettingsView : UserControl
 
         try
         {
-            var bytes = await overlay.FetchImageBytesAsync(path);
+            var bytes = await overlay.FetchImageBytesAsync(path, item.Entry.IllustId);
             var window = TopLevel.GetTopLevel(this) as Window;
             if (window == null) return;
 
@@ -333,5 +335,52 @@ public partial class SettingsView : UserControl
                 await galleryVm.OpenArtworkByIdInNewTabAsync(illustId);
         }
         catch { /* non-fatal */ }
+    }
+
+    private async void OnAddOverlayUrlClick(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is not SettingsViewModel vm) return;
+
+        var top = TopLevel.GetTopLevel(this);
+        if (top is not Window window) return;
+
+        var url = OverlayUrlTextBox?.Text?.Trim();
+        if (string.IsNullOrWhiteSpace(url)) return;
+
+        await vm.OverlayService.AddImageWithPreviewAsync(url, window);
+
+        if (OverlayUrlTextBox is not null)
+            OverlayUrlTextBox.Text = string.Empty;
+    }
+
+    private async void OnAddOverlayFilesClick(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is not SettingsViewModel vm) return;
+
+        var top = TopLevel.GetTopLevel(this);
+        if (top is not Window window) return;
+
+        var options = new FilePickerOpenOptions
+        {
+            Title = "Choose overlay images",
+            AllowMultiple = true,
+            FileTypeFilter = new List<FilePickerFileType>
+            {
+                new FilePickerFileType("Image files")
+                {
+                    Patterns = new[] { "*.png", "*.jpg", "*.jpeg", "*.gif", "*.bmp", "*.webp" },
+                    MimeTypes = new[] { "image/*" }
+                }
+            }
+        };
+
+        var files = await window.StorageProvider.OpenFilePickerAsync(options);
+        foreach (var file in files)
+        {
+            if (file is null) continue;
+            var path = file.TryGetLocalPath();
+            if (!string.IsNullOrWhiteSpace(path))
+                await vm.OverlayService.AddImageWithPreviewAsync(path, window);
+        }
     }
 }

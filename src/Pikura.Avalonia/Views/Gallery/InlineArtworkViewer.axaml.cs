@@ -25,6 +25,7 @@ using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -158,6 +159,8 @@ public partial class InlineArtworkViewer : UserControl
     private double _translateX;
     private double _translateY;
     private bool _isPanning;
+    private bool _panDragging;
+    private const double PanThreshold = 4.0;
     private Point _panStart;
     private double _panStartX;
     private double _panStartY;
@@ -166,6 +169,25 @@ public partial class InlineArtworkViewer : UserControl
     private const double FullResThreshold = 1.5;
     private bool _fullResLoaded;
     private string? _currentOriginalUrl;
+
+    // Per-card page cache: every image+page the viewer has opened is remembered so
+    // switching between collage items, tabs, pages, or even different view instances
+    // never re-fetches the same bytes.
+    private static readonly ConditionalWeakTable<ArtworkCardViewModel, CardPageCache> _cardPageCache = new();
+
+    private class CardPageCache
+    {
+        public IReadOnlyList<ArtworkPage> Pages { get; set; } = [];
+        public Dictionary<int, Bitmap> PageBitmaps { get; set; } = new();
+        public HashSet<int> PageFullResLoaded { get; set; } = new();
+        public int CurrentPageIndex { get; set; }
+        public string? CurrentOriginalUrl { get; set; }
+        public bool FullResLoaded { get; set; }
+    }
+
+    // Active card's cache; these aliases are swapped by LoadCardAsync.
+    private Dictionary<int, Bitmap> _pageBitmaps = new();
+    private HashSet<int> _pageFullResLoaded = new();
 
     // Pixiv action state
     private bool _isLiked;
@@ -413,6 +435,8 @@ public partial class InlineArtworkViewer : UserControl
             UpdateArtistButtonVisibility();
         if (e.PropertyName == nameof(GalleryViewModel.NavListVersion))
             UpdateArtworkCounter();
+        if (e.PropertyName == nameof(GalleryViewModel.IsCollageGridVisible) && VM?.IsCollageGridVisible == true)
+            _ = PreloadCollageThumbnailsAsync(VM.CollageItems ?? [], false);
     }
 
     /// <summary>Keep the toolbar "👤 Artist" button hidden when already viewing this artist.</summary>
@@ -450,6 +474,24 @@ public partial class InlineArtworkViewer : UserControl
             menu.Items.Add(item);
         }
         menu.Open(btn);
+    }
+
+    private void OnTabHeaderPressed(object? sender, PointerPressedEventArgs e)
+    {
+        if (sender is not Border border || border.DataContext is not ViewerTab tab || VM == null) return;
+        if (!e.GetCurrentPoint(null).Properties.IsRightButtonPressed) return;
+
+        var menu = new ContextMenu();
+        var rename = new MenuItem { Header = "Rename" };
+        rename.Click += (_, _) => _ = RenameTabAsync(tab);
+        menu.Items.Add(rename);
+        menu.Open(border);
+        e.Handled = true;
+
+        async Task RenameTabAsync(ViewerTab t)
+        {
+            await VM.RenameTabAsync(t);
+        }
     }
 
     private void OnTabPointerPressed(object? sender, PointerPressedEventArgs e)
@@ -634,6 +676,10 @@ public partial class InlineArtworkViewer : UserControl
         _pages = [];
         _currentPageIndex = 0;
         _fullResLoaded = false;
+        // Drop the working alias so the viewer isn't keeping a live cache when empty.
+        _pageBitmaps = new Dictionary<int, Bitmap>();
+        _pageFullResLoaded = new HashSet<int>();
+        VM?.InlinePageList.Clear();
         Dispatcher.UIThread.InvokeAsync(() =>
         {
             if (ViewerImage != null) { ViewerImage.Source = null; ViewerImage.IsVisible = false; }
@@ -655,11 +701,10 @@ public partial class InlineArtworkViewer : UserControl
         // further down in this method, so the string parameter calls below use this instead.
         var cardId = card.Id;
 
-        // Skip only if the same card is already fully loaded successfully.
-        // We must NOT dedupe on _currentCard alone — _currentCard is set
-        // immediately when a load starts but a cancelled load leaves it set
-        // without ever producing content, blocking legitimate retries.
-        if (_currentCard?.Id == card.Id)
+        // Skip only if the same card instance is already fully loaded successfully.
+        // We use reference equality because expanded multi-page collages can contain
+        // multiple cards with the same artwork Id (one per page).
+        if (ReferenceEquals(_currentCard, card))
         {
             if (_loadedCardId == card.Id
                 && (ViewerImage?.Source != null || UgoiraImage?.SourcePath != null))
@@ -668,67 +713,59 @@ public partial class InlineArtworkViewer : UserControl
                 return;
         }
 
-        // ── Per-tab bitmap cache: save outgoing, restore incoming ────────
-        // Before clearing the viewer, snapshot the current bitmap onto the
-        // outgoing ViewerTab so we can restore it instantly if the user
-        // switches back.
+        // ── Per-card page cache: save outgoing, restore incoming ────────
+        // Keep a separate cache for every card the viewer has seen so collage/tile
+        // navigation, tab switching, and page flipping never re-fetch the same image.
         var vm = VM;
-        if (_currentCard?.Id != card.Id && vm != null)
+        if (_currentCard != null)
         {
-            var outgoing = vm.ViewerTabs.FirstOrDefault(t => t.Card?.Id == _currentCard?.Id);
-            if (outgoing != null && ViewerImage?.Source is Bitmap outBmp)
+            var outCache = _cardPageCache.GetValue(_currentCard, _ => new CardPageCache());
+            outCache.Pages = _pages;
+            outCache.PageBitmaps = _pageBitmaps;
+            outCache.PageFullResLoaded = _pageFullResLoaded;
+            outCache.CurrentPageIndex = _currentPageIndex;
+            outCache.CurrentOriginalUrl = _currentOriginalUrl;
+            outCache.FullResLoaded = _fullResLoaded;
+
+            // Also snapshot the current bitmap onto the outgoing ViewerTab so plain
+            // tab switching can still restore instantly.
+            if (_currentCard?.Id != card.Id && vm != null)
             {
-                outgoing.CachedBitmap = outBmp;
-                outgoing.CachedPageIndex = _currentPageIndex;
+                var outgoing = vm.ViewerTabs.FirstOrDefault(t => ReferenceEquals(t.Card, _currentCard));
+                if (outgoing != null && ViewerImage?.Source is Bitmap outBmp)
+                {
+                    outgoing.CachedBitmap = outBmp;
+                    outgoing.CachedPageIndex = _currentPageIndex;
+                    outgoing.CachedOriginalUrl = _currentOriginalUrl;
+                    outgoing.CachedFullResLoaded = _fullResLoaded;
+                }
             }
         }
 
-        // Check whether the incoming tab already has a cached bitmap we can
-        // restore immediately — avoids re-decoding bytes that are sitting in
-        // the PixivImageLoader byte cache but no longer decoded.
+        // Restore (or create) the incoming card's cache and point the working aliases at it.
+        var cache = _cardPageCache.GetValue(card, _ => new CardPageCache());
+        _pages = cache.Pages;
+        _pageBitmaps = cache.PageBitmaps;
+        _pageFullResLoaded = cache.PageFullResLoaded;
+        _currentPageIndex = cache.CurrentPageIndex;
+        if (_currentPageIndex < 0 || _currentPageIndex >= Math.Max(1, card.PageCount))
+            _currentPageIndex = card.PageIndex;
+        if (_currentPageIndex < 0) _currentPageIndex = 0;
+        _currentOriginalUrl = cache.CurrentOriginalUrl;
+        _fullResLoaded = cache.FullResLoaded;
+
+        // If the selected ViewerTab happens to hold this exact card, use its cached
+        // bitmap too (covers tab-switching where the weak-table cache may have been GC'd).
         var incomingTab = vm?.SelectedViewerTab;
-        if (incomingTab?.CachedBitmap != null && incomingTab.Card?.Id == card.Id)
+        if (incomingTab?.CachedBitmap != null && ReferenceEquals(incomingTab.Card, card)
+            && !_pageBitmaps.ContainsKey(_currentPageIndex))
         {
-            // Cancel any in-flight load — we don't need it.
-            _loadCts?.Cancel();
-            _loadCts?.Dispose();
-            _loadCts = null;
-
-            if (ViewerImage != null)
-            {
-                ViewerImage.Source = incomingTab.CachedBitmap;
-                ViewerImage.IsVisible = true;
-            }
-            if (UgoiraImage != null) { UgoiraImage.SourcePath = null; UgoiraImage.IsPlaying = false; }
-            _currentCard = card;
-            _currentPageIndex = incomingTab.CachedPageIndex;
-            _loadedCardId = card.Id;
-            SetLoading(false);
-            if (ErrorPanel != null) ErrorPanel.IsVisible = false;
-
-            _isLiked = card.Id is not null &&
-                       (vm?.SettingsService?.Current?.PixivLikedArtworkIds.Contains(card.Id) ?? false);
-            card.IsLiked = _isLiked;
-            _isBookmarked = card.IsPixivBookmarked;
-            _isPrivateBookmark = card.IsPixivPrivateBookmark;
-            _isFollowing = card.IsFollowed;
-            _bookmarkId = card.PixivBookmarkId;
-            if (card.Id is not null && _statsCache.TryGetValue(card.Id, out var cached))
-            {
-                _likeCount = cached.Likes; _bookmarkCount = cached.Bookmarks; _viewCount = cached.Views;
-                _statsLoaded = true;
-            }
-            else
-            {
-                _bookmarkCount = card.BookmarkCount; _likeCount = card.LikeCount; _viewCount = card.ViewCount;
-                _statsLoaded = false;
-            }
-            UpdateStatsLabel(); UpdateFollowButton(); UpdateLikeButton();
-            UpdateBookmarkButtons(); UpdateFavoriteButton(card);
-            UpdatePageIndicator(); UpdateArtworkCounter();
-            ResetZoom();
-            return;
+            _pageBitmaps[_currentPageIndex] = incomingTab.CachedBitmap;
+            if (incomingTab.CachedFullResLoaded) _pageFullResLoaded.Add(_currentPageIndex);
+            _fullResLoaded = incomingTab.CachedFullResLoaded;
         }
+
+        _currentCard = card;
 
         // Cancel any in-flight load and start fresh
         _loadCts?.Cancel();
@@ -746,6 +783,8 @@ public partial class InlineArtworkViewer : UserControl
         if (ViewerImage != null) ViewerImage.Source = null;
 
         _currentCard = card;
+        _pageBitmaps.Clear();
+        _pageFullResLoaded.Clear();
         // Re-apply the persisted Show/Hide stats toggle on every artwork navigation, not just
         // once at control-load time — the ToggleButton's hardcoded XAML default (IsChecked="True")
         // was winning back over the user's choice as soon as they moved to another submission.
@@ -789,9 +828,10 @@ public partial class InlineArtworkViewer : UserControl
                 catch { /* non-fatal — Regular fetch will still set bytes */ }
             }, ct);
         }
-        _currentPageIndex = 0;
-        _pages = [];
+        _currentPageIndex = Math.Clamp(_currentPageIndex, 0, Math.Max(0, card.PageCount - 1));
         _fullResLoaded = false;
+        // If pages are already cached, the page strip will be rebuilt below.
+        if (_pages.Count == 0) VM?.InlinePageList.Clear();
 
         _isLiked = card.Id is not null &&
                    (VM?.SettingsService?.Current?.PixivLikedArtworkIds.Contains(card.Id) ?? false);
@@ -839,11 +879,34 @@ public partial class InlineArtworkViewer : UserControl
             {
                 succeeded = await LoadUgoiraAsync(cardId, ct);
             }
+            else if (_pages.Count > 0)
+            {
+                // Pages already cached — just rebuild the strip and render the current page.
+                _currentPageIndex = Math.Clamp(_currentPageIndex, 0, Math.Max(0, _pages.Count - 1));
+                if (VM != null)
+                {
+                    VM.InlinePageList.Clear();
+                    for (int i = 0; i < _pages.Count; i++)
+                        VM.InlinePageList.Add(new PageThumbnailItem(i, i + 1));
+                    _ = LoadInlinePageThumbnailsAsync(_pages);
+                }
+                UpdatePageIndicator();
+                succeeded = await RenderPageAsync(_currentPageIndex, ct, session);
+            }
             else
             {
                 var pages = await _pixivClient.GetArtworkPagesAsync(cardId);
                 if (ct.IsCancellationRequested) return;
                 _pages = pages;
+                cache.Pages = pages;
+                if (VM != null)
+                {
+                    VM.InlinePageList.Clear();
+                    for (int i = 0; i < pages.Count; i++)
+                        VM.InlinePageList.Add(new PageThumbnailItem(i, i + 1));
+                    _ = LoadInlinePageThumbnailsAsync(pages);
+                }
+                _currentPageIndex = Math.Clamp(_currentPageIndex, 0, Math.Max(0, _pages.Count - 1));
                 UpdatePageIndicator();
                 succeeded = await RenderPageAsync(_currentPageIndex, ct, session);
             }
@@ -886,8 +949,54 @@ public partial class InlineArtworkViewer : UserControl
         SetLoading(true);
         var displayed = false;
 
-        _fullResLoaded = false;
+        // Keep the per-card cache in sync with the page we are about to show.
+        if (_currentCard != null)
+        {
+            var cache = _cardPageCache.GetValue(_currentCard, _ => new CardPageCache());
+            cache.CurrentPageIndex = index;
+        }
+
         _currentOriginalUrl = _pages[index].Urls.Original;
+        if (_currentCard != null)
+        {
+            var cache = _cardPageCache.GetValue(_currentCard, _ => new CardPageCache());
+            cache.CurrentOriginalUrl = _currentOriginalUrl;
+        }
+
+        // If we already decoded this page, restore it instantly instead of re-fetching.
+        if (_pageBitmaps.TryGetValue(index, out var cached))
+        {
+            _fullResLoaded = _pageFullResLoaded.Contains(index);
+            if (_currentCard != null)
+            {
+                var cache = _cardPageCache.GetValue(_currentCard, _ => new CardPageCache());
+                cache.CurrentOriginalUrl = _currentOriginalUrl;
+                cache.FullResLoaded = _fullResLoaded;
+            }
+            await Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                if (ct.IsCancellationRequested) return;
+                ViewerImage.Source = cached;
+                ViewerImage.IsVisible = true;
+                if (ErrorPanel != null) ErrorPanel.IsVisible = false;
+                displayed = true;
+                if (LoadingPanel != null) LoadingPanel.IsVisible = false;
+                ResetZoom();
+                if (VM?.SelectedViewerTab is { } activeTab && activeTab.Card?.Id == _currentCard?.Id)
+                {
+                    activeTab.CachedBitmap = cached;
+                    activeTab.CachedPageIndex = index;
+                    activeTab.CachedOriginalUrl = _currentOriginalUrl;
+                    activeTab.CachedFullResLoaded = _fullResLoaded;
+                }
+                SetLoading(false);
+            });
+            if (!_fullResLoaded && !string.IsNullOrEmpty(_currentOriginalUrl))
+                _ = LoadFullResAsync(_currentOriginalUrl, index);
+            return true;
+        }
+
+        _fullResLoaded = false;
 
         // Instant feedback: paint the card's already-loaded thumbnail (or the
         // first frame from any earlier ugoira load) so the user sees something
@@ -908,9 +1017,18 @@ public partial class InlineArtworkViewer : UserControl
         var url = _pages[index].Urls.Regular ?? _pages[index].Urls.Small
                ?? _pages[index].Urls.Original ?? _pages[index].Urls.ThumbMini;
 
+        // Start the full-res Original download *in parallel* with the Regular fetch instead of
+        // waiting for Regular to land first. Original is what the viewer ultimately shows, so
+        // running the two sequentially delayed final quality by the entire Regular transfer.
+        // Whichever arrives first gets painted; the Regular apply below stands down if the
+        // Original beat it. Skipped when the "preview" URL *is* the Original (no Regular exists),
+        // so we never fetch the same bytes twice.
+        if (!string.IsNullOrEmpty(_currentOriginalUrl) && _currentOriginalUrl != url && !_fullResLoaded)
+            _ = LoadFullResAsync(_currentOriginalUrl!, index);
+
         if (!string.IsNullOrEmpty(url))
         {
-            var bytes = await _imageLoader.FetchBytesAsync(url, ct);
+            var bytes = await _imageLoader.FetchBytesAsync(url, ct, priority: true);
             if (bytes != null)
             {
                 // Upgrade the session's vision bytes to this higher-res Regular image
@@ -939,28 +1057,43 @@ public partial class InlineArtworkViewer : UserControl
                 await Dispatcher.UIThread.InvokeAsync(() =>
                 {
                     if (ct.IsCancellationRequested) { bmp.Dispose(); return; }
+                    // The parallel Original download already landed for this page — applying the
+                    // lower-res Regular now would visibly downgrade what the user is looking at.
+                    if (_pageFullResLoaded.Contains(index))
+                    {
+                        bmp.Dispose();
+                        displayed = true;
+                        SetLoading(false);
+                        return;
+                    }
+                    _pageBitmaps[index] = bmp;
+                    _pageFullResLoaded.Remove(index);
                     ViewerImage.Source = bmp;
                     ViewerImage.IsVisible = true;
                     if (ErrorPanel != null) ErrorPanel.IsVisible = false;
                     displayed = true;
                     ResetZoom();
-                    // Cache the decoded bitmap on the active tab so switching back
-                    // to this tab later restores the image instantly.
+                    // Cache the decoded bitmap on the active tab and the per-card cache.
                     if (VM?.SelectedViewerTab is { } activeTab && activeTab.Card?.Id == _currentCard?.Id)
                     {
                         activeTab.CachedBitmap = bmp;
                         activeTab.CachedPageIndex = index;
+                        activeTab.CachedOriginalUrl = _currentOriginalUrl;
+                        activeTab.CachedFullResLoaded = false;
+                    }
+                    if (_currentCard != null)
+                    {
+                        var cache = _cardPageCache.GetValue(_currentCard, _ => new CardPageCache());
+                        cache.CurrentOriginalUrl = _currentOriginalUrl;
+                        cache.FullResLoaded = false;
                     }
                     // Clear loading state now that the bitmap is applied — avoids the
                     // blank-frame race where SetLoading(false) ran before Source was set.
                     SetLoading(false);
                 });
 
-                // Eagerly upgrade to full-res Original in the background so the viewer
-                // always displays the highest quality image, not just when zoomed in.
-                if (!string.IsNullOrEmpty(_currentOriginalUrl) && !_fullResLoaded)
-                    _ = LoadFullResAsync(_currentOriginalUrl!);
-
+                // The Original upgrade was already started in parallel above, before the Regular
+                // fetch — nothing left to kick off here.
                 return true; // SetLoading already called above
             }
         }
@@ -1120,13 +1253,14 @@ public partial class InlineArtworkViewer : UserControl
         ApplyTo(UgoiraImage);
         if (ZoomLabel != null) ZoomLabel.Text = $"{_scale * 100:0}%";
         if (_scale >= FullResThreshold && !_fullResLoaded && !string.IsNullOrEmpty(_currentOriginalUrl))
-            _ = LoadFullResAsync(_currentOriginalUrl!);
+            _ = LoadFullResAsync(_currentOriginalUrl!, _currentPageIndex);
     }
 
-    private async Task LoadFullResAsync(string originalUrl)
+    private async Task LoadFullResAsync(string originalUrl, int pageIndex)
     {
-        _fullResLoaded = true;
-        var bytes = await _imageLoader.FetchBytesAsync(originalUrl);
+        // priority: this is the image the user is looking at — it must not queue behind, or split
+        // bandwidth with, the gallery's background thumbnail fetches.
+        var bytes = await _imageLoader.FetchBytesAsync(originalUrl, default, priority: true);
         if (bytes == null || _currentOriginalUrl != originalUrl) return;
 
         // Decode off the UI thread — originals can be large (4–8 MB JPEG)
@@ -1140,11 +1274,25 @@ public partial class InlineArtworkViewer : UserControl
         await Dispatcher.UIThread.InvokeAsync(() =>
         {
             if (_currentOriginalUrl != originalUrl) { bmp.Dispose(); return; }
-            ViewerImage.Source = bmp;
-            // Update the tab cache with the higher-res bitmap.
-            if (VM?.SelectedViewerTab is { } activeTab && activeTab.Card?.Id == _currentCard?.Id)
+            _pageBitmaps[pageIndex] = bmp;
+            _pageFullResLoaded.Add(pageIndex);
+            if (_currentPageIndex == pageIndex)
             {
-                activeTab.CachedBitmap = bmp;
+                _fullResLoaded = true;
+                ViewerImage.Source = bmp;
+                // Update the tab cache with the higher-res bitmap.
+                if (VM?.SelectedViewerTab is { } activeTab && activeTab.Card?.Id == _currentCard?.Id)
+                {
+                    activeTab.CachedBitmap = bmp;
+                    activeTab.CachedOriginalUrl = originalUrl;
+                    activeTab.CachedFullResLoaded = true;
+                }
+                if (_currentCard != null)
+                {
+                    var cache = _cardPageCache.GetValue(_currentCard, _ => new CardPageCache());
+                    cache.CurrentOriginalUrl = originalUrl;
+                    cache.FullResLoaded = true;
+                }
             }
         });
     }
@@ -1183,10 +1331,13 @@ public partial class InlineArtworkViewer : UserControl
     private void OnImagePointerPressed(object? sender, PointerPressedEventArgs e)
     {
         if (!e.GetCurrentPoint(null).Properties.IsLeftButtonPressed) return;
+        if (ImageCanvas is null) return;
         _isPanning = true;
+        _panDragging = false;
         _panStart = e.GetPosition(ImageCanvas);
         _panStartX = _translateX;
         _panStartY = _translateY;
+        e.Pointer.Capture(ImageCanvas);
         e.Handled = true;
     }
 
@@ -1194,14 +1345,38 @@ public partial class InlineArtworkViewer : UserControl
     {
         if (!_isPanning) return;
         var pos = e.GetPosition(ImageCanvas);
-        _translateX = _panStartX + (pos.X - _panStart.X);
-        _translateY = _panStartY + (pos.Y - _panStart.Y);
+        var dx = pos.X - _panStart.X;
+        var dy = pos.Y - _panStart.Y;
+
+        if (!_panDragging)
+        {
+            if (Math.Abs(dx) < PanThreshold && Math.Abs(dy) < PanThreshold) return;
+            _panDragging = true;
+        }
+
+        _translateX = _panStartX + dx;
+        _translateY = _panStartY + dy;
         ApplyTransform();
     }
 
     private void OnImagePointerReleased(object? sender, PointerReleasedEventArgs e)
     {
         _isPanning = false;
+        _panDragging = false;
+        e.Pointer.Capture(null);
+    }
+
+    private void OnImagePointerCaptureLost(object? sender, PointerCaptureLostEventArgs e)
+    {
+        _isPanning = false;
+        _panDragging = false;
+    }
+
+    private void OnImagePointerExited(object? sender, PointerEventArgs e)
+    {
+        _isPanning = false;
+        _panDragging = false;
+        e.Pointer.Capture(null);
     }
 
     // ── Controls ─────────────────────────────────────────────────────────────
@@ -1236,6 +1411,83 @@ public partial class InlineArtworkViewer : UserControl
             UpdatePageIndicator();
             _ = RenderPageAsync(_currentPageIndex);
         }
+    }
+
+    private async Task LoadPageListForCachedCardAsync(string cardId)
+    {
+        try
+        {
+            var pages = await _pixivClient.GetArtworkPagesAsync(cardId);
+            _pages = pages;
+            await Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                VM?.InlinePageList.Clear();
+                for (int i = 0; i < pages.Count; i++)
+                    VM?.InlinePageList.Add(new PageThumbnailItem(i, i + 1));
+                UpdatePageIndicator();
+            });
+            _ = LoadInlinePageThumbnailsAsync(pages);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Failed to load page list for cached card: {ex.Message}");
+        }
+    }
+
+    private async Task LoadInlinePageThumbnailsAsync(IReadOnlyList<ArtworkPage> pages)
+    {
+        for (int i = 0; i < pages.Count; i++)
+        {
+            try
+            {
+                var url = pages[i].Urls.Small
+                       ?? pages[i].Urls.Regular
+                       ?? pages[i].Urls.ThumbMini;
+                if (string.IsNullOrEmpty(url)) continue;
+
+                var skBitmap = await _imageLoader.FetchBitmapAsync(url, ThumbnailSize.Medium);
+                if (skBitmap is null) continue;
+
+                var bmp = await Task.Run(() =>
+                    (Bitmap?)BitmapInterop.SkiaToAvalonia(skBitmap));
+                skBitmap.Dispose();
+
+                if (bmp is not null && i < (VM?.InlinePageList.Count ?? 0))
+                {
+                    await Dispatcher.UIThread.InvokeAsync(() =>
+                    {
+                        if (i < (VM?.InlinePageList.Count ?? 0))
+                            VM!.InlinePageList[i].Thumbnail = bmp;
+                    });
+                }
+            }
+            catch { /* best-effort page thumbnails */ }
+        }
+    }
+
+    private void OnPageStripItemClick(object? sender, RoutedEventArgs e)
+    {
+        if ((sender as Control)?.DataContext is not PageThumbnailItem item) return;
+        if (item.Index < 0 || item.Index >= _pages.Count) return;
+        _currentPageIndex = item.Index;
+        UpdatePageIndicator();
+        _ = RenderPageAsync(_currentPageIndex);
+    }
+
+    private void OnInlinePageGridItemClick(object? sender, RoutedEventArgs e)
+    {
+        if ((sender as Control)?.DataContext is not PageThumbnailItem item) return;
+        if (VM is not null) VM.IsInlinePageGridVisible = false;
+        if (item.Index < 0 || item.Index >= _pages.Count) return;
+        _currentPageIndex = item.Index;
+        UpdatePageIndicator();
+        _ = RenderPageAsync(_currentPageIndex);
+    }
+
+    private void OnToggleInlinePageGrid(object? sender, RoutedEventArgs e)
+    {
+        if (VM is null) return;
+        VM.ToggleInlinePageGridCommand.Execute(null);
     }
 
     private void OnDownloadCurrentPage(object? sender, RoutedEventArgs e)
@@ -1315,6 +1567,52 @@ if (result != null && presetWindow.DownloadClicked)
 }
     }
 
+    private async Task PreloadCollageThumbnailsAsync(IEnumerable<ArtworkCardViewModel> items, bool upgradeToLarge = false)
+    {
+        if (_imageLoader is null) return;
+        var list = items.ToList();
+
+        // Ensure every tile has at least a medium thumbnail.
+        var loadTasks = list
+            .Where(c => c.Thumbnail is null)
+            .Select(c => c.LoadThumbnailAsync(_imageLoader))
+            .ToList();
+        if (loadTasks.Count > 0)
+            await Task.WhenAll(loadTasks);
+
+        if (!upgradeToLarge) return;
+        await UpgradeCollageThumbnailsAsync(list);
+    }
+
+    /// <summary>
+    /// Upgrades every collage tile to the 1200px master so zooming stays sharp.
+    /// <para>
+    /// Deliberately kicked off <i>after</i> the fullscreen window is shown rather than awaited
+    /// before it. A collage can hold up to 100 tiles, and awaiting 100 large downloads+decodes
+    /// made "Fullscreen" look frozen for seconds with no feedback. Tiles now sharpen in place,
+    /// which is a far better trade than a blocked UI.
+    /// </para>
+    /// </summary>
+    private async Task UpgradeCollageThumbnailsAsync(IEnumerable<ArtworkCardViewModel> items)
+    {
+        if (_imageLoader is null) return;
+        try { await Task.WhenAll(items.Select(c => c.UpgradeThumbnailAsync(_imageLoader, ThumbnailSize.Large))); }
+        catch { /* non-fatal — tiles just stay at medium resolution */ }
+    }
+
+    /// <summary>
+    /// The artworks belonging to the currently selected tab, used to scope fullscreen navigation
+    /// and the fullscreen artwork strip. A collage tab contributes its tiles; any other tab
+    /// contributes its own nav list. Returns null when the tab has nothing specific, letting the
+    /// fullscreen viewer fall back to the gallery-derived list.
+    /// </summary>
+    private IReadOnlyList<ArtworkCardViewModel>? CurrentTabNavList()
+    {
+        if (VM?.SelectedViewerTab is not { } tab) return null;
+        if (tab is { IsCollage: true, CollageItems.Count: > 0 }) return tab.CollageItems.ToList();
+        return tab.NavList.Count > 0 ? tab.NavList.ToList() : null;
+    }
+
     private async void OnOpenPopup(object? sender, RoutedEventArgs e)
     {
         if (_currentCard == null || VM == null) return;
@@ -1329,15 +1627,31 @@ if (result != null && presetWindow.DownloadClicked)
         var window = TopLevel.GetTopLevel(this) as Window;
         if (window == null || VM == null) return;
 
-        if (VM.IsCollageMode && VM.CollageItems is { Count: > 0 } collageItems)
+        if (VM.IsCollageGridVisible && VM.CollageItems is { Count: > 0 } collageItems)
         {
+            // Only guarantee a medium thumbnail (usually already cached, so near-instant). The
+            // 1200px upgrade runs in the background once the window is up — see
+            // UpgradeCollageThumbnailsAsync.
+            await PreloadCollageThumbnailsAsync(collageItems, upgradeToLarge: false);
             var collage = new CollageFullscreenWindow(collageItems);
+            _ = UpgradeCollageThumbnailsAsync(collageItems);
             await collage.ShowDialog(window);
             return;
         }
 
         if (_currentCard == null) return;
-        var viewer = new FullscreenViewerWindow(_currentCard.Artwork, VM);
+
+        // Hand the already-decoded bitmap to the fullscreen window so it paints instantly instead
+        // of showing an empty canvas while it re-fetches the pages list and image from scratch.
+        var seed = ViewerImage?.Source as Bitmap;
+
+        // Scope fullscreen navigation to the *current tab's own* artworks, whatever kind of tab it
+        // is: a collage uses its tiles, any other tab uses its own nav list. Without this the
+        // arrow keys and the artwork strip wander into the whole surrounding gallery rather than
+        // staying within the set the user actually opened.
+        var navList = CurrentTabNavList();
+
+        var viewer = new FullscreenViewerWindow(_currentCard.Artwork, VM, seed, navList);
         await viewer.ShowDialog(window);
     }
 
@@ -2579,36 +2893,17 @@ if (result != null && presetWindow.DownloadClicked)
 
     private async void OnUseAsBackground(object? sender, RoutedEventArgs e)
     {
-        try { if (!AppServices.Get<BackgroundOverlayService>().IsEnabled) return; }
-        catch { return; }
-        var url = _currentOriginalUrl ?? _currentCard?.ThumbnailUrl;
-        if (string.IsNullOrWhiteSpace(url)) return;
+        if (_currentCard is not { } card) return;
+
+        var preferred = _currentOriginalUrl
+            ?? (_pages.Count > 0 && _currentPageIndex >= 0 && _currentPageIndex < _pages.Count
+                ? _pages[_currentPageIndex].Urls.Original
+                : null);
+
         try
         {
-            var overlay = AppServices.Get<BackgroundOverlayService>();
-            var bytes = await overlay.FetchImageBytesAsync(url);
-            var window = TopLevel.GetTopLevel(this) as Window;
-            if (window == null) { overlay.AddImage(url); return; }
-
-            var seedEntry = new Pikura.Core.Settings.OverlayImageEntry
-            {
-                Path = url,
-                Title = _currentCard?.Title,
-                UserName = _currentCard?.UserName,
-                UserId = _currentCard?.UserId,
-                IllustId = _currentCard?.Id,
-            };
-            var preview = new BackgroundPreviewWindow(url, bytes, seedEntry);
-            await preview.ShowDialog(window);
-
-            if (preview.Result is { } result)
-            {
-                result.Title = _currentCard?.Title;
-                result.UserName = _currentCard?.UserName;
-                result.UserId = _currentCard?.UserId;
-                result.IllustId = _currentCard?.Id;
-                overlay.AddImage(url, result);
-            }
+            await AppServices.Get<BackgroundOverlayService>()
+                .UseAsBackgroundFromCardAsync(card, preferred, TopLevel.GetTopLevel(this) as Window);
         }
         catch { /* non-fatal */ }
     }
@@ -2852,14 +3147,17 @@ if (result != null && presetWindow.DownloadClicked)
     /// <summary>Explicit "Exit Collage" toolbar button — closes the collage tab.</summary>
     private void OnExitCollageClicked(object? sender, RoutedEventArgs e) => VM?.CloseCollage();
 
-    /// <summary>Left-clicking a tile opens that image in a new tab, leaving the collage tab intact.
-    /// Right-click is left alone so a context menu can be used without immediately losing the collage.</summary>
+    /// <summary>Left-clicking a tile opens that image in-place inside the collage tab so the
+    /// user can view it, use prev/next to move through the collage, and press "Return to Collage"
+    /// to go back to the grid. Right-click is left alone so a context menu can be used without
+    /// immediately losing the collage.</summary>
     private void OnCollageTileReleased(object? sender, PointerReleasedEventArgs e)
     {
         if (e.Handled || e.InitialPressMouseButton != MouseButton.Left) return;
         if ((sender as Control)?.DataContext is not ArtworkCardViewModel card) return;
         e.Handled = true;
-        VM?.OpenInViewer(card, VM.CollageItems?.ToList(), source: VM.ViewerSource);
+        var list = VM?.SelectedViewerTab?.CollageItems ?? VM?.CollageItems;
+        VM?.OpenInViewer(card, list, source: "Collage");
     }
 
     private void OnRemoveCollageItemClicked(object? sender, RoutedEventArgs e)
@@ -2872,6 +3170,53 @@ if (result != null && presetWindow.DownloadClicked)
     private void OnRemoveCollageItemTapped(object? sender, TappedEventArgs e)
     {
         e.Handled = true;
+    }
+
+    private bool _collagePanning;
+    private Point _collagePanStartPoint;
+    private Vector _collagePanStartOffset;
+
+    private void OnCollageWheel(object? sender, PointerWheelEventArgs e)
+    {
+        if ((e.KeyModifiers & KeyModifiers.Control) == 0) return;
+        if (VM is null) return;
+
+        var delta = e.Delta.Y > 0 ? 1.15 : 1.0 / 1.15;
+        var newWidth = VM.CollageGridColumnWidth * delta;
+        VM.CollageGridColumnWidth = Math.Clamp(newWidth, 120, 600);
+        e.Handled = true;
+    }
+
+    private void OnCollagePanPressed(object? sender, PointerPressedEventArgs e)
+    {
+        if (e.Handled || e.Pointer.IsPrimary == false || e.GetCurrentPoint(this).Properties.IsRightButtonPressed == false) return;
+        if (CollageScroll is null) return;
+        _collagePanning = true;
+        _collagePanStartPoint = e.GetPosition(this);
+        _collagePanStartOffset = CollageScroll.Offset;
+        e.Pointer.Capture(CollageScroll);
+        e.Handled = true;
+    }
+
+    private void OnCollagePanMoved(object? sender, PointerEventArgs e)
+    {
+        if (!_collagePanning || CollageScroll is null) return;
+        var pos = e.GetPosition(this);
+        var delta = pos - _collagePanStartPoint;
+        CollageScroll.Offset = _collagePanStartOffset - new Vector(delta.X, delta.Y);
+        e.Handled = true;
+    }
+
+    private void OnCollagePanReleased(object? sender, PointerReleasedEventArgs e)
+    {
+        _collagePanning = false;
+        e.Pointer.Capture(null);
+        e.Handled = true;
+    }
+
+    private void OnCollagePanCaptureLost(object? sender, PointerCaptureLostEventArgs e)
+    {
+        _collagePanning = false;
     }
 
     // ── Hoshi (星) AI assistant ───────────────────────────────────────────

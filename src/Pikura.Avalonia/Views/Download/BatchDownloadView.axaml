@@ -813,7 +813,8 @@
                                                                 <Image Source="{Binding Thumbnail}"
                                                                        Stretch="UniformToFill"
                                                                        HorizontalAlignment="Center"
-                                                                       VerticalAlignment="Center"/>
+                                                                       VerticalAlignment="Center"
+                                                                       RenderOptions.BitmapInterpolationMode="HighQuality" UseLayoutRounding="True"/>
                                                             </Border>
                                                             <!-- Info -->
                                                             <TextBlock Text="{Binding Title}" FontSize="11" 

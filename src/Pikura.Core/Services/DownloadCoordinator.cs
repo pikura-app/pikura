@@ -926,7 +926,7 @@ public sealed class DownloadCoordinator : IDisposable
         {
             ct.ThrowIfCancellationRequested();
             var batch = allArtworkIds.Skip(i).Take(batchSize).ToList();
-            var batchMeta = await _client.GetArtworksMetadataAsync(target.TargetId, batch, ct);
+            var batchMeta = await _client.GetArtworksMetadataAsync(target.TargetId, batch, i == 0, ct);
             foreach (var kv in batchMeta)
                 allMetadata[kv.Key] = kv.Value;
 

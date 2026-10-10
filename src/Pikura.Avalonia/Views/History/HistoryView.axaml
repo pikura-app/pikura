@@ -40,6 +40,18 @@
         <Style Selector="Border.jobCard:pointerover">
             <Setter Property="BorderBrush" Value="{DynamicResource ControlBackgroundBrushSolidAccent}"/>
         </Style>
+
+        <!-- Date group header: this button stretches to the full row width, so the
+             app-wide 1.02x pointerover scale (App.axaml) pushes its left edge past the
+             list's clip bounds and clips the first character of the label. Suppress the
+             scale here and use a background tint for hover feedback instead. -->
+        <Style Selector="Button.groupHeader">
+            <Setter Property="RenderTransform" Value="none"/>
+        </Style>
+        <Style Selector="Button.groupHeader:pointerover">
+            <Setter Property="RenderTransform" Value="none"/>
+            <Setter Property="Background" Value="{DynamicResource Container2BackgroundBrush}"/>
+        </Style>
         <!-- Drag grip fades in on hover -->
         <Style Selector="Border.jobCard:pointerover TextBlock#DragGrip">
             <Setter Property="Opacity" Value="0.5"/>
@@ -260,7 +272,7 @@
                                                                   IsVisible="{Binding !HasAnyThumbnail}"/>
                                                         <Image Source="{Binding CurrentFileThumbnail}" Stretch="UniformToFill"
                                                                IsVisible="{Binding CurrentFileThumbnail, Converter={x:Static ObjectConverters.IsNotNull}}"/>
-                                                        <Image Source="{Binding Thumbnail}" Stretch="UniformToFill">
+                                                        <Image Source="{Binding Thumbnail}" Stretch="UniformToFill" RenderOptions.BitmapInterpolationMode="HighQuality" UseLayoutRounding="True">
                                                             <Image.IsVisible>
                                                                 <MultiBinding Converter="{x:Static BoolConverters.And}">
                                                                     <Binding Path="HasThumbnail"/>
@@ -537,7 +549,7 @@
                                  ScrollViewer.VerticalScrollBarVisibility="Auto">
                             <ListBox.DataTemplates>
                                 <DataTemplate DataType="vm:HistoryGroupViewModel">
-                                    <Button Command="{Binding ToggleCommand}"
+                                    <Button Classes="groupHeader" Command="{Binding ToggleCommand}"
                                             Background="Transparent" BorderThickness="0" Cursor="Hand"
                                             Padding="4,10,4,4" Margin="0,0,0,2"
                                             HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
@@ -568,7 +580,7 @@
                                                     <TextBlock Text="&#128444;" FontSize="34" Opacity="0.35"
                                                                HorizontalAlignment="Center" VerticalAlignment="Center"
                                                                IsVisible="{Binding !HasThumbnail}"/>
-                                                    <Image Source="{Binding Thumbnail}" Stretch="UniformToFill" IsVisible="{Binding HasThumbnail}"/>
+                                                    <Image Source="{Binding Thumbnail}" Stretch="UniformToFill" IsVisible="{Binding HasThumbnail}" RenderOptions.BitmapInterpolationMode="HighQuality" UseLayoutRounding="True"/>
                                                 </Panel>
                                             </Border>
                                             <StackPanel Grid.Column="1" Spacing="4" Margin="0,0,16,0" VerticalAlignment="Center">
@@ -598,22 +610,36 @@
                                                            Text="{Binding DownloadedSizeText}"
                                                            IsVisible="{Binding DownloadedSizeText, Converter={x:Static ObjectConverters.IsNotNull}}"/>
                                             </StackPanel>
-                                            <StackPanel Grid.Column="2" Spacing="8" Margin="0,0,4,0" VerticalAlignment="Center" MinWidth="130">
-                                                <TextBlock Text="{Binding StatusText}" FontSize="13" FontWeight="SemiBold" HorizontalAlignment="Right" Margin="0,0,0,2"/>
+                                            <!-- Status + actions. Everything is left-aligned against a shared
+                                                 icon column so the three rows line up: the status used to be
+                                                 right-aligned while the buttons centred their content, which
+                                                 left the glyphs and labels visibly staggered. -->
+                                            <StackPanel Grid.Column="2" Spacing="6" Margin="0,0,4,0" VerticalAlignment="Center" MinWidth="150">
+                                                <StackPanel Orientation="Horizontal" Spacing="6"
+                                                            HorizontalAlignment="Left" Margin="10,0,0,2">
+                                                    <!-- Glyph tinted with the job's status colour (soft green
+                                                         #81C784 when completed); the word stays neutral. -->
+                                                    <TextBlock Text="{Binding StatusGlyph}" FontSize="13" FontWeight="SemiBold"
+                                                               Foreground="{Binding StatusAccentColor}"
+                                                               VerticalAlignment="Center" Width="16"
+                                                               HorizontalAlignment="Center"/>
+                                                    <TextBlock Text="{Binding StatusLabel}" FontSize="13" FontWeight="SemiBold"
+                                                               VerticalAlignment="Center"/>
+                                                </StackPanel>
                                                 <Button Command="{Binding OpenFolderCommand}"
                                                         IsVisible="{Binding HasOutputFolder}"
-                                                        HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                                                        HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
                                                           FontSize="12">
-                                                    <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center">
+                                                    <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Left">
                                                         <PathIcon Data="{StaticResource FolderIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                                                         <TextBlock Text="Open Folder" VerticalAlignment="Center"/>
                                                     </StackPanel>
                                                 </Button>
                                                 <Button Command="{Binding $parent[ListBox].DataContext.RemoveJobCommand}"
                                                         CommandParameter="{Binding}"
-                                                        HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                                                        HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
                                                           FontSize="12">
-                                                    <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center">
+                                                    <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Left">
                                                         <Path Data="{StaticResource CloseIcon}" Width="14" Height="14"
                                   Stretch="Uniform" Stroke="{Binding $parent[Button].Foreground}" StrokeThickness="2"
                                   StrokeLineCap="Round" VerticalAlignment="Center" UseLayoutRounding="False"/>
@@ -738,7 +764,7 @@
                                  ScrollViewer.VerticalScrollBarVisibility="Auto">
                             <ListBox.DataTemplates>
                                 <DataTemplate DataType="vm:HistoryGroupViewModel">
-                                    <Button Command="{Binding ToggleCommand}"
+                                    <Button Classes="groupHeader" Command="{Binding ToggleCommand}"
                                             Background="Transparent" BorderThickness="0" Cursor="Hand"
                                             Padding="4,10,4,4" Margin="0,0,0,2"
                                             HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
@@ -769,7 +795,7 @@
                                                     <TextBlock Text="&#128444;" FontSize="34" Opacity="0.35"
                                                                HorizontalAlignment="Center" VerticalAlignment="Center"
                                                                IsVisible="{Binding !HasThumbnail}"/>
-                                                    <Image Source="{Binding Thumbnail}" Stretch="UniformToFill" IsVisible="{Binding HasThumbnail}"/>
+                                                    <Image Source="{Binding Thumbnail}" Stretch="UniformToFill" IsVisible="{Binding HasThumbnail}" RenderOptions.BitmapInterpolationMode="HighQuality" UseLayoutRounding="True"/>
                                                 </Panel>
                                             </Border>
                                             <StackPanel Grid.Column="1" Spacing="4" Margin="0,0,16,0" VerticalAlignment="Center">
@@ -932,7 +958,7 @@
                                  ScrollViewer.VerticalScrollBarVisibility="Auto">
                             <ListBox.DataTemplates>
                                 <DataTemplate DataType="vm:HistoryGroupViewModel">
-                                    <Button Command="{Binding ToggleCommand}"
+                                    <Button Classes="groupHeader" Command="{Binding ToggleCommand}"
                                             Background="Transparent" BorderThickness="0" Cursor="Hand"
                                             Padding="4,10,4,4" Margin="0,0,0,2"
                                             HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
@@ -963,7 +989,7 @@
                                                     <TextBlock Text="&#128444;" FontSize="34" Opacity="0.35"
                                                                HorizontalAlignment="Center" VerticalAlignment="Center"
                                                                IsVisible="{Binding !HasThumbnail}"/>
-                                                    <Image Source="{Binding Thumbnail}" Stretch="UniformToFill" IsVisible="{Binding HasThumbnail}"/>
+                                                    <Image Source="{Binding Thumbnail}" Stretch="UniformToFill" IsVisible="{Binding HasThumbnail}" RenderOptions.BitmapInterpolationMode="HighQuality" UseLayoutRounding="True"/>
                                                 </Panel>
                                             </Border>
                                             <StackPanel Grid.Column="1" Spacing="4" Margin="0,0,16,0" VerticalAlignment="Center">

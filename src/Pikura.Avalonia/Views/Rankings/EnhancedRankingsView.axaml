@@ -1,5 +1,6 @@
-<UserControl xmlns="https://github.com/avaloniaui"
+﻿<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:loc="using:Pikura.Avalonia.Localization"
              xmlns:actipro="http://schemas.actiprosoftware.com/avaloniaui"
              xmlns:vm="using:Pikura.Avalonia.ViewModels"
              xmlns:conv="using:Pikura.Avalonia.Converters"
@@ -381,6 +382,21 @@
                         <TextBlock Text="Collage" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
+                <SplitButton CornerRadius="6" Padding="12,6" FontSize="11"
+                        Command="{Binding AddSelectedAsCollageCommand}"
+                        IsVisible="{Binding CanAddSelectedAsCollage}"
+                        ToolTip.Tip="Add the selected artworks to the active collage. Use the arrow to choose which collage.">
+                    <StackPanel Orientation="Horizontal" Spacing="5">
+                        <TextBlock Text="⊞" FontSize="12"/>
+                        <TextBlock Text="{loc:Tr Collage_AddToCollage}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <SplitButton.Flyout>
+                        <MenuFlyout>
+                            <MenuItem Header="{loc:Tr Collage_ChooseCollage}"
+                                      Command="{Binding AddSelectedAsCollagePickCommand}"/>
+                        </MenuFlyout>
+                    </SplitButton.Flyout>
+                </SplitButton>
                 <Button CornerRadius="6" Padding="12,6" FontSize="11"
                         Command="{Binding ViewSelectedInNewTabsCommand}"
                         IsVisible="{Binding CanViewSelectedInNewTabs}"
@@ -510,7 +526,8 @@
                                                     <Border Background="{DynamicResource Container2BackgroundBrush}"
                                                             IsVisible="{Binding Thumbnail, Converter={x:Static ObjectConverters.IsNull}}"/>
                                                     <Image Source="{Binding Thumbnail}" Stretch="UniformToFill"
-                                                           HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                                           HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                                           RenderOptions.BitmapInterpolationMode="HighQuality" UseLayoutRounding="True">
                                                         <Image.Effect>
                                                             <BlurEffect Radius="{Binding IsBlurred, Converter={StaticResource BoolToBlurRadiusConverter}}" />
                                                         </Image.Effect>
@@ -576,7 +593,7 @@
                                                     </Border>
                                                     <Border Padding="5,2" CornerRadius="4" Background="#BB000000"
                                                             IsVisible="{Binding IsMultiPage}">
-                                                        <TextBlock Text="{Binding PageCount, StringFormat='1/{0}'}"
+                                                        <TextBlock Text="{Binding PageCount, StringFormat='{}{0}'}"
                                                                    FontSize="9" Foreground="White"/>
                                                     </Border>
                                                 </StackPanel>
@@ -597,7 +614,7 @@
                                                                TextTrimming="CharacterEllipsis" MaxLines="1"/>
                                                     <TextBlock Grid.Column="1" FontSize="10"
                                                                Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
-                                                               Text="{Binding PageCount, StringFormat='1/{0}'}"
+                                                               Text="{Binding PageCount, StringFormat='{}{0}'}"
                                                                VerticalAlignment="Center" Margin="4,0,0,0"
                                                                IsVisible="{Binding IsMultiPage}"/>
                                                 </Grid>
@@ -672,7 +689,8 @@
                                                             IsVisible="{Binding Thumbnail, Converter={x:Static ObjectConverters.IsNull}}"/>
                                                     <!-- Natural height: Show full image at natural aspect ratio -->
                                                     <Image Source="{Binding Thumbnail}" Stretch="UniformToFill"
-                                                           HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                                           HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                                           RenderOptions.BitmapInterpolationMode="HighQuality" UseLayoutRounding="True">
                                                         <Image.Height>
                                                             <MultiBinding Converter="{x:Static conv:MultiplyByAspectRatioConverter.Instance}">
                                                                 <Binding Path="$parent[UserControl].((vm:EnhancedRankingsViewModel)DataContext).CardSize"/>
@@ -744,7 +762,7 @@
                                                     </Border>
                                                     <Border Padding="5,2" CornerRadius="4" Background="#BB000000"
                                                             IsVisible="{Binding IsMultiPage}">
-                                                        <TextBlock Text="{Binding PageCount, StringFormat='1/{0}'}"
+                                                        <TextBlock Text="{Binding PageCount, StringFormat='{}{0}'}"
                                                                    FontSize="9" Foreground="White"/>
                                                     </Border>
                                                 </StackPanel>
@@ -763,7 +781,7 @@
                                                                TextTrimming="CharacterEllipsis" MaxLines="1"/>
                                                     <TextBlock Grid.Column="1" FontSize="10"
                                                                Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
-                                                               Text="{Binding PageCount, StringFormat='1/{0}'}"
+                                                               Text="{Binding PageCount, StringFormat='{}{0}'}"
                                                                VerticalAlignment="Center" Margin="4,0,0,0"
                                                                IsVisible="{Binding IsMultiPage}"/>
                                                 </Grid>
@@ -856,7 +874,7 @@
                                                    Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                                    VerticalAlignment="Center" Margin="12,0"/>
                                         <!-- Pages -->
-                                        <TextBlock Grid.Column="4" Text="{Binding PageCount, StringFormat='1/{0}'}"
+                                        <TextBlock Grid.Column="4" Text="{Binding PageCount, StringFormat='{}{0}'}"
                                                    FontSize="10" VerticalAlignment="Center"
                                                    Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                                    IsVisible="{Binding IsMultiPage}" Margin="0,0,12,0"/>

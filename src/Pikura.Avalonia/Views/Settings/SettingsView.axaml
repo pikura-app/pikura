@@ -4,6 +4,7 @@
              xmlns:vm="using:Pikura.Avalonia.ViewModels"
              xmlns:conv="using:Pikura.Avalonia.Converters"
              xmlns:svc="using:Pikura.Avalonia.Services"
+             xmlns:loc="using:Pikura.Avalonia.Localization"
              xmlns:sys="using:System"
              xmlns:settings="using:Pikura.Core.Settings"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -21,7 +22,7 @@
     <Grid RowDefinitions="Auto,Auto,*">
 
         <!-- Page title -->
-        <TextBlock Grid.Row="0" Text="Settings" FontSize="22" FontWeight="Bold"
+        <TextBlock Grid.Row="0" Text="{loc:Tr Settings_Title}" FontSize="22" FontWeight="Bold"
                    Margin="24,36,24,8"/>
 
         <!-- Restart banner -->
@@ -32,11 +33,11 @@
                 <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
                     <PathIcon Data="{StaticResource WarningIcon}" Width="14" Height="14" VerticalAlignment="Center"
                               Foreground="Orange"/>
-                    <TextBlock Text="Some changes require a restart to take effect." FontSize="12" VerticalAlignment="Center"/>
+                    <TextBlock Text="{loc:Tr Settings_RestartRequired}" FontSize="12" VerticalAlignment="Center"/>
                 </StackPanel>
-                <Button Content="Restart Now"   FontSize="11"
+                <Button Content="{loc:Tr Settings_RestartNow}"   FontSize="11"
                         Classes="accent" Command="{Binding RestartApplicationCommand}"/>
-                <Button Content="Dismiss"   FontSize="11"
+                <Button Content="{loc:Tr Common_Dismiss}"   FontSize="11"
                         Command="{Binding DismissRestartNotificationCommand}"/>
             </StackPanel>
         </Border>
@@ -142,7 +143,7 @@
                                           FontSize="13"/>
 
                                 <StackPanel Spacing="16" IsVisible="{Binding OverlayService.IsEnabled}">
-                                    <TextBlock Text="Selected images (up to 5)"
+                                    <TextBlock Text="{Binding OverlayService.MaxImageItemsValue, StringFormat='Selected images (up to {0})'}"
                                                FontSize="13" FontWeight="SemiBold"
                                                Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                     <ItemsControl ItemsSource="{Binding OverlayService.ImageItems}"
@@ -160,7 +161,8 @@
                                                             <Border Grid.Column="0" CornerRadius="4"
                                                                     ClipToBounds="True" Width="68" Height="58">
                                                                 <Image Source="{Binding Thumbnail}"
-                                                                       Stretch="UniformToFill"/>
+                                                                       Stretch="UniformToFill"
+                                                                       RenderOptions.BitmapInterpolationMode="HighQuality" UseLayoutRounding="True"/>
                                                             </Border>
                                                             <!-- Artwork info (clickable — navigates to artist gallery) -->
                                                             <Button Grid.Column="1"
@@ -209,6 +211,19 @@
                                     <Button Content="Clear all" FontSize="12" HorizontalAlignment="Left"
                                             Padding="10,4" 
                                             Click="OnClearAllOverlayImagesClick"/>
+
+                                    <Grid ColumnDefinitions="*,Auto,Auto" Margin="0,8,0,0">
+                                        <TextBox Grid.Column="0" x:Name="OverlayUrlTextBox"
+                                                 PlaceholderText="Artwork ID (e.g. 40594), pixiv.net link, image URL, or local file path"
+                                                 CornerRadius="6" FontSize="12" Margin="0,0,8,0"
+                                                 ToolTip.Tip="Accepts a Pixiv artwork ID, a pixiv.net/artworks/… link, a direct image URL, or a path to a local image."/>
+                                        <Button Grid.Column="1" Content="Add" FontSize="12"
+                                                Padding="10,4" Margin="0,0,8,0"
+                                                Click="OnAddOverlayUrlClick"/>
+                                        <Button Grid.Column="2" Content="Browse files…" FontSize="12"
+                                                Padding="10,4"
+                                                Click="OnAddOverlayFilesClick"/>
+                                    </Grid>
 
                                     <TextBlock Text="Image adjustments"
                                                FontSize="13" FontWeight="SemiBold" Margin="0,8,0,0"
@@ -1609,9 +1624,9 @@
                                     BorderBrush="{DynamicResource Container1BorderBrush}"
                                     BorderThickness="1" CornerRadius="8" Padding="24">
                                 <StackPanel Spacing="20">
-                                    <TextBlock Text="Language" FontWeight="SemiBold" FontSize="13"/>
+                                    <TextBlock Text="{loc:Tr Settings_Language}" FontWeight="SemiBold" FontSize="13"/>
                                     <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto">
-                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="App language" FontSize="12"
+                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="{loc:Tr Settings_AppLanguage}" FontSize="12"
                                                    Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                                    VerticalAlignment="Center" Margin="0,0,10,0"/>
                                         <ComboBox Grid.Row="0" Grid.Column="1"
@@ -1619,7 +1634,7 @@
                                                   SelectedItem="{Binding AppLanguage, Mode=TwoWay}"
                                                   SelectionChanged="OnAppLanguageChanged"
                                                   CornerRadius="5" FontSize="12"/>
-                                        <TextBlock Grid.Row="1" Grid.Column="0" Text="API language" FontSize="12"
+                                        <TextBlock Grid.Row="1" Grid.Column="0" Text="{loc:Tr Settings_ApiLanguage}" FontSize="12"
                                                    Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                                    VerticalAlignment="Center" Margin="0,8,10,0"/>
                                         <ComboBox Grid.Row="1" Grid.Column="1" Margin="0,8,0,0"

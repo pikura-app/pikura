@@ -211,39 +211,38 @@ public partial class MainWindow : Window
             catch { /* non-fatal — badges just won't be pre-warmed this session */ }
         });
 
-        // Wire up overlay image pan + zoom transform using the same normalized
-        // pan coordinates the preview window produces.  The transform is applied
-        // to the OverlayTransformPanel (which wraps the Image + tint rectangles)
-        // with a center-relative origin, matching the BackgroundPreviewWindow.
+        // Wire up overlay image pan + zoom. The image is placed inside a Canvas and
+        // sized/positioned explicitly so the full image fits the window by default,
+        // then panned/zoomed by the user's saved per-image settings.
         try
         {
-            var overlayTranslate = new TranslateTransform();
-            var overlayScale = new ScaleTransform(1, 1);
-            var tg = new TransformGroup();
-            tg.Children.Add(overlayScale);
-            tg.Children.Add(overlayTranslate);
-            OverlayTransformPanel.RenderTransform = tg;
-            OverlayTransformPanel.RenderTransformOrigin = new RelativePoint(0.5, 0.5, RelativeUnit.Relative);
-
             void UpdateOverlayTransform()
             {
                 if (OverlayImage?.Source is not Bitmap bmp) return;
                 if (DataContext is not MainWindowViewModel { OverlayService: { } svc }) return;
 
                 var natural = bmp.PixelSize;
-                var bounds = OverlayTransformPanel.Bounds;
-                if (natural.Width <= 0 || natural.Height <= 0 || bounds.Width <= 0 || bounds.Height <= 0)
+                var viewport = OverlayCanvas.Bounds;
+                if (natural.Width <= 0 || natural.Height <= 0 || viewport.Width <= 0 || viewport.Height <= 0)
                     return;
 
-                // Use the same base-scale formula as BackgroundPreviewWindow:
-                // Min() for Uniform fit inside the panel, then pan is expressed
-                // as a fraction of the scaled image size.
-                var baseScale = Math.Min(bounds.Width / natural.Width, bounds.Height / natural.Height);
+                // Fit the image inside the viewport, then apply user zoom on top.
+                var baseScale = Math.Min(viewport.Width / natural.Width, viewport.Height / natural.Height);
                 var zoom = Math.Max(0.1, svc.Zoom);
-                overlayScale.ScaleX = zoom;
-                overlayScale.ScaleY = zoom;
-                overlayTranslate.X = svc.PanX * natural.Width * baseScale * zoom;
-                overlayTranslate.Y = svc.PanY * natural.Height * baseScale * zoom;
+                var effectiveScale = baseScale * zoom;
+
+                var displayWidth = natural.Width * effectiveScale;
+                var displayHeight = natural.Height * effectiveScale;
+
+                OverlayImageHost.Width = displayWidth;
+                OverlayImageHost.Height = displayHeight;
+
+                // Center in viewport, then apply normalized pan.
+                var x = (viewport.Width - displayWidth) / 2.0 + svc.PanX * displayWidth;
+                var y = (viewport.Height - displayHeight) / 2.0 + svc.PanY * displayHeight;
+
+                Canvas.SetLeft(OverlayImageHost, x);
+                Canvas.SetTop(OverlayImageHost, y);
             }
 
             if (DataContext is MainWindowViewModel { OverlayService: { } svc })
@@ -255,7 +254,7 @@ public partial class MainWindow : Window
                 };
             }
 
-            OverlayTransformPanel.LayoutUpdated += (_, _) => UpdateOverlayTransform();
+            OverlayCanvas.LayoutUpdated += (_, _) => UpdateOverlayTransform();
             OverlayImage.PropertyChanged += (_, ev) =>
             {
                 if (ev.Property?.Name == nameof(Image.Source))

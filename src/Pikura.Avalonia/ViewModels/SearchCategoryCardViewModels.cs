@@ -48,10 +48,11 @@ public partial class NovelCardViewModel : ObservableObject
 
     public async Task LoadThumbnailAsync(PixivImageLoader loader, CancellationToken ct = default)
     {
+        if (Thumbnail is not null) return;
         if (string.IsNullOrWhiteSpace(ThumbnailUrl)) return;
         try
         {
-            var skBitmap = await loader.FetchBitmapAsync(ThumbnailUrl, ThumbnailSize.Small, ct);
+            var skBitmap = await loader.FetchBitmapAsync(ThumbnailUrl, ThumbnailSize.Medium, ct);
             if (skBitmap is null || ct.IsCancellationRequested) return;
             var bmp = await Task.Run(() => (Bitmap?)BitmapInterop.SkiaToAvalonia(skBitmap), ct);
             skBitmap.Dispose();
@@ -91,6 +92,7 @@ public partial class UserSearchCardViewModel : ObservableObject
 
     public async Task LoadAvatarAsync(PixivImageLoader loader, CancellationToken ct = default)
     {
+        if (Avatar is not null) return;
         if (string.IsNullOrWhiteSpace(AvatarUrl)) return;
         try
         {
@@ -117,7 +119,7 @@ public partial class UserSearchCardViewModel : ObservableObject
         try
         {
             var ids = RecentWorkIds.Select(w => w.Id).Distinct().ToList();
-            var previews = await client.GetArtworksMetadataAsync(UserId, ids, ct).ConfigureAwait(false);
+            var previews = await client.GetArtworksMetadataAsync(UserId, ids, false, ct).ConfigureAwait(false);
             foreach (var id in ids)
             {
                 if (ct.IsCancellationRequested) break;

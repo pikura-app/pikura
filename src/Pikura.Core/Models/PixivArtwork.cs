@@ -14,6 +14,10 @@ public sealed record ArtworkPreview
     [JsonPropertyName("aiType")] public int AiType { get; init; }
     [JsonPropertyName("url")] public string? ThumbnailUrl { get; init; }
     [JsonPropertyName("pageCount")] public int PageCount { get; init; } = 1;
+
+    /// <summary>0-based page index used when a card represents a single page of a multi-page work.</summary>
+    public int PageIndex { get; init; }
+
     [JsonPropertyName("userId")] public string UserId { get; init; } = string.Empty;
     [JsonPropertyName("userName")] public string UserName { get; init; } = string.Empty;
     [JsonPropertyName("xRestrict")] public int XRestrict { get; init; }
@@ -52,8 +56,8 @@ public sealed record ArtworkPreview
         _ => "Other",
     };
 
-    /// <summary>"1 / N" overlay shown on artwork cards.</summary>
-    public string PageLabel => $"1 / {PageCount}";
+    /// <summary>Total page-count badge shown on artwork cards. For a non-paged tile this is empty.</summary>
+    public string PageLabel => PageCount > 1 ? PageCount.ToString() : string.Empty;
 
     /// <summary>Bookmark count as a display string ("N/A" when null - API doesn't provide this in listings).</summary>
     public string BookmarkLabel => BookmarkCount.HasValue ? BookmarkCount.Value.ToString("N0") : "N/A";

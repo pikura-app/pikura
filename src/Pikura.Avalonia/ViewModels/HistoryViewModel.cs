@@ -515,6 +515,34 @@ public partial class DownloadJobViewModel : ObservableObject
     public bool HasOutputFolder => !string.IsNullOrWhiteSpace(ResolvedOutputFolder)
                                    && Directory.Exists(ResolvedOutputFolder);
 
+    /// <summary>
+    /// The leading symbol of <see cref="StatusText"/> (e.g. "✅" for Completed), split out so the
+    /// view can tint just the glyph with <see cref="StatusAccentColor"/> while the word beside it
+    /// stays in the normal foreground.
+    /// </summary>
+    public string StatusGlyph => SplitStatus().Glyph;
+
+    /// <summary>The wording of <see cref="StatusText"/> without its leading symbol.</summary>
+    public string StatusLabel => SplitStatus().Label;
+
+    private (string Glyph, string Label) SplitStatus()
+    {
+        var text = StatusText;
+        if (string.IsNullOrWhiteSpace(text)) return ("", "");
+
+        var space = text.IndexOf(' ');
+        // No separator — treat the whole thing as the label so nothing is lost.
+        if (space <= 0) return ("", text);
+
+        return (text[..space], text[(space + 1)..].TrimStart());
+    }
+
+    partial void OnStatusTextChanged(string value)
+    {
+        OnPropertyChanged(nameof(StatusGlyph));
+        OnPropertyChanged(nameof(StatusLabel));
+    }
+
     /// <summary>Hex color for the status accent bar: Running=blue, Paused=amber, Pending=gray.</summary>
     public string StatusAccentColor => Job.Status switch
     {

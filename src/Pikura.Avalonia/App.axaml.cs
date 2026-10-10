@@ -35,10 +35,16 @@ public partial class App : Application
         // Apply persisted theme before any window is created
         ApplyTheme();
 
+        // Apply the persisted UI language before any window is created, so the first frame is
+        // already in the right language. Previously AppLanguage was saved but never read by
+        // anything, which is why switching it appeared to do nothing (issue #23).
+        var settingsService = AppServices.Get<SettingsService>();
+        Localization.LocalizationService.Instance.SetLanguage(settingsService.Current.AppLanguage);
+
         // Sync Windows startup registry with the saved user setting. The app/installer
         // may have left a stale Run key entry under a legacy or canonical name; this
         // makes the user's "Start with Windows" toggle authoritative.
-        var settings = AppServices.Get<SettingsService>();
+        var settings = settingsService;
         if (OperatingSystem.IsWindows())
         {
             try { Services.StartupHelper.SetStartupEnabled(settings.Current.StartWithWindows); }

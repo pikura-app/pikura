@@ -232,7 +232,7 @@ public sealed class FollowedArtistsIndexService : IDisposable
         {
             ct.ThrowIfCancellationRequested();
             var batchIds = allIds.Skip(i).Take(BatchSize).ToList();
-            var metadata = await _client.GetArtworksMetadataAsync(userId, batchIds, ct).ConfigureAwait(false);
+            var metadata = await _client.GetArtworksMetadataAsync(userId, batchIds, i == 0, ct).ConfigureAwait(false);
             all.AddRange(metadata.Values);
 
             if (i + BatchSize < allIds.Count)

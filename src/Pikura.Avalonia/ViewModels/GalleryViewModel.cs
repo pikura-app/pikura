@@ -25,6 +25,8 @@ public enum ArtworkSortMode { Default, TitleAsc, TitleDesc, NewestFirst, OldestF
 public enum CardHeightMode { Fixed, Natural }
 public enum GallerySearchScope { CurrentArtist, AllFollowedArtists }
 
+public sealed record PageStripItem(int Index, int Number);
+
 public partial class ViewerTab : ObservableObject
 {
     [ObservableProperty] private ArtworkCardViewModel? _card;
@@ -48,12 +50,28 @@ public partial class ViewerTab : ObservableObject
     /// <summary>The artworks displayed in this tab when <see cref="IsCollage"/> is true.</summary>
     public ObservableCollection<ArtworkCardViewModel> CollageItems { get; } = [];
 
+    /// <summary>
+    /// When true, the user has clicked an individual image in the collage and is viewing it
+    /// like a normal tab. The collage grid is hidden and the regular image viewer is shown.
+    /// </summary>
+    [ObservableProperty] private bool _isViewingCollageItem;
+
     /// <summary>Cached decoded bitmap for this tab's current artwork page, so switching
     /// back to a previously-viewed tab restores the image instantly without re-decoding.</summary>
     public Bitmap? CachedBitmap { get; set; }
 
     /// <summary>The page index the cached bitmap corresponds to.</summary>
     public int CachedPageIndex { get; set; }
+
+    /// <summary>The Original (full-res) image URL that <see cref="CachedBitmap"/> corresponds
+    /// to, so restoring this tab can resume the upgrade instead of getting stuck on a
+    /// lower-quality Regular image, and so a stale in-flight load can't be mistaken for
+    /// this tab's current artwork.</summary>
+    public string? CachedOriginalUrl { get; set; }
+
+    /// <summary>True once <see cref="CachedBitmap"/> is the full-res Original image rather
+    /// than the faster-loading Regular preview.</summary>
+    public bool CachedFullResLoaded { get; set; }
 
     public ViewerTab(ArtworkCardViewModel? card, IReadOnlyList<ArtworkCardViewModel>? navList = null,
         int totalCount = 0, Func<Task<IReadOnlyList<ArtworkCardViewModel>>>? loadMoreAsync = null,
@@ -76,10 +94,42 @@ public partial class ViewerTab : ObservableObject
         // Clear cached bitmap when navigating within the same tab to a different artwork —
         // the old bitmap is no longer relevant and would waste memory.
         if (Card?.Id != card.Id)
+        {
             CachedBitmap = null;
+            CachedOriginalUrl = null;
+            CachedFullResLoaded = false;
+        }
         Card = card;
         Header = card.Title.Length > 24 ? card.Title[..24] + "…" : card.Title;
     }
+}
+
+/// <summary>The user's choice from the "add to collage" picker: which existing collage tabs to
+/// append to, and whether to also spin up a brand-new collage for the same artworks.</summary>
+public sealed record CollagePickerResult(List<ViewerTab> Targets, bool CreateNew, string? NewName);
+
+/// <summary>One checkable row in the "add to collage" picker — wraps a collage <see cref="ViewerTab"/>
+/// with the display bits the dialog needs (name, capacity, a few sample thumbnails).</summary>
+public sealed partial class CollageTargetViewModel : ObservableObject
+{
+    public required ViewerTab Tab { get; init; }
+
+    public string Name => Tab.Header;
+    public int Count => Tab.CollageItems.Count;
+    public string CountText => $"{Count} / {GalleryViewModel.MaxCollageItems}";
+
+    /// <summary>True when the collage is already at the item cap and can't accept more.</summary>
+    public bool IsFull => Count >= GalleryViewModel.MaxCollageItems;
+
+    [ObservableProperty] private bool _isSelected;
+
+    /// <summary>Up to 4 already-decoded thumbnails for the row's 2x2 preview. Purely decorative —
+    /// collage items load their thumbnails when added, so nothing is fetched here.</summary>
+    public List<Bitmap> Thumbnails => Tab.CollageItems
+        .Where(c => c.Thumbnail != null)
+        .Take(4)
+        .Select(c => c.Thumbnail!)
+        .ToList();
 }
 
 public partial class GalleryViewModel : ViewModelBase
@@ -201,6 +251,8 @@ public partial class GalleryViewModel : ViewModelBase
     {
         OnPropertyChanged(nameof(CanViewSelectedAsCollage));
         ViewSelectedAsCollageCommand.NotifyCanExecuteChanged();
+        OnPropertyChanged(nameof(CanAddSelectedToCollage));
+        AddSelectedToCollageCommand.NotifyCanExecuteChanged();
         OnPropertyChanged(nameof(CanViewSelectedInNewTabs));
         ViewSelectedInNewTabsCommand.NotifyCanExecuteChanged();
     }
@@ -236,9 +288,9 @@ public partial class GalleryViewModel : ViewModelBase
     [ObservableProperty] private bool _isRecentFeedActive;
     [ObservableProperty] private bool _showPreview;
 
-    // ── Collage mode — a single dedicated "Collage" tab in the global tab list. This lets
-    // the user switch between the collage and individual artwork tabs without destroying either.
-    public const int MaxCollageItems = 10;
+    // ── Collage mode — dedicated "Collage" tabs in the global tab list. Multiple collages
+    // can be open at once; each tab owns its own item list and instance state.
+    public const int MaxCollageItems = 100;
 
     private void OnCollageItemsChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
     {
@@ -247,20 +299,26 @@ public partial class GalleryViewModel : ViewModelBase
         OnPropertyChanged(nameof(CanReturnToCollage));
         OnPropertyChanged(nameof(CanViewSelectedAsCollage));
         ViewSelectedAsCollageCommand.NotifyCanExecuteChanged();
+        NotifyCollageTargetsChanged();
         ReturnToCollageCommand.NotifyCanExecuteChanged();
     }
 
-    private ViewerTab GetOrCreateCollageTab()
+    /// <summary>Create a brand-new collage tab, wire its change events, and add it to the tab strip.
+    /// The header is auto-numbered (Collage, Collage 2, Collage 3…) so multiple collages are easy
+    /// to tell apart.</summary>
+    private ViewerTab CreateCollageTab()
     {
-        var tab = ViewerTabs.FirstOrDefault(t => t.IsCollage);
-        if (tab == null)
-        {
-            tab = new ViewerTab(null, [], 0, null, "Collage", header: "Collage", isCollage: true);
-            tab.CollageItems.CollectionChanged += OnCollageItemsChanged;
-            ViewerTabs.Add(tab);
-        }
+        var existing = new HashSet<string>(ViewerTabs.Where(t => t.IsCollage).Select(t => t.Header), StringComparer.OrdinalIgnoreCase);
+        var number = 1;
+        while (existing.Contains(GetCollageHeader(number))) number++;
+        var header = GetCollageHeader(number);
+        var tab = new ViewerTab(null, [], 0, null, header, header: header, isCollage: true);
+        tab.CollageItems.CollectionChanged += OnCollageItemsChanged;
+        ViewerTabs.Add(tab);
         return tab;
     }
+
+    private static string GetCollageHeader(int number) => number == 1 ? "Collage" : $"Collage {number}";
 
     /// <summary>True when the currently selected tab is the collage tab.</summary>
     public bool IsCollageMode => SelectedViewerTab is { IsCollage: true };
@@ -268,34 +326,91 @@ public partial class GalleryViewModel : ViewModelBase
     /// <summary>The collage items for the active collage tab (null when no collage is selected).</summary>
     public ObservableCollection<ArtworkCardViewModel>? CollageItems => SelectedViewerTab is { IsCollage: true } ? SelectedViewerTab.CollageItems : null;
 
+    /// <summary>Page thumbnails/numbers for the currently open multi-page artwork.</summary>
+    public ObservableCollection<PageThumbnailItem> InlinePageList { get; } = new();
+
+    /// <summary>Column width for the inline collage grid. Controlled by Ctrl + wheel.</summary>
+    [ObservableProperty] private double _collageGridColumnWidth = 200;
+
+    [ObservableProperty] private bool _isInlinePageGridVisible;
+
+    [RelayCommand] private void ToggleInlinePageGrid() => IsInlinePageGridVisible = !IsInlinePageGridVisible;
+
     /// <summary>True when there is an existing collage tab (whether currently selected or not).</summary>
     public bool HasStoredCollage => ViewerTabs.Any(t => t.IsCollage);
 
-    /// <summary>True when the viewer has a stored collage tab that can be switched to.</summary>
-    public bool CanReturnToCollage => !IsCollageMode && HasStoredCollage;
+    /// <summary>Every open collage tab, in tab-strip order.</summary>
+    public IReadOnlyList<ViewerTab> CollageTabs => ViewerTabs.Where(t => t.IsCollage).ToList();
 
-    /// <summary>Replace the contents of the collage tab with the given items.</summary>
+    /// <summary>The most recently created collage tab (collage tabs are appended, so this is the
+    /// last one in tab order).</summary>
+    public ViewerTab? MostRecentCollageTab => ViewerTabs.LastOrDefault(t => t.IsCollage);
+
+    /// <summary>Where a plain "Add to Collage" click sends artworks: the collage the user is
+    /// currently looking at, or — when a normal artwork tab is selected — the newest collage.
+    /// This is what lets the button work outside collage mode instead of being hidden.</summary>
+    public ViewerTab? PrimaryCollageTarget =>
+        SelectedViewerTab is { IsCollage: true } selected ? selected : MostRecentCollageTab;
+
+    /// <summary>Re-raises everything that depends on which collages exist / how full they are.
+    /// Called whenever the tab list, the selected tab, or a collage's contents change.</summary>
+    private void NotifyCollageTargetsChanged()
+    {
+        OnPropertyChanged(nameof(CollageTabs));
+        OnPropertyChanged(nameof(MostRecentCollageTab));
+        OnPropertyChanged(nameof(PrimaryCollageTarget));
+        OnPropertyChanged(nameof(CanAddSelectedToCollage));
+        AddSelectedToCollageCommand.NotifyCanExecuteChanged();
+        AddSelectedToCollagePickCommand.NotifyCanExecuteChanged();
+    }
+
+    /// <summary>True when a collage tab's grid is currently visible (collage mode, not viewing an item).</summary>
+    public bool IsCollageGridVisible => SelectedViewerTab is { IsCollage: true } and not { IsViewingCollageItem: true };
+
+    /// <summary>True when the user is viewing a single image inside a collage tab.</summary>
+    public bool IsViewingCollageImage => SelectedViewerTab is { IsCollage: true, IsViewingCollageItem: true };
+
+    /// <summary>
+    /// The "Return to Collage" button should only appear when the user is currently viewing a
+    /// single image inside a collage tab. It should never appear on a normal tab, even if that
+    /// tab happens to show an image whose id is also in a collage, because those are separate
+    /// instances and the user did not open the image from the collage.
+    /// </summary>
+    public bool CanReturnToCollage => IsViewingCollageImage;
+
+    /// <summary>Create a new collage tab and fill it with the given items.</summary>
     public void ShowCollage(IEnumerable<ArtworkCardViewModel> items)
     {
-        var tab = GetOrCreateCollageTab();
+        var tab = CreateCollageTab();
         tab.CollageItems.Clear();
         AddToCollage(items, tab);
         SelectedViewerTab = tab;
         ShowPreview = true;
     }
 
-    /// <summary>Collage a cross-tab selection: append to existing collage if one exists,
-    /// otherwise start a new one.</summary>
+    /// <summary>Collage a cross-tab selection: append to the active collage tab when one is
+    /// selected, otherwise start a new collage tab.</summary>
     public void AddSelectedToCollage(IEnumerable<ArtworkCardViewModel> selected)
     {
         var list = selected.ToList();
         if (list.Count == 0) return;
-        if (HasStoredCollage || IsCollageMode)
-        {
+        if (SelectedViewerTab is { IsCollage: true })
             AddToCollage(list);
-            return;
-        }
-        ShowCollage(list.Take(MaxCollageItems));
+        else
+            ShowCollage(list.Take(MaxCollageItems));
+    }
+
+    /// <summary>Show a rename dialog for the given tab and update its header.</summary>
+    [RelayCommand]
+    public async Task RenameTabAsync(ViewerTab? tab)
+    {
+        if (tab == null) return;
+        var current = tab.Header;
+        var result = await _dialogService.ShowInputDialogAsync("Rename tab", "Enter a new name for this tab:", current);
+        if (string.IsNullOrWhiteSpace(result)) return;
+        tab.Header = result.Trim();
+        if (tab == SelectedViewerTab)
+            OnPropertyChanged(nameof(SelectedViewerTab));
     }
 
     [RelayCommand]
@@ -304,12 +419,18 @@ public partial class GalleryViewModel : ViewModelBase
         if (CollageItems is not { Count: > 0 } items) return;
 
         var baseRoot = _accountService?.GetEffectiveDownloadRoot() ?? _settingsService.Current.DownloadRoot;
-        int number;
+        var rawName = SelectedViewerTab?.Header?.Trim();
+        if (string.IsNullOrWhiteSpace(rawName)) rawName = "Collage";
+        var safeName = string.Concat(rawName.Select(c => Path.GetInvalidFileNameChars().Contains(c) ? '_' : c));
+        if (string.IsNullOrWhiteSpace(safeName)) safeName = "Collage";
+
         string folder;
+        int suffix = 0;
         do
         {
-            number = Random.Shared.Next(100000, 999999);
-            folder = Path.Combine(baseRoot, $"Collage_{number}");
+            var suffixText = suffix == 0 ? "" : $"_{suffix}";
+            folder = Path.Combine(baseRoot, $"{safeName}{suffixText}");
+            suffix++;
         } while (Directory.Exists(folder));
         Directory.CreateDirectory(folder);
 
@@ -322,19 +443,69 @@ public partial class GalleryViewModel : ViewModelBase
         await DownloadCoreAsync(items.ToList(), acctOverride, jobName: folderName);
     }
 
-    /// <summary>Add items to the existing collage tab (creating it if necessary).</summary>
-    public void AddToCollage(IEnumerable<ArtworkCardViewModel> items, ViewerTab? tab = null)
+    /// <summary>Add items to the given collage tab. If no tab is supplied, append to the
+    /// currently selected collage tab, or create a new collage tab if none is selected.
+    /// Returns how many items were actually added (duplicates and overflow past
+    /// <see cref="MaxCollageItems"/> are skipped).
+    /// <para><paramref name="activate"/> defaults to true, matching the long-standing behaviour of
+    /// jumping to the collage. Pass false when adding to several collages at once, so the add
+    /// doesn't yank the user away from whatever they were looking at.</para></summary>
+    public int AddToCollage(IEnumerable<ArtworkCardViewModel> items, ViewerTab? tab = null, bool activate = true)
     {
-        tab ??= GetOrCreateCollageTab();
+        tab ??= SelectedViewerTab is { IsCollage: true } selected ? selected : CreateCollageTab();
         var existing = tab.CollageItems.Select(c => c.Id).ToHashSet();
+        var added = 0;
         foreach (var item in items)
         {
             if (tab.CollageItems.Count >= MaxCollageItems) break;
-            if (existing.Add(item.Id)) tab.CollageItems.Add(item);
+            if (existing.Add(item.Id))
+            {
+                tab.CollageItems.Add(item);
+                added++;
+                if (item.Thumbnail is null)
+                    _ = item.LoadThumbnailAsync(_imageLoader);
+            }
         }
-        if (SelectedViewerTab?.IsCollage != true)
+        if (activate) ActivateCollage(tab);
+        return added;
+    }
+
+    /// <summary>
+    /// Brings <paramref name="tab"/> to the front and makes sure its <i>grid</i> is what's on
+    /// screen, so newly added artworks are actually visible.
+    /// <para>
+    /// Two things used to go wrong here. Switching was guarded by "is the current tab not a
+    /// collage?", so adding to Collage 2 while looking at Collage 1 silently left you on
+    /// Collage 1. And if the target collage was last left showing a single opened item, selecting
+    /// it displayed that one image instead of the grid — so the add looked like it did nothing.
+    /// </para>
+    /// </summary>
+    public void ActivateCollage(ViewerTab tab)
+    {
+        if (!ReferenceEquals(SelectedViewerTab, tab))
             SelectedViewerTab = tab;
+
+        if (tab.IsViewingCollageItem)
+        {
+            tab.IsViewingCollageItem = false;
+            tab.Card = null;
+            tab.CachedBitmap = null;
+            tab.CachedOriginalUrl = null;
+            tab.CachedFullResLoaded = false;
+            InlineViewerCard = null;
+            InlineViewerCardList = null;
+        }
+
         ShowPreview = true;
+
+        // Raise explicitly: when the tab was already selected, assigning it above is a no-op and
+        // OnSelectedViewerTabChanged never fires, leaving the grid-visibility flags stale.
+        OnPropertyChanged(nameof(IsCollageMode));
+        OnPropertyChanged(nameof(IsViewingCollageImage));
+        OnPropertyChanged(nameof(IsCollageGridVisible));
+        OnPropertyChanged(nameof(CollageItems));
+        OnPropertyChanged(nameof(CanReturnToCollage));
+        ReturnToCollageCommand.NotifyCanExecuteChanged();
     }
 
     /// <summary>Remove an item from the active collage tab, closing the tab if it becomes empty.</summary>
@@ -342,6 +513,8 @@ public partial class GalleryViewModel : ViewModelBase
     {
         if (card == null) return;
         if (SelectedViewerTab is not { IsCollage: true } collage) return;
+        if (collage.IsViewingCollageItem && collage.Card?.Id == card.Id)
+            ReturnToCollage();
         collage.CollageItems.Remove(card);
         if (collage.CollageItems.Count == 0)
             CloseViewerTab(collage);
@@ -356,11 +529,73 @@ public partial class GalleryViewModel : ViewModelBase
             CloseViewerTab(c);
     }
 
+    /// <summary>Replace a single multi-page artwork in a collage with one tile per page.</summary>
     [RelayCommand]
+    private async Task ExpandCollageItemAsync(ArtworkCardViewModel? card)
+    {
+        if (card == null || card.PageCount <= 1) return;
+        if (SelectedViewerTab is not { IsCollage: true } collage) return;
+
+        var idx = collage.CollageItems.IndexOf(card);
+        if (idx < 0) return;
+
+        try
+        {
+            StatusMessage = $"Loading pages for {card.Title}…";
+            var pages = await _pixivClient.GetArtworkPagesAsync(card.Id);
+            if (pages.Count <= 1) { StatusMessage = $"{card.Title} has only one page."; return; }
+
+            // Remove the consolidated tile first, then insert one card per page at the same spot.
+            collage.CollageItems.RemoveAt(idx);
+            int inserted = 0;
+            foreach (var page in pages)
+            {
+                if (collage.CollageItems.Count >= MaxCollageItems) break;
+                var i = inserted;
+                var pageUrl = page.Urls.Small ?? page.Urls.Regular ?? page.Urls.Original ?? page.Urls.ThumbMini;
+                var pagePreview = card.Artwork with
+                {
+                    ThumbnailUrl = pageUrl,
+                    PageIndex = i,
+                };
+                var pageCard = new ArtworkCardViewModel(pagePreview)
+                {
+                    IsLiked = card.IsLiked,
+                    IsLocalFavorite = card.IsLocalFavorite,
+                    IsPixivBookmarked = card.IsPixivBookmarked,
+                    IsPixivPrivateBookmark = card.IsPixivPrivateBookmark,
+                    IsBlurred = card.IsBlurred,
+                    IsFollowed = card.IsFollowed,
+                };
+                collage.CollageItems.Insert(idx + inserted, pageCard);
+                inserted++;
+                _ = pageCard.LoadThumbnailAsync(_imageLoader);
+            }
+            StatusMessage = $"Expanded {card.Title} into {inserted} page tiles.";
+        }
+        catch (Exception ex)
+        {
+            Logger.LogWarning(ex, "ExpandCollageItem {Id} failed", card.Id);
+            StatusMessage = $"Failed to expand {card.Title}: {ex.Message}";
+        }
+    }
+
+    [RelayCommand(CanExecute = nameof(CanReturnToCollage))]
     private void ReturnToCollage()
     {
-        var tab = ViewerTabs.FirstOrDefault(t => t.IsCollage);
-        if (tab != null) SelectedViewerTab = tab;
+        if (SelectedViewerTab is not { IsCollage: true, IsViewingCollageItem: true } collage) return;
+        collage.IsViewingCollageItem = false;
+        collage.Card = null;
+        collage.CachedBitmap = null;
+        collage.CachedOriginalUrl = null;
+        collage.CachedFullResLoaded = false;
+        collage.Header = "Collage";
+        InlineViewerCard = null;
+        InlineViewerCardList = null;
+        OnPropertyChanged(nameof(IsViewingCollageImage));
+        OnPropertyChanged(nameof(IsCollageGridVisible));
+        OnPropertyChanged(nameof(CanReturnToCollage));
+        ReturnToCollageCommand.NotifyCanExecuteChanged();
     }
 
     [ObservableProperty] private double _browsePanelWidth = 350;
@@ -424,6 +659,7 @@ public partial class GalleryViewModel : ViewModelBase
         OnPropertyChanged(nameof(CanReturnToCollage));
         OnPropertyChanged(nameof(CanViewSelectedAsCollage));
         ViewSelectedAsCollageCommand.NotifyCanExecuteChanged();
+        NotifyCollageTargetsChanged();
         ReturnToCollageCommand.NotifyCanExecuteChanged();
         if (!GalleryVm_HasTabs()) { IsViewerExpanded = false; }
     }
@@ -788,11 +1024,14 @@ public partial class GalleryViewModel : ViewModelBase
         // Keep InlineViewerCardList in sync so the counter works for non-tab viewers too
         InlineViewerCardList = value?.NavList.Count > 0 ? value.NavList : null;
         OnPropertyChanged(nameof(IsCollageMode));
+        OnPropertyChanged(nameof(IsViewingCollageImage));
+        OnPropertyChanged(nameof(IsCollageGridVisible));
         OnPropertyChanged(nameof(CollageItems));
         OnPropertyChanged(nameof(HasStoredCollage));
         OnPropertyChanged(nameof(CanReturnToCollage));
         OnPropertyChanged(nameof(CanViewSelectedAsCollage));
         ViewSelectedAsCollageCommand.NotifyCanExecuteChanged();
+        NotifyCollageTargetsChanged();
         ReturnToCollageCommand.NotifyCanExecuteChanged();
     }
 
@@ -2172,33 +2411,135 @@ public partial class GalleryViewModel : ViewModelBase
     }
 
     /// <summary>Whether the given number of selected artworks can be collaged.
-    /// At least 1 starts a new collage; adding to an existing one is only allowed
-    /// if it has room (capped at <see cref="MaxCollageItems"/>).</summary>
+    /// Any non-empty selection can start a new collage tab. When a collage tab is already
+    /// selected, items can still be appended until it reaches <see cref="MaxCollageItems"/>.</summary>
     public bool CanCollage(int selectedCount)
     {
         if (selectedCount == 0) return false;
-        if (!HasStoredCollage && !IsCollageMode) return true;
-        var collageTab = ViewerTabs.FirstOrDefault(t => t.IsCollage);
-        return collageTab is { CollageItems.Count: < MaxCollageItems };
+        if (SelectedViewerTab is not { IsCollage: true } tab) return true;
+        return tab.CollageItems.Count < MaxCollageItems;
     }
 
     public bool CanViewSelectedAsCollage => CanCollage(SelectedCount);
 
-    /// <summary>"View as Collage" for the currently-checked artworks. Opens them into a
-    /// dedicated collage tab. If a collage tab already exists, the selected artworks are
-    /// appended (up to the max).</summary>
+    /// <summary>"View as Collage" for the currently-checked artworks. Always opens them into a
+    /// brand-new collage tab so the user can keep multiple collages open at once.</summary>
     [RelayCommand(CanExecute = nameof(CanViewSelectedAsCollage))]
     private void ViewSelectedAsCollage()
     {
         var selected = VisibleArtworks.Where(a => a.IsSelected).ToList();
         if (selected.Count == 0) return;
-        if (HasStoredCollage || IsCollageMode)
-        {
-            AddToCollage(selected);
-            return;
-        }
         ShowCollage(selected.Take(MaxCollageItems));
     }
+
+    /// <summary>True when the selected artworks can be sent to a collage. Deliberately only checks
+    /// that a collage exists — not that it has room, and not that a collage tab is selected. Being
+    /// permissive keeps the SplitButton (and therefore its "Choose collage…" flyout) enabled even
+    /// when the primary target happens to be full, which is exactly when the user needs the picker.</summary>
+    public bool CanAddSelectedToCollage => SelectedCount > 0 && HasStoredCollage;
+
+    /// <summary>Append the checked artworks to the primary collage target — the collage being
+    /// viewed, or the newest collage when a normal artwork tab is selected.</summary>
+    [RelayCommand(CanExecute = nameof(CanAddSelectedToCollage))]
+    private void AddSelectedToCollage()
+    {
+        var selected = VisibleArtworks.Where(a => a.IsSelected).ToList();
+        if (selected.Count == 0) return;
+        StatusMessage = AddToPrimaryCollage(selected);
+    }
+
+    /// <summary>Append items to <see cref="PrimaryCollageTarget"/>, returning a status summary.
+    /// Reports rather than silently no-ops when the target collage is already full.</summary>
+    public string AddToPrimaryCollage(IReadOnlyList<ArtworkCardViewModel> items)
+    {
+        if (items.Count == 0) return "Nothing selected.";
+        var target = PrimaryCollageTarget;
+        if (target == null) return "No collage is open.";
+        if (target.CollageItems.Count >= MaxCollageItems)
+            return $"\"{target.Header}\" is full ({MaxCollageItems} items). Use \"Choose collage…\" to pick another.";
+
+        var added = AddToCollage(items, target);
+        return DescribeCollageAdd(target, added, items.Count);
+    }
+
+    /// <summary>Shared wording for "added N artworks to X". A short add can mean the collage hit the
+    /// item cap or that some artworks were already in it, so distinguish the two rather than
+    /// guessing — the reason changes what the user should do next.</summary>
+    private static string DescribeCollageAdd(ViewerTab target, int added, int requested)
+    {
+        var name = target.Header;
+        var isFull = target.CollageItems.Count >= MaxCollageItems;
+
+        if (added == 0)
+            return isFull
+                ? $"\"{name}\" is full ({MaxCollageItems} items) — nothing added."
+                : $"Nothing new to add to \"{name}\" — those artworks are already in it.";
+
+        if (added < requested)
+            return isFull
+                ? $"Added {added} of {requested} artwork(s) to \"{name}\" — it hit the {MaxCollageItems} item limit."
+                : $"Added {added} of {requested} artwork(s) to \"{name}\" — the rest were already in it.";
+
+        return $"Added {added} artwork(s) to \"{name}\".";
+    }
+
+    /// <summary>Shows the collage picker and appends <paramref name="items"/> to every collage the
+    /// user checked, plus a brand-new collage when requested. Never changes the selected tab, so
+    /// the user stays where they are. Returns a status summary, or null when cancelled.</summary>
+    public async Task<string?> AddItemsToCollageWithPickerAsync(IReadOnlyList<ArtworkCardViewModel> items)
+    {
+        if (items.Count == 0) return null;
+
+        var result = await _dialogService.ShowCollagePickerAsync(CollageTabs, items.Count, PrimaryCollageTarget);
+        if (result == null) return null;
+
+        var targets = new List<ViewerTab>(result.Targets);
+        if (result.CreateNew)
+        {
+            var fresh = CreateCollageTab();
+            // Blank name falls back to the auto-numbered header CreateCollageTab already assigned.
+            if (!string.IsNullOrWhiteSpace(result.NewName))
+                fresh.Header = result.NewName.Trim();
+            targets.Add(fresh);
+        }
+
+        if (targets.Count == 0) return null;
+
+        var results = targets
+            .Select(target => (Target: target, Added: AddToCollage(items, target, activate: false)))
+            .ToList();
+
+        // Deliberately picking one collage and then seeing nothing change reads as a no-op, so
+        // jump to it. With several targets there's no single right destination — stay put and let
+        // the status message report where everything landed.
+        if (targets.Count == 1)
+            ActivateCollage(targets[0]);
+        else
+            ShowPreview = true;
+
+        NotifyCollageTargetsChanged();
+
+        if (results.Count == 1)
+            return DescribeCollageAdd(results[0].Target, results[0].Added, items.Count);
+
+        var parts = results.Select(r => r.Added < items.Count
+            ? $"\"{r.Target.Header}\" ({r.Added} of {items.Count})"
+            : $"\"{r.Target.Header}\"");
+        return $"Added {items.Count} artwork(s) to {string.Join(", ", parts)}.";
+    }
+
+    /// <summary>"Choose collage…" — opens the picker for the checked artworks in this gallery.</summary>
+    [RelayCommand(CanExecute = nameof(CanChooseCollageTarget))]
+    private async Task AddSelectedToCollagePickAsync()
+    {
+        var selected = VisibleArtworks.Where(a => a.IsSelected).ToList();
+        var summary = await AddItemsToCollageWithPickerAsync(selected);
+        if (summary != null) StatusMessage = summary;
+    }
+
+    /// <summary>The picker can always be opened for a non-empty selection — it can create a
+    /// collage from scratch, so no existing collage is required.</summary>
+    public bool CanChooseCollageTarget => SelectedCount > 0;
 
     public bool CanViewSelectedInNewTabs => SelectedCount >= 1;
 
@@ -2304,6 +2645,26 @@ public partial class GalleryViewModel : ViewModelBase
             active.Source = source;
             active.NavigateTo(card);
             InlineViewerCard = card;
+        }
+        else if (SelectedViewerTab is { IsCollage: true } collage
+            && (source == "Collage" || ReferenceEquals(navList, SelectedViewerTab.CollageItems)))
+        {
+            // The user clicked a tile in the collage grid. Stay inside the collage tab,
+            // show the selected image, and use the collage items as the navigation list
+            // so the left/right arrows move through the collage.
+            collage.NavList.Clear();
+            foreach (var c in list) collage.NavList.Add(c);
+            collage.TotalCount = list.Count;
+            collage.LoadMoreAsync = null;
+            collage.Source = source;
+            collage.IsViewingCollageItem = true;
+            collage.NavigateTo(card);
+            InlineViewerCard = card;
+            InlineViewerCardList = list;
+            OnPropertyChanged(nameof(IsViewingCollageImage));
+            OnPropertyChanged(nameof(IsCollageGridVisible));
+            OnPropertyChanged(nameof(CanReturnToCollage));
+            ReturnToCollageCommand.NotifyCanExecuteChanged();
         }
         else
         {
@@ -2465,7 +2826,8 @@ public partial class GalleryViewModel : ViewModelBase
                         if (c != null) cards.Add(c);
                     }
                     if (cards.Count == 0) continue;
-                    AddToCollage(cards);
+                    var collageTab = CreateCollageTab();
+                    AddToCollage(cards, collageTab);
                 }
                 else
                 {
@@ -2706,7 +3068,7 @@ public partial class GalleryViewModel : ViewModelBase
 
         if (batch.Count == 0) { CanLoadMore = false; return; }
 
-        var works = await _pixivClient.GetArtworksMetadataAsync(artist.UserId, batch);
+        var works = await _pixivClient.GetArtworksMetadataAsync(artist.UserId, batch, _currentArtistLoadedCount == 0);
         ct.ThrowIfCancellationRequested();
 
         var existingIds = VisibleArtworks.Select(v => v.Id).ToHashSet();
@@ -2822,7 +3184,7 @@ public partial class GalleryViewModel : ViewModelBase
                 StatusMessage = $"Loading {artistName} metadata… {Math.Min(i + batchSize, allIdsSnapshot.Count)}/{allIdsSnapshot.Count}";
                 try
                 {
-                    var metadata = await _pixivClient.GetArtworksMetadataAsync(artistUserId, batch);
+                    var metadata = await _pixivClient.GetArtworksMetadataAsync(artistUserId, batch, isFirstPage: i == 0);
                     foreach (var id in batch)
                     {
                         if (metadata.TryGetValue(id, out var preview))
@@ -3105,7 +3467,7 @@ public partial class GalleryViewModel : ViewModelBase
             .Distinct().ToList();
 
         StatusMessage = $"Fetching metadata for {selectedIds.Count} artworks…";
-        var works = await _pixivClient.GetArtworksMetadataAsync(SelectedArtist.UserId, selectedIds);
+        var works = await _pixivClient.GetArtworksMetadataAsync(SelectedArtist.UserId, selectedIds, false);
         var cards = works.Values.Select(p => new ArtworkCardViewModel(p)).ToList();
         await DownloadCoreAsync(cards);
     }
@@ -3363,7 +3725,11 @@ public partial class ArtworkCardViewModel : ObservableObject
     public string Title { get; }
     public string UserName { get; }
     public string UserId { get; }
-    public string? ThumbnailUrl { get; }
+    public string? ThumbnailUrl { get; private set; }
+    /// <summary>Recompute the high-quality thumbnail URL from a raw artwork URL (used by bookmark backfill).</summary>
+    public void RefreshThumbnailUrl(string? artworkThumbnailUrl)
+        => ThumbnailUrl = GetHighQualityThumbnailUrl(artworkThumbnailUrl, PageCount);
+
     /// <summary>Optional caption shown under the card. Only set by Pixivision, where pixivision's
     /// own editorial caption for an embedded artwork gets attached here.</summary>
     public string? Caption { get; set; }
@@ -3373,8 +3739,10 @@ public partial class ArtworkCardViewModel : ObservableObject
     public bool HasViewedAt => !string.IsNullOrWhiteSpace(ViewedAtLabel);
     public string TypeLabel { get; }
     public int PageCount { get; }
+    public int PageIndex { get; }
     public int IllustType { get; }
     public bool IsMultiPage => PageCount > 1;
+    public string PageCountText => Artwork.PageLabel;
     [ObservableProperty] private double _aspectRatio;
     partial void OnAspectRatioChanged(double value) => OnPropertyChanged(nameof(ClampedAspectRatio));
     /// <summary>Aspect ratio used for natural-height layout. Lightly clamped (0.25 - 5.0)
@@ -3402,9 +3770,10 @@ public partial class ArtworkCardViewModel : ObservableObject
         Title = artwork.Title;
         UserName = artwork.UserName;
         UserId = artwork.UserId;
-        ThumbnailUrl = GetHighQualityThumbnailUrl(artwork.ThumbnailUrl);
+        ThumbnailUrl = GetHighQualityThumbnailUrl(artwork.ThumbnailUrl, artwork.PageCount);
         TypeLabel = artwork.TypeLabel;
         PageCount = artwork.PageCount;
+        PageIndex = artwork.PageIndex;
         IllustType = artwork.IllustType;
         _aspectRatio = artwork.AspectRatio;
         IsR18 = artwork.IsR18;
@@ -3446,8 +3815,9 @@ public partial class ArtworkCardViewModel : ObservableObject
     /// Strips any "/c/{W}x{H}_..." size prefix so we get the raw master1200 file
     /// from /img-master/, which is at most 1200px on the long edge AND preserves
     /// the original aspect ratio — matches what RankingCardViewModel uses.
+    /// For multi-page works, ensures the URL points at page 0 so the thumbnail exists.
     /// </summary>
-    private static string? GetHighQualityThumbnailUrl(string? url)
+    private static string? GetHighQualityThumbnailUrl(string? url, int pageCount = 1)
     {
         if (string.IsNullOrEmpty(url)) return url;
 
@@ -3464,11 +3834,25 @@ public partial class ArtworkCardViewModel : ObservableObject
                                .Replace("_custom1200", "_master1200");
         }
         upgraded = upgraded.Replace("_square1200", "_master1200");
+
+        // Multi-page listings sometimes omit the _p0 token (e.g. id_master1200.jpg).
+        // Pixiv only serves the first page under that name, so insert _p0 for multi-page works.
+        if (pageCount > 1 && !System.Text.RegularExpressions.Regex.IsMatch(upgraded, @"_p\d+_"))
+        {
+            upgraded = upgraded.Replace("_master1200", "_p0_master1200")
+                               .Replace("_square1200", "_p0_square1200")
+                               .Replace("_custom1200", "_p0_custom1200");
+        }
+
         return upgraded;
     }
 
     public async Task LoadThumbnailAsync(PixivImageLoader loader, ThumbnailSize size = ThumbnailSize.Medium, CancellationToken ct = default)
     {
+        // Once a thumbnail has been decoded, keep it so the same card doesn't flicker/reload
+        // when it appears in different views (gallery, fullscreen collage, side panel, etc.).
+        if (Thumbnail is not null) return;
+
         var preferred = ThumbnailUrl;
         var fallback = Artwork.ThumbnailUrl;
         if (string.IsNullOrWhiteSpace(preferred) && string.IsNullOrWhiteSpace(fallback)) return;
@@ -3481,17 +3865,27 @@ public partial class ArtworkCardViewModel : ObservableObject
             var effectiveSize = size;
 
             SKBitmap? skBitmap = null;
+
+            // Try the high-quality URL first at the requested size.
             if (!string.IsNullOrWhiteSpace(preferred))
                 skBitmap = await loader.FetchBitmapAsync(preferred, effectiveSize, ct);
+
+            // If that fails, try the original artwork thumbnail URL at Small. Pixiv's listing
+            // URLs are often already a valid 250×250 crop, so this avoids expensive 1200px+
+            // fetches and the 404s that guessing the original file extension can produce.
             if (skBitmap is null && !string.IsNullOrWhiteSpace(fallback)
                 && !string.Equals(preferred, fallback, StringComparison.OrdinalIgnoreCase))
-                skBitmap = await loader.FetchBitmapAsync(fallback, effectiveSize, ct);
+                skBitmap = await loader.FetchBitmapAsync(fallback, ThumbnailSize.Small, ct);
+
             if (skBitmap is null || ct.IsCancellationRequested) return;
 
             // Fast SKBitmap → Avalonia Bitmap conversion via direct pixel copy
             // (avoids PNG encode/decode roundtrip — ~10× faster for thumbnails).
-            var bmp = await Task.Run(() =>
-                (Bitmap?)Pikura.Avalonia.Services.BitmapInterop.SkiaToAvalonia(skBitmap), ct);
+            // WriteableBitmap creation must happen on the UI thread in Avalonia.
+            var bmp = await Dispatcher.UIThread.InvokeAsync<Bitmap?>(() =>
+                Pikura.Avalonia.Services.BitmapInterop.SkiaToAvalonia(skBitmap),
+                DispatcherPriority.Background,
+                ct);
 
             skBitmap.Dispose(); // Dispose the copy we received
 
@@ -3514,5 +3908,49 @@ public partial class ArtworkCardViewModel : ObservableObject
         }
         catch (OperationCanceledException) { /* superseded by artist change */ }
         catch { /* non-fatal network/decode error */ }
+    }
+
+    /// <summary>True once the thumbnail has been loaded at the requested size (or larger).</summary>
+    public bool IsThumbnailUpgraded(ThumbnailSize size)
+    {
+        if (Thumbnail is null) return false;
+        var edge = Math.Max(Thumbnail.PixelSize.Width, Thumbnail.PixelSize.Height);
+        return size switch
+        {
+            ThumbnailSize.Small => edge >= 200,
+            ThumbnailSize.Medium => edge >= 500,
+            ThumbnailSize.Large => edge >= 900,
+            ThumbnailSize.Original => true,
+            _ => true
+        };
+    }
+
+    /// <summary>Downloads and displays a higher-quality thumbnail even if one is already loaded.</summary>
+    public async Task UpgradeThumbnailAsync(PixivImageLoader loader, ThumbnailSize size = ThumbnailSize.Large, CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(ThumbnailUrl) || IsThumbnailUpgraded(size)) return;
+        try
+        {
+            var skBitmap = await loader.FetchBitmapAsync(ThumbnailUrl, size, ct);
+            if (skBitmap is null || ct.IsCancellationRequested) return;
+
+            var bmp = await Task.Run(() =>
+                (Bitmap?)Pikura.Avalonia.Services.BitmapInterop.SkiaToAvalonia(skBitmap), ct);
+            skBitmap.Dispose();
+
+            if (bmp is not null && !ct.IsCancellationRequested)
+                await Dispatcher.UIThread.InvokeAsync(() =>
+                {
+                    Thumbnail = bmp;
+                    if (size != ThumbnailSize.Small
+                        && bmp.PixelSize.Width > 0 && bmp.PixelSize.Height > 0)
+                    {
+                        var ratio = (double)bmp.PixelSize.Height / bmp.PixelSize.Width;
+                        if (ratio > 0 && Math.Abs(ratio - AspectRatio) > 0.05)
+                            AspectRatio = ratio;
+                    }
+                });
+        }
+        catch { /* non-fatal */ }
     }
 }

@@ -1,0 +1,126 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Pikura.Avalonia.ViewModels"
+        xmlns:loc="using:Pikura.Avalonia.Localization"
+        x:Class="Pikura.Avalonia.Views.Dialogs.CollagePickerDialog"
+        x:Name="This"
+        Title="{loc:Tr CollagePicker_WindowTitle}"
+        Width="520" Height="560"
+        MinWidth="420" MinHeight="380"
+        WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource Container2BackgroundBrush}">
+
+    <Border Padding="20">
+        <Grid RowDefinitions="Auto,*,Auto,Auto" RowSpacing="12">
+
+            <!-- Header -->
+            <StackPanel Grid.Row="0" Spacing="3">
+                <TextBlock x:Name="TitleText" FontSize="16" FontWeight="SemiBold"
+                           Foreground="{DynamicResource DefaultForegroundBrush}"/>
+                <TextBlock Text="{loc:Tr CollagePicker_Hint}"
+                           FontSize="12" Opacity="0.7"
+                           Foreground="{DynamicResource DefaultForegroundBrush}"/>
+            </StackPanel>
+
+            <!-- Collage list -->
+            <Border Grid.Row="1"
+                    Background="{DynamicResource Container1BackgroundBrush}"
+                    BorderBrush="{DynamicResource Container1BorderBrush}"
+                    BorderThickness="1" CornerRadius="8">
+                <Panel>
+                    <TextBlock x:Name="EmptyText"
+                               Text="{loc:Tr CollagePicker_Empty}"
+                               FontSize="12" Opacity="0.7" TextWrapping="Wrap"
+                               Margin="16" IsVisible="False"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                               TextAlignment="Center"
+                               Foreground="{DynamicResource DefaultForegroundBrush}"/>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <ItemsControl x:Name="CollageList" Margin="8">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:CollageTargetViewModel">
+                                    <Border Margin="0,2" Padding="8" CornerRadius="6"
+                                            Background="{DynamicResource Container2BackgroundBrush}">
+                                        <Grid ColumnDefinitions="Auto,Auto,*,Auto" >
+                                            <CheckBox Grid.Column="0"
+                                                      IsChecked="{Binding IsSelected}"
+                                                      IsEnabled="{Binding !IsFull}"
+                                                      VerticalAlignment="Center"
+                                                      MinWidth="0" Margin="0,0,8,0"/>
+
+                                            <!-- 2x2 preview of what's already in the collage -->
+                                            <Border Grid.Column="1" Width="48" Height="48"
+                                                    CornerRadius="4" ClipToBounds="True"
+                                                    Margin="0,0,12,0"
+                                                    Background="{DynamicResource Container1BackgroundBrush}">
+                                                <ItemsControl ItemsSource="{Binding Thumbnails}">
+                                                    <ItemsControl.ItemsPanel>
+                                                        <ItemsPanelTemplate>
+                                                            <UniformGrid Columns="2" Rows="2"/>
+                                                        </ItemsPanelTemplate>
+                                                    </ItemsControl.ItemsPanel>
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <Border ClipToBounds="True" Margin="0.5">
+                                                                <Image Source="{Binding}" Stretch="UniformToFill"/>
+                                                            </Border>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                            </Border>
+
+                                            <StackPanel Grid.Column="2" Spacing="2" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding Name}"
+                                                           FontSize="13" FontWeight="SemiBold"
+                                                           TextTrimming="CharacterEllipsis" MaxLines="1"
+                                                           Foreground="{DynamicResource DefaultForegroundBrush}"/>
+                                                <TextBlock Text="{Binding CountText}"
+                                                           FontSize="11" Opacity="0.7"
+                                                           Foreground="{DynamicResource DefaultForegroundBrush}"/>
+                                            </StackPanel>
+
+                                            <Border Grid.Column="3" VerticalAlignment="Center"
+                                                    Padding="6,2" CornerRadius="4"
+                                                    Background="#CCDC2626"
+                                                    IsVisible="{Binding IsFull}">
+                                                <TextBlock Text="{loc:Tr CollagePicker_Full}" FontSize="10" FontWeight="Bold"
+                                                           Foreground="White"/>
+                                            </Border>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Panel>
+            </Border>
+
+            <!-- New collage -->
+            <Border Grid.Row="2" Padding="10" CornerRadius="6"
+                    Background="{DynamicResource Container1BackgroundBrush}"
+                    BorderBrush="{DynamicResource Container1BorderBrush}"
+                    BorderThickness="1">
+                <Grid ColumnDefinitions="Auto,*" >
+                    <CheckBox Grid.Column="0" x:Name="NewCollageCheck"
+                              Content="{loc:Tr CollagePicker_NewCollage}" FontSize="12"
+                              VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <TextBox Grid.Column="1" x:Name="NewCollageName"
+                             CornerRadius="6" FontSize="12"
+                             PlaceholderText="{loc:Tr CollagePicker_NamePlaceholder}"
+                             IsEnabled="False"/>
+                </Grid>
+            </Border>
+
+            <!-- Footer -->
+            <Grid Grid.Row="3" ColumnDefinitions="*,Auto,Auto">
+                <TextBlock Grid.Column="0" x:Name="SummaryText"
+                           VerticalAlignment="Center" FontSize="12" Opacity="0.8"
+                           Foreground="{DynamicResource DefaultForegroundBrush}"/>
+                <Button Grid.Column="1" x:Name="CancelButton" Content="{loc:Tr Common_Cancel}"
+                        CornerRadius="6" Padding="16,7" Margin="0,0,8,0"/>
+                <Button Grid.Column="2" x:Name="AddButton" Content="{loc:Tr Common_Add}"
+                        CornerRadius="6" Padding="20,7" Classes="accent" IsDefault="True"/>
+            </Grid>
+        </Grid>
+    </Border>
+</Window>

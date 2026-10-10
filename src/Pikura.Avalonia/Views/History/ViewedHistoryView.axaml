@@ -421,7 +421,7 @@
                                                 <Panel>
                                                     <Border Background="{DynamicResource Container2BackgroundBrush}"
                                                             IsVisible="{Binding Thumbnail, Converter={x:Static ObjectConverters.IsNull}}"/>
-                                                    <Image Source="{Binding Thumbnail}" Stretch="UniformToFill">
+                                                    <Image Source="{Binding Thumbnail}" Stretch="UniformToFill" RenderOptions.BitmapInterpolationMode="HighQuality" UseLayoutRounding="True">
                                                         <Image.Effect>
                                                             <BlurEffect Radius="{Binding IsBlurred, Converter={StaticResource BoolToBlurRadiusConverter}}"/>
                                                         </Image.Effect>
@@ -492,7 +492,7 @@
                                                       VerticalAlignment="Center" Margin="0,0,8,0"
                                                       Click="OnCardCheckboxClicked"/>
                                             <Border Grid.Column="1" Width="70" Height="70" CornerRadius="6" ClipToBounds="True">
-                                                <Image Source="{Binding Thumbnail}" Stretch="UniformToFill">
+                                                <Image Source="{Binding Thumbnail}" Stretch="UniformToFill" RenderOptions.BitmapInterpolationMode="HighQuality" UseLayoutRounding="True">
                                                     <Image.Effect>
                                                         <BlurEffect Radius="{Binding IsBlurred, Converter={StaticResource BoolToBlurRadiusConverter}}"/>
                                                     </Image.Effect>
