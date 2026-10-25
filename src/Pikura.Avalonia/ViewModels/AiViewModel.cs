@@ -86,6 +86,7 @@ public partial class AiViewModel : ObservableObject
     private readonly SettingsService _settings;
     private readonly ImageLookupService _imageLookup;
     private readonly AnimeTaggerService _tagger;
+    private readonly DialogService _dialogs;
 
     [ObservableProperty] private bool _isPanelOpen;
     [ObservableProperty] private bool _isEnabled;
@@ -168,7 +169,8 @@ public partial class AiViewModel : ObservableObject
         PixivImageLoader imageLoader,
         SettingsService settings,
         ImageLookupService imageLookup,
-        AnimeTaggerService tagger)
+        AnimeTaggerService tagger,
+        DialogService dialogs)
     {
         _ollama        = ollama;
         _favorites     = favorites;
@@ -181,18 +183,32 @@ public partial class AiViewModel : ObservableObject
         _settings      = settings;
         _imageLookup   = imageLookup;
         _tagger        = tagger;
+        _dialogs       = dialogs;
 
         _ollama.StateChanged += (_, _) => Dispatcher.UIThread.Post(SyncOllamaState);
         SyncOllamaState();
 
-        // Restore Hoshi enabled state from settings
+        // Restore Hoshi enabled state from settings. If Ollama isn't installed, skip
+        // silently — never prompt or auto-install on startup (issue #23).
         if (_settings.Current.HoshiEnabled)
         {
             _ = Task.Run(async () =>
             {
                 await Task.Delay(500); // Small delay to ensure services are ready
-                await _ollama.EnableAsync();
-                Dispatcher.UIThread.Post(SyncOllamaState);
+                if (await _ollama.IsOllamaAvailableAsync())
+                {
+                    await _ollama.EnableAsync();
+                    Dispatcher.UIThread.Post(SyncOllamaState);
+                }
+                else
+                {
+                    _settings.Update(s => s.HoshiEnabled = false);
+                    Dispatcher.UIThread.Post(() =>
+                    {
+                        SyncOllamaState();
+                        StatusText = Localization.LocalizationService.Instance["Hoshi_OllamaNotInstalled"];
+                    });
+                }
             });
         }
 
@@ -489,6 +505,27 @@ public partial class AiViewModel : ObservableObject
         }
         else
         {
+            // If Ollama isn't installed, ask first — never install unprompted (#23).
+            if (!await _ollama.IsOllamaAvailableAsync())
+            {
+                var install = false;
+                if (OperatingSystem.IsWindows())
+                {
+                    var loc = Localization.LocalizationService.Instance;
+                    install = await _dialogs.ShowConfirmationAsync(
+                        loc["Hoshi_InstallOllamaTitle"], loc["Hoshi_InstallOllamaPrompt"])
+                        && await _ollama.InstallOllamaAsync(CancellationToken.None);
+                }
+                if (!install)
+                {
+                    IsThinking = false;
+                    _settings.Update(s => s.HoshiEnabled = false);
+                    SyncOllamaState();
+                    StatusText = Localization.LocalizationService.Instance["Hoshi_OllamaNotInstalled"];
+                    return;
+                }
+            }
+
             IsEnabled    = true;
             IsThinking   = true;
             StatusText   = "Starting…";

@@ -15,6 +15,12 @@ using System.Threading.Tasks;
 
 namespace Pikura.Avalonia.Services;
 
+/// <summary>Thrown when Ollama cannot be found running and no executable is installed.</summary>
+public sealed class OllamaNotInstalledException : Exception
+{
+    public OllamaNotInstalledException(string message) : base(message) { }
+}
+
 /// <summary>
 /// Manages a local Ollama instance: process lifecycle, model availability, and chat/vision inference.
 /// Uses moondream (the smallest vision-capable model, ~1.7 GB).
@@ -99,7 +105,9 @@ public sealed class OllamaService : IDisposable
             IsEnabled  = false;
             IsReady    = false;
             _enableTask = null;  // allow retry
-            StatusText = $"Error: {ex.Message}";
+            StatusText = ex is OllamaNotInstalledException
+                ? Localization.LocalizationService.Instance["Hoshi_OllamaNotInstalled"]
+                : $"Error: {ex.Message}";
             NotifyState();
         }
     }
@@ -315,17 +323,13 @@ public sealed class OllamaService : IDisposable
             return;
         }
 
-        // Try to locate ollama executable — auto-install if missing
+        // Never auto-install — the Inno Setup wizard popping up unprompted was the
+        // reported bug (#23). Installing is only done on explicit user consent via
+        // InstallOllamaAsync.
         var exe = FindOllamaExecutable();
         if (exe == null)
-        {
-            StatusText = "Downloading Ollama installer…";
-            NotifyState();
-            exe = await DownloadAndInstallOllamaAsync(ct);
-            if (exe == null)
-                throw new InvalidOperationException(
-                    "Could not install Ollama automatically. Please install it manually from https://ollama.com and try again.");
-        }
+            throw new OllamaNotInstalledException(
+                "Ollama isn't installed. Hoshi needs Ollama — install it from https://ollama.com");
 
         _logger.LogInformation("Starting Ollama process: {Exe}", exe);
         var startInfo = new ProcessStartInfo(exe, "serve")
@@ -414,9 +418,16 @@ public sealed class OllamaService : IDisposable
         catch { return false; }
     }
 
-    private async Task<string?> DownloadAndInstallOllamaAsync(CancellationToken ct)
+    /// <summary>True if the Ollama server responds or an executable is installed.</summary>
+    public async Task<bool> IsOllamaAvailableAsync()
+        => await PingAsync(CancellationToken.None) || FindOllamaExecutable() != null;
+
+    /// <summary>Downloads and runs the Ollama installer interactively (Windows only).
+    /// Only ever called after the user explicitly consented. Returns true if an Ollama
+    /// executable is found afterwards.</summary>
+    public async Task<bool> InstallOllamaAsync(CancellationToken ct)
     {
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) return null;
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) return false;
         var installerUrl = "https://ollama.com/download/OllamaSetup.exe";
         var installerPath = Path.Combine(Path.GetTempPath(), "OllamaSetup.exe");
         try
@@ -429,10 +440,11 @@ public sealed class OllamaService : IDisposable
             StatusText = "Installing Ollama…";
             NotifyState();
 
-            // Run installer silently
+            // Run the Inno Setup installer interactively so the user sees and controls the
+            // wizard — no silent flags ("/S" is an NSIS flag Inno ignores anyway).
             var install = new Process
             {
-                StartInfo = new ProcessStartInfo(installerPath, "/S")
+                StartInfo = new ProcessStartInfo(installerPath)
                 {
                     UseShellExecute = true,
                 }
@@ -442,12 +454,12 @@ public sealed class OllamaService : IDisposable
 
             // Wait a moment for PATH to settle, then re-check
             await Task.Delay(2000, ct);
-            return FindOllamaExecutable();
+            return FindOllamaExecutable() != null;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to auto-install Ollama");
-            return null;
+            _logger.LogError(ex, "Failed to install Ollama");
+            return false;
         }
         finally
         {

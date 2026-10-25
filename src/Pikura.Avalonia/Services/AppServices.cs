@@ -134,7 +134,8 @@ public static class AppServices
                         provider.GetRequiredService<PixivImageLoader>(),
                         provider.GetRequiredService<SettingsService>(),
                         provider.GetRequiredService<ImageLookupService>(),
-                        provider.GetRequiredService<AnimeTaggerService>()));
+                        provider.GetRequiredService<AnimeTaggerService>(),
+                        provider.GetRequiredService<DialogService>()));
 
                 // Update check
                 services.AddSingleton<UpdateCheckService>();
