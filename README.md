@@ -4,7 +4,7 @@
   <p>A modern desktop manager for Pixiv artwork — browse, download, schedule, and organise your collection.</p>
 
   [![Release](https://img.shields.io/github/v/release/pikura-app/pikura?style=flat-square)](https://github.com/pikura-app/pikura/releases/latest)
-  [![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](LICENSE)
+  [![License](https://img.shields.io/badge/license-GPLv3-blue?style=flat-square)](LICENSE)
   [![.NET](https://img.shields.io/badge/.NET-10-purple?style=flat-square)](https://dotnet.microsoft.com)
   [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey?style=flat-square)](#download)
 
@@ -109,4 +109,9 @@ GitHub Actions builds Windows (installer + portable), macOS (DMG), and Linux (Ap
 
 ## License
 
-MIT — see [LICENSE](LICENSE). Free for personal, non-commercial use.
+Pikura is free and open-source software licensed under the [GNU General Public License v3.0](LICENSE).
+You may use, study, modify, and redistribute it — including commercially — as long as any distributed derivative is also released under GPLv3 with its full source code.
+
+**Commercial licensing:** If you want to use Pikura's code in a closed-source or proprietary product, or otherwise need terms other than the GPL, a separate commercial license is available from the copyright holder. Contact [mrplusultra@outlook.com](mailto:mrplusultra@outlook.com).
+
+© 2026 mrplusultra

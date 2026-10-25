@@ -113,3 +113,14 @@ Use the [Conventional Commits](https://www.conventionalcommits.org/) format:
 | `docs` | Documentation only |
 | `refactor` | Code change that neither fixes a bug nor adds a feature |
 | `perf` | Performance improvement |
+
+---
+
+## Licensing of contributions
+
+Pikura is licensed under the GNU GPL v3.0 and is also offered under separate commercial licenses by its author. To keep that possible, by submitting a contribution (pull request, patch, or other material) you agree that:
+
+1. Your contribution is licensed to the public under the GPL v3.0, and
+2. You grant mrplusultra a perpetual, worldwide, non-exclusive, royalty-free, irrevocable license to use, modify, sublicense, and relicense your contribution under any terms, including proprietary/commercial licenses.
+
+You confirm that you have the right to make the contribution and grant these rights. If you can't agree to this, please open an issue instead of a pull request.
