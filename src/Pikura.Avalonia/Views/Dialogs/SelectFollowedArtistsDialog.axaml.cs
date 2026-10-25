@@ -4,6 +4,7 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
+using Pikura.Avalonia.Localization;
 using Pikura.Avalonia.Services;
 using Pikura.Avalonia.ViewModels;
 using System;
@@ -417,7 +418,7 @@ public partial class SelectFollowedArtistsDialog : Window
     /// </summary>
     private Task<bool> UnfollowArtistAsync(string userId)
     {
-        StatusText.Text = "Unfollow not available: Pixiv OAuth authentication is blocked";
+        StatusText.Text = Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_UnfollowNotAvailablePixivOAuthAuthentication"];
         return Task.FromResult(false);
     }
 }

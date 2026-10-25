@@ -13,6 +13,7 @@ using Avalonia.Interactivity;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
+using Pikura.Avalonia.Localization;
 using Pikura.Avalonia.Services;
 using Pikura.Core.Models;
 using Pikura.Core.Services;
@@ -281,7 +282,7 @@ public partial class DownloadPresetWindow : Window
         var totalPages = _selectedArtworks.Sum(a => a.PageCount);
         var currentArtwork = GetCurrentArtwork();
 
-        SelectedCountText.Text = $"{count} image{(count != 1 ? "s" : "")} selected";
+        SelectedCountText.Text = string.Format(Pikura.Avalonia.Localization.LocalizationService.Instance["Preset_ImagesSelected"], count);
 
         // Update submission info text (shows "Submission X of Y" for multi-selection)
         if (SubmissionInfoText != null)
@@ -584,7 +585,7 @@ public partial class DownloadPresetWindow : Window
         }
         catch (Exception ex)
         {
-            _dialogService?.ShowMessageAsync("Preview Error", $"Failed to generate preview: {ex.Message}");
+            _dialogService?.ShowMessageAsync(Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_PreviewError"], $"Failed to generate preview: {ex.Message}");
         }
         finally
         {
@@ -1055,7 +1056,7 @@ public partial class DownloadPresetWindow : Window
             var storage = this.StorageProvider;
             var folders = await storage.OpenFolderPickerAsync(new FolderPickerOpenOptions
             {
-                Title = "Select Output Folder",
+                Title = Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_SelectOutputFolder"],
                 AllowMultiple = false
             });
 
@@ -1129,12 +1130,13 @@ public partial class DownloadPresetWindow : Window
         if (DownloadArtworksComboBox == null) return;
 
         DownloadArtworksComboBox.Items.Clear();
-        DownloadArtworksComboBox.Items.Add(new ComboBoxItem { Content = "Current artwork only" });
+        var loc = Pikura.Avalonia.Localization.LocalizationService.Instance;
+        DownloadArtworksComboBox.Items.Add(new ComboBoxItem { Content = loc["Preset_CurrentArtworkOnly"], Tag = "current" });
 
         if (_selectedArtworks.Count > 1)
         {
-            DownloadArtworksComboBox.Items.Add(new ComboBoxItem { Content = "All selected artworks" });
-            DownloadArtworksComboBox.Items.Add(new ComboBoxItem { Content = "Selected artworks" });
+            DownloadArtworksComboBox.Items.Add(new ComboBoxItem { Content = loc["Preset_AllSelectedArtworks"], Tag = "all" });
+            DownloadArtworksComboBox.Items.Add(new ComboBoxItem { Content = loc["Preset_SelectedArtworks"], Tag = "selected" });
         }
 
         DownloadArtworksComboBox.SelectedIndex = _selectedArtworks.Count > 1 ? 1 : 0;
@@ -1146,8 +1148,8 @@ public partial class DownloadPresetWindow : Window
         if (DownloadArtworksComboBox == null || DownloadArtworksTextBox == null) return;
 
         var selected = DownloadArtworksComboBox.SelectedItem as ComboBoxItem;
-        var text = selected?.Content?.ToString() ?? "";
-        DownloadArtworksTextBox.IsVisible = text == "Selected artworks";
+        var text = selected?.Tag as string ?? "";
+        DownloadArtworksTextBox.IsVisible = text == "selected";
     }
 
     /// <summary>
@@ -1383,7 +1385,7 @@ public partial class DownloadPresetWindow : Window
 
                 var pagesTextBox = new TextBox
                 {
-                    PlaceholderText = "all",
+                    PlaceholderText = Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_All"],
                     Text = "all", // Default to all pages
                     FontSize = 11,
                     Width = 140,
@@ -1438,7 +1440,7 @@ public partial class DownloadPresetWindow : Window
         if (submissionIndex >= _selectedArtworks.Count) return;
 
         var artwork = _selectedArtworks[submissionIndex];
-        var text = textBox.Text?.Trim().ToLower() ?? "all";
+        var text = textBox.Text?.Trim().ToLower() ?? Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_All"];
 
         // Store the page selection in the dictionary keyed by submission index
         if (text == "all" || string.IsNullOrEmpty(text))
@@ -1589,7 +1591,7 @@ public partial class DownloadPresetWindow : Window
         var selectedPages = ParseSelectedPages(PagePickerTextBox.Text ?? string.Empty, artwork.PageCount);
         if (selectedPages.Count == 0)
         {
-            _dialogService?.ShowMessageAsync("Apply to Selected Pages", "No pages selected.");
+            _dialogService?.ShowMessageAsync(Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_ApplyToSelectedPages"], Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_NoPagesSelected"]);
             return;
         }
 
@@ -1624,7 +1626,7 @@ public partial class DownloadPresetWindow : Window
     {
         if (_selectedArtworkApplyIndices.Count == 0)
         {
-            _dialogService?.ShowMessageAsync("Apply to Selected Artworks", "No artworks are selected. Check at least one artwork in the list.");
+            _dialogService?.ShowMessageAsync(Pikura.Avalonia.Localization.LocalizationService.Instance["Preset_ApplyToSelectedArtworks"], Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_NoArtworksAreSelectedCheckAt"]);
             return;
         }
 
@@ -1664,7 +1666,7 @@ public partial class DownloadPresetWindow : Window
             var artwork = _selectedArtworks[i];
             var checkBox = new CheckBox
             {
-                Content = $"{(i + 1)}. {(string.IsNullOrEmpty(artwork.Title) ? "Untitled" : artwork.Title)}  ({artwork.PageCount} page{(artwork.PageCount != 1 ? "s" : "")})",
+                Content = string.Format(Pikura.Avalonia.Localization.LocalizationService.Instance["Preset_ArtworkListItem"], i + 1, string.IsNullOrEmpty(artwork.Title) ? Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_Untitled"] : artwork.Title, artwork.PageCount),
                 FontSize = 11,
                 IsChecked = _selectedArtworkApplyIndices.Contains(i),
                 Tag = i
@@ -1798,20 +1800,20 @@ public partial class DownloadPresetWindow : Window
         }
 
         // Handle artwork download selection
-        var artworkModeText = (DownloadArtworksComboBox?.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "";
+        var artworkModeText = (DownloadArtworksComboBox?.SelectedItem as ComboBoxItem)?.Tag as string ?? "";
         switch (artworkModeText)
         {
-            case "Current artwork only":
+            case "current":
                 _currentPreset.DownloadAllArtworks = false;
                 _currentPreset.SelectedArtworkIndices = new List<int> { _currentImageIndex };
                 _currentPreset.ArtworkPageSelections = null;
                 break;
-            case "All selected artworks":
+            case "all":
                 _currentPreset.DownloadAllArtworks = true;
                 _currentPreset.SelectedArtworkIndices = null;
                 _currentPreset.ArtworkPageSelections = null;
                 break;
-            case "Selected artworks":
+            case "selected":
                 _currentPreset.DownloadAllArtworks = false;
                 var artworkInput = DownloadArtworksTextBox?.Text ?? "";
                 _currentPreset.SelectedArtworkIndices = ParseSelectedArtworks(artworkInput, _selectedArtworks.Count);

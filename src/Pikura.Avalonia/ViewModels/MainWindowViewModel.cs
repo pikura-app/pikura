@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
+using Pikura.Avalonia.Localization;
 using Pikura.Avalonia.Services;
 using Pikura.Core.Services;
 using Pikura.Core.Settings;
@@ -287,7 +288,7 @@ public partial class MainWindowViewModel : ViewModelBase
         {
             UpdateDownloading    = true;
             UpdateReadyToInstall = false;
-            UpdateStatusText     = "Starting download...";
+            UpdateStatusText     = Pikura.Avalonia.Localization.LocalizationService.Instance["Main_StartingDownload"];
         });
 
         try
@@ -308,7 +309,7 @@ public partial class MainWindowViewModel : ViewModelBase
             await Dispatcher.UIThread.InvokeAsync(() =>
             {
                 UpdateDownloading = false;
-                UpdateStatusText  = "Download cancelled.";
+                UpdateStatusText  = Pikura.Avalonia.Localization.LocalizationService.Instance["Main_DownloadCancelled"];
             });
         }
         catch (Exception ex)
@@ -328,7 +329,7 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         try
         {
-            await Dispatcher.UIThread.InvokeAsync(() => UpdateStatusText = "Starting installer...");
+            await Dispatcher.UIThread.InvokeAsync(() => UpdateStatusText = Pikura.Avalonia.Localization.LocalizationService.Instance["Main_StartingInstaller"]);
 
             // Try to recover _downloadedPath from temp using the version shown in the banner.
             // UpdateVersion may or may not have a leading 'v' — strip it for the filename match.
@@ -350,7 +351,7 @@ public partial class MainWindowViewModel : ViewModelBase
                 if (_pendingUpdate is null)
                 {
                     await Dispatcher.UIThread.InvokeAsync(() =>
-                        UpdateStatusText = "Cannot install: update info lost. Please restart the app and try again.");
+                        UpdateStatusText = Pikura.Avalonia.Localization.LocalizationService.Instance["Main_CannotInstallUpdateInfoLostPlease"]);
                     return;
                 }
                 await StartDownloadAsync();

@@ -1,8 +1,9 @@
 ﻿<Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:loc="using:Pikura.Avalonia.Localization"
         xmlns:actipro="http://schemas.actiprosoftware.com/avaloniaui"
         x:Class="Pikura.Avalonia.Views.Dialogs.SavePresetDialog"
-        Title="Save Preset"
+        Title="{loc:Tr Preset_SavePreset}"
         Width="400"
         Height="220"
         WindowStartupLocation="CenterOwner"
@@ -10,25 +11,25 @@
 
     <Border Padding="20">
         <StackPanel Spacing="16">
-            <TextBlock Text="Save Download Preset" FontSize="16" FontWeight="SemiBold"/>
+            <TextBlock Text="{loc:Tr Preset_SaveDownloadPreset}" FontSize="16" FontWeight="SemiBold"/>
 
             <StackPanel Spacing="8">
-                <TextBlock Text="Preset Name" FontSize="12"/>
+                <TextBlock Text="{loc:Tr Preset_PresetName}" FontSize="12"/>
                 <TextBox x:Name="PresetNameTextBox"
                          PlaceholderText="e.g., My Favorite Artists"
                          CornerRadius="6"/>
             </StackPanel>
 
             <StackPanel Spacing="8">
-                <TextBlock Text="Description (optional)" FontSize="12"/>
+                <TextBlock Text="{loc:Tr Preset_DescriptionOptional}" FontSize="12"/>
                 <TextBox x:Name="DescriptionTextBox"
-                         PlaceholderText="Brief description of this preset..."
+                         PlaceholderText="{loc:Tr Preset_BriefDescriptionOfThisPreset}"
                          CornerRadius="6"/>
             </StackPanel>
 
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8" Margin="0,8,0,0">
-                <Button Content="Cancel" Click="CancelButton_Click"/>
-                <Button Content="Save" Click="SaveButton_Click" Classes="accent"/>
+                <Button Content="{loc:Tr Common_Cancel}" Click="CancelButton_Click"/>
+                <Button Content="{loc:Tr Common_Save}" Click="SaveButton_Click" Classes="accent"/>
             </StackPanel>
         </StackPanel>
     </Border>

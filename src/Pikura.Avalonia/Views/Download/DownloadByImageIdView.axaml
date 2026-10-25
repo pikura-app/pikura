@@ -1,5 +1,6 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:loc="using:Pikura.Avalonia.Localization"
              xmlns:vm="using:Pikura.Avalonia.ViewModels"
              xmlns:actipro="http://schemas.actiprosoftware.com/avaloniaui"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -21,11 +22,11 @@
                 BorderThickness="0,0,0,1" Padding="20,16">
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Spacing="4">
-                    <TextBlock Text="Download by Image ID" FontSize="20" FontWeight="SemiBold"/>
-                    <TextBlock Text="Download specific artworks by their ID or URL"
+                    <TextBlock Text="{loc:Tr DlId_DownloadByImageID}" FontSize="20" FontWeight="SemiBold"/>
+                    <TextBlock Text="{loc:Tr DlId_DownloadSpecificArtworksByTheirID}"
                                FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                 </StackPanel>
-                <Button Grid.Column="1" Content="? Help"  />
+                <Button Grid.Column="1" Content="{loc:Tr DlId_Help}"  />
             </Grid>
         </Border>
 
@@ -39,7 +40,7 @@
                         BorderThickness="1" CornerRadius="8" Padding="16">
                     <StackPanel Spacing="12">
                         <Grid ColumnDefinitions="*,Auto">
-                            <TextBlock Text="Image IDs or URLs"
+                            <TextBlock Text="{loc:Tr DlId_ImageIDsOrURLs}"
                                        FontSize="15" FontWeight="SemiBold"/>
                             <TextBlock Grid.Column="1"
                                        Text="{Binding ParsedIds.Count, StringFormat='{}{0} IDs detected'}"
@@ -50,20 +51,20 @@
                         <TextBox Text="{Binding InputText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                  AcceptsReturn="True"
                                  TextWrapping="Wrap"
-                                 PlaceholderText="Enter image IDs, URLs, or paste from clipboard...&#x0a;Examples:&#x0a;12345678&#x0a;https://www.pixiv.net/en/artworks/12345678&#x0a;12345679, 12345680"
+                                 PlaceholderText="{loc:Tr DlId_EnterImageIdsMulti}"
                                  Height="200"
                                  CornerRadius="6"
                                  FontFamily="Consolas, monospace"
                                  FontSize="13"/>
 
                         <StackPanel Orientation="Horizontal" Spacing="8">
-                            <Button Content="📋 Paste from Clipboard"
+                            <Button Content="{loc:Tr DlId_PasteFromClipboard}"
                                     Click="OnPasteClicked"
                                      />
-                            <Button Content="📁 Import from File"
+                            <Button Content="{loc:Tr DlId_ImportFromFile}"
                                     Command="{Binding ImportFromFileCommand}"
                                      />
-                            <Button Content="Clear"
+                            <Button Content="{loc:Tr Common_Clear}"
                                     Command="{Binding ClearInputCommand}"
                                      />
                         </StackPanel>
@@ -74,7 +75,7 @@
                                 BorderBrush="{DynamicResource Container3BorderBrush}"
                                 BorderThickness="1" CornerRadius="6" Padding="12">
                             <StackPanel Spacing="4">
-                                <TextBlock Text="⚠ Some entries could not be parsed:"
+                                <TextBlock Text="{loc:Tr DlId_SomeEntriesCouldNotBeParsed}"
                                            FontSize="12" Foreground="Orange"/>
                                 <TextBlock Text="{Binding InvalidEntriesSummary}"
                                            FontSize="11"
@@ -90,21 +91,21 @@
                         BorderBrush="{DynamicResource Container2BorderBrush}"
                         BorderThickness="1" CornerRadius="8" Padding="16">
                     <StackPanel Spacing="12">
-                        <TextBlock Text="Download Options" FontSize="15" FontWeight="SemiBold"/>
+                        <TextBlock Text="{loc:Tr DlId_DownloadOptions}" FontSize="15" FontWeight="SemiBold"/>
 
                         <StackPanel Spacing="6">
-                            <TextBlock Text="Page Range (for multi-page works)"
+                            <TextBlock Text="{loc:Tr DlId_PageRangeForMultiPageWorks}"
                                        FontSize="13" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                             <ComboBox ItemsSource="{Binding PageRangeOptions}"
                                       SelectedItem="{Binding SelectedPageRange, Mode=TwoWay}"
                                       Width="200" HorizontalAlignment="Left"
                                       CornerRadius="6"/>
-                            <TextBlock Text="Single-page artworks will download the full image regardless of this setting."
+                            <TextBlock Text="{loc:Tr DlId_SinglePageArtworksWillDownloadThe}"
                                        FontSize="11"
                                        Foreground="{DynamicResource DefaultForegroundBrushDisabled}"/>
                         </StackPanel>
 
-                        <CheckBox Content="Skip already downloaded images"
+                        <CheckBox Content="{loc:Tr DlId_SkipAlreadyDownloadedImages}"
                                   IsChecked="{Binding SkipExisting, Mode=TwoWay}"/>
                     </StackPanel>
                 </Border>
@@ -114,12 +115,12 @@
                         BorderBrush="{DynamicResource Container2BorderBrush}"
                         BorderThickness="1" CornerRadius="8" Padding="16">
                     <StackPanel Spacing="12">
-                        <TextBlock Text="Download Settings" FontSize="15" FontWeight="SemiBold"/>
+                        <TextBlock Text="{loc:Tr DlId_DownloadSettings}" FontSize="15" FontWeight="SemiBold"/>
 
                         <StackPanel Spacing="8">
-                            <RadioButton Content="Use global settings"
+                            <RadioButton Content="{loc:Tr DlId_UseGlobalSettings}"
                                           IsChecked="{Binding UseGlobalSettings, Mode=TwoWay}"/>
-                            <RadioButton Content="Use custom settings for this download"
+                            <RadioButton Content="{loc:Tr DlId_UseCustomSettingsForThisDownload}"
                                           IsChecked="{Binding !UseGlobalSettings, Mode=TwoWay}"/>
                         </StackPanel>
 
@@ -127,12 +128,12 @@
                         <StackPanel IsVisible="{Binding !UseGlobalSettings}" Spacing="10">
                             <Grid ColumnDefinitions="*,*" ColumnSpacing="16">
                                 <StackPanel Grid.Column="0" Spacing="6">
-                                    <TextBlock Text="Folder Template" FontSize="12"/>
+                                    <TextBlock Text="{loc:Tr Settings_FolderTemplate}" FontSize="12"/>
                                     <TextBox Text="{Binding CustomSettings.FolderTemplate, Mode=TwoWay}"
                                              CornerRadius="4"/>
                                 </StackPanel>
                                 <StackPanel Grid.Column="1" Spacing="6">
-                                    <TextBlock Text="Filename Template" FontSize="12"/>
+                                    <TextBlock Text="{loc:Tr Settings_FilenameTemplate}" FontSize="12"/>
                                     <TextBox Text="{Binding CustomSettings.FilenameTemplate, Mode=TwoWay}"
                                              CornerRadius="4"/>
                                 </StackPanel>
@@ -168,16 +169,16 @@
                 BorderBrush="{DynamicResource Container2BorderBrush}"
                 BorderThickness="0,1,0,0" Padding="16">
             <Grid ColumnDefinitions="*,Auto,Auto">
-                <Button Grid.Column="0" Content="💾 Save Preset"
+                <Button Grid.Column="0" Content="{loc:Tr DlId_SavePreset}"
                         Command="{Binding SavePresetCommand}"
                          />
 
-                <Button Grid.Column="1" Content="Cancel"
+                <Button Grid.Column="1" Content="{loc:Tr Common_Cancel}"
                         Command="{Binding CancelDownloadCommand}"
                         IsVisible="{Binding HasActiveJob}"
                          Padding="16,10" Margin="0,0,8,0"/>
 
-                <Button Grid.Column="2" Content="▶ Start Download"
+                <Button Grid.Column="2" Content="{loc:Tr DlId_StartDownload}"
                         Command="{Binding StartDownloadCommand}"
                         IsEnabled="{Binding ParsedIds.Count}"
                         IsVisible="{Binding !HasActiveJob}"

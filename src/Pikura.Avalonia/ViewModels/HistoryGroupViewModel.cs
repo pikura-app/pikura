@@ -37,7 +37,7 @@ public partial class HistoryGroupViewModel : ObservableObject
     }
 
     public int Count => Jobs.Count;
-    public string CountText => $"{Count} download{(Count == 1 ? "" : "s")}";
+    public string CountText => string.Format(Pikura.Avalonia.Localization.LocalizationService.Instance["History_DownloadsCount"], Count);
     public string Chevron => IsExpanded ? "\u25BE" : "\u25B8"; // ▾ / ▸
 
     /// <summary>Sets expansion without firing the toggle callback (used during regrouping).</summary>
@@ -167,7 +167,7 @@ public partial class ActiveGroupViewModel : ObservableObject
     }
 
     public int Count => Jobs.Count;
-    public string CountText => $"{Count} job{(Count == 1 ? "" : "s")}";
+    public string CountText => string.Format(Pikura.Avalonia.Localization.LocalizationService.Instance["History_JobsCount"], Count);
     public string Chevron => IsExpanded ? "\u25BE" : "\u25B8";
 
     public void SetExpandedSilently(bool value)

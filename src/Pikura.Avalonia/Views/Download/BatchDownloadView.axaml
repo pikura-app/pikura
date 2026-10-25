@@ -1,5 +1,6 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:loc="using:Pikura.Avalonia.Localization"
              xmlns:vm="using:Pikura.Avalonia.ViewModels"
              xmlns:actipro="http://schemas.actiprosoftware.com/avaloniaui"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -21,7 +22,7 @@
             <Grid ColumnDefinitions="Auto,*,Auto">
                 <!-- LEFT: Title -->
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                    <TextBlock Text="Batch Download" FontWeight="SemiBold" FontSize="16" VerticalAlignment="Center"/>
+                    <TextBlock Text="{loc:Tr Nav_BatchDownload}" FontWeight="SemiBold" FontSize="16" VerticalAlignment="Center"/>
                 </StackPanel>
 
                 <!-- CENTER: Spacer -->
@@ -31,10 +32,10 @@
                 <Button Grid.Column="2"
                         Command="{Binding OpenQueueCommand}"
                           FontSize="12"
-                        ToolTip.Tip="Download Queue">
+                        ToolTip.Tip="{loc:Tr Queue_DownloadQueue}">
                     <StackPanel Orientation="Horizontal" Spacing="6">
                         <TextBlock Text="📋" FontSize="14" VerticalAlignment="Center"/>
-                        <TextBlock Text="Queue" FontSize="12" VerticalAlignment="Center"/>
+                        <TextBlock Text="{loc:Tr Batch_Queue}" FontSize="12" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
             </Grid>
@@ -42,7 +43,7 @@
 
         <!-- Tabbed Content -->
         <TabControl Grid.Row="1" Padding="0" TabStripPlacement="Top" Margin="0">
-            <TabItem Header="👤 By Artist">
+            <TabItem Header="{loc:Tr Batch_ByArtist}">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel Spacing="16" Margin="20">
                         <!-- Artist Selection -->
@@ -52,7 +53,7 @@
                             <StackPanel Spacing="12">
                                 <DockPanel LastChildFill="False">
                                     <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
-                                        <TextBlock Text="Selected Artists" FontSize="15" FontWeight="SemiBold"
+                                        <TextBlock Text="{loc:Tr DlArtist_SelectedArtists}" FontSize="15" FontWeight="SemiBold"
                                                    AutomationProperties.Name="Selected Artists Header"
                                                    AutomationProperties.HelpText="List of artists selected for download"/>
                                         <TextBlock Text="{Binding ArtistViewModel.SelectedArtists.Count, StringFormat='{}{0} artists'}"
@@ -67,10 +68,10 @@
                                                    AutomationProperties.Name="{Binding ArtistViewModel.EstimatedItemCount, StringFormat='Approximately {0} items to download'}"/>
                                     </StackPanel>
                                     <Button DockPanel.Dock="Right"
-                                            Content="🗑 Clear all"
+                                            Content="{loc:Tr Batch_ClearAll}"
                                             Command="{Binding ArtistViewModel.ClearArtistsCommand}"
                                             IsVisible="{Binding ArtistViewModel.SelectedArtists.Count}"
-                                            ToolTip.Tip="Remove all selected artists"
+                                            ToolTip.Tip="{loc:Tr Batch_RemoveAllSelectedArtists}"
                                              Padding="10,4" FontSize="12"/>
                                 </DockPanel>
 
@@ -91,18 +92,18 @@
                                                         <DockPanel LastChildFill="False">
                                                             <Button DockPanel.Dock="Right" Content="✕"
                                                                     FontSize="10"  Padding="4,0" Margin="6,0,0,0"
-                                                                    ToolTip.Tip="Remove artist"
+                                                                    ToolTip.Tip="{loc:Tr Batch_RemoveArtist}"
                                                                     Command="{Binding $parent[ItemsControl].DataContext.ArtistViewModel.RemoveArtistCommand}"
                                                                     CommandParameter="{Binding}"/>
                                                             <Button DockPanel.Dock="Right" Content="⚙"
                                                                     FontSize="10"  Padding="4,0" Margin="6,0,0,0"
-                                                                    ToolTip.Tip="Configure custom download settings for this artist"
+                                                                    ToolTip.Tip="{loc:Tr DlArtist_ConfigureCustomDownloadSettingsForThis}"
                                                                     Command="{Binding $parent[ItemsControl].DataContext.ArtistViewModel.ConfigureArtistSettingsCommand}"
                                                                     CommandParameter="{Binding}"/>
                                                             <Border DockPanel.Dock="Right" IsVisible="{Binding HasCustomSettings}"
                                                                     Background="{DynamicResource ControlBackgroundBrushSolidAccent}"
                                                                     CornerRadius="3" Padding="3,0" Margin="6,0,0,0"
-                                                                    ToolTip.Tip="Has custom download settings">
+                                                                    ToolTip.Tip="{loc:Tr DlArtist_HasCustomDownloadSettings}">
                                                                 <TextBlock Text="●" FontSize="10" VerticalAlignment="Center"/>
                                                             </Border>
                                                             <TextBlock Text="{Binding UserName}" FontSize="12" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
@@ -115,19 +116,19 @@
                                 </Border>
 
                                 <StackPanel Orientation="Horizontal" Spacing="8">
-                                    <Button Content="+ Add Followed Artists"
+                                    <Button Content="{loc:Tr DlArtist_AddFollowedArtists}"
                                             Command="{Binding ArtistViewModel.AddFollowedArtistsCommand}"
-                                            ToolTip.Tip="Add all artists you follow on Pixiv to the download list"
+                                            ToolTip.Tip="{loc:Tr Batch_AddAllArtistsYouFollowOn}"
                                              />
-                                    <Button Content="📁 Import from File"
+                                    <Button Content="{loc:Tr DlId_ImportFromFile}"
                                             Command="{Binding ArtistViewModel.ImportArtistsFromFileAsync}"
-                                            ToolTip.Tip="Import a list of artist IDs from a text file (one per line)"
+                                            ToolTip.Tip="{loc:Tr Batch_ImportAListOfArtistIDs}"
                                              />
                                 </StackPanel>
 
                                 <StackPanel Spacing="8">
                                     <DockPanel LastChildFill="False">
-                                        <TextBlock DockPanel.Dock="Left" Text="Artist IDs or URLs" FontSize="14" FontWeight="SemiBold"/>
+                                        <TextBlock DockPanel.Dock="Left" Text="{loc:Tr DlArtist_ArtistIDsOrURLs}" FontSize="14" FontWeight="SemiBold"/>
                                         <TextBlock DockPanel.Dock="Right" Text="{Binding ArtistViewModel.ParsedArtistIds.Count, StringFormat='{}{0} IDs detected'}"
                                                    FontSize="13" Foreground="{DynamicResource DefaultForegroundBrushTertiary}" VerticalAlignment="Center"/>
                                     </DockPanel>
@@ -135,27 +136,27 @@
                                     <TextBox Text="{Binding ArtistViewModel.NewArtistId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                              AcceptsReturn="True"
                                              TextWrapping="Wrap"
-                                             PlaceholderText="Enter artist IDs or URLs...&#x0a;One per line or comma-separated&#x0a;Example: 1234567&#x0a;https://www.pixiv.net/en/users/1234567"
+                                             PlaceholderText="{loc:Tr Batch_EnterArtistIdsMulti}"
                                              CornerRadius="6" MinHeight="80"
                                              AutomationProperties.Name="Artist ID or URL Input"
                                              AutomationProperties.HelpText="Enter Pixiv artist IDs or profile URLs. Multiple IDs can be entered separated by commas or new lines."
                                              KeyboardNavigation.TabIndex="1"/>
 
                                     <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
-                                        <Button Content="📋 Paste"
+                                        <Button Content="{loc:Tr Hoshi_Paste}"
                                                 Command="{Binding ArtistViewModel.PasteFromClipboardCommand}"
-                                                ToolTip.Tip="Paste last copied ID"
+                                                ToolTip.Tip="{loc:Tr DlArtist_PasteLastCopiedID}"
                                                  Padding="10,6"
                                                 IsVisible="{Binding ArtistViewModel.HasClipboardContent}"/>
-                                        <Button Content="✕ Clear"
+                                        <Button Content="{loc:Tr Batch_Clear}"
                                                 Command="{Binding ArtistViewModel.ClearInputCommand}"
-                                                ToolTip.Tip="Clear the input box"
+                                                ToolTip.Tip="{loc:Tr Batch_ClearTheInputBox}"
                                                  Padding="10,6"
                                                 IsVisible="{Binding ArtistViewModel.ParsedArtistIds.Count}"/>
-                                        <Button Content="+ Add Artists"
+                                        <Button Content="{loc:Tr DlArtist_AddArtists}"
                                                 Command="{Binding ArtistViewModel.AddArtistByIdCommand}"
                                                 IsEnabled="{Binding ArtistViewModel.ParsedArtistIds.Count}"
-                                                ToolTip.Tip="Add artists by ID or Pixiv profile URL"
+                                                ToolTip.Tip="{loc:Tr Batch_AddArtistsByIDOrPixiv}"
                                                  
                                                 AutomationProperties.Name="Add Artists Button"
                                                 AutomationProperties.HelpText="Click to add all valid artist IDs entered above"/>
@@ -182,7 +183,7 @@
                                         </StackPanel>
 
                                         <!-- Add Button -->
-                                        <Button Grid.Column="2" Content="+ Add"
+                                        <Button Grid.Column="2" Content="{loc:Tr Batch_Add}"
                                                 Command="{Binding ArtistViewModel.AddArtistByIdCommand}"
                                                  />
                                     </Grid>
@@ -195,27 +196,27 @@
                                 BorderBrush="{DynamicResource Container2BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="16">
                             <StackPanel Spacing="10">
-                                <TextBlock Text="Default Page Range (All Artists)" FontSize="15" FontWeight="SemiBold"
-                                           ToolTip.Tip="Specify which pages to download: 0 = all, 1-5 = range, 2,4,6 = specific pages"/>
+                                <TextBlock Text="{loc:Tr Batch_DefaultPageRangeAllArtists}" FontSize="15" FontWeight="SemiBold"
+                                           ToolTip.Tip="{loc:Tr Batch_SpecifyWhichPagesToDownload0}"/>
 
                                 <StackPanel Spacing="4">
                                     <TextBox Text="{Binding ArtistViewModel.DefaultPageRange, Mode=TwoWay}"
                                              CornerRadius="6" Width="200" HorizontalAlignment="Left"
                                              PlaceholderText="e.g., 0, 1-5, 2,4,6-10"
-                                             ToolTip.Tip="Enter page numbers: 0 or 'all' for all pages, '1-5' for range, '2,4,6' for specific pages"/>
+                                             ToolTip.Tip="{loc:Tr Batch_EnterPageNumbers0OrAll}"/>
                                     <TextBlock Margin="0,2,0,0"
                                                FontSize="11" Foreground="{DynamicResource DefaultForegroundBrushDisabled}"
                                                TextWrapping="Wrap"
-                                               Text="Format: 0 or 'all' = all pages, '2' = page 2, '1-5' = pages 1-5, '2,4,6-10' = specific pages"/>
+                                               Text="{loc:Tr Batch_Format0OrAllAllPages}"/>
                                 </StackPanel>
 
                                 <TextBlock IsVisible="{Binding ArtistViewModel.DefaultPageRangeInvalid}"
-                                           Text="⚠ Invalid format. Use: 0, 2, 1-5, or 2,4,6-10"
+                                           Text="{loc:Tr Batch_InvalidFormatUse021}"
                                            FontSize="12" Foreground="Orange"/>
 
-                                <CheckBox Content="Set custom page ranges and settings per artist"
+                                <CheckBox Content="{loc:Tr DlArtist_SetCustomPageRangesAndSettings}"
                                           IsChecked="{Binding ArtistViewModel.UsePerArtistPageRanges, Mode=TwoWay}"
-                                          ToolTip.Tip="Enable to set different page ranges and per-artist download settings"/>
+                                          ToolTip.Tip="{loc:Tr Batch_EnableToSetDifferentPageRanges}"/>
 
                                 <!-- Per-Artist Page Ranges + Settings (visible when enabled) -->
                                 <Border IsVisible="{Binding ArtistViewModel.UsePerArtistPageRanges}"
@@ -225,11 +226,11 @@
                                     <StackPanel>
                                         <!-- Header row -->
                                         <Grid ColumnDefinitions="*,120,Auto" ColumnSpacing="8" Margin="4,4,4,4">
-                                            <TextBlock Grid.Column="0" Text="Artist" FontSize="11" FontWeight="SemiBold"
+                                            <TextBlock Grid.Column="0" Text="{loc:Tr Viewer_Artist}" FontSize="11" FontWeight="SemiBold"
                                                        Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
-                                            <TextBlock Grid.Column="1" Text="Page Range" FontSize="11" FontWeight="SemiBold"
+                                            <TextBlock Grid.Column="1" Text="{loc:Tr DlArtist_PageRange}" FontSize="11" FontWeight="SemiBold"
                                                        Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
-                                            <TextBlock Grid.Column="2" Text="Custom Settings" FontSize="11" FontWeight="SemiBold"
+                                            <TextBlock Grid.Column="2" Text="{loc:Tr Batch_CustomSettings}" FontSize="11" FontWeight="SemiBold"
                                                        Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                         </Grid>
                                         <ItemsControl ItemsSource="{Binding ArtistViewModel.SelectedArtists}"
@@ -244,20 +245,20 @@
                                                             <Border IsVisible="{Binding HasCustomSettings}"
                                                                     Background="{DynamicResource ControlBackgroundBrushSolidAccent}"
                                                                     CornerRadius="3" Padding="4,1"
-                                                                    ToolTip.Tip="Has custom download settings">
-                                                                <TextBlock Text="Custom" FontSize="10"/>
+                                                                    ToolTip.Tip="{loc:Tr DlArtist_HasCustomDownloadSettings}">
+                                                                <TextBlock Text="{loc:Tr DlArtist_Custom}" FontSize="10"/>
                                                             </Border>
                                                         </StackPanel>
                                                         <TextBox Grid.Column="1"
                                                                  Text="{Binding PageRange, Mode=TwoWay}"
-                                                                 PlaceholderText="Default"
+                                                                 PlaceholderText="{loc:Tr Gallery_Default}"
                                                                  CornerRadius="4"
                                                                  FontSize="12"/>
                                                         <Button Grid.Column="2"
-                                                                Content="⚙ Settings"
+                                                                Content="{loc:Tr DlArtist_Settings}"
                                                                 FontSize="11" 
                                                                 
-                                                                ToolTip.Tip="Configure custom download settings for this artist"
+                                                                ToolTip.Tip="{loc:Tr DlArtist_ConfigureCustomDownloadSettingsForThis}"
                                                                 Command="{Binding $parent[ItemsControl].DataContext.ArtistViewModel.ConfigureArtistSettingsCommand}"
                                                                 CommandParameter="{Binding}"/>
                                                     </Grid>
@@ -274,12 +275,12 @@
                                 BorderBrush="{DynamicResource Container2BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="16">
                             <StackPanel Spacing="12">
-                                <TextBlock Text="Download Settings" FontSize="15" FontWeight="SemiBold"/>
+                                <TextBlock Text="{loc:Tr DlId_DownloadSettings}" FontSize="15" FontWeight="SemiBold"/>
 
                                 <StackPanel Spacing="8">
-                                    <RadioButton Content="Use global settings"
+                                    <RadioButton Content="{loc:Tr DlId_UseGlobalSettings}"
                                                  IsChecked="{Binding ArtistViewModel.UseGlobalSettings, Mode=TwoWay}"/>
-                                    <RadioButton Content="Use custom settings for this download"
+                                    <RadioButton Content="{loc:Tr DlId_UseCustomSettingsForThisDownload}"
                                                  IsChecked="{Binding !ArtistViewModel.UseGlobalSettings, Mode=TwoWay}"/>
                                 </StackPanel>
 
@@ -287,72 +288,72 @@
                                 <StackPanel IsVisible="{Binding !ArtistViewModel.UseGlobalSettings}" Spacing="10">
                                     <Grid ColumnDefinitions="*,*" ColumnSpacing="16">
                                         <StackPanel Grid.Column="0" Spacing="6">
-                                            <TextBlock Text="Folder Template" FontSize="12"/>
+                                            <TextBlock Text="{loc:Tr Settings_FolderTemplate}" FontSize="12"/>
                                             <TextBox Text="{Binding ArtistViewModel.CustomSettings.FolderTemplate, Mode=TwoWay}"
                                                      CornerRadius="4" FontSize="12"/>
                                         </StackPanel>
                                         <StackPanel Grid.Column="1" Spacing="6">
-                                            <TextBlock Text="Filename Template" FontSize="12"/>
+                                            <TextBlock Text="{loc:Tr Settings_FilenameTemplate}" FontSize="12"/>
                                             <TextBox Text="{Binding ArtistViewModel.CustomSettings.FilenameTemplate, Mode=TwoWay}"
                                                      CornerRadius="4" FontSize="12"/>
                                         </StackPanel>
                                     </Grid>
 
                                     <StackPanel Orientation="Horizontal" Spacing="20">
-                                        <CheckBox Content="Create subfolder per submission"
+                                        <CheckBox Content="{loc:Tr DlArtist_CreateSubfolderPerSubmission}"
                                                   IsChecked="{Binding ArtistViewModel.CustomSettings.CreateSubfolderPerSubmission, Mode=TwoWay}"
-                                                  ToolTip.Tip="Create a separate folder for each artwork/download"
+                                                  ToolTip.Tip="{loc:Tr Batch_CreateASeparateFolderForEach}"
                                                   FontSize="12"/>
-                                        <CheckBox Content="Separate R-18 folder"
+                                        <CheckBox Content="{loc:Tr DlArtist_SeparateR18Folder}"
                                                   IsChecked="{Binding ArtistViewModel.CustomSettings.SeparateR18Folder, Mode=TwoWay}"
-                                                  ToolTip.Tip="Save R-18 (mature) content to a separate folder"
+                                                  ToolTip.Tip="{loc:Tr Batch_SaveR18MatureContentTo}"
                                                   FontSize="12"/>
                                     </StackPanel>
 
                                     <!-- Content Filters -->
                                     <StackPanel Spacing="8">
-                                        <TextBlock Text="Content Filters" FontSize="12" FontWeight="SemiBold"/>
+                                        <TextBlock Text="{loc:Tr Settings_ContentFilters}" FontSize="12" FontWeight="SemiBold"/>
                                         <Border Background="{DynamicResource Container3BackgroundBrush}"
                                                 BorderBrush="{DynamicResource Container3BorderBrush}"
                                                 BorderThickness="1" CornerRadius="6" Padding="12,10">
                                             <StackPanel Spacing="10">
 
-                                                <TextBlock Text="Skip content types:" FontSize="11"
+                                                <TextBlock Text="{loc:Tr Batch_SkipContentTypes}" FontSize="11"
                                                            Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                                 <WrapPanel>
-                                                    <CheckBox Content="AI-generated" Margin="0,0,16,4"
+                                                    <CheckBox Content="{loc:Tr Batch_AIGenerated}" Margin="0,0,16,4"
                                                               IsChecked="{Binding ArtistViewModel.CustomSettings.FilterAiGenerated, Mode=TwoWay}"
                                                               FontSize="12"/>
-                                                    <CheckBox Content="Manga" Margin="0,0,16,4"
+                                                    <CheckBox Content="{loc:Tr Search_Manga}" Margin="0,0,16,4"
                                                               IsChecked="{Binding ArtistViewModel.CustomSettings.SkipManga, Mode=TwoWay}"
                                                               FontSize="12"/>
-                                                    <CheckBox Content="Ugoira" Margin="0,0,16,4"
+                                                    <CheckBox Content="{loc:Tr Rankings_Ugoira}" Margin="0,0,16,4"
                                                               IsChecked="{Binding ArtistViewModel.CustomSettings.SkipUgoira, Mode=TwoWay}"
                                                               FontSize="12"/>
                                                     <CheckBox Content="R-18" Margin="0,0,16,4"
                                                               IsChecked="{Binding ArtistViewModel.CustomSettings.SkipR18, Mode=TwoWay}"
                                                               FontSize="12"/>
-                                                    <CheckBox Content="R-18G only" Margin="0,0,0,4"
+                                                    <CheckBox Content="{loc:Tr Batch_R18GOnly}" Margin="0,0,0,4"
                                                               IsChecked="{Binding ArtistViewModel.CustomSettings.SkipR18G, Mode=TwoWay}"
                                                               FontSize="12"
-                                                              ToolTip.Tip="Skip grotesque/violent R-18G but still download regular R-18"/>
+                                                              ToolTip.Tip="{loc:Tr Batch_SkipGrotesqueViolentR18GBut}"/>
                                                 </WrapPanel>
 
                                                 <!-- Tag filters -->
                                                 <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
                                                     <StackPanel Grid.Column="0" Spacing="4">
-                                                        <TextBlock Text="Must include tag(s)" FontSize="11"/>
+                                                        <TextBlock Text="{loc:Tr Batch_MustIncludeTagS}" FontSize="11"/>
                                                         <TextBox Text="{Binding ArtistViewModel.CustomSettings.IncludeTags, Mode=TwoWay}"
                                                                  PlaceholderText="e.g. original, fantasy"
                                                                  CornerRadius="4" FontSize="12"
-                                                                 ToolTip.Tip="Comma-separated. Artwork must match at least one."/>
+                                                                 ToolTip.Tip="{loc:Tr Batch_CommaSeparatedArtworkMustMatchAt}"/>
                                                     </StackPanel>
                                                     <StackPanel Grid.Column="1" Spacing="4">
-                                                        <TextBlock Text="Exclude tag(s)" FontSize="11"/>
+                                                        <TextBlock Text="{loc:Tr Batch_ExcludeTagS}" FontSize="11"/>
                                                         <TextBox Text="{Binding ArtistViewModel.CustomSettings.ExcludeTagsFilter, Mode=TwoWay}"
                                                                  PlaceholderText="e.g. guro, furry"
                                                                  CornerRadius="4" FontSize="12"
-                                                                 ToolTip.Tip="Comma-separated. Artwork is skipped if it has any of these."/>
+                                                                 ToolTip.Tip="{loc:Tr Batch_CommaSeparatedArtworkIsSkippedIf}"/>
                                                     </StackPanel>
                                                 </Grid>
 
@@ -362,19 +363,19 @@
 
                                     <!-- Auto-Retry Settings -->
                                     <StackPanel Spacing="8">
-                                        <CheckBox Content="Auto-retry failed downloads"
+                                        <CheckBox Content="{loc:Tr Batch_AutoRetryFailedDownloads}"
                                                   IsChecked="{Binding ArtistViewModel.CustomSettings.AutoRetryFailedDownloads, Mode=TwoWay}"
-                                                  ToolTip.Tip="Automatically retry failed downloads with the configured delay"
+                                                  ToolTip.Tip="{loc:Tr Batch_AutomaticallyRetryFailedDownloadsWithThe}"
                                                   FontSize="12"/>
                                         <StackPanel Orientation="Horizontal" Spacing="16" IsVisible="{Binding ArtistViewModel.CustomSettings.AutoRetryFailedDownloads}">
                                             <StackPanel Spacing="4">
-                                                <TextBlock Text="Max Retries" FontSize="11" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
+                                                <TextBlock Text="{loc:Tr Batch_MaxRetries}" FontSize="11" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                                 <NumericUpDown Value="{Binding ArtistViewModel.CustomSettings.MaxRetryAttempts, Mode=TwoWay}"
                                                                Minimum="1" Maximum="10"
                                                                Width="80" FontSize="12"/>
                                             </StackPanel>
                                             <StackPanel Spacing="4">
-                                                <TextBlock Text="Retry Delay (sec)" FontSize="11" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
+                                                <TextBlock Text="{loc:Tr Batch_RetryDelaySec}" FontSize="11" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                                 <NumericUpDown Value="{Binding ArtistViewModel.CustomSettings.RetryDelaySeconds, Mode=TwoWay}"
                                                                Minimum="1" Maximum="60"
                                                                Width="100" FontSize="12"/>
@@ -434,34 +435,34 @@
                         <!-- Action Bar -->
                         <DockPanel LastChildFill="False">
                             <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" Spacing="8">
-                                <Button Content="💾 Save"
+                                <Button Content="{loc:Tr Batch_Save}"
                                         Command="{Binding ArtistViewModel.SavePresetCommand}"
-                                        ToolTip.Tip="Save current artist list and settings as a reusable preset"
+                                        ToolTip.Tip="{loc:Tr Batch_SaveCurrentArtistListAndSettings}"
                                          
                                         AutomationProperties.Name="Save Preset Button"
                                         AutomationProperties.HelpText="Save current configuration for later use"
                                         KeyboardNavigation.TabIndex="10"/>
-                                <Button Content="📂 Load"
+                                <Button Content="{loc:Tr Batch_Load}"
                                         Command="{Binding ArtistViewModel.LoadPresetCommand}"
-                                        ToolTip.Tip="Load a previously saved preset with artist list and settings"
+                                        ToolTip.Tip="{loc:Tr Batch_LoadAPreviouslySavedPresetWith}"
                                          
                                         AutomationProperties.Name="Load Preset Button"
                                         AutomationProperties.HelpText="Load a previously saved configuration"
                                         KeyboardNavigation.TabIndex="11"/>
                             </StackPanel>
                             <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="8">
-                                <Button Content="+ Add to Queue"
+                                <Button Content="{loc:Tr Batch_AddToQueue}"
                                         Command="{Binding ArtistViewModel.AddToQueueCommand}"
                                         IsEnabled="{Binding ArtistViewModel.SelectedArtists.Count}"
                                           
-                                        ToolTip.Tip="Add to queue without starting immediately — start from the Queue window"
+                                        ToolTip.Tip="{loc:Tr Batch_AddToQueueWithoutStartingImmediately}"
                                         KeyboardNavigation.TabIndex="19"/>
-                                <Button Content="▶ Start Download"
+                                <Button Content="{loc:Tr DlId_StartDownload}"
                                         Command="{Binding ArtistViewModel.StartDownloadCommand}"
                                         IsEnabled="{Binding ArtistViewModel.SelectedArtists.Count}"
                                         Classes="accent"
                                          Padding="20,12" 
-                                        ToolTip.Tip="Begin downloading artworks from all selected artists immediately"
+                                        ToolTip.Tip="{loc:Tr Batch_BeginDownloadingArtworksFromAllSelected}"
                                         AutomationProperties.Name="Start Download Button"
                                         AutomationProperties.HelpText="Click to begin downloading from all selected artists"
                                         KeyboardNavigation.TabIndex="20"/>
@@ -471,7 +472,7 @@
                 </ScrollViewer>
             </TabItem>
 
-            <TabItem Header="🖼️ By Image ID">
+            <TabItem Header="{loc:Tr Batch_ByImageID}">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel Spacing="16" Margin="20">
                         <Border Background="{DynamicResource Container2BackgroundBrush}"
@@ -479,7 +480,7 @@
                                 BorderThickness="1" CornerRadius="8" Padding="16">
                             <StackPanel Spacing="12">
                                 <DockPanel LastChildFill="False">
-                                    <TextBlock DockPanel.Dock="Left" Text="Image IDs or URLs" FontSize="15" FontWeight="SemiBold"/>
+                                    <TextBlock DockPanel.Dock="Left" Text="{loc:Tr DlId_ImageIDsOrURLs}" FontSize="15" FontWeight="SemiBold"/>
                                     <TextBlock DockPanel.Dock="Right" Text="{Binding ImageIdViewModel.ParsedIds.Count, StringFormat='{}{0} IDs detected'}"
                                                FontSize="13" Foreground="{DynamicResource DefaultForegroundBrushTertiary}" VerticalAlignment="Center"/>
                                 </DockPanel>
@@ -487,24 +488,24 @@
                                 <TextBox Text="{Binding ImageIdViewModel.InputText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                          AcceptsReturn="True"
                                          TextWrapping="Wrap"
-                                         PlaceholderText="Enter image IDs, URLs...&#x0a;One per line or comma-separated&#x0a;Example: 12345678&#x0a;https://www.pixiv.net/en/artworks/12345678"
+                                         PlaceholderText="{loc:Tr Batch_EnterImageIdsMulti}"
                                          Height="200"
                                          CornerRadius="6"
                                          FontFamily="Consolas, monospace"
                                          FontSize="13"/>
 
                                 <StackPanel Orientation="Horizontal" Spacing="8">
-                                    <Button Content="📁 Import from File"
+                                    <Button Content="{loc:Tr DlId_ImportFromFile}"
                                             Command="{Binding ImageIdViewModel.ImportFromFileAsync}"
                                              />
-                                    <Button Content="Clear"
+                                    <Button Content="{loc:Tr Common_Clear}"
                                             Command="{Binding ImageIdViewModel.ClearInputCommand}"
                                              />
                                 </StackPanel>
                             </StackPanel>
                         </Border>
 
-                        <Button Content="▶ Start Image ID Download"
+                        <Button Content="{loc:Tr Batch_StartImageIDDownload}"
                                 Command="{Binding ImageIdViewModel.StartDownloadCommand}"
                                 IsEnabled="{Binding ImageIdViewModel.ParsedIds.Count}"
                                 Classes="accent"
@@ -514,7 +515,7 @@
                 </ScrollViewer>
             </TabItem>
 
-            <TabItem Header="🗂️ By Collection">
+            <TabItem Header="{loc:Tr Batch_ByCollection}">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel Spacing="16" Margin="20">
                         <Border Background="{DynamicResource Container2BackgroundBrush}"
@@ -522,7 +523,7 @@
                                 BorderThickness="1" CornerRadius="8" Padding="16">
                             <StackPanel Spacing="12">
                                 <DockPanel LastChildFill="False">
-                                    <TextBlock DockPanel.Dock="Left" Text="Collection URLs or IDs" FontSize="15" FontWeight="SemiBold"/>
+                                    <TextBlock DockPanel.Dock="Left" Text="{loc:Tr Batch_CollectionURLsOrIDs}" FontSize="15" FontWeight="SemiBold"/>
                                     <TextBlock DockPanel.Dock="Right" Text="{Binding CollectionViewModel.ParsedIds.Count, StringFormat='{}{0} collection(s) detected'}"
                                                FontSize="13" Foreground="{DynamicResource DefaultForegroundBrushTertiary}" VerticalAlignment="Center"/>
                                 </DockPanel>
@@ -530,7 +531,7 @@
                                 <TextBox Text="{Binding CollectionViewModel.InputText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                          AcceptsReturn="True"
                                          TextWrapping="Wrap"
-                                         PlaceholderText="Enter collection IDs or URLs, one per line...&#x0a;Example: 99928968526562868893&#x0a;https://www.pixiv.net/collections/99928968526562868893"
+                                         PlaceholderText="{loc:Tr Batch_EnterCollectionIdsMulti}"
                                          Height="160"
                                          CornerRadius="6"
                                          FontFamily="Consolas, monospace"
@@ -541,13 +542,13 @@
                                            IsVisible="{Binding CollectionViewModel.HasInvalidInput}"/>
 
                                 <StackPanel Orientation="Horizontal" Spacing="8">
-                                    <Button Content="Clear"
+                                    <Button Content="{loc:Tr Common_Clear}"
                                             Command="{Binding CollectionViewModel.ClearInputCommand}"
                                              />
-                                    <CheckBox Content="Keep each collection in its own folder" FontSize="12"
+                                    <CheckBox Content="{loc:Tr Batch_KeepEachCollectionInItsOwn}" FontSize="12"
                                               IsChecked="{Binding CollectionViewModel.UseCollectionFolder, Mode=TwoWay}"
                                               VerticalAlignment="Center"
-                                              ToolTip.Tip="On: each collection's works go into their own Collections\{title} folder. Off: still nests everything under a Collections\ folder, but keeps your normal per-artist/artwork folder structure beneath it."/>
+                                              ToolTip.Tip="{loc:Tr Batch_OnEachCollectionSWorksGo}"/>
                                 </StackPanel>
                             </StackPanel>
                         </Border>
@@ -555,7 +556,7 @@
                         <TextBlock Text="{Binding CollectionViewModel.StatusMessage}" FontSize="12"
                                    Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
 
-                        <Button Content="▶ Start Collection Download"
+                        <Button Content="{loc:Tr Batch_StartCollectionDownload}"
                                 Command="{Binding CollectionViewModel.StartDownloadCommand}"
                                 IsEnabled="{Binding CollectionViewModel.ParsedIds.Count}"
                                 Classes="accent"
@@ -565,17 +566,17 @@
                 </ScrollViewer>
             </TabItem>
 
-            <TabItem Header="🔖 Bookmarks">
+            <TabItem Header="{loc:Tr Batch_Bookmarks}">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel Spacing="16" Margin="20">
                         <Border Background="{DynamicResource Container2BackgroundBrush}"
                                 BorderBrush="{DynamicResource Container2BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="16">
                             <StackPanel Spacing="12">
-                                <TextBlock Text="Source" FontSize="15" FontWeight="SemiBold"/>
-                                <RadioButton Content="Bookmarked Images (Illustrations/Manga)"
+                                <TextBlock Text="{loc:Tr DlBookmarks_Source}" FontSize="15" FontWeight="SemiBold"/>
+                                <RadioButton Content="{loc:Tr DlBookmarks_BookmarkedImagesIllustrationsManga}"
                                              IsChecked="{Binding BookmarksViewModel.IsBookmarkedImages, Mode=TwoWay}"/>
-                                <RadioButton Content="Bookmarked Artists"
+                                <RadioButton Content="{loc:Tr DlBookmarks_BookmarkedArtists}"
                                              IsChecked="{Binding !BookmarksViewModel.IsBookmarkedImages, Mode=TwoWay}"/>
                             </StackPanel>
                         </Border>
@@ -584,13 +585,13 @@
                                 BorderBrush="{DynamicResource Container2BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="16">
                             <StackPanel Spacing="12">
-                                <TextBlock Text="Visibility" FontSize="15" FontWeight="SemiBold"/>
+                                <TextBlock Text="{loc:Tr DlBookmarks_Visibility}" FontSize="15" FontWeight="SemiBold"/>
                                 <StackPanel Spacing="8">
-                                    <RadioButton Content="Public bookmarks only"
+                                    <RadioButton Content="{loc:Tr DlBookmarks_PublicBookmarksOnly}"
                                                  IsChecked="{Binding BookmarksViewModel.IsPublicOnly, Mode=TwoWay}"/>
-                                    <RadioButton Content="Private bookmarks only"
+                                    <RadioButton Content="{loc:Tr DlBookmarks_PrivateBookmarksOnly}"
                                                  IsChecked="{Binding BookmarksViewModel.IsPrivateOnly, Mode=TwoWay}"/>
-                                    <RadioButton Content="Both public and private"
+                                    <RadioButton Content="{loc:Tr DlBookmarks_BothPublicAndPrivate}"
                                                  IsChecked="{Binding BookmarksViewModel.IsBothVisibility, Mode=TwoWay}"/>
                                 </StackPanel>
                             </StackPanel>
@@ -600,44 +601,44 @@
                                 BorderBrush="{DynamicResource Container2BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="16">
                             <StackPanel Spacing="12">
-                                <TextBlock Text="Filter Options" FontSize="15" FontWeight="SemiBold"/>
+                                <TextBlock Text="{loc:Tr DlBookmarks_FilterOptions}" FontSize="15" FontWeight="SemiBold"/>
                                 <StackPanel Orientation="Horizontal" Spacing="16">
-                                    <CheckBox Content="Include R-18" IsChecked="{Binding BookmarksViewModel.IncludeR18, Mode=TwoWay}"/>
-                                    <CheckBox Content="Include AI-generated" IsChecked="{Binding BookmarksViewModel.IncludeAiGenerated, Mode=TwoWay}"/>
-                                    <CheckBox Content="Include Manga" IsChecked="{Binding BookmarksViewModel.IncludeManga, Mode=TwoWay}"/>
+                                    <CheckBox Content="{loc:Tr DlBookmarks_IncludeR18}" IsChecked="{Binding BookmarksViewModel.IncludeR18, Mode=TwoWay}"/>
+                                    <CheckBox Content="{loc:Tr DlBookmarks_IncludeAIGenerated}" IsChecked="{Binding BookmarksViewModel.IncludeAiGenerated, Mode=TwoWay}"/>
+                                    <CheckBox Content="{loc:Tr DlBookmarks_IncludeManga}" IsChecked="{Binding BookmarksViewModel.IncludeManga, Mode=TwoWay}"/>
                                 </StackPanel>
                             </StackPanel>
                         </Border>
 
-                        <Button Content="▶ Start Remote Bookmark Download"
+                        <Button Content="{loc:Tr Batch_StartRemoteBookmarkDownload}"
                                 Command="{Binding BookmarksViewModel.StartDownloadCommand}"
                                 Classes="accent"
                                 HorizontalAlignment="Right"
                                  Padding="20,12" 
-                                ToolTip.Tip="Download from Pixiv bookmarks (Public/Private)"/>
+                                ToolTip.Tip="{loc:Tr Batch_DownloadFromPixivBookmarksPublicPrivate}"/>
 
                         <!-- Local Favorites Download Options -->
                         <Border Background="{DynamicResource Container2BackgroundBrush}"
                                 BorderBrush="{DynamicResource Container2BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="16">
                             <StackPanel Spacing="12">
-                                <TextBlock Text="Local Favorites" FontSize="15" FontWeight="SemiBold"/>
+                                <TextBlock Text="{loc:Tr Batch_LocalFavorites}" FontSize="15" FontWeight="SemiBold"/>
                                 <StackPanel Spacing="8">
-                                    <Button Content="↓ Download All Favorites"
+                                    <Button Content="{loc:Tr Batch_DownloadAllFavorites}"
                                             Command="{Binding BookmarksViewModel.DownloadAllFavoritesCommand}"
                                               FontSize="12"
                                             HorizontalAlignment="Stretch"/>
                                     
                                     <StackPanel Spacing="4" IsVisible="{Binding BookmarksViewModel.HasFolders}">
-                                        <TextBlock Text="Download from folder:" FontSize="12"
+                                        <TextBlock Text="{loc:Tr Batch_DownloadFromFolder}" FontSize="12"
                                                    Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                         <Grid ColumnDefinitions="*,Auto">
                                             <ComboBox Grid.Column="0"
                                                       ItemsSource="{Binding BookmarksViewModel.AvailableFolders}"
                                                       SelectedItem="{Binding BookmarksViewModel.SelectedFolder, Mode=TwoWay}"
-                                                      PlaceholderText="Select folder..."
+                                                      PlaceholderText="{loc:Tr Batch_SelectFolder}"
                                                       CornerRadius="6" Padding="8,4" FontSize="12"/>
-                                            <Button Grid.Column="1" Content="Download"
+                                            <Button Grid.Column="1" Content="{loc:Tr Common_Download}"
                                                     Command="{Binding BookmarksViewModel.DownloadFromFolderCommand}"
                                                       FontSize="12"
                                                     Margin="8,0,0,0"/>
@@ -645,10 +646,10 @@
                                     </StackPanel>
 
                                     <StackPanel Spacing="4">
-                                        <CheckBox Content="Use custom download path"
+                                        <CheckBox Content="{loc:Tr Batch_UseCustomDownloadPath}"
                                                   IsChecked="{Binding BookmarksViewModel.UseCustomDownloadPath, Mode=TwoWay}"/>
                                         <TextBox Text="{Binding BookmarksViewModel.CustomDownloadPath, Mode=TwoWay}"
-                                                 PlaceholderText="Custom download path..."
+                                                 PlaceholderText="{loc:Tr Batch_CustomDownloadPath}"
                                                  CornerRadius="6" Padding="8,4" FontSize="12"
                                                  IsEnabled="{Binding BookmarksViewModel.UseCustomDownloadPath}"/>
                                     </StackPanel>
@@ -659,11 +660,11 @@
                 </ScrollViewer>
             </TabItem>
 
-            <TabItem Header="📋 From List">
+            <TabItem Header="{loc:Tr Batch_FromList}">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel Spacing="16" Margin="20">
-                        <TextBlock Text="📋 Download from List" FontSize="24" FontWeight="SemiBold" HorizontalAlignment="Center"/>
-                        <TextBlock Text="Download from list.txt or tags.txt files&#x0a;Import URLs, IDs, or tags from a text file"
+                        <TextBlock Text="{loc:Tr Batch_DownloadFromList}" FontSize="24" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+                        <TextBlock Text="{loc:Tr Batch_DownloadFromListFiles}"
                                    TextAlignment="Center" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                         
                         <Border Background="{DynamicResource Container2BackgroundBrush}"
@@ -673,10 +674,10 @@
                                 <Grid ColumnDefinitions="*,Auto" HorizontalAlignment="Stretch">
                                     <TextBox Grid.Column="0" 
                                              Text="{Binding FromListViewModel.SelectedFilePath, Mode=OneWay}"
-                                             PlaceholderText="No file selected..."
+                                             PlaceholderText="{loc:Tr Batch_NoFileSelected}"
                                              IsReadOnly="True"
                                              CornerRadius="6" Padding="8,4" FontSize="12"/>
-                                    <Button Grid.Column="1" Content="📁 Browse"
+                                    <Button Grid.Column="1" Content="{loc:Tr Batch_Browse}"
                                             Command="{Binding FromListViewModel.SelectListFileCommand}"
                                               FontSize="12"
                                             Margin="8,0,0,0"/>
@@ -696,17 +697,17 @@
                                 </Border>
                                 
                                 <StackPanel Orientation="Horizontal" Spacing="8">
-                                    <TextBlock Text="Items:" FontSize="12" 
+                                    <TextBlock Text="{loc:Tr Batch_Items}" FontSize="12" 
                                                Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                     <TextBlock Text="{Binding FromListViewModel.ItemCount}" 
                                                FontWeight="SemiBold" FontSize="12"/>
                                 </StackPanel>
                                 
                                 <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
-                                    <Button Content="Clear" 
+                                    <Button Content="{loc:Tr Common_Clear}" 
                                             Command="{Binding FromListViewModel.ClearListCommand}"
                                               FontSize="12"/>
-                                    <Button Content="▶ Start Download" 
+                                    <Button Content="{loc:Tr DlId_StartDownload}" 
                                             Command="{Binding FromListViewModel.StartDownloadCommand}"
                                             Classes="accent"
                                             IsEnabled="{Binding FromListViewModel.HasItems}"
@@ -718,50 +719,50 @@
                 </ScrollViewer>
             </TabItem>
 
-            <TabItem Header="🔍 Search">
+            <TabItem Header="{loc:Tr Batch_Search}">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel Spacing="16" Margin="20">
                         <Border Background="{DynamicResource Container2BackgroundBrush}"
                                 BorderBrush="{DynamicResource Container2BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="16">
                             <StackPanel Spacing="12">
-                                <TextBlock Text="Search Keyword" FontSize="14" FontWeight="SemiBold"/>
+                                <TextBlock Text="{loc:Tr Batch_SearchKeyword}" FontSize="14" FontWeight="SemiBold"/>
                                 <TextBox Text="{Binding SearchViewModel.SearchKeyword, Mode=TwoWay}"
-                                         PlaceholderText="Enter search keyword..."
+                                         PlaceholderText="{loc:Tr Batch_EnterSearchKeyword}"
                                          CornerRadius="6" Padding="8,4" FontSize="12"/>
                                 
                                 <Grid ColumnDefinitions="*,*,*" HorizontalAlignment="Stretch">
                                     <StackPanel Grid.Column="0" Spacing="4">
-                                        <TextBlock Text="Mode" FontSize="12" 
+                                        <TextBlock Text="{loc:Tr Batch_Mode}" FontSize="12" 
                                                    Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                         <ComboBox SelectedValue="{Binding SearchViewModel.SearchMode, Mode=TwoWay}"
                                                   SelectedValueBinding="{ReflectionBinding Tag}"
                                                   CornerRadius="6" FontSize="12">
-                                            <ComboBoxItem Content="Safe" Tag="safe"/>
+                                            <ComboBoxItem Content="{loc:Tr Search_Safe}" Tag="safe"/>
                                             <ComboBoxItem Content="R-18" Tag="r18"/>
-                                            <ComboBoxItem Content="All" Tag="all"/>
+                                            <ComboBoxItem Content="{loc:Tr Search_All}" Tag="all"/>
                                         </ComboBox>
                                     </StackPanel>
                                     <StackPanel Grid.Column="1" Spacing="4" Margin="8,0,0,0">
                                         <StackPanel Orientation="Horizontal" Spacing="4">
-                                            <TextBlock Text="Sort Order" FontSize="12"
+                                            <TextBlock Text="{loc:Tr Batch_SortOrder}" FontSize="12"
                                                        Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                             <TextBlock Text="👑" FontSize="10" VerticalAlignment="Center"
                                                        IsVisible="{Binding !SearchViewModel.IsPremiumAccount}"
-                                                       ToolTip.Tip="Popularity sort requires Pixiv Premium"/>
+                                                       ToolTip.Tip="{loc:Tr Batch_PopularitySortRequiresPixivPremium}"/>
                                         </StackPanel>
                                         <ComboBox SelectedValue="{Binding SearchViewModel.SortOrder, Mode=TwoWay}"
                                                   SelectedValueBinding="{ReflectionBinding Tag}"
                                                   CornerRadius="6" FontSize="12">
-                                            <ComboBoxItem Content="Newest First" Tag="date_d"/>
-                                            <ComboBoxItem Content="Popular First" Tag="popular_d"
+                                            <ComboBoxItem Content="{loc:Tr Search_NewestFirst}" Tag="date_d"/>
+                                            <ComboBoxItem Content="{loc:Tr Search_PopularFirst}" Tag="popular_d"
                                                           IsVisible="{Binding SearchViewModel.IsPremiumAccount}"
                                                           IsEnabled="{Binding SearchViewModel.IsPremiumAccount}"
-                                                          ToolTip.Tip="Sort by popularity (Pixiv Premium)"/>
+                                                          ToolTip.Tip="{loc:Tr Batch_SortByPopularityPixivPremium}"/>
                                         </ComboBox>
                                     </StackPanel>
                                     <StackPanel Grid.Column="2" Spacing="4" Margin="8,0,0,0">
-                                        <TextBlock Text="Max Results" FontSize="12" 
+                                        <TextBlock Text="{loc:Tr Batch_MaxResults}" FontSize="12" 
                                                    Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                         <NumericUpDown Value="{Binding SearchViewModel.MaxResults, Mode=TwoWay}"
                                                      Minimum="1" Maximum="500"
@@ -769,7 +770,7 @@
                                     </StackPanel>
                                 </Grid>
                                 
-                                <Button Content="🔍 Search"
+                                <Button Content="{loc:Tr Batch_Search}"
                                         Command="{Binding SearchViewModel.SearchCommand}"
                                         IsEnabled="{Binding !SearchViewModel.IsSearching}"
                                           FontSize="12"
@@ -783,7 +784,7 @@
                                 IsVisible="{Binding SearchViewModel.HasResults}">
                             <StackPanel Spacing="12">
                                 <Grid ColumnDefinitions="*,Auto">
-                                    <TextBlock Grid.Column="0" Text="Results" FontSize="14" FontWeight="SemiBold"/>
+                                    <TextBlock Grid.Column="0" Text="{loc:Tr Batch_Results}" FontSize="14" FontWeight="SemiBold"/>
                                     <TextBlock Grid.Column="1" Text="{Binding SearchViewModel.ResultCount, StringFormat='{}{0} items'}"
                                                FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                 </Grid>
@@ -833,7 +834,7 @@
                                                                 <TextBlock Text="•" FontSize="9"
                                                                            Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                                                            IsVisible="{Binding IsAiGenerated}"/>
-                                                                <TextBlock Text="AI" FontSize="9" Foreground="Orange"
+                                                                <TextBlock Text="{loc:Tr Rankings_AI}" FontSize="9" Foreground="Orange"
                                                                            IsVisible="{Binding IsAiGenerated}"/>
                                                             </StackPanel>
                                                         </StackPanel>
@@ -845,10 +846,10 @@
                                 </Border>
                                 
                                 <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
-                                    <Button Content="Clear Results" 
+                                    <Button Content="{loc:Tr Batch_ClearResults}" 
                                             Command="{Binding SearchViewModel.ClearResultsCommand}"
                                               FontSize="12"/>
-                                    <Button Content="▶ Start Download" 
+                                    <Button Content="{loc:Tr DlId_StartDownload}" 
                                             Command="{Binding SearchViewModel.StartDownloadCommand}"
                                             Classes="accent"
                                               FontSize="12" />
@@ -859,30 +860,30 @@
                 </ScrollViewer>
             </TabItem>
 
-            <TabItem Header="📦 FANBOX">
+            <TabItem Header="{loc:Tr Batch_FANBOX}">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel Spacing="16" Margin="20">
                         <Border Background="{DynamicResource Container2BackgroundBrush}"
                                 BorderBrush="{DynamicResource Container2BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="16">
                             <StackPanel Spacing="12">
-                                <TextBlock Text="Search by Post ID" FontSize="14" FontWeight="SemiBold"/>
+                                <TextBlock Text="{loc:Tr Batch_SearchByPostID}" FontSize="14" FontWeight="SemiBold"/>
                                 <Grid ColumnDefinitions="*,Auto">
                                     <TextBox Grid.Column="0" Text="{Binding FanboxViewModel.PostId, Mode=TwoWay}"
-                                             PlaceholderText="Enter FANBOX post ID..."
+                                             PlaceholderText="{loc:Tr Batch_EnterFANBOXPostID}"
                                              CornerRadius="6" Padding="8,4" FontSize="12"/>
-                                    <Button Grid.Column="1" Content="🔍 Search"
+                                    <Button Grid.Column="1" Content="{loc:Tr Batch_Search}"
                                             Command="{Binding FanboxViewModel.SearchByPostIdCommand}"
                                             IsEnabled="{Binding !FanboxViewModel.IsSearching}"
                                               FontSize="12" Margin="8,0,0,0"/>
                                 </Grid>
                                 <Separator/>
-                                <TextBlock Text="Search by Creator ID" FontSize="14" FontWeight="SemiBold"/>
+                                <TextBlock Text="{loc:Tr Batch_SearchByCreatorID}" FontSize="14" FontWeight="SemiBold"/>
                                 <Grid ColumnDefinitions="*,Auto">
                                     <TextBox Grid.Column="0" Text="{Binding FanboxViewModel.CreatorId, Mode=TwoWay}"
-                                             PlaceholderText="Enter creator ID..."
+                                             PlaceholderText="{loc:Tr Batch_EnterCreatorID}"
                                              CornerRadius="6" Padding="8,4" FontSize="12"/>
-                                    <Button Grid.Column="1" Content="🔍 Search"
+                                    <Button Grid.Column="1" Content="{loc:Tr Batch_Search}"
                                             Command="{Binding FanboxViewModel.SearchByCreatorIdCommand}"
                                             IsEnabled="{Binding !FanboxViewModel.IsSearching}"
                                               FontSize="12" Margin="8,0,0,0"/>
@@ -898,7 +899,7 @@
                                 IsVisible="{Binding FanboxViewModel.Posts.Count}">
                             <StackPanel Spacing="12">
                                 <Grid ColumnDefinitions="*,Auto">
-                                    <TextBlock Grid.Column="0" Text="Results" FontSize="14" FontWeight="SemiBold"/>
+                                    <TextBlock Grid.Column="0" Text="{loc:Tr Batch_Results}" FontSize="14" FontWeight="SemiBold"/>
                                     <TextBlock Grid.Column="1" Text="{Binding FanboxViewModel.Posts.Count, StringFormat='{}{0} posts'}"
                                                FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                 </Grid>
@@ -923,17 +924,17 @@
                                                             <TextBlock Text="{Binding Post.Images.Count, StringFormat='{}{0} images'}" FontSize="10"
                                                                        Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                                             <Separator Margin="0,4,0,4"/>
-                                                            <TextBlock Text="Cover Filename:" FontSize="9" FontWeight="SemiBold"
+                                                            <TextBlock Text="{loc:Tr Batch_CoverFilename}" FontSize="9" FontWeight="SemiBold"
                                                                        Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                                             <TextBlock Text="{Binding CoverFilename}" FontSize="9"
                                                                        Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                                                        TextWrapping="Wrap"/>
-                                                            <TextBlock Text="Info Filename:" FontSize="9" FontWeight="SemiBold"
+                                                            <TextBlock Text="{loc:Tr Batch_InfoFilename}" FontSize="9" FontWeight="SemiBold"
                                                                        Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                                             <TextBlock Text="{Binding InfoFilename}" FontSize="9"
                                                                        Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                                                        TextWrapping="Wrap"/>
-                                                            <TextBlock Text="Image Filenames:" FontSize="9" FontWeight="SemiBold"
+                                                            <TextBlock Text="{loc:Tr Batch_ImageFilenames}" FontSize="9" FontWeight="SemiBold"
                                                                        Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                                             <ItemsControl ItemsSource="{Binding ImageFilenames}">
                                                                 <ItemsControl.ItemTemplate>
@@ -953,10 +954,10 @@
                                 </Border>
                                 
                                 <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
-                                    <Button Content="Clear Results" 
+                                    <Button Content="{loc:Tr Batch_ClearResults}" 
                                             Command="{Binding FanboxViewModel.ClearResultsCommand}"
                                               FontSize="12"/>
-                                    <Button Content="▶ Download" 
+                                    <Button Content="{loc:Tr Batch_Download}" 
                                             Command="{Binding FanboxViewModel.DownloadSelectedCommand}"
                                             Classes="accent"
                                               FontSize="12" />
@@ -967,7 +968,7 @@
                 </ScrollViewer>
             </TabItem>
             <!-- ====================== SCHEDULES ====================== -->
-            <TabItem Header="⏰ Schedules">
+            <TabItem Header="{loc:Tr Batch_Schedules}">
                 <Grid RowDefinitions="*">
                     <!-- Single unified view: List or Editor based on IsEditing -->
                     <Grid RowDefinitions="Auto,*">
@@ -987,7 +988,7 @@
                                 </StackPanel>
                                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="8">
                                     <!-- Show when NOT editing -->
-                                    <Button Content="+ New Schedule"
+                                    <Button Content="{loc:Tr Batch_NewSchedule}"
                                             Command="{Binding SchedulesViewModel.AddNewCommand}"
                                             IsVisible="{Binding !SchedulesViewModel.IsEditing}"
                                             Classes="accent"
@@ -999,11 +1000,11 @@
                                             <PathIcon Data="{StaticResource RefreshIcon}" Width="14" Height="14"
                                                       VerticalAlignment="Center"
                                                       Foreground="{Binding $parent[Button].Foreground}"/>
-                                            <TextBlock Text="Refresh" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{loc:Tr Common_Refresh}" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </Button>
                                     <!-- Show when editing -->
-                                    <Button Content="← Back to Schedules"
+                                    <Button Content="{loc:Tr Batch_BackToSchedules}"
                                             Command="{Binding SchedulesViewModel.CancelEditCommand}"
                                             IsVisible="{Binding SchedulesViewModel.IsEditing}"
                                              Padding="10,6" FontSize="12"/>
@@ -1042,7 +1043,7 @@
                                                             </Border>
                                                             <Border Background="#1A7F37" CornerRadius="3" Padding="5,1"
                                                                     IsVisible="{Binding IsRunning}">
-                                                                <TextBlock Text="● Running" FontSize="10" Foreground="#3FB950"/>
+                                                                <TextBlock Text="{loc:Tr Batch_Running}" FontSize="10" Foreground="#3FB950"/>
                                                             </Border>
                                                         </StackPanel>
                                                         <StackPanel Orientation="Horizontal" Spacing="12">
@@ -1064,21 +1065,21 @@
                                                                    TextTrimming="CharacterEllipsis"/>
                                                     </StackPanel>
                                                     <!-- Edit -->
-                                                    <Button Grid.Column="2" Content="✏ Edit"
+                                                    <Button Grid.Column="2" Content="{loc:Tr Batch_Edit}"
                                                             FontSize="11"   Margin="6,0,0,0"
-                                                            ToolTip.Tip="Edit this schedule"
+                                                            ToolTip.Tip="{loc:Tr Batch_EditThisSchedule}"
                                                             Command="{Binding $parent[ItemsControl].DataContext.SchedulesViewModel.BeginEditCommand}"
                                                             CommandParameter="{Binding}"/>
                                                     <!-- Run Now -->
-                                                    <Button Grid.Column="3" Content="▶ Run"
+                                                    <Button Grid.Column="3" Content="{loc:Tr Batch_Run}"
                                                             FontSize="11"   Margin="4,0,0,0"
-                                                            ToolTip.Tip="Run this schedule immediately"
+                                                            ToolTip.Tip="{loc:Tr Batch_RunThisScheduleImmediately}"
                                                             Command="{Binding $parent[ItemsControl].DataContext.SchedulesViewModel.RunNowCommand}"
                                                             CommandParameter="{Binding}"/>
                                                     <!-- Delete -->
                                                     <Button Grid.Column="4" Content="🗑"
                                                             FontSize="11"   Margin="4,0,0,0"
-                                                            ToolTip.Tip="Delete this schedule"
+                                                            ToolTip.Tip="{loc:Tr Batch_DeleteThisSchedule}"
                                                             Command="{Binding $parent[ItemsControl].DataContext.SchedulesViewModel.DeleteScheduleCommand}"
                                                             CommandParameter="{Binding}"/>
                                                 </Grid>
@@ -1086,7 +1087,7 @@
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
-                                <TextBlock Text="No schedules yet. Click '+ New Schedule' to create one."
+                                <TextBlock Text="{loc:Tr Batch_NoSchedulesYetClickNewSchedule}"
                                            FontSize="13" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                            IsVisible="{Binding !SchedulesViewModel.Schedules.Count}"
                                            Margin="0,8"/>
@@ -1098,7 +1099,7 @@
 
                                     <!-- Schedule name -->
                                     <StackPanel Spacing="4">
-                                        <TextBlock Text="Schedule Name" FontSize="12" FontWeight="SemiBold"/>
+                                        <TextBlock Text="{loc:Tr Batch_ScheduleName}" FontSize="12" FontWeight="SemiBold"/>
                                         <TextBox Text="{Binding SchedulesViewModel.NewScheduleName, Mode=TwoWay}"
                                                  PlaceholderText="e.g. My Fav Artists Daily (auto-generated if blank)"
                                                  CornerRadius="6" FontSize="12"/>
@@ -1108,12 +1109,12 @@
                                     <StackPanel Spacing="8">
                                         <DockPanel LastChildFill="False">
                                             <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                                                <TextBlock Text="Artists" FontSize="12" FontWeight="SemiBold"/>
+                                                <TextBlock Text="{loc:Tr Nav_Artists}" FontSize="12" FontWeight="SemiBold"/>
                                                 <TextBlock Text="{Binding SchedulesViewModel.StagedArtists.Count, StringFormat='{}{0} added'}"
                                                            FontSize="11" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                                            VerticalAlignment="Center"/>
                                             </StackPanel>
-                                            <Button DockPanel.Dock="Right" Content="✕ Clear all"
+                                            <Button DockPanel.Dock="Right" Content="{loc:Tr Batch_ClearAll_2}"
                                                     Command="{Binding SchedulesViewModel.ClearStagedArtistsCommand}"
                                                     IsVisible="{Binding SchedulesViewModel.HasStagedArtists}"
                                                       FontSize="11"/>
@@ -1148,18 +1149,18 @@
                                         <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="6">
                                             <TextBox Grid.Column="0"
                                                      Text="{Binding SchedulesViewModel.NewArtistId, Mode=TwoWay}"
-                                                     PlaceholderText="Artist ID or pixiv.net/en/users/123…"
+                                                     PlaceholderText="{loc:Tr Batch_ArtistIDOrPixivNetEn}"
                                                      CornerRadius="6" FontSize="12"/>
                                             <TextBox Grid.Column="1" Width="80"
                                                      Text="{Binding SchedulesViewModel.PageRange, Mode=TwoWay}"
-                                                     PlaceholderText="Pages"
-                                                     ToolTip.Tip="Page range for this artist, e.g. 0 = all, 1-5 = range"
+                                                     PlaceholderText="{loc:Tr Search_Pages}"
+                                                     ToolTip.Tip="{loc:Tr Batch_PageRangeForThisArtistE}"
                                                      CornerRadius="6" FontSize="12"/>
-                                            <Button Grid.Column="2" Content="+ Add"
+                                            <Button Grid.Column="2" Content="{loc:Tr Batch_Add}"
                                                     Command="{Binding SchedulesViewModel.AddArtistToStagingCommand}"
                                                     IsEnabled="{Binding !SchedulesViewModel.IsResolvingArtist}"
                                                      Padding="10,6" FontSize="12"
-                                                    ToolTip.Tip="Resolve artist name and add to list"/>
+                                                    ToolTip.Tip="{loc:Tr Batch_ResolveArtistNameAndAddTo}"/>
                                         </Grid>
                                         <TextBlock Text="{Binding SchedulesViewModel.ResolveError}"
                                                    FontSize="11" Foreground="OrangeRed"
@@ -1168,13 +1169,13 @@
 
                                     <!-- When to Run -->
                                     <StackPanel Spacing="10">
-                                        <TextBlock Text="When to Run" FontSize="12" FontWeight="SemiBold"/>
+                                        <TextBlock Text="{loc:Tr Batch_WhenToRun}" FontSize="12" FontWeight="SemiBold"/>
                                         <StackPanel Spacing="6">
-                                            <RadioButton Content="Daily / recurring" GroupName="TriggerType"
+                                            <RadioButton Content="{loc:Tr Batch_DailyRecurring}" GroupName="TriggerType"
                                                          IsChecked="{Binding SchedulesViewModel.IsTriggerDaily, Mode=TwoWay}" FontSize="12"/>
-                                            <RadioButton Content="Run on app startup" GroupName="TriggerType"
+                                            <RadioButton Content="{loc:Tr Batch_RunOnAppStartup}" GroupName="TriggerType"
                                                          IsChecked="{Binding SchedulesViewModel.IsTriggerStartup, Mode=TwoWay}" FontSize="12"/>
-                                            <RadioButton Content="Run once at a specific date &amp; time" GroupName="TriggerType"
+                                            <RadioButton Content="{loc:Tr Batch_RunOnceAtASpecificDate}" GroupName="TriggerType"
                                                          IsChecked="{Binding SchedulesViewModel.IsTriggerOnce, Mode=TwoWay}" FontSize="12"/>
                                         </StackPanel>
                                         <Border IsVisible="{Binding SchedulesViewModel.IsTriggerDaily}"
@@ -1183,27 +1184,27 @@
                                                 BorderThickness="1" CornerRadius="6" Padding="12,10">
                                             <StackPanel Spacing="8">
                                                 <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                                                    <TextBlock Text="Time:" FontSize="12" VerticalAlignment="Center"/>
+                                                    <TextBlock Text="{loc:Tr Batch_Time}" FontSize="12" VerticalAlignment="Center"/>
                                                     <ComboBox ItemsSource="{Binding SchedulesViewModel.Hour12Options}"
                                                               SelectedItem="{Binding SchedulesViewModel.TriggerHour12, Mode=TwoWay}"
-                                                              FontSize="12" Width="65" ToolTip.Tip="Hour (1–12)"/>
+                                                              FontSize="12" Width="65" ToolTip.Tip="{loc:Tr Batch_Hour112}"/>
                                                     <TextBlock Text=":" FontSize="14" VerticalAlignment="Center"/>
                                                     <ComboBox ItemsSource="{Binding SchedulesViewModel.MinuteOptions}"
                                                               SelectedItem="{Binding SchedulesViewModel.TriggerMinute, Mode=TwoWay}"
-                                                              FontSize="12" Width="65" ToolTip.Tip="Minute"/>
+                                                              FontSize="12" Width="65" ToolTip.Tip="{loc:Tr Batch_Minute}"/>
                                                     <ComboBox ItemsSource="{Binding SchedulesViewModel.AmPmOptions}"
                                                               SelectedItem="{Binding SchedulesViewModel.TriggerAmPm, Mode=TwoWay}"
                                                               FontSize="12" Width="65"/>
-                                                    <TextBlock Text="Checks/day:" FontSize="12" VerticalAlignment="Center" Margin="12,0,0,0"/>
+                                                    <TextBlock Text="{loc:Tr Batch_ChecksDay}" FontSize="12" VerticalAlignment="Center" Margin="12,0,0,0"/>
                                                     <ComboBox Width="55" SelectedItem="{Binding SchedulesViewModel.ChecksPerDay, Mode=TwoWay}"
-                                                              FontSize="12" ToolTip.Tip="1 = once daily, 2 = twice (every 12 h), 3 = three times (every 8 h)">
+                                                              FontSize="12" ToolTip.Tip="{loc:Tr Batch_1OnceDaily2TwiceEvery}">
                                                         <ComboBoxItem Content="1"/>
                                                         <ComboBoxItem Content="2"/>
                                                         <ComboBoxItem Content="3"/>
                                                     </ComboBox>
                                                 </StackPanel>
                                                 <TextBlock FontSize="11" Foreground="{DynamicResource DefaultForegroundBrushDisabled}"
-                                                           Text="2× = every 12 h  ·  3× = every 8 h, spread from the selected time"/>
+                                                           Text="{loc:Tr Batch_2Every12H3Every}"/>
                                             </StackPanel>
                                         </Border>
                                         <Border IsVisible="{Binding SchedulesViewModel.IsTriggerOnce}"
@@ -1211,81 +1212,81 @@
                                                 BorderBrush="{DynamicResource Container3BorderBrush}"
                                                 BorderThickness="1" CornerRadius="6" Padding="12,10">
                                             <StackPanel Spacing="8">
-                                                <TextBlock Text="Run once on:" FontSize="12"/>
+                                                <TextBlock Text="{loc:Tr Batch_RunOnceOn}" FontSize="12"/>
                                                 <StackPanel Orientation="Horizontal" Spacing="8">
                                                     <CalendarDatePicker SelectedDate="{Binding SchedulesViewModel.OnceDateTime, Mode=TwoWay}"
-                                                                        FontSize="12" Width="160" ToolTip.Tip="Pick the date"/>
+                                                                        FontSize="12" Width="160" ToolTip.Tip="{loc:Tr Batch_PickTheDate}"/>
                                                     <ComboBox ItemsSource="{Binding SchedulesViewModel.Hour12Options}"
                                                               SelectedItem="{Binding SchedulesViewModel.TriggerHour12, Mode=TwoWay}"
-                                                              FontSize="12" Width="65" ToolTip.Tip="Hour"/>
+                                                              FontSize="12" Width="65" ToolTip.Tip="{loc:Tr Batch_Hour}"/>
                                                     <TextBlock Text=":" FontSize="14" VerticalAlignment="Center"/>
                                                     <ComboBox ItemsSource="{Binding SchedulesViewModel.MinuteOptions}"
                                                               SelectedItem="{Binding SchedulesViewModel.TriggerMinute, Mode=TwoWay}"
-                                                              FontSize="12" Width="65" ToolTip.Tip="Minute"/>
+                                                              FontSize="12" Width="65" ToolTip.Tip="{loc:Tr Batch_Minute}"/>
                                                     <ComboBox ItemsSource="{Binding SchedulesViewModel.AmPmOptions}"
                                                               SelectedItem="{Binding SchedulesViewModel.TriggerAmPm, Mode=TwoWay}"
                                                               FontSize="12" Width="65"/>
                                                 </StackPanel>
                                                 <TextBlock FontSize="11" Foreground="{DynamicResource DefaultForegroundBrushDisabled}"
-                                                           Text="The schedule will run exactly once and then be marked expired."/>
+                                                           Text="{loc:Tr Batch_TheScheduleWillRunExactlyOnce}"/>
                                             </StackPanel>
                                         </Border>
                                     </StackPanel>
 
                                     <!-- Content Filters -->
                                     <StackPanel Spacing="8">
-                                        <TextBlock Text="Content Filters" FontSize="12" FontWeight="SemiBold"/>
+                                        <TextBlock Text="{loc:Tr Settings_ContentFilters}" FontSize="12" FontWeight="SemiBold"/>
                                         <Border Background="{DynamicResource Container3BackgroundBrush}"
                                                 BorderBrush="{DynamicResource Container3BorderBrush}"
                                                 BorderThickness="1" CornerRadius="6" Padding="12,10">
                                             <StackPanel Spacing="10">
-                                                <TextBlock Text="Skip content types:" FontSize="11"
+                                                <TextBlock Text="{loc:Tr Batch_SkipContentTypes}" FontSize="11"
                                                            Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                                 <WrapPanel>
-                                                    <CheckBox Content="AI-generated" Margin="0,0,16,4"
+                                                    <CheckBox Content="{loc:Tr Batch_AIGenerated}" Margin="0,0,16,4"
                                                               IsChecked="{Binding SchedulesViewModel.FilterSkipAi, Mode=TwoWay}" FontSize="12"/>
-                                                    <CheckBox Content="Manga" Margin="0,0,16,4"
+                                                    <CheckBox Content="{loc:Tr Search_Manga}" Margin="0,0,16,4"
                                                               IsChecked="{Binding SchedulesViewModel.FilterSkipManga, Mode=TwoWay}" FontSize="12"/>
-                                                    <CheckBox Content="Ugoira" Margin="0,0,16,4"
+                                                    <CheckBox Content="{loc:Tr Rankings_Ugoira}" Margin="0,0,16,4"
                                                               IsChecked="{Binding SchedulesViewModel.FilterSkipUgoira, Mode=TwoWay}" FontSize="12"/>
                                                     <CheckBox Content="R-18" Margin="0,0,16,4"
                                                               IsChecked="{Binding SchedulesViewModel.FilterSkipR18, Mode=TwoWay}" FontSize="12"/>
-                                                    <CheckBox Content="R-18G only" Margin="0,0,0,4"
+                                                    <CheckBox Content="{loc:Tr Batch_R18GOnly}" Margin="0,0,0,4"
                                                               IsChecked="{Binding SchedulesViewModel.FilterSkipR18G, Mode=TwoWay}" FontSize="12"
-                                                              ToolTip.Tip="Skip grotesque/violent R-18G but still download regular R-18"/>
+                                                              ToolTip.Tip="{loc:Tr Batch_SkipGrotesqueViolentR18GBut}"/>
                                                 </WrapPanel>
                                                 <StackPanel Spacing="4">
-                                                    <TextBlock Text="Only download artworks posted:" FontSize="11"
+                                                    <TextBlock Text="{loc:Tr Batch_OnlyDownloadArtworksPosted}" FontSize="11"
                                                                Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                                     <ComboBox SelectedIndex="{Binding SchedulesViewModel.FilterDateLimitMode, Mode=TwoWay}"
                                                               CornerRadius="4" FontSize="12" HorizontalAlignment="Left" MinWidth="180">
-                                                        <ComboBoxItem Content="All time"/>
-                                                        <ComboBoxItem Content="Since last run"/>
-                                                        <ComboBoxItem Content="Within the last 24 hours"/>
-                                                        <ComboBoxItem Content="Within the last 7 days"/>
-                                                        <ComboBoxItem Content="Within the last 30 days"/>
+                                                        <ComboBoxItem Content="{loc:Tr Pixivision_AllTime}"/>
+                                                        <ComboBoxItem Content="{loc:Tr Batch_SinceLastRun}"/>
+                                                        <ComboBoxItem Content="{loc:Tr Batch_WithinTheLast24Hours}"/>
+                                                        <ComboBoxItem Content="{loc:Tr Batch_WithinTheLast7Days}"/>
+                                                        <ComboBoxItem Content="{loc:Tr Batch_WithinTheLast30Days}"/>
                                                     </ComboBox>
                                                 </StackPanel>
                                                 <StackPanel Spacing="4">
-                                                    <TextBlock Text="Max artworks per artist:" FontSize="11"
+                                                    <TextBlock Text="{loc:Tr Batch_MaxArtworksPerArtist}" FontSize="11"
                                                                Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                                     <TextBox Text="{Binding SchedulesViewModel.FilterMaxArtworks, Mode=TwoWay}"
                                                              PlaceholderText="e.g. 10  (leave blank for all)"
                                                              CornerRadius="4" FontSize="12" HorizontalAlignment="Left" MinWidth="180"
-                                                             ToolTip.Tip="Only fetch the N most-recent artworks per artist. Leave blank or 0 for no limit."/>
+                                                             ToolTip.Tip="{loc:Tr Batch_OnlyFetchTheNMostRecent}"/>
                                                 </StackPanel>
                                                 <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
                                                     <StackPanel Grid.Column="0" Spacing="4">
-                                                        <TextBlock Text="Must include tag(s)" FontSize="11"/>
+                                                        <TextBlock Text="{loc:Tr Batch_MustIncludeTagS}" FontSize="11"/>
                                                         <TextBox Text="{Binding SchedulesViewModel.FilterIncludeTags, Mode=TwoWay}"
                                                                  PlaceholderText="e.g. original, fantasy" CornerRadius="4" FontSize="12"
-                                                                 ToolTip.Tip="Comma-separated. Artwork must match at least one."/>
+                                                                 ToolTip.Tip="{loc:Tr Batch_CommaSeparatedArtworkMustMatchAt}"/>
                                                     </StackPanel>
                                                     <StackPanel Grid.Column="1" Spacing="4">
-                                                        <TextBlock Text="Exclude tag(s)" FontSize="11"/>
+                                                        <TextBlock Text="{loc:Tr Batch_ExcludeTagS}" FontSize="11"/>
                                                         <TextBox Text="{Binding SchedulesViewModel.FilterExcludeTags, Mode=TwoWay}"
                                                                  PlaceholderText="e.g. guro, furry" CornerRadius="4" FontSize="12"
-                                                                 ToolTip.Tip="Comma-separated. Artwork is skipped if it has any of these."/>
+                                                                 ToolTip.Tip="{loc:Tr Batch_CommaSeparatedArtworkIsSkippedIf}"/>
                                                     </StackPanel>
                                                 </Grid>
                                             </StackPanel>
@@ -1293,24 +1294,24 @@
                                     </StackPanel>
 
                                     <!-- Naming Overrides -->
-                                    <Expander Header="📁 Naming Overrides (optional)" FontSize="12">
+                                    <Expander Header="{loc:Tr Batch_NamingOverridesOptional}" FontSize="12">
                                         <StackPanel Spacing="10" Margin="0,8,0,0">
-                                            <CheckBox Content="Override global folder / filename templates for this schedule"
+                                            <CheckBox Content="{loc:Tr Batch_OverrideGlobalFolderFilenameTemplatesFor}"
                                                       IsChecked="{Binding SchedulesViewModel.UseCustomNaming, Mode=TwoWay}" FontSize="12"/>
                                             <StackPanel IsVisible="{Binding SchedulesViewModel.UseCustomNaming}" Spacing="8">
                                                 <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
                                                     <StackPanel Grid.Column="0" Spacing="4">
-                                                        <TextBlock Text="Folder Template" FontSize="12"/>
+                                                        <TextBlock Text="{loc:Tr Settings_FolderTemplate}" FontSize="12"/>
                                                         <TextBox Text="{Binding SchedulesViewModel.CustomFolderTemplate, Mode=TwoWay}"
-                                                                 PlaceholderText="Leave blank for global" CornerRadius="4" FontSize="12"/>
+                                                                 PlaceholderText="{loc:Tr Batch_LeaveBlankForGlobal}" CornerRadius="4" FontSize="12"/>
                                                     </StackPanel>
                                                     <StackPanel Grid.Column="1" Spacing="4">
-                                                        <TextBlock Text="Filename Template" FontSize="12"/>
+                                                        <TextBlock Text="{loc:Tr Settings_FilenameTemplate}" FontSize="12"/>
                                                         <TextBox Text="{Binding SchedulesViewModel.CustomFilenameTemplate, Mode=TwoWay}"
-                                                                 PlaceholderText="Leave blank for global" CornerRadius="4" FontSize="12"/>
+                                                                 PlaceholderText="{loc:Tr Batch_LeaveBlankForGlobal}" CornerRadius="4" FontSize="12"/>
                                                     </StackPanel>
                                                 </Grid>
-                                                <CheckBox Content="Separate R-18 into subfolder"
+                                                <CheckBox Content="{loc:Tr Batch_SeparateR18IntoSubfolder}"
                                                           IsChecked="{Binding SchedulesViewModel.CustomSeparateR18, Mode=TwoWay}" FontSize="12"/>
                                             </StackPanel>
                                         </StackPanel>
@@ -1318,7 +1319,7 @@
 
                                     <!-- Save / Cancel -->
                                     <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
-                                        <Button Content="← Back to Schedules"
+                                        <Button Content="{loc:Tr Batch_BackToSchedules}"
                                                 Command="{Binding SchedulesViewModel.CancelEditCommand}"
                                                   FontSize="13"/>
                                         <Button Content="{Binding SchedulesViewModel.AddButtonLabel}"

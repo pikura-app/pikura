@@ -18,6 +18,8 @@ using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 
+using Pikura.Avalonia.Localization;
+
 namespace Pikura.Avalonia.Services;
 
 /// <summary>
@@ -57,8 +59,8 @@ public class DialogService
             {
                 Title = title,
                 Content = textBlock,
-                PrimaryButtonText = "OK",
-                SecondaryButtonText = "Cancel",
+                PrimaryButtonText = Pikura.Avalonia.Localization.LocalizationService.Instance["Common_OK"],
+                SecondaryButtonText = Pikura.Avalonia.Localization.LocalizationService.Instance["Common_Cancel"],
                 IsDarkMode = isDarkMode
             };
 
@@ -94,7 +96,7 @@ public class DialogService
             {
                 Title = title,
                 Content = textBlock,
-                PrimaryButtonText = "OK",
+                PrimaryButtonText = Pikura.Avalonia.Localization.LocalizationService.Instance["Common_OK"],
                 IsDarkMode = isDarkMode
             };
 
@@ -330,7 +332,7 @@ public static class RedownloadConfirmDialog
 
         var dialog = new Window
         {
-            Title = "File already exists",
+            Title = Pikura.Avalonia.Localization.LocalizationService.Instance["Dialog_FileAlreadyExists"],
             SizeToContent = SizeToContent.Height,
             Width = 520,
             CanResize = false,

@@ -1063,4 +1063,4824 @@
   <data name="Nav_BatchDownload" xml:space="preserve">
     <value>批量下载</value>
   </data>
+  <data name="Analytics_DownloadStatisticsAndInsights" xml:space="preserve">
+    <value>下载统计与分析</value>
+  </data>
+  <data name="Analytics_TotalJobs" xml:space="preserve">
+    <value>任务总数</value>
+  </data>
+  <data name="Analytics_Completed" xml:space="preserve">
+    <value>已完成</value>
+  </data>
+  <data name="Analytics_Failed" xml:space="preserve">
+    <value>失败</value>
+  </data>
+  <data name="Analytics_SuccessRate" xml:space="preserve">
+    <value>成功率</value>
+  </data>
+  <data name="Analytics_TotalDownloadedItems" xml:space="preserve">
+    <value>已下载项目总数</value>
+  </data>
+  <data name="Analytics_TotalFailedItems" xml:space="preserve">
+    <value>失败项目总数</value>
+  </data>
+  <data name="Analytics_JobsByType" xml:space="preserve">
+    <value>按类型任务</value>
+  </data>
+  <data name="Analytics_RecentActivity" xml:space="preserve">
+    <value>最近活动</value>
+  </data>
+  <data name="Analytics_MostDownloadedArtists" xml:space="preserve">
+    <value>下载最多的作者</value>
+  </data>
+  <data name="Analytics_RankedByTotalArtworksDownloaded" xml:space="preserve">
+    <value>按下载作品总数排名</value>
+  </data>
+  <data name="Analytics_NoDataYet" xml:space="preserve">
+    <value>暂无数据</value>
+  </data>
+  <data name="Analytics_MostFrequentedArtists" xml:space="preserve">
+    <value>最常下载的作者</value>
+  </data>
+  <data name="Analytics_RankedByNumberOfDownloadSessions" xml:space="preserve">
+    <value>按下载会话数排名</value>
+  </data>
+  <data name="Artwork_Back" xml:space="preserve">
+    <value>← 返回</value>
+  </data>
+  <data name="Artwork_DownloadCurrent" xml:space="preserve">
+    <value>下载当前页</value>
+  </data>
+  <data name="Artwork_DownloadAll" xml:space="preserve">
+    <value>全部下载</value>
+  </data>
+  <data name="Artwork_ArtworkImage" xml:space="preserve">
+    <value>作品图片</value>
+  </data>
+  <data name="Artwork_ArtworkInfo" xml:space="preserve">
+    <value>作品信息</value>
+  </data>
+  <data name="Artwork_Artist" xml:space="preserve">
+    <value>作者:</value>
+  </data>
+  <data name="Artwork_Type" xml:space="preserve">
+    <value>类型:</value>
+  </data>
+  <data name="Artwork_Pages" xml:space="preserve">
+    <value>页数:</value>
+  </data>
+  <data name="Artwork_Likes" xml:space="preserve">
+    <value>赞</value>
+  </data>
+  <data name="Artwork_Views" xml:space="preserve">
+    <value>浏览</value>
+  </data>
+  <data name="Artwork_Like" xml:space="preserve">
+    <value>点赞</value>
+  </data>
+  <data name="Artwork_Liked" xml:space="preserve">
+    <value>已点赞</value>
+  </data>
+  <data name="Artwork_Bookmark" xml:space="preserve">
+    <value>收藏</value>
+  </data>
+  <data name="Artwork_Bookmarked" xml:space="preserve">
+    <value>已收藏</value>
+  </data>
+  <data name="Artwork_Follow" xml:space="preserve">
+    <value>关注</value>
+  </data>
+  <data name="Artwork_Following" xml:space="preserve">
+    <value>已关注</value>
+  </data>
+  <data name="Artwork_Tags" xml:space="preserve">
+    <value>标签:</value>
+  </data>
+  <data name="Artwork_Previous" xml:space="preserve">
+    <value>← 上一个</value>
+  </data>
+  <data name="Artwork_Next" xml:space="preserve">
+    <value>下一个 →</value>
+  </data>
+  <data name="Viewer_Fit" xml:space="preserve">
+    <value>适应</value>
+  </data>
+  <data name="Common_Loading_2" xml:space="preserve">
+    <value>加载中…</value>
+  </data>
+  <data name="Viewer_ThisPage" xml:space="preserve">
+    <value>本页</value>
+  </data>
+  <data name="Viewer_AllPages" xml:space="preserve">
+    <value>所有页</value>
+  </data>
+  <data name="Viewer_Range" xml:space="preserve">
+    <value>范围…</value>
+  </data>
+  <data name="Viewer_OpenInNewTab" xml:space="preserve">
+    <value>在新标签页中打开</value>
+  </data>
+  <data name="Viewer_OpenAllTilesInSeparateTabs" xml:space="preserve">
+    <value>在单独标签页中打开所有图块</value>
+  </data>
+  <data name="Viewer_ShowTheTileStripToJump" xml:space="preserve">
+    <value>显示图块栏以跳转到此拼贴中的任意作品</value>
+  </data>
+  <data name="Viewer_Tiles" xml:space="preserve">
+    <value>☰ 图块</value>
+  </data>
+  <data name="Viewer_ChooseWhichTabCollageOrCombined" xml:space="preserve">
+    <value>选择下方栏显示哪个标签页、拼贴或合并集</value>
+  </data>
+  <data name="Viewer_ShowTheArtworkStripToJump" xml:space="preserve">
+    <value>显示作品栏以跳转到此列表中的任意作品</value>
+  </data>
+  <data name="Viewer_Artworks" xml:space="preserve">
+    <value>☰ 作品</value>
+  </data>
+  <data name="Viewer_FetchTheNextPageOfThis" xml:space="preserve">
+    <value>获取此来源的下一页</value>
+  </data>
+  <data name="Viewer_KeepFetchingUntilThisSourceIs" xml:space="preserve">
+    <value>持续获取直到此来源加载完毕</value>
+  </data>
+  <data name="Viewer_All" xml:space="preserve">
+    <value>全部</value>
+  </data>
+  <data name="Viewer_ShowAllPages" xml:space="preserve">
+    <value>显示所有页</value>
+  </data>
+  <data name="Bookmarks_Select" xml:space="preserve">
+    <value>选择</value>
+  </data>
+  <data name="Bookmarks_OpenInSidePanel" xml:space="preserve">
+    <value>在侧边面板打开</value>
+  </data>
+  <data name="Bookmarks_OpenFullScreen" xml:space="preserve">
+    <value>全屏打开</value>
+  </data>
+  <data name="Bookmarks_OpenInNewTab" xml:space="preserve">
+    <value>在新标签页中打开</value>
+  </data>
+  <data name="Bookmarks_OpenInPopup" xml:space="preserve">
+    <value>在弹出窗口打开</value>
+  </data>
+  <data name="Bookmarks_DownloadWithPreset" xml:space="preserve">
+    <value>使用预设下载</value>
+  </data>
+  <data name="Bookmarks_OpenArtistGallery" xml:space="preserve">
+    <value>打开作者画廊</value>
+  </data>
+  <data name="Bookmarks_OpenOnPixivNet" xml:space="preserve">
+    <value>在 pixiv.net 打开</value>
+  </data>
+  <data name="Bookmarks_AddToLocalFavorites" xml:space="preserve">
+    <value>添加到本地收藏</value>
+  </data>
+  <data name="Bookmarks_RemoveFromFavorites" xml:space="preserve">
+    <value>从收藏中移除</value>
+  </data>
+  <data name="Bookmarks_CopyID" xml:space="preserve">
+    <value>复制 ID</value>
+  </data>
+  <data name="Bookmarks_CopyImage" xml:space="preserve">
+    <value>复制图片</value>
+  </data>
+  <data name="Bookmarks_UseAsAppBackground" xml:space="preserve">
+    <value>设为应用背景</value>
+  </data>
+  <data name="Bookmarks_Select_2" xml:space="preserve">
+    <value>☑ 选择</value>
+  </data>
+  <data name="Bookmarks_OpenInSidePanel_2" xml:space="preserve">
+    <value>👁 在侧边面板打开</value>
+  </data>
+  <data name="Bookmarks_OpenFullScreen_2" xml:space="preserve">
+    <value>⧶ 全屏打开</value>
+  </data>
+  <data name="Bookmarks_OpenInNewTab_2" xml:space="preserve">
+    <value>⊞ 在新标签页中打开</value>
+  </data>
+  <data name="Bookmarks_OpenInPopup_2" xml:space="preserve">
+    <value>⧉ 在弹出窗口打开</value>
+  </data>
+  <data name="Bookmarks_Download" xml:space="preserve">
+    <value>↓ 下载</value>
+  </data>
+  <data name="Bookmarks_DownloadWithPreset_2" xml:space="preserve">
+    <value>🎨 使用预设下载</value>
+  </data>
+  <data name="Bookmarks_OpenArtistGallery_2" xml:space="preserve">
+    <value>👤 打开作者画廊</value>
+  </data>
+  <data name="Bookmarks_OpenOnPixivNet_2" xml:space="preserve">
+    <value>🌐 在 pixiv.net 打开</value>
+  </data>
+  <data name="Bookmarks_RemoveFromFavorites_2" xml:space="preserve">
+    <value>★ 从收藏中移除</value>
+  </data>
+  <data name="Bookmarks_SetFolder" xml:space="preserve">
+    <value>📁 设置文件夹…</value>
+  </data>
+  <data name="Bookmarks_CopyImage_2" xml:space="preserve">
+    <value>📋 复制图片</value>
+  </data>
+  <data name="Bookmarks_UseAsAppBackground_2" xml:space="preserve">
+    <value>🖼 设为应用背景</value>
+  </data>
+  <data name="Bookmarks_Public" xml:space="preserve">
+    <value>公开</value>
+  </data>
+  <data name="Bookmarks_Private" xml:space="preserve">
+    <value>私密</value>
+  </data>
+  <data name="Bookmarks_LocalFavorites" xml:space="preserve">
+    <value>本地收藏</value>
+  </data>
+  <data name="Bookmarks_PixivCollectionsYouVeBookmarked" xml:space="preserve">
+    <value>你收藏的 Pixiv 合集</value>
+  </data>
+  <data name="Bookmarks_ReloadCurrentTab" xml:space="preserve">
+    <value>重新加载当前标签页</value>
+  </data>
+  <data name="Bookmarks_ShowHideR18Content" xml:space="preserve">
+    <value>显示 / 隐藏 R-18 内容</value>
+  </data>
+  <data name="Bookmarks_SelectAllVisibleItems" xml:space="preserve">
+    <value>选择所有可见项</value>
+  </data>
+  <data name="Bookmarks_SelectAll" xml:space="preserve">
+    <value>全选</value>
+  </data>
+  <data name="Bookmarks_ClearSelection" xml:space="preserve">
+    <value>清除选择</value>
+  </data>
+  <data name="Bookmarks_DeselectAll" xml:space="preserve">
+    <value>取消全选</value>
+  </data>
+  <data name="Bookmarks_DownloadSelectedBookmarks" xml:space="preserve">
+    <value>下载所选收藏</value>
+  </data>
+  <data name="Bookmarks_ShowTheSelectedArtworksTiledTogether" xml:space="preserve">
+    <value>在侧边面板中平铺显示所选作品（最多 10 个）</value>
+  </data>
+  <data name="Bookmarks_Collage" xml:space="preserve">
+    <value>拼贴</value>
+  </data>
+  <data name="Bookmarks_AddTheSelectedArtworksToThe" xml:space="preserve">
+    <value>将所选作品添加到当前拼贴。用箭头选择拼贴</value>
+  </data>
+  <data name="Bookmarks_OpenEachSelectedArtworkInIts" xml:space="preserve">
+    <value>在各自标签页中打开每个所选作品</value>
+  </data>
+  <data name="Bookmarks_ViewInNewTabs" xml:space="preserve">
+    <value>在新标签页中查看</value>
+  </data>
+  <data name="Bookmarks_DownloadAllBookmarks" xml:space="preserve">
+    <value>下载所有收藏</value>
+  </data>
+  <data name="Bookmarks_DownloadAll" xml:space="preserve">
+    <value>全部下载</value>
+  </data>
+  <data name="Bookmarks_DownloadAllBookmarksToFolder" xml:space="preserve">
+    <value>将所有收藏下载到文件夹</value>
+  </data>
+  <data name="Bookmarks_DownloadWithImageProcessingPreset" xml:space="preserve">
+    <value>使用图像处理预设下载</value>
+  </data>
+  <data name="Bookmarks_FixedCardHeight" xml:space="preserve">
+    <value>固定卡片高度</value>
+  </data>
+  <data name="Bookmarks_NaturalHeight" xml:space="preserve">
+    <value>自然高度</value>
+  </data>
+  <data name="Bookmarks_ShowHideTagChips" xml:space="preserve">
+    <value>显示 / 隐藏标签条</value>
+  </data>
+  <data name="Bookmarks_Tags" xml:space="preserve">
+    <value>标签</value>
+  </data>
+  <data name="Bookmarks_ShowHideInfoStrip" xml:space="preserve">
+    <value>显示 / 隐藏信息栏</value>
+  </data>
+  <data name="Bookmarks_Info" xml:space="preserve">
+    <value>信息</value>
+  </data>
+  <data name="Bookmarks_ShowHideLikedBookmarkedFavoriteBadges" xml:space="preserve">
+    <value>显示 / 隐藏卡片上的点赞/收藏/收藏夹标记</value>
+  </data>
+  <data name="Bookmarks_Badges" xml:space="preserve">
+    <value>标记</value>
+  </data>
+  <data name="Bookmarks_ToggleSidePanel" xml:space="preserve">
+    <value>切换侧边面板</value>
+  </data>
+  <data name="Bookmarks_ShowPanel" xml:space="preserve">
+    <value>显示面板</value>
+  </data>
+  <data name="Bookmarks_HidePanel" xml:space="preserve">
+    <value>隐藏面板</value>
+  </data>
+  <data name="Bookmarks_FilterByTag" xml:space="preserve">
+    <value>按标签筛选…</value>
+  </data>
+  <data name="Bookmarks_SortBookmarks" xml:space="preserve">
+    <value>收藏排序</value>
+  </data>
+  <data name="Bookmarks_Size" xml:space="preserve">
+    <value>大小</value>
+  </data>
+  <data name="Bookmarks_GridView" xml:space="preserve">
+    <value>网格视图</value>
+  </data>
+  <data name="Bookmarks_ListView" xml:space="preserve">
+    <value>列表视图</value>
+  </data>
+  <data name="Common_SelectAll" xml:space="preserve">
+    <value>全选</value>
+  </data>
+  <data name="Bookmarks_NoPublicBookmarksLoadedYet" xml:space="preserve">
+    <value>尚未加载公开收藏。</value>
+  </data>
+  <data name="Bookmarks_LoadMore" xml:space="preserve">
+    <value>加载更多…</value>
+  </data>
+  <data name="Bookmarks_NoPrivateBookmarksLoadedYet" xml:space="preserve">
+    <value>尚未加载私密收藏。</value>
+  </data>
+  <data name="Bookmarks_YouHavenTBookmarkedAnyCollections" xml:space="preserve">
+    <value>你还没有收藏任何合集。</value>
+  </data>
+  <data name="Bookmarks_FOLDERS" xml:space="preserve">
+    <value>文件夹</value>
+  </data>
+  <data name="Bookmarks_All" xml:space="preserve">
+    <value>全部</value>
+  </data>
+  <data name="Bookmarks_NoLocalFavoritesYet" xml:space="preserve">
+    <value>还没有本地收藏</value>
+  </data>
+  <data name="Bookmarks_RightClickAnyArtworkAnywhereAnd" xml:space="preserve">
+    <value>在任意处右键作品并选择</value>
+  </data>
+  <data name="Bookmarks_AddToFavorites" xml:space="preserve">
+    <value>添加到收藏</value>
+  </data>
+  <data name="Collections_BackToBrowse" xml:space="preserve">
+    <value>← 返回浏览</value>
+  </data>
+  <data name="Collections_PasteAPixivNetCollectionsId" xml:space="preserve">
+    <value>粘贴 pixiv.net/collections/{id} 链接或直接输入 ID…</value>
+  </data>
+  <data name="Collections_Load" xml:space="preserve">
+    <value>加载</value>
+  </data>
+  <data name="Collections_DownloadEveryWorkInThisCollection" xml:space="preserve">
+    <value>下载此合集中的所有作品</value>
+  </data>
+  <data name="Collections_DownloadCollection" xml:space="preserve">
+    <value>下载合集</value>
+  </data>
+  <data name="Collections_KeepAsOneCollectionFolder" xml:space="preserve">
+    <value>保留为单一合集文件夹</value>
+  </data>
+  <data name="Collections_OnAllWorksGoIntoOne" xml:space="preserve">
+    <value>开：所有作品放入一个 Collections\{title} 文件夹。关：仍归入 Collections\ 文件夹，但保留下方的常规按作者/作品目录结构。</value>
+  </data>
+  <data name="Collections_ShowHideR18Collections" xml:space="preserve">
+    <value>显示 / 隐藏 R-18 合集</value>
+  </data>
+  <data name="Collections_SelectAll" xml:space="preserve">
+    <value>全选</value>
+  </data>
+  <data name="Collections_DeselectAll" xml:space="preserve">
+    <value>取消全选</value>
+  </data>
+  <data name="Collections_DownloadSelected" xml:space="preserve">
+    <value>⊞ 下载所选</value>
+  </data>
+  <data name="Collections_DownloadSelectedWithPreset" xml:space="preserve">
+    <value>🎨 使用预设下载所选</value>
+  </data>
+  <data name="Collections_ShowAllArtworksFromEachSelected" xml:space="preserve">
+    <value>在新拼贴标签页中显示每个所选合集的所有作品（最多 100 个）</value>
+  </data>
+  <data name="Collections_AddAllArtworksFromEachSelected" xml:space="preserve">
+    <value>将每个所选合集的所有作品添加到当前拼贴。用箭头选择拼贴</value>
+  </data>
+  <data name="Collections_DownloadLoaded" xml:space="preserve">
+    <value>⊞ 下载已加载</value>
+  </data>
+  <data name="Collections_DownloadEveryCollectionCurrentlyShownBel" xml:space="preserve">
+    <value>下载下方当前显示的所有合集</value>
+  </data>
+  <data name="Collections_OneFolderPerCollection" xml:space="preserve">
+    <value>每个合集一个文件夹</value>
+  </data>
+  <data name="Collections_Refresh" xml:space="preserve">
+    <value>↻ 刷新</value>
+  </data>
+  <data name="Collections_ToggleTheSidePanelOnlyShows" xml:space="preserve">
+    <value>切换侧边面板（打开合集后才显示内容）</value>
+  </data>
+  <data name="Collections_ShowPanel" xml:space="preserve">
+    <value>显示面板</value>
+  </data>
+  <data name="Collections_HidePanel" xml:space="preserve">
+    <value>隐藏面板</value>
+  </data>
+  <data name="Collections_ShowTheCheckedArtworksInA" xml:space="preserve">
+    <value>在新拼贴标签页中显示勾选的作品（最多 100 个）</value>
+  </data>
+  <data name="Collections_AddTheCheckedArtworksToThe" xml:space="preserve">
+    <value>将勾选的作品添加到当前拼贴。用箭头选择拼贴</value>
+  </data>
+  <data name="Collections_ShowEveryArtworkInThisCollection" xml:space="preserve">
+    <value>在新拼贴标签页中显示此合集的所有作品（最多 100 个）</value>
+  </data>
+  <data name="Collections_AddEveryArtworkInThisCollection" xml:space="preserve">
+    <value>将此合集的所有作品添加到当前拼贴。用箭头选择拼贴</value>
+  </data>
+  <data name="Collections_OpenEachSelectedArtworkInIts" xml:space="preserve">
+    <value>在各自标签页中打开每个所选作品</value>
+  </data>
+  <data name="Collections_ViewInNewTabs" xml:space="preserve">
+    <value>在新标签页中查看</value>
+  </data>
+  <data name="Collections_DownloadOnlyTheCheckedArtworks" xml:space="preserve">
+    <value>仅下载勾选的作品</value>
+  </data>
+  <data name="Collections_DownloadSelectedArtworksOrAllIf" xml:space="preserve">
+    <value>使用图像预设下载所选作品（未选则全部）</value>
+  </data>
+  <data name="Collections_DownloadWithPreset" xml:space="preserve">
+    <value>使用预设下载</value>
+  </data>
+  <data name="Collections_DownloadEveryArtworkCurrentlyLoadedIn" xml:space="preserve">
+    <value>下载此合集中当前已加载的所有作品</value>
+  </data>
+  <data name="Collections_DownloadLoaded_2" xml:space="preserve">
+    <value>下载已加载</value>
+  </data>
+  <data name="Collections_ToggleTheSidePanel" xml:space="preserve">
+    <value>切换侧边面板</value>
+  </data>
+  <data name="Collections_BookmarkThisCollectionOnPixivSeparate" xml:space="preserve">
+    <value>在 Pixiv 上收藏此合集（与本地下载设置无关）</value>
+  </data>
+  <data name="Collections_Bookmarked" xml:space="preserve">
+    <value>已收藏</value>
+  </data>
+  <data name="Collections_Bookmark" xml:space="preserve">
+    <value>收藏</value>
+  </data>
+  <data name="Collections_FixedCardHeight" xml:space="preserve">
+    <value>固定卡片高度</value>
+  </data>
+  <data name="Collections_NaturalHeight" xml:space="preserve">
+    <value>自然高度</value>
+  </data>
+  <data name="Collections_ShowHideTagChips" xml:space="preserve">
+    <value>显示 / 隐藏标签条</value>
+  </data>
+  <data name="Collections_Tags" xml:space="preserve">
+    <value>标签</value>
+  </data>
+  <data name="Collections_ShowHideCardInfoStrip" xml:space="preserve">
+    <value>显示 / 隐藏卡片信息栏</value>
+  </data>
+  <data name="Collections_Info" xml:space="preserve">
+    <value>信息</value>
+  </data>
+  <data name="Collections_ShowHideLikedBookmarkedFavoriteBadges" xml:space="preserve">
+    <value>显示 / 隐藏点赞/收藏/收藏夹标记</value>
+  </data>
+  <data name="Collections_Badges" xml:space="preserve">
+    <value>标记</value>
+  </data>
+  <data name="Collections_Size" xml:space="preserve">
+    <value>大小</value>
+  </data>
+  <data name="Collections_GridView" xml:space="preserve">
+    <value>网格视图</value>
+  </data>
+  <data name="Collections_ListView" xml:space="preserve">
+    <value>列表视图</value>
+  </data>
+  <data name="Collections_CaptionTagsMoreFromThisCreator" xml:space="preserve">
+    <value>此作者的说明、标签等</value>
+  </data>
+  <data name="Collections_MoreCollectionsByThisCreator" xml:space="preserve">
+    <value>此作者的更多合集</value>
+  </data>
+  <data name="Collections_ViewThisCollection" xml:space="preserve">
+    <value>查看此合集</value>
+  </data>
+  <data name="Collections_Featured" xml:space="preserve">
+    <value>精选</value>
+  </data>
+  <data name="Common_Open" xml:space="preserve">
+    <value>打开</value>
+  </data>
+  <data name="Collections_LoadIntoSidePanel" xml:space="preserve">
+    <value>加载到侧边面板</value>
+  </data>
+  <data name="Collections_Select" xml:space="preserve">
+    <value>选择</value>
+  </data>
+  <data name="Collections_Deselect" xml:space="preserve">
+    <value>取消选择</value>
+  </data>
+  <data name="Collections_DeselectAll_2" xml:space="preserve">
+    <value>取消全选</value>
+  </data>
+  <data name="Collections_RemoveBookmark" xml:space="preserve">
+    <value>移除收藏</value>
+  </data>
+  <data name="Collections_CopyCollectionID" xml:space="preserve">
+    <value>复制合集 ID</value>
+  </data>
+  <data name="Collections_CopyCollectionLink" xml:space="preserve">
+    <value>复制合集链接</value>
+  </data>
+  <data name="Collections_OpenOnPixivNet" xml:space="preserve">
+    <value>在 pixiv.net 打开</value>
+  </data>
+  <data name="Collections_AllCollections" xml:space="preserve">
+    <value>所有合集</value>
+  </data>
+  <data name="Collections_NoCollectionsCouldBeLoadedYou" xml:space="preserve">
+    <value>无法加载合集 — 仍可在上方粘贴特定合集链接/ID。</value>
+  </data>
+  <data name="Collections_ToggleNumberedPagesOffLoadMore" xml:space="preserve">
+    <value>切换页码显示（关 = 加载更多）</value>
+  </data>
+  <data name="Collections_Pages" xml:space="preserve">
+    <value>页</value>
+  </data>
+  <data name="Collections_ItemsPerPage" xml:space="preserve">
+    <value>每页数量</value>
+  </data>
+  <data name="Collections_LoadMore" xml:space="preserve">
+    <value>加载更多</value>
+  </data>
+  <data name="Collections_Prev" xml:space="preserve">
+    <value>‹ 上一页</value>
+  </data>
+  <data name="Collections_TypeAPageNumberAndPress" xml:space="preserve">
+    <value>输入页码并按 Enter</value>
+  </data>
+  <data name="Collections_Next" xml:space="preserve">
+    <value>下一页 ›</value>
+  </data>
+  <data name="Collections_ThisCollectionHasNoArtworkYet" xml:space="preserve">
+    <value>此合集还没有作品。</value>
+  </data>
+  <data name="Collections_OpenInSidePanel" xml:space="preserve">
+    <value>在侧边面板打开</value>
+  </data>
+  <data name="Collections_OpenFullScreen" xml:space="preserve">
+    <value>全屏打开</value>
+  </data>
+  <data name="Collections_OpenInNewTab" xml:space="preserve">
+    <value>在新标签页中打开</value>
+  </data>
+  <data name="Collections_OpenInPopup" xml:space="preserve">
+    <value>在弹出窗口打开</value>
+  </data>
+  <data name="Collections_DownloadAll" xml:space="preserve">
+    <value>全部下载</value>
+  </data>
+  <data name="Collections_DownloadFirstPageOnly" xml:space="preserve">
+    <value>仅下载第一页</value>
+  </data>
+  <data name="Collections_OpenArtistGallery" xml:space="preserve">
+    <value>打开作者画廊</value>
+  </data>
+  <data name="Collections_FollowArtist" xml:space="preserve">
+    <value>关注作者</value>
+  </data>
+  <data name="Collections_UnfollowArtist" xml:space="preserve">
+    <value>取消关注作者</value>
+  </data>
+  <data name="Collections_AddToLocalFavorites" xml:space="preserve">
+    <value>添加到本地收藏</value>
+  </data>
+  <data name="Collections_RemoveFromFavorites" xml:space="preserve">
+    <value>从收藏中移除</value>
+  </data>
+  <data name="Collections_CopyArtworkID" xml:space="preserve">
+    <value>复制作品 ID</value>
+  </data>
+  <data name="Collections_CopyArtistID" xml:space="preserve">
+    <value>复制作者 ID</value>
+  </data>
+  <data name="Collections_CopyImage" xml:space="preserve">
+    <value>复制图片</value>
+  </data>
+  <data name="Collections_UseAsAppBackground" xml:space="preserve">
+    <value>设为应用背景</value>
+  </data>
+  <data name="Collections_Comments" xml:space="preserve">
+    <value>评论</value>
+  </data>
+  <data name="Collections_NoCommentsYet" xml:space="preserve">
+    <value>还没有评论。</value>
+  </data>
+  <data name="Collections_SendAStickerOrInsertAn" xml:space="preserve">
+    <value>发送贴纸或插入表情</value>
+  </data>
+  <data name="Collections_Emoji" xml:space="preserve">
+    <value>表情</value>
+  </data>
+  <data name="Collections_Stickers" xml:space="preserve">
+    <value>贴纸</value>
+  </data>
+  <data name="Collections_LoadingStickers" xml:space="preserve">
+    <value>正在加载贴纸…</value>
+  </data>
+  <data name="Collections_LeaveAComment" xml:space="preserve">
+    <value>发表评论</value>
+  </data>
+  <data name="Collections_Send" xml:space="preserve">
+    <value>发送</value>
+  </data>
+  <data name="Dialog_SelectArtists" xml:space="preserve">
+    <value>选择作者</value>
+  </data>
+  <data name="Dialog_SelectArtistsToDownload" xml:space="preserve">
+    <value>选择要下载的作者</value>
+  </data>
+  <data name="Dialog_SearchArtists" xml:space="preserve">
+    <value>搜索作者...</value>
+  </data>
+  <data name="Dialog_Selected" xml:space="preserve">
+    <value>已选: </value>
+  </data>
+  <data name="Dialog_AddSelected" xml:space="preserve">
+    <value>添加所选</value>
+  </data>
+  <data name="Dialog_Previous" xml:space="preserve">
+    <value>← 上一页</value>
+  </data>
+  <data name="Dialog_Page1Of1" xml:space="preserve">
+    <value>第 1 页 / 共 1 页</value>
+  </data>
+  <data name="Dialog_Next" xml:space="preserve">
+    <value>下一页 →</value>
+  </data>
+  <data name="Dialog_SelectAll" xml:space="preserve">
+    <value>全选</value>
+  </data>
+  <data name="Dialog_EnterValue" xml:space="preserve">
+    <value>输入值...</value>
+  </data>
+  <data name="Dialog_SelectFollowedArtists" xml:space="preserve">
+    <value>选择已关注的作者</value>
+  </data>
+  <data name="Dialog_SearchArtistNameOrID" xml:space="preserve">
+    <value>搜索作者名或 ID...</value>
+  </data>
+  <data name="Common_Clear" xml:space="preserve">
+    <value>清除</value>
+  </data>
+  <data name="Artist_ArtistDownloadSettings" xml:space="preserve">
+    <value>作者下载设置</value>
+  </data>
+  <data name="Artist_LeaveFieldsBlankToInheritGlobal" xml:space="preserve">
+    <value>留空的字段将继承全局默认值。</value>
+  </data>
+  <data name="Artist_UseGlobalDefaults" xml:space="preserve">
+    <value>使用全局默认值</value>
+  </data>
+  <data name="Artist_ResetToDefaults" xml:space="preserve">
+    <value>重置为默认</value>
+  </data>
+  <data name="Common_Save" xml:space="preserve">
+    <value>保存</value>
+  </data>
+  <data name="Artist_Location" xml:space="preserve">
+    <value>📁 位置</value>
+  </data>
+  <data name="Artist_DownloadFolder" xml:space="preserve">
+    <value>下载文件夹</value>
+  </data>
+  <data name="Artist_GlobalFolder" xml:space="preserve">
+    <value>全局文件夹</value>
+  </data>
+  <data name="Artist_Naming" xml:space="preserve">
+    <value>✏ 命名</value>
+  </data>
+  <data name="Artist_IncludeTags" xml:space="preserve">
+    <value>🔍 包含标签</value>
+  </data>
+  <data name="Artist_OnlyDownloadArtworksWithTheseTags" xml:space="preserve">
+    <value>仅下载带这些标签的作品</value>
+  </data>
+  <data name="Artist_ExcludeTags" xml:space="preserve">
+    <value>🚫 排除标签</value>
+  </data>
+  <data name="Artist_SkipArtworksThatHaveTheseTags" xml:space="preserve">
+    <value>跳过带这些标签的作品</value>
+  </data>
+  <data name="Artist_DateRange" xml:space="preserve">
+    <value>📅 日期范围</value>
+  </data>
+  <data name="Artist_FromYYYYMMDD" xml:space="preserve">
+    <value>从 (YYYY-MM-DD)</value>
+  </data>
+  <data name="Artist_ToYYYYMMDD" xml:space="preserve">
+    <value>到 (YYYY-MM-DD)</value>
+  </data>
+  <data name="Artist_ClearDates" xml:space="preserve">
+    <value>清除日期</value>
+  </data>
+  <data name="Artist_DownloadBehavior" xml:space="preserve">
+    <value>⚙ 下载行为</value>
+  </data>
+  <data name="Artist_SubfolderPerSubmission" xml:space="preserve">
+    <value>每个投稿一个子文件夹</value>
+  </data>
+  <data name="Artist_SeparateR18Folder" xml:space="preserve">
+    <value>R-18 单独文件夹</value>
+  </data>
+  <data name="Artist_SkipAIGeneratedArtworks" xml:space="preserve">
+    <value>跳过 AI 生成作品</value>
+  </data>
+  <data name="Artist_AllowReDownload" xml:space="preserve">
+    <value>允许重新下载</value>
+  </data>
+  <data name="Preview_PikuraBackgroundPreview" xml:space="preserve">
+    <value>Pikura — 背景预览</value>
+  </data>
+  <data name="Preview_DragToRepositionScrollToZoom" xml:space="preserve">
+    <value>拖动以移动 · 滚动以缩放</value>
+  </data>
+  <data name="Preview_LoadingFullResolutionImage" xml:space="preserve">
+    <value>正在加载全分辨率图片…</value>
+  </data>
+  <data name="Preview_ResetPosition" xml:space="preserve">
+    <value>重置位置</value>
+  </data>
+  <data name="Common_Apply" xml:space="preserve">
+    <value>应用</value>
+  </data>
+  <data name="Changelog_WhatSNew" xml:space="preserve">
+    <value>新功能</value>
+  </data>
+  <data name="Changelog_PikuraHasBeenUpdatedHereS" xml:space="preserve">
+    <value>Pikura 已更新。更新内容如下:</value>
+  </data>
+  <data name="Changelog_FullReleaseNotes" xml:space="preserve">
+    <value>完整发行说明 ↗</value>
+  </data>
+  <data name="Changelog_GotIt" xml:space="preserve">
+    <value>知道了</value>
+  </data>
+  <data name="Crash_PikuraCrashDetected" xml:space="preserve">
+    <value>Pikura - 检测到崩溃</value>
+  </data>
+  <data name="Crash_PikuraCrashed" xml:space="preserve">
+    <value>Pikura 崩溃了</value>
+  </data>
+  <data name="Crash_WeDetectedACrashFromYour" xml:space="preserve">
+    <value>我们检测到上次会话发生了崩溃。</value>
+  </data>
+  <data name="Crash_Time" xml:space="preserve">
+    <value>时间:</value>
+  </data>
+  <data name="Crash_Unknown" xml:space="preserve">
+    <value>未知</value>
+  </data>
+  <data name="Crash_Error" xml:space="preserve">
+    <value>错误:</value>
+  </data>
+  <data name="Crash_Message" xml:space="preserve">
+    <value>消息:</value>
+  </data>
+  <data name="Crash_CrashLogLocation" xml:space="preserve">
+    <value>崩溃日志位置:</value>
+  </data>
+  <data name="Crash_ADetailedCrashReportHasBeen" xml:space="preserve">
+    <value>详细的崩溃报告已保存。可用于报告问题或排查故障。</value>
+  </data>
+  <data name="Crash_ViewLogFile" xml:space="preserve">
+    <value>查看日志文件</value>
+  </data>
+  <data name="Crash_OpenLogFolder" xml:space="preserve">
+    <value>打开日志文件夹</value>
+  </data>
+  <data name="Crash_CopyPath" xml:space="preserve">
+    <value>复制路径</value>
+  </data>
+  <data name="Crash_CopyContents" xml:space="preserve">
+    <value>复制内容</value>
+  </data>
+  <data name="DateRange_CustomDateRange" xml:space="preserve">
+    <value>自定义日期范围</value>
+  </data>
+  <data name="DateRange_FromMMDDYYYY" xml:space="preserve">
+    <value>从 (MM-DD-YYYY)</value>
+  </data>
+  <data name="DateRange_ToMMDDYYYY" xml:space="preserve">
+    <value>到 (MM-DD-YYYY)</value>
+  </data>
+  <data name="DateRange_ApplyRange" xml:space="preserve">
+    <value>应用范围</value>
+  </data>
+  <data name="DateRange_PickRange" xml:space="preserve">
+    <value>选择范围</value>
+  </data>
+  <data name="Preset_PikuraDownloadWithPreset" xml:space="preserve">
+    <value>Pikura — 使用预设下载</value>
+  </data>
+  <data name="Preset_Presets" xml:space="preserve">
+    <value>预设</value>
+  </data>
+  <data name="Preset_SearchPresets" xml:space="preserve">
+    <value>搜索预设...</value>
+  </data>
+  <data name="Preset_Orientation" xml:space="preserve">
+    <value>方向:</value>
+  </data>
+  <data name="Preset_Portrait" xml:space="preserve">
+    <value>纵向</value>
+  </data>
+  <data name="Preset_Landscape" xml:space="preserve">
+    <value>横向</value>
+  </data>
+  <data name="Preset_CustomEdit" xml:space="preserve">
+    <value>✏️ 自定义编辑...</value>
+  </data>
+  <data name="Preset_1ImageSelected" xml:space="preserve">
+    <value>已选择 1 张图片</value>
+  </data>
+  <data name="Preset_Submission1Of1" xml:space="preserve">
+    <value>第 1 个投稿 / 共 1 个</value>
+  </data>
+  <data name="Preset_5TotalPagesAcross2Submissions" xml:space="preserve">
+    <value>2 个投稿共 5 页</value>
+  </data>
+  <data name="Preset_Pg13" xml:space="preserve">
+    <value>第 1/3 页</value>
+  </data>
+  <data name="Preset_Play" xml:space="preserve">
+    <value>播放</value>
+  </data>
+  <data name="Preset_SelectAnImageToPreview" xml:space="preserve">
+    <value>选择要预览的图片</value>
+  </data>
+  <data name="Preset_PreviewQuality" xml:space="preserve">
+    <value>预览质量:</value>
+  </data>
+  <data name="Preset_800px" xml:space="preserve">
+    <value>800px</value>
+  </data>
+  <data name="Preset_ShowCrop" xml:space="preserve">
+    <value>显示裁剪</value>
+  </data>
+  <data name="Preset_Reset" xml:space="preserve">
+    <value>🔄 重置</value>
+  </data>
+  <data name="Preset_OutputOptions" xml:space="preserve">
+    <value>输出选项</value>
+  </data>
+  <data name="Preset_SaveMode" xml:space="preserve">
+    <value>保存模式</value>
+  </data>
+  <data name="Preset_SaveAsNewFileProcessed" xml:space="preserve">
+    <value>另存为新文件 (_processed)</value>
+  </data>
+  <data name="Preset_OverwriteOriginal" xml:space="preserve">
+    <value>覆盖原文件</value>
+  </data>
+  <data name="Preset_AlsoDownloadUnprocessedCopy" xml:space="preserve">
+    <value>同时下载未处理副本</value>
+  </data>
+  <data name="Preset_DownloadsTheOriginalUnprocessedImageAlon" xml:space="preserve">
+    <value>在处理版本之外同时下载原始未处理图片。若原图已存在不警告。</value>
+  </data>
+  <data name="Preset_KeepOriginal" xml:space="preserve">
+    <value>保持原始</value>
+  </data>
+  <data name="Preset_AnimationOutputFormats" xml:space="preserve">
+    <value>动画输出格式</value>
+  </data>
+  <data name="Preset_SelectWhichFormatsToCreateFor" xml:space="preserve">
+    <value>选择要为动图 (ugoira) 创建的格式:</value>
+  </data>
+  <data name="Preset_MP4Recommended" xml:space="preserve">
+    <value>MP4（推荐）</value>
+  </data>
+  <data name="Preset_SaveProcessedFramesToSubfolder" xml:space="preserve">
+    <value>将处理后的帧保存到子文件夹</value>
+  </data>
+  <data name="Preset_CreatesASubfolderWithEachProcessed" xml:space="preserve">
+    <value>创建子文件夹，每个处理后的帧为单独 PNG 文件</value>
+  </data>
+  <data name="Preset_FramesOnlySkipAnimation" xml:space="preserve">
+    <value>仅帧（跳过动画生成）</value>
+  </data>
+  <data name="Preset_DownloadOnlyTheIndividualFramesWithout" xml:space="preserve">
+    <value>仅下载单独的帧，不创建 MP4/GIF 动画</value>
+  </data>
+  <data name="Preset_ConfigureEachSubmission" xml:space="preserve">
+    <value>⚡ 逐个投稿配置</value>
+  </data>
+  <data name="Preset_EnableToSetDifferentPageSelections" xml:space="preserve">
+    <value>启用后可对每个投稿分别设置页面选择</value>
+  </data>
+  <data name="Preset_OutputFolder" xml:space="preserve">
+    <value>输出文件夹</value>
+  </data>
+  <data name="Preset_SaveToCustomFolder" xml:space="preserve">
+    <value>保存到自定义文件夹</value>
+  </data>
+  <data name="Preset_SelectFolder" xml:space="preserve">
+    <value>选择文件夹...</value>
+  </data>
+  <data name="Preset_PresetActions" xml:space="preserve">
+    <value>预设操作</value>
+  </data>
+  <data name="Preset_SaveCurrentAsPreset" xml:space="preserve">
+    <value>💾 将当前设置另存为预设</value>
+  </data>
+  <data name="Preset_DeleteCustomPreset" xml:space="preserve">
+    <value>🗑 删除自定义预设</value>
+  </data>
+  <data name="Preset_OriginalNoProcessing" xml:space="preserve">
+    <value>原始（不处理）</value>
+  </data>
+  <data name="Preset_NoResizeOrAdjustments" xml:space="preserve">
+    <value>不缩放或调整</value>
+  </data>
+  <data name="Preset_Page" xml:space="preserve">
+    <value>页</value>
+  </data>
+  <data name="Preset_SelectedPages" xml:space="preserve">
+    <value>所选页</value>
+  </data>
+  <data name="Preset_SelectPagesToApplyPreset" xml:space="preserve">
+    <value>选择要应用预设的页面</value>
+  </data>
+  <data name="Preset_All" xml:space="preserve">
+    <value>全部</value>
+  </data>
+  <data name="Preset_None" xml:space="preserve">
+    <value>无</value>
+  </data>
+  <data name="Preset_Invert" xml:space="preserve">
+    <value>反选</value>
+  </data>
+  <data name="Preset_ApplyPreset" xml:space="preserve">
+    <value>应用预设</value>
+  </data>
+  <data name="Preset_Artwork" xml:space="preserve">
+    <value>作品</value>
+  </data>
+  <data name="Preset_ApplyToSelectedArtworks" xml:space="preserve">
+    <value>应用到所选作品</value>
+  </data>
+  <data name="Preset_DownloadArtworks" xml:space="preserve">
+    <value>下载作品</value>
+  </data>
+  <data name="Preset_CurrentArtworkOnly" xml:space="preserve">
+    <value>仅当前作品</value>
+  </data>
+  <data name="Preset_DownloadScope" xml:space="preserve">
+    <value>下载范围</value>
+  </data>
+  <data name="Preset_AllPages" xml:space="preserve">
+    <value>所有页</value>
+  </data>
+  <data name="Preset_PagesWithPresetsOnly" xml:space="preserve">
+    <value>仅有预设的页</value>
+  </data>
+  <data name="Preset_CurrentPageOnly" xml:space="preserve">
+    <value>仅当前页</value>
+  </data>
+  <data name="Preset_SelectedPages_2" xml:space="preserve">
+    <value>所选页</value>
+  </data>
+  <data name="Preset_Download" xml:space="preserve">
+    <value>⬇ 下载</value>
+  </data>
+  <data name="Preset_LoadPreset" xml:space="preserve">
+    <value>加载预设</value>
+  </data>
+  <data name="Preset_LoadDownloadPreset" xml:space="preserve">
+    <value>加载下载预设</value>
+  </data>
+  <data name="Preset_Load" xml:space="preserve">
+    <value>加载</value>
+  </data>
+  <data name="Preset_SavePreset" xml:space="preserve">
+    <value>保存预设</value>
+  </data>
+  <data name="Preset_SaveDownloadPreset" xml:space="preserve">
+    <value>保存下载预设</value>
+  </data>
+  <data name="Preset_PresetName" xml:space="preserve">
+    <value>预设名称</value>
+  </data>
+  <data name="Preset_DescriptionOptional" xml:space="preserve">
+    <value>描述（可选）</value>
+  </data>
+  <data name="Preset_BriefDescriptionOfThisPreset" xml:space="preserve">
+    <value>此预设的简要描述...</value>
+  </data>
+  <data name="Editor_PikuraImageEditor" xml:space="preserve">
+    <value>Pikura — 图像编辑器</value>
+  </data>
+  <data name="Editor_CropRatio" xml:space="preserve">
+    <value>裁剪比例:</value>
+  </data>
+  <data name="Editor_Free" xml:space="preserve">
+    <value>自由</value>
+  </data>
+  <data name="Editor_Original" xml:space="preserve">
+    <value>原始</value>
+  </data>
+  <data name="Editor_11Square" xml:space="preserve">
+    <value>1:1 正方形</value>
+  </data>
+  <data name="Editor_169Widescreen" xml:space="preserve">
+    <value>16:9 宽屏</value>
+  </data>
+  <data name="Editor_916Portrait" xml:space="preserve">
+    <value>9:16 纵向</value>
+  </data>
+  <data name="Editor_43Standard" xml:space="preserve">
+    <value>4:3 标准</value>
+  </data>
+  <data name="Editor_34Portrait" xml:space="preserve">
+    <value>3:4 纵向</value>
+  </data>
+  <data name="Editor_219UltraWide" xml:space="preserve">
+    <value>21:9 超宽</value>
+  </data>
+  <data name="Editor_Lock" xml:space="preserve">
+    <value>锁定</value>
+  </data>
+  <data name="Editor_Zoom" xml:space="preserve">
+    <value>缩放:</value>
+  </data>
+  <data name="Editor_ResetPos" xml:space="preserve">
+    <value>重置位置</value>
+  </data>
+  <data name="Editor_ResetCrop" xml:space="preserve">
+    <value>重置裁剪</value>
+  </data>
+  <data name="Editor_ResetAll" xml:space="preserve">
+    <value>全部重置</value>
+  </data>
+  <data name="Editor_UgoiraMode" xml:space="preserve">
+    <value>🎬 Ugoira 模式</value>
+  </data>
+  <data name="Editor_800X60012MB" xml:space="preserve">
+    <value>800 x 600 • 1.2 MB</value>
+  </data>
+  <data name="Editor_Preview600pxWideLive60Fps" xml:space="preserve">
+    <value>预览：宽 600px（实时约 60 fps）</value>
+  </data>
+  <data name="Editor_Adjustments" xml:space="preserve">
+    <value>调整</value>
+  </data>
+  <data name="Editor_Resize" xml:space="preserve">
+    <value>缩放</value>
+  </data>
+  <data name="Editor_W" xml:space="preserve">
+    <value>宽:</value>
+  </data>
+  <data name="Editor_H" xml:space="preserve">
+    <value>高:</value>
+  </data>
+  <data name="Editor_BasicAdjustments" xml:space="preserve">
+    <value>基本调整</value>
+  </data>
+  <data name="Editor_Brightness" xml:space="preserve">
+    <value>亮度</value>
+  </data>
+  <data name="Editor_Contrast" xml:space="preserve">
+    <value>对比度</value>
+  </data>
+  <data name="Editor_Saturation" xml:space="preserve">
+    <value>饱和度</value>
+  </data>
+  <data name="Editor_HueRotation" xml:space="preserve">
+    <value>色相旋转</value>
+  </data>
+  <data name="Editor_ColorAdjustments" xml:space="preserve">
+    <value>颜色调整</value>
+  </data>
+  <data name="Editor_Cool" xml:space="preserve">
+    <value>冷色</value>
+  </data>
+  <data name="Editor_Temperature" xml:space="preserve">
+    <value>色温</value>
+  </data>
+  <data name="Editor_Warm" xml:space="preserve">
+    <value>暖色</value>
+  </data>
+  <data name="Editor_Green" xml:space="preserve">
+    <value>绿</value>
+  </data>
+  <data name="Editor_Tint" xml:space="preserve">
+    <value>色调</value>
+  </data>
+  <data name="Editor_Magenta" xml:space="preserve">
+    <value>品红</value>
+  </data>
+  <data name="Editor_Highlights" xml:space="preserve">
+    <value>高光</value>
+  </data>
+  <data name="Editor_Shadows" xml:space="preserve">
+    <value>阴影</value>
+  </data>
+  <data name="Editor_Effects" xml:space="preserve">
+    <value>效果</value>
+  </data>
+  <data name="Editor_Sharpness" xml:space="preserve">
+    <value>锐度</value>
+  </data>
+  <data name="Editor_GaussianBlur" xml:space="preserve">
+    <value>高斯模糊</value>
+  </data>
+  <data name="Editor_VignetteIntensity" xml:space="preserve">
+    <value>暗角强度</value>
+  </data>
+  <data name="Editor_VignetteRadius" xml:space="preserve">
+    <value>暗角半径</value>
+  </data>
+  <data name="Editor_ColorOverlay" xml:space="preserve">
+    <value>颜色叠加</value>
+  </data>
+  <data name="Editor_ClickToChooseOverlayColor" xml:space="preserve">
+    <value>点击选择叠加颜色</value>
+  </data>
+  <data name="Editor_SaveAsPreset" xml:space="preserve">
+    <value>另存为预设</value>
+  </data>
+  <data name="Editor_EnterPresetName" xml:space="preserve">
+    <value>输入预设名称...</value>
+  </data>
+  <data name="Editor_SavePreset" xml:space="preserve">
+    <value>💾 保存预设</value>
+  </data>
+  <data name="Editor_Ready" xml:space="preserve">
+    <value>就绪</value>
+  </data>
+  <data name="Editor_ApplyClose" xml:space="preserve">
+    <value>✓ 应用并关闭</value>
+  </data>
+  <data name="Discover_OpenInSidePanel" xml:space="preserve">
+    <value>在侧边面板打开</value>
+  </data>
+  <data name="Discover_OpenFullScreen" xml:space="preserve">
+    <value>全屏打开</value>
+  </data>
+  <data name="Discover_OpenInNewTab" xml:space="preserve">
+    <value>在新标签页中打开</value>
+  </data>
+  <data name="Discover_OpenInPopupWindow" xml:space="preserve">
+    <value>在弹出窗口打开</value>
+  </data>
+  <data name="Discover_OpenArtistGallery" xml:space="preserve">
+    <value>打开作者画廊</value>
+  </data>
+  <data name="Discover_OpenOnPixivNet" xml:space="preserve">
+    <value>在 pixiv.net 打开</value>
+  </data>
+  <data name="Discover_OpenArtistOnPixiv" xml:space="preserve">
+    <value>在 pixiv 打开作者</value>
+  </data>
+  <data name="Discover_AddToFavorites" xml:space="preserve">
+    <value>添加到收藏</value>
+  </data>
+  <data name="Discover_RemoveFromFavorites" xml:space="preserve">
+    <value>从收藏中移除</value>
+  </data>
+  <data name="Discover_CopyArtworkID" xml:space="preserve">
+    <value>复制作品 ID</value>
+  </data>
+  <data name="Discover_CopyArtworkURL" xml:space="preserve">
+    <value>复制作品链接</value>
+  </data>
+  <data name="Discover_CopyImage" xml:space="preserve">
+    <value>复制图片</value>
+  </data>
+  <data name="Discover_UseAsAppBackground" xml:space="preserve">
+    <value>设为应用背景</value>
+  </data>
+  <data name="Discover_CopyArtistID" xml:space="preserve">
+    <value>复制作者 ID</value>
+  </data>
+  <data name="Discover_ClickIndividualArtistIDsToQueue" xml:space="preserve">
+    <value>点击单个作者 ID 加入队列，再点此一次复制所有已排队 ID</value>
+  </data>
+  <data name="Discover_CopyAll" xml:space="preserve">
+    <value>全部复制</value>
+  </data>
+  <data name="Discover_FixedCardHeight" xml:space="preserve">
+    <value>固定卡片高度</value>
+  </data>
+  <data name="Discover_NaturalHeightPreservesAspectRatio" xml:space="preserve">
+    <value>自然高度（保持宽高比）</value>
+  </data>
+  <data name="Discover_ShowHideTagChips" xml:space="preserve">
+    <value>显示 / 隐藏标签条</value>
+  </data>
+  <data name="Discover_Tags" xml:space="preserve">
+    <value>标签</value>
+  </data>
+  <data name="Discover_ShowHideTitleArtist" xml:space="preserve">
+    <value>显示 / 隐藏标题+作者</value>
+  </data>
+  <data name="Discover_Info" xml:space="preserve">
+    <value>信息</value>
+  </data>
+  <data name="Discover_ShowHideLikedBookmarkedFavoriteBadges" xml:space="preserve">
+    <value>显示 / 隐藏卡片上的点赞/收藏/收藏夹标记</value>
+  </data>
+  <data name="Discover_Badges" xml:space="preserve">
+    <value>标记</value>
+  </data>
+  <data name="Discover_ToggleTheSidePanel" xml:space="preserve">
+    <value>切换侧边面板</value>
+  </data>
+  <data name="Discover_ShowPanel" xml:space="preserve">
+    <value>显示面板</value>
+  </data>
+  <data name="Discover_HidePanel" xml:space="preserve">
+    <value>隐藏面板</value>
+  </data>
+  <data name="Discover_ShowHideR18Content" xml:space="preserve">
+    <value>显示 / 隐藏 R-18 内容</value>
+  </data>
+  <data name="Discover_Size" xml:space="preserve">
+    <value>大小</value>
+  </data>
+  <data name="Discover_GridView" xml:space="preserve">
+    <value>网格视图</value>
+  </data>
+  <data name="Discover_Grid" xml:space="preserve">
+    <value>网格</value>
+  </data>
+  <data name="Discover_ListView" xml:space="preserve">
+    <value>列表视图</value>
+  </data>
+  <data name="Discover_List" xml:space="preserve">
+    <value>列表</value>
+  </data>
+  <data name="Discover_SelectAllVisibleArtworks" xml:space="preserve">
+    <value>选择所有可见作品</value>
+  </data>
+  <data name="Discover_SelectAll" xml:space="preserve">
+    <value>全选</value>
+  </data>
+  <data name="Discover_ClearSelection" xml:space="preserve">
+    <value>清除选择</value>
+  </data>
+  <data name="Discover_DeselectAll" xml:space="preserve">
+    <value>取消全选</value>
+  </data>
+  <data name="Discover_DownloadSelectedArtworks" xml:space="preserve">
+    <value>下载所选作品</value>
+  </data>
+  <data name="Discover_ShowTheSelectedArtworksTiledTogether" xml:space="preserve">
+    <value>在侧边面板中平铺显示所选作品（最多 10 个）</value>
+  </data>
+  <data name="Discover_Collage" xml:space="preserve">
+    <value>拼贴</value>
+  </data>
+  <data name="Discover_AddTheSelectedArtworksToThe" xml:space="preserve">
+    <value>将所选作品添加到当前拼贴。用箭头选择拼贴</value>
+  </data>
+  <data name="Discover_OpenEachSelectedArtworkInIts" xml:space="preserve">
+    <value>在各自标签页中打开每个所选作品</value>
+  </data>
+  <data name="Discover_ViewInNewTabs" xml:space="preserve">
+    <value>在新标签页中查看</value>
+  </data>
+  <data name="Discover_DownloadAllVisibleArtworks" xml:space="preserve">
+    <value>下载所有可见作品</value>
+  </data>
+  <data name="Discover_DownloadVisible" xml:space="preserve">
+    <value>下载可见项</value>
+  </data>
+  <data name="Discover_DownloadWithImageProcessingPreset" xml:space="preserve">
+    <value>使用图像处理预设下载</value>
+  </data>
+  <data name="Discover_DownloadPreset" xml:space="preserve">
+    <value>下载预设</value>
+  </data>
+  <data name="Discover_NoRecommendedWorks" xml:space="preserve">
+    <value>没有推荐作品</value>
+  </data>
+  <data name="Common_Retry" xml:space="preserve">
+    <value>重试</value>
+  </data>
+  <data name="Discover_LoadMore" xml:space="preserve">
+    <value>加载更多</value>
+  </data>
+  <data name="Discover_NoRecommendedUsers" xml:space="preserve">
+    <value>没有推荐用户</value>
+  </data>
+  <data name="Discover_ClickToCopyID" xml:space="preserve">
+    <value>点击复制 ID</value>
+  </data>
+  <data name="Discover_OpenInGallery" xml:space="preserve">
+    <value>在画廊中打开</value>
+  </data>
+  <data name="Discover_DownloadEveryArtworkFromThisArtist" xml:space="preserve">
+    <value>下载此作者的所有作品</value>
+  </data>
+  <data name="Discover_DownloadAll" xml:space="preserve">
+    <value>全部下载</value>
+  </data>
+  <data name="Discover_DownloadOnlyTheArtworksCurrentlyShown" xml:space="preserve">
+    <value>仅下载当前显示的作品</value>
+  </data>
+  <data name="Discover_DownloadLoaded" xml:space="preserve">
+    <value>下载已加载</value>
+  </data>
+  <data name="Discover_DownloadOnlyTheCheckedArtworks" xml:space="preserve">
+    <value>仅下载勾选的作品</value>
+  </data>
+  <data name="Discover_OpenArtistSFullGallery" xml:space="preserve">
+    <value>打开作者完整画廊</value>
+  </data>
+  <data name="Discover_OpenGallery" xml:space="preserve">
+    <value>打开画廊</value>
+  </data>
+  <data name="Discover_LoadingWorks" xml:space="preserve">
+    <value>正在加载作品…</value>
+  </data>
+  <data name="Discover_SelectAnArtistToViewTheir" xml:space="preserve">
+    <value>选择作者以查看其作品</value>
+  </data>
+  <data name="Discover_NoWorksToShowCheckR" xml:space="preserve">
+    <value>没有可显示的作品（请检查 R-18 过滤）</value>
+  </data>
+  <data name="Batch_DownloadQueue" xml:space="preserve">
+    <value>下载队列</value>
+  </data>
+  <data name="Batch_Queue" xml:space="preserve">
+    <value>队列</value>
+  </data>
+  <data name="Batch_ByArtist" xml:space="preserve">
+    <value>👤 按作者</value>
+  </data>
+  <data name="Batch_SelectedArtists" xml:space="preserve">
+    <value>所选作者</value>
+  </data>
+  <data name="Batch_ClearAll" xml:space="preserve">
+    <value>🗑 全部清除</value>
+  </data>
+  <data name="Batch_RemoveAllSelectedArtists" xml:space="preserve">
+    <value>移除所有所选作者</value>
+  </data>
+  <data name="Batch_RemoveArtist" xml:space="preserve">
+    <value>移除作者</value>
+  </data>
+  <data name="Batch_ConfigureCustomDownloadSettingsForThis" xml:space="preserve">
+    <value>为此作者配置自定义下载设置</value>
+  </data>
+  <data name="Batch_HasCustomDownloadSettings" xml:space="preserve">
+    <value>有自定义下载设置</value>
+  </data>
+  <data name="Batch_AddFollowedArtists" xml:space="preserve">
+    <value>+ 添加已关注的作者</value>
+  </data>
+  <data name="Batch_AddAllArtistsYouFollowOn" xml:space="preserve">
+    <value>将你在 Pixiv 关注的所有作者加入下载列表</value>
+  </data>
+  <data name="Batch_ImportFromFile" xml:space="preserve">
+    <value>📁 从文件导入</value>
+  </data>
+  <data name="Batch_ImportAListOfArtistIDs" xml:space="preserve">
+    <value>从文本文件导入作者 ID 列表（每行一个）</value>
+  </data>
+  <data name="Batch_ArtistIDsOrURLs" xml:space="preserve">
+    <value>作者 ID 或 URL</value>
+  </data>
+  <data name="Batch_EnterArtistIDsOrURLs" xml:space="preserve">
+    <value>输入作者 ID 或 URL...</value>
+  </data>
+  <data name="Batch_Paste" xml:space="preserve">
+    <value>📋 粘贴</value>
+  </data>
+  <data name="Batch_PasteLastCopiedID" xml:space="preserve">
+    <value>粘贴最近复制的 ID</value>
+  </data>
+  <data name="Batch_Clear" xml:space="preserve">
+    <value>✕ 清除</value>
+  </data>
+  <data name="Batch_ClearTheInputBox" xml:space="preserve">
+    <value>清空输入框</value>
+  </data>
+  <data name="Batch_AddArtists" xml:space="preserve">
+    <value>+ 添加作者</value>
+  </data>
+  <data name="Batch_AddArtistsByIDOrPixiv" xml:space="preserve">
+    <value>通过 ID 或 Pixiv 资料 URL 添加作者</value>
+  </data>
+  <data name="Batch_Add" xml:space="preserve">
+    <value>+ 添加</value>
+  </data>
+  <data name="Batch_DefaultPageRangeAllArtists" xml:space="preserve">
+    <value>默认页码范围（所有作者）</value>
+  </data>
+  <data name="Batch_SpecifyWhichPagesToDownload0" xml:space="preserve">
+    <value>指定下载页码: 0 = 全部, 1-5 = 范围, 2,4,6 = 特定页</value>
+  </data>
+  <data name="Batch_EnterPageNumbers0OrAll" xml:space="preserve">
+    <value>输入页码：全部用 0 或 'all'，范围用 '1-5'，特定页用 '2,4,6'</value>
+  </data>
+  <data name="Batch_Format0OrAllAllPages" xml:space="preserve">
+    <value>格式：0 或 'all' = 全部页，'2' = 第 2 页，'1-5' = 第 1-5 页，'2,4,6-10' = 特定页</value>
+  </data>
+  <data name="Batch_InvalidFormatUse021" xml:space="preserve">
+    <value>⚠ 格式无效。可用：0、2、1-5 或 2,4,6-10</value>
+  </data>
+  <data name="Batch_SetCustomPageRangesAndSettings" xml:space="preserve">
+    <value>按作者设置自定义页码范围和设置</value>
+  </data>
+  <data name="Batch_EnableToSetDifferentPageRanges" xml:space="preserve">
+    <value>启用后可对每个作者设置不同的页码范围和下载设置</value>
+  </data>
+  <data name="Batch_Artist" xml:space="preserve">
+    <value>作者</value>
+  </data>
+  <data name="Batch_PageRange" xml:space="preserve">
+    <value>页码范围</value>
+  </data>
+  <data name="Batch_CustomSettings" xml:space="preserve">
+    <value>自定义设置</value>
+  </data>
+  <data name="Batch_Custom" xml:space="preserve">
+    <value>自定义</value>
+  </data>
+  <data name="Batch_Default" xml:space="preserve">
+    <value>默认</value>
+  </data>
+  <data name="Batch_Settings" xml:space="preserve">
+    <value>⚙ 设置</value>
+  </data>
+  <data name="Batch_DownloadSettings" xml:space="preserve">
+    <value>下载设置</value>
+  </data>
+  <data name="Batch_UseGlobalSettings" xml:space="preserve">
+    <value>使用全局设置</value>
+  </data>
+  <data name="Batch_UseCustomSettingsForThisDownload" xml:space="preserve">
+    <value>此次下载使用自定义设置</value>
+  </data>
+  <data name="Batch_CreateSubfolderPerSubmission" xml:space="preserve">
+    <value>每个投稿创建子文件夹</value>
+  </data>
+  <data name="Batch_CreateASeparateFolderForEach" xml:space="preserve">
+    <value>为每个作品/下载创建单独文件夹</value>
+  </data>
+  <data name="Batch_SeparateR18Folder" xml:space="preserve">
+    <value>R-18 单独文件夹</value>
+  </data>
+  <data name="Batch_SaveR18MatureContentTo" xml:space="preserve">
+    <value>将 R-18（成人）内容保存到单独文件夹</value>
+  </data>
+  <data name="Batch_SkipContentTypes" xml:space="preserve">
+    <value>跳过的内容类型:</value>
+  </data>
+  <data name="Batch_AIGenerated" xml:space="preserve">
+    <value>AI 生成</value>
+  </data>
+  <data name="Batch_Manga" xml:space="preserve">
+    <value>漫画</value>
+  </data>
+  <data name="Batch_Ugoira" xml:space="preserve">
+    <value>动图</value>
+  </data>
+  <data name="Batch_R18GOnly" xml:space="preserve">
+    <value>仅 R-18G</value>
+  </data>
+  <data name="Batch_SkipGrotesqueViolentR18GBut" xml:space="preserve">
+    <value>跳过血腥/暴力 R-18G 但仍下载普通 R-18</value>
+  </data>
+  <data name="Batch_MustIncludeTagS" xml:space="preserve">
+    <value>必须包含标签</value>
+  </data>
+  <data name="Batch_CommaSeparatedArtworkMustMatchAt" xml:space="preserve">
+    <value>逗号分隔。作品须至少匹配其一。</value>
+  </data>
+  <data name="Batch_ExcludeTagS" xml:space="preserve">
+    <value>排除标签</value>
+  </data>
+  <data name="Batch_CommaSeparatedArtworkIsSkippedIf" xml:space="preserve">
+    <value>逗号分隔。含其中任一标签的作品将被跳过。</value>
+  </data>
+  <data name="Batch_AutoRetryFailedDownloads" xml:space="preserve">
+    <value>自动重试失败的下载</value>
+  </data>
+  <data name="Batch_AutomaticallyRetryFailedDownloadsWithThe" xml:space="preserve">
+    <value>按设定的间隔自动重试失败的下载</value>
+  </data>
+  <data name="Batch_MaxRetries" xml:space="preserve">
+    <value>最大重试次数</value>
+  </data>
+  <data name="Batch_RetryDelaySec" xml:space="preserve">
+    <value>重试间隔（秒）</value>
+  </data>
+  <data name="Batch_Save" xml:space="preserve">
+    <value>💾 保存</value>
+  </data>
+  <data name="Batch_SaveCurrentArtistListAndSettings" xml:space="preserve">
+    <value>将当前作者列表和设置保存为可复用预设</value>
+  </data>
+  <data name="Batch_Load" xml:space="preserve">
+    <value>📂 加载</value>
+  </data>
+  <data name="Batch_LoadAPreviouslySavedPresetWith" xml:space="preserve">
+    <value>加载以前保存的含作者列表和设置的预设</value>
+  </data>
+  <data name="Batch_AddToQueue" xml:space="preserve">
+    <value>+ 加入队列</value>
+  </data>
+  <data name="Batch_AddToQueueWithoutStartingImmediately" xml:space="preserve">
+    <value>加入队列但不立即开始 — 从队列窗口启动</value>
+  </data>
+  <data name="Batch_StartDownload" xml:space="preserve">
+    <value>▶ 开始下载</value>
+  </data>
+  <data name="Batch_BeginDownloadingArtworksFromAllSelected" xml:space="preserve">
+    <value>立即开始下载所有所选作者的作品</value>
+  </data>
+  <data name="Batch_ByImageID" xml:space="preserve">
+    <value>🖼️ 按图片 ID</value>
+  </data>
+  <data name="Batch_ImageIDsOrURLs" xml:space="preserve">
+    <value>图片 ID 或 URL</value>
+  </data>
+  <data name="Batch_EnterImageIDsURLs" xml:space="preserve">
+    <value>输入图片 ID、URL...</value>
+  </data>
+  <data name="Batch_StartImageIDDownload" xml:space="preserve">
+    <value>▶ 开始图片 ID 下载</value>
+  </data>
+  <data name="Batch_ByCollection" xml:space="preserve">
+    <value>🗂️ 按合集</value>
+  </data>
+  <data name="Batch_CollectionURLsOrIDs" xml:space="preserve">
+    <value>合集 URL 或 ID</value>
+  </data>
+  <data name="Batch_EnterCollectionIDsOrURLsOne" xml:space="preserve">
+    <value>输入合集 ID 或 URL，每行一个...</value>
+  </data>
+  <data name="Batch_KeepEachCollectionInItsOwn" xml:space="preserve">
+    <value>每个合集保留在各自文件夹</value>
+  </data>
+  <data name="Batch_OnEachCollectionSWorksGo" xml:space="preserve">
+    <value>开：每个合集的作品放入各自 Collections\{title} 文件夹。关：仍归入 Collections\ 文件夹，但保留常规按作者/作品结构。</value>
+  </data>
+  <data name="Batch_StartCollectionDownload" xml:space="preserve">
+    <value>▶ 开始合集下载</value>
+  </data>
+  <data name="Batch_Bookmarks" xml:space="preserve">
+    <value>🔖 收藏</value>
+  </data>
+  <data name="Batch_Source" xml:space="preserve">
+    <value>来源</value>
+  </data>
+  <data name="Batch_BookmarkedImagesIllustrationsManga" xml:space="preserve">
+    <value>收藏的图片（插画/漫画）</value>
+  </data>
+  <data name="Batch_BookmarkedArtists" xml:space="preserve">
+    <value>收藏的作者</value>
+  </data>
+  <data name="Batch_Visibility" xml:space="preserve">
+    <value>可见性</value>
+  </data>
+  <data name="Batch_PublicBookmarksOnly" xml:space="preserve">
+    <value>仅公开收藏</value>
+  </data>
+  <data name="Batch_PrivateBookmarksOnly" xml:space="preserve">
+    <value>仅私密收藏</value>
+  </data>
+  <data name="Batch_BothPublicAndPrivate" xml:space="preserve">
+    <value>公开和私密</value>
+  </data>
+  <data name="Batch_FilterOptions" xml:space="preserve">
+    <value>过滤选项</value>
+  </data>
+  <data name="Batch_IncludeR18" xml:space="preserve">
+    <value>包含 R-18</value>
+  </data>
+  <data name="Batch_IncludeAIGenerated" xml:space="preserve">
+    <value>包含 AI 生成</value>
+  </data>
+  <data name="Batch_IncludeManga" xml:space="preserve">
+    <value>包含漫画</value>
+  </data>
+  <data name="Batch_StartRemoteBookmarkDownload" xml:space="preserve">
+    <value>▶ 开始远程收藏下载</value>
+  </data>
+  <data name="Batch_DownloadFromPixivBookmarksPublicPrivate" xml:space="preserve">
+    <value>从 Pixiv 收藏（公开/私密）下载</value>
+  </data>
+  <data name="Batch_LocalFavorites" xml:space="preserve">
+    <value>本地收藏</value>
+  </data>
+  <data name="Batch_DownloadAllFavorites" xml:space="preserve">
+    <value>↓ 下载所有收藏</value>
+  </data>
+  <data name="Batch_DownloadFromFolder" xml:space="preserve">
+    <value>下载到文件夹:</value>
+  </data>
+  <data name="Batch_SelectFolder" xml:space="preserve">
+    <value>选择文件夹...</value>
+  </data>
+  <data name="Batch_UseCustomDownloadPath" xml:space="preserve">
+    <value>使用自定义下载路径</value>
+  </data>
+  <data name="Batch_CustomDownloadPath" xml:space="preserve">
+    <value>自定义下载路径...</value>
+  </data>
+  <data name="Batch_FromList" xml:space="preserve">
+    <value>📋 从列表</value>
+  </data>
+  <data name="Batch_DownloadFromList" xml:space="preserve">
+    <value>📋 从列表下载</value>
+  </data>
+  <data name="Batch_DownloadFromListTxtOrTags" xml:space="preserve">
+    <value>从 list.txt 或 tags.txt 文件下载</value>
+  </data>
+  <data name="Batch_NoFileSelected" xml:space="preserve">
+    <value>未选择文件...</value>
+  </data>
+  <data name="Batch_Browse" xml:space="preserve">
+    <value>📁 浏览</value>
+  </data>
+  <data name="Batch_Items" xml:space="preserve">
+    <value>数量:</value>
+  </data>
+  <data name="Batch_Search" xml:space="preserve">
+    <value>🔍 搜索</value>
+  </data>
+  <data name="Batch_SearchKeyword" xml:space="preserve">
+    <value>搜索关键词</value>
+  </data>
+  <data name="Batch_EnterSearchKeyword" xml:space="preserve">
+    <value>输入搜索关键词...</value>
+  </data>
+  <data name="Batch_Mode" xml:space="preserve">
+    <value>模式</value>
+  </data>
+  <data name="Batch_Safe" xml:space="preserve">
+    <value>安全</value>
+  </data>
+  <data name="Batch_All" xml:space="preserve">
+    <value>全部</value>
+  </data>
+  <data name="Batch_SortOrder" xml:space="preserve">
+    <value>排序</value>
+  </data>
+  <data name="Batch_PopularitySortRequiresPixivPremium" xml:space="preserve">
+    <value>按人气排序需要 Pixiv 会员</value>
+  </data>
+  <data name="Batch_NewestFirst" xml:space="preserve">
+    <value>最新优先</value>
+  </data>
+  <data name="Batch_PopularFirst" xml:space="preserve">
+    <value>最热优先</value>
+  </data>
+  <data name="Batch_SortByPopularityPixivPremium" xml:space="preserve">
+    <value>按人气排序（Pixiv 会员）</value>
+  </data>
+  <data name="Batch_MaxResults" xml:space="preserve">
+    <value>最大结果数</value>
+  </data>
+  <data name="Batch_Results" xml:space="preserve">
+    <value>结果</value>
+  </data>
+  <data name="Batch_AI" xml:space="preserve">
+    <value>AI</value>
+  </data>
+  <data name="Batch_ClearResults" xml:space="preserve">
+    <value>清除结果</value>
+  </data>
+  <data name="Batch_FANBOX" xml:space="preserve">
+    <value>📦 FANBOX</value>
+  </data>
+  <data name="Batch_SearchByPostID" xml:space="preserve">
+    <value>按投稿 ID 搜索</value>
+  </data>
+  <data name="Batch_EnterFANBOXPostID" xml:space="preserve">
+    <value>输入 FANBOX 投稿 ID...</value>
+  </data>
+  <data name="Batch_SearchByCreatorID" xml:space="preserve">
+    <value>按创作者 ID 搜索</value>
+  </data>
+  <data name="Batch_EnterCreatorID" xml:space="preserve">
+    <value>输入创作者 ID...</value>
+  </data>
+  <data name="Batch_CoverFilename" xml:space="preserve">
+    <value>封面文件名:</value>
+  </data>
+  <data name="Batch_InfoFilename" xml:space="preserve">
+    <value>信息文件名:</value>
+  </data>
+  <data name="Batch_ImageFilenames" xml:space="preserve">
+    <value>图片文件名:</value>
+  </data>
+  <data name="Batch_Download" xml:space="preserve">
+    <value>▶ 下载</value>
+  </data>
+  <data name="Batch_Schedules" xml:space="preserve">
+    <value>⏰ 计划任务</value>
+  </data>
+  <data name="Batch_NewSchedule" xml:space="preserve">
+    <value>+ 新建计划</value>
+  </data>
+  <data name="Batch_BackToSchedules" xml:space="preserve">
+    <value>← 返回计划列表</value>
+  </data>
+  <data name="Batch_Running" xml:space="preserve">
+    <value>● 运行中</value>
+  </data>
+  <data name="Batch_Edit" xml:space="preserve">
+    <value>✏ 编辑</value>
+  </data>
+  <data name="Batch_EditThisSchedule" xml:space="preserve">
+    <value>编辑此计划</value>
+  </data>
+  <data name="Batch_Run" xml:space="preserve">
+    <value>▶ 运行</value>
+  </data>
+  <data name="Batch_RunThisScheduleImmediately" xml:space="preserve">
+    <value>立即运行此计划</value>
+  </data>
+  <data name="Batch_DeleteThisSchedule" xml:space="preserve">
+    <value>删除此计划</value>
+  </data>
+  <data name="Batch_NoSchedulesYetClickNewSchedule" xml:space="preserve">
+    <value>还没有计划任务。点击“+ 新建计划”创建。</value>
+  </data>
+  <data name="Batch_ScheduleName" xml:space="preserve">
+    <value>计划名称</value>
+  </data>
+  <data name="Batch_ClearAll_2" xml:space="preserve">
+    <value>✕ 全部清除</value>
+  </data>
+  <data name="Batch_ArtistIDOrPixivNetEn" xml:space="preserve">
+    <value>作者 ID 或 pixiv.net/en/users/123…</value>
+  </data>
+  <data name="Batch_Pages" xml:space="preserve">
+    <value>页</value>
+  </data>
+  <data name="Batch_PageRangeForThisArtistE" xml:space="preserve">
+    <value>此作者的页码范围，如 0 = 全部, 1-5 = 范围</value>
+  </data>
+  <data name="Batch_ResolveArtistNameAndAddTo" xml:space="preserve">
+    <value>解析作者名并加入列表</value>
+  </data>
+  <data name="Batch_WhenToRun" xml:space="preserve">
+    <value>运行时间</value>
+  </data>
+  <data name="Batch_DailyRecurring" xml:space="preserve">
+    <value>每日 / 重复</value>
+  </data>
+  <data name="Batch_RunOnAppStartup" xml:space="preserve">
+    <value>应用启动时运行</value>
+  </data>
+  <data name="Batch_RunOnceAtASpecificDate" xml:space="preserve">
+    <value>在指定日期时间运行一次</value>
+  </data>
+  <data name="Batch_Time" xml:space="preserve">
+    <value>时间:</value>
+  </data>
+  <data name="Batch_Hour112" xml:space="preserve">
+    <value>小时（1–12）</value>
+  </data>
+  <data name="Batch_Minute" xml:space="preserve">
+    <value>分钟</value>
+  </data>
+  <data name="Batch_ChecksDay" xml:space="preserve">
+    <value>每日检查次数:</value>
+  </data>
+  <data name="Batch_1OnceDaily2TwiceEvery" xml:space="preserve">
+    <value>1 = 每天一次, 2 = 两次（每 12 小时）, 3 = 三次（每 8 小时）</value>
+  </data>
+  <data name="Batch_2Every12H3Every" xml:space="preserve">
+    <value>2 次 = 每 12 小时 · 3 次 = 每 8 小时（从所选时间起分摊）</value>
+  </data>
+  <data name="Batch_RunOnceOn" xml:space="preserve">
+    <value>仅运行一次的日期:</value>
+  </data>
+  <data name="Batch_PickTheDate" xml:space="preserve">
+    <value>选择日期</value>
+  </data>
+  <data name="Batch_Hour" xml:space="preserve">
+    <value>小时</value>
+  </data>
+  <data name="Batch_TheScheduleWillRunExactlyOnce" xml:space="preserve">
+    <value>此计划将只运行一次，之后标记为过期。</value>
+  </data>
+  <data name="Batch_OnlyDownloadArtworksPosted" xml:space="preserve">
+    <value>仅下载以下时间发布的作品:</value>
+  </data>
+  <data name="Batch_AllTime" xml:space="preserve">
+    <value>全部时间</value>
+  </data>
+  <data name="Batch_SinceLastRun" xml:space="preserve">
+    <value>自上次运行以来</value>
+  </data>
+  <data name="Batch_WithinTheLast24Hours" xml:space="preserve">
+    <value>最近 24 小时内</value>
+  </data>
+  <data name="Batch_WithinTheLast7Days" xml:space="preserve">
+    <value>最近 7 天内</value>
+  </data>
+  <data name="Batch_WithinTheLast30Days" xml:space="preserve">
+    <value>最近 30 天内</value>
+  </data>
+  <data name="Batch_MaxArtworksPerArtist" xml:space="preserve">
+    <value>每个作者的最大作品数:</value>
+  </data>
+  <data name="Batch_OnlyFetchTheNMostRecent" xml:space="preserve">
+    <value>每个作者仅获取最近 N 个作品。留空或 0 为不限制。</value>
+  </data>
+  <data name="Batch_NamingOverridesOptional" xml:space="preserve">
+    <value>📁 命名覆盖（可选）</value>
+  </data>
+  <data name="Batch_OverrideGlobalFolderFilenameTemplatesFor" xml:space="preserve">
+    <value>为此计划覆盖全局文件夹/文件名模板</value>
+  </data>
+  <data name="Batch_LeaveBlankForGlobal" xml:space="preserve">
+    <value>留空使用全局</value>
+  </data>
+  <data name="Batch_SeparateR18IntoSubfolder" xml:space="preserve">
+    <value>将 R-18 分离到子文件夹</value>
+  </data>
+  <data name="DlBookmarks_DownloadFromBookmarks" xml:space="preserve">
+    <value>从收藏下载</value>
+  </data>
+  <data name="DlBookmarks_DownloadArtworksFromYourBookmarkedArtist" xml:space="preserve">
+    <value>从你收藏的作者和图片下载作品</value>
+  </data>
+  <data name="DlBookmarks_Source" xml:space="preserve">
+    <value>来源</value>
+  </data>
+  <data name="DlBookmarks_BookmarkedImagesIllustrationsManga" xml:space="preserve">
+    <value>收藏的图片（插画/漫画）</value>
+  </data>
+  <data name="DlBookmarks_BookmarkedArtists" xml:space="preserve">
+    <value>收藏的作者</value>
+  </data>
+  <data name="DlBookmarks_Visibility" xml:space="preserve">
+    <value>可见性</value>
+  </data>
+  <data name="DlBookmarks_PublicBookmarksOnly" xml:space="preserve">
+    <value>仅公开收藏</value>
+  </data>
+  <data name="DlBookmarks_PrivateBookmarksOnly" xml:space="preserve">
+    <value>仅私密收藏</value>
+  </data>
+  <data name="DlBookmarks_BothPublicAndPrivate" xml:space="preserve">
+    <value>公开和私密</value>
+  </data>
+  <data name="DlBookmarks_FilterOptions" xml:space="preserve">
+    <value>过滤选项</value>
+  </data>
+  <data name="DlBookmarks_IncludeR18" xml:space="preserve">
+    <value>包含 R-18</value>
+  </data>
+  <data name="DlBookmarks_IncludeAIGenerated" xml:space="preserve">
+    <value>包含 AI 生成</value>
+  </data>
+  <data name="DlBookmarks_IncludeManga" xml:space="preserve">
+    <value>包含漫画</value>
+  </data>
+  <data name="DlBookmarks_StartDownload" xml:space="preserve">
+    <value>▶ 开始下载</value>
+  </data>
+  <data name="DlArtist_DownloadByArtist" xml:space="preserve">
+    <value>按作者下载</value>
+  </data>
+  <data name="DlArtist_DownloadArtworksFromFollowedArtistsOr" xml:space="preserve">
+    <value>从已关注的作者或指定作者 ID 下载作品</value>
+  </data>
+  <data name="DlArtist_Help" xml:space="preserve">
+    <value>? 帮助</value>
+  </data>
+  <data name="DlArtist_SelectedArtists" xml:space="preserve">
+    <value>所选作者</value>
+  </data>
+  <data name="DlArtist_HasCustomDownloadSettings" xml:space="preserve">
+    <value>有自定义下载设置</value>
+  </data>
+  <data name="DlArtist_ConfigureCustomSettings" xml:space="preserve">
+    <value>配置自定义设置</value>
+  </data>
+  <data name="DlArtist_NoArtistsSelectedAddArtistsUsing" xml:space="preserve">
+    <value>未选择作者。请用下方按钮添加。</value>
+  </data>
+  <data name="DlArtist_AddFollowedArtists" xml:space="preserve">
+    <value>+ 添加已关注的作者</value>
+  </data>
+  <data name="DlArtist_ImportFromFile" xml:space="preserve">
+    <value>📁 从文件导入</value>
+  </data>
+  <data name="DlArtist_ClearAll" xml:space="preserve">
+    <value>全部清除</value>
+  </data>
+  <data name="DlArtist_ArtistIDsOrURLs" xml:space="preserve">
+    <value>作者 ID 或 URL</value>
+  </data>
+  <data name="DlArtist_EnterArtistIDsOrURLs" xml:space="preserve">
+    <value>输入作者 ID 或 URL...</value>
+  </data>
+  <data name="DlArtist_Paste" xml:space="preserve">
+    <value>📋 粘贴</value>
+  </data>
+  <data name="DlArtist_PasteLastCopiedID" xml:space="preserve">
+    <value>粘贴最近复制的 ID</value>
+  </data>
+  <data name="DlArtist_AddArtists" xml:space="preserve">
+    <value>+ 添加作者</value>
+  </data>
+  <data name="DlArtist_PageRangeConfiguration" xml:space="preserve">
+    <value>页码范围配置</value>
+  </data>
+  <data name="DlArtist_DefaultPageRangeForAllArtists" xml:space="preserve">
+    <value>所有作者的默认页码范围</value>
+  </data>
+  <data name="DlArtist_Examples0OrAllAllPages" xml:space="preserve">
+    <value>示例：'0' 或 'all' = 全部页，'2' = 仅第 2 页，'1-5' = 第 1-5 页，'2,4,6-10' = 特定页</value>
+  </data>
+  <data name="DlArtist_SetCustomPageRangesAndSettings" xml:space="preserve">
+    <value>按作者设置自定义页码范围和设置</value>
+  </data>
+  <data name="DlArtist_Artist" xml:space="preserve">
+    <value>作者</value>
+  </data>
+  <data name="DlArtist_PageRange" xml:space="preserve">
+    <value>页码范围</value>
+  </data>
+  <data name="DlArtist_Custom" xml:space="preserve">
+    <value>自定义</value>
+  </data>
+  <data name="DlArtist_Default" xml:space="preserve">
+    <value>默认</value>
+  </data>
+  <data name="DlArtist_Settings" xml:space="preserve">
+    <value>⚙ 设置</value>
+  </data>
+  <data name="DlArtist_ConfigureCustomDownloadSettingsForThis" xml:space="preserve">
+    <value>为此作者配置自定义下载设置</value>
+  </data>
+  <data name="DlArtist_DownloadSettings" xml:space="preserve">
+    <value>下载设置</value>
+  </data>
+  <data name="DlArtist_UseGlobalSettings" xml:space="preserve">
+    <value>使用全局设置</value>
+  </data>
+  <data name="DlArtist_UseCustomSettingsForThisDownload" xml:space="preserve">
+    <value>此次下载使用自定义设置</value>
+  </data>
+  <data name="DlArtist_CreateSubfolderPerSubmission" xml:space="preserve">
+    <value>每个投稿创建子文件夹</value>
+  </data>
+  <data name="DlArtist_SeparateR18Folder" xml:space="preserve">
+    <value>R-18 单独文件夹</value>
+  </data>
+  <data name="DlArtist_FilterAIGenerated" xml:space="preserve">
+    <value>过滤 AI 生成</value>
+  </data>
+  <data name="DlArtist_SavePreset" xml:space="preserve">
+    <value>💾 保存预设</value>
+  </data>
+  <data name="DlArtist_StartDownload" xml:space="preserve">
+    <value>▶ 开始下载</value>
+  </data>
+  <data name="DlId_DownloadByImageID" xml:space="preserve">
+    <value>按图片 ID 下载</value>
+  </data>
+  <data name="DlId_DownloadSpecificArtworksByTheirID" xml:space="preserve">
+    <value>通过 ID 或 URL 下载特定作品</value>
+  </data>
+  <data name="DlId_Help" xml:space="preserve">
+    <value>? 帮助</value>
+  </data>
+  <data name="DlId_ImageIDsOrURLs" xml:space="preserve">
+    <value>图片 ID 或 URL</value>
+  </data>
+  <data name="DlId_EnterImageIDsURLsOrPaste" xml:space="preserve">
+    <value>输入图片 ID、URL 或从剪贴板粘贴...</value>
+  </data>
+  <data name="DlId_PasteFromClipboard" xml:space="preserve">
+    <value>📋 从剪贴板粘贴</value>
+  </data>
+  <data name="DlId_ImportFromFile" xml:space="preserve">
+    <value>📁 从文件导入</value>
+  </data>
+  <data name="DlId_SomeEntriesCouldNotBeParsed" xml:space="preserve">
+    <value>⚠ 部分条目无法解析:</value>
+  </data>
+  <data name="DlId_DownloadOptions" xml:space="preserve">
+    <value>下载选项</value>
+  </data>
+  <data name="DlId_PageRangeForMultiPageWorks" xml:space="preserve">
+    <value>页码范围（多页作品）</value>
+  </data>
+  <data name="DlId_SinglePageArtworksWillDownloadThe" xml:space="preserve">
+    <value>单页作品无论此设置如何都会下载完整图片。</value>
+  </data>
+  <data name="DlId_SkipAlreadyDownloadedImages" xml:space="preserve">
+    <value>跳过已下载的图片</value>
+  </data>
+  <data name="DlId_DownloadSettings" xml:space="preserve">
+    <value>下载设置</value>
+  </data>
+  <data name="DlId_UseGlobalSettings" xml:space="preserve">
+    <value>使用全局设置</value>
+  </data>
+  <data name="DlId_UseCustomSettingsForThisDownload" xml:space="preserve">
+    <value>此次下载使用自定义设置</value>
+  </data>
+  <data name="DlId_SavePreset" xml:space="preserve">
+    <value>💾 保存预设</value>
+  </data>
+  <data name="DlId_StartDownload" xml:space="preserve">
+    <value>▶ 开始下载</value>
+  </data>
+  <data name="Queue_DownloadQueue" xml:space="preserve">
+    <value>下载队列</value>
+  </data>
+  <data name="Queue_ClearCompleted" xml:space="preserve">
+    <value>清除已完成</value>
+  </data>
+  <data name="Jobs_Downloads" xml:space="preserve">
+    <value>下载</value>
+  </data>
+  <data name="Jobs_ManageAndMonitorYourDownloads" xml:space="preserve">
+    <value>管理并监控你的下载</value>
+  </data>
+  <data name="Jobs_RefreshDownloads" xml:space="preserve">
+    <value>刷新下载</value>
+  </data>
+  <data name="WhatsNew_WhatSNewInPikura" xml:space="preserve">
+    <value>Pikura 新功能</value>
+  </data>
+  <data name="Common_Previous" xml:space="preserve">
+    <value>上一步</value>
+  </data>
+  <data name="Common_Next" xml:space="preserve">
+    <value>下一步</value>
+  </data>
+  <data name="WhatsNew_Finish" xml:space="preserve">
+    <value>完成</value>
+  </data>
+  <data name="WhatsNew_NEW" xml:space="preserve">
+    <value>NEW</value>
+  </data>
+  <data name="Gallery_FollowedArtists" xml:space="preserve">
+    <value>已关注的作者</value>
+  </data>
+  <data name="Gallery_NumberOfFollowedArtistsLoaded" xml:space="preserve">
+    <value>已加载的关注作者数</value>
+  </data>
+  <data name="Gallery_RefreshFollowedArtistsListFromPixiv" xml:space="preserve">
+    <value>从 Pixiv 刷新关注作者列表（清除本地缓存）</value>
+  </data>
+  <data name="Gallery_ClickIndividualArtistIDsToQueue" xml:space="preserve">
+    <value>点击单个作者 ID 加入队列，再点此一次复制所有已排队 ID</value>
+  </data>
+  <data name="Gallery_CopyAll" xml:space="preserve">
+    <value>全部复制</value>
+  </data>
+  <data name="Gallery_ViewRecentWorksFromAllFollowed" xml:space="preserve">
+    <value>查看所有关注作者的近期作品</value>
+  </data>
+  <data name="Gallery_RecentWorks" xml:space="preserve">
+    <value>近期作品</value>
+  </data>
+  <data name="Gallery_SearchScopeCurrentArtistFiltersThe" xml:space="preserve">
+    <value>搜索范围：“当前作者”筛选已加载的画廊；“所有关注”搜索每个关注作者的目录</value>
+  </data>
+  <data name="Gallery_CurrentArtist" xml:space="preserve">
+    <value>当前作者</value>
+  </data>
+  <data name="Gallery_AllFollowed" xml:space="preserve">
+    <value>所有关注</value>
+  </data>
+  <data name="Gallery_SearchTagArtistOrID" xml:space="preserve">
+    <value>搜索标签、作者或 ID…</value>
+  </data>
+  <data name="Gallery_PixivSearch" xml:space="preserve">
+    <value>Pixiv 搜索</value>
+  </data>
+  <data name="Gallery_SearchArtworksByTag" xml:space="preserve">
+    <value> — 按标签搜索作品</value>
+  </data>
+  <data name="Gallery_OpenArtworkByID" xml:space="preserve">
+    <value> — 按 ID 打开作品</value>
+  </data>
+  <data name="Gallery_OpenArtistByUserID" xml:space="preserve">
+    <value> — 按用户 ID 打开作者</value>
+  </data>
+  <data name="Gallery_SearchArtistByName" xml:space="preserve">
+    <value> — 按名称搜索作者</value>
+  </data>
+  <data name="Gallery_PressEnterToSearchUseThe" xml:space="preserve">
+    <value>按 Enter 搜索。用范围下拉菜单可只搜索当前作者或所有关注作者。</value>
+  </data>
+  <data name="Gallery_ClearSearchAndReturnToGallery" xml:space="preserve">
+    <value>清除搜索并返回画廊</value>
+  </data>
+  <data name="Gallery_DownloadEveryArtworkFromThisArtist" xml:space="preserve">
+    <value>将此作者的所有作品下载到磁盘</value>
+  </data>
+  <data name="Gallery_DownloadAll" xml:space="preserve">
+    <value>全部下载</value>
+  </data>
+  <data name="Gallery_DownloadOnlyTheArtworksCurrentlyShown" xml:space="preserve">
+    <value>仅下载网格中当前显示的作品</value>
+  </data>
+  <data name="Gallery_DownloadLoaded" xml:space="preserve">
+    <value>下载已加载</value>
+  </data>
+  <data name="Gallery_DownloadOnlyTheCheckedArtworks" xml:space="preserve">
+    <value>仅下载勾选的作品</value>
+  </data>
+  <data name="Gallery_ShowTheCheckedArtworksInA" xml:space="preserve">
+    <value>在新拼贴标签页中显示勾选的作品（最多 100 个）</value>
+  </data>
+  <data name="Gallery_AddTheCheckedArtworksToThe" xml:space="preserve">
+    <value>将勾选的作品添加到当前拼贴。用箭头选择拼贴</value>
+  </data>
+  <data name="Gallery_OpenEachSelectedArtworkInIts" xml:space="preserve">
+    <value>在各自标签页中打开每个所选作品</value>
+  </data>
+  <data name="Gallery_ViewInNewTabs" xml:space="preserve">
+    <value>在新标签页中查看</value>
+  </data>
+  <data name="Gallery_ClearSelection" xml:space="preserve">
+    <value>清除选择</value>
+  </data>
+  <data name="Gallery_DeselectAll" xml:space="preserve">
+    <value>取消全选 (</value>
+  </data>
+  <data name="Gallery_ChooseANumberedRangeToDownload" xml:space="preserve">
+    <value>选择要下载的编号范围（如 1-20）</value>
+  </data>
+  <data name="Gallery_DownloadRange" xml:space="preserve">
+    <value>下载范围…</value>
+  </data>
+  <data name="Gallery_DownloadWithImageProcessingPreset" xml:space="preserve">
+    <value>使用图像处理预设下载</value>
+  </data>
+  <data name="Gallery_DownloadPreset" xml:space="preserve">
+    <value>下载预设</value>
+  </data>
+  <data name="Gallery_DownloadsWaitingInQueueAutoStart" xml:space="preserve">
+    <value>队列中等待的下载（当前完成后自动开始）</value>
+  </data>
+  <data name="Gallery_ToggleTheSidePanelBrowseArtworks" xml:space="preserve">
+    <value>切换侧边面板（与查看器并排浏览作品）</value>
+  </data>
+  <data name="Gallery_ShowPanel" xml:space="preserve">
+    <value>显示面板</value>
+  </data>
+  <data name="Gallery_HidePanel" xml:space="preserve">
+    <value>隐藏面板</value>
+  </data>
+  <data name="Gallery_ToggleTagAndDateFilters" xml:space="preserve">
+    <value>切换标签和日期过滤</value>
+  </data>
+  <data name="Gallery_Filters" xml:space="preserve">
+    <value>过滤</value>
+  </data>
+  <data name="Gallery_SortArtworks" xml:space="preserve">
+    <value>作品排序</value>
+  </data>
+  <data name="Gallery_Default" xml:space="preserve">
+    <value>默认</value>
+  </data>
+  <data name="Gallery_AZ" xml:space="preserve">
+    <value>A → Z</value>
+  </data>
+  <data name="Gallery_ZA" xml:space="preserve">
+    <value>Z → A</value>
+  </data>
+  <data name="Gallery_NewestFirst" xml:space="preserve">
+    <value>最新优先</value>
+  </data>
+  <data name="Gallery_OldestFirst" xml:space="preserve">
+    <value>最旧优先</value>
+  </data>
+  <data name="Gallery_MostPages" xml:space="preserve">
+    <value>页数最多</value>
+  </data>
+  <data name="Gallery_FixedCardHeight" xml:space="preserve">
+    <value>固定卡片高度</value>
+  </data>
+  <data name="Gallery_Fixed" xml:space="preserve">
+    <value>固定</value>
+  </data>
+  <data name="Gallery_NaturalHeightPreservesAspectRatio" xml:space="preserve">
+    <value>自然高度（保持宽高比）</value>
+  </data>
+  <data name="Gallery_Natural" xml:space="preserve">
+    <value>自然</value>
+  </data>
+  <data name="Gallery_ShowHideTagsOnCards" xml:space="preserve">
+    <value>显示 / 隐藏卡片上的标签</value>
+  </data>
+  <data name="Gallery_Tags" xml:space="preserve">
+    <value>标签</value>
+  </data>
+  <data name="Gallery_ShowHideCardInfoStripTitle" xml:space="preserve">
+    <value>显示 / 隐藏卡片信息栏（标题+标签）</value>
+  </data>
+  <data name="Gallery_Info" xml:space="preserve">
+    <value>信息</value>
+  </data>
+  <data name="Gallery_ShowHideLikedBookmarkedFavoriteBadges" xml:space="preserve">
+    <value>显示 / 隐藏卡片上的点赞/收藏/收藏夹标记</value>
+  </data>
+  <data name="Gallery_Badges" xml:space="preserve">
+    <value>标记</value>
+  </data>
+  <data name="Gallery_Size" xml:space="preserve">
+    <value>大小</value>
+  </data>
+  <data name="Gallery_GridView" xml:space="preserve">
+    <value>网格视图</value>
+  </data>
+  <data name="Gallery_Grid" xml:space="preserve">
+    <value>网格</value>
+  </data>
+  <data name="Gallery_ListView" xml:space="preserve">
+    <value>列表视图</value>
+  </data>
+  <data name="Gallery_List" xml:space="preserve">
+    <value>列表</value>
+  </data>
+  <data name="Gallery_INCLUDETAGS" xml:space="preserve">
+    <value>包含标签</value>
+  </data>
+  <data name="Gallery_ShowOnlyArtworksThatHaveALL" xml:space="preserve">
+    <value>仅显示包含所有这些标签的作品（逗号分隔）</value>
+  </data>
+  <data name="Gallery_EXCLUDETAGS" xml:space="preserve">
+    <value>排除标签</value>
+  </data>
+  <data name="Gallery_HideArtworksThatHaveANYOf" xml:space="preserve">
+    <value>隐藏含其中任一标签的作品（逗号分隔）</value>
+  </data>
+  <data name="Gallery_DATERANGE" xml:space="preserve">
+    <value>日期范围</value>
+  </data>
+  <data name="Gallery_ShowArtworksFromThisDate" xml:space="preserve">
+    <value>显示此日期起的作品</value>
+  </data>
+  <data name="Gallery_ShowArtworksUpToThisDate" xml:space="preserve">
+    <value>显示此日期前的作品</value>
+  </data>
+  <data name="Gallery_ClearFilters" xml:space="preserve">
+    <value>✕ 清除过滤</value>
+  </data>
+  <data name="Gallery_ClearAllTagAndDateFilters" xml:space="preserve">
+    <value>清除所有标签和日期过滤</value>
+  </data>
+  <data name="Gallery_FilterArtists" xml:space="preserve">
+    <value>筛选作者…</value>
+  </data>
+  <data name="Gallery_OpenArtistPage" xml:space="preserve">
+    <value>打开作者页面</value>
+  </data>
+  <data name="Gallery_CopyID" xml:space="preserve">
+    <value>复制 ID</value>
+  </data>
+  <data name="Gallery_Unfollow" xml:space="preserve">
+    <value>💔 取消关注</value>
+  </data>
+  <data name="Gallery_ShowExplicitContent" xml:space="preserve">
+    <value>显示成人内容</value>
+  </data>
+  <data name="Gallery_ShowHideR18Content" xml:space="preserve">
+    <value>显示 / 隐藏 R-18 内容</value>
+  </data>
+  <data name="Gallery_SelectAnArtist" xml:space="preserve">
+    <value>选择作者</value>
+  </data>
+  <data name="Gallery_ChooseFromTheSidebarOrClick" xml:space="preserve">
+    <value>从侧边栏选择，或点击“近期作品”</value>
+  </data>
+  <data name="Gallery_Select" xml:space="preserve">
+    <value>☑ 选择</value>
+  </data>
+  <data name="Gallery_Deselect" xml:space="preserve">
+    <value>☒ 取消选择</value>
+  </data>
+  <data name="Gallery_DownloadAll_2" xml:space="preserve">
+    <value>↓ 全部下载</value>
+  </data>
+  <data name="Gallery_FirstPageOnly" xml:space="preserve">
+    <value>↓ 仅第一页</value>
+  </data>
+  <data name="Gallery_OpenInSidePanel" xml:space="preserve">
+    <value>👁 在侧边面板打开</value>
+  </data>
+  <data name="Gallery_OpenFullScreen" xml:space="preserve">
+    <value>⛶ 全屏打开</value>
+  </data>
+  <data name="Gallery_OpenInNewTab" xml:space="preserve">
+    <value>⊞ 在新标签页中打开</value>
+  </data>
+  <data name="Gallery_OpenInPopup" xml:space="preserve">
+    <value>⧉ 在弹出窗口打开</value>
+  </data>
+  <data name="Gallery_OpenOnPixivNet" xml:space="preserve">
+    <value>🌐 在 pixiv.net 打开</value>
+  </data>
+  <data name="Gallery_OpenArtistGallery" xml:space="preserve">
+    <value>👤 打开作者画廊</value>
+  </data>
+  <data name="Gallery_FollowArtist" xml:space="preserve">
+    <value>💙 关注作者</value>
+  </data>
+  <data name="Gallery_UnfollowArtist" xml:space="preserve">
+    <value>💔 取消关注作者</value>
+  </data>
+  <data name="Gallery_AddToLocalFavorites" xml:space="preserve">
+    <value>★ 添加到本地收藏</value>
+  </data>
+  <data name="Gallery_RemoveFromFavorites" xml:space="preserve">
+    <value>★ 从收藏中移除</value>
+  </data>
+  <data name="Gallery_CopyArtworkID" xml:space="preserve">
+    <value>复制作品 ID</value>
+  </data>
+  <data name="Gallery_CopyArtistID" xml:space="preserve">
+    <value>复制作者 ID</value>
+  </data>
+  <data name="Gallery_CopyImage" xml:space="preserve">
+    <value>📋 复制图片</value>
+  </data>
+  <data name="Gallery_UseAsAppBackground" xml:space="preserve">
+    <value>🖼 设为应用背景</value>
+  </data>
+  <data name="Gallery_ExportMetadata" xml:space="preserve">
+    <value>💾 导出元数据…</value>
+  </data>
+  <data name="Gallery_SaveIdArtistLinkSizeUpload" xml:space="preserve">
+    <value>将 id、作者、链接、尺寸、上传日期、浏览量、收藏数和标签保存为 CSV/TSV/JSON/TXT</value>
+  </data>
+  <data name="Gallery_ExportMetadataOfSelected" xml:space="preserve">
+    <value>💾 导出所选项的元数据…</value>
+  </data>
+  <data name="Gallery_OpenPopup" xml:space="preserve">
+    <value>打开弹出窗口</value>
+  </data>
+  <data name="Gallery_OpenInNewTab_2" xml:space="preserve">
+    <value>在新标签页中打开</value>
+  </data>
+  <data name="Gallery_OpenOnPixivNet_2" xml:space="preserve">
+    <value>在 pixiv.net 打开</value>
+  </data>
+  <data name="Gallery_NoArtworksFoundForThisArtist" xml:space="preserve">
+    <value>未找到此作者的作品</value>
+  </data>
+  <data name="Gallery_TryChangingFiltersOrSelectingA" xml:space="preserve">
+    <value>请尝试更改过滤或选择其他作者。</value>
+  </data>
+  <data name="Gallery_TogglePaginationOffShowAllOn" xml:space="preserve">
+    <value>切换分页（关 = 全部显示，开 = 分页）</value>
+  </data>
+  <data name="Gallery_Pages" xml:space="preserve">
+    <value>页</value>
+  </data>
+  <data name="Gallery_ItemsPerPage" xml:space="preserve">
+    <value>每页数量</value>
+  </data>
+  <data name="Gallery_GoToFirstPage" xml:space="preserve">
+    <value>转到第一页</value>
+  </data>
+  <data name="Gallery_PreviousPage" xml:space="preserve">
+    <value>上一页</value>
+  </data>
+  <data name="Gallery_EnterPageNumberAndPressEnter" xml:space="preserve">
+    <value>输入页码并按 Enter 跳转</value>
+  </data>
+  <data name="Gallery_NextPage" xml:space="preserve">
+    <value>下一页</value>
+  </data>
+  <data name="Gallery_GoToLastPage" xml:space="preserve">
+    <value>转到最后一页</value>
+  </data>
+  <data name="Gallery_SelectAll" xml:space="preserve">
+    <value>全选</value>
+  </data>
+  <data name="Gallery_LoadAllIntoView" xml:space="preserve">
+    <value>全部加载到视图</value>
+  </data>
+  <data name="Gallery_LoadEveryArtworkIntoTheGrid" xml:space="preserve">
+    <value>将所有作品加载到网格中（可能需要一些时间）</value>
+  </data>
+  <data name="Viewer_HideOrShowTheSidePanel" xml:space="preserve">
+    <value>显示 / 隐藏侧边面板</value>
+  </data>
+  <data name="Viewer_ShowPanel" xml:space="preserve">
+    <value>显示面板</value>
+  </data>
+  <data name="Viewer_HidePanel" xml:space="preserve">
+    <value>隐藏面板</value>
+  </data>
+  <data name="Viewer_ExpandToFullScreenRestoreSide" xml:space="preserve">
+    <value>展开为全屏 / 恢复侧边面板</value>
+  </data>
+  <data name="Viewer_Expand" xml:space="preserve">
+    <value>展开</value>
+  </data>
+  <data name="Viewer_Restore" xml:space="preserve">
+    <value>还原</value>
+  </data>
+  <data name="Viewer_OpenInFullscreenWindowF11" xml:space="preserve">
+    <value>在全屏窗口打开（F11）</value>
+  </data>
+  <data name="Viewer_CloseAllTabs" xml:space="preserve">
+    <value>关闭所有标签页</value>
+  </data>
+  <data name="Viewer_CloseAll" xml:space="preserve">
+    <value>全部关闭</value>
+  </data>
+  <data name="Viewer_CloseThisTab" xml:space="preserve">
+    <value>关闭此标签页</value>
+  </data>
+  <data name="Viewer_AllOpenTabs" xml:space="preserve">
+    <value>所有打开的标签页</value>
+  </data>
+  <data name="Viewer_ClickToCopyArtistID" xml:space="preserve">
+    <value>点击复制作者 ID</value>
+  </data>
+  <data name="Viewer_FollowOrUnfollowThisArtist" xml:space="preserve">
+    <value>关注 / 取消关注此作者</value>
+  </data>
+  <data name="Viewer_Follow" xml:space="preserve">
+    <value>关注</value>
+  </data>
+  <data name="Viewer_ShowHidePixivLikeBookmarkView" xml:space="preserve">
+    <value>显示 / 隐藏 Pixiv 点赞/收藏/浏览数</value>
+  </data>
+  <data name="Viewer_Likes" xml:space="preserve">
+    <value>赞</value>
+  </data>
+  <data name="Viewer_Views" xml:space="preserve">
+    <value>浏览</value>
+  </data>
+  <data name="Viewer_EnterAnArtworkPositionAndPress" xml:space="preserve">
+    <value>输入作品位置并按 Enter</value>
+  </data>
+  <data name="Viewer_FirstArtwork" xml:space="preserve">
+    <value>第一个作品</value>
+  </data>
+  <data name="Viewer_PreviousArtwork" xml:space="preserve">
+    <value>上一个作品</value>
+  </data>
+  <data name="Viewer_NextArtwork" xml:space="preserve">
+    <value>下一个作品</value>
+  </data>
+  <data name="Viewer_LastArtwork" xml:space="preserve">
+    <value>最后一个作品</value>
+  </data>
+  <data name="Viewer_ZoomOut" xml:space="preserve">
+    <value>缩小</value>
+  </data>
+  <data name="Viewer_FitToWindow" xml:space="preserve">
+    <value>适应窗口</value>
+  </data>
+  <data name="Viewer_ZoomIn" xml:space="preserve">
+    <value>放大</value>
+  </data>
+  <data name="Viewer_PreviousPage" xml:space="preserve">
+    <value>上一页</value>
+  </data>
+  <data name="Viewer_Prev" xml:space="preserve">
+    <value>上一页</value>
+  </data>
+  <data name="Viewer_NextPage" xml:space="preserve">
+    <value>下一页</value>
+  </data>
+  <data name="Viewer_DownloadCurrentPage" xml:space="preserve">
+    <value>下载当前页</value>
+  </data>
+  <data name="Viewer_Page" xml:space="preserve">
+    <value>页</value>
+  </data>
+  <data name="Viewer_DownloadAllPages" xml:space="preserve">
+    <value>下载所有页</value>
+  </data>
+  <data name="Viewer_DownloadPageRange" xml:space="preserve">
+    <value>下载页码范围</value>
+  </data>
+  <data name="Viewer_DownloadWithImageProcessingPreset" xml:space="preserve">
+    <value>使用图像处理预设下载</value>
+  </data>
+  <data name="Viewer_Preset" xml:space="preserve">
+    <value>预设</value>
+  </data>
+  <data name="Viewer_OpenOnPixivNet" xml:space="preserve">
+    <value>在 pixiv.net 打开</value>
+  </data>
+  <data name="Viewer_OpenThisArtistSGallery" xml:space="preserve">
+    <value>打开此作者的画廊</value>
+  </data>
+  <data name="Viewer_Artist" xml:space="preserve">
+    <value>作者</value>
+  </data>
+  <data name="Viewer_OpenInFloatingPopupWindow" xml:space="preserve">
+    <value>在浮动弹出窗口打开</value>
+  </data>
+  <data name="Viewer_Popup" xml:space="preserve">
+    <value>弹出窗口</value>
+  </data>
+  <data name="Viewer_CopyThisImageToTheClipboard" xml:space="preserve">
+    <value>将此图片复制到剪贴板</value>
+  </data>
+  <data name="Viewer_AddRemoveFromLocalFavorites" xml:space="preserve">
+    <value>添加 / 移除本地收藏</value>
+  </data>
+  <data name="Viewer_Favorite" xml:space="preserve">
+    <value>收藏</value>
+  </data>
+  <data name="Viewer_LikeThisArtworkOnPixiv" xml:space="preserve">
+    <value>在 Pixiv 点赞此作品</value>
+  </data>
+  <data name="Viewer_Like" xml:space="preserve">
+    <value>点赞</value>
+  </data>
+  <data name="Viewer_MainClickAddsAPublicPixiv" xml:space="preserve">
+    <value>主按钮点击添加公开 Pixiv 收藏（或移除现有收藏）。用箭头选择公开/私密。</value>
+  </data>
+  <data name="Viewer_Bookmark" xml:space="preserve">
+    <value>收藏</value>
+  </data>
+  <data name="Viewer_PublicBookmark" xml:space="preserve">
+    <value>公开收藏</value>
+  </data>
+  <data name="Viewer_AddAsAPublicPixivBookmark" xml:space="preserve">
+    <value>添加为公开 Pixiv 收藏（若已是私密则切换为公开）</value>
+  </data>
+  <data name="Viewer_PrivateBookmark" xml:space="preserve">
+    <value>私密收藏</value>
+  </data>
+  <data name="Viewer_AddAsAPrivatePixivBookmark" xml:space="preserve">
+    <value>添加为私密 Pixiv 收藏（若已是公开则切换为私密）</value>
+  </data>
+  <data name="Viewer_ViewAndPostComments" xml:space="preserve">
+    <value>查看并发表评论</value>
+  </data>
+  <data name="Viewer_Comments" xml:space="preserve">
+    <value>评论</value>
+  </data>
+  <data name="Viewer_LoadingComments" xml:space="preserve">
+    <value>正在加载评论…</value>
+  </data>
+  <data name="Viewer_CancelReply" xml:space="preserve">
+    <value>取消回复</value>
+  </data>
+  <data name="Viewer_SendASticker" xml:space="preserve">
+    <value>发送贴纸</value>
+  </data>
+  <data name="Viewer_Emoji" xml:space="preserve">
+    <value>表情</value>
+  </data>
+  <data name="Viewer_Stickers" xml:space="preserve">
+    <value>贴纸</value>
+  </data>
+  <data name="Viewer_LoadingStickers" xml:space="preserve">
+    <value>正在加载贴纸…</value>
+  </data>
+  <data name="Viewer_AddAComment" xml:space="preserve">
+    <value>发表评论…</value>
+  </data>
+  <data name="Viewer_Post" xml:space="preserve">
+    <value>发表</value>
+  </data>
+  <data name="Viewer_ExitCollageView" xml:space="preserve">
+    <value>退出拼贴视图</value>
+  </data>
+  <data name="Viewer_ReturnToTheStoredCollageView" xml:space="preserve">
+    <value>返回已保存的拼贴视图</value>
+  </data>
+  <data name="Viewer_DownloadAllCollageArtworksIntoA" xml:space="preserve">
+    <value>将拼贴中的所有作品下载到 Collage_###### 文件夹</value>
+  </data>
+  <data name="Viewer_ToggleHoshiAIAssistant" xml:space="preserve">
+    <value>切换 Hoshi（星）— AI 助手</value>
+  </data>
+  <data name="Viewer_CloseTheCollageTab" xml:space="preserve">
+    <value>关闭拼贴标签页</value>
+  </data>
+  <data name="Viewer_Preview" xml:space="preserve">
+    <value>预览</value>
+  </data>
+  <data name="Viewer_ClickAnImageToPreviewIt" xml:space="preserve">
+    <value>点击图片在此预览</value>
+  </data>
+  <data name="Viewer_Retry" xml:space="preserve">
+    <value>↺ 重试</value>
+  </data>
+  <data name="Viewer_DownloadThisPage" xml:space="preserve">
+    <value>↓ 下载此页</value>
+  </data>
+  <data name="Viewer_DownloadAllPages_2" xml:space="preserve">
+    <value>↓ 下载所有页</value>
+  </data>
+  <data name="Viewer_DownloadPageRange_2" xml:space="preserve">
+    <value>↓ 下载页码范围…</value>
+  </data>
+  <data name="Viewer_FullscreenF11" xml:space="preserve">
+    <value>⛶ 全屏（F11）</value>
+  </data>
+  <data name="Viewer_OpenInPopupWindow" xml:space="preserve">
+    <value>在弹出窗口打开</value>
+  </data>
+  <data name="Viewer_OpenArtworkOnPixiv" xml:space="preserve">
+    <value>🌐 在 Pixiv 打开作品</value>
+  </data>
+  <data name="Viewer_GoToArtistSGallery" xml:space="preserve">
+    <value>👤 前往作者画廊</value>
+  </data>
+  <data name="Viewer_OpenArtistOnPixiv" xml:space="preserve">
+    <value>🌐 在 Pixiv 打开作者</value>
+  </data>
+  <data name="Viewer_CopyArtworkID" xml:space="preserve">
+    <value>复制作品 ID</value>
+  </data>
+  <data name="Viewer_CopyArtistID" xml:space="preserve">
+    <value>复制作者 ID</value>
+  </data>
+  <data name="Viewer_CopyImage" xml:space="preserve">
+    <value>📋 复制图片</value>
+  </data>
+  <data name="Viewer_UseAsAppBackground" xml:space="preserve">
+    <value>🖼 设为应用背景</value>
+  </data>
+  <data name="Viewer_ResetZoom" xml:space="preserve">
+    <value>重置缩放</value>
+  </data>
+  <data name="Viewer_ExpandIntoPageTiles" xml:space="preserve">
+    <value>展开为页面图块</value>
+  </data>
+  <data name="Viewer_RemoveFromCollage" xml:space="preserve">
+    <value>从拼贴中移除</value>
+  </data>
+  <data name="Viewer_Hoshi" xml:space="preserve">
+    <value>✦ Hoshi 星</value>
+  </data>
+  <data name="Viewer_FullView" xml:space="preserve">
+    <value>⤢ 完整视图</value>
+  </data>
+  <data name="Viewer_ContinueThisChatInTheFull" xml:space="preserve">
+    <value>在完整的 Hoshi 标签页中继续此对话</value>
+  </data>
+  <data name="Viewer_Describe" xml:space="preserve">
+    <value>👁 描述</value>
+  </data>
+  <data name="Viewer_DescribeThisImage" xml:space="preserve">
+    <value>描述此图片</value>
+  </data>
+  <data name="Viewer_DescribeThisImageUseTheArrow" xml:space="preserve">
+    <value>描述此图片。用箭头可描述所有页。</value>
+  </data>
+  <data name="Viewer_DescribeCurrentPage" xml:space="preserve">
+    <value>👁 描述当前页</value>
+  </data>
+  <data name="Viewer_DescribeAllPages" xml:space="preserve">
+    <value>📚 描述所有页</value>
+  </data>
+  <data name="Viewer_DescribesEveryPageOfAMulti" xml:space="preserve">
+    <value>描述多页投稿的每一页，而不只是当前页</value>
+  </data>
+  <data name="Viewer_Tags" xml:space="preserve">
+    <value>🏷 标签</value>
+  </data>
+  <data name="Viewer_SuggestTags" xml:space="preserve">
+    <value>建议标签</value>
+  </data>
+  <data name="Viewer_SimilarArt" xml:space="preserve">
+    <value>🖼 相似作品</value>
+  </data>
+  <data name="Viewer_RecommendArtworksSimilarToThisImage" xml:space="preserve">
+    <value>推荐与此图片相似的作品</value>
+  </data>
+  <data name="Viewer_SimilarArtists" xml:space="preserve">
+    <value>🧑‍🎨 相似作者</value>
+  </data>
+  <data name="Viewer_RecommendArtistsWithASimilarStyle" xml:space="preserve">
+    <value>推荐画风相似的作者</value>
+  </data>
+  <data name="Viewer_Fav" xml:space="preserve">
+    <value>⭐ 收藏</value>
+  </data>
+  <data name="Viewer_AddToLocalFavorites" xml:space="preserve">
+    <value>添加到本地收藏</value>
+  </data>
+  <data name="Viewer_DL" xml:space="preserve">
+    <value>↓ 下载</value>
+  </data>
+  <data name="Viewer_DownloadThisArtwork" xml:space="preserve">
+    <value>下载此作品</value>
+  </data>
+  <data name="Viewer_Clear" xml:space="preserve">
+    <value>🗑 清除</value>
+  </data>
+  <data name="Viewer_ClearChatHistory" xml:space="preserve">
+    <value>清除聊天记录</value>
+  </data>
+  <data name="Viewer_ViewArtwork" xml:space="preserve">
+    <value>🖼 查看作品</value>
+  </data>
+  <data name="Viewer_OpenThisArtworkInANew" xml:space="preserve">
+    <value>在新查看器标签页中打开此作品</value>
+  </data>
+  <data name="Viewer_Gallery" xml:space="preserve">
+    <value>👤 画廊</value>
+  </data>
+  <data name="Viewer_OpenURL" xml:space="preserve">
+    <value>🌐 打开链接</value>
+  </data>
+  <data name="Viewer_OpenThisPixivPageInYour" xml:space="preserve">
+    <value>在浏览器中打开此 Pixiv 页面</value>
+  </data>
+  <data name="Viewer_HoshiIsThinking" xml:space="preserve">
+    <value>Hoshi 正在思考…</value>
+  </data>
+  <data name="Viewer_AskHoshiAnythingDescribeSuggestTags" xml:space="preserve">
+    <value>向 Hoshi 提问 — 描述、建议标签、下载、加入收藏、移到文件夹…</value>
+  </data>
+  <data name="Viewer_Send" xml:space="preserve">
+    <value>发送</value>
+  </data>
+  <data name="Viewer_ClickTagFilterShiftClickSearch" xml:space="preserve">
+    <value>点击标签：过滤 • Shift+点击：全局搜索</value>
+  </data>
+  <data name="History_ActiveAndCompletedDownloads" xml:space="preserve">
+    <value>进行中与已完成的下载</value>
+  </data>
+  <data name="History_RetryAllFailed" xml:space="preserve">
+    <value>重试所有失败</value>
+  </data>
+  <data name="History_CardView" xml:space="preserve">
+    <value>卡片视图</value>
+  </data>
+  <data name="History_ListView" xml:space="preserve">
+    <value>列表视图</value>
+  </data>
+  <data name="History_PauseAll" xml:space="preserve">
+    <value>全部暂停</value>
+  </data>
+  <data name="History_ResumeAll" xml:space="preserve">
+    <value>全部恢复</value>
+  </data>
+  <data name="History_Pause" xml:space="preserve">
+    <value>暂停</value>
+  </data>
+  <data name="History_Resume" xml:space="preserve">
+    <value>恢复</value>
+  </data>
+  <data name="History_MoveToTop" xml:space="preserve">
+    <value>移到顶部</value>
+  </data>
+  <data name="History_MoveUp" xml:space="preserve">
+    <value>上移</value>
+  </data>
+  <data name="History_MoveDown" xml:space="preserve">
+    <value>下移</value>
+  </data>
+  <data name="History_MoveToBottom" xml:space="preserve">
+    <value>移到底部</value>
+  </data>
+  <data name="History_RemoveFromQueue" xml:space="preserve">
+    <value>从队列移除</value>
+  </data>
+  <data name="History_PreparingFetchingArtworkList" xml:space="preserve">
+    <value>准备中…（正在获取作品列表）</value>
+  </data>
+  <data name="History_Actions" xml:space="preserve">
+    <value>操作</value>
+  </data>
+  <data name="History_NoActiveDownloads" xml:space="preserve">
+    <value>没有进行中的下载</value>
+  </data>
+  <data name="History_QueueAJobFromGalleryOr" xml:space="preserve">
+    <value>从画廊或发现页添加任务以开始</value>
+  </data>
+  <data name="History_Completed" xml:space="preserve">
+    <value>已完成</value>
+  </data>
+  <data name="History_ClearAll" xml:space="preserve">
+    <value>全部清除</value>
+  </data>
+  <data name="History_OpenFolder" xml:space="preserve">
+    <value>打开文件夹</value>
+  </data>
+  <data name="Common_Remove" xml:space="preserve">
+    <value>移除</value>
+  </data>
+  <data name="History_ExportMetadata" xml:space="preserve">
+    <value>💾 导出元数据…</value>
+  </data>
+  <data name="History_FetchAndSaveIdArtistLink" xml:space="preserve">
+    <value>获取并保存此任务中每个作品的 id、作者、链接、尺寸、上传日期、浏览量、收藏数和标签</value>
+  </data>
+  <data name="History_NoCompletedDownloads" xml:space="preserve">
+    <value>没有已完成的下载</value>
+  </data>
+  <data name="History_Failed" xml:space="preserve">
+    <value>失败</value>
+  </data>
+  <data name="History_RetryAll" xml:space="preserve">
+    <value>全部重试</value>
+  </data>
+  <data name="History_NoFailedDownloads" xml:space="preserve">
+    <value>没有失败的下载</value>
+  </data>
+  <data name="History_Cancelled" xml:space="preserve">
+    <value>已取消</value>
+  </data>
+  <data name="History_NoCancelledDownloads" xml:space="preserve">
+    <value>没有已取消的下载</value>
+  </data>
+  <data name="Viewed_Select" xml:space="preserve">
+    <value>☑ 选择</value>
+  </data>
+  <data name="Viewed_Deselect" xml:space="preserve">
+    <value>☒ 取消选择</value>
+  </data>
+  <data name="Viewed_DownloadAll" xml:space="preserve">
+    <value>↓ 全部下载</value>
+  </data>
+  <data name="Viewed_FirstPageOnly" xml:space="preserve">
+    <value>↓ 仅第一页</value>
+  </data>
+  <data name="Viewed_OpenInSidePanel" xml:space="preserve">
+    <value>👁 在侧边面板打开</value>
+  </data>
+  <data name="Viewed_OpenFullScreen" xml:space="preserve">
+    <value>⛶ 全屏打开</value>
+  </data>
+  <data name="Viewed_OpenInNewTab" xml:space="preserve">
+    <value>⊞ 在新标签页中打开</value>
+  </data>
+  <data name="Viewed_OpenInPopup" xml:space="preserve">
+    <value>⧉ 在弹出窗口打开</value>
+  </data>
+  <data name="Viewed_OpenOnPixivNet" xml:space="preserve">
+    <value>🌐 在 pixiv.net 打开</value>
+  </data>
+  <data name="Viewed_OpenArtistGallery" xml:space="preserve">
+    <value>👤 打开作者画廊</value>
+  </data>
+  <data name="Viewed_AddToLocalFavorites" xml:space="preserve">
+    <value>★ 添加到本地收藏</value>
+  </data>
+  <data name="Viewed_RemoveFromFavorites" xml:space="preserve">
+    <value>★ 从收藏中移除</value>
+  </data>
+  <data name="Viewed_CopyArtworkID" xml:space="preserve">
+    <value>复制作品 ID</value>
+  </data>
+  <data name="Viewed_CopyArtistID" xml:space="preserve">
+    <value>复制作者 ID</value>
+  </data>
+  <data name="Viewed_CopyImage" xml:space="preserve">
+    <value>📋 复制图片</value>
+  </data>
+  <data name="Viewed_UseAsAppBackground" xml:space="preserve">
+    <value>🖼 设为应用背景</value>
+  </data>
+  <data name="Viewed_RemoveFromHistory" xml:space="preserve">
+    <value>✕ 从历史中移除</value>
+  </data>
+  <data name="Viewed_IncognitoModeArtworksYouOpenWon" xml:space="preserve">
+    <value>隐身模式：启用期间，打开的作品不会加入此历史。</value>
+  </data>
+  <data name="Viewed_IncognitoOff" xml:space="preserve">
+    <value>隐身：关</value>
+  </data>
+  <data name="Viewed_IncognitoOn" xml:space="preserve">
+    <value>隐身：开</value>
+  </data>
+  <data name="Viewed_BrowseByExactDate" xml:space="preserve">
+    <value>按具体日期浏览</value>
+  </data>
+  <data name="Viewed_QuickRange" xml:space="preserve">
+    <value>快速范围</value>
+  </data>
+  <data name="Viewed_Today" xml:space="preserve">
+    <value>今天</value>
+  </data>
+  <data name="Viewed_PastDay" xml:space="preserve">
+    <value>过去一天</value>
+  </data>
+  <data name="Viewed_PastWeek" xml:space="preserve">
+    <value>过去一周</value>
+  </data>
+  <data name="Viewed_PastMonth" xml:space="preserve">
+    <value>过去一月</value>
+  </data>
+  <data name="Viewed_PastYear" xml:space="preserve">
+    <value>过去一年</value>
+  </data>
+  <data name="Viewed_CustomRange" xml:space="preserve">
+    <value>自定义范围…</value>
+  </data>
+  <data name="Viewed_AllTime" xml:space="preserve">
+    <value>全部时间</value>
+  </data>
+  <data name="Viewed_BackToAllTime" xml:space="preserve">
+    <value>返回全部时间</value>
+  </data>
+  <data name="Viewed_DefaultFlatChronologicalFeed" xml:space="preserve">
+    <value>默认 — 按时间的平铺流</value>
+  </data>
+  <data name="Viewed_GroupedCollageThumbnailPerDay" xml:space="preserve">
+    <value>分组 — 每日拼贴缩略图</value>
+  </data>
+  <data name="Viewed_ListDayByDayList" xml:space="preserve">
+    <value>列表 — 按天列表</value>
+  </data>
+  <data name="Viewed_ShowPanel" xml:space="preserve">
+    <value>显示面板</value>
+  </data>
+  <data name="Viewed_HidePanel" xml:space="preserve">
+    <value>隐藏面板</value>
+  </data>
+  <data name="Viewed_ClearHistory" xml:space="preserve">
+    <value>清除历史…</value>
+  </data>
+  <data name="Viewed_PastHour" xml:space="preserve">
+    <value>过去一小时</value>
+  </data>
+  <data name="Viewed_DownloadVisible" xml:space="preserve">
+    <value>下载可见项</value>
+  </data>
+  <data name="Viewed_SelectAll" xml:space="preserve">
+    <value>☑ 全选</value>
+  </data>
+  <data name="Viewed_DownloadPreset" xml:space="preserve">
+    <value>🎨 下载预设</value>
+  </data>
+  <data name="Viewed_DownloadWithImageProcessingPreset" xml:space="preserve">
+    <value>使用图像处理预设下载</value>
+  </data>
+  <data name="Viewed_BackToDays" xml:space="preserve">
+    <value>← 返回日期列表</value>
+  </data>
+  <data name="Viewed_TogglePaginationOffAutoloadWhileScrollin" xml:space="preserve">
+    <value>切换分页（关 = 滚动自动加载）</value>
+  </data>
+  <data name="Viewed_Pages" xml:space="preserve">
+    <value>页</value>
+  </data>
+  <data name="Viewed_ItemsPerPage" xml:space="preserve">
+    <value>每页数量</value>
+  </data>
+  <data name="Viewed_Prev" xml:space="preserve">
+    <value>‹ 上一页</value>
+  </data>
+  <data name="Viewed_TypeAPageNumberAndPress" xml:space="preserve">
+    <value>输入页码并按 Enter</value>
+  </data>
+  <data name="Viewed_Next" xml:space="preserve">
+    <value>下一页 ›</value>
+  </data>
+  <data name="Viewed_LoadMore" xml:space="preserve">
+    <value>加载更多</value>
+  </data>
+  <data name="Hoshi_Sessions" xml:space="preserve">
+    <value>会话</value>
+  </data>
+  <data name="Hoshi_ClearAll" xml:space="preserve">
+    <value>全部清除</value>
+  </data>
+  <data name="Hoshi_New" xml:space="preserve">
+    <value>✚ 新建</value>
+  </data>
+  <data name="Hoshi_NoSessionsYet" xml:space="preserve">
+    <value>还没有会话</value>
+  </data>
+  <data name="Hoshi_ClickNewToStartThenDrop" xml:space="preserve">
+    <value>点击 ✚ 新建开始，然后拖入图片。</value>
+  </data>
+  <data name="Hoshi_DeleteSelected" xml:space="preserve">
+    <value>删除所选</value>
+  </data>
+  <data name="Hoshi_Duplicate" xml:space="preserve">
+    <value>复制</value>
+  </data>
+  <data name="Hoshi_DeleteSession" xml:space="preserve">
+    <value>删除会话</value>
+  </data>
+  <data name="Hoshi_Enable" xml:space="preserve">
+    <value>启用</value>
+  </data>
+  <data name="Hoshi_ClickToViewLarger" xml:space="preserve">
+    <value>点击放大查看</value>
+  </data>
+  <data name="Hoshi_NoImageAttached" xml:space="preserve">
+    <value>未附加图片</value>
+  </data>
+  <data name="Hoshi_DropAnImageHerePasteWith" xml:space="preserve">
+    <value>将图片拖到此处、按 Ctrl+V 粘贴，或点击 📂 打开</value>
+  </data>
+  <data name="Hoshi_ViewArtwork" xml:space="preserve">
+    <value>🖼 查看作品</value>
+  </data>
+  <data name="Hoshi_OpenThisArtworkInTheGallery" xml:space="preserve">
+    <value>在画廊查看器中打开此作品</value>
+  </data>
+  <data name="Hoshi_Open" xml:space="preserve">
+    <value>📂 打开</value>
+  </data>
+  <data name="Hoshi_AttachAnImageFromYourComputer" xml:space="preserve">
+    <value>从电脑附加图片</value>
+  </data>
+  <data name="Hoshi_Paste" xml:space="preserve">
+    <value>📋 粘贴</value>
+  </data>
+  <data name="Hoshi_PasteImageFromClipboardCtrlV" xml:space="preserve">
+    <value>从剪贴板粘贴图片（也可用 Ctrl+V）</value>
+  </data>
+  <data name="Hoshi_URL" xml:space="preserve">
+    <value>🌐 URL</value>
+  </data>
+  <data name="Hoshi_ClearChat" xml:space="preserve">
+    <value>🗑 清除对话</value>
+  </data>
+  <data name="Hoshi_ClearsTheConversationOnlyTheAttached" xml:space="preserve">
+    <value>仅清除对话 — 附加的图片保留。</value>
+  </data>
+  <data name="Hoshi_You" xml:space="preserve">
+    <value>你</value>
+  </data>
+  <data name="Hoshi_OpenThisArtworkInANew" xml:space="preserve">
+    <value>在新查看器标签页中打开此作品</value>
+  </data>
+  <data name="Hoshi_Gallery" xml:space="preserve">
+    <value>👤 画廊</value>
+  </data>
+  <data name="Hoshi_OpenThisArtistSGallery" xml:space="preserve">
+    <value>打开此作者的画廊</value>
+  </data>
+  <data name="Hoshi_OpenURL" xml:space="preserve">
+    <value>🌐 打开链接</value>
+  </data>
+  <data name="Hoshi_OpenThisPixivPageInYour" xml:space="preserve">
+    <value>在浏览器中打开此 Pixiv 页面</value>
+  </data>
+  <data name="Hoshi_HoshiIsThinking" xml:space="preserve">
+    <value>Hoshi 正在思考…</value>
+  </data>
+  <data name="Hoshi_Describe" xml:space="preserve">
+    <value>👁 描述</value>
+  </data>
+  <data name="Hoshi_DescribeTheImageItsStyleAnd" xml:space="preserve">
+    <value>描述图片、其风格和角色</value>
+  </data>
+  <data name="Hoshi_DescribeTheImageItsStyleAnd_2" xml:space="preserve">
+    <value>描述图片、其风格和角色。用箭头可描述所有页。</value>
+  </data>
+  <data name="Hoshi_DescribeCurrentPage" xml:space="preserve">
+    <value>👁 描述当前页</value>
+  </data>
+  <data name="Hoshi_DescribeAllPages" xml:space="preserve">
+    <value>📚 描述所有页</value>
+  </data>
+  <data name="Hoshi_DescribesEveryPageOfAMulti" xml:space="preserve">
+    <value>描述多页投稿的每一页，而不只是当前页</value>
+  </data>
+  <data name="Hoshi_Tags" xml:space="preserve">
+    <value>🏷 标签</value>
+  </data>
+  <data name="Hoshi_SimilarArt" xml:space="preserve">
+    <value>🖼 相似作品</value>
+  </data>
+  <data name="Hoshi_RecommendArtworksSimilarToThisImage" xml:space="preserve">
+    <value>推荐与此图片相似的作品</value>
+  </data>
+  <data name="Hoshi_SimilarArtists" xml:space="preserve">
+    <value>🧑‍🎨 相似作者</value>
+  </data>
+  <data name="Hoshi_RecommendArtistsWithASimilarStyle" xml:space="preserve">
+    <value>推荐画风相似的作者</value>
+  </data>
+  <data name="Hoshi_Fav" xml:space="preserve">
+    <value>⭐ 收藏</value>
+  </data>
+  <data name="Hoshi_DL" xml:space="preserve">
+    <value>↓ 下载</value>
+  </data>
+  <data name="Hoshi_AskHoshiAnythingDropAnImage" xml:space="preserve">
+    <value>向 Hoshi 提问 — 拖入图片、粘贴或输入问题…</value>
+  </data>
+  <data name="Hoshi_Sending" xml:space="preserve">
+    <value>发送中…</value>
+  </data>
+  <data name="Hoshi_Send" xml:space="preserve">
+    <value>发送</value>
+  </data>
+  <data name="Login_SettingUpSignIn" xml:space="preserve">
+    <value>正在设置登录</value>
+  </data>
+  <data name="Login_DownloadingTheBundledBrowserUsedTo" xml:space="preserve">
+    <value>正在下载用于登录的内置浏览器。仅首次需要，需几分钟（约 150 MB）。</value>
+  </data>
+  <data name="Login_ContactingPlaywrightDev" xml:space="preserve">
+    <value>正在连接 playwright.dev…</value>
+  </data>
+  <data name="Login_PastePHPSESSID" xml:space="preserve">
+    <value>粘贴 PHPSESSID</value>
+  </data>
+  <data name="Login_ManualSignInEmergencyFallback" xml:space="preserve">
+    <value>手动登录（紧急备用）</value>
+  </data>
+  <data name="Login_PastePHPSESSIDValueHere" xml:space="preserve">
+    <value>在此粘贴 PHPSESSID 值…</value>
+  </data>
+  <data name="Common_Confirm" xml:space="preserve">
+    <value>确认</value>
+  </data>
+  <data name="Login_SignInToPixiv" xml:space="preserve">
+    <value>登录 Pixiv</value>
+  </data>
+  <data name="Login_SignInWithYourPixivAccount" xml:space="preserve">
+    <value>请在下方使用你的 Pixiv 账户登录。会话将自动获取。</value>
+  </data>
+  <data name="Pixivision_Select" xml:space="preserve">
+    <value>☑ 选择</value>
+  </data>
+  <data name="Pixivision_Deselect" xml:space="preserve">
+    <value>☒ 取消选择</value>
+  </data>
+  <data name="Pixivision_DownloadAll" xml:space="preserve">
+    <value>↓ 全部下载</value>
+  </data>
+  <data name="Pixivision_FirstPageOnly" xml:space="preserve">
+    <value>↓ 仅第一页</value>
+  </data>
+  <data name="Pixivision_OpenInSidePanel" xml:space="preserve">
+    <value>👁 在侧边面板打开</value>
+  </data>
+  <data name="Pixivision_OpenFullScreen" xml:space="preserve">
+    <value>⛶ 全屏打开</value>
+  </data>
+  <data name="Pixivision_OpenInNewTab" xml:space="preserve">
+    <value>⊞ 在新标签页中打开</value>
+  </data>
+  <data name="Pixivision_OpenInPopup" xml:space="preserve">
+    <value>⧉ 在弹出窗口打开</value>
+  </data>
+  <data name="Pixivision_OpenOnPixivNet" xml:space="preserve">
+    <value>🌐 在 pixiv.net 打开</value>
+  </data>
+  <data name="Pixivision_OpenArtistGallery" xml:space="preserve">
+    <value>👤 打开作者画廊</value>
+  </data>
+  <data name="Pixivision_AddToLocalFavorites" xml:space="preserve">
+    <value>★ 添加到本地收藏</value>
+  </data>
+  <data name="Pixivision_RemoveFromFavorites" xml:space="preserve">
+    <value>★ 从收藏中移除</value>
+  </data>
+  <data name="Pixivision_CopyArtworkID" xml:space="preserve">
+    <value>复制作品 ID</value>
+  </data>
+  <data name="Pixivision_CopyArtistID" xml:space="preserve">
+    <value>复制作者 ID</value>
+  </data>
+  <data name="Pixivision_CopyImage" xml:space="preserve">
+    <value>📋 复制图片</value>
+  </data>
+  <data name="Pixivision_UseAsAppBackground" xml:space="preserve">
+    <value>🖼 设为应用背景</value>
+  </data>
+  <data name="Pixivision_UgoiraOptions" xml:space="preserve">
+    <value>动图选项…</value>
+  </data>
+  <data name="Pixivision_SaveForLater" xml:space="preserve">
+    <value>🔖 稍后阅读</value>
+  </data>
+  <data name="Pixivision_RemoveFromSaved" xml:space="preserve">
+    <value>🔖 从已保存移除</value>
+  </data>
+  <data name="Pixivision_OpenOnPixivisionNet" xml:space="preserve">
+    <value>🌐 在 pixivision.net 打开</value>
+  </data>
+  <data name="Pixivision_ArticlesSavedForReadingLater" xml:space="preserve">
+    <value>保存以便稍后阅读的文章</value>
+  </data>
+  <data name="Pixivision_Back" xml:space="preserve">
+    <value>← 返回</value>
+  </data>
+  <data name="Pixivision_BrowseArticlesByDate" xml:space="preserve">
+    <value>按日期浏览文章</value>
+  </data>
+  <data name="Pixivision_QuickRange" xml:space="preserve">
+    <value>快速范围</value>
+  </data>
+  <data name="Pixivision_Today" xml:space="preserve">
+    <value>今天</value>
+  </data>
+  <data name="Pixivision_PastDay" xml:space="preserve">
+    <value>过去一天</value>
+  </data>
+  <data name="Pixivision_PastWeek" xml:space="preserve">
+    <value>过去一周</value>
+  </data>
+  <data name="Pixivision_PastMonth" xml:space="preserve">
+    <value>过去一月</value>
+  </data>
+  <data name="Pixivision_PastYear" xml:space="preserve">
+    <value>过去一年</value>
+  </data>
+  <data name="Pixivision_CustomRange" xml:space="preserve">
+    <value>自定义范围…</value>
+  </data>
+  <data name="Pixivision_AllTime" xml:space="preserve">
+    <value>全部时间</value>
+  </data>
+  <data name="Pixivision_BackToAllDates" xml:space="preserve">
+    <value>返回所有日期</value>
+  </data>
+  <data name="Pixivision_SaveThisArticleToReadLater" xml:space="preserve">
+    <value>保存此文章以便稍后阅读</value>
+  </data>
+  <data name="Pixivision_CardSize" xml:space="preserve">
+    <value>卡片大小</value>
+  </data>
+  <data name="Pixivision_ShowOrHideTheMonthlyRanking" xml:space="preserve">
+    <value>显示 / 隐藏月排行/精选侧边栏</value>
+  </data>
+  <data name="Pixivision_SidebarSizeWidensTheMonthlyRanking" xml:space="preserve">
+    <value>侧边栏大小 — 加宽月排行/精选面板并放大缩略图</value>
+  </data>
+  <data name="Pixivision_ToggleTheSidePanelBrowseArtworks" xml:space="preserve">
+    <value>切换侧边面板（与查看器并排浏览作品）</value>
+  </data>
+  <data name="Pixivision_SwitchBetweenShowingEmbeddedArtworksInli" xml:space="preserve">
+    <value>切换：在文章中原位显示嵌入作品，或汇总到文章底部的画廊</value>
+  </data>
+  <data name="Pixivision_Artworks" xml:space="preserve">
+    <value>作品:</value>
+  </data>
+  <data name="Pixivision_ShowHideLikedBookmarkedFavoriteBadges" xml:space="preserve">
+    <value>显示 / 隐藏卡片上的点赞/收藏/收藏夹标记</value>
+  </data>
+  <data name="Pixivision_Badges" xml:space="preserve">
+    <value>标记</value>
+  </data>
+  <data name="Pixivision_ShowTheSelectedArtworksTiledTogether" xml:space="preserve">
+    <value>在侧边面板中平铺显示所选作品（最多 10 个）</value>
+  </data>
+  <data name="Pixivision_Collage" xml:space="preserve">
+    <value>拼贴</value>
+  </data>
+  <data name="Pixivision_AddTheSelectedArtworksToThe" xml:space="preserve">
+    <value>将所选作品添加到当前拼贴。用箭头选择拼贴</value>
+  </data>
+  <data name="Pixivision_OpenEachSelectedArtworkInIts" xml:space="preserve">
+    <value>在各自标签页中打开每个所选作品</value>
+  </data>
+  <data name="Pixivision_ViewInNewTabs" xml:space="preserve">
+    <value>在新标签页中查看</value>
+  </data>
+  <data name="Pixivision_DownloadAllFeatured" xml:space="preserve">
+    <value>下载所有精选作品</value>
+  </data>
+  <data name="Pixivision_SelectAll" xml:space="preserve">
+    <value>☑ 全选</value>
+  </data>
+  <data name="Pixivision_DownloadPreset" xml:space="preserve">
+    <value>🎨 下载预设</value>
+  </data>
+  <data name="Pixivision_DownloadWithImageProcessingPreset" xml:space="preserve">
+    <value>使用图像处理预设下载</value>
+  </data>
+  <data name="Pixivision_OpenOnPixivisionNet_2" xml:space="preserve">
+    <value>在 pixivision.net 打开</value>
+  </data>
+  <data name="Pixivision_SaveForLater_2" xml:space="preserve">
+    <value>稍后阅读</value>
+  </data>
+  <data name="Pixivision_MonthlyRanking" xml:space="preserve">
+    <value>🏆 月排行</value>
+  </data>
+  <data name="Pixivision_Featured" xml:space="preserve">
+    <value>⭐ 精选</value>
+  </data>
+  <data name="Pixivision_SavedArticles" xml:space="preserve">
+    <value>🔖 已保存文章</value>
+  </data>
+  <data name="Pixivision_NoSavedArticlesYetOpenAn" xml:space="preserve">
+    <value>还没有保存的文章。打开文章并点击 🔖 保存即可稍后阅读。</value>
+  </data>
+  <data name="Pixivision_RemoveFromSaved_2" xml:space="preserve">
+    <value>从已保存移除</value>
+  </data>
+  <data name="Pixivision_Index" xml:space="preserve">
+    <value>📑 目录</value>
+  </data>
+  <data name="Pixivision_FeaturedArtworks" xml:space="preserve">
+    <value>精选作品</value>
+  </data>
+  <data name="Pixivision_TogglePaginationOffAutoloadWhileScrollin" xml:space="preserve">
+    <value>切换分页（关 = 滚动自动加载）</value>
+  </data>
+  <data name="Pixivision_Pages" xml:space="preserve">
+    <value>页</value>
+  </data>
+  <data name="Pixivision_Prev" xml:space="preserve">
+    <value>‹ 上一页</value>
+  </data>
+  <data name="Pixivision_TypeAPageNumberAndPress" xml:space="preserve">
+    <value>输入页码并按 Enter</value>
+  </data>
+  <data name="Pixivision_Next" xml:space="preserve">
+    <value>下一页 ›</value>
+  </data>
+  <data name="Rankings_LoadRankings" xml:space="preserve">
+    <value>加载排行榜</value>
+  </data>
+  <data name="Rankings_DailyWeeklyAndMonthlyRankings" xml:space="preserve">
+    <value>每日、每周和每月排行榜</value>
+  </data>
+  <data name="Rankings_OpenInSidePanel" xml:space="preserve">
+    <value>👁 在侧边面板打开</value>
+  </data>
+  <data name="Rankings_OpenInTheInlineViewerWith" xml:space="preserve">
+    <value>在带侧边面板的内联查看器中打开</value>
+  </data>
+  <data name="Rankings_OpenFullScreen" xml:space="preserve">
+    <value>⛶ 全屏打开</value>
+  </data>
+  <data name="Rankings_OpenInTheInlineViewerIn" xml:space="preserve">
+    <value>以全屏模式在内联查看器中打开</value>
+  </data>
+  <data name="Rankings_OpenInNewTab" xml:space="preserve">
+    <value>⊞ 在新标签页中打开</value>
+  </data>
+  <data name="Rankings_OpenThisArtworkInANew" xml:space="preserve">
+    <value>在新查看器标签页中打开此作品</value>
+  </data>
+  <data name="Rankings_OpenInPopupWindow" xml:space="preserve">
+    <value>⧉ 在弹出窗口打开</value>
+  </data>
+  <data name="Rankings_OpenInAFloatingWindow" xml:space="preserve">
+    <value>在浮动窗口打开</value>
+  </data>
+  <data name="Rankings_Select" xml:space="preserve">
+    <value>☑ 选择</value>
+  </data>
+  <data name="Rankings_AddToBulkSelection" xml:space="preserve">
+    <value>加入批量选择</value>
+  </data>
+  <data name="Rankings_Deselect" xml:space="preserve">
+    <value>☒ 取消选择</value>
+  </data>
+  <data name="Rankings_OpenArtistGallery" xml:space="preserve">
+    <value>👤 打开作者画廊</value>
+  </data>
+  <data name="Rankings_SwitchToTheGalleryTabAnd" xml:space="preserve">
+    <value>切换到画廊标签页并加载此作者</value>
+  </data>
+  <data name="Rankings_OpenOnPixivNet" xml:space="preserve">
+    <value>🌐 在 pixiv.net 打开</value>
+  </data>
+  <data name="Rankings_OpenArtistOnPixiv" xml:space="preserve">
+    <value>🌐 在 pixiv 打开作者</value>
+  </data>
+  <data name="Rankings_AddToLocalFavorites" xml:space="preserve">
+    <value>★ 添加到本地收藏</value>
+  </data>
+  <data name="Rankings_RemoveFromFavorites" xml:space="preserve">
+    <value>★ 从收藏中移除</value>
+  </data>
+  <data name="Rankings_CopyArtworkID" xml:space="preserve">
+    <value>复制作品 ID</value>
+  </data>
+  <data name="Rankings_CopyArtworkURL" xml:space="preserve">
+    <value>复制作品链接</value>
+  </data>
+  <data name="Rankings_CopyImage" xml:space="preserve">
+    <value>📋 复制图片</value>
+  </data>
+  <data name="Rankings_UseAsAppBackground" xml:space="preserve">
+    <value>🖼 设为应用背景</value>
+  </data>
+  <data name="Rankings_NewerDate" xml:space="preserve">
+    <value>较新日期</value>
+  </data>
+  <data name="Rankings_PickADate" xml:space="preserve">
+    <value>选择日期</value>
+  </data>
+  <data name="Rankings_YYYYMMDD" xml:space="preserve">
+    <value>YYYY-MM-DD</value>
+  </data>
+  <data name="Rankings_TypeYYYYMMDDAndPress" xml:space="preserve">
+    <value>输入 YYYY-MM-DD 并按 Enter</value>
+  </data>
+  <data name="Rankings_ResetToLatestRanking" xml:space="preserve">
+    <value>重置为最新排行</value>
+  </data>
+  <data name="Rankings_OlderDate" xml:space="preserve">
+    <value>较旧日期</value>
+  </data>
+  <data name="Rankings_Reload" xml:space="preserve">
+    <value>重新加载</value>
+  </data>
+  <data name="Rankings_ShowR18Rankings" xml:space="preserve">
+    <value>显示 R-18 排行</value>
+  </data>
+  <data name="Rankings_Overall" xml:space="preserve">
+    <value>综合</value>
+  </data>
+  <data name="Rankings_Illustrations" xml:space="preserve">
+    <value>插画</value>
+  </data>
+  <data name="Rankings_Ugoira" xml:space="preserve">
+    <value>动图</value>
+  </data>
+  <data name="Rankings_Manga" xml:space="preserve">
+    <value>漫画</value>
+  </data>
+  <data name="Rankings_GridView" xml:space="preserve">
+    <value>网格视图</value>
+  </data>
+  <data name="Rankings_ListView" xml:space="preserve">
+    <value>列表视图</value>
+  </data>
+  <data name="Rankings_FixedCardHeightImagesCroppedTo" xml:space="preserve">
+    <value>固定卡片高度 — 图片裁剪适配</value>
+  </data>
+  <data name="Rankings_NaturalCardHeightImagesShowFull" xml:space="preserve">
+    <value>自然卡片高度 — 图片显示完整宽高比</value>
+  </data>
+  <data name="Rankings_CardSize" xml:space="preserve">
+    <value>卡片大小</value>
+  </data>
+  <data name="Rankings_ToggleTheSidePanelBrowseArtworks" xml:space="preserve">
+    <value>切换侧边面板（与查看器并排浏览作品）</value>
+  </data>
+  <data name="Rankings_ShowPanel" xml:space="preserve">
+    <value>显示面板</value>
+  </data>
+  <data name="Rankings_HidePanel" xml:space="preserve">
+    <value>隐藏面板</value>
+  </data>
+  <data name="Rankings_ShowHideArtworkInfo" xml:space="preserve">
+    <value>显示 / 隐藏作品信息</value>
+  </data>
+  <data name="Rankings_ShowHideTags" xml:space="preserve">
+    <value>显示 / 隐藏标签</value>
+  </data>
+  <data name="Rankings_ShowHideLikedBookmarkedFavoriteBadges" xml:space="preserve">
+    <value>显示 / 隐藏卡片上的点赞/收藏/收藏夹标记</value>
+  </data>
+  <data name="Rankings_Badges" xml:space="preserve">
+    <value>标记</value>
+  </data>
+  <data name="Rankings_Daily" xml:space="preserve">
+    <value>每日</value>
+  </data>
+  <data name="Rankings_Weekly" xml:space="preserve">
+    <value>每周</value>
+  </data>
+  <data name="Rankings_AI" xml:space="preserve">
+    <value>AI</value>
+  </data>
+  <data name="Rankings_Male" xml:space="preserve">
+    <value>男性向</value>
+  </data>
+  <data name="Rankings_Female" xml:space="preserve">
+    <value>女性向</value>
+  </data>
+  <data name="Rankings_Monthly" xml:space="preserve">
+    <value>每月</value>
+  </data>
+  <data name="Rankings_Rookie" xml:space="preserve">
+    <value>新秀</value>
+  </data>
+  <data name="Rankings_Original" xml:space="preserve">
+    <value>原创</value>
+  </data>
+  <data name="Rankings_DownloadSelectedArtworks" xml:space="preserve">
+    <value>下载所选作品</value>
+  </data>
+  <data name="Rankings_ShowTheSelectedArtworksTiledTogether" xml:space="preserve">
+    <value>在侧边面板中平铺显示所选作品（最多 10 个）</value>
+  </data>
+  <data name="Rankings_Collage" xml:space="preserve">
+    <value>拼贴</value>
+  </data>
+  <data name="Rankings_AddTheSelectedArtworksToThe" xml:space="preserve">
+    <value>将所选作品添加到当前拼贴。用箭头选择拼贴</value>
+  </data>
+  <data name="Rankings_OpenEachSelectedArtworkInIts" xml:space="preserve">
+    <value>在各自标签页中打开每个所选作品</value>
+  </data>
+  <data name="Rankings_ViewInNewTabs" xml:space="preserve">
+    <value>在新标签页中查看</value>
+  </data>
+  <data name="Rankings_DownloadAllVisibleArtworks" xml:space="preserve">
+    <value>下载所有可见作品</value>
+  </data>
+  <data name="Rankings_DownloadVisible" xml:space="preserve">
+    <value>下载可见项</value>
+  </data>
+  <data name="Rankings_DownloadPreset" xml:space="preserve">
+    <value>🎨 下载预设</value>
+  </data>
+  <data name="Rankings_DownloadWithImageProcessingPreset" xml:space="preserve">
+    <value>使用图像处理预设下载</value>
+  </data>
+  <data name="Rankings_SelectAll" xml:space="preserve">
+    <value>☑ 全选</value>
+  </data>
+  <data name="Rankings_SelectAllVisibleArtworks" xml:space="preserve">
+    <value>选择所有可见作品</value>
+  </data>
+  <data name="Rankings_LoadingRankings" xml:space="preserve">
+    <value>🏆 正在加载排行榜…</value>
+  </data>
+  <data name="Rankings_NoRankingsToShow" xml:space="preserve">
+    <value>🏆 没有可显示的排行</value>
+  </data>
+  <data name="Rankings_TogglePaginationOffAutoloadWhileScrollin" xml:space="preserve">
+    <value>切换分页（关 = 滚动自动加载）</value>
+  </data>
+  <data name="Rankings_Pages" xml:space="preserve">
+    <value>页</value>
+  </data>
+  <data name="Rankings_ItemsPerPage" xml:space="preserve">
+    <value>每页数量</value>
+  </data>
+  <data name="Rankings_Prev" xml:space="preserve">
+    <value>‹ 上一页</value>
+  </data>
+  <data name="Rankings_TypeAPageNumberAndPress" xml:space="preserve">
+    <value>输入页码并按 Enter</value>
+  </data>
+  <data name="Rankings_Next" xml:space="preserve">
+    <value>下一页 ›</value>
+  </data>
+  <data name="Search_Select" xml:space="preserve">
+    <value>☑ 选择</value>
+  </data>
+  <data name="Search_Deselect" xml:space="preserve">
+    <value>☒ 取消选择</value>
+  </data>
+  <data name="Search_DownloadAll" xml:space="preserve">
+    <value>↓ 全部下载</value>
+  </data>
+  <data name="Search_FirstPageOnly" xml:space="preserve">
+    <value>↓ 仅第一页</value>
+  </data>
+  <data name="Search_OpenInSidePanel" xml:space="preserve">
+    <value>👁 在侧边面板打开</value>
+  </data>
+  <data name="Search_OpenFullScreen" xml:space="preserve">
+    <value>⛶ 全屏打开</value>
+  </data>
+  <data name="Search_OpenInNewTab" xml:space="preserve">
+    <value>⊞ 在新标签页中打开</value>
+  </data>
+  <data name="Search_OpenInPopup" xml:space="preserve">
+    <value>⧉ 在弹出窗口打开</value>
+  </data>
+  <data name="Search_OpenOnPixivNet" xml:space="preserve">
+    <value>🌐 在 pixiv.net 打开</value>
+  </data>
+  <data name="Search_OpenArtistGallery" xml:space="preserve">
+    <value>👤 打开作者画廊</value>
+  </data>
+  <data name="Search_AddToLocalFavorites" xml:space="preserve">
+    <value>★ 添加到本地收藏</value>
+  </data>
+  <data name="Search_RemoveFromFavorites" xml:space="preserve">
+    <value>★ 从收藏中移除</value>
+  </data>
+  <data name="Search_CopyArtworkID" xml:space="preserve">
+    <value>复制作品 ID</value>
+  </data>
+  <data name="Search_CopyArtistID" xml:space="preserve">
+    <value>复制作者 ID</value>
+  </data>
+  <data name="Search_CopyImage" xml:space="preserve">
+    <value>📋 复制图片</value>
+  </data>
+  <data name="Search_UseAsAppBackground" xml:space="preserve">
+    <value>🖼 设为应用背景</value>
+  </data>
+  <data name="Search_SearchAllOfPixiv" xml:space="preserve">
+    <value>搜索整个 Pixiv…</value>
+  </data>
+  <data name="Search_ClearHistory" xml:space="preserve">
+    <value>清除历史</value>
+  </data>
+  <data name="Search_NoSearchHistoryYet" xml:space="preserve">
+    <value>还没有搜索历史。</value>
+  </data>
+  <data name="Search_Reset" xml:space="preserve">
+    <value>✕ 重置</value>
+  </data>
+  <data name="Search_ClearResultsAndGoBackTo" xml:space="preserve">
+    <value>清除结果并返回搜索起始页</value>
+  </data>
+  <data name="Search_Keywords" xml:space="preserve">
+    <value>± 关键词</value>
+  </data>
+  <data name="Search_ShowIncludeExcludeKeywordOptions" xml:space="preserve">
+    <value>显示包含/排除关键词选项</value>
+  </data>
+  <data name="Search_AdvancedSearchOptions" xml:space="preserve">
+    <value>高级搜索选项</value>
+  </data>
+  <data name="Search_Options" xml:space="preserve">
+    <value>⚙ 选项</value>
+  </data>
+  <data name="Search_Options_2" xml:space="preserve">
+    <value>⚙ 选项 •</value>
+  </data>
+  <data name="Search_SearchOptions" xml:space="preserve">
+    <value>搜索选项</value>
+  </data>
+  <data name="Search_Targets" xml:space="preserve">
+    <value>目标</value>
+  </data>
+  <data name="Search_TagsPartialMatch" xml:space="preserve">
+    <value>标签（部分匹配）</value>
+  </data>
+  <data name="Search_TagsExactMatch" xml:space="preserve">
+    <value>标签（完全匹配）</value>
+  </data>
+  <data name="Search_TitleAndCaption" xml:space="preserve">
+    <value>标题和说明</value>
+  </data>
+  <data name="Search_WorkType" xml:space="preserve">
+    <value>作品类型</value>
+  </data>
+  <data name="Search_IllustrationsUgoira" xml:space="preserve">
+    <value>插画＋动图</value>
+  </data>
+  <data name="Search_IllustrationsOnly" xml:space="preserve">
+    <value>仅插画</value>
+  </data>
+  <data name="Search_UgoiraOnly" xml:space="preserve">
+    <value>仅动图</value>
+  </data>
+  <data name="Search_AIGeneratedWork" xml:space="preserve">
+    <value>AI 生成作品</value>
+  </data>
+  <data name="Search_Display" xml:space="preserve">
+    <value>显示</value>
+  </data>
+  <data name="Search_Hide" xml:space="preserve">
+    <value>隐藏</value>
+  </data>
+  <data name="Search_AspectRatio" xml:space="preserve">
+    <value>宽高比</value>
+  </data>
+  <data name="Search_Any" xml:space="preserve">
+    <value>任意</value>
+  </data>
+  <data name="Search_Portrait" xml:space="preserve">
+    <value>纵向</value>
+  </data>
+  <data name="Search_Square" xml:space="preserve">
+    <value>正方形</value>
+  </data>
+  <data name="Search_Landscape" xml:space="preserve">
+    <value>横向</value>
+  </data>
+  <data name="Search_CreationTool" xml:space="preserve">
+    <value>创作工具</value>
+  </data>
+  <data name="Search_PostedDateRange" xml:space="preserve">
+    <value>发布日期范围</value>
+  </data>
+  <data name="Search_ImageWidthPx" xml:space="preserve">
+    <value>图片宽度（px）</value>
+  </data>
+  <data name="Search_ImageHeightPx" xml:space="preserve">
+    <value>图片高度（px）</value>
+  </data>
+  <data name="Search_PixivPremiumRequired" xml:space="preserve">
+    <value>需要 Pixiv 会员</value>
+  </data>
+  <data name="Common_Reset" xml:space="preserve">
+    <value>重置</value>
+  </data>
+  <data name="Search_IncludeAnyOfTheKeywords" xml:space="preserve">
+    <value>包含任一关键词</value>
+  </data>
+  <data name="Search_ExcludeKeywords" xml:space="preserve">
+    <value>排除关键词</value>
+  </data>
+  <data name="Search_Related" xml:space="preserve">
+    <value>相关:</value>
+  </data>
+  <data name="Search_Illustrations" xml:space="preserve">
+    <value>插画</value>
+  </data>
+  <data name="Search_Manga" xml:space="preserve">
+    <value>漫画</value>
+  </data>
+  <data name="Search_Novels" xml:space="preserve">
+    <value>小说</value>
+  </data>
+  <data name="Search_User" xml:space="preserve">
+    <value>用户</value>
+  </data>
+  <data name="Search_Safe" xml:space="preserve">
+    <value>安全</value>
+  </data>
+  <data name="Search_All" xml:space="preserve">
+    <value>全部</value>
+  </data>
+  <data name="Search_NewestFirst" xml:space="preserve">
+    <value>最新优先</value>
+  </data>
+  <data name="Search_PopularFirst" xml:space="preserve">
+    <value>最热优先</value>
+  </data>
+  <data name="Search_PopularMale" xml:space="preserve">
+    <value>热门（男性）</value>
+  </data>
+  <data name="Search_PopularFemale" xml:space="preserve">
+    <value>热门（女性）</value>
+  </data>
+  <data name="Search_ShowPanel" xml:space="preserve">
+    <value>显示面板</value>
+  </data>
+  <data name="Search_HidePanel" xml:space="preserve">
+    <value>隐藏面板</value>
+  </data>
+  <data name="Search_ShowHideLikedBookmarkedFavoriteBadges" xml:space="preserve">
+    <value>显示 / 隐藏卡片上的点赞/收藏/收藏夹标记</value>
+  </data>
+  <data name="Search_Badges" xml:space="preserve">
+    <value>标记</value>
+  </data>
+  <data name="Search_ShowTheSelectedArtworksTiledTogether" xml:space="preserve">
+    <value>在侧边面板中平铺显示所选作品（最多 10 个）</value>
+  </data>
+  <data name="Search_Collage" xml:space="preserve">
+    <value>拼贴</value>
+  </data>
+  <data name="Search_AddTheSelectedArtworksToThe" xml:space="preserve">
+    <value>将所选作品添加到当前拼贴。用箭头选择拼贴</value>
+  </data>
+  <data name="Search_OpenEachSelectedArtworkInIts" xml:space="preserve">
+    <value>在各自标签页中打开每个所选作品</value>
+  </data>
+  <data name="Search_ViewInNewTabs" xml:space="preserve">
+    <value>在新标签页中查看</value>
+  </data>
+  <data name="Search_DownloadVisible" xml:space="preserve">
+    <value>下载可见项</value>
+  </data>
+  <data name="Search_SelectAll" xml:space="preserve">
+    <value>☑ 全选</value>
+  </data>
+  <data name="Search_DownloadPreset" xml:space="preserve">
+    <value>🎨 下载预设</value>
+  </data>
+  <data name="Search_DownloadWithImageProcessingPreset" xml:space="preserve">
+    <value>使用图像处理预设下载</value>
+  </data>
+  <data name="Search_SearchAllOfPixiv_2" xml:space="preserve">
+    <value>🔍 搜索整个 Pixiv</value>
+  </data>
+  <data name="Search_PopularTagsRightNow" xml:space="preserve">
+    <value>当前热门标签</value>
+  </data>
+  <data name="Search_VisitRankingsOnceToPopulateThis" xml:space="preserve">
+    <value>访问一次排行榜即可在此显示真实的流行趋势。</value>
+  </data>
+  <data name="Search_OpenGallery" xml:space="preserve">
+    <value>打开画廊 →</value>
+  </data>
+  <data name="Search_TogglePaginationOffAutoloadWhileScrollin" xml:space="preserve">
+    <value>切换分页（关 = 滚动自动加载）</value>
+  </data>
+  <data name="Search_Pages" xml:space="preserve">
+    <value>页</value>
+  </data>
+  <data name="Search_ItemsPerPage" xml:space="preserve">
+    <value>每页数量</value>
+  </data>
+  <data name="Search_First" xml:space="preserve">
+    <value>« 第一页</value>
+  </data>
+  <data name="Search_Prev" xml:space="preserve">
+    <value>‹ 上一页</value>
+  </data>
+  <data name="Search_TypeAPageNumberAndPress" xml:space="preserve">
+    <value>输入页码并按 Enter</value>
+  </data>
+  <data name="Search_Next" xml:space="preserve">
+    <value>下一页 ›</value>
+  </data>
+  <data name="Search_Last" xml:space="preserve">
+    <value>最后一页 »</value>
+  </data>
+  <data name="Search_LoadMore" xml:space="preserve">
+    <value>加载更多</value>
+  </data>
+  <data name="Batch_EnterArtistIdsMulti" xml:space="preserve">
+    <value>输入作者 ID 或 URL...
+每行一个或逗号分隔
+示例: 1234567
+https://www.pixiv.net/en/users/1234567</value>
+  </data>
+  <data name="Batch_EnterImageIdsMulti" xml:space="preserve">
+    <value>输入图片 ID、URL...
+每行一个或逗号分隔
+示例: 12345678
+https://www.pixiv.net/en/artworks/12345678</value>
+  </data>
+  <data name="Batch_EnterCollectionIdsMulti" xml:space="preserve">
+    <value>输入合集 ID 或 URL，每行一个...
+示例: 99928968526562868893
+https://www.pixiv.net/collections/99928968526562868893</value>
+  </data>
+  <data name="Batch_DownloadFromListFiles" xml:space="preserve">
+    <value>从 list.txt 或 tags.txt 文件下载
+从文本文件导入 URL、ID 或标签</value>
+  </data>
+  <data name="DlId_EnterImageIdsMulti" xml:space="preserve">
+    <value>输入图片 ID、URL 或从剪贴板粘贴...
+示例:
+12345678
+https://www.pixiv.net/en/artworks/12345678
+12345679, 12345680</value>
+  </data>
+  <data name="Artwork_BookmarkActionFailed" xml:space="preserve">
+    <value>收藏操作失败</value>
+  </data>
+  <data name="Artwork_CouldNotBookmark" xml:space="preserve">
+    <value>无法收藏</value>
+  </data>
+  <data name="Artwork_CouldNotFollow" xml:space="preserve">
+    <value>无法关注</value>
+  </data>
+  <data name="Artwork_CouldNotLikeArtwork" xml:space="preserve">
+    <value>无法点赞</value>
+  </data>
+  <data name="Artwork_CouldNotLikeArtwork_2" xml:space="preserve">
+    <value>无法点赞。</value>
+  </data>
+  <data name="Artwork_CouldNotRemoveBookmark" xml:space="preserve">
+    <value>无法移除收藏</value>
+  </data>
+  <data name="Artwork_CouldNotUnfollow" xml:space="preserve">
+    <value>无法取消关注</value>
+  </data>
+  <data name="Artwork_CouldNotUpdateBookmark" xml:space="preserve">
+    <value>无法更新收藏。</value>
+  </data>
+  <data name="Artwork_CouldNotUpdateFollowState" xml:space="preserve">
+    <value>无法更新关注状态。</value>
+  </data>
+  <data name="Artwork_CouldNotUpdateFollowStateMake" xml:space="preserve">
+    <value>无法更新关注状态。请确认已登录。</value>
+  </data>
+  <data name="Artwork_DownloadCompletedSimulated" xml:space="preserve">
+    <value>下载完成（模拟）</value>
+  </data>
+  <data name="Artwork_DownloadFailedPleaseTryAgain" xml:space="preserve">
+    <value>下载失败。请重试。</value>
+  </data>
+  <data name="Artwork_DownloadingAllPages" xml:space="preserve">
+    <value>正在下载所有页...</value>
+  </data>
+  <data name="Artwork_DownloadingCurrentPage" xml:space="preserve">
+    <value>正在下载当前页...</value>
+  </data>
+  <data name="Artwork_ExportArtworkMetadata" xml:space="preserve">
+    <value>导出作品元数据</value>
+  </data>
+  <data name="Artwork_FailedToLoadArtworkPages" xml:space="preserve">
+    <value>加载作品页失败</value>
+  </data>
+  <data name="Artwork_FollowActionFailed" xml:space="preserve">
+    <value>关注操作失败</value>
+  </data>
+  <data name="Artwork_LikeFailed" xml:space="preserve">
+    <value>点赞失败</value>
+  </data>
+  <data name="Artwork_LoadingArtworkPages" xml:space="preserve">
+    <value>正在加载作品页...</value>
+  </data>
+  <data name="Artwork_RemovedBookmark" xml:space="preserve">
+    <value>已移除收藏</value>
+  </data>
+  <data name="Batch_AddAtLeastOneArtistTo" xml:space="preserve">
+    <value>请至少添加一位作者到列表。</value>
+  </data>
+  <data name="Batch_CreateANewScheduleAddArtists" xml:space="preserve">
+    <value>新建计划 — 添加作者并配置设置，然后点击“保存”。</value>
+  </data>
+  <data name="Batch_PickADateAndTimeFor" xml:space="preserve">
+    <value>请选择仅运行一次的日期和时间。</value>
+  </data>
+  <data name="Batch_Validation" xml:space="preserve">
+    <value>验证</value>
+  </data>
+  <data name="Bookmarks_FolderDownloadIsOnlyAvailableOn" xml:space="preserve">
+    <value>文件夹下载仅在“本地收藏”标签页可用。</value>
+  </data>
+  <data name="Bookmarks_NoBookmarkedCollectionsFound" xml:space="preserve">
+    <value>未找到收藏的合集。</value>
+  </data>
+  <data name="Bookmarks_NoBookmarksToDownloadInThe" xml:space="preserve">
+    <value>当前标签页没有可下载的收藏。</value>
+  </data>
+  <data name="Bookmarks_NoCustomFoldersFoundInLocal" xml:space="preserve">
+    <value>本地收藏中没有自定义文件夹。</value>
+  </data>
+  <data name="Bookmarks_NoFolderSelected" xml:space="preserve">
+    <value>未选择文件夹</value>
+  </data>
+  <data name="Bookmarks_NoFolders" xml:space="preserve">
+    <value>没有文件夹</value>
+  </data>
+  <data name="Bookmarks_NoItems" xml:space="preserve">
+    <value>没有项目</value>
+  </data>
+  <data name="Bookmarks_NoSelection" xml:space="preserve">
+    <value>未选择</value>
+  </data>
+  <data name="Bookmarks_NotAvailable" xml:space="preserve">
+    <value>不可用</value>
+  </data>
+  <data name="Bookmarks_NotSignedIn" xml:space="preserve">
+    <value>未登录。</value>
+  </data>
+  <data name="Bookmarks_SelectOneOrMoreBookmarksFirst" xml:space="preserve">
+    <value>请先选择一个或多个收藏。</value>
+  </data>
+  <data name="Bookmarks_UseTheFolderSidebarToSelect" xml:space="preserve">
+    <value>请先在文件夹侧边栏中选择文件夹。</value>
+  </data>
+  <data name="Collections_AddToCollageCancelled" xml:space="preserve">
+    <value>已取消添加到拼贴。</value>
+  </data>
+  <data name="Collections_BookmarkedThisCollection" xml:space="preserve">
+    <value>已收藏此合集。</value>
+  </data>
+  <data name="Collections_CouldNotLoadThatCollectionIt" xml:space="preserve">
+    <value>无法加载该合集 — 可能为私密、已删除或 ID 有误。</value>
+  </data>
+  <data name="Collections_CouldnTLoadCollectionsYouCan" xml:space="preserve">
+    <value>无法加载合集 — 仍可在上方粘贴特定合集链接/ID。</value>
+  </data>
+  <data name="Collections_DeleteComment" xml:space="preserve">
+    <value>删除评论</value>
+  </data>
+  <data name="Collections_DeleteThisCommentThisCannotBe" xml:space="preserve">
+    <value>删除此评论？此操作无法撤销。</value>
+  </data>
+  <data name="Collections_DownloadCancelled" xml:space="preserve">
+    <value>下载已取消。</value>
+  </data>
+  <data name="Collections_FailedToBookmarkCollection" xml:space="preserve">
+    <value>收藏合集失败。</value>
+  </data>
+  <data name="Collections_FailedToDeleteComment" xml:space="preserve">
+    <value>删除评论失败。</value>
+  </data>
+  <data name="Collections_FailedToPostComment" xml:space="preserve">
+    <value>发表评论失败。</value>
+  </data>
+  <data name="Collections_FailedToPostSticker" xml:space="preserve">
+    <value>发送贴纸失败。</value>
+  </data>
+  <data name="Collections_FailedToRemoveCollectionBookmark" xml:space="preserve">
+    <value>移除合集收藏失败。</value>
+  </data>
+  <data name="Collections_LoadingCollection" xml:space="preserve">
+    <value>正在加载合集…</value>
+  </data>
+  <data name="Collections_NoArtworksFoundInTheSelected" xml:space="preserve">
+    <value>所选合集中没有作品。</value>
+  </data>
+  <data name="Collections_NoArtworksToDownload" xml:space="preserve">
+    <value>没有要下载的作品。</value>
+  </data>
+  <data name="Collections_NoneOfTheSelectedCollectionsCould" xml:space="preserve">
+    <value>所选合集均无法加载。</value>
+  </data>
+  <data name="Collections_RemovedCollectionBookmark" xml:space="preserve">
+    <value>已移除合集收藏。</value>
+  </data>
+  <data name="Collections_SelectOneOrMoreArtworksFirst" xml:space="preserve">
+    <value>请先选择一个或多个作品。</value>
+  </data>
+  <data name="Collections_SelectOneOrMoreCollectionsFirst" xml:space="preserve">
+    <value>请先选择一个或多个合集。</value>
+  </data>
+  <data name="Collections_ThatDoesnTLookLikeA" xml:space="preserve">
+    <value>看起来不是合集链接或 ID。</value>
+  </data>
+  <data name="Dialog_FileAlreadyExists" xml:space="preserve">
+    <value>文件已存在</value>
+  </data>
+  <data name="Discover_DownloadWithPresetCancelled" xml:space="preserve">
+    <value>已取消预设下载。</value>
+  </data>
+  <data name="Discover_FailedToLoad" xml:space="preserve">
+    <value>加载失败: </value>
+  </data>
+  <data name="Discover_FailedToLoadRecommendedUsers" xml:space="preserve">
+    <value>加载推荐用户失败: </value>
+  </data>
+  <data name="Discover_LoadingRecommendedUsers" xml:space="preserve">
+    <value>正在加载推荐用户…</value>
+  </data>
+  <data name="Discover_LoadingRecommendedWorks" xml:space="preserve">
+    <value>正在加载推荐作品…</value>
+  </data>
+  <data name="Discover_NoArtistIDsQueuedClickIndividual" xml:space="preserve">
+    <value>队列中没有作者 ID — 请先点击单个作者 ID。</value>
+  </data>
+  <data name="Discover_NoArtworksAvailableToDownload" xml:space="preserve">
+    <value>没有可下载的作品。</value>
+  </data>
+  <data name="Discover_NoArtworksFoundForThisArtist" xml:space="preserve">
+    <value>未找到此作者的作品。</value>
+  </data>
+  <data name="Discover_NoMoreNewWorksRightNow" xml:space="preserve">
+    <value>暂时没有更多新作品 — 请尝试刷新。</value>
+  </data>
+  <data name="Discover_NoRecommendedUsersFound" xml:space="preserve">
+    <value>未找到推荐用户。</value>
+  </data>
+  <data name="Discover_NoRecommendedWorksFound" xml:space="preserve">
+    <value>未找到推荐作品。</value>
+  </data>
+  <data name="DlArtist_AllArtistsAlreadyInList" xml:space="preserve">
+    <value>所有作者已在列表中</value>
+  </data>
+  <data name="DlArtist_CannotSave" xml:space="preserve">
+    <value>无法保存</value>
+  </data>
+  <data name="DlArtist_CreatingDownloadJob" xml:space="preserve">
+    <value>正在创建下载任务...</value>
+  </data>
+  <data name="DlArtist_DownloadCancelled" xml:space="preserve">
+    <value>下载已取消</value>
+  </data>
+  <data name="DlArtist_DownloadStarted" xml:space="preserve">
+    <value>下载已开始...</value>
+  </data>
+  <data name="DlArtist_InvalidPageRange" xml:space="preserve">
+    <value>无效的页码范围</value>
+  </data>
+  <data name="DlArtist_LoadingFollowedArtists" xml:space="preserve">
+    <value>正在加载已关注的作者...</value>
+  </data>
+  <data name="DlArtist_LoadingFollowedArtistsFromPixiv" xml:space="preserve">
+    <value>正在从 Pixiv 加载已关注的作者...</value>
+  </data>
+  <data name="DlArtist_NoArtists" xml:space="preserve">
+    <value>没有作者</value>
+  </data>
+  <data name="DlArtist_NoFollowedArtistsFound" xml:space="preserve">
+    <value>未找到已关注的作者。</value>
+  </data>
+  <data name="DlArtist_NoPresets" xml:space="preserve">
+    <value>没有预设</value>
+  </data>
+  <data name="DlArtist_NoSavedPresetsFoundCreateOne" xml:space="preserve">
+    <value>没有已保存的预设。请先创建一个！</value>
+  </data>
+  <data name="DlArtist_PleaseAddAtLeastOneArtist" xml:space="preserve">
+    <value>请至少添加一位要下载的作者。</value>
+  </data>
+  <data name="DlArtist_PleaseAddAtLeastOneArtist_2" xml:space="preserve">
+    <value>保存预设前请至少添加一位作者。</value>
+  </data>
+  <data name="DlBookmarks_NoBookmarkedArtistsFound" xml:space="preserve">
+    <value>未找到收藏的作者。</value>
+  </data>
+  <data name="DlBookmarks_NoBookmarkedArtworksFoundForThe" xml:space="preserve">
+    <value>所选可见性下没有收藏的作品。</value>
+  </data>
+  <data name="DlBookmarks_NoBookmarks" xml:space="preserve">
+    <value>没有收藏</value>
+  </data>
+  <data name="DlBookmarks_NoLocalFavoritesFound" xml:space="preserve">
+    <value>未找到本地收藏。</value>
+  </data>
+  <data name="DlBookmarks_NotLoggedInPleaseSignIn" xml:space="preserve">
+    <value>未登录。请先登录。</value>
+  </data>
+  <data name="DlBookmarks_PleaseSelectAFolderToDownload" xml:space="preserve">
+    <value>请选择要下载的文件夹。</value>
+  </data>
+  <data name="DlBookmarks_StartingBookmarkDownload" xml:space="preserve">
+    <value>正在开始收藏下载...</value>
+  </data>
+  <data name="DlId_ConfigurationSavedNotYetImplemented" xml:space="preserve">
+    <value>配置已保存（尚未实现）</value>
+  </data>
+  <data name="DlId_ImportedIDsFromFile" xml:space="preserve">
+    <value>已从文件导入 ID</value>
+  </data>
+  <data name="DlId_NoIDs" xml:space="preserve">
+    <value>没有 ID</value>
+  </data>
+  <data name="DlId_PastedFromClipboard" xml:space="preserve">
+    <value>已从剪贴板粘贴</value>
+  </data>
+  <data name="DlId_PleaseEnterAtLeastOneImage" xml:space="preserve">
+    <value>请输入至少一个图片 ID 或 URL。</value>
+  </data>
+  <data name="DlId_PresetSaved" xml:space="preserve">
+    <value>预设已保存</value>
+  </data>
+  <data name="DlList_NoItemsToDownloadPleaseSelect" xml:space="preserve">
+    <value>没有要下载的项目。请先选择列表文件。</value>
+  </data>
+  <data name="DlList_PleaseSelectAValidFile" xml:space="preserve">
+    <value>请选择有效的文件。</value>
+  </data>
+  <data name="DlList_SelectListFile" xml:space="preserve">
+    <value>选择列表文件</value>
+  </data>
+  <data name="DlList_StorageProviderNotAvailable" xml:space="preserve">
+    <value>存储提供程序不可用。</value>
+  </data>
+  <data name="Gallery_AbstractThoughts" xml:space="preserve">
+    <value>Abstract Thoughts</value>
+  </data>
+  <data name="Gallery_AllArtworksSkipped" xml:space="preserve">
+    <value>所有作品都被跳过。</value>
+  </data>
+  <data name="Gallery_ArtistChangedDownloadCancelled" xml:space="preserve">
+    <value>作者已变更；下载已取消。</value>
+  </data>
+  <data name="Gallery_CharacterPortrait" xml:space="preserve">
+    <value>Character Portrait</value>
+  </data>
+  <data name="Gallery_DiscoverFeatureComingSoon" xml:space="preserve">
+    <value>发现功能即将推出！</value>
+  </data>
+  <data name="Gallery_DownloadPaused" xml:space="preserve">
+    <value>下载已暂停。</value>
+  </data>
+  <data name="Gallery_EnterANewNameForThis" xml:space="preserve">
+    <value>输入此标签页的新名称:</value>
+  </data>
+  <data name="Gallery_FailedToLoadArtworks" xml:space="preserve">
+    <value>加载作品失败: </value>
+  </data>
+  <data name="Gallery_FailedToLoadFollowedArtists" xml:space="preserve">
+    <value>加载关注作者失败: </value>
+  </data>
+  <data name="Gallery_FailedToLoadRecentWorks" xml:space="preserve">
+    <value>加载近期作品失败: </value>
+  </data>
+  <data name="Gallery_FailedToRefresh" xml:space="preserve">
+    <value>刷新失败: </value>
+  </data>
+  <data name="Gallery_Loading" xml:space="preserve">
+    <value>加载中 </value>
+  </data>
+  <data name="Gallery_LoadingFollowedArtists_2" xml:space="preserve">
+    <value>正在加载已关注的作者…</value>
+  </data>
+  <data name="Gallery_LoadingRecentWorksFromFollowedArtists" xml:space="preserve">
+    <value>正在加载关注作者的近期作品…</value>
+  </data>
+  <data name="Gallery_NoArtistIDsQueuedClickIndividual" xml:space="preserve">
+    <value>队列中没有作者 ID — 请先点击单个作者 ID 添加。</value>
+  </data>
+  <data name="Gallery_NoArtworksLoaded" xml:space="preserve">
+    <value>没有已加载的作品。</value>
+  </data>
+  <data name="Gallery_NoArtworksSelectedForDownload" xml:space="preserve">
+    <value>未选择要下载的作品。</value>
+  </data>
+  <data name="Gallery_RefreshingFollowedArtists" xml:space="preserve">
+    <value>正在刷新关注作者…</value>
+  </data>
+  <data name="Gallery_RenameTab" xml:space="preserve">
+    <value>重命名标签页</value>
+  </data>
+  <data name="Gallery_SearchCleared" xml:space="preserve">
+    <value>搜索已清除</value>
+  </data>
+  <data name="Gallery_SearchFailed" xml:space="preserve">
+    <value>搜索失败: </value>
+  </data>
+  <data name="Gallery_SearchIndexUnavailable" xml:space="preserve">
+    <value>搜索索引不可用。</value>
+  </data>
+  <data name="Gallery_Searching" xml:space="preserve">
+    <value>搜索中...</value>
+  </data>
+  <data name="Gallery_SelectAnArtistFirst" xml:space="preserve">
+    <value>请先选择作者。</value>
+  </data>
+  <data name="Gallery_SelectionCleared" xml:space="preserve">
+    <value>已清除选择</value>
+  </data>
+  <data name="Gallery_SignInToSeeFollowedArtists" xml:space="preserve">
+    <value>登录以查看关注的作者。</value>
+  </data>
+  <data name="Gallery_ValidatingSession" xml:space="preserve">
+    <value>正在验证会话…</value>
+  </data>
+  <data name="History_Paused" xml:space="preserve">
+    <value>⏸ 已暂停</value>
+  </data>
+  <data name="History_Queued" xml:space="preserve">
+    <value>⏳ 排队中</value>
+  </data>
+  <data name="History_Running" xml:space="preserve">
+    <value>▶ 运行中</value>
+  </data>
+  <data name="Hoshi_AnimeTaggerModelIsNotInstalled" xml:space="preserve">
+    <value>动漫打标器模型未安装。请在 设置 → Hoshi AI 中安装。</value>
+  </data>
+  <data name="Hoshi_ChatCleared" xml:space="preserve">
+    <value>对话已清除。</value>
+  </data>
+  <data name="Hoshi_Copy" xml:space="preserve">
+    <value>（副本）</value>
+  </data>
+  <data name="Hoshi_CouldNotIdentifyThisImageIt" xml:space="preserve">
+    <value>⚠ 无法识别此图片。可能尚未被 Danbooru/SauceNAO 收录。</value>
+  </data>
+  <data name="Hoshi_HoshiIsOff" xml:space="preserve">
+    <value>Hoshi 已关闭</value>
+  </data>
+  <data name="Hoshi_HoshiIsnTReadyYetEnable" xml:space="preserve">
+    <value>⚠ Hoshi 尚未就绪 — 请先在设置中启用。</value>
+  </data>
+  <data name="Hoshi_HoshiReady" xml:space="preserve">
+    <value>Hoshi 星 就绪</value>
+  </data>
+  <data name="Hoshi_HoshiReadyICanDescribeImages" xml:space="preserve">
+    <value>Hoshi 星 就绪！我可以描述图片、建议标签、下载作品、加入收藏或移到文件夹。你想做什么？</value>
+  </data>
+  <data name="Hoshi_InstallingOllama" xml:space="preserve">
+    <value>正在安装 Ollama…</value>
+  </data>
+  <data name="Hoshi_LoadingHoshiSModel" xml:space="preserve">
+    <value>正在加载 Hoshi 的模型…</value>
+  </data>
+  <data name="Hoshi_NewChat" xml:space="preserve">
+    <value>新对话</value>
+  </data>
+  <data name="Hoshi_NoImageAttachedYetWaitFor" xml:space="preserve">
+    <value>⚠ 尚未附加图片 — 请等待作品加载完成，或将图片拖入对话。</value>
+  </data>
+  <data name="Hoshi_RunningAnimeTagger" xml:space="preserve">
+    <value>正在运行动漫打标器…</value>
+  </data>
+  <data name="Hoshi_Starting" xml:space="preserve">
+    <value>启动中…</value>
+  </data>
+  <data name="Hoshi_System" xml:space="preserve">
+    <value>system</value>
+  </data>
+  <data name="Hoshi_Untitled" xml:space="preserve">
+    <value>无标题</value>
+  </data>
+  <data name="Hoshi_WakingUpHoshi" xml:space="preserve">
+    <value>正在唤醒 Hoshi…</value>
+  </data>
+  <data name="Jobs_DownloadsRefreshed" xml:space="preserve">
+    <value>下载已刷新</value>
+  </data>
+  <data name="Jobs_FailedToRefreshDownloads" xml:space="preserve">
+    <value>刷新下载失败</value>
+  </data>
+  <data name="Jobs_FailedToRefreshDownloads_2" xml:space="preserve">
+    <value>刷新下载失败。</value>
+  </data>
+  <data name="Jobs_RefreshingDownloads" xml:space="preserve">
+    <value>正在刷新下载...</value>
+  </data>
+  <data name="Main_CannotInstallUpdateInfoLostPlease" xml:space="preserve">
+    <value>无法安装：更新信息丢失。请重启应用后重试。</value>
+  </data>
+  <data name="Main_StartingDownload" xml:space="preserve">
+    <value>正在开始下载...</value>
+  </data>
+  <data name="Main_StartingInstaller" xml:space="preserve">
+    <value>正在启动安装程序...</value>
+  </data>
+  <data name="Pikura_AddedPrivateBookmark" xml:space="preserve">
+    <value>已添加私密收藏</value>
+  </data>
+  <data name="Pikura_All" xml:space="preserve">
+    <value>all</value>
+  </data>
+  <data name="Pikura_AllReleasesOnGitHub" xml:space="preserve">
+    <value>GitHub 上的所有版本 ↗</value>
+  </data>
+  <data name="Pikura_ApplyToSelectedPages" xml:space="preserve">
+    <value>应用到所选页</value>
+  </data>
+  <data name="Pikura_BookmarkedOnPixiv" xml:space="preserve">
+    <value>已在 Pixiv 收藏</value>
+  </data>
+  <data name="Pikura_CommentDeleted" xml:space="preserve">
+    <value>评论已删除</value>
+  </data>
+  <data name="Pikura_CommentPosted" xml:space="preserve">
+    <value>评论已发表</value>
+  </data>
+  <data name="Pikura_ConfirmingSession" xml:space="preserve">
+    <value>正在确认会话…</value>
+  </data>
+  <data name="Pikura_Copied" xml:space="preserve">
+    <value>已复制！</value>
+  </data>
+  <data name="Pikura_CouldNotDeleteComment" xml:space="preserve">
+    <value>无法删除评论。</value>
+  </data>
+  <data name="Pikura_CouldNotDetectSessionTrySigning" xml:space="preserve">
+    <value>无法检测到会话。请重新登录。</value>
+  </data>
+  <data name="Pikura_CouldNotLoadComments" xml:space="preserve">
+    <value>无法加载评论。</value>
+  </data>
+  <data name="Pikura_CouldNotLoadImagePreview" xml:space="preserve">
+    <value>无法加载图片预览</value>
+  </data>
+  <data name="Pikura_CouldNotLoadReplies" xml:space="preserve">
+    <value>无法加载回复</value>
+  </data>
+  <data name="Pikura_CouldNotPostComment" xml:space="preserve">
+    <value>无法发表评论。</value>
+  </data>
+  <data name="Pikura_CouldNotPostComment_2" xml:space="preserve">
+    <value>无法发表评论</value>
+  </data>
+  <data name="Pikura_CouldNotReAddBookmark" xml:space="preserve">
+    <value>无法重新添加收藏</value>
+  </data>
+  <data name="Pikura_CouldNotUpdateBookmarkPrivacy" xml:space="preserve">
+    <value>无法更新收藏可见性</value>
+  </data>
+  <data name="Pikura_CouldNotUpdateFollowFollowUnfollow" xml:space="preserve">
+    <value>无法更新关注。关注/取消关注需要 Pixiv App API 刷新令牌（设置 &gt; 账户）或有效的网页会话。</value>
+  </data>
+  <data name="Pikura_DeleteALLSessionsThisCannotBe" xml:space="preserve">
+    <value>删除所有会话？此操作无法撤销。</value>
+  </data>
+  <data name="Pikura_DeleteAllSessions" xml:space="preserve">
+    <value>删除所有会话？</value>
+  </data>
+  <data name="Pikura_DeleteSelectedSessions" xml:space="preserve">
+    <value>删除所选会话？</value>
+  </data>
+  <data name="Pikura_DeleteSession" xml:space="preserve">
+    <value>删除会话？</value>
+  </data>
+  <data name="Pikura_DetectingSession" xml:space="preserve">
+    <value>正在检测会话…</value>
+  </data>
+  <data name="Pikura_DownloadStarted" xml:space="preserve">
+    <value>下载已开始</value>
+  </data>
+  <data name="Pikura_Empty" xml:space="preserve">
+    <value>（空）</value>
+  </data>
+  <data name="Pikura_EnterBothDatesAsMMDD" xml:space="preserve">
+    <value>请以 MM-DD-YYYY 格式输入两个日期（如 10-14-2015）。</value>
+  </data>
+  <data name="Pikura_Error" xml:space="preserve">
+    <value>错误</value>
+  </data>
+  <data name="Pikura_Favorited" xml:space="preserve">
+    <value>已收藏</value>
+  </data>
+  <data name="Pikura_FilePickerNotInitialized" xml:space="preserve">
+    <value>文件选择器未初始化</value>
+  </data>
+  <data name="Pikura_FolderNameEmptyNone" xml:space="preserve">
+    <value>文件夹名（空 = 无）</value>
+  </data>
+  <data name="Pikura_FromCurrentArtwork" xml:space="preserve">
+    <value>从当前作品</value>
+  </data>
+  <data name="Pikura_HideReplies" xml:space="preserve">
+    <value>▴ 隐藏回复</value>
+  </data>
+  <data name="Pikura_Hoshi" xml:space="preserve">
+    <value>Hoshi…</value>
+  </data>
+  <data name="Pikura_Hoshi_2" xml:space="preserve">
+    <value>Hoshi 星</value>
+  </data>
+  <data name="Pikura_ImageURLCopiedPasteIntoA" xml:space="preserve">
+    <value>图片 URL 已复制 — 请粘贴到下载管理器中（浏览器会 403；Pixiv CDN 需要 Referer 头）。</value>
+  </data>
+  <data name="Pikura_LikedOnPixiv" xml:space="preserve">
+    <value>已在 Pixiv 点赞</value>
+  </data>
+  <data name="Pikura_LoadImageFromURL" xml:space="preserve">
+    <value>从 URL 加载图片</value>
+  </data>
+  <data name="Pikura_LoadingUgoira" xml:space="preserve">
+    <value>正在加载动图...</value>
+  </data>
+  <data name="Pikura_MMDdYyyy" xml:space="preserve">
+    <value>MM-dd-yyyy</value>
+  </data>
+  <data name="Pikura_MoveDown" xml:space="preserve">
+    <value>▼ 下移</value>
+  </data>
+  <data name="Pikura_MoveToBottom" xml:space="preserve">
+    <value>⏬ 移到底部</value>
+  </data>
+  <data name="Pikura_MoveToTop" xml:space="preserve">
+    <value>⏫ 移到顶部</value>
+  </data>
+  <data name="Pikura_MoveUp" xml:space="preserve">
+    <value>▲ 上移</value>
+  </data>
+  <data name="Pikura_N0" xml:space="preserve">
+    <value>N0</value>
+  </data>
+  <data name="Pikura_NewFolderNameOrPickBelow" xml:space="preserve">
+    <value>新文件夹名（或从下方选择）</value>
+  </data>
+  <data name="Pikura_NewTitle" xml:space="preserve">
+    <value>新标题:</value>
+  </data>
+  <data name="Pikura_NoArtworkSelectedOrOpenClick" xml:space="preserve">
+    <value>未选择或打开作品。请点击作品或先选择多个。</value>
+  </data>
+  <data name="Pikura_NoArtworksAreSelectedCheckAt" xml:space="preserve">
+    <value>未选择作品。请在列表中至少勾选一个。</value>
+  </data>
+  <data name="Pikura_NoArtworksFoundForThisSearch" xml:space="preserve">
+    <value>此搜索未找到作品。</value>
+  </data>
+  <data name="Pikura_NoCommentsYetBeTheFirst" xml:space="preserve">
+    <value>还没有评论 — 来抢沙发！</value>
+  </data>
+  <data name="Pikura_NoPagesSelected" xml:space="preserve">
+    <value>未选择页面。</value>
+  </data>
+  <data name="Pikura_NoPostsToDownloadPleaseSearch" xml:space="preserve">
+    <value>没有可下载的投稿。请先搜索。</value>
+  </data>
+  <data name="Pikura_NoRepliesFound" xml:space="preserve">
+    <value>未找到回复</value>
+  </data>
+  <data name="Pikura_NoResults" xml:space="preserve">
+    <value>没有结果</value>
+  </data>
+  <data name="Pikura_NoSearchResultsToDownloadPlease" xml:space="preserve">
+    <value>没有可下载的搜索结果。请先搜索。</value>
+  </data>
+  <data name="Pikura_NoStickersCouldBeLoaded" xml:space="preserve">
+    <value>无法加载贴纸。</value>
+  </data>
+  <data name="Pikura_OpenImage" xml:space="preserve">
+    <value>打开图片</value>
+  </data>
+  <data name="Pikura_PleaseEnterACreatorID" xml:space="preserve">
+    <value>请输入创作者 ID。</value>
+  </data>
+  <data name="Pikura_PleaseEnterAPostID" xml:space="preserve">
+    <value>请输入投稿 ID。</value>
+  </data>
+  <data name="Pikura_PleaseEnterASearchKeyword" xml:space="preserve">
+    <value>请输入搜索关键词。</value>
+  </data>
+  <data name="Pikura_PreviewError" xml:space="preserve">
+    <value>预览错误</value>
+  </data>
+  <data name="Pikura_ReleaseHistory" xml:space="preserve">
+    <value>版本历史</value>
+  </data>
+  <data name="Pikura_RemovedPixivBookmark" xml:space="preserve">
+    <value>已移除 Pixiv 收藏</value>
+  </data>
+  <data name="Pikura_RenameSession" xml:space="preserve">
+    <value>重命名会话</value>
+  </data>
+  <data name="Pikura_RetryingSessionCheck" xml:space="preserve">
+    <value>正在重试会话检查…</value>
+  </data>
+  <data name="Pikura_SelectBookmarksFirstOrOpenOne" xml:space="preserve">
+    <value>请先选择收藏或在侧边面板中打开一个。</value>
+  </data>
+  <data name="Pikura_SelectFrame" xml:space="preserve">
+    <value>选择帧</value>
+  </data>
+  <data name="Pikura_SelectOutputFolder" xml:space="preserve">
+    <value>选择输出文件夹</value>
+  </data>
+  <data name="Pikura_Selected" xml:space="preserve">
+    <value>)} 项已选</value>
+  </data>
+  <data name="Pikura_SessionDetectedButUserIDMissing" xml:space="preserve">
+    <value>已检测到会话但缺少用户 ID — 请重试。</value>
+  </data>
+  <data name="Pikura_SetFolder" xml:space="preserve">
+    <value>设置文件夹</value>
+  </data>
+  <data name="Pikura_SwitchedToPrivateBookmark" xml:space="preserve">
+    <value>已切换为私密收藏</value>
+  </data>
+  <data name="Pikura_SwitchedToPublicBookmark" xml:space="preserve">
+    <value>已切换为公开收藏</value>
+  </data>
+  <data name="Pikura_Thinking" xml:space="preserve">
+    <value>思考中…</value>
+  </data>
+  <data name="Pikura_UgoiraAnimatedWatchingOnly" xml:space="preserve">
+    <value>动图（动画）— 仅预览</value>
+  </data>
+  <data name="Pikura_UgoiraCoverImageStatic" xml:space="preserve">
+    <value>动图 — 封面图（静态）</value>
+  </data>
+  <data name="Pikura_UgoiraEditingCoverImageStatic" xml:space="preserve">
+    <value>动图 — 正在编辑封面图（静态）</value>
+  </data>
+  <data name="Pikura_UgoiraOptions" xml:space="preserve">
+    <value>动图选项</value>
+  </data>
+  <data name="Pikura_UnfollowNotAvailablePixivOAuthAuthentication" xml:space="preserve">
+    <value>无法取消关注：Pixiv OAuth 认证被阻止</value>
+  </data>
+  <data name="Pikura_WebViewDidNotLoadUseEnter" xml:space="preserve">
+    <value>WebView 未加载。请改用“手动输入 Cookie”。</value>
+  </data>
+  <data name="Pikura_YyyyMMDd" xml:space="preserve">
+    <value>yyyy-MM-dd</value>
+  </data>
+  <data name="Pixivision_FailedToLoadArticle" xml:space="preserve">
+    <value>加载文章失败。</value>
+  </data>
+  <data name="Pixivision_LoadingPixivisionArticles" xml:space="preserve">
+    <value>正在加载 pixivision 文章…</value>
+  </data>
+  <data name="Rankings_FailedToLoadRankings" xml:space="preserve">
+    <value>加载排行榜失败</value>
+  </data>
+  <data name="Rankings_FailedToLoadRankingsPleaseTry" xml:space="preserve">
+    <value>加载排行榜失败。请重试。</value>
+  </data>
+  <data name="Rankings_NoArtworksSelected" xml:space="preserve">
+    <value>未选择作品。</value>
+  </data>
+  <data name="Rankings_NoResultsCheckYourSessionOr" xml:space="preserve">
+    <value>没有结果 — 请检查会话或尝试其他模式。</value>
+  </data>
+  <data name="Rankings_NovelsCanTBeDownloadedFrom" xml:space="preserve">
+    <value>小说无法从排行榜下载 — 请在 pixiv.net 打开。</value>
+  </data>
+  <data name="Rankings_RankingsLoadedSuccessfully" xml:space="preserve">
+    <value>排行榜加载成功</value>
+  </data>
+  <data name="Search_NoNovelsFound" xml:space="preserve">
+    <value>未找到小说。</value>
+  </data>
+  <data name="Search_NoResultsFound" xml:space="preserve">
+    <value>未找到结果。</value>
+  </data>
+  <data name="Search_NoUsersFound" xml:space="preserve">
+    <value>未找到用户。</value>
+  </data>
+  <data name="Search_Searching" xml:space="preserve">
+    <value>搜索中…</value>
+  </data>
+  <data name="Settings_AreYouSureYouWantTo" xml:space="preserve">
+    <value>确定要将所有设置重置为默认值吗？</value>
+  </data>
+  <data name="Settings_CheckFailed" xml:space="preserve">
+    <value>检查失败</value>
+  </data>
+  <data name="Settings_Checking" xml:space="preserve">
+    <value>检查中…</value>
+  </data>
+  <data name="Settings_CheckingForUpdates" xml:space="preserve">
+    <value>正在检查更新...</value>
+  </data>
+  <data name="Settings_ClearYourSessionCookieAndSign" xml:space="preserve">
+    <value>清除会话 Cookie 并退出登录？</value>
+  </data>
+  <data name="Settings_CloudflareSession" xml:space="preserve">
+    <value>Cloudflare 会话</value>
+  </data>
+  <data name="Settings_Downloading" xml:space="preserve">
+    <value>下载中…</value>
+  </data>
+  <data name="Settings_FailedToChangeDownloadFolder" xml:space="preserve">
+    <value>更改下载文件夹失败。</value>
+  </data>
+  <data name="Settings_FailedToResetSettings" xml:space="preserve">
+    <value>重置设置失败。</value>
+  </data>
+  <data name="Settings_NotInstalledRequiredForUgoiraConversion" xml:space="preserve">
+    <value>未安装（动图转换所需）</value>
+  </data>
+  <data name="Settings_ResetSettings" xml:space="preserve">
+    <value>重置设置</value>
+  </data>
+  <data name="Settings_SettingsHaveBeenResetToDefaults" xml:space="preserve">
+    <value>设置已重置为默认值（模拟）。</value>
+  </data>
+  <data name="Settings_Success" xml:space="preserve">
+    <value>成功</value>
+  </data>
+  <data name="Viewed_HistoryCleared" xml:space="preserve">
+    <value>历史已清除。</value>
+  </data>
+  <data name="Viewed_LoadingHistory" xml:space="preserve">
+    <value>正在加载历史…</value>
+  </data>
+  <data name="WhatsNew_BookmarksImprovements" xml:space="preserve">
+    <value>收藏改进</value>
+  </data>
+  <data name="WhatsNew_ChromeStyleTabReordering" xml:space="preserve">
+    <value>Chrome 式标签页重排</value>
+  </data>
+  <data name="WhatsNew_Pikura210" xml:space="preserve">
+    <value>Pikura 2.1.0</value>
+  </data>
+  <data name="WhatsNew_PixivConnectedActions" xml:space="preserve">
+    <value>Pixiv 关联操作</value>
+  </data>
+  <data name="WhatsNew_RefreshedLightDarkThemes" xml:space="preserve">
+    <value>焕然一新的浅色和深色主题</value>
+  </data>
+  <data name="WhatsNew_SearchImprovements" xml:space="preserve">
+    <value>搜索改进</value>
+  </data>
+  <data name="Artwork_Error" xml:space="preserve">
+    <value>错误</value>
+  </data>
+  <data name="Bookmarks_Error" xml:space="preserve">
+    <value>错误</value>
+  </data>
+  <data name="DlArtist_Error" xml:space="preserve">
+    <value>错误</value>
+  </data>
+  <data name="DlBookmarks_Error" xml:space="preserve">
+    <value>错误</value>
+  </data>
+  <data name="DlId_Error" xml:space="preserve">
+    <value>错误</value>
+  </data>
+  <data name="DlList_Error" xml:space="preserve">
+    <value>错误</value>
+  </data>
+  <data name="Jobs_Error" xml:space="preserve">
+    <value>错误</value>
+  </data>
+  <data name="Rankings_Error" xml:space="preserve">
+    <value>错误</value>
+  </data>
+  <data name="Settings_Error" xml:space="preserve">
+    <value>错误</value>
+  </data>
+  <data name="DlBookmarks_NoCustomFoldersFoundInLocal" xml:space="preserve">
+    <value>本地收藏中没有自定义文件夹。</value>
+  </data>
+  <data name="DlBookmarks_NoFolders" xml:space="preserve">
+    <value>没有文件夹</value>
+  </data>
+  <data name="DlBookmarks_NoItems" xml:space="preserve">
+    <value>没有项目</value>
+  </data>
+  <data name="DlBookmarks_NoSelection" xml:space="preserve">
+    <value>未选择</value>
+  </data>
+  <data name="DlId_CreatingDownloadJob" xml:space="preserve">
+    <value>正在创建下载任务...</value>
+  </data>
+  <data name="DlId_DownloadCancelled" xml:space="preserve">
+    <value>下载已取消</value>
+  </data>
+  <data name="DlId_DownloadStarted" xml:space="preserve">
+    <value>下载已开始...</value>
+  </data>
+  <data name="DlList_DownloadStarted" xml:space="preserve">
+    <value>下载已开始...</value>
+  </data>
+  <data name="DlList_NoItems" xml:space="preserve">
+    <value>没有项目</value>
+  </data>
+  <data name="Gallery_AName" xml:space="preserve">
+    <value>a:name</value>
+  </data>
+  <data name="Gallery_LoadingFollowedArtists" xml:space="preserve">
+    <value>正在加载已关注的作者...</value>
+  </data>
+  <data name="Gallery_NoArtworksSelected" xml:space="preserve">
+    <value>未选择作品。</value>
+  </data>
+  <data name="Gallery_NoArtworksToDownload" xml:space="preserve">
+    <value>没有要下载的作品。</value>
+  </data>
+  <data name="Gallery_Sakura" xml:space="preserve">
+    <value>sakura</value>
+  </data>
+  <data name="Gallery_Tag1Tag2" xml:space="preserve">
+    <value>tag1, tag2, …</value>
+  </data>
+  <data name="Gallery_ToClipboard" xml:space="preserve">
+    <value>)} 复制到剪贴板</value>
+  </data>
+  <data name="Gallery_U12345" xml:space="preserve">
+    <value>u:12345</value>
+  </data>
+  <data name="Main_DownloadCancelled" xml:space="preserve">
+    <value>下载已取消</value>
+  </data>
+  <data name="Pikura_CouldNotBookmark" xml:space="preserve">
+    <value>无法收藏</value>
+  </data>
+  <data name="Pikura_CouldNotLikeArtwork" xml:space="preserve">
+    <value>无法点赞</value>
+  </data>
+  <data name="Pikura_CouldNotRemoveBookmark" xml:space="preserve">
+    <value>无法移除收藏</value>
+  </data>
+  <data name="Pikura_NoItems" xml:space="preserve">
+    <value>没有项目</value>
+  </data>
+  <data name="Pikura_Pikura" xml:space="preserve">
+    <value>Pikura</value>
+  </data>
+  <data name="Pikura_Starting" xml:space="preserve">
+    <value>启动中…</value>
+  </data>
+  <data name="Gallery_CopiedQueuedArtistIds" xml:space="preserve">
+    <value>已复制 {0} 个排队作者 ID 到剪贴板</value>
+  </data>
+  <data name="Preset_ImagesSelected" xml:space="preserve">
+    <value>已选择 {0} 张图片</value>
+  </data>
+  <data name="Preset_AllSelectedArtworks" xml:space="preserve">
+    <value>所有所选作品</value>
+  </data>
+  <data name="Preset_SelectedArtworks" xml:space="preserve">
+    <value>所选作品</value>
+  </data>
+  <data name="Viewed_ClearedEntriesPast" xml:space="preserve">
+    <value>已清除过去{1}的 {0} 条记录。</value>
+  </data>
+  <data name="DlArtist_ArtistsStartedDownloading" xml:space="preserve">
+    <value>已开始下载 {0} 位作者</value>
+  </data>
+  <data name="DlArtist_ArtistsQueuedSlot" xml:space="preserve">
+    <value>已排队 {0} 位作者 — 有空位时开始</value>
+  </data>
+  <data name="History_DownloadsCount" xml:space="preserve">
+    <value>{0} 次下载</value>
+  </data>
+  <data name="History_JobsCount" xml:space="preserve">
+    <value>{0} 个任务</value>
+  </data>
+  <data name="Jobs_JobItemCount" xml:space="preserve">
+    <value>{0} — {1} 项</value>
+  </data>
+  <data name="Jobs_DownloadedSoFar" xml:space="preserve">
+    <value>{0}
+已下载 {1}/{2} 个作品</value>
+  </data>
+  <data name="Jobs_ResumingFrom" xml:space="preserve">
+    <value>{0}
+从 {1}/{2} 个作品继续</value>
+  </data>
+  <data name="Jobs_SucceededFailed" xml:space="preserve">
+    <value>{0}
+{1} 个作品 · {2} 失败</value>
+  </data>
+  <data name="Jobs_ArtworksDownloaded" xml:space="preserve">
+    <value>{0}
+已下载 {1} 个作品</value>
+  </data>
+  <data name="Changelog_ReleaseCount" xml:space="preserve">
+    <value>{0} 个版本 — 最新优先</value>
+  </data>
+  <data name="Preset_ArtworkListItem" xml:space="preserve">
+    <value>{0}. {1}  ({2} 页)</value>
+  </data>
 </root>

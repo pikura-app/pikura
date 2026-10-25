@@ -1,5 +1,6 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:loc="using:Pikura.Avalonia.Localization"
              xmlns:vm="using:Pikura.Avalonia.ViewModels"
              xmlns:actipro="http://schemas.actiprosoftware.com/avaloniaui"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -17,8 +18,8 @@
                 BorderBrush="{DynamicResource Container1BorderBrush}"
                 BorderThickness="0,0,0,1" Padding="20,16">
             <StackPanel Spacing="4">
-                <TextBlock Text="Download from Bookmarks" FontSize="20" FontWeight="SemiBold"/>
-                <TextBlock Text="Download artworks from your bookmarked artists and images"
+                <TextBlock Text="{loc:Tr DlBookmarks_DownloadFromBookmarks}" FontSize="20" FontWeight="SemiBold"/>
+                <TextBlock Text="{loc:Tr DlBookmarks_DownloadArtworksFromYourBookmarkedArtist}"
                            FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
             </StackPanel>
         </Border>
@@ -29,11 +30,11 @@
                         BorderBrush="{DynamicResource Container2BorderBrush}"
                         BorderThickness="1" CornerRadius="8" Padding="16">
                     <StackPanel Spacing="12">
-                        <TextBlock Text="Source" FontSize="15" FontWeight="SemiBold"/>
+                        <TextBlock Text="{loc:Tr DlBookmarks_Source}" FontSize="15" FontWeight="SemiBold"/>
                         <StackPanel Spacing="8">
-                            <RadioButton Content="Bookmarked Images (Illustrations/Manga)"
+                            <RadioButton Content="{loc:Tr DlBookmarks_BookmarkedImagesIllustrationsManga}"
                                          IsChecked="{Binding IsBookmarkedImages, Mode=TwoWay}"/>
-                            <RadioButton Content="Bookmarked Artists"
+                            <RadioButton Content="{loc:Tr DlBookmarks_BookmarkedArtists}"
                                          IsChecked="{Binding !IsBookmarkedImages, Mode=TwoWay}"/>
                         </StackPanel>
                     </StackPanel>
@@ -43,13 +44,13 @@
                         BorderBrush="{DynamicResource Container2BorderBrush}"
                         BorderThickness="1" CornerRadius="8" Padding="16">
                     <StackPanel Spacing="12">
-                        <TextBlock Text="Visibility" FontSize="15" FontWeight="SemiBold"/>
+                        <TextBlock Text="{loc:Tr DlBookmarks_Visibility}" FontSize="15" FontWeight="SemiBold"/>
                         <StackPanel Spacing="8">
-                            <RadioButton Content="Public bookmarks only"
+                            <RadioButton Content="{loc:Tr DlBookmarks_PublicBookmarksOnly}"
                                          IsChecked="{Binding IsPublicOnly, Mode=TwoWay}"/>
-                            <RadioButton Content="Private bookmarks only"
+                            <RadioButton Content="{loc:Tr DlBookmarks_PrivateBookmarksOnly}"
                                          IsChecked="{Binding IsPrivateOnly, Mode=TwoWay}"/>
-                            <RadioButton Content="Both public and private"
+                            <RadioButton Content="{loc:Tr DlBookmarks_BothPublicAndPrivate}"
                                          IsChecked="{Binding IsBothVisibility, Mode=TwoWay}"/>
                         </StackPanel>
                     </StackPanel>
@@ -59,11 +60,11 @@
                         BorderBrush="{DynamicResource Container2BorderBrush}"
                         BorderThickness="1" CornerRadius="8" Padding="16">
                     <StackPanel Spacing="12">
-                        <TextBlock Text="Filter Options" FontSize="15" FontWeight="SemiBold"/>
+                        <TextBlock Text="{loc:Tr DlBookmarks_FilterOptions}" FontSize="15" FontWeight="SemiBold"/>
                         <StackPanel Orientation="Horizontal" Spacing="16">
-                            <CheckBox Content="Include R-18" IsChecked="{Binding IncludeR18, Mode=TwoWay}"/>
-                            <CheckBox Content="Include AI-generated" IsChecked="{Binding IncludeAiGenerated, Mode=TwoWay}"/>
-                            <CheckBox Content="Include Manga" IsChecked="{Binding IncludeManga, Mode=TwoWay}"/>
+                            <CheckBox Content="{loc:Tr DlBookmarks_IncludeR18}" IsChecked="{Binding IncludeR18, Mode=TwoWay}"/>
+                            <CheckBox Content="{loc:Tr DlBookmarks_IncludeAIGenerated}" IsChecked="{Binding IncludeAiGenerated, Mode=TwoWay}"/>
+                            <CheckBox Content="{loc:Tr DlBookmarks_IncludeManga}" IsChecked="{Binding IncludeManga, Mode=TwoWay}"/>
                         </StackPanel>
                     </StackPanel>
                 </Border>
@@ -83,7 +84,7 @@
         <Border Grid.Row="3" Background="{DynamicResource Container2BackgroundBrush}"
                 BorderBrush="{DynamicResource Container2BorderBrush}"
                 BorderThickness="0,1,0,0" Padding="16">
-            <Button Content="▶ Start Download" Command="{Binding StartDownloadCommand}"
+            <Button Content="{loc:Tr DlId_StartDownload}" Command="{Binding StartDownloadCommand}"
                     Classes="accent" HorizontalAlignment="Right"
                      Padding="20,12" />
         </Border>

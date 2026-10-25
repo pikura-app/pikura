@@ -11,6 +11,7 @@ using AvaloniaAnimation = global::Avalonia.Animation;
 using Avalonia.Controls.Presenters;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
+using Pikura.Avalonia.Localization;
 using Pikura.Avalonia.Services;
 using Pikura.Avalonia.ViewModels;
 using Pikura.Avalonia.Views.Artwork;
@@ -482,7 +483,7 @@ public partial class InlineArtworkViewer : UserControl
         if (!e.GetCurrentPoint(null).Properties.IsRightButtonPressed) return;
 
         var menu = new ContextMenu();
-        var rename = new MenuItem { Header = "Rename" };
+        var rename = new MenuItem { Header = Pikura.Avalonia.Localization.LocalizationService.Instance["Common_Rename"] };
         rename.Click += (_, _) => _ = RenameTabAsync(tab);
         menu.Items.Add(rename);
         menu.Open(border);
@@ -1672,7 +1673,7 @@ if (result != null && presetWindow.DownloadClicked)
         var dt = new global::Avalonia.Input.DataTransfer();
         dt.Add(global::Avalonia.Input.DataTransferItem.CreateText(url));
         _ = cb.SetDataAsync(dt);
-        if (VM != null) VM.StatusMessage = "Image URL copied — paste into a download manager (browser will 403; Pixiv CDN requires Referer header).";
+        if (VM != null) VM.StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_ImageURLCopiedPasteIntoA"];
     }
 
     // Use the active tab's nav list, then InlineViewerCardList, then FilteredArtworks.
@@ -1913,7 +1914,7 @@ if (result != null && presetWindow.DownloadClicked)
         }
         else
         {
-            VM.StatusMessage = "Could not update follow. Follow/unfollow requires a Pixiv App API refresh token (Settings > Accounts) or a valid web session.";
+            VM.StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_CouldNotUpdateFollowFollowUnfollow"];
         }
     }
 
@@ -1921,7 +1922,7 @@ if (result != null && presetWindow.DownloadClicked)
     {
         if (FollowToggleBtn == null || FollowToggleLabel == null) return;
         FollowToggleBtn.IsVisible = _currentCard != null;
-        FollowToggleLabel.Text = _isFollowing ? "Following" : "Follow";
+        FollowToggleLabel.Text = _isFollowing ? Pikura.Avalonia.Localization.LocalizationService.Instance["Artwork_Following"] : Pikura.Avalonia.Localization.LocalizationService.Instance["Viewer_Follow"];
         if (_isFollowing) FollowToggleBtn.Classes.Add("accent");
         else FollowToggleBtn.Classes.Remove("accent");
     }
@@ -2006,9 +2007,9 @@ if (result != null && presetWindow.DownloadClicked)
             if (ViewCountLabel != null) ViewCountLabel.Text = "…";
             return;
         }
-        if (LikeCountLabel != null) LikeCountLabel.Text = _likeCount.ToString("N0", CultureInfo.InvariantCulture);
-        if (BookmarkCountLabel != null) BookmarkCountLabel.Text = _bookmarkCount.ToString("N0", CultureInfo.InvariantCulture);
-        if (ViewCountLabel != null) ViewCountLabel.Text = _viewCount.ToString("N0", CultureInfo.InvariantCulture);
+        if (LikeCountLabel != null) LikeCountLabel.Text = _likeCount.ToString(Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_N0"], CultureInfo.InvariantCulture);
+        if (BookmarkCountLabel != null) BookmarkCountLabel.Text = _bookmarkCount.ToString(Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_N0"], CultureInfo.InvariantCulture);
+        if (ViewCountLabel != null) ViewCountLabel.Text = _viewCount.ToString(Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_N0"], CultureInfo.InvariantCulture);
     }
 
     private void OnShowStatsToggled(object? sender, RoutedEventArgs e)
@@ -2023,7 +2024,7 @@ if (result != null && presetWindow.DownloadClicked)
     private void UpdateLikeButton()
     {
         if (LikeBtn == null || LikeBtnLabel == null) return;
-        LikeBtnLabel.Text = _isLiked ? "Liked" : "Like";
+        LikeBtnLabel.Text = _isLiked ? Pikura.Avalonia.Localization.LocalizationService.Instance["Artwork_Liked"] : Pikura.Avalonia.Localization.LocalizationService.Instance["Viewer_Like"];
         if (_isLiked) LikeBtn.Classes.Add("accent");
         else LikeBtn.Classes.Remove("accent");
     }
@@ -2034,11 +2035,11 @@ if (result != null && presetWindow.DownloadClicked)
 
         if (_isBookmarked)
         {
-            BookmarkBtnLabel.Text = _isPrivateBookmark ? "Private" : "Public";
+            BookmarkBtnLabel.Text = _isPrivateBookmark ? Pikura.Avalonia.Localization.LocalizationService.Instance["Bookmarks_Private"] : Pikura.Avalonia.Localization.LocalizationService.Instance["Bookmarks_Public"];
         }
         else
         {
-            BookmarkBtnLabel.Text = "Bookmark";
+            BookmarkBtnLabel.Text = Pikura.Avalonia.Localization.LocalizationService.Instance["Viewer_Bookmark"];
         }
 
         if (_isBookmarked) BookmarkSplitBtn.Classes.Add("accent");
@@ -2080,11 +2081,11 @@ if (result != null && presetWindow.DownloadClicked)
                 try { AppServices.Get<BookmarksViewModel>().SyncLiked(card, true); }
                 catch { /* Bookmarks view not initialized yet — nothing to sync into */ }
                 SyncCardFlagsEverywhere(isLiked: true);
-                vm.StatusMessage = "Liked on Pixiv";
+                vm.StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_LikedOnPixiv"];
             }
             else
             {
-                vm.StatusMessage = "Could not like artwork";
+                vm.StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_CouldNotLikeArtwork"];
             }
         }
         finally { LikeBtn.IsEnabled = true; }
@@ -2200,7 +2201,7 @@ if (result != null && presetWindow.DownloadClicked)
                 CommentsListPanel.Children.Clear();
                 CommentsEmptyPanel.IsVisible = true;
                 CommentsLoadingBar.IsVisible = true;
-                CommentsEmptyLabel.Text = "Loading comments…";
+                CommentsEmptyLabel.Text = Pikura.Avalonia.Localization.LocalizationService.Instance["Viewer_LoadingComments"];
                 CommentsCountLabel.Text = string.Empty;
             }
 
@@ -2208,7 +2209,7 @@ if (result != null && presetWindow.DownloadClicked)
             if (result == null)
             {
                 CommentsLoadingBar.IsVisible = false;
-                CommentsEmptyLabel.Text = "Could not load comments.";
+                CommentsEmptyLabel.Text = Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_CouldNotLoadComments"];
                 return;
             }
 
@@ -2221,13 +2222,13 @@ if (result != null && presetWindow.DownloadClicked)
                 CommentsListPanel.Children.Add(BuildCommentThread(c));
 
             CommentsEmptyPanel.IsVisible = _loadedComments.Count == 0;
-            if (_loadedComments.Count == 0) CommentsEmptyLabel.Text = "No comments yet — be the first!";
+            if (_loadedComments.Count == 0) CommentsEmptyLabel.Text = Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_NoCommentsYetBeTheFirst"];
             CommentsLoadingBar.IsVisible = false;
         }
         catch (Exception ex)
         {
             CommentsLoadingBar.IsVisible = false;
-            CommentsEmptyLabel.Text = "Could not load comments.";
+            CommentsEmptyLabel.Text = Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_CouldNotLoadComments"];
             System.Diagnostics.Debug.WriteLine($"[InlineArtworkViewer] LoadComments failed: {ex}");
         }
         finally { _commentsLoading = false; }
@@ -2392,12 +2393,12 @@ if (result != null && presetWindow.DownloadClicked)
         var ok = await _pixivClient.DeleteCommentAsync(_currentCard.Id, c.Id);
         if (!ok)
         {
-            if (VM != null) VM.StatusMessage = "Could not delete comment.";
+            if (VM != null) VM.StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_CouldNotDeleteComment"];
             return;
         }
         _loadedComments.Remove(c);
         RerenderCommentsList();
-        if (VM != null) VM.StatusMessage = "Comment deleted";
+        if (VM != null) VM.StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_CommentDeleted"];
     }
 
     private void RerenderCommentsList()
@@ -2406,7 +2407,7 @@ if (result != null && presetWindow.DownloadClicked)
         foreach (var c in _loadedComments)
             CommentsListPanel.Children.Add(BuildCommentThread(c));
         CommentsEmptyPanel.IsVisible = _loadedComments.Count == 0;
-        if (_loadedComments.Count == 0) CommentsEmptyLabel.Text = "No comments yet — be the first!";
+        if (_loadedComments.Count == 0) CommentsEmptyLabel.Text = Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_NoCommentsYetBeTheFirst"];
     }
 
     /// <summary>A top-level comment's row plus, if it has replies, a "View N replies" toggle
@@ -2439,15 +2440,15 @@ if (result != null && presetWindow.DownloadClicked)
                 if (loaded) { repliesHost.IsVisible = !repliesHost.IsVisible; return; }
                 loaded = true;
                 repliesHost.IsVisible = true;
-                toggle.Content = "Loading…";
+                toggle.Content = Pikura.Avalonia.Localization.LocalizationService.Instance["Common_Loading_2"];
                 try
                 {
                     var replies = await _pixivClient.GetCommentRepliesAsync(c.Id);
                     foreach (var r in replies?.Comments ?? [])
                         repliesHost.Children.Add(BuildCommentRow(r));
-                    toggle.Content = replies?.Comments.Count > 0 ? "▴ Hide replies" : "No replies found";
+                    toggle.Content = replies?.Comments.Count > 0 ? Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_HideReplies"] : Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_NoRepliesFound"];
                 }
-                catch { toggle.Content = "Could not load replies"; }
+                catch { toggle.Content = Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_CouldNotLoadReplies"]; }
             };
             container.Children.Add(toggle);
         }
@@ -2598,7 +2599,7 @@ if (result != null && presetWindow.DownloadClicked)
                 if (!foundAny)
                 {
                     StickerLoadingPanel.IsVisible = true;
-                    ((TextBlock)StickerLoadingPanel.Children[1]).Text = "No stickers could be loaded.";
+                    ((TextBlock)StickerLoadingPanel.Children[1]).Text = Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_NoStickersCouldBeLoaded"];
                     StickerLoadingPanel.Children[0].IsVisible = false; // hide spinner, keep message
                 }
             }
@@ -2689,17 +2690,17 @@ if (result != null && presetWindow.DownloadClicked)
                     CommentsListPanel.Children.Insert(0, BuildCommentThread(mine));
                 }
                 CommentsEmptyPanel.IsVisible = false;
-                if (VM != null) VM.StatusMessage = replyingTo != null ? $"Reply posted to {replyingTo.Value.UserName}" : "Comment posted";
+                if (VM != null) VM.StatusMessage = replyingTo != null ? $"Reply posted to {replyingTo.Value.UserName}" : Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_CommentPosted"];
             }
             else if (VM != null)
             {
-                VM.StatusMessage = "Could not post comment.";
+                VM.StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_CouldNotPostComment"];
             }
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[InlineArtworkViewer] PostComment failed: {ex.Message}");
-            if (VM != null) VM.StatusMessage = "Could not post comment";
+            if (VM != null) VM.StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_CouldNotPostComment_2"];
         }
         finally
         {
@@ -2747,11 +2748,11 @@ if (result != null && presetWindow.DownloadClicked)
                             try { AppServices.Get<BookmarksViewModel>().SyncBookmarked(_currentCard, false, false, null); }
                             catch { /* Bookmarks view not initialized yet */ }
                             SyncCardFlagsEverywhere(isPixivBookmarked: false, isPixivPrivateBookmark: false, pixivBookmarkId: null, bookmarkIdProvided: true);
-                            VM.StatusMessage = "Removed Pixiv bookmark";
+                            VM.StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_RemovedPixivBookmark"];
                         }
                         else
                         {
-                            VM.StatusMessage = "Could not remove bookmark";
+                            VM.StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_CouldNotRemoveBookmark"];
                         }
                     }
                 }
@@ -2773,18 +2774,18 @@ if (result != null && presetWindow.DownloadClicked)
                                 try { AppServices.Get<BookmarksViewModel>().SyncBookmarked(_currentCard, true, isPrivate, newId); }
                                 catch { /* Bookmarks view not initialized yet */ }
                                 SyncCardFlagsEverywhere(isPixivBookmarked: true, isPixivPrivateBookmark: isPrivate, pixivBookmarkId: newId, bookmarkIdProvided: true);
-                                VM.StatusMessage = isPrivate ? "Switched to private bookmark" : "Switched to public bookmark";
+                                VM.StatusMessage = isPrivate ? Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_SwitchedToPrivateBookmark"] : Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_SwitchedToPublicBookmark"];
                             }
                             else
                             {
                                 // If re-adding failed, we lost the bookmark. Refresh state.
                                 _ = LoadArtworkStateAsync(_currentCard);
-                                VM.StatusMessage = "Could not re-add bookmark";
+                                VM.StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_CouldNotReAddBookmark"];
                             }
                         }
                         else
                         {
-                            VM.StatusMessage = "Could not update bookmark privacy";
+                            VM.StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_CouldNotUpdateBookmarkPrivacy"];
                         }
                     }
                 }
@@ -2804,11 +2805,11 @@ if (result != null && presetWindow.DownloadClicked)
                     try { AppServices.Get<BookmarksViewModel>().SyncBookmarked(_currentCard, true, isPrivate, newId); }
                     catch { /* Bookmarks view not initialized yet */ }
                     SyncCardFlagsEverywhere(isPixivBookmarked: true, isPixivPrivateBookmark: isPrivate, pixivBookmarkId: newId, bookmarkIdProvided: true);
-                    VM.StatusMessage = isPrivate ? "Added private bookmark" : "Bookmarked on Pixiv";
+                    VM.StatusMessage = isPrivate ? Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_AddedPrivateBookmark"] : Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_BookmarkedOnPixiv"];
                 }
                 else
                 {
-                    VM.StatusMessage = "Could not bookmark";
+                    VM.StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_CouldNotBookmark"];
                 }
             }
             UpdateBookmarkButtons();
@@ -3084,7 +3085,7 @@ if (result != null && presetWindow.DownloadClicked)
     {
         if (LocalFavBtn == null || LocalFavLabel == null) return;
         var isFav = card != null && _favorites.IsFavorite(card.Id);
-        LocalFavLabel.Text = isFav ? "Favorited" : "Favorite";
+        LocalFavLabel.Text = isFav ? Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_Favorited"] : Pikura.Avalonia.Localization.LocalizationService.Instance["Viewer_Favorite"];
         if (card != null)
         {
             card.IsLocalFavorite = isFav;
@@ -3228,7 +3229,7 @@ if (result != null && presetWindow.DownloadClicked)
         if (!_aiVm.IsEnabled)
         {
             // First enable: start Ollama + pull model
-            if (AiToggleBtnLabel != null) AiToggleBtnLabel.Text = "Hoshi…";
+            if (AiToggleBtnLabel != null) AiToggleBtnLabel.Text = Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_Hoshi"];
             if (AiToggleBtn != null)      AiToggleBtn.IsEnabled = false;
 
             await _aiVm.ToggleEnabledAsync();
@@ -3280,7 +3281,7 @@ if (result != null && presetWindow.DownloadClicked)
 
             // Show thinking indicator in send button
             if (AiSendBtn != null)
-                AiSendBtn.Content = _aiVm.IsThinking ? "…" : "Send";
+                AiSendBtn.Content = _aiVm.IsThinking ? "…" : Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_Send"];
         });
         ScrollToBottomDeferred();
     }

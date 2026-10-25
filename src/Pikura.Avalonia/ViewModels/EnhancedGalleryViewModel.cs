@@ -9,6 +9,8 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Pikura.Core.Models;
 
+using Pikura.Avalonia.Localization;
+
 namespace Pikura.Avalonia.ViewModels;
 
 public partial class EnhancedGalleryViewModel : ViewModelBase
@@ -102,7 +104,7 @@ public partial class EnhancedGalleryViewModel : ViewModelBase
             Following = true,
             Illustrations = new List<ArtworkPreview>
             {
-                new() { Id = "4", Title = "Abstract Thoughts", UserName = "CreativeMind" },
+                new() { Id = "4", Title = Pikura.Avalonia.Localization.LocalizationService.Instance["Gallery_AbstractThoughts"], UserName = "CreativeMind" },
                 new() { Id = "5", Title = "Color Explosion", UserName = "CreativeMind" }
             }
         });
@@ -122,7 +124,7 @@ public partial class EnhancedGalleryViewModel : ViewModelBase
             new(new ArtworkPreview 
             { 
                 Id = "2", 
-                Title = "Character Portrait", 
+                Title = Pikura.Avalonia.Localization.LocalizationService.Instance["Gallery_CharacterPortrait"], 
                 UserName = "CreativeMind",
                 BookmarkCount = 18700,
                 LikeCount = 124000,
@@ -180,7 +182,7 @@ public partial class EnhancedGalleryViewModel : ViewModelBase
             return;
 
         IsLoading = true;
-        StatusMessage = "Searching...";
+        StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Gallery_Searching"];
 
         try
         {
@@ -214,7 +216,7 @@ public partial class EnhancedGalleryViewModel : ViewModelBase
     private async Task LoadFollowedArtistsAsync()
     {
         IsLoading = true;
-        StatusMessage = "Loading followed artists...";
+        StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Gallery_LoadingFollowedArtists"];
 
         try
         {
@@ -238,7 +240,7 @@ public partial class EnhancedGalleryViewModel : ViewModelBase
             artwork.IsSelected = false;
         }
         SelectedCount = 0;
-        StatusMessage = "Selection cleared";
+        StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Gallery_SelectionCleared"];
     }
 
     private void ApplyFilter(string? filter)

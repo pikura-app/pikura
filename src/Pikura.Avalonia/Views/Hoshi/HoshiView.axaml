@@ -1,5 +1,6 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:loc="using:Pikura.Avalonia.Localization"
              xmlns:actipro="http://schemas.actiprosoftware.com/avaloniaui"
              xmlns:vm="using:Pikura.Avalonia.ViewModels"
              xmlns:svc="using:Pikura.Avalonia.Services"
@@ -22,12 +23,12 @@
                         BorderBrush="{DynamicResource Container1BorderBrush}"
                         BorderThickness="0,0,0,1">
                     <Grid ColumnDefinitions="*,Auto,Auto">
-                        <TextBlock Grid.Column="0" Text="Sessions" FontSize="13" FontWeight="SemiBold"
+                        <TextBlock Grid.Column="0" Text="{loc:Tr Hoshi_Sessions}" FontSize="13" FontWeight="SemiBold"
                                    VerticalAlignment="Center"/>
-                        <Button Grid.Column="1" Content="Clear All" Name="ClearAllBtn"
+                        <Button Grid.Column="1" Content="{loc:Tr Hoshi_ClearAll}" Name="ClearAllBtn"
                                   FontSize="11" Margin="6,0"
                                 Click="OnClearAllSessionsClicked"/>
-                        <Button Grid.Column="2" Content="✚ New" Name="NewSessionBtn"
+                        <Button Grid.Column="2" Content="{loc:Tr Hoshi_New}" Name="NewSessionBtn"
                                   FontSize="11"
                                 Click="OnNewSessionClicked"/>
                     </Grid>
@@ -36,10 +37,10 @@
                 <!-- Empty state -->
                 <StackPanel Grid.Row="1" Margin="14,18" Spacing="6"
                             IsVisible="{Binding Sessions.Count, Converter={x:Static svc:CountToBoolConverter.IsZero}}">
-                    <TextBlock Text="No sessions yet"
+                    <TextBlock Text="{loc:Tr Hoshi_NoSessionsYet}"
                                Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                FontSize="12" HorizontalAlignment="Center"/>
-                    <TextBlock Text="Click ✚ New to start, then drop an image to begin."
+                    <TextBlock Text="{loc:Tr Hoshi_ClickNewToStartThenDrop}"
                                Foreground="{DynamicResource DefaultForegroundBrushDisabled}"
                                FontSize="10" TextWrapping="Wrap" TextAlignment="Center"/>
                 </StackPanel>
@@ -49,7 +50,7 @@
                               HorizontalScrollBarVisibility="Disabled">
                     <StackPanel Spacing="8" Margin="6,6">
                         <!-- Delete selected button -->
-                        <Button Name="DeleteSelectedBtn" Content="Delete Selected" 
+                        <Button Name="DeleteSelectedBtn" Content="{loc:Tr Hoshi_DeleteSelected}" 
                                   FontSize="11"
                                 Click="OnDeleteSelectedSessionsClicked"
                                 IsVisible="False"/>
@@ -118,10 +119,10 @@
                                                                         <Setter Property="Background" Value="{DynamicResource Container1BorderBrush}"/>
                                                                     </Style>
                                                                 </ContextMenu.Styles>
-                                                                <MenuItem Header="Rename" Click="OnRenameSession" Tag="{Binding}"/>
-                                                                <MenuItem Header="Duplicate" Click="OnDuplicateSession" Tag="{Binding}"/>
+                                                                <MenuItem Header="{loc:Tr Common_Rename}" Click="OnRenameSession" Tag="{Binding}"/>
+                                                                <MenuItem Header="{loc:Tr Hoshi_Duplicate}" Click="OnDuplicateSession" Tag="{Binding}"/>
                                                                 <Separator/>
-                                                                <MenuItem Header="Delete Session" Click="OnDeleteSession" Tag="{Binding}"/>
+                                                                <MenuItem Header="{loc:Tr Hoshi_DeleteSession}" Click="OnDeleteSession" Tag="{Binding}"/>
                                                             </ContextMenu>
                                                         </Border.ContextMenu>
                                                     </Border>
@@ -155,7 +156,7 @@
                         </StackPanel>
                     </StackPanel>
                     <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
-                        <Button Name="ToggleBtn" Content="Enable"  
+                        <Button Name="ToggleBtn" Content="{loc:Tr Hoshi_Enable}"  
                                 FontSize="11" Click="OnToggleClicked"/>
                     </StackPanel>
                 </Grid>
@@ -173,7 +174,7 @@
                             ClipToBounds="True" Cursor="Hand"
                             Background="{DynamicResource Container3BackgroundBrush}"
                             PointerPressed="OnImageThumbClicked"
-                            ToolTip.Tip="Click to view larger">
+                            ToolTip.Tip="{loc:Tr Hoshi_ClickToViewLarger}">
                         <Image Name="ImageThumb" Stretch="UniformToFill"/>
                         <FlyoutBase.AttachedFlyout>
                             <Flyout Placement="RightEdgeAlignedTop" ShowMode="Transient">
@@ -185,9 +186,9 @@
                     </Border>
                     <!-- Info -->
                     <StackPanel DockPanel.Dock="Left" Margin="12,0" VerticalAlignment="Center" Spacing="2">
-                        <TextBlock Name="ImageLabel" Text="No image attached" FontSize="12" FontWeight="SemiBold"/>
+                        <TextBlock Name="ImageLabel" Text="{loc:Tr Hoshi_NoImageAttached}" FontSize="12" FontWeight="SemiBold"/>
                         <TextBlock Name="ImageHint"
-                                   Text="Drop an image here, paste with Ctrl+V, or click 📂 Open"
+                                   Text="{loc:Tr Hoshi_DropAnImageHerePasteWith}"
                                    FontSize="10"
                                    Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                     </StackPanel>
@@ -198,20 +199,20 @@
                                 <Setter Property="Margin" Value="0,0,4,0"/>
                             </Style>
                         </WrapPanel.Styles>
-                        <Button Name="ViewArtworkBtn" Content="🖼 View Artwork"   FontSize="11"
+                        <Button Name="ViewArtworkBtn" Content="{loc:Tr Hoshi_ViewArtwork}"   FontSize="11"
                                 Click="OnViewArtworkClicked" IsVisible="False"
-                                ToolTip.Tip="Open this artwork in the Gallery viewer"/>
-                        <Button Name="OpenImageBtn" Content="📂 Open"   FontSize="11"
+                                ToolTip.Tip="{loc:Tr Hoshi_OpenThisArtworkInTheGallery}"/>
+                        <Button Name="OpenImageBtn" Content="{loc:Tr Hoshi_Open}"   FontSize="11"
                                 Click="OnOpenImageClicked"
-                                ToolTip.Tip="Attach an image from your computer"/>
-                        <Button Content="📋 Paste"   FontSize="11"
+                                ToolTip.Tip="{loc:Tr Hoshi_AttachAnImageFromYourComputer}"/>
+                        <Button Content="{loc:Tr Hoshi_Paste}"   FontSize="11"
                                 Click="OnPasteImageClicked"
-                                ToolTip.Tip="Paste image from clipboard (Ctrl+V also works)"/>
-                        <Button Content="🌐 URL"   FontSize="11"
+                                ToolTip.Tip="{loc:Tr Hoshi_PasteImageFromClipboardCtrlV}"/>
+                        <Button Content="{loc:Tr Hoshi_URL}"   FontSize="11"
                                 Click="OnUrlImageClicked"/>
-                        <Button Content="🗑 Clear Chat"   FontSize="11"
+                        <Button Content="{loc:Tr Hoshi_ClearChat}"   FontSize="11"
                                 Click="OnClearClicked"
-                                ToolTip.Tip="Clears the conversation only — the attached image stays put."/>
+                                ToolTip.Tip="{loc:Tr Hoshi_ClearsTheConversationOnlyTheAttached}"/>
                     </WrapPanel>
                 </DockPanel>
             </Border>
@@ -238,7 +239,7 @@
                                             BorderBrush="{Binding IsUser, Converter={x:Static conv:BoolToBubbleBrushConverter.Border}}"
                                             BorderThickness="1">
                                         <StackPanel Spacing="8">
-                                            <TextBlock Text="You" FontSize="10" FontWeight="SemiBold"
+                                            <TextBlock Text="{loc:Tr Hoshi_You}" FontSize="10" FontWeight="SemiBold"
                                                        IsVisible="{Binding IsUser}"
                                                        Foreground="{DynamicResource DefaultForegroundBrush}"/>
                                             <!-- Image thumbnail (if present) -->
@@ -254,21 +255,21 @@
                                             <!-- Quick actions for artwork/artist results -->
                                             <StackPanel Orientation="Horizontal" Spacing="6"
                                                         IsVisible="{Binding HasAnyAction}">
-                                                <Button Content="🖼 View Artwork"  FontSize="10" 
+                                                <Button Content="{loc:Tr Hoshi_ViewArtwork}"  FontSize="10" 
                                                         IsVisible="{Binding HasArtworkAction}"
                                                         Click="OnOpenArtworkFromChat"
                                                         Tag="{Binding ArtworkId}"
-                                                        ToolTip.Tip="Open this artwork in a new viewer tab"/>
-                                                <Button Content="👤 Gallery"  FontSize="10" 
+                                                        ToolTip.Tip="{loc:Tr Rankings_OpenThisArtworkInANew}"/>
+                                                <Button Content="{loc:Tr Hoshi_Gallery}"  FontSize="10" 
                                                         IsVisible="{Binding HasArtistAction}"
                                                         Click="OnOpenArtistFromChat"
                                                         Tag="{Binding ArtistId}"
-                                                        ToolTip.Tip="Open this artist's gallery"/>
-                                                <Button Content="🌐 Open URL"  FontSize="10" 
+                                                        ToolTip.Tip="{loc:Tr Hoshi_OpenThisArtistSGallery}"/>
+                                                <Button Content="{loc:Tr Hoshi_OpenURL}"  FontSize="10" 
                                                         IsVisible="{Binding HasUrlAction}"
                                                         Click="OnOpenUrlFromChat"
                                                         Tag="{Binding PixivUrl}"
-                                                        ToolTip.Tip="Open this Pixiv page in your browser"/>
+                                                        ToolTip.Tip="{loc:Tr Hoshi_OpenThisPixivPageInYour}"/>
                                             </StackPanel>
                                         </StackPanel>
                                     </Border>
@@ -303,7 +304,7 @@
                                         </Style>
                                     </TextBlock.Styles>
                                 </TextBlock>
-                                <TextBlock Text="Hoshi is thinking…" FontSize="11"
+                                <TextBlock Text="{loc:Tr Hoshi_HoshiIsThinking}" FontSize="11"
                                            Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                            FontStyle="Italic" VerticalAlignment="Center"/>
                             </StackPanel>
@@ -321,43 +322,43 @@
                     <WrapPanel Orientation="Horizontal">
                         <!-- Single-page submissions get a plain button; the "all pages" dropdown
                              only appears once a multi-page submission is actually detected. -->
-                        <Button Content="👁 Describe"   FontSize="10"
+                        <Button Content="{loc:Tr Hoshi_Describe}"   FontSize="10"
                                 Margin="0,0,4,4" Name="DescribeBtn" Click="OnDescribeClicked"
                                 IsVisible="{Binding !IsCurrentSubmissionMultiPage}"
                                 IsEnabled="{Binding !IsThinking}"
-                                ToolTip.Tip="Describe the image, its style, and the character(s)"/>
-                        <SplitButton Content="👁 Describe" CornerRadius="4" Padding="8,4" FontSize="10"
+                                ToolTip.Tip="{loc:Tr Hoshi_DescribeTheImageItsStyleAnd}"/>
+                        <SplitButton Content="{loc:Tr Hoshi_Describe}" CornerRadius="4" Padding="8,4" FontSize="10"
                                 Margin="0,0,4,4" Name="DescribeSplitBtn" Click="OnDescribeClicked"
                                 IsVisible="{Binding IsCurrentSubmissionMultiPage}"
                                 IsEnabled="{Binding !IsThinking}"
-                                ToolTip.Tip="Describe the image, its style, and the character(s). Use the arrow to describe all pages.">
+                                ToolTip.Tip="{loc:Tr Hoshi_DescribeTheImageItsStyleAnd_2}">
                             <SplitButton.Flyout>
                                 <MenuFlyout Placement="BottomEdgeAlignedLeft">
-                                    <MenuItem Header="👁 Describe current page" Click="OnDescribeClicked"/>
-                                    <MenuItem Header="📚 Describe all pages" Click="OnAllPagesClicked"
-                                              ToolTip.Tip="Describes every page of a multi-page submission, not just the one you're viewing"/>
+                                    <MenuItem Header="{loc:Tr Hoshi_DescribeCurrentPage}" Click="OnDescribeClicked"/>
+                                    <MenuItem Header="{loc:Tr Hoshi_DescribeAllPages}" Click="OnAllPagesClicked"
+                                              ToolTip.Tip="{loc:Tr Hoshi_DescribesEveryPageOfAMulti}"/>
                                 </MenuFlyout>
                             </SplitButton.Flyout>
                         </SplitButton>
-                        <Button Content="🏷 Tags"   FontSize="10"
+                        <Button Content="{loc:Tr Hoshi_Tags}"   FontSize="10"
                                 Margin="0,0,4,4" Name="TagsBtn" Click="OnTagsClicked"
                                 IsEnabled="{Binding !IsThinking}"/>
-                        <Button Content="� Similar Art"   FontSize="10"
+                        <Button Content="{loc:Tr Hoshi_SimilarArt}"   FontSize="10"
                                 Margin="0,0,4,4" Name="SimilarArtBtn" Click="OnSimilarArtworksClicked"
                                 IsEnabled="{Binding !IsThinking}"
-                                ToolTip.Tip="Recommend artworks similar to this image"/>
-                        <Button Content="🧑‍🎨 Similar Artists"   FontSize="10"
+                                ToolTip.Tip="{loc:Tr Hoshi_RecommendArtworksSimilarToThisImage}"/>
+                        <Button Content="{loc:Tr Hoshi_SimilarArtists}"   FontSize="10"
                                 Margin="0,0,4,4" Name="SimilarArtistsBtn" Click="OnSimilarArtistsClicked"
                                 IsEnabled="{Binding !IsThinking}"
-                                ToolTip.Tip="Recommend artists with a similar style"/>
-                        <Button Content="⭐ Fav"   FontSize="10"
+                                ToolTip.Tip="{loc:Tr Hoshi_RecommendArtistsWithASimilarStyle}"/>
+                        <Button Content="{loc:Tr Hoshi_Fav}"   FontSize="10"
                                 Margin="0,0,4,4" Name="FavBtn" Click="OnFavClicked"/>
-                        <Button Content="↓ DL"   FontSize="10"
+                        <Button Content="{loc:Tr Hoshi_DL}"   FontSize="10"
                                 Margin="0,0,0,4" Name="DlBtn" Click="OnDlClicked"/>
                     </WrapPanel>
                     <Grid ColumnDefinitions="*,Auto">
                         <TextBox Grid.Column="0" Name="InputBox"
-                                 PlaceholderText="Ask Hoshi anything — drop an image, paste, or type a question…"
+                                 PlaceholderText="{loc:Tr Hoshi_AskHoshiAnythingDropAnImage}"
                                  FontSize="12" CornerRadius="6,0,0,6"
                                  KeyDown="OnInputKeyDown"/>
                         <Button Grid.Column="1" Name="SendBtn"
@@ -385,8 +386,8 @@
                                             </Style>
                                         </TextBlock.Styles>
                                     </TextBlock>
-                                    <TextBlock Text="Sending…" VerticalAlignment="Center" IsVisible="{Binding IsThinking}"/>
-                                    <TextBlock Text="Send" VerticalAlignment="Center" IsVisible="{Binding !IsThinking}"/>
+                                    <TextBlock Text="{loc:Tr Hoshi_Sending}" VerticalAlignment="Center" IsVisible="{Binding IsThinking}"/>
+                                    <TextBlock Text="{loc:Tr Hoshi_Send}" VerticalAlignment="Center" IsVisible="{Binding !IsThinking}"/>
                                 </StackPanel>
                             </Button.Content>
                         </Button>

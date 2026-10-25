@@ -25,7 +25,7 @@
                     <Button x:Name="BrowsePanelButton"
                             CornerRadius="6" Padding="10,6" FontSize="12"
                             Click="OnBrowseButtonClicked"
-                            ToolTip.Tip="Hide or show the side panel">
+                            ToolTip.Tip="{loc:Tr Viewer_HideOrShowTheSidePanel}">
                         <StackPanel Orientation="Horizontal" Spacing="5">
                             <Path x:Name="ShowPanelIcon" Data="{StaticResource ShowPanelIcon}" Width="14" Height="14"
                                   Stretch="Uniform" Stroke="{Binding $parent[Button].Foreground}" StrokeThickness="1.5"
@@ -35,37 +35,37 @@
                                   Stretch="Uniform" Stroke="{Binding $parent[Button].Foreground}" StrokeThickness="1.5"
                                   StrokeLineCap="Round"
                                   VerticalAlignment="Center" UseLayoutRounding="False" IsVisible="False"/>
-                            <TextBlock x:Name="ShowPanelLabel" Text="Show Panel" FontSize="12" VerticalAlignment="Center"/>
-                            <TextBlock x:Name="HidePanelLabel" Text="Hide Panel" FontSize="12" VerticalAlignment="Center" IsVisible="False"/>
+                            <TextBlock x:Name="ShowPanelLabel" Text="{loc:Tr Search_ShowPanel}" FontSize="12" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="HidePanelLabel" Text="{loc:Tr Search_HidePanel}" FontSize="12" VerticalAlignment="Center" IsVisible="False"/>
                         </StackPanel>
                     </Button>
                     <Button CornerRadius="6" Padding="10,6" FontSize="12"
                             Click="OnExpandButtonClicked"
-                            ToolTip.Tip="Expand to full screen / restore side panel">
+                            ToolTip.Tip="{loc:Tr Viewer_ExpandToFullScreenRestoreSide}">
                         <StackPanel Orientation="Horizontal" Spacing="5">
                             <PathIcon Data="{StaticResource FullscreenEnterIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
-                            <TextBlock x:Name="ExpandLabel" Text="Expand" FontSize="12" VerticalAlignment="Center"/>
-                            <TextBlock x:Name="RestoreLabel" Text="Restore" FontSize="12" VerticalAlignment="Center" IsVisible="False"/>
+                            <TextBlock x:Name="ExpandLabel" Text="{loc:Tr Viewer_Expand}" FontSize="12" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="RestoreLabel" Text="{loc:Tr Viewer_Restore}" FontSize="12" VerticalAlignment="Center" IsVisible="False"/>
                         </StackPanel>
                     </Button>
                     <Button CornerRadius="6" Padding="10,6" FontSize="12"
                             Classes="accent"
                             Click="OnFullscreen"
-                            ToolTip.Tip="Open in fullscreen window (F11)">
+                            ToolTip.Tip="{loc:Tr Viewer_OpenInFullscreenWindowF11}">
                         <StackPanel Orientation="Horizontal" Spacing="5">
                             <PathIcon Data="{StaticResource FullscreenEnterIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
-                            <TextBlock Text="Fullscreen" FontSize="12" VerticalAlignment="Center"/>
+                            <TextBlock Text="{loc:Tr Common_Fullscreen}" FontSize="12" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                     <Button CornerRadius="6" Padding="10,6" FontSize="12"
                             Click="OnCloseAllClicked"
-                            ToolTip.Tip="Close all tabs">
+                            ToolTip.Tip="{loc:Tr Viewer_CloseAllTabs}">
                         <StackPanel Orientation="Horizontal" Spacing="5">
                             <Path Data="{StaticResource CloseIcon}" Width="14" Height="14"
                                   Stretch="Uniform" Stroke="{Binding $parent[Button].Foreground}" StrokeThickness="2"
                                   StrokeLineCap="Round"
                                   VerticalAlignment="Center" UseLayoutRounding="False"/>
-                            <TextBlock Text="Close all" FontSize="12" VerticalAlignment="Center"/>
+                            <TextBlock Text="{loc:Tr Viewer_CloseAll}" FontSize="12" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                 </StackPanel>
@@ -114,7 +114,7 @@
                                                 Padding="4,2" Margin="0,3,4,3"
                                                 CornerRadius="3" VerticalAlignment="Center"
                                                 Click="OnTabCloseClick"
-                                                ToolTip.Tip="Close this tab">
+                                                ToolTip.Tip="{loc:Tr Viewer_CloseThisTab}">
                                             <Path Data="{StaticResource CloseIcon}" Width="10" Height="10"
                                               Stretch="Uniform" Stroke="{Binding $parent[Button].Foreground}" StrokeThickness="2"
                                               StrokeLineCap="Round"
@@ -130,7 +130,7 @@
                 <!-- Right: tab list picker + zoom label -->
                 <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center" Margin="6,0,4,0">
                     <Button Name="TabListBtn" Padding="9,5" CornerRadius="6"
-                            ToolTip.Tip="All open tabs"
+                            ToolTip.Tip="{loc:Tr Viewer_AllOpenTabs}"
                             Click="OnTabListClick">
                         <Button.IsVisible>
                             <MultiBinding Converter="{x:Static BoolConverters.And}">
@@ -163,15 +163,15 @@
                                          FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushSecondary}" VerticalAlignment="Center"
                                          Cursor="Hand"
                                          MaxWidth="160"
-                                         ToolTip.Tip="Click to copy artist ID"
+                                         ToolTip.Tip="{loc:Tr Viewer_ClickToCopyArtistID}"
                                          PointerPressed="OnArtistNamePressed"/>
                     <Button Name="FollowToggleBtn" CornerRadius="6" Padding="8,3" FontSize="12"
                             Click="OnFollowToggleClicked" VerticalAlignment="Center"
                             IsVisible="{Binding InlineViewerCard, Converter={x:Static ObjectConverters.IsNotNull}}"
-                            ToolTip.Tip="Follow or unfollow this artist">
+                            ToolTip.Tip="{loc:Tr Viewer_FollowOrUnfollowThisArtist}">
                         <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
                             <PathIcon Data="{StaticResource PersonIcon}" Width="12" Height="12" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
-                            <TextBlock Name="FollowToggleLabel" Text="Follow" FontSize="12" VerticalAlignment="Center"/>
+                            <TextBlock Name="FollowToggleLabel" Text="{loc:Tr Viewer_Follow}" FontSize="12" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                     <Border Background="#7F374151" CornerRadius="4" Padding="6,2"
@@ -187,25 +187,25 @@
                                   MinHeight="24" MinWidth="28"
                                   VerticalAlignment="Center"
                                   HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
-                                  ToolTip.Tip="Show / hide Pixiv like / bookmark / view counts"
+                                  ToolTip.Tip="{loc:Tr Viewer_ShowHidePixivLikeBookmarkView}"
                                   IsVisible="{Binding InlineViewerCard, Converter={x:Static ObjectConverters.IsNotNull}}">
                         <PathIcon Data="{StaticResource EyeIcon}" Width="14" Height="14" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="{Binding $parent[ToggleButton].Foreground}" />
                     </ToggleButton>
                     <StackPanel Name="StatsStackPanel" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center"
                                 IsVisible="{Binding InlineViewerCard, Converter={x:Static ObjectConverters.IsNotNull}}">
-                        <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center" ToolTip.Tip="Likes">
+                        <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center" ToolTip.Tip="{loc:Tr Viewer_Likes}">
                             <PathIcon Data="{StaticResource HeartIcon}" Width="12" Height="12" VerticalAlignment="Center"
                                       Foreground="{DynamicResource DefaultForegroundBrushSecondary}"/>
                             <TextBlock Name="LikeCountLabel" FontSize="12" VerticalAlignment="Center"
                                        Foreground="{DynamicResource DefaultForegroundBrushSecondary}"/>
                         </StackPanel>
-                        <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center" ToolTip.Tip="Bookmarks">
+                        <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center" ToolTip.Tip="{loc:Tr Nav_Bookmarks}">
                             <PathIcon Data="{StaticResource BookmarkIcon}" Width="12" Height="12" VerticalAlignment="Center"
                                       Foreground="{DynamicResource DefaultForegroundBrushSecondary}"/>
                             <TextBlock Name="BookmarkCountLabel" FontSize="12" VerticalAlignment="Center"
                                        Foreground="{DynamicResource DefaultForegroundBrushSecondary}"/>
                         </StackPanel>
-                        <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center" ToolTip.Tip="Views">
+                        <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center" ToolTip.Tip="{loc:Tr Viewer_Views}">
                             <PathIcon Data="{StaticResource EyeIcon}" Width="12" Height="12" VerticalAlignment="Center"
                                       Foreground="{DynamicResource DefaultForegroundBrushSecondary}"/>
                             <TextBlock Name="ViewCountLabel" FontSize="12" VerticalAlignment="Center"
@@ -220,24 +220,24 @@
                     <TextBox Name="ArtworkJumpBox" Width="52" Height="28" Padding="6,3"
                              FontSize="12" TextAlignment="Center" VerticalContentAlignment="Center"
                              PlaceholderText="#" KeyDown="OnArtworkJumpKeyDown"
-                             ToolTip.Tip="Enter an artwork position and press Enter"/>
+                             ToolTip.Tip="{loc:Tr Viewer_EnterAnArtworkPositionAndPress}"/>
                     <Button Name="FirstArtworkBtn" CornerRadius="6" Padding="9,5" FontSize="12"
-                            Click="OnFirstArtwork" ToolTip.Tip="First artwork">
+                            Click="OnFirstArtwork" ToolTip.Tip="{loc:Tr Viewer_FirstArtwork}">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Spacing="-2">
                             <PathIcon Data="{StaticResource ChevronLeftIcon}" Width="10" Height="10" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                             <PathIcon Data="{StaticResource ChevronLeftIcon}" Width="10" Height="10" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                         </StackPanel>
                     </Button>
                     <Button Name="PrevArtworkBtn" CornerRadius="6" Padding="9,5" FontSize="12"
-                            Click="OnPrevArtwork" ToolTip.Tip="Previous artwork">
+                            Click="OnPrevArtwork" ToolTip.Tip="{loc:Tr Viewer_PreviousArtwork}">
                         <PathIcon Data="{StaticResource ChevronLeftIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                     </Button>
                     <Button Name="NextArtworkBtn" CornerRadius="6" Padding="9,5" FontSize="12"
-                            Click="OnNextArtwork" ToolTip.Tip="Next artwork">
+                            Click="OnNextArtwork" ToolTip.Tip="{loc:Tr Viewer_NextArtwork}">
                         <PathIcon Data="{StaticResource ChevronRightIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                     </Button>
                     <Button Name="LastArtworkBtn" CornerRadius="6" Padding="9,5" FontSize="12"
-                            Click="OnLastArtwork" ToolTip.Tip="Last artwork">
+                            Click="OnLastArtwork" ToolTip.Tip="{loc:Tr Viewer_LastArtwork}">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Spacing="-2">
                             <PathIcon Data="{StaticResource ChevronRightIcon}" Width="10" Height="10" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                             <PathIcon Data="{StaticResource ChevronRightIcon}" Width="10" Height="10" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
@@ -258,15 +258,15 @@
                     <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
                     <!-- Zoom controls -->
                     <Button CornerRadius="6" Padding="9,5" FontSize="14"
-                            Name="ZoomOutBtn" Click="OnZoomOut" ToolTip.Tip="Zoom out">
+                            Name="ZoomOutBtn" Click="OnZoomOut" ToolTip.Tip="{loc:Tr Viewer_ZoomOut}">
                         <PathIcon Data="{StaticResource MinusIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                     </Button>
                     <Button CornerRadius="6" Padding="9,5" FontSize="12"
-                            Name="ZoomFitBtn" Click="OnZoomFit" ToolTip.Tip="Fit to window">
+                            Name="ZoomFitBtn" Click="OnZoomFit" ToolTip.Tip="{loc:Tr Viewer_FitToWindow}">
                         <PathIcon Data="{StaticResource MaximizeIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                     </Button>
                     <Button CornerRadius="6" Padding="9,5" FontSize="14"
-                            Name="ZoomInBtn" Click="OnZoomIn" ToolTip.Tip="Zoom in">
+                            Name="ZoomInBtn" Click="OnZoomIn" ToolTip.Tip="{loc:Tr Viewer_ZoomIn}">
                         <PathIcon Data="{StaticResource PlusIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                     </Button>
 
@@ -276,10 +276,10 @@
                     <Button CornerRadius="6" Padding="9,5" FontSize="12"
                             Name="PrevPageBtn" Click="OnPrevPage"
                             IsVisible="{Binding InlineViewerCard.IsMultiPage}"
-                            ToolTip.Tip="Previous page">
+                            ToolTip.Tip="{loc:Tr Viewer_PreviousPage}">
                         <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
                             <PathIcon Data="{StaticResource ChevronLeftIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
-                            <TextBlock Text="Prev" FontSize="12" VerticalAlignment="Center"/>
+                            <TextBlock Text="{loc:Tr Viewer_Prev}" FontSize="12" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                     <Border Background="{DynamicResource Container1BackgroundBrush}"
@@ -290,9 +290,9 @@
                     <Button CornerRadius="6" Padding="9,5" FontSize="12"
                             Name="NextPageBtn" Click="OnNextPage"
                             IsVisible="{Binding InlineViewerCard.IsMultiPage}"
-                            ToolTip.Tip="Next page">
+                            ToolTip.Tip="{loc:Tr Viewer_NextPage}">
                         <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
-                            <TextBlock Text="Next" FontSize="12" VerticalAlignment="Center"/>
+                            <TextBlock Text="{loc:Tr Common_Next}" FontSize="12" VerticalAlignment="Center"/>
                             <PathIcon Data="{StaticResource ChevronRightIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                         </StackPanel>
                     </Button>
@@ -302,36 +302,36 @@
                     <!-- Downloads -->
                     <Button CornerRadius="6" Padding="9,5" FontSize="12"
                             Name="DlPageBtn" Click="OnDownloadCurrentPage"
-                            ToolTip.Tip="Download current page">
+                            ToolTip.Tip="{loc:Tr Viewer_DownloadCurrentPage}">
                         <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
                             <PathIcon Data="{StaticResource DownloadIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
-                            <TextBlock Text="Page" FontSize="12" VerticalAlignment="Center"/>
+                            <TextBlock Text="{loc:Tr Viewer_Page}" FontSize="12" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                     <Button CornerRadius="6" Padding="9,5" FontSize="12"
                             Classes="accent" Name="DlAllBtn" Click="OnDownloadAllPages"
                             IsVisible="{Binding InlineViewerCard.IsMultiPage}"
-                            ToolTip.Tip="Download all pages">
+                            ToolTip.Tip="{loc:Tr Viewer_DownloadAllPages}">
                         <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
                             <PathIcon Data="{StaticResource DownloadIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
-                            <TextBlock Text="All pages" FontSize="12" VerticalAlignment="Center"/>
+                            <TextBlock Text="{loc:Tr Viewer_AllPages}" FontSize="12" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                     <Button CornerRadius="6" Padding="9,5" FontSize="12"
                             Name="DlRangeBtn" Click="OnDownloadPageRange"
                             IsVisible="{Binding InlineViewerCard.IsMultiPage}"
-                            ToolTip.Tip="Download page range">
+                            ToolTip.Tip="{loc:Tr Viewer_DownloadPageRange}">
                         <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
                             <PathIcon Data="{StaticResource DownloadIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
-                            <TextBlock Text="Range…" FontSize="12" VerticalAlignment="Center"/>
+                            <TextBlock Text="{loc:Tr Viewer_Range}" FontSize="12" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                     <Button CornerRadius="6" Padding="9,5" FontSize="12"
                             Name="DlPresetBtn" Click="OnDownloadWithPreset"
-                            ToolTip.Tip="Download with image processing preset">
+                            ToolTip.Tip="{loc:Tr Search_DownloadWithImageProcessingPreset}">
                         <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
                             <PathIcon Data="{StaticResource PaletteIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
-                            <TextBlock Text="Preset" FontSize="12" VerticalAlignment="Center"/>
+                            <TextBlock Text="{loc:Tr Viewer_Preset}" FontSize="12" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
 
@@ -339,7 +339,7 @@
 
                     <Button CornerRadius="6" Padding="9,5" FontSize="12"
                             Name="OpenPixivBtn" Click="OnOpenInPixiv"
-                            ToolTip.Tip="Open on pixiv.net">
+                            ToolTip.Tip="{loc:Tr Viewer_OpenOnPixivNet}">
                         <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
                             <PathIcon Data="{StaticResource GlobeIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                             <TextBlock Text="Pixiv" FontSize="12" VerticalAlignment="Center"/>
@@ -348,26 +348,26 @@
                     <Button x:Name="GoToArtistBtn"
                             CornerRadius="6" Padding="9,5" FontSize="12"
                             Click="OnGoToArtist"
-                            ToolTip.Tip="Open this artist's gallery">
+                            ToolTip.Tip="{loc:Tr Hoshi_OpenThisArtistSGallery}">
                         <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
                             <PathIcon Data="{StaticResource PersonIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
-                            <TextBlock Text="Artist" FontSize="12" VerticalAlignment="Center"/>
+                            <TextBlock Text="{loc:Tr Viewer_Artist}" FontSize="12" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                     <Button CornerRadius="6" Padding="9,5" FontSize="12"
                             Click="OnOpenPopup"
-                            ToolTip.Tip="Open in floating popup window">
+                            ToolTip.Tip="{loc:Tr Viewer_OpenInFloatingPopupWindow}">
                         <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
                             <PathIcon Data="{StaticResource PopupIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
-                            <TextBlock Text="Popup" FontSize="12" VerticalAlignment="Center"/>
+                            <TextBlock Text="{loc:Tr Viewer_Popup}" FontSize="12" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                     <Button CornerRadius="6" Padding="9,5" FontSize="12"
                             Click="OnCopyImage"
-                            ToolTip.Tip="Copy this image to the clipboard">
+                            ToolTip.Tip="{loc:Tr Viewer_CopyThisImageToTheClipboard}">
                         <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
                             <PathIcon Data="{StaticResource CopyIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
-                            <TextBlock Text="Copy" FontSize="12" VerticalAlignment="Center"/>
+                            <TextBlock Text="{loc:Tr Common_Copy}" FontSize="12" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
 
@@ -376,10 +376,10 @@
                     <!-- ★ Local favorite toggle -->
                     <Button Name="LocalFavBtn" CornerRadius="6" Padding="9,5" FontSize="12"
                             Click="OnToggleLocalFavorite"
-                            ToolTip.Tip="Add / remove from local favorites">
+                            ToolTip.Tip="{loc:Tr Viewer_AddRemoveFromLocalFavorites}">
                         <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
                             <PathIcon Data="{StaticResource StarIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
-                            <TextBlock Name="LocalFavLabel" Text="Favorite" FontSize="12" VerticalAlignment="Center"/>
+                            <TextBlock Name="LocalFavLabel" Text="{loc:Tr Viewer_Favorite}" FontSize="12" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
 
@@ -389,10 +389,10 @@
                     <Button Name="LikeBtn" CornerRadius="6" Padding="9,5" FontSize="12"
                             Click="OnLikeClicked"
                             IsVisible="{Binding InlineViewerCard, Converter={x:Static ObjectConverters.IsNotNull}}"
-                            ToolTip.Tip="Like this artwork on Pixiv">
+                            ToolTip.Tip="{loc:Tr Viewer_LikeThisArtworkOnPixiv}">
                         <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
                             <PathIcon Data="{StaticResource HeartIcon}" Width="14" Height="14" VerticalAlignment="Center" Name="LikeBtnIcon" Foreground="{Binding $parent[Button].Foreground}" />
-                            <TextBlock Name="LikeBtnLabel" Text="Like" FontSize="12" VerticalAlignment="Center"/>
+                            <TextBlock Name="LikeBtnLabel" Text="{loc:Tr Viewer_Like}" FontSize="12" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
 
@@ -400,17 +400,17 @@
                     <SplitButton Name="BookmarkSplitBtn" CornerRadius="6" Padding="9,5" FontSize="12"
                                  Click="OnBookmarkMainClicked"
                                  IsVisible="{Binding InlineViewerCard, Converter={x:Static ObjectConverters.IsNotNull}}"
-                                 ToolTip.Tip="Main click adds a public Pixiv bookmark (or removes the current one). Use the arrow to choose public/private.">
+                                 ToolTip.Tip="{loc:Tr Viewer_MainClickAddsAPublicPixiv}">
                         <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
                             <PathIcon Data="{StaticResource BookmarkIcon}" Width="14" Height="14" VerticalAlignment="Center" Name="BookmarkBtnIcon"/>
-                            <TextBlock Name="BookmarkBtnLabel" Text="Bookmark" FontSize="12" VerticalAlignment="Center"/>
+                            <TextBlock Name="BookmarkBtnLabel" Text="{loc:Tr Viewer_Bookmark}" FontSize="12" VerticalAlignment="Center"/>
                         </StackPanel>
                         <SplitButton.Flyout>
                             <MenuFlyout Placement="BottomEdgeAlignedLeft">
-                                <MenuItem Header="Public bookmark" Click="OnBookmarkPublicClicked" Name="BookmarkPublicMenuItem"
-                                          ToolTip.Tip="Add as a public Pixiv bookmark (or switch to public if already private)"/>
-                                <MenuItem Header="Private bookmark" Click="OnBookmarkPrivateClicked" Name="BookmarkPrivateMenuItem"
-                                          ToolTip.Tip="Add as a private Pixiv bookmark (or switch to private if already public)"/>
+                                <MenuItem Header="{loc:Tr Viewer_PublicBookmark}" Click="OnBookmarkPublicClicked" Name="BookmarkPublicMenuItem"
+                                          ToolTip.Tip="{loc:Tr Viewer_AddAsAPublicPixivBookmark}"/>
+                                <MenuItem Header="{loc:Tr Viewer_PrivateBookmark}" Click="OnBookmarkPrivateClicked" Name="BookmarkPrivateMenuItem"
+                                          ToolTip.Tip="{loc:Tr Viewer_AddAsAPrivatePixivBookmark}"/>
                             </MenuFlyout>
                         </SplitButton.Flyout>
                     </SplitButton>
@@ -420,10 +420,10 @@
                         <Button Name="CommentsBtn" CornerRadius="6" Padding="9,5" FontSize="12"
                                 Click="OnCommentsClicked"
                                 IsVisible="{Binding InlineViewerCard, Converter={x:Static ObjectConverters.IsNotNull}}"
-                                ToolTip.Tip="View and post comments">
+                                ToolTip.Tip="{loc:Tr Viewer_ViewAndPostComments}">
                             <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
                                 <PathIcon Data="{StaticResource CommentIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
-                                <TextBlock Name="CommentsBtnLabel" Text="Comments" FontSize="12" VerticalAlignment="Center"/>
+                                <TextBlock Name="CommentsBtnLabel" Text="{loc:Tr Viewer_Comments}" FontSize="12" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
                         <Popup Name="CommentsPopup" PlacementTarget="{Binding #CommentsBtn}"
@@ -435,7 +435,7 @@
                                     BoxShadow="0 4 16 0 #55000000">
                                 <Grid RowDefinitions="Auto,*,Auto" MaxHeight="480">
                                     <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="12,10,12,6">
-                                        <TextBlock Grid.Column="0" Text="Comments" FontWeight="SemiBold" FontSize="13"/>
+                                        <TextBlock Grid.Column="0" Text="{loc:Tr Viewer_Comments}" FontWeight="SemiBold" FontSize="13"/>
                                         <TextBlock Grid.Column="1" Name="CommentsCountLabel" FontSize="11"
                                                    Foreground="{DynamicResource DefaultForegroundBrushSecondary}"
                                                    VerticalAlignment="Center"/>
@@ -448,7 +448,7 @@
                                                 HorizontalAlignment="Center" VerticalAlignment="Center"
                                                 Margin="12,30" IsVisible="False">
                                         <ProgressBar Name="CommentsLoadingBar" IsIndeterminate="True" Width="120" Height="3"/>
-                                        <TextBlock Name="CommentsEmptyLabel" Text="Loading comments…" FontSize="11"
+                                        <TextBlock Name="CommentsEmptyLabel" Text="{loc:Tr Viewer_LoadingComments}" FontSize="11"
                                                    Foreground="{DynamicResource DefaultForegroundBrushSecondary}"/>
                                     </StackPanel>
                                     <StackPanel Grid.Row="2" Spacing="4" Margin="12,8">
@@ -457,13 +457,13 @@
                                                        Foreground="{DynamicResource DefaultForegroundBrushSecondary}"/>
                                             <Button Grid.Column="1" Content="✕" FontSize="10" Padding="4,0"
                                                     Background="Transparent" BorderThickness="0"
-                                                    Click="OnCancelReplyClicked" ToolTip.Tip="Cancel reply"/>
+                                                    Click="OnCancelReplyClicked" ToolTip.Tip="{loc:Tr Viewer_CancelReply}"/>
                                         </Grid>
                                         <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="6">
                                             <Panel Grid.Column="0">
                                                 <Button Name="StickerPickerBtn" Content="😊" FontSize="14"
                                                         CornerRadius="6" Padding="7,5" Click="OnStickerPickerClicked"
-                                                        ToolTip.Tip="Send a sticker"/>
+                                                        ToolTip.Tip="{loc:Tr Viewer_SendASticker}"/>
                                                 <Popup Name="StickerPickerPopup" PlacementTarget="{Binding #StickerPickerBtn}"
                                                        Placement="Top" IsLightDismissEnabled="True"
                                                        Width="280" MaxHeight="280">
@@ -476,10 +476,10 @@
                                                                  plain Unicode character into the comment text (click "Post"
                                                                  yourself after), Stickers sends immediately on click. -->
                                                             <StackPanel Orientation="Horizontal" Spacing="4" Margin="8,8,8,0">
-                                                                <ToggleButton Name="EmojiTabBtn" Content="Emoji" FontSize="11"
+                                                                <ToggleButton Name="EmojiTabBtn" Content="{loc:Tr Viewer_Emoji}" FontSize="11"
                                                                               Padding="8,3" CornerRadius="5" IsChecked="True"
                                                                               Click="OnEmojiTabClicked"/>
-                                                                <ToggleButton Name="StickersTabBtn" Content="Stickers" FontSize="11"
+                                                                <ToggleButton Name="StickersTabBtn" Content="{loc:Tr Viewer_Stickers}" FontSize="11"
                                                                               Padding="8,3" CornerRadius="5"
                                                                               Click="OnStickersTabClicked"/>
                                                             </StackPanel>
@@ -489,7 +489,7 @@
                                                             <StackPanel Name="StickerLoadingPanel" Spacing="6"
                                                                         HorizontalAlignment="Center" Margin="12" IsVisible="False">
                                                                 <ProgressBar IsIndeterminate="True" Width="100" Height="3"/>
-                                                                <TextBlock Text="Loading stickers…" FontSize="11"
+                                                                <TextBlock Text="{loc:Tr Viewer_LoadingStickers}" FontSize="11"
                                                                            Foreground="{DynamicResource DefaultForegroundBrushSecondary}"/>
                                                             </StackPanel>
                                                             <ScrollViewer Name="StickerScrollViewer" MaxHeight="240" VerticalScrollBarVisibility="Auto" IsVisible="False">
@@ -500,9 +500,9 @@
                                                 </Popup>
                                             </Panel>
                                             <TextBox Grid.Column="1" Name="NewCommentBox" FontSize="12"
-                                                     PlaceholderText="Add a comment…" CornerRadius="6"
+                                                     PlaceholderText="{loc:Tr Viewer_AddAComment}" CornerRadius="6"
                                                      AcceptsReturn="False" KeyDown="OnNewCommentKeyDown"/>
-                                            <Button Grid.Column="2" Content="Post" CornerRadius="6" Padding="10,5"
+                                            <Button Grid.Column="2" Content="{loc:Tr Viewer_Post}" CornerRadius="6" Padding="10,5"
                                                     FontSize="12" Classes="accent" Click="OnPostCommentClicked"
                                                     Name="PostCommentBtn"/>
                                         </Grid>
@@ -518,7 +518,7 @@
                     <Button CornerRadius="6" Padding="9,5" FontSize="12"
                             Click="OnExitCollageClicked"
                             IsVisible="{Binding IsCollageGridVisible}"
-                            ToolTip.Tip="Exit collage view">
+                            ToolTip.Tip="{loc:Tr Viewer_ExitCollageView}">
                         <StackPanel Orientation="Horizontal" Spacing="4">
                             <PathIcon Data="{StaticResource CloseIcon}" Width="12" Height="12" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                             <TextBlock Text="{loc:Tr Collage_Exit}" FontSize="12" VerticalAlignment="Center"/>
@@ -527,7 +527,7 @@
                     <Button CornerRadius="6" Padding="9,5" FontSize="12"
                             Command="{Binding ReturnToCollageCommand}"
                             IsVisible="{Binding CanReturnToCollage}"
-                            ToolTip.Tip="Return to the stored collage view">
+                            ToolTip.Tip="{loc:Tr Viewer_ReturnToTheStoredCollageView}">
                         <StackPanel Orientation="Horizontal" Spacing="4">
                             <TextBlock Text="⊞" FontSize="12" VerticalAlignment="Center"/>
                             <TextBlock Text="{loc:Tr Collage_Return}" FontSize="12" VerticalAlignment="Center"/>
@@ -536,7 +536,7 @@
                     <Button CornerRadius="6" Padding="9,5" FontSize="12"
                             Command="{Binding DownloadCollageCommand}"
                             IsVisible="{Binding IsCollageGridVisible}"
-                            ToolTip.Tip="Download all collage artworks into a Collage_###### folder">
+                            ToolTip.Tip="{loc:Tr Viewer_DownloadAllCollageArtworksIntoA}">
                         <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
                             <PathIcon Data="{StaticResource DownloadIcon}" Width="12" Height="12" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                             <TextBlock Text="{loc:Tr Collage_Download}" FontSize="12" VerticalAlignment="Center"/>
@@ -547,7 +547,7 @@
                     <!-- Hoshi AI assistant toggle -->
                     <Button Name="AiToggleBtn" CornerRadius="6" Padding="9,5" FontSize="12"
                             Click="OnAiToggleClicked"
-                            ToolTip.Tip="Toggle Hoshi (星) — AI assistant">
+                            ToolTip.Tip="{loc:Tr Viewer_ToggleHoshiAIAssistant}">
                         <StackPanel Orientation="Horizontal" Spacing="4">
                             <PathIcon Data="{StaticResource NewIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                             <TextBlock Name="AiToggleBtnLabel" Text="Hoshi" FontSize="12" VerticalAlignment="Center"/>
@@ -561,7 +561,7 @@
                         VerticalAlignment="Center" IsVisible="{Binding IsCollageGridVisible}">
                 <Button CornerRadius="6" Padding="9,5" FontSize="12"
                         Click="OnExitCollageClicked"
-                        ToolTip.Tip="Close the collage tab">
+                        ToolTip.Tip="{loc:Tr Viewer_CloseTheCollageTab}">
                     <StackPanel Orientation="Horizontal" Spacing="4">
                         <PathIcon Data="{StaticResource CloseIcon}" Width="12" Height="12" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                         <TextBlock Text="{loc:Tr Collage_Exit}" FontSize="12" VerticalAlignment="Center"/>
@@ -569,7 +569,7 @@
                 </Button>
                 <Button CornerRadius="6" Padding="9,5" FontSize="12"
                         Command="{Binding DownloadCollageCommand}"
-                        ToolTip.Tip="Download all collage artworks into a Collage_###### folder">
+                        ToolTip.Tip="{loc:Tr Viewer_DownloadAllCollageArtworksIntoA}">
                     <StackPanel Orientation="Horizontal" Spacing="4">
                         <PathIcon Data="{StaticResource DownloadIcon}" Width="12" Height="12" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                         <TextBlock Text="{loc:Tr Collage_Download}" FontSize="12" VerticalAlignment="Center"/>
@@ -594,10 +594,10 @@
                 <!-- No artwork selected placeholder -->
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="10"
                             IsVisible="{Binding InlineViewerCard, Converter={x:Static ObjectConverters.IsNull}}">
-                    <TextBlock Text="Preview" FontSize="16" FontWeight="SemiBold"
+                    <TextBlock Text="{loc:Tr Viewer_Preview}" FontSize="16" FontWeight="SemiBold"
                                Foreground="{DynamicResource DefaultForegroundBrush}"
                                HorizontalAlignment="Center" TextAlignment="Center"/>
-                    <TextBlock Text="Click an image to preview it here" FontSize="13"
+                    <TextBlock Text="{loc:Tr Viewer_ClickAnImageToPreviewIt}" FontSize="13"
                                Foreground="{DynamicResource DefaultForegroundBrushSecondary}"
                                HorizontalAlignment="Center" TextAlignment="Center"/>
                 </StackPanel>
@@ -606,7 +606,7 @@
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="12"
                             Name="LoadingPanel" IsVisible="False">
                     <ProgressBar IsIndeterminate="True" Width="180"/>
-                    <TextBlock Text="Loading…" Foreground="{DynamicResource DefaultForegroundBrushSecondary}" HorizontalAlignment="Center"/>
+                    <TextBlock Text="{loc:Tr Common_Loading_2}" Foreground="{DynamicResource DefaultForegroundBrushSecondary}" HorizontalAlignment="Center"/>
                 </StackPanel>
 
                 <!-- Load error panel (e.g. HTTP 429 rate limit) -->
@@ -615,7 +615,7 @@
                     <TextBlock Name="ErrorText" FontSize="13" TextAlignment="Center"
                                Foreground="{DynamicResource DefaultForegroundBrushSecondary}"
                                HorizontalAlignment="Center" TextWrapping="Wrap" MaxWidth="300"/>
-                    <Button Name="RetryBtn" Content="↺ Retry" HorizontalAlignment="Center"
+                    <Button Name="RetryBtn" Content="{loc:Tr Viewer_Retry}" HorizontalAlignment="Center"
                             CornerRadius="6" Padding="16,6" Click="OnRetryLoad"/>
                 </StackPanel>
 
@@ -636,33 +636,33 @@
                         <ContextMenu Opening="OnImageContextMenuOpening">
                             <MenuItem Name="CtxDlPage" Click="OnDownloadCurrentPage">
                                 <MenuItem.Header>
-                                    <TextBlock Name="CtxDlPageHeader" Text="↓ Download this page"/>
+                                    <TextBlock Name="CtxDlPageHeader" Text="{loc:Tr Viewer_DownloadThisPage}"/>
                                 </MenuItem.Header>
                             </MenuItem>
                             <MenuItem Name="CtxDlAll" Click="OnDownloadAllPages">
                                 <MenuItem.Header>
-                                    <TextBlock Name="CtxDlAllHeader" Text="↓ Download all pages"/>
+                                    <TextBlock Name="CtxDlAllHeader" Text="{loc:Tr Viewer_DownloadAllPages_2}"/>
                                 </MenuItem.Header>
                             </MenuItem>
                             <MenuItem Name="CtxDlRange" Click="OnDownloadPageRange">
                                 <MenuItem.Header>
-                                    <TextBlock Name="CtxDlRangeHeader" Text="↓ Download page range…"/>
+                                    <TextBlock Name="CtxDlRangeHeader" Text="{loc:Tr Viewer_DownloadPageRange_2}"/>
                                 </MenuItem.Header>
                             </MenuItem>
                             <Separator/>
-                            <MenuItem Header="&#9974; Fullscreen (F11)" Click="OnFullscreen"/>
-                            <MenuItem Header="Open in popup window" Click="OnOpenPopup"/>
-                            <MenuItem Header="🌐 Open artwork on Pixiv" Click="OnOpenInPixiv"/>
+                            <MenuItem Header="{loc:Tr Viewer_FullscreenF11}" Click="OnFullscreen"/>
+                            <MenuItem Header="{loc:Tr Viewer_OpenInPopupWindow}" Click="OnOpenPopup"/>
+                            <MenuItem Header="{loc:Tr Viewer_OpenArtworkOnPixiv}" Click="OnOpenInPixiv"/>
                             <Separator/>
                             <MenuItem x:Name="GoToArtistMenuItem"
-                                      Header="👤 Go to artist's gallery" Click="OnGoToArtist"/>
-                            <MenuItem Header="🌐 Open artist on Pixiv" Click="OnOpenArtistInPixiv"/>
+                                      Header="{loc:Tr Viewer_GoToArtistSGallery}" Click="OnGoToArtist"/>
+                            <MenuItem Header="{loc:Tr Viewer_OpenArtistOnPixiv}" Click="OnOpenArtistInPixiv"/>
                             <Separator/>
-                            <MenuItem Header="Copy artwork ID" Click="OnCopyId"/>
-                            <MenuItem Header="Copy artist ID" Click="OnCopyArtistId"/>
-                            <MenuItem Header="📋 Copy image" Click="OnCopyImage"/>
-                            <MenuItem Header="🖼 Use as app background" Click="OnUseAsBackground" IsVisible="{Binding IsEnabled, Source={x:Static services:AppServices.OverlayService}}"/>
-                            <MenuItem Header="Reset zoom" Click="OnZoomFit"/>
+                            <MenuItem Header="{loc:Tr Search_CopyArtworkID}" Click="OnCopyId"/>
+                            <MenuItem Header="{loc:Tr Search_CopyArtistID}" Click="OnCopyArtistId"/>
+                            <MenuItem Header="{loc:Tr Search_CopyImage}" Click="OnCopyImage"/>
+                            <MenuItem Header="{loc:Tr Search_UseAsAppBackground}" Click="OnUseAsBackground" IsVisible="{Binding IsEnabled, Source={x:Static services:AppServices.OverlayService}}"/>
+                            <MenuItem Header="{loc:Tr Viewer_ResetZoom}" Click="OnZoomFit"/>
                         </ContextMenu>
                     </Image.ContextMenu>
                 </Image>
@@ -690,7 +690,7 @@
                         ZIndex="10">
                     <Grid RowDefinitions="Auto,*">
                         <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
-                            <TextBlock Text="All pages"
+                            <TextBlock Text="{loc:Tr Viewer_AllPages}"
                                        FontSize="16"
                                        Foreground="White"
                                        VerticalAlignment="Center"/>
@@ -771,12 +771,12 @@
                             </ItemsControl>
                         </ScrollViewer>
                         <Button Grid.Column="1"
-                                Content="All"
+                                Content="{loc:Tr Search_All}"
                                 CornerRadius="4" Padding="10,4" FontSize="11" Margin="8,0,0,0"
                                 Click="OnToggleInlinePageGrid"
                                 Background="{DynamicResource Container2BackgroundBrush}"
                                 Foreground="White"
-                                ToolTip.Tip="Show all pages"/>
+                                ToolTip.Tip="{loc:Tr Viewer_ShowAllPages}"/>
                     </Grid>
                 </Border>
 
@@ -816,7 +816,7 @@
                                             PointerReleased="OnCollageTileReleased">
                                         <Border.ContextMenu>
                                             <ContextMenu>
-                                                <MenuItem Header="Expand into page tiles" IsVisible="{Binding IsMultiPage}"
+                                                <MenuItem Header="{loc:Tr Viewer_ExpandIntoPageTiles}" IsVisible="{Binding IsMultiPage}"
                                                           Command="{Binding #ViewerRoot.DataContext.ExpandCollageItemCommand}"
                                                           CommandParameter="{Binding}"/>
                                             </ContextMenu>
@@ -841,7 +841,7 @@
                                                         Background="#CC000000" Foreground="White" BorderThickness="0"
                                                         Click="OnRemoveCollageItemClicked"
                                                         Tapped="OnRemoveCollageItemTapped"
-                                                        ToolTip.Tip="Remove from collage"/>
+                                                        ToolTip.Tip="{loc:Tr Viewer_RemoveFromCollage}"/>
                                                 <Border HorizontalAlignment="Left" VerticalAlignment="Top" Margin="4"
                                                         Background="#CC000000" CornerRadius="4" Padding="4,2"
                                                         IsVisible="{Binding IsMultiPage}">
@@ -879,14 +879,14 @@
                       Margin="0,0,0,0">
                     <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="6"
                                 VerticalAlignment="Center" Margin="10,5,0,5">
-                        <TextBlock Text="✦ Hoshi 星" FontSize="12" FontWeight="SemiBold"
+                        <TextBlock Text="{loc:Tr Viewer_Hoshi}" FontSize="12" FontWeight="SemiBold"
                                    VerticalAlignment="Center"/>
                         <TextBlock Name="AiStatusLabel" FontSize="10"
                                    Foreground="{DynamicResource DefaultForegroundBrushSecondary}"
                                    VerticalAlignment="Center"/>
-                        <Button Content="⤢ Full View" Name="AiFullViewBtn" Click="OnAiFullViewClicked"
+                        <Button Content="{loc:Tr Viewer_FullView}" Name="AiFullViewBtn" Click="OnAiFullViewClicked"
                                 CornerRadius="4" Padding="7,3" FontSize="10"
-                                ToolTip.Tip="Continue this chat in the full Hoshi tab"/>
+                                ToolTip.Tip="{loc:Tr Viewer_ContinueThisChatInTheFull}"/>
                     </StackPanel>
                     <!-- Quick action buttons — wraps to a second line rather than clipping
                          when the inline viewer is narrow. -->
@@ -903,31 +903,31 @@
                              only appears once a multi-page submission is actually detected
                              (toggled in code-behind — this control's DataContext is
                              GalleryViewModel, not AiViewModel, so it can't bind directly). -->
-                        <Button Content="👁 Describe" Name="AiDescribeBtn" Click="OnAiDescribeClicked"
-                                ToolTip.Tip="Describe this image"/>
-                        <SplitButton Content="👁 Describe" Name="AiDescribeSplitBtn" Click="OnAiDescribeClicked"
+                        <Button Content="{loc:Tr Hoshi_Describe}" Name="AiDescribeBtn" Click="OnAiDescribeClicked"
+                                ToolTip.Tip="{loc:Tr Viewer_DescribeThisImage}"/>
+                        <SplitButton Content="{loc:Tr Hoshi_Describe}" Name="AiDescribeSplitBtn" Click="OnAiDescribeClicked"
                                 IsVisible="False"
-                                ToolTip.Tip="Describe this image. Use the arrow to describe all pages.">
+                                ToolTip.Tip="{loc:Tr Viewer_DescribeThisImageUseTheArrow}">
                             <SplitButton.Flyout>
                                 <MenuFlyout Placement="BottomEdgeAlignedLeft">
-                                    <MenuItem Header="👁 Describe current page" Click="OnAiDescribeClicked"/>
-                                    <MenuItem Header="📚 Describe all pages" Click="OnAiAllPagesClicked"
-                                              ToolTip.Tip="Describes every page of a multi-page submission, not just the one you're viewing"/>
+                                    <MenuItem Header="{loc:Tr Hoshi_DescribeCurrentPage}" Click="OnAiDescribeClicked"/>
+                                    <MenuItem Header="{loc:Tr Hoshi_DescribeAllPages}" Click="OnAiAllPagesClicked"
+                                              ToolTip.Tip="{loc:Tr Hoshi_DescribesEveryPageOfAMulti}"/>
                                 </MenuFlyout>
                             </SplitButton.Flyout>
                         </SplitButton>
-                        <Button Content="🏷 Tags" Name="AiTagsBtn" Click="OnAiTagsClicked"
-                                ToolTip.Tip="Suggest tags"/>
-                        <Button Content="🖼 Similar Art" Name="AiSimilarArtBtn" Click="OnAiSimilarArtClicked"
-                                ToolTip.Tip="Recommend artworks similar to this image"/>
-                        <Button Content="🧑‍🎨 Similar Artists" Name="AiSimilarArtistsBtn" Click="OnAiSimilarArtistsClicked"
-                                ToolTip.Tip="Recommend artists with a similar style"/>
-                        <Button Content="⭐ Fav" Name="AiFavBtn" Click="OnAiFavClicked"
-                                ToolTip.Tip="Add to local favorites"/>
-                        <Button Content="↓ DL" Name="AiDlBtn" Click="OnAiDlClicked"
-                                ToolTip.Tip="Download this artwork"/>
-                        <Button Content="🗑 Clear" Name="AiClearBtn" Click="OnAiClearClicked" Margin="0,4,8,4"
-                                ToolTip.Tip="Clear chat history"/>
+                        <Button Content="{loc:Tr Hoshi_Tags}" Name="AiTagsBtn" Click="OnAiTagsClicked"
+                                ToolTip.Tip="{loc:Tr Viewer_SuggestTags}"/>
+                        <Button Content="{loc:Tr Viewer_SimilarArt}" Name="AiSimilarArtBtn" Click="OnAiSimilarArtClicked"
+                                ToolTip.Tip="{loc:Tr Hoshi_RecommendArtworksSimilarToThisImage}"/>
+                        <Button Content="{loc:Tr Hoshi_SimilarArtists}" Name="AiSimilarArtistsBtn" Click="OnAiSimilarArtistsClicked"
+                                ToolTip.Tip="{loc:Tr Hoshi_RecommendArtistsWithASimilarStyle}"/>
+                        <Button Content="{loc:Tr Hoshi_Fav}" Name="AiFavBtn" Click="OnAiFavClicked"
+                                ToolTip.Tip="{loc:Tr Viewer_AddToLocalFavorites}"/>
+                        <Button Content="{loc:Tr Hoshi_DL}" Name="AiDlBtn" Click="OnAiDlClicked"
+                                ToolTip.Tip="{loc:Tr Viewer_DownloadThisArtwork}"/>
+                        <Button Content="{loc:Tr Viewer_Clear}" Name="AiClearBtn" Click="OnAiClearClicked" Margin="0,4,8,4"
+                                ToolTip.Tip="{loc:Tr Viewer_ClearChatHistory}"/>
                     </WrapPanel>
                 </Grid>
 
@@ -969,21 +969,21 @@
                                                        Foreground="{DynamicResource DefaultForegroundBrush}"/>
                                             <StackPanel Orientation="Horizontal" Spacing="6"
                                                         IsVisible="{Binding HasAnyAction}">
-                                                <Button Content="🖼 View Artwork" Padding="5,2" FontSize="10" CornerRadius="4"
+                                                <Button Content="{loc:Tr Hoshi_ViewArtwork}" Padding="5,2" FontSize="10" CornerRadius="4"
                                                         IsVisible="{Binding HasArtworkAction}"
                                                         Click="OnOpenArtworkFromChat"
                                                         Tag="{Binding ArtworkId}"
-                                                        ToolTip.Tip="Open this artwork in a new viewer tab"/>
-                                                <Button Content="👤 Gallery" Padding="5,2" FontSize="10" CornerRadius="4"
+                                                        ToolTip.Tip="{loc:Tr Rankings_OpenThisArtworkInANew}"/>
+                                                <Button Content="{loc:Tr Hoshi_Gallery}" Padding="5,2" FontSize="10" CornerRadius="4"
                                                         IsVisible="{Binding HasArtistAction}"
                                                         Click="OnOpenArtistFromChat"
                                                         Tag="{Binding ArtistId}"
-                                                        ToolTip.Tip="Open this artist's gallery"/>
-                                                <Button Content="🌐 Open URL" Padding="5,2" FontSize="10" CornerRadius="4"
+                                                        ToolTip.Tip="{loc:Tr Hoshi_OpenThisArtistSGallery}"/>
+                                                <Button Content="{loc:Tr Hoshi_OpenURL}" Padding="5,2" FontSize="10" CornerRadius="4"
                                                         IsVisible="{Binding HasUrlAction}"
                                                         Click="OnOpenUrlFromChat"
                                                         Tag="{Binding PixivUrl}"
-                                                        ToolTip.Tip="Open this Pixiv page in your browser"/>
+                                                        ToolTip.Tip="{loc:Tr Hoshi_OpenThisPixivPageInYour}"/>
                                             </StackPanel>
                                         </StackPanel>
                                     </Border>
@@ -1028,7 +1028,7 @@
                                         </Style>
                                     </TextBlock.Styles>
                                 </TextBlock>
-                                <TextBlock Text="Hoshi is thinking…" FontSize="12"
+                                <TextBlock Text="{loc:Tr Hoshi_HoshiIsThinking}" FontSize="12"
                                            Foreground="{DynamicResource DefaultForegroundBrushSecondary}"
                                            FontStyle="Italic" VerticalAlignment="Center"/>
                             </StackPanel>
@@ -1040,10 +1040,10 @@
                 <!-- Input row -->
                 <Grid Grid.Row="2" ColumnDefinitions="*,Auto" Margin="8,4,8,8">
                     <TextBox Grid.Column="0" Name="AiInputBox"
-                             PlaceholderText="Ask Hoshi anything — describe, suggest tags, download, add to favorites, move to folder…"
+                             PlaceholderText="{loc:Tr Viewer_AskHoshiAnythingDescribeSuggestTags}"
                              FontSize="12" CornerRadius="6,0,0,6"
                              KeyDown="OnAiInputKeyDown"/>
-                    <Button Grid.Column="1" Content="Send" Name="AiSendBtn"
+                    <Button Grid.Column="1" Content="{loc:Tr Hoshi_Send}" Name="AiSendBtn"
                             CornerRadius="0,6,6,0" Padding="12,0" FontSize="12"
                             Click="OnAiSendClicked"/>
                 </Grid>
@@ -1092,7 +1092,7 @@
                     </ItemsControl>
                 </ScrollViewer>
                 <TextBlock Grid.Column="3" FontSize="10" Foreground="{DynamicResource DefaultForegroundBrushDisabled}"
-                           Text="Click tag: filter • Shift+click: search global"
+                           Text="{loc:Tr Viewer_ClickTagFilterShiftClickSearch}"
                            VerticalAlignment="Center" Margin="12,0,0,0"/>
             </Grid>
         </Border>

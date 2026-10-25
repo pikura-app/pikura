@@ -9,6 +9,7 @@ using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Threading;
+using Pikura.Avalonia.Localization;
 using Pikura.Avalonia.Services;
 using Pikura.Core.Settings;
 
@@ -131,7 +132,7 @@ public partial class BackgroundPreviewWindow : Window
             await Dispatcher.UIThread.InvokeAsync(() =>
             {
                 LoadingOverlay.IsVisible = false;
-                HintText.Text = "Could not load image preview";
+                HintText.Text = Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_CouldNotLoadImagePreview"];
                 HintText.Opacity = 1;
             }, DispatcherPriority.Background);
         }

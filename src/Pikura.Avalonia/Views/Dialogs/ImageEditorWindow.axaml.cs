@@ -10,6 +10,7 @@ using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Threading;
+using Pikura.Avalonia.Localization;
 using Pikura.Avalonia.Services;
 using Pikura.Core.Models;
 using Pikura.Core.Services;
@@ -828,7 +829,7 @@ public partial class ImageEditorWindow : Window
             await Dispatcher.UIThread.InvokeAsync(() =>
             {
                 if (LoadingSpinner != null) LoadingSpinner.IsVisible = true;
-                if (ImageInfoText != null) ImageInfoText.Text = "Loading ugoira...";
+                if (ImageInfoText != null) ImageInfoText.Text = Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_LoadingUgoira"];
             });
 
             // Reload with the new mode
@@ -1343,7 +1344,7 @@ public partial class ImageEditorWindow : Window
         {
             var dialog = new Window
             {
-                Title = "Ugoira Options",
+                Title = Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_UgoiraOptions"],
                 Width = 480,
                 Height = 420,
                 WindowStartupLocation = WindowStartupLocation.CenterOwner,
@@ -1414,7 +1415,7 @@ public partial class ImageEditorWindow : Window
             UgoiraImage.IsPlaying = true;
             LoadingSpinner.IsVisible = false;
             CropOverlay.IsVisible = false;
-            ImageInfoText.Text = "Ugoira (animated) - watching only";
+            ImageInfoText.Text = Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_UgoiraAnimatedWatchingOnly"];
         });
     }
 
@@ -1479,7 +1480,7 @@ public partial class ImageEditorWindow : Window
         {
             var dialog = new Window
             {
-                Title = "Select Frame",
+                Title = Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_SelectFrame"],
                 Width = 500,
                 Height = 420,
                 WindowStartupLocation = WindowStartupLocation.CenterOwner,
@@ -1706,7 +1707,7 @@ public partial class ImageEditorWindow : Window
             UgoiraImage.IsVisible = false;
             UgoiraImage.SourcePath = null;
             LoadingSpinner.IsVisible = false;
-            ImageInfoText.Text = "Ugoira - Editing cover image (static)";
+            ImageInfoText.Text = Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_UgoiraEditingCoverImageStatic"];
             UpdateNavigationUI();
             if (UgoiraModePanel != null) UgoiraModePanel.IsVisible = true; // Keep mode button visible
         });
@@ -1728,7 +1729,7 @@ public partial class ImageEditorWindow : Window
         await Dispatcher.UIThread.InvokeAsync(() =>
         {
             LoadingSpinner.IsVisible = true;
-            ImageInfoText.Text = "Loading ugoira...";
+            ImageInfoText.Text = Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_LoadingUgoira"];
         });
 
         try
@@ -1895,7 +1896,7 @@ public partial class ImageEditorWindow : Window
             UgoiraImage.IsVisible = false;
             UgoiraImage.SourcePath = null;
             LoadingSpinner.IsVisible = false;
-            ImageInfoText.Text = "Ugoira - Cover image (static)";
+            ImageInfoText.Text = Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_UgoiraCoverImageStatic"];
             if (UgoiraModePanel != null) UgoiraModePanel.IsVisible = true;
         });
 

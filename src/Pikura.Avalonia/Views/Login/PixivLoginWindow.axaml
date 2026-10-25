@@ -1,7 +1,8 @@
 ﻿<Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:loc="using:Pikura.Avalonia.Localization"
         x:Class="Pikura.Avalonia.Views.Login.PixivLoginWindow"
-        Title="Sign in to Pixiv"
+        Title="{loc:Tr Login_SignInToPixiv}"
         Width="900" Height="680"
         MinWidth="700" MinHeight="500"
         WindowStartupLocation="CenterOwner"
@@ -12,9 +13,9 @@
         <!-- Header -->
         <Border Grid.Row="0" Background="{DynamicResource Container2BackgroundBrush}" Padding="16,10">
             <StackPanel Spacing="2">
-                <TextBlock Text="Sign in to Pixiv" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource DefaultForegroundBrush}"/>
+                <TextBlock Text="{loc:Tr Login_SignInToPixiv}" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource DefaultForegroundBrush}"/>
                 <TextBlock x:Name="StatusText"
-                           Text="Sign in with your Pixiv account below. Your session will be captured automatically."
+                           Text="{loc:Tr Login_SignInWithYourPixivAccount}"
                            FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
             </StackPanel>
         </Border>
@@ -28,7 +29,7 @@
         <!-- Footer -->
         <Border Grid.Row="2" Background="{DynamicResource Container2BackgroundBrush}" Padding="12,8">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
-                <Button x:Name="CancelButton" Content="Cancel" Click="Cancel_Click"/>
+                <Button x:Name="CancelButton" Content="{loc:Tr Common_Cancel}" Click="Cancel_Click"/>
             </StackPanel>
         </Border>
     </Grid>

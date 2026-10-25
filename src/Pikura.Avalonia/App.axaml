@@ -1,5 +1,6 @@
 ﻿<Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:loc="using:Pikura.Avalonia.Localization"
              xmlns:actipro="http://schemas.actiprosoftware.com/avaloniaui"
              xmlns:generation="using:ActiproSoftware.UI.Avalonia.Themes.Generation"
              xmlns:animation="using:Avalonia.Animation"
@@ -336,9 +337,9 @@
                       Clicked="OnTrayIconClicked">
                 <TrayIcon.Menu>
                     <NativeMenu>
-                        <NativeMenuItem Header="Open Pikura" Click="OnTrayOpen"/>
+                        <NativeMenuItem Header="{loc:Tr Tray_Open}" Click="OnTrayOpen"/>
                         <NativeMenuItemSeparator/>
-                        <NativeMenuItem Header="Quit" Click="OnTrayQuit"/>
+                        <NativeMenuItem Header="{loc:Tr Tray_Quit}" Click="OnTrayQuit"/>
                     </NativeMenu>
                 </TrayIcon.Menu>
             </TrayIcon>

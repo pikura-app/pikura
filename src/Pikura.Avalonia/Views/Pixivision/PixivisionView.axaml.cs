@@ -11,6 +11,7 @@ using Avalonia.Interactivity;
 using Avalonia.LogicalTree;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
+using Pikura.Avalonia.Localization;
 using Pikura.Avalonia.Services;
 using Pikura.Avalonia.ViewModels;
 using Pikura.Avalonia.Views.Artwork;
@@ -568,7 +569,7 @@ public partial class PixivisionView : UserControl
 
         if (picked.Count == 0)
         {
-            vm.StatusMessage = "No artwork selected or open. Click an artwork or select multiple first.";
+            vm.StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_NoArtworkSelectedOrOpenClick"];
             return;
         }
 

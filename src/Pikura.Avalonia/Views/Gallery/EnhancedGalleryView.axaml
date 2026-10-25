@@ -1,5 +1,6 @@
 ﻿<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:loc="using:Pikura.Avalonia.Localization"
              x:Class="Pikura.Avalonia.Views.Gallery.EnhancedGalleryView">
     <Grid/>
 </UserControl>

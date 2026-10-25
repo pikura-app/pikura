@@ -18,34 +18,34 @@
         <conv:BoolToBlurRadiusConverter x:Key="BoolToBlurRadiusConverter"/>
 
         <ContextMenu x:Key="WorkCardContextMenu" x:DataType="vm:ArtworkCardViewModel" Opening="OnCardContextMenuOpening">
-            <MenuItem Header="☑ Select" Click="OnContextToggleSelection" IsVisible="{Binding !IsSelected}"/>
-            <MenuItem Header="☒ Deselect" Click="OnContextToggleSelection" IsVisible="{Binding IsSelected}"/>
+            <MenuItem Header="{loc:Tr Search_Select}" Click="OnContextToggleSelection" IsVisible="{Binding !IsSelected}"/>
+            <MenuItem Header="{loc:Tr Search_Deselect}" Click="OnContextToggleSelection" IsVisible="{Binding IsSelected}"/>
             <Separator/>
-            <MenuItem Header="↓ Download all" Click="OnContextDownloadAll"/>
-            <MenuItem Header="↓ First page only" Click="OnContextDownloadThisPage" IsVisible="{Binding IsMultiPage}"/>
+            <MenuItem Header="{loc:Tr Search_DownloadAll}" Click="OnContextDownloadAll"/>
+            <MenuItem Header="{loc:Tr Search_FirstPageOnly}" Click="OnContextDownloadThisPage" IsVisible="{Binding IsMultiPage}"/>
             <Separator/>
-            <MenuItem Header="👁 Open in side panel" Click="OnContextOpenSidePanel"/>
-            <MenuItem Header="⛶ Open full screen" Click="OnContextOpenFullScreen"/>
-            <MenuItem Header="⊞ Open in new tab" Click="OnContextOpenInNewTab"/>
-            <MenuItem Header="⧉ Open in popup" Click="OnContextOpenPopup"/>
-            <MenuItem Header="🌐 Open on pixiv.net" Click="OnContextOpenPixiv"/>
-            <MenuItem Header="👤 Open artist gallery" Click="OnContextOpenArtistGallery"/>
+            <MenuItem Header="{loc:Tr Search_OpenInSidePanel}" Click="OnContextOpenSidePanel"/>
+            <MenuItem Header="{loc:Tr Search_OpenFullScreen}" Click="OnContextOpenFullScreen"/>
+            <MenuItem Header="{loc:Tr Search_OpenInNewTab}" Click="OnContextOpenInNewTab"/>
+            <MenuItem Header="{loc:Tr Search_OpenInPopup}" Click="OnContextOpenPopup"/>
+            <MenuItem Header="{loc:Tr Search_OpenOnPixivNet}" Click="OnContextOpenPixiv"/>
+            <MenuItem Header="{loc:Tr Search_OpenArtistGallery}" Click="OnContextOpenArtistGallery"/>
             <Separator/>
-            <MenuItem Header="★ Add to local favorites" Click="OnContextToggleFavorite" IsVisible="{Binding !IsLocalFavorite}"/>
-            <MenuItem Header="★ Remove from favorites" Click="OnContextToggleFavorite" IsVisible="{Binding IsLocalFavorite}"/>
+            <MenuItem Header="{loc:Tr Search_AddToLocalFavorites}" Click="OnContextToggleFavorite" IsVisible="{Binding !IsLocalFavorite}"/>
+            <MenuItem Header="{loc:Tr Search_RemoveFromFavorites}" Click="OnContextToggleFavorite" IsVisible="{Binding IsLocalFavorite}"/>
             <Separator/>
-            <MenuItem Header="Copy artwork ID" Click="OnContextCopyId"/>
-            <MenuItem Header="Copy artist ID" Click="OnContextCopyArtistId"/>
-            <MenuItem Header="📋 Copy image" Click="OnContextCopyImage"/>
-            <MenuItem Header="🖼 Use as app background" Click="OnContextUseAsBackground" IsVisible="{Binding IsEnabled, Source={x:Static services:AppServices.OverlayService}}"/>
-            <MenuItem Header="Ugoira options…" Click="OnContextUgoiraOptions" IsVisible="False"/>
+            <MenuItem Header="{loc:Tr Search_CopyArtworkID}" Click="OnContextCopyId"/>
+            <MenuItem Header="{loc:Tr Search_CopyArtistID}" Click="OnContextCopyArtistId"/>
+            <MenuItem Header="{loc:Tr Search_CopyImage}" Click="OnContextCopyImage"/>
+            <MenuItem Header="{loc:Tr Search_UseAsAppBackground}" Click="OnContextUseAsBackground" IsVisible="{Binding IsEnabled, Source={x:Static services:AppServices.OverlayService}}"/>
+            <MenuItem Header="{loc:Tr Pixivision_UgoiraOptions}" Click="OnContextUgoiraOptions" IsVisible="False"/>
         </ContextMenu>
 
         <ContextMenu x:Key="ArticleCardContextMenu" x:DataType="vm:PixivisionArticleCardViewModel">
-            <MenuItem Header="🔖 Save for later" Click="OnContextToggleSaveArticle" IsVisible="{Binding !IsSaved}"/>
-            <MenuItem Header="🔖 Remove from saved" Click="OnContextToggleSaveArticle" IsVisible="{Binding IsSaved}"/>
+            <MenuItem Header="{loc:Tr Pixivision_SaveForLater}" Click="OnContextToggleSaveArticle" IsVisible="{Binding !IsSaved}"/>
+            <MenuItem Header="{loc:Tr Pixivision_RemoveFromSaved}" Click="OnContextToggleSaveArticle" IsVisible="{Binding IsSaved}"/>
             <Separator/>
-            <MenuItem Header="🌐 Open on pixivision.net" Click="OnContextOpenArticlePixivision"/>
+            <MenuItem Header="{loc:Tr Pixivision_OpenOnPixivisionNet}" Click="OnContextOpenArticlePixivision"/>
         </ContextMenu>
     </UserControl.Resources>
 
@@ -85,12 +85,12 @@
                                  IsVisible="{Binding IsLoading}" VerticalAlignment="Center"/>
                     <Button Content="{Binding SavedArticlesButtonLabel}" CornerRadius="6" Padding="10,5" FontSize="11"
                             Command="{Binding ShowSavedArticlesCommand}"
-                            ToolTip.Tip="Articles saved for reading later"/>
+                            ToolTip.Tip="{loc:Tr Pixivision_ArticlesSavedForReadingLater}"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center"
                             IsVisible="{Binding IsViewingArticle}">
-                    <Button Content="← Back" CornerRadius="6" Padding="10,5" FontSize="11"
+                    <Button Content="{loc:Tr Pixivision_Back}" CornerRadius="6" Padding="10,5" FontSize="11"
                             Command="{Binding BackToListCommand}"/>
                     <TextBlock Text="{Binding ArticleTitle}" FontWeight="Bold" FontSize="16" VerticalAlignment="Center"
                                TextTrimming="CharacterEllipsis" MaxWidth="500"/>
@@ -120,7 +120,7 @@
                         </Border.Styles>
                         <StackPanel Orientation="Horizontal" Spacing="0">
                             <Button Name="CalendarFlyoutButton" Classes="tool" Content="📅"
-                                    FontSize="12" ToolTip.Tip="Browse articles by date">
+                                    FontSize="12" ToolTip.Tip="{loc:Tr Pixivision_BrowseArticlesByDate}">
                                 <Button.Flyout>
                                     <Flyout Placement="Bottom" ShowMode="Standard" Opened="OnCalendarOpened">
                                         <Calendar Name="DatePopupCalendar"
@@ -130,18 +130,18 @@
                                     </Flyout>
                                 </Button.Flyout>
                             </Button>
-                            <Button Name="QuickRangeButton" Classes="tool" Content="⏱" FontSize="12" ToolTip.Tip="Quick range">
+                            <Button Name="QuickRangeButton" Classes="tool" Content="⏱" FontSize="12" ToolTip.Tip="{loc:Tr Pixivision_QuickRange}">
                                 <Button.Flyout>
                                     <MenuFlyout Placement="Bottom">
-                                        <MenuItem Header="Today"      Command="{Binding SetQuickRangeCommand}" CommandParameter="today"/>
-                                        <MenuItem Header="Past day"   Command="{Binding SetQuickRangeCommand}" CommandParameter="day"/>
-                                        <MenuItem Header="Past week"  Command="{Binding SetQuickRangeCommand}" CommandParameter="week"/>
-                                        <MenuItem Header="Past month" Command="{Binding SetQuickRangeCommand}" CommandParameter="month"/>
-                                        <MenuItem Header="Past year"  Command="{Binding SetQuickRangeCommand}" CommandParameter="year"/>
+                                        <MenuItem Header="{loc:Tr Pixivision_Today}"      Command="{Binding SetQuickRangeCommand}" CommandParameter="today"/>
+                                        <MenuItem Header="{loc:Tr Pixivision_PastDay}"   Command="{Binding SetQuickRangeCommand}" CommandParameter="day"/>
+                                        <MenuItem Header="{loc:Tr Pixivision_PastWeek}"  Command="{Binding SetQuickRangeCommand}" CommandParameter="week"/>
+                                        <MenuItem Header="{loc:Tr Pixivision_PastMonth}" Command="{Binding SetQuickRangeCommand}" CommandParameter="month"/>
+                                        <MenuItem Header="{loc:Tr Pixivision_PastYear}"  Command="{Binding SetQuickRangeCommand}" CommandParameter="year"/>
                                         <Separator/>
-                                        <MenuItem Header="Custom range…" Click="OnCustomRangeMenuClick"/>
+                                        <MenuItem Header="{loc:Tr Pixivision_CustomRange}" Click="OnCustomRangeMenuClick"/>
                                         <Separator/>
-                                        <MenuItem Header="All time" Command="{Binding GoToAllTimeCommand}"/>
+                                        <MenuItem Header="{loc:Tr Pixivision_AllTime}" Command="{Binding GoToAllTimeCommand}"/>
                                     </MenuFlyout>
                                 </Button.Flyout>
                             </Button>
@@ -149,7 +149,7 @@
                             <Button Classes="tool" Content="⊙" FontSize="12"
                                     IsVisible="{Binding IsFilteredByDate}"
                                     Command="{Binding GoToAllTimeCommand}"
-                                    ToolTip.Tip="Back to all dates"/>
+                                    ToolTip.Tip="{loc:Tr Pixivision_BackToAllDates}"/>
                         </StackPanel>
                     </Border>
                     <!-- Custom range picker — an anchored Popup (like an airline booking site's
@@ -165,11 +165,11 @@
                 <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8" IsVisible="{Binding IsViewingArticle}">
                     <ToggleButton IsChecked="{Binding IsCurrentArticleSaved}" CornerRadius="6" Padding="10,5" FontSize="11"
                                   Command="{Binding ToggleSaveArticleCommand}"
-                                  ToolTip.Tip="Save this article to read later">
+                                  ToolTip.Tip="{loc:Tr Pixivision_SaveThisArticleToReadLater}">
 
                         <TextBlock Text="{Binding SaveArticleButtonLabel}"/>
                     </ToggleButton>
-                    <Button Content="🌐 Open on pixivision.net" CornerRadius="6" Padding="10,5" FontSize="11"
+                    <Button Content="{loc:Tr Pixivision_OpenOnPixivisionNet}" CornerRadius="6" Padding="10,5" FontSize="11"
                             Command="{Binding OpenArticleInBrowserCommand}"/>
                 </StackPanel>
             </Grid>
@@ -228,7 +228,7 @@
                         <ToggleButton IsChecked="{Binding IsArticleListView}" CornerRadius="5" Padding="9,5" FontSize="11"
                                       Command="{Binding SetArticleListViewCommand}">☰ List</ToggleButton>
                         <Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}"/>
-                        <TextBlock Text="Card size" FontSize="11" VerticalAlignment="Center"
+                        <TextBlock Text="{loc:Tr Rankings_CardSize}" FontSize="11" VerticalAlignment="Center"
                                    Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                    IsVisible="{Binding IsArticleGridView}"/>
                         <Slider Value="{Binding ArticleCardSize}" Minimum="140" Maximum="320"
@@ -237,16 +237,16 @@
                         <Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}"
                                    IsVisible="{Binding IsArticleGridView}"/>
                         <ToggleButton IsChecked="{Binding ShowSidebarWidgets}" CornerRadius="5" Padding="9,5" FontSize="11"
-                                      ToolTip.Tip="Show or hide the Monthly Ranking / Featured sidebar">
+                                      ToolTip.Tip="{loc:Tr Pixivision_ShowOrHideTheMonthlyRanking}">
                             Featured
                         </ToggleButton>
                         <Slider Value="{Binding SidebarWidth}" Minimum="200" Maximum="520"
                                 Width="90" VerticalAlignment="Center"
                                 IsVisible="{Binding ShowSidebarPanel}"
-                                ToolTip.Tip="Sidebar size — widens the Monthly Ranking / Featured panel and enlarges its thumbnails"/>
+                                ToolTip.Tip="{loc:Tr Pixivision_SidebarSizeWidensTheMonthlyRanking}"/>
                         <Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}"/>
                         <ToggleButton IsChecked="{Binding ShowPreview}" CornerRadius="5" Padding="10,5" FontSize="11"
-                                      ToolTip.Tip="Toggle the side panel (browse artworks alongside the viewer)">
+                                      ToolTip.Tip="{loc:Tr Rankings_ToggleTheSidePanelBrowseArtworks}">
                             <StackPanel Orientation="Horizontal" Spacing="4">
                                 <TextBlock Text="▣" FontSize="12"/>
                                 <TextBlock Text="{Binding SidePanelLabel}" FontSize="11"/>
@@ -255,7 +255,7 @@
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center"
                                 IsVisible="{Binding IsViewingArticle}">
-                        <TextBlock Text="Card size" FontSize="11" VerticalAlignment="Center"
+                        <TextBlock Text="{loc:Tr Rankings_CardSize}" FontSize="11" VerticalAlignment="Center"
                                    Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                         <Slider Value="{Binding CardSize}" Minimum="100" Maximum="320"
                                 Width="90" VerticalAlignment="Center"/>
@@ -272,10 +272,10 @@
                         </ToggleButton>
                         <Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}"/>
                         <ToggleButton IsChecked="{Binding IsInlineArtworkLayout}" CornerRadius="5" Padding="9,5" FontSize="11"
-                                      ToolTip.Tip="Switch between showing embedded artworks inline where they appear in the article, or grouped in a gallery at the bottom">
+                                      ToolTip.Tip="{loc:Tr Pixivision_SwitchBetweenShowingEmbeddedArtworksInli}">
                             <StackPanel Orientation="Horizontal" Spacing="4">
                                 <TextBlock Text="⇄" FontSize="12"/>
-                                <TextBlock Text="Artworks:"/>
+                                <TextBlock Text="{loc:Tr Pixivision_Artworks}"/>
                                 <TextBlock Text="{Binding InlineArtworkLayoutLabel}" FontWeight="SemiBold"/>
                             </StackPanel>
                         </ToggleButton>
@@ -283,15 +283,15 @@
                         <ToggleButton IsChecked="{Binding ShowInfo}" CornerRadius="5" Padding="9,5" FontSize="11">Info</ToggleButton>
                         <ToggleButton IsChecked="{Binding ShowTags}" CornerRadius="5" Padding="9,5" FontSize="11">Tags</ToggleButton>
                         <ToggleButton IsChecked="{Binding ShowBadges}" CornerRadius="5" Padding="9,5" FontSize="11"
-                                      ToolTip.Tip="Show/hide liked/bookmarked/favorite badges on cards">
+                                      ToolTip.Tip="{loc:Tr Search_ShowHideLikedBookmarkedFavoriteBadges}">
                             <StackPanel Orientation="Horizontal" Spacing="4">
                                 <PathIcon Data="{StaticResource HeartFilledIcon}" Width="12" Height="12" VerticalAlignment="Center" Foreground="{DynamicResource HeartBadgeIconBrush}" />
-                                <TextBlock Text="Badges" VerticalAlignment="Center"/>
+                                <TextBlock Text="{loc:Tr Search_Badges}" VerticalAlignment="Center"/>
                             </StackPanel>
                         </ToggleButton>
                         <Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}"/>
                         <ToggleButton IsChecked="{Binding ShowPreview}" CornerRadius="5" Padding="10,5" FontSize="11"
-                                      ToolTip.Tip="Toggle the side panel (browse artworks alongside the viewer)">
+                                      ToolTip.Tip="{loc:Tr Rankings_ToggleTheSidePanelBrowseArtworks}">
                             <StackPanel Orientation="Horizontal" Spacing="4">
                                 <TextBlock Text="▣" FontSize="12"/>
                                 <TextBlock Text="{Binding SidePanelLabel}" FontSize="11"/>
@@ -322,16 +322,16 @@
                     <Button CornerRadius="6" Padding="12,6" FontSize="11"
                             Command="{Binding ViewSelectedAsCollageCommand}"
                             IsVisible="{Binding CanViewSelectedAsCollage}"
-                            ToolTip.Tip="Show the selected artworks tiled together in the side panel (up to 10)">
+                            ToolTip.Tip="{loc:Tr Search_ShowTheSelectedArtworksTiledTogether}">
                         <StackPanel Orientation="Horizontal" Spacing="5">
                             <TextBlock Text="⊞" FontSize="12"/>
-                            <TextBlock Text="Collage" VerticalAlignment="Center"/>
+                            <TextBlock Text="{loc:Tr Search_Collage}" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                     <SplitButton CornerRadius="6" Padding="12,6" FontSize="11"
                             Command="{Binding AddSelectedAsCollageCommand}"
                             IsVisible="{Binding CanAddSelectedAsCollage}"
-                            ToolTip.Tip="Add the selected artworks to the active collage. Use the arrow to choose which collage.">
+                            ToolTip.Tip="{loc:Tr Search_AddTheSelectedArtworksToThe}">
                         <StackPanel Orientation="Horizontal" Spacing="5">
                             <TextBlock Text="⊞" FontSize="12"/>
                             <TextBlock Text="{loc:Tr Collage_AddToCollage}" VerticalAlignment="Center"/>
@@ -346,29 +346,29 @@
                     <Button CornerRadius="6" Padding="12,6" FontSize="11"
                             Command="{Binding ViewSelectedInNewTabsCommand}"
                             IsVisible="{Binding CanViewSelectedInNewTabs}"
-                            ToolTip.Tip="Open each selected artwork in its own tab">
+                            ToolTip.Tip="{loc:Tr Search_OpenEachSelectedArtworkInIts}">
                         <StackPanel Orientation="Horizontal" Spacing="5">
                             <PathIcon Data="{StaticResource NewIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
-                            <TextBlock Text="View in New Tabs" VerticalAlignment="Center"/>
+                            <TextBlock Text="{loc:Tr Search_ViewInNewTabs}" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                     <Button CornerRadius="6" Padding="12,6" FontSize="11"
                             Command="{Binding DownloadAllVisibleCommand}">
                         <StackPanel Orientation="Horizontal" Spacing="5">
                             <TextBlock Text="⊞" FontSize="12"/>
-                            <TextBlock Text="Download All Featured"/>
+                            <TextBlock Text="{loc:Tr Pixivision_DownloadAllFeatured}"/>
                         </StackPanel>
                     </Button>
-                    <Button Content="☑ Select All" CornerRadius="6" Padding="12,6" FontSize="11"
+                    <Button Content="{loc:Tr Search_SelectAll}" CornerRadius="6" Padding="12,6" FontSize="11"
                             Command="{Binding SelectAllCommand}"/>
                     <Button Content="{Binding SelectedCount, StringFormat='☒ Deselect All ({0})'}"
                             CornerRadius="6" Padding="12,6" FontSize="11"
                             Command="{Binding ClearSelectionCommand}"
                             IsVisible="{Binding HasSelection}"/>
-                    <Button Content="🎨 Download Preset" CornerRadius="6" Padding="12,6" FontSize="11"
+                    <Button Content="{loc:Tr Search_DownloadPreset}" CornerRadius="6" Padding="12,6" FontSize="11"
                             Classes="accent"
                             Click="OnDownloadPresetClicked"
-                            ToolTip.Tip="Download with image processing preset"/>
+                            ToolTip.Tip="{loc:Tr Search_DownloadWithImageProcessingPreset}"/>
                 </StackPanel>
             </ScrollViewer>
         </Border>
@@ -457,13 +457,13 @@
                                                         VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,6,6,0"
                                                         Background="#AA000000" Foreground="White" BorderThickness="0"
                                                         Click="OnArticleOpenInBrowserClicked"
-                                                        ToolTip.Tip="Open on pixivision.net"/>
+                                                        ToolTip.Tip="{loc:Tr Pixivision_OpenOnPixivisionNet_2}"/>
                                                 <Button Content="🔖" FontSize="12" Padding="5,3" CornerRadius="4"
                                                         VerticalAlignment="Top" HorizontalAlignment="Left" Margin="6,6,0,0"
                                                         Background="{Binding IsSaved, Converter={x:Static conv:BoolToBookmarkIconConverter.Instance}}"
                                                         Foreground="White" BorderThickness="0"
                                                         Click="OnBookmarkIconClicked"
-                                                        ToolTip.Tip="Save for later"/>
+                                                        ToolTip.Tip="{loc:Tr Pixivision_SaveForLater_2}"/>
                                             </Panel>
                                             <StackPanel Grid.Row="1" Margin="8,6,8,8" Spacing="4">
                                                 <TextBlock Text="{Binding Title}" FontSize="12" FontWeight="SemiBold"
@@ -543,10 +543,10 @@
                                                         Background="{Binding IsSaved, Converter={x:Static conv:BoolToBookmarkIconConverter.Instance}}"
                                                         Foreground="White" BorderThickness="0"
                                                         Click="OnBookmarkIconClicked"
-                                                        ToolTip.Tip="Save for later"/>
+                                                        ToolTip.Tip="{loc:Tr Pixivision_SaveForLater_2}"/>
                                                 <Button Content="🌐" FontSize="11" Padding="6,4" CornerRadius="4"
                                                         Click="OnArticleOpenInBrowserClicked"
-                                                        ToolTip.Tip="Open on pixivision.net"/>
+                                                        ToolTip.Tip="{loc:Tr Pixivision_OpenOnPixivisionNet_2}"/>
                                             </StackPanel>
                                         </Grid>
                                     </Border>
@@ -563,7 +563,7 @@
                     <StackPanel Spacing="14">
                         <StackPanel Spacing="0" IsVisible="{Binding HasMonthlyRanking}">
                             <Border Background="#000000" CornerRadius="8,8,0,0" Padding="10,7">
-                                <TextBlock Text="🏆 Monthly Ranking" FontWeight="Bold" FontSize="12" Foreground="White"/>
+                                <TextBlock Text="{loc:Tr Pixivision_MonthlyRanking}" FontWeight="Bold" FontSize="12" Foreground="White"/>
                             </Border>
                             <Border Background="{DynamicResource Container1BackgroundBrush}"
                                     BorderBrush="{DynamicResource Container1BorderBrush}"
@@ -601,7 +601,7 @@
 
                         <StackPanel Spacing="0" IsVisible="{Binding HasFeatured}">
                             <Border Background="#000000" CornerRadius="8,8,0,0" Padding="10,7">
-                                <TextBlock Text="⭐ Featured" FontWeight="Bold" FontSize="12" Foreground="White"/>
+                                <TextBlock Text="{loc:Tr Pixivision_Featured}" FontWeight="Bold" FontSize="12" Foreground="White"/>
                             </Border>
                             <Border Background="{DynamicResource Container1BackgroundBrush}"
                                     BorderBrush="{DynamicResource Container1BorderBrush}"
@@ -643,15 +643,15 @@
                         </MultiBinding>
                     </Grid.IsVisible>
                     <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="10" Margin="20,14,20,0">
-                        <Button Content="← Back" CornerRadius="6" Padding="10,5" FontSize="11"
+                        <Button Content="{loc:Tr Pixivision_Back}" CornerRadius="6" Padding="10,5" FontSize="11"
                                 Command="{Binding HideSavedArticlesCommand}"/>
-                        <TextBlock Text="🔖 Saved Articles" FontWeight="Bold" FontSize="16" VerticalAlignment="Center"/>
+                        <TextBlock Text="{loc:Tr Pixivision_SavedArticles}" FontWeight="Bold" FontSize="16" VerticalAlignment="Center"/>
                     </StackPanel>
                     <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                         <Panel>
                             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="8"
                                         IsVisible="{Binding !HasSavedArticles}" Margin="0,60,0,0">
-                                <TextBlock Text="No saved articles yet. Open an article and tap 🔖 Save to read it later."
+                                <TextBlock Text="{loc:Tr Pixivision_NoSavedArticlesYetOpenAn}"
                                            FontSize="13" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                            HorizontalAlignment="Center" TextWrapping="Wrap" MaxWidth="400"/>
                             </StackPanel>
@@ -678,7 +678,7 @@
                                                                TextWrapping="Wrap" MaxLines="3"/>
                                                     <Button Grid.Column="1" Content="✕" Classes="tool" FontSize="11"
                                                             VerticalAlignment="Top"
-                                                            ToolTip.Tip="Remove from saved"
+                                                            ToolTip.Tip="{loc:Tr Pixivision_RemoveFromSaved_2}"
                                                             Command="{Binding $parent[UserControl].((vm:PixivisionViewModel)DataContext).RemoveSavedArticleCommand}"
                                                             CommandParameter="{Binding}"/>
                                                 </Grid>
@@ -708,7 +708,7 @@
                                 Background="{DynamicResource Container1BackgroundBrush}"
                                 BorderBrush="{DynamicResource Container1BorderBrush}" BorderThickness="1">
                             <StackPanel Spacing="6">
-                                <TextBlock Text="📑 Index" FontWeight="Bold" FontSize="13"/>
+                                <TextBlock Text="{loc:Tr Pixivision_Index}" FontWeight="Bold" FontSize="13"/>
                                 <ItemsControl ItemsSource="{Binding ArticleTableOfContents}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate x:DataType="vm:PixivisionTocEntryViewModel">
@@ -1076,7 +1076,7 @@
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
 
-                        <TextBlock Text="Featured Artworks" FontWeight="SemiBold" FontSize="14"
+                        <TextBlock Text="{loc:Tr Pixivision_FeaturedArtworks}" FontWeight="SemiBold" FontSize="14"
                                    Margin="0,6,0,0"
                                    IsVisible="{Binding ShowFeaturedWorksGallery}"/>
 
@@ -1383,15 +1383,15 @@
                          mirrors Rankings' "Pages" toggle for a consistent, unambiguous control. -->
                     <ToggleButton IsChecked="{Binding UsePagedMode, Mode=TwoWay}"
                                   CornerRadius="6" Padding="8,4" FontSize="11"
-                                  ToolTip.Tip="Toggle pagination (off = autoload while scrolling)">
+                                  ToolTip.Tip="{loc:Tr Search_TogglePaginationOffAutoloadWhileScrollin}">
                         <StackPanel Orientation="Horizontal" Spacing="4">
                             <TextBlock Text="📄" FontSize="12" VerticalAlignment="Center"/>
-                            <TextBlock Text="Pages" FontSize="11" VerticalAlignment="Center"/>
+                            <TextBlock Text="{loc:Tr Search_Pages}" FontSize="11" VerticalAlignment="Center"/>
                         </StackPanel>
                     </ToggleButton>
                     <StackPanel Orientation="Horizontal" Spacing="6"
                                 IsVisible="{Binding !IsAutoloadMode}">
-                        <Button Content="‹ Prev" CornerRadius="6" Padding="10,5" FontSize="11"
+                        <Button Content="{loc:Tr Search_Prev}" CornerRadius="6" Padding="10,5" FontSize="11"
                                 Command="{Binding PrevPageCommand}" IsEnabled="{Binding HasPrevPage}"/>
                         <TextBlock Text="{Binding ArticlePage, StringFormat='Page {0}'}" FontSize="11"
                                    VerticalAlignment="Center" Margin="4,0"/>
@@ -1400,8 +1400,8 @@
                                  Padding="6,4" FontSize="11" Margin="6,0,0,0"
                                  VerticalContentAlignment="Center"
                                  KeyDown="OnPixivisionPageInputKeyDown"
-                                 ToolTip.Tip="Type a page number and press Enter"/>
-                        <Button Content="Next ›" CornerRadius="6" Padding="10,5" FontSize="11"
+                                 ToolTip.Tip="{loc:Tr Search_TypeAPageNumberAndPress}"/>
+                        <Button Content="{loc:Tr Search_Next}" CornerRadius="6" Padding="10,5" FontSize="11"
                                 Command="{Binding NextPageCommand}" IsEnabled="{Binding HasNextPage}"/>
                     </StackPanel>
                     <ProgressBar IsIndeterminate="True" Width="60" Height="3"

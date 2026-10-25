@@ -1,5 +1,6 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:loc="using:Pikura.Avalonia.Localization"
         xmlns:vm="using:Pikura.Avalonia.ViewModels"
         xmlns:actipro="http://schemas.actiprosoftware.com/avaloniaui"
         xmlns:conv="using:Pikura.Avalonia.Converters"
@@ -8,7 +9,7 @@
         mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="600"
         x:Class="Pikura.Avalonia.Views.Dialogs.ArtistSelectionDialog"
         x:DataType="vm:ArtistSelectionViewModel"
-        Title="Select Artists"
+        Title="{loc:Tr Dialog_SelectArtists}"
         Width="500" Height="600"
         WindowStartupLocation="CenterOwner">
 
@@ -22,9 +23,9 @@
                 BorderBrush="{DynamicResource Container1BorderBrush}"
                 BorderThickness="0,0,0,1" Padding="16,12">
             <StackPanel Spacing="8">
-                <TextBlock Text="Select Artists to Download" FontSize="16" FontWeight="SemiBold"/>
+                <TextBlock Text="{loc:Tr Dialog_SelectArtistsToDownload}" FontSize="16" FontWeight="SemiBold"/>
                 <TextBox Text="{Binding SearchText, Mode=TwoWay}"
-                         PlaceholderText="Search artists..."
+                         PlaceholderText="{loc:Tr Dialog_SearchArtists}"
                          CornerRadius="6"/>
             </StackPanel>
         </Border>
@@ -80,10 +81,10 @@
             <Grid ColumnDefinitions="*,Auto,Auto">
                 <TextBlock Grid.Column="0"
                            VerticalAlignment="Center">
-                    <Run Text="Selected: "/><Run Text="{Binding SelectedUsers.Count}" FontWeight="SemiBold"/>
+                    <Run Text="{loc:Tr Dialog_Selected}"/><Run Text="{Binding SelectedUsers.Count}" FontWeight="SemiBold"/>
                 </TextBlock>
-                <Button Content="Cancel" Click="CancelButton_Click" Margin="0,0,8,0"/>
-                <Button Content="Add Selected" Click="OkButton_Click" Classes="accent"/>
+                <Button Content="{loc:Tr Common_Cancel}" Click="CancelButton_Click" Margin="0,0,8,0"/>
+                <Button Content="{loc:Tr Dialog_AddSelected}" Click="OkButton_Click" Classes="accent"/>
             </Grid>
         </Border>
     </Grid>

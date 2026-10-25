@@ -3,6 +3,7 @@ using Avalonia.Controls.Linux;
 using Avalonia.Interactivity;
 using Avalonia.Platform;
 using Avalonia.Threading;
+using Pikura.Avalonia.Localization;
 using Pikura.Avalonia.Services;
 using Pikura.Core.Services;
 using Pikura.Core.Settings;
@@ -60,7 +61,7 @@ public partial class PixivLoginWindow : Window
                 WebViewFailed = true;
                 await Dispatcher.UIThread.InvokeAsync(() =>
                 {
-                    StatusText.Text = "WebView did not load. Use \"Enter cookie manually\" instead.";
+                    StatusText.Text = Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_WebViewDidNotLoadUseEnter"];
                 });
             }
         });
@@ -204,7 +205,7 @@ public partial class PixivLoginWindow : Window
     // touched before / after those delays via InvokeAsync wrappers to re-enter the UI thread.
     private async Task HandleLoginAsync(NativeWebView webView)
     {
-        StatusText.Text = "Detecting session…";
+        StatusText.Text = Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_DetectingSession"];
 
         try
         {
@@ -235,14 +236,14 @@ public partial class PixivLoginWindow : Window
 
             if (string.IsNullOrWhiteSpace(result))
             {
-                await Dispatcher.UIThread.InvokeAsync(() => StatusText.Text = "Retrying session check…");
+                await Dispatcher.UIThread.InvokeAsync(() => StatusText.Text = Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_RetryingSessionCheck"]);
                 await Task.Delay(2000);
                 result = await Dispatcher.UIThread.InvokeAsync(() => webView.InvokeScript(script));
                 if (string.IsNullOrWhiteSpace(result))
                 {
                     await Dispatcher.UIThread.InvokeAsync(() =>
                     {
-                        StatusText.Text = "Could not detect session. Try signing in again.";
+                        StatusText.Text = Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_CouldNotDetectSessionTrySigning"];
                         _completed = false;
                     });
                     return;
@@ -273,12 +274,12 @@ public partial class PixivLoginWindow : Window
 
             if (string.IsNullOrWhiteSpace(userId))
             {
-                await Dispatcher.UIThread.InvokeAsync(() => StatusText.Text = "Session detected but user ID missing — try again.");
+                await Dispatcher.UIThread.InvokeAsync(() => StatusText.Text = Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_SessionDetectedButUserIDMissing"]);
                 return;
             }
 
             _completed = true;
-            await Dispatcher.UIThread.InvokeAsync(() => StatusText.Text = "Confirming session…");
+            await Dispatcher.UIThread.InvokeAsync(() => StatusText.Text = Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_ConfirmingSession"]);
 
             // Extract PHPSESSID — GetCookiesAsync must be awaited on the UI thread
             string? sid = null;

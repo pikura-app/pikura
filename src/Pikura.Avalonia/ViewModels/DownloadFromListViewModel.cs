@@ -11,6 +11,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Pikura.Core.Models;
 using Pikura.Core.Services;
+using Pikura.Avalonia.Localization;
 using Pikura.Avalonia.Services;
 
 namespace Pikura.Avalonia.ViewModels;
@@ -62,13 +63,13 @@ public partial class DownloadFromListViewModel : ViewModelBase
         var window = _dialogService.OwnerWindow;
         if (window?.StorageProvider == null)
         {
-            await _dialogService.ShowMessageAsync("Error", "Storage provider not available.");
+            await _dialogService.ShowMessageAsync(Pikura.Avalonia.Localization.LocalizationService.Instance["DlList_Error"], Pikura.Avalonia.Localization.LocalizationService.Instance["DlList_StorageProviderNotAvailable"]);
             return;
         }
 
         var files = await window.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
         {
-            Title = "Select List File",
+            Title = Pikura.Avalonia.Localization.LocalizationService.Instance["DlList_SelectListFile"],
             AllowMultiple = false,
             FileTypeFilter = 
             [
@@ -95,7 +96,7 @@ public partial class DownloadFromListViewModel : ViewModelBase
     {
         if (string.IsNullOrWhiteSpace(SelectedFilePath) || !File.Exists(SelectedFilePath))
         {
-            await _dialogService.ShowMessageAsync("Error", "Please select a valid file.");
+            await _dialogService.ShowMessageAsync(Pikura.Avalonia.Localization.LocalizationService.Instance["DlList_Error"], Pikura.Avalonia.Localization.LocalizationService.Instance["DlList_PleaseSelectAValidFile"]);
             return;
         }
 
@@ -123,7 +124,7 @@ public partial class DownloadFromListViewModel : ViewModelBase
         }
         catch (Exception ex)
         {
-            await _dialogService.ShowMessageAsync("Error", $"Failed to read file: {ex.Message}");
+            await _dialogService.ShowMessageAsync(Pikura.Avalonia.Localization.LocalizationService.Instance["DlList_Error"], $"Failed to read file: {ex.Message}");
         }
     }
 
@@ -169,7 +170,7 @@ public partial class DownloadFromListViewModel : ViewModelBase
     {
         if (!HasItems)
         {
-            await _dialogService.ShowMessageAsync("No Items", "No items to download. Please select a list file first.");
+            await _dialogService.ShowMessageAsync(Pikura.Avalonia.Localization.LocalizationService.Instance["DlList_NoItems"], Pikura.Avalonia.Localization.LocalizationService.Instance["DlList_NoItemsToDownloadPleaseSelect"]);
             return;
         }
 
@@ -223,12 +224,12 @@ public partial class DownloadFromListViewModel : ViewModelBase
             // Start the job
             await _coordinator.StartJobAsync(job.Id);
 
-            await _dialogService.ShowMessageAsync("Download Started", 
+            await _dialogService.ShowMessageAsync(Pikura.Avalonia.Localization.LocalizationService.Instance["DlList_DownloadStarted"], 
                 $"Queued {urlCount} URLs, {idCount} IDs, and {tagCount} tags for download.\n\nCheck the History tab for progress.");
         }
         catch (Exception ex)
         {
-            await _dialogService.ShowMessageAsync("Error", $"Failed to start download: {ex.Message}");
+            await _dialogService.ShowMessageAsync(Pikura.Avalonia.Localization.LocalizationService.Instance["DlList_Error"], $"Failed to start download: {ex.Message}");
         }
     }
 

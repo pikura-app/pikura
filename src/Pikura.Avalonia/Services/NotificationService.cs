@@ -333,7 +333,7 @@ public class NotificationService
     public void ShowJobStartedNotification(string jobName, int targetCount, string? thumbnailUrl = null)
     {
         var title   = "⬇️ Download started";
-        var message = $"{jobName} — {targetCount} item{(targetCount == 1 ? "" : "s")}";
+        var message = string.Format(Pikura.Avalonia.Localization.LocalizationService.Instance["Jobs_JobItemCount"], jobName, targetCount);
         _lastNotification = new NotificationClickedEventArgs(title, message, null, null, NotificationType.Info);
         ShowNotification(title, message, NotificationType.Info, thumbnailUrl);
     }

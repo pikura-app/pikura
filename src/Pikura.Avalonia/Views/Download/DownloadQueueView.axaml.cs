@@ -4,6 +4,7 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Threading;
+using Pikura.Avalonia.Localization;
 using Pikura.Avalonia.Services;
 using Pikura.Core.Models;
 using Pikura.Core.Services;
@@ -58,7 +59,7 @@ public partial class DownloadQueueView : UserControl
             JobsPanel.Children.Clear();
             if (jobs.Count == 0)
             {
-                JobCountLabel.Text = "(empty)";
+                JobCountLabel.Text = Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_Empty"];
                 JobsPanel.Children.Add(new TextBlock
                 {
                     Text = "No download jobs yet.",
@@ -257,28 +258,28 @@ public partial class DownloadQueueView : UserControl
         {
             var menu = new ContextMenu();
 
-            var toTop = new MenuItem { Header = "⏫ Move to Top" };
+            var toTop = new MenuItem { Header = Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_MoveToTop"] };
             toTop.Click += async (_, _) =>
             {
                 await _coordinator.ReorderJobAsync(job.Id, DownloadCoordinator.ReorderAction.MoveToTop);
                 await LoadJobsAsync();
             };
 
-            var up = new MenuItem { Header = "▲ Move Up" };
+            var up = new MenuItem { Header = Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_MoveUp"] };
             up.Click += async (_, _) =>
             {
                 await _coordinator.ReorderJobAsync(job.Id, DownloadCoordinator.ReorderAction.MoveUp);
                 await LoadJobsAsync();
             };
 
-            var down = new MenuItem { Header = "▼ Move Down" };
+            var down = new MenuItem { Header = Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_MoveDown"] };
             down.Click += async (_, _) =>
             {
                 await _coordinator.ReorderJobAsync(job.Id, DownloadCoordinator.ReorderAction.MoveDown);
                 await LoadJobsAsync();
             };
 
-            var toBottom = new MenuItem { Header = "⏬ Move to Bottom" };
+            var toBottom = new MenuItem { Header = Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_MoveToBottom"] };
             toBottom.Click += async (_, _) =>
             {
                 await _coordinator.ReorderJobAsync(job.Id, DownloadCoordinator.ReorderAction.MoveToBottom);

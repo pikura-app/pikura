@@ -7,6 +7,7 @@ using Pikura.Core.Models;
 using Pikura.Core.Services;
 using Pikura.Core.Settings;
 using Pikura.Core.Utilities;
+using Pikura.Avalonia.Localization;
 using Pikura.Avalonia.Services;
 using System;
 using System.Collections.Generic;
@@ -160,7 +161,7 @@ public partial class DownloadByImageIdViewModel : ViewModelBase
         InputText = string.IsNullOrEmpty(InputText)
             ? text
             : InputText + "\n" + text;
-        StatusMessage = "Pasted from clipboard";
+        StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["DlId_PastedFromClipboard"];
     }
 
     [RelayCommand]
@@ -176,12 +177,12 @@ public partial class DownloadByImageIdViewModel : ViewModelBase
                 ? content
                 : InputText + "\n" + content;
 
-            StatusMessage = "Imported IDs from file";
+            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["DlId_ImportedIDsFromFile"];
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "Failed to import from file");
-            await _dialogService.ShowMessageAsync("Error", $"Failed to import: {ex.Message}");
+            await _dialogService.ShowMessageAsync(Pikura.Avalonia.Localization.LocalizationService.Instance["DlId_Error"], $"Failed to import: {ex.Message}");
         }
     }
 
@@ -199,11 +200,11 @@ public partial class DownloadByImageIdViewModel : ViewModelBase
     {
         if (ParsedIds.Count == 0)
         {
-            await _dialogService.ShowMessageAsync("No IDs", "Please enter at least one image ID or URL.");
+            await _dialogService.ShowMessageAsync(Pikura.Avalonia.Localization.LocalizationService.Instance["DlId_NoIDs"], Pikura.Avalonia.Localization.LocalizationService.Instance["DlId_PleaseEnterAtLeastOneImage"]);
             return;
         }
 
-        StatusMessage = "Creating download job...";
+        StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["DlId_CreatingDownloadJob"];
 
         try
         {
@@ -250,12 +251,12 @@ public partial class DownloadByImageIdViewModel : ViewModelBase
             });
 
             _coordinator.SubscribeToProgress(job.Id, progress);
-            StatusMessage = "Download started...";
+            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["DlId_DownloadStarted"];
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "Failed to start download");
-            await _dialogService.ShowMessageAsync("Error", $"Failed to start download: {ex.Message}");
+            await _dialogService.ShowMessageAsync(Pikura.Avalonia.Localization.LocalizationService.Instance["DlId_Error"], $"Failed to start download: {ex.Message}");
         }
     }
 
@@ -266,14 +267,14 @@ public partial class DownloadByImageIdViewModel : ViewModelBase
         {
             await _coordinator.CancelJobAsync(CurrentJobId.Value);
             HasActiveJob = false;
-            StatusMessage = "Download cancelled";
+            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["DlId_DownloadCancelled"];
         }
     }
 
     [RelayCommand]
     private void SavePreset()
     {
-        _dialogService.ShowMessageAsync("Preset Saved", "Configuration saved (not yet implemented)").ConfigureAwait(false);
+        _dialogService.ShowMessageAsync(Pikura.Avalonia.Localization.LocalizationService.Instance["DlId_PresetSaved"], Pikura.Avalonia.Localization.LocalizationService.Instance["DlId_ConfigurationSavedNotYetImplemented"]).ConfigureAwait(false);
     }
 
     #endregion

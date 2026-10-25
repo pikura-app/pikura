@@ -1,5 +1,6 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:loc="using:Pikura.Avalonia.Localization"
         xmlns:actipro="http://schemas.actiprosoftware.com/avaloniaui"
         x:Class="Pikura.Avalonia.Views.SplashWindow"
         Title="Pikura"

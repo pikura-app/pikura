@@ -3,6 +3,8 @@ using System.Globalization;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 
+using Pikura.Avalonia.Localization;
+
 namespace Pikura.Avalonia.Views.Dialogs;
 
 /// <summary>
@@ -44,7 +46,7 @@ public partial class DateRangePickerPanel : UserControl
     private void SetStart(DateTime date)
     {
         _suppressSync = true;
-        StartDateBox.Text = date.ToString("MM-dd-yyyy", CultureInfo.InvariantCulture);
+        StartDateBox.Text = date.ToString(Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_MMDdYyyy"], CultureInfo.InvariantCulture);
         StartCalendar.SelectedDate = date;
         StartCalendar.DisplayDate = date;
         _suppressSync = false;
@@ -53,7 +55,7 @@ public partial class DateRangePickerPanel : UserControl
     private void SetEnd(DateTime date)
     {
         _suppressSync = true;
-        EndDateBox.Text = date.ToString("MM-dd-yyyy", CultureInfo.InvariantCulture);
+        EndDateBox.Text = date.ToString(Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_MMDdYyyy"], CultureInfo.InvariantCulture);
         EndCalendar.SelectedDate = date;
         EndCalendar.DisplayDate = date;
         _suppressSync = false;
@@ -105,7 +107,7 @@ public partial class DateRangePickerPanel : UserControl
     {
         if (!TryParse(StartDateBox.Text, out var start) || !TryParse(EndDateBox.Text, out var end))
         {
-            ErrorText.Text = "Enter both dates as MM-DD-YYYY (e.g. 10-14-2015).";
+            ErrorText.Text = Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_EnterBothDatesAsMMDD"];
             ErrorText.IsVisible = true;
             return;
         }

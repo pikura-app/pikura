@@ -1,5 +1,6 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:loc="using:Pikura.Avalonia.Localization"
         xmlns:actipro="http://schemas.actiprosoftware.com/avaloniaui"
         xmlns:vm="using:Pikura.Avalonia.ViewModels"
         xmlns:models="using:Pikura.Avalonia.Models"
@@ -7,7 +8,7 @@
         xmlns:controls="using:Pikura.Avalonia.Controls"
         x:Class="Pikura.Avalonia.Views.FeatureHighlightsWindow"
         x:DataType="vm:FeatureHighlightsViewModel"
-        Title="What's New in Pikura"
+        Title="{loc:Tr WhatsNew_WhatSNewInPikura}"
         Width="980" Height="680"
         WindowStartupLocation="CenterOwner"
         WindowDecorations="None"
@@ -57,7 +58,7 @@
                             Background="Transparent" BorderThickness="0" Padding="8"
                             Foreground="{DynamicResource DefaultForegroundBrush}"
                             IsVisible="{Binding CanGoPrevious}"
-                            ToolTip.Tip="Previous">
+                            ToolTip.Tip="{loc:Tr Common_Previous}">
                         <Path Data="{StaticResource ChevronLeftIcon}" Width="18" Height="18"
                               Stroke="{Binding $parent[Button].Foreground}" StrokeThickness="2" Fill="Transparent"
                               Stretch="Uniform"/>
@@ -67,7 +68,7 @@
                                FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                Text="{Binding StepText}"/>
 
-                    <Button Grid.Column="2" Content="Skip"
+                    <Button Grid.Column="2" Content="{loc:Tr Settings_Skip}"
                             Command="{Binding SkipCommand}"
                             Background="Transparent" BorderThickness="0"
                             Padding="12,6" Margin="0,0,8,0"
@@ -75,12 +76,12 @@
                             IsVisible="{Binding !IsLastPage}"/>
 
                     <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="8">
-                        <Button Content="Next" Command="{Binding NextCommand}"
+                        <Button Content="{loc:Tr Common_Next}" Command="{Binding NextCommand}"
                                 IsVisible="{Binding !IsLastPage}"
                                 Background="{DynamicResource ControlBackgroundBrushSolidAccent}"
                                 Foreground="{DynamicResource ControlForegroundBrushSolidAccent}" BorderThickness="0"
                                 Padding="18,8" CornerRadius="6"/>
-                        <Button Content="Finish" Command="{Binding FinishCommand}"
+                        <Button Content="{loc:Tr WhatsNew_Finish}" Command="{Binding FinishCommand}"
                                 IsVisible="{Binding IsLastPage}"
                                 Background="{DynamicResource ControlBackgroundBrushSolidAccent}"
                                 Foreground="{DynamicResource ControlForegroundBrushSolidAccent}" BorderThickness="0"
@@ -99,7 +100,7 @@
                                     <Border IsVisible="{Binding IsNew}" VerticalAlignment="Center"
                                             Background="{DynamicResource ControlBackgroundBrushSolidAccent}"
                                             CornerRadius="10" Padding="8,3">
-                                        <TextBlock Text="NEW" FontSize="10" FontWeight="Bold"
+                                        <TextBlock Text="{loc:Tr WhatsNew_NEW}" FontSize="10" FontWeight="Bold"
                                                    Foreground="{DynamicResource ControlForegroundBrushSolidAccent}" LetterSpacing="1"/>
                                     </Border>
                                 </StackPanel>

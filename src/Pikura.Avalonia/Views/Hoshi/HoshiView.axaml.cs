@@ -11,6 +11,7 @@ using Avalonia.Media.Imaging;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
+using Pikura.Avalonia.Localization;
 using Pikura.Avalonia.Services;
 using Pikura.Avalonia.ViewModels;
 
@@ -63,7 +64,7 @@ public partial class HoshiView : UserControl
     private void RefreshSessionTitle()
     {
         if (SessionTitleLabel == null) return;
-        SessionTitleLabel.Text = VM?.CurrentSession?.Title ?? "Hoshi 星";
+        SessionTitleLabel.Text = VM?.CurrentSession?.Title ?? Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_Hoshi_2"];
     }
 
     private void RefreshImageStrip()
@@ -79,13 +80,13 @@ public partial class HoshiView : UserControl
             }
             catch { ImageThumb.Source = null; }
             ImageLabel.Text = $"Image attached ({bytes.Length / 1024} KB)";
-            ImageHint.Text  = VM?.CurrentSession?.ImageSource ?? "From current artwork";
+            ImageHint.Text  = VM?.CurrentSession?.ImageSource ?? Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_FromCurrentArtwork"];
         }
         else
         {
             ImageThumb.Source = null;
-            ImageLabel.Text = "No image attached";
-            ImageHint.Text  = "Drop an image here, paste with Ctrl+V, or click 📂 Open";
+            ImageLabel.Text = Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_NoImageAttached"];
+            ImageHint.Text  = Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_DropAnImageHerePasteWith"];
         }
 
         var artworkId = GetCurrentArtworkId();
@@ -148,7 +149,7 @@ public partial class HoshiView : UserControl
         {
             if (StatusLabel != null) StatusLabel.Text = vm.StatusText;
             if (ToggleBtn == null) return;
-            ToggleBtn.Content = vm.IsThinking ? "Thinking…" :
+            ToggleBtn.Content = vm.IsThinking ? Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_Thinking"] :
                                 vm.IsEnabled  ? "Disable"  : "Enable";
             ToggleBtn.IsEnabled = !vm.IsThinking;
         });
@@ -159,7 +160,7 @@ public partial class HoshiView : UserControl
         if (VM is not { } vm) return;
         if (!vm.IsEnabled)
         {
-            if (ToggleBtn != null) { ToggleBtn.Content = "Starting…"; ToggleBtn.IsEnabled = false; }
+            if (ToggleBtn != null) { ToggleBtn.Content = Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_Starting"]; ToggleBtn.IsEnabled = false; }
             var progress = new Progress<string>(msg =>
                 Dispatcher.UIThread.Post(() => { if (StatusLabel != null) StatusLabel.Text = msg; }));
             await vm.ToggleEnabledAsync(progress);
@@ -275,7 +276,7 @@ public partial class HoshiView : UserControl
         // Switch to the session first so the rename applies to "current"
         if (vm.CurrentSession?.Id != s.Id) vm.LoadSession(s);
         var dialog = AppServices.Get<DialogService>();
-        var newName = await dialog.ShowInputDialogAsync("Rename session", "New title:", s.Title);
+        var newName = await dialog.ShowInputDialogAsync(Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_RenameSession"], Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_NewTitle"], s.Title);
         if (!string.IsNullOrWhiteSpace(newName))
         {
             vm.RenameCurrentSession(newName);
@@ -297,7 +298,7 @@ public partial class HoshiView : UserControl
     {
         if (sender is not Control c || c.Tag is not HoshiSession s || VM is not { } vm) return;
         var dialog = AppServices.Get<DialogService>();
-        var ok = await dialog.ShowConfirmationAsync("Delete session?", $"Delete \"{s.Title}\"? This cannot be undone.");
+        var ok = await dialog.ShowConfirmationAsync(Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_DeleteSession"], $"Delete \"{s.Title}\"? This cannot be undone.");
         if (ok) await vm.DeleteSessionAsync(s);
         RefreshImageStrip();
         RefreshSessionTitle();
@@ -307,7 +308,7 @@ public partial class HoshiView : UserControl
     {
         if (VM is not { } vm) return;
         var dialog = AppServices.Get<DialogService>();
-        var ok = await dialog.ShowConfirmationAsync("Delete all sessions?", "Delete ALL sessions? This cannot be undone.");
+        var ok = await dialog.ShowConfirmationAsync(Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_DeleteAllSessions"], Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_DeleteALLSessionsThisCannotBe"]);
         if (ok) await vm.DeleteAllSessionsAsync();
         RefreshImageStrip();
         RefreshSessionTitle();
@@ -320,7 +321,7 @@ public partial class HoshiView : UserControl
         if (selected.Count == 0) return;
         
         var dialog = AppServices.Get<DialogService>();
-        var ok = await dialog.ShowConfirmationAsync("Delete selected sessions?", $"Delete {selected.Count} session(s)? This cannot be undone.");
+        var ok = await dialog.ShowConfirmationAsync(Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_DeleteSelectedSessions"], $"Delete {selected.Count} session(s)? This cannot be undone.");
         if (ok)
         {
             foreach (var session in selected)
@@ -363,7 +364,7 @@ public partial class HoshiView : UserControl
         if (topLevel == null) return;
         var files = await topLevel.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
         {
-            Title = "Open image",
+            Title = Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_OpenImage"],
             AllowMultiple = false,
             FileTypeFilter = new[]
             {
@@ -385,7 +386,7 @@ public partial class HoshiView : UserControl
     private async void OnUrlImageClicked(object? sender, RoutedEventArgs e)
     {
         var dialog = AppServices.Get<DialogService>();
-        var url = await dialog.ShowInputDialogAsync("Load image from URL",
+        var url = await dialog.ShowInputDialogAsync(Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_LoadImageFromURL"],
             "Paste an image URL (or right-click an image in your browser → Copy image address):",
             "");
         if (string.IsNullOrWhiteSpace(url)) return;
@@ -522,7 +523,7 @@ public partial class HoshiView : UserControl
             await stream.CopyToAsync(ms);
             var bytes = ms.ToArray();
             vm.SetSessionImage(bytes, file.Name);
-            if (vm.CurrentSession is { } s && s.Title == "New chat")
+            if (vm.CurrentSession is { } s && ViewModels.AiViewModel.IsDefaultChatTitle(s.Title))
             {
                 vm.RenameCurrentSession(Path.GetFileNameWithoutExtension(file.Name));
                 RefreshSessionTitle();
@@ -556,7 +557,7 @@ public partial class HoshiView : UserControl
             http.DefaultRequestHeaders.UserAgent.ParseAdd("Pikura/1.0");
             var bytes = await http.GetByteArrayAsync(url);
             vm.SetSessionImage(bytes, url);
-            if (vm.CurrentSession is { } s && s.Title == "New chat")
+            if (vm.CurrentSession is { } s && ViewModels.AiViewModel.IsDefaultChatTitle(s.Title))
             {
                 vm.RenameCurrentSession(new Uri(url).Host);
                 RefreshSessionTitle();

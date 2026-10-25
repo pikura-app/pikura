@@ -5,6 +5,8 @@ using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
 using Pikura.Core.Models;
 
+using Pikura.Avalonia.Localization;
+
 namespace Pikura.Avalonia.Views.Dialogs;
 
 public partial class ArtistSettingsDialog : Window
@@ -41,8 +43,8 @@ public partial class ArtistSettingsDialog : Window
         FilenameTemplateTextBox.Text = Settings.FilenameTemplate ?? string.Empty;
         IncludeTagsTextBox.Text = Settings.IncludeTags ?? string.Empty;
         ExcludeTagsTextBox.Text = Settings.ExcludeTagsFilter ?? string.Empty;
-        DateFromTextBox.Text = Settings.DateFrom?.ToString("yyyy-MM-dd") ?? string.Empty;
-        DateToTextBox.Text = Settings.DateTo?.ToString("yyyy-MM-dd") ?? string.Empty;
+        DateFromTextBox.Text = Settings.DateFrom?.ToString(Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_YyyyMMDd"]) ?? string.Empty;
+        DateToTextBox.Text = Settings.DateTo?.ToString(Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_YyyyMMDd"]) ?? string.Empty;
         FilterAiCheckBox.IsChecked = Settings.FilterAiGenerated;
         CreateSubfolderCheckBox.IsChecked = Settings.CreateSubfolderPerSubmission;
         SeparateR18CheckBox.IsChecked = Settings.SeparateR18Folder;

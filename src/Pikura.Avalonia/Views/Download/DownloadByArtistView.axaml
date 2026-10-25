@@ -1,5 +1,6 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:loc="using:Pikura.Avalonia.Localization"
              xmlns:vm="using:Pikura.Avalonia.ViewModels"
              xmlns:actipro="http://schemas.actiprosoftware.com/avaloniaui"
              xmlns:conv="using:Pikura.Avalonia.Converters"
@@ -21,11 +22,11 @@
                 BorderThickness="0,0,0,1" Padding="20,16">
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Spacing="4">
-                    <TextBlock Text="Download by Artist" FontSize="20" FontWeight="SemiBold"/>
-                    <TextBlock Text="Download artworks from followed artists or specific artist IDs"
+                    <TextBlock Text="{loc:Tr DlArtist_DownloadByArtist}" FontSize="20" FontWeight="SemiBold"/>
+                    <TextBlock Text="{loc:Tr DlArtist_DownloadArtworksFromFollowedArtistsOr}"
                                FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                 </StackPanel>
-                <Button Grid.Column="1" Content="? Help"  />
+                <Button Grid.Column="1" Content="{loc:Tr DlId_Help}"  />
             </Grid>
         </Border>
 
@@ -39,7 +40,7 @@
                         BorderThickness="1" CornerRadius="8" Padding="16">
                     <StackPanel Spacing="12">
                         <Grid ColumnDefinitions="*,Auto">
-                            <TextBlock Text="Selected Artists" FontSize="15" FontWeight="SemiBold"/>
+                            <TextBlock Text="{loc:Tr DlArtist_SelectedArtists}" FontSize="15" FontWeight="SemiBold"/>
                             <TextBlock Text="{Binding SelectedArtists.Count, StringFormat='{}{0} artists'}"
                                        FontSize="13" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                        Grid.Column="1"/>
@@ -91,7 +92,7 @@
                                                             IsVisible="{Binding HasCustomSettings}"
                                                             Background="{DynamicResource ControlBackgroundBrushSolidAccent}"
                                                             CornerRadius="4" Padding="6,2"
-                                                            ToolTip.Tip="Has custom download settings">
+                                                            ToolTip.Tip="{loc:Tr DlArtist_HasCustomDownloadSettings}">
                                                         <TextBlock Text="⚙️" FontSize="11"/>
                                                     </Border>
 
@@ -99,7 +100,7 @@
                                                     <Button Grid.Column="4" Content="⚙️"
                                                             FontSize="12" 
                                                             
-                                                            ToolTip.Tip="Configure custom settings"
+                                                            ToolTip.Tip="{loc:Tr DlArtist_ConfigureCustomSettings}"
                                                             Command="{Binding $parent[ItemsControl].DataContext.ConfigureArtistSettingsCommand}"
                                                             CommandParameter="{Binding}"/>
 
@@ -121,20 +122,20 @@
                         <Border IsVisible="{Binding !SelectedArtists.Count}"
                                 Background="{DynamicResource Container1BackgroundBrush}"
                                 CornerRadius="6" Padding="20" HorizontalAlignment="Center">
-                            <TextBlock Text="No artists selected. Add artists using the buttons below."
+                            <TextBlock Text="{loc:Tr DlArtist_NoArtistsSelectedAddArtistsUsing}"
                                        FontSize="13" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                         </Border>
 
                         <!-- Add Artists Controls -->
                         <StackPanel Spacing="8">
                             <StackPanel Orientation="Horizontal" Spacing="8">
-                                <Button Content="+ Add Followed Artists"
+                                <Button Content="{loc:Tr DlArtist_AddFollowedArtists}"
                                         Command="{Binding AddFollowedArtistsCommand}"
                                          />
-                                <Button Content="📁 Import from File"
+                                <Button Content="{loc:Tr DlId_ImportFromFile}"
                                         Command="{Binding ImportArtistsFromFileAsync}"
                                          />
-                                <Button Content="Clear All"
+                                <Button Content="{loc:Tr Hoshi_ClearAll}"
                                         Command="{Binding ClearArtistsCommand}"
                                         IsEnabled="{Binding SelectedArtists.Count}"
                                          />
@@ -143,7 +144,7 @@
                             <!-- Add by ID -->
                             <StackPanel Spacing="8">
                                 <DockPanel LastChildFill="False">
-                                    <TextBlock DockPanel.Dock="Left" Text="Artist IDs or URLs" FontSize="14" FontWeight="SemiBold"/>
+                                    <TextBlock DockPanel.Dock="Left" Text="{loc:Tr DlArtist_ArtistIDsOrURLs}" FontSize="14" FontWeight="SemiBold"/>
                                     <TextBlock DockPanel.Dock="Right" Text="{Binding ParsedArtistIds.Count, StringFormat='{}{0} IDs detected'}"
                                                FontSize="13" Foreground="{DynamicResource DefaultForegroundBrushTertiary}" VerticalAlignment="Center"/>
                                 </DockPanel>
@@ -151,16 +152,16 @@
                                 <TextBox Text="{Binding NewArtistId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                          AcceptsReturn="True"
                                          TextWrapping="Wrap"
-                                         PlaceholderText="Enter artist IDs or URLs...&#x0a;One per line or comma-separated&#x0a;Example: 1234567&#x0a;https://www.pixiv.net/en/users/1234567"
+                                         PlaceholderText="{loc:Tr Batch_EnterArtistIdsMulti}"
                                          CornerRadius="6" MinHeight="80"/>
 
                                 <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
-                                    <Button Content="📋 Paste"
+                                    <Button Content="{loc:Tr Hoshi_Paste}"
                                             Command="{Binding PasteFromClipboardCommand}"
-                                            ToolTip.Tip="Paste last copied ID"
+                                            ToolTip.Tip="{loc:Tr DlArtist_PasteLastCopiedID}"
                                              Padding="10,6"
                                             IsVisible="{Binding HasClipboardContent}"/>
-                                    <Button Content="+ Add Artists"
+                                    <Button Content="{loc:Tr DlArtist_AddArtists}"
                                             Command="{Binding AddArtistByIdCommand}"
                                             IsEnabled="{Binding ParsedArtistIds.Count}"
                                              />
@@ -175,11 +176,11 @@
                         BorderBrush="{DynamicResource Container2BorderBrush}"
                         BorderThickness="1" CornerRadius="8" Padding="16">
                     <StackPanel Spacing="12">
-                        <TextBlock Text="Page Range Configuration" FontSize="15" FontWeight="SemiBold"/>
+                        <TextBlock Text="{loc:Tr DlArtist_PageRangeConfiguration}" FontSize="15" FontWeight="SemiBold"/>
 
                         <!-- Default Page Range -->
                         <StackPanel Spacing="6">
-                            <TextBlock Text="Default Page Range for All Artists"
+                            <TextBlock Text="{loc:Tr DlArtist_DefaultPageRangeForAllArtists}"
                                        FontSize="13" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                             <Grid ColumnDefinitions="200,*">
                                 <ComboBox Grid.Column="0"
@@ -189,13 +190,13 @@
                                 <TextBlock Grid.Column="1" Margin="12,0,0,0"
                                            VerticalAlignment="Center"
                                            FontSize="11" Foreground="{DynamicResource DefaultForegroundBrushDisabled}"
-                                           Text="Examples: '0' or 'all' = all pages, '2' = page 2 only, '1-5' = pages 1 to 5, '2,4,6-10' = specific pages"/>
+                                           Text="{loc:Tr DlArtist_Examples0OrAllAllPages}"/>
                             </Grid>
                         </StackPanel>
 
                         <!-- Per-Artist Toggle -->
                         <Grid ColumnDefinitions="Auto,*">
-                            <CheckBox Grid.Column="0" Content="Set custom page ranges and settings per artist"
+                            <CheckBox Grid.Column="0" Content="{loc:Tr DlArtist_SetCustomPageRangesAndSettings}"
                                       IsChecked="{Binding UsePerArtistPageRanges, Mode=TwoWay}"/>
                         </Grid>
 
@@ -207,11 +208,11 @@
                             <StackPanel>
                                 <!-- Header -->
                                 <Grid ColumnDefinitions="*,150,Auto" Margin="8,8,8,4">
-                                    <TextBlock Grid.Column="0" Text="Artist" FontSize="11" FontWeight="SemiBold"
+                                    <TextBlock Grid.Column="0" Text="{loc:Tr Viewer_Artist}" FontSize="11" FontWeight="SemiBold"
                                                Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
-                                    <TextBlock Grid.Column="1" Text="Page Range" FontSize="11" FontWeight="SemiBold"
+                                    <TextBlock Grid.Column="1" Text="{loc:Tr DlArtist_PageRange}" FontSize="11" FontWeight="SemiBold"
                                                Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
-                                    <TextBlock Grid.Column="2" Text="Settings" FontSize="11" FontWeight="SemiBold"
+                                    <TextBlock Grid.Column="2" Text="{loc:Tr Nav_Settings}" FontSize="11" FontWeight="SemiBold"
                                                Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                 </Grid>
                                 <ItemsControl ItemsSource="{Binding SelectedArtists}"
@@ -224,19 +225,19 @@
                                                     <Border IsVisible="{Binding HasCustomSettings}"
                                                             Background="{DynamicResource ControlBackgroundBrushSolidAccent}"
                                                             CornerRadius="3" Padding="4,1"
-                                                            ToolTip.Tip="Has custom download settings">
-                                                        <TextBlock Text="Custom" FontSize="10"/>
+                                                            ToolTip.Tip="{loc:Tr DlArtist_HasCustomDownloadSettings}">
+                                                        <TextBlock Text="{loc:Tr DlArtist_Custom}" FontSize="10"/>
                                                     </Border>
                                                 </StackPanel>
                                                 <TextBox Grid.Column="1"
                                                          Text="{Binding PageRange, Mode=TwoWay}"
-                                                         PlaceholderText="Default"
+                                                         PlaceholderText="{loc:Tr Gallery_Default}"
                                                          CornerRadius="4"/>
                                                 <Button Grid.Column="2"
-                                                        Content="⚙ Settings"
+                                                        Content="{loc:Tr DlArtist_Settings}"
                                                         FontSize="11" 
                                                         
-                                                        ToolTip.Tip="Configure custom download settings for this artist"
+                                                        ToolTip.Tip="{loc:Tr DlArtist_ConfigureCustomDownloadSettingsForThis}"
                                                         Command="{Binding $parent[ItemsControl].DataContext.ConfigureArtistSettingsCommand}"
                                                         CommandParameter="{Binding}"/>
                                             </Grid>
@@ -253,34 +254,34 @@
                         BorderBrush="{DynamicResource Container2BorderBrush}"
                         BorderThickness="1" CornerRadius="8" Padding="16">
                     <StackPanel Spacing="12">
-                        <TextBlock Text="Download Settings" FontSize="15" FontWeight="SemiBold"/>
+                        <TextBlock Text="{loc:Tr DlId_DownloadSettings}" FontSize="15" FontWeight="SemiBold"/>
 
                         <StackPanel Spacing="8">
-                            <RadioButton Content="Use global settings" IsChecked="{Binding UseGlobalSettings, Mode=TwoWay}"/>
-                            <RadioButton Content="Use custom settings for this download" IsChecked="{Binding !UseGlobalSettings, Mode=TwoWay}"/>
+                            <RadioButton Content="{loc:Tr DlId_UseGlobalSettings}" IsChecked="{Binding UseGlobalSettings, Mode=TwoWay}"/>
+                            <RadioButton Content="{loc:Tr DlId_UseCustomSettingsForThisDownload}" IsChecked="{Binding !UseGlobalSettings, Mode=TwoWay}"/>
                         </StackPanel>
 
                         <!-- Custom Settings Panel -->
                         <StackPanel IsVisible="{Binding !UseGlobalSettings}" Spacing="10">
                             <Grid ColumnDefinitions="*,*" ColumnSpacing="16">
                                 <StackPanel Grid.Column="0" Spacing="6">
-                                    <TextBlock Text="Folder Template" FontSize="12"/>
+                                    <TextBlock Text="{loc:Tr Settings_FolderTemplate}" FontSize="12"/>
                                     <TextBox Text="{Binding CustomSettings.FolderTemplate, Mode=TwoWay}"
                                              CornerRadius="4"/>
                                 </StackPanel>
                                 <StackPanel Grid.Column="1" Spacing="6">
-                                    <TextBlock Text="Filename Template" FontSize="12"/>
+                                    <TextBlock Text="{loc:Tr Settings_FilenameTemplate}" FontSize="12"/>
                                     <TextBox Text="{Binding CustomSettings.FilenameTemplate, Mode=TwoWay}"
                                              CornerRadius="4"/>
                                 </StackPanel>
                             </Grid>
 
                             <StackPanel Orientation="Horizontal" Spacing="16">
-                                <CheckBox Content="Create subfolder per submission"
+                                <CheckBox Content="{loc:Tr DlArtist_CreateSubfolderPerSubmission}"
                                           IsChecked="{Binding CustomSettings.CreateSubfolderPerSubmission, Mode=TwoWay}"/>
-                                <CheckBox Content="Separate R-18 folder"
+                                <CheckBox Content="{loc:Tr DlArtist_SeparateR18Folder}"
                                           IsChecked="{Binding CustomSettings.SeparateR18Folder, Mode=TwoWay}"/>
-                                <CheckBox Content="Filter AI-generated"
+                                <CheckBox Content="{loc:Tr DlArtist_FilterAIGenerated}"
                                           IsChecked="{Binding CustomSettings.FilterAiGenerated, Mode=TwoWay}"/>
                             </StackPanel>
                         </StackPanel>
@@ -314,16 +315,16 @@
                 BorderBrush="{DynamicResource Container2BorderBrush}"
                 BorderThickness="0,1,0,0" Padding="16">
             <Grid ColumnDefinitions="*,Auto,Auto">
-                <Button Grid.Column="0" Content="💾 Save Preset"
+                <Button Grid.Column="0" Content="{loc:Tr DlId_SavePreset}"
                         Command="{Binding SavePresetCommand}"
                          />
 
-                <Button Grid.Column="1" Content="Cancel"
+                <Button Grid.Column="1" Content="{loc:Tr Common_Cancel}"
                         Command="{Binding CancelDownloadCommand}"
                         IsVisible="{Binding HasActiveJob}"
                          Padding="16,10" Margin="0,0,8,0"/>
 
-                <Button Grid.Column="2" Content="▶ Start Download"
+                <Button Grid.Column="2" Content="{loc:Tr DlId_StartDownload}"
                         Command="{Binding StartDownloadCommand}"
                         IsEnabled="{Binding SelectedArtists.Count}"
                         IsVisible="{Binding !HasActiveJob}"

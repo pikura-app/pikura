@@ -1063,4 +1063,4824 @@
   <data name="Nav_BatchDownload" xml:space="preserve">
     <value>一括ダウンロード</value>
   </data>
+  <data name="Analytics_DownloadStatisticsAndInsights" xml:space="preserve">
+    <value>ダウンロード統計と分析</value>
+  </data>
+  <data name="Analytics_TotalJobs" xml:space="preserve">
+    <value>合計ジョブ数</value>
+  </data>
+  <data name="Analytics_Completed" xml:space="preserve">
+    <value>完了</value>
+  </data>
+  <data name="Analytics_Failed" xml:space="preserve">
+    <value>失敗</value>
+  </data>
+  <data name="Analytics_SuccessRate" xml:space="preserve">
+    <value>成功率</value>
+  </data>
+  <data name="Analytics_TotalDownloadedItems" xml:space="preserve">
+    <value>ダウンロード済みアイテム総数</value>
+  </data>
+  <data name="Analytics_TotalFailedItems" xml:space="preserve">
+    <value>失敗アイテム総数</value>
+  </data>
+  <data name="Analytics_JobsByType" xml:space="preserve">
+    <value>タイプ別ジョブ</value>
+  </data>
+  <data name="Analytics_RecentActivity" xml:space="preserve">
+    <value>最近のアクティビティ</value>
+  </data>
+  <data name="Analytics_MostDownloadedArtists" xml:space="preserve">
+    <value>最もダウンロードした作者</value>
+  </data>
+  <data name="Analytics_RankedByTotalArtworksDownloaded" xml:space="preserve">
+    <value>ダウンロード作品総数順</value>
+  </data>
+  <data name="Analytics_NoDataYet" xml:space="preserve">
+    <value>まだデータがありません</value>
+  </data>
+  <data name="Analytics_MostFrequentedArtists" xml:space="preserve">
+    <value>最も頻繁な作者</value>
+  </data>
+  <data name="Analytics_RankedByNumberOfDownloadSessions" xml:space="preserve">
+    <value>ダウンロードセッション数順</value>
+  </data>
+  <data name="Artwork_Back" xml:space="preserve">
+    <value>← 戻る</value>
+  </data>
+  <data name="Artwork_DownloadCurrent" xml:space="preserve">
+    <value>現在のページをダウンロード</value>
+  </data>
+  <data name="Artwork_DownloadAll" xml:space="preserve">
+    <value>すべてダウンロード</value>
+  </data>
+  <data name="Artwork_ArtworkImage" xml:space="preserve">
+    <value>作品画像</value>
+  </data>
+  <data name="Artwork_ArtworkInfo" xml:space="preserve">
+    <value>作品情報</value>
+  </data>
+  <data name="Artwork_Artist" xml:space="preserve">
+    <value>作者:</value>
+  </data>
+  <data name="Artwork_Type" xml:space="preserve">
+    <value>タイプ:</value>
+  </data>
+  <data name="Artwork_Pages" xml:space="preserve">
+    <value>ページ:</value>
+  </data>
+  <data name="Artwork_Likes" xml:space="preserve">
+    <value>いいね</value>
+  </data>
+  <data name="Artwork_Views" xml:space="preserve">
+    <value>閲覧</value>
+  </data>
+  <data name="Artwork_Like" xml:space="preserve">
+    <value>いいね</value>
+  </data>
+  <data name="Artwork_Liked" xml:space="preserve">
+    <value>いいね済み</value>
+  </data>
+  <data name="Artwork_Bookmark" xml:space="preserve">
+    <value>ブックマーク</value>
+  </data>
+  <data name="Artwork_Bookmarked" xml:space="preserve">
+    <value>ブックマーク済み</value>
+  </data>
+  <data name="Artwork_Follow" xml:space="preserve">
+    <value>フォロー</value>
+  </data>
+  <data name="Artwork_Following" xml:space="preserve">
+    <value>フォロー中</value>
+  </data>
+  <data name="Artwork_Tags" xml:space="preserve">
+    <value>タグ:</value>
+  </data>
+  <data name="Artwork_Previous" xml:space="preserve">
+    <value>← 前へ</value>
+  </data>
+  <data name="Artwork_Next" xml:space="preserve">
+    <value>次へ →</value>
+  </data>
+  <data name="Viewer_Fit" xml:space="preserve">
+    <value>フィット</value>
+  </data>
+  <data name="Common_Loading_2" xml:space="preserve">
+    <value>読み込み中…</value>
+  </data>
+  <data name="Viewer_ThisPage" xml:space="preserve">
+    <value>このページ</value>
+  </data>
+  <data name="Viewer_AllPages" xml:space="preserve">
+    <value>すべてのページ</value>
+  </data>
+  <data name="Viewer_Range" xml:space="preserve">
+    <value>範囲…</value>
+  </data>
+  <data name="Viewer_OpenInNewTab" xml:space="preserve">
+    <value>新しいタブで開く</value>
+  </data>
+  <data name="Viewer_OpenAllTilesInSeparateTabs" xml:space="preserve">
+    <value>すべてのタイルを別タブで開く</value>
+  </data>
+  <data name="Viewer_ShowTheTileStripToJump" xml:space="preserve">
+    <value>タイルストリップを表示してこのコラージュ内の任意の作品へジャンプ</value>
+  </data>
+  <data name="Viewer_Tiles" xml:space="preserve">
+    <value>☰ タイル</value>
+  </data>
+  <data name="Viewer_ChooseWhichTabCollageOrCombined" xml:space="preserve">
+    <value>下のストリップに表示するタブ・コラージュ・結合セットを選択</value>
+  </data>
+  <data name="Viewer_ShowTheArtworkStripToJump" xml:space="preserve">
+    <value>作品ストリップを表示してこのリスト内の任意の作品へジャンプ</value>
+  </data>
+  <data name="Viewer_Artworks" xml:space="preserve">
+    <value>☰ 作品</value>
+  </data>
+  <data name="Viewer_FetchTheNextPageOfThis" xml:space="preserve">
+    <value>このソースの次のページを取得</value>
+  </data>
+  <data name="Viewer_KeepFetchingUntilThisSourceIs" xml:space="preserve">
+    <value>このソースを完全に読み込むまで取得を続ける</value>
+  </data>
+  <data name="Viewer_All" xml:space="preserve">
+    <value>すべて</value>
+  </data>
+  <data name="Viewer_ShowAllPages" xml:space="preserve">
+    <value>すべてのページを表示</value>
+  </data>
+  <data name="Bookmarks_Select" xml:space="preserve">
+    <value>選択</value>
+  </data>
+  <data name="Bookmarks_OpenInSidePanel" xml:space="preserve">
+    <value>サイドパネルで開く</value>
+  </data>
+  <data name="Bookmarks_OpenFullScreen" xml:space="preserve">
+    <value>全画面で開く</value>
+  </data>
+  <data name="Bookmarks_OpenInNewTab" xml:space="preserve">
+    <value>新しいタブで開く</value>
+  </data>
+  <data name="Bookmarks_OpenInPopup" xml:space="preserve">
+    <value>ポップアップで開く</value>
+  </data>
+  <data name="Bookmarks_DownloadWithPreset" xml:space="preserve">
+    <value>プリセットでダウンロード</value>
+  </data>
+  <data name="Bookmarks_OpenArtistGallery" xml:space="preserve">
+    <value>作者ギャラリーを開く</value>
+  </data>
+  <data name="Bookmarks_OpenOnPixivNet" xml:space="preserve">
+    <value>pixiv.netで開く</value>
+  </data>
+  <data name="Bookmarks_AddToLocalFavorites" xml:space="preserve">
+    <value>ローカルお気に入りに追加</value>
+  </data>
+  <data name="Bookmarks_RemoveFromFavorites" xml:space="preserve">
+    <value>お気に入りから削除</value>
+  </data>
+  <data name="Bookmarks_CopyID" xml:space="preserve">
+    <value>IDをコピー</value>
+  </data>
+  <data name="Bookmarks_CopyImage" xml:space="preserve">
+    <value>画像をコピー</value>
+  </data>
+  <data name="Bookmarks_UseAsAppBackground" xml:space="preserve">
+    <value>アプリの背景に設定</value>
+  </data>
+  <data name="Bookmarks_Select_2" xml:space="preserve">
+    <value>☑ 選択</value>
+  </data>
+  <data name="Bookmarks_OpenInSidePanel_2" xml:space="preserve">
+    <value>👁 サイドパネルで開く</value>
+  </data>
+  <data name="Bookmarks_OpenFullScreen_2" xml:space="preserve">
+    <value>⧶ 全画面で開く</value>
+  </data>
+  <data name="Bookmarks_OpenInNewTab_2" xml:space="preserve">
+    <value>⊞ 新しいタブで開く</value>
+  </data>
+  <data name="Bookmarks_OpenInPopup_2" xml:space="preserve">
+    <value>⧉ ポップアップで開く</value>
+  </data>
+  <data name="Bookmarks_Download" xml:space="preserve">
+    <value>↓ ダウンロード</value>
+  </data>
+  <data name="Bookmarks_DownloadWithPreset_2" xml:space="preserve">
+    <value>🎨 プリセットでダウンロード</value>
+  </data>
+  <data name="Bookmarks_OpenArtistGallery_2" xml:space="preserve">
+    <value>👤 作者ギャラリーを開く</value>
+  </data>
+  <data name="Bookmarks_OpenOnPixivNet_2" xml:space="preserve">
+    <value>🌐 pixiv.netで開く</value>
+  </data>
+  <data name="Bookmarks_RemoveFromFavorites_2" xml:space="preserve">
+    <value>★ お気に入りから削除</value>
+  </data>
+  <data name="Bookmarks_SetFolder" xml:space="preserve">
+    <value>📁 フォルダーを設定…</value>
+  </data>
+  <data name="Bookmarks_CopyImage_2" xml:space="preserve">
+    <value>📋 画像をコピー</value>
+  </data>
+  <data name="Bookmarks_UseAsAppBackground_2" xml:space="preserve">
+    <value>🖼 アプリの背景に設定</value>
+  </data>
+  <data name="Bookmarks_Public" xml:space="preserve">
+    <value>公開</value>
+  </data>
+  <data name="Bookmarks_Private" xml:space="preserve">
+    <value>非公開</value>
+  </data>
+  <data name="Bookmarks_LocalFavorites" xml:space="preserve">
+    <value>ローカルお気に入り</value>
+  </data>
+  <data name="Bookmarks_PixivCollectionsYouVeBookmarked" xml:space="preserve">
+    <value>ブックマークしたPixivコレクション</value>
+  </data>
+  <data name="Bookmarks_ReloadCurrentTab" xml:space="preserve">
+    <value>現在のタブを再読み込み</value>
+  </data>
+  <data name="Bookmarks_ShowHideR18Content" xml:space="preserve">
+    <value>R-18コンテンツの表示 / 非表示</value>
+  </data>
+  <data name="Bookmarks_SelectAllVisibleItems" xml:space="preserve">
+    <value>表示中のアイテムをすべて選択</value>
+  </data>
+  <data name="Bookmarks_SelectAll" xml:space="preserve">
+    <value>すべて選択</value>
+  </data>
+  <data name="Bookmarks_ClearSelection" xml:space="preserve">
+    <value>選択をクリア</value>
+  </data>
+  <data name="Bookmarks_DeselectAll" xml:space="preserve">
+    <value>すべて解除</value>
+  </data>
+  <data name="Bookmarks_DownloadSelectedBookmarks" xml:space="preserve">
+    <value>選択したブックマークをダウンロード</value>
+  </data>
+  <data name="Bookmarks_ShowTheSelectedArtworksTiledTogether" xml:space="preserve">
+    <value>選択した作品をサイドパネルにタイル表示（最大10件）</value>
+  </data>
+  <data name="Bookmarks_Collage" xml:space="preserve">
+    <value>コラージュ</value>
+  </data>
+  <data name="Bookmarks_AddTheSelectedArtworksToThe" xml:space="preserve">
+    <value>選択した作品を有効なコラージュに追加。矢印でコラージュを選択</value>
+  </data>
+  <data name="Bookmarks_OpenEachSelectedArtworkInIts" xml:space="preserve">
+    <value>選択した各作品を個別のタブで開く</value>
+  </data>
+  <data name="Bookmarks_ViewInNewTabs" xml:space="preserve">
+    <value>新しいタブで表示</value>
+  </data>
+  <data name="Bookmarks_DownloadAllBookmarks" xml:space="preserve">
+    <value>すべてのブックマークをダウンロード</value>
+  </data>
+  <data name="Bookmarks_DownloadAll" xml:space="preserve">
+    <value>すべてダウンロード</value>
+  </data>
+  <data name="Bookmarks_DownloadAllBookmarksToFolder" xml:space="preserve">
+    <value>すべてのブックマークをフォルダーにダウンロード</value>
+  </data>
+  <data name="Bookmarks_DownloadWithImageProcessingPreset" xml:space="preserve">
+    <value>画像処理プリセットでダウンロード</value>
+  </data>
+  <data name="Bookmarks_FixedCardHeight" xml:space="preserve">
+    <value>カード高さ固定</value>
+  </data>
+  <data name="Bookmarks_NaturalHeight" xml:space="preserve">
+    <value>自然な高さ</value>
+  </data>
+  <data name="Bookmarks_ShowHideTagChips" xml:space="preserve">
+    <value>タグチップの表示 / 非表示</value>
+  </data>
+  <data name="Bookmarks_Tags" xml:space="preserve">
+    <value>タグ</value>
+  </data>
+  <data name="Bookmarks_ShowHideInfoStrip" xml:space="preserve">
+    <value>情報ストリップの表示 / 非表示</value>
+  </data>
+  <data name="Bookmarks_Info" xml:space="preserve">
+    <value>情報</value>
+  </data>
+  <data name="Bookmarks_ShowHideLikedBookmarkedFavoriteBadges" xml:space="preserve">
+    <value>カードのいいね / ブックマーク / お気に入りバッジの表示切替</value>
+  </data>
+  <data name="Bookmarks_Badges" xml:space="preserve">
+    <value>バッジ</value>
+  </data>
+  <data name="Bookmarks_ToggleSidePanel" xml:space="preserve">
+    <value>サイドパネル切替</value>
+  </data>
+  <data name="Bookmarks_ShowPanel" xml:space="preserve">
+    <value>パネルを表示</value>
+  </data>
+  <data name="Bookmarks_HidePanel" xml:space="preserve">
+    <value>パネルを隠す</value>
+  </data>
+  <data name="Bookmarks_FilterByTag" xml:space="preserve">
+    <value>タグで絞り込み…</value>
+  </data>
+  <data name="Bookmarks_SortBookmarks" xml:space="preserve">
+    <value>ブックマークの並び替え</value>
+  </data>
+  <data name="Bookmarks_Size" xml:space="preserve">
+    <value>サイズ</value>
+  </data>
+  <data name="Bookmarks_GridView" xml:space="preserve">
+    <value>グリッド表示</value>
+  </data>
+  <data name="Bookmarks_ListView" xml:space="preserve">
+    <value>リスト表示</value>
+  </data>
+  <data name="Common_SelectAll" xml:space="preserve">
+    <value>すべて選択</value>
+  </data>
+  <data name="Bookmarks_NoPublicBookmarksLoadedYet" xml:space="preserve">
+    <value>公開ブックマークはまだ読み込まれていません。</value>
+  </data>
+  <data name="Bookmarks_LoadMore" xml:space="preserve">
+    <value>さらに読み込む…</value>
+  </data>
+  <data name="Bookmarks_NoPrivateBookmarksLoadedYet" xml:space="preserve">
+    <value>非公開ブックマークはまだ読み込まれていません。</value>
+  </data>
+  <data name="Bookmarks_YouHavenTBookmarkedAnyCollections" xml:space="preserve">
+    <value>まだコレクションをブックマークしていません。</value>
+  </data>
+  <data name="Bookmarks_FOLDERS" xml:space="preserve">
+    <value>フォルダー</value>
+  </data>
+  <data name="Bookmarks_All" xml:space="preserve">
+    <value>すべて</value>
+  </data>
+  <data name="Bookmarks_NoLocalFavoritesYet" xml:space="preserve">
+    <value>ローカルお気に入りはまだありません</value>
+  </data>
+  <data name="Bookmarks_RightClickAnyArtworkAnywhereAnd" xml:space="preserve">
+    <value>どこでも作品を右クリックして</value>
+  </data>
+  <data name="Bookmarks_AddToFavorites" xml:space="preserve">
+    <value>お気に入りに追加</value>
+  </data>
+  <data name="Collections_BackToBrowse" xml:space="preserve">
+    <value>← 一覧に戻る</value>
+  </data>
+  <data name="Collections_PasteAPixivNetCollectionsId" xml:space="preserve">
+    <value>pixiv.net/collections/{id} のURLまたはIDを貼り付け…</value>
+  </data>
+  <data name="Collections_Load" xml:space="preserve">
+    <value>読み込み</value>
+  </data>
+  <data name="Collections_DownloadEveryWorkInThisCollection" xml:space="preserve">
+    <value>このコレクションの全作品をダウンロード</value>
+  </data>
+  <data name="Collections_DownloadCollection" xml:space="preserve">
+    <value>コレクションをダウンロード</value>
+  </data>
+  <data name="Collections_KeepAsOneCollectionFolder" xml:space="preserve">
+    <value>1つのコレクションフォルダーにまとめる</value>
+  </data>
+  <data name="Collections_OnAllWorksGoIntoOne" xml:space="preserve">
+    <value>オン: 全作品を Collections\{title} フォルダーへ。オフ: Collections\ フォルダー配下に、通常の作者別/作品別フォルダー構造を維持。</value>
+  </data>
+  <data name="Collections_ShowHideR18Collections" xml:space="preserve">
+    <value>R-18コレクションの表示 / 非表示</value>
+  </data>
+  <data name="Collections_SelectAll" xml:space="preserve">
+    <value>すべて選択</value>
+  </data>
+  <data name="Collections_DeselectAll" xml:space="preserve">
+    <value>すべて解除</value>
+  </data>
+  <data name="Collections_DownloadSelected" xml:space="preserve">
+    <value>⊞ 選択をダウンロード</value>
+  </data>
+  <data name="Collections_DownloadSelectedWithPreset" xml:space="preserve">
+    <value>🎨 プリセットで選択をダウンロード</value>
+  </data>
+  <data name="Collections_ShowAllArtworksFromEachSelected" xml:space="preserve">
+    <value>選択した各コレクションの全作品を新しいコラージュタブで表示（最大100件）</value>
+  </data>
+  <data name="Collections_AddAllArtworksFromEachSelected" xml:space="preserve">
+    <value>選択した各コレクションの全作品を有効なコラージュに追加。矢印でコラージュを選択</value>
+  </data>
+  <data name="Collections_DownloadLoaded" xml:space="preserve">
+    <value>⊞ 読み込み済みをダウンロード</value>
+  </data>
+  <data name="Collections_DownloadEveryCollectionCurrentlyShownBel" xml:space="preserve">
+    <value>下に表示中のすべてのコレクションをダウンロード</value>
+  </data>
+  <data name="Collections_OneFolderPerCollection" xml:space="preserve">
+    <value>コレクションごとに1フォルダー</value>
+  </data>
+  <data name="Collections_Refresh" xml:space="preserve">
+    <value>↻ 更新</value>
+  </data>
+  <data name="Collections_ToggleTheSidePanelOnlyShows" xml:space="preserve">
+    <value>サイドパネル切替（コレクションを開くと内容が表示されます）</value>
+  </data>
+  <data name="Collections_ShowPanel" xml:space="preserve">
+    <value>パネルを表示</value>
+  </data>
+  <data name="Collections_HidePanel" xml:space="preserve">
+    <value>パネルを隠す</value>
+  </data>
+  <data name="Collections_ShowTheCheckedArtworksInA" xml:space="preserve">
+    <value>チェックした作品を新しいコラージュタブで表示（最大100件）</value>
+  </data>
+  <data name="Collections_AddTheCheckedArtworksToThe" xml:space="preserve">
+    <value>チェックした作品を有効なコラージュに追加。矢印でコラージュを選択</value>
+  </data>
+  <data name="Collections_ShowEveryArtworkInThisCollection" xml:space="preserve">
+    <value>このコレクションの全作品を新しいコラージュタブで表示（最大100件）</value>
+  </data>
+  <data name="Collections_AddEveryArtworkInThisCollection" xml:space="preserve">
+    <value>このコレクションの全作品を有効なコラージュに追加。矢印でコラージュを選択</value>
+  </data>
+  <data name="Collections_OpenEachSelectedArtworkInIts" xml:space="preserve">
+    <value>選択した各作品を個別のタブで開く</value>
+  </data>
+  <data name="Collections_ViewInNewTabs" xml:space="preserve">
+    <value>新しいタブで表示</value>
+  </data>
+  <data name="Collections_DownloadOnlyTheCheckedArtworks" xml:space="preserve">
+    <value>チェックした作品のみダウンロード</value>
+  </data>
+  <data name="Collections_DownloadSelectedArtworksOrAllIf" xml:space="preserve">
+    <value>選択した作品（未選択なら全部）を画像プリセットでダウンロード</value>
+  </data>
+  <data name="Collections_DownloadWithPreset" xml:space="preserve">
+    <value>プリセットでダウンロード</value>
+  </data>
+  <data name="Collections_DownloadEveryArtworkCurrentlyLoadedIn" xml:space="preserve">
+    <value>このコレクションに現在読み込まれている全作品をダウンロード</value>
+  </data>
+  <data name="Collections_DownloadLoaded_2" xml:space="preserve">
+    <value>読み込み済みをダウンロード</value>
+  </data>
+  <data name="Collections_ToggleTheSidePanel" xml:space="preserve">
+    <value>サイドパネル切替</value>
+  </data>
+  <data name="Collections_BookmarkThisCollectionOnPixivSeparate" xml:space="preserve">
+    <value>このコレクションをPixivでブックマーク（ローカルのダウンロード設定とは別）</value>
+  </data>
+  <data name="Collections_Bookmarked" xml:space="preserve">
+    <value>ブックマーク済み</value>
+  </data>
+  <data name="Collections_Bookmark" xml:space="preserve">
+    <value>ブックマーク</value>
+  </data>
+  <data name="Collections_FixedCardHeight" xml:space="preserve">
+    <value>カード高さ固定</value>
+  </data>
+  <data name="Collections_NaturalHeight" xml:space="preserve">
+    <value>自然な高さ</value>
+  </data>
+  <data name="Collections_ShowHideTagChips" xml:space="preserve">
+    <value>タグチップの表示 / 非表示</value>
+  </data>
+  <data name="Collections_Tags" xml:space="preserve">
+    <value>タグ</value>
+  </data>
+  <data name="Collections_ShowHideCardInfoStrip" xml:space="preserve">
+    <value>カード情報ストリップの表示 / 非表示</value>
+  </data>
+  <data name="Collections_Info" xml:space="preserve">
+    <value>情報</value>
+  </data>
+  <data name="Collections_ShowHideLikedBookmarkedFavoriteBadges" xml:space="preserve">
+    <value>いいね / ブックマーク / お気に入りバッジの表示切替</value>
+  </data>
+  <data name="Collections_Badges" xml:space="preserve">
+    <value>バッジ</value>
+  </data>
+  <data name="Collections_Size" xml:space="preserve">
+    <value>サイズ</value>
+  </data>
+  <data name="Collections_GridView" xml:space="preserve">
+    <value>グリッド表示</value>
+  </data>
+  <data name="Collections_ListView" xml:space="preserve">
+    <value>リスト表示</value>
+  </data>
+  <data name="Collections_CaptionTagsMoreFromThisCreator" xml:space="preserve">
+    <value>この作者のキャプション・タグ・その他</value>
+  </data>
+  <data name="Collections_MoreCollectionsByThisCreator" xml:space="preserve">
+    <value>この作者の他のコレクション</value>
+  </data>
+  <data name="Collections_ViewThisCollection" xml:space="preserve">
+    <value>このコレクションを表示</value>
+  </data>
+  <data name="Collections_Featured" xml:space="preserve">
+    <value>注目</value>
+  </data>
+  <data name="Common_Open" xml:space="preserve">
+    <value>開く</value>
+  </data>
+  <data name="Collections_LoadIntoSidePanel" xml:space="preserve">
+    <value>サイドパネルに読み込む</value>
+  </data>
+  <data name="Collections_Select" xml:space="preserve">
+    <value>選択</value>
+  </data>
+  <data name="Collections_Deselect" xml:space="preserve">
+    <value>解除</value>
+  </data>
+  <data name="Collections_DeselectAll_2" xml:space="preserve">
+    <value>すべて解除</value>
+  </data>
+  <data name="Collections_RemoveBookmark" xml:space="preserve">
+    <value>ブックマーク解除</value>
+  </data>
+  <data name="Collections_CopyCollectionID" xml:space="preserve">
+    <value>コレクションIDをコピー</value>
+  </data>
+  <data name="Collections_CopyCollectionLink" xml:space="preserve">
+    <value>コレクションリンクをコピー</value>
+  </data>
+  <data name="Collections_OpenOnPixivNet" xml:space="preserve">
+    <value>pixiv.netで開く</value>
+  </data>
+  <data name="Collections_AllCollections" xml:space="preserve">
+    <value>すべてのコレクション</value>
+  </data>
+  <data name="Collections_NoCollectionsCouldBeLoadedYou" xml:space="preserve">
+    <value>コレクションを読み込めませんでした — 上に特定のコレクションURL/IDを貼ることができます。</value>
+  </data>
+  <data name="Collections_ToggleNumberedPagesOffLoadMore" xml:space="preserve">
+    <value>ページ番号表示切替（オフ = さらに読み込む）</value>
+  </data>
+  <data name="Collections_Pages" xml:space="preserve">
+    <value>ページ</value>
+  </data>
+  <data name="Collections_ItemsPerPage" xml:space="preserve">
+    <value>1ページあたりの件数</value>
+  </data>
+  <data name="Collections_LoadMore" xml:space="preserve">
+    <value>さらに読み込む</value>
+  </data>
+  <data name="Collections_Prev" xml:space="preserve">
+    <value>‹ 前へ</value>
+  </data>
+  <data name="Collections_TypeAPageNumberAndPress" xml:space="preserve">
+    <value>ページ番号を入力してEnter</value>
+  </data>
+  <data name="Collections_Next" xml:space="preserve">
+    <value>次へ ›</value>
+  </data>
+  <data name="Collections_ThisCollectionHasNoArtworkYet" xml:space="preserve">
+    <value>このコレクションにはまだ作品がありません。</value>
+  </data>
+  <data name="Collections_OpenInSidePanel" xml:space="preserve">
+    <value>サイドパネルで開く</value>
+  </data>
+  <data name="Collections_OpenFullScreen" xml:space="preserve">
+    <value>全画面で開く</value>
+  </data>
+  <data name="Collections_OpenInNewTab" xml:space="preserve">
+    <value>新しいタブで開く</value>
+  </data>
+  <data name="Collections_OpenInPopup" xml:space="preserve">
+    <value>ポップアップで開く</value>
+  </data>
+  <data name="Collections_DownloadAll" xml:space="preserve">
+    <value>すべてダウンロード</value>
+  </data>
+  <data name="Collections_DownloadFirstPageOnly" xml:space="preserve">
+    <value>最初のページのみダウンロード</value>
+  </data>
+  <data name="Collections_OpenArtistGallery" xml:space="preserve">
+    <value>作者ギャラリーを開く</value>
+  </data>
+  <data name="Collections_FollowArtist" xml:space="preserve">
+    <value>作者をフォロー</value>
+  </data>
+  <data name="Collections_UnfollowArtist" xml:space="preserve">
+    <value>作者のフォロー解除</value>
+  </data>
+  <data name="Collections_AddToLocalFavorites" xml:space="preserve">
+    <value>ローカルお気に入りに追加</value>
+  </data>
+  <data name="Collections_RemoveFromFavorites" xml:space="preserve">
+    <value>お気に入りから削除</value>
+  </data>
+  <data name="Collections_CopyArtworkID" xml:space="preserve">
+    <value>作品IDをコピー</value>
+  </data>
+  <data name="Collections_CopyArtistID" xml:space="preserve">
+    <value>作者IDをコピー</value>
+  </data>
+  <data name="Collections_CopyImage" xml:space="preserve">
+    <value>画像をコピー</value>
+  </data>
+  <data name="Collections_UseAsAppBackground" xml:space="preserve">
+    <value>アプリの背景に設定</value>
+  </data>
+  <data name="Collections_Comments" xml:space="preserve">
+    <value>コメント</value>
+  </data>
+  <data name="Collections_NoCommentsYet" xml:space="preserve">
+    <value>まだコメントがありません。</value>
+  </data>
+  <data name="Collections_SendAStickerOrInsertAn" xml:space="preserve">
+    <value>スタンプを送るか絵文字を挿入</value>
+  </data>
+  <data name="Collections_Emoji" xml:space="preserve">
+    <value>絵文字</value>
+  </data>
+  <data name="Collections_Stickers" xml:space="preserve">
+    <value>スタンプ</value>
+  </data>
+  <data name="Collections_LoadingStickers" xml:space="preserve">
+    <value>スタンプを読み込み中…</value>
+  </data>
+  <data name="Collections_LeaveAComment" xml:space="preserve">
+    <value>コメントを書く</value>
+  </data>
+  <data name="Collections_Send" xml:space="preserve">
+    <value>送信</value>
+  </data>
+  <data name="Dialog_SelectArtists" xml:space="preserve">
+    <value>作者を選択</value>
+  </data>
+  <data name="Dialog_SelectArtistsToDownload" xml:space="preserve">
+    <value>ダウンロードする作者を選択</value>
+  </data>
+  <data name="Dialog_SearchArtists" xml:space="preserve">
+    <value>作者を検索...</value>
+  </data>
+  <data name="Dialog_Selected" xml:space="preserve">
+    <value>選択中: </value>
+  </data>
+  <data name="Dialog_AddSelected" xml:space="preserve">
+    <value>選択を追加</value>
+  </data>
+  <data name="Dialog_Previous" xml:space="preserve">
+    <value>← 前へ</value>
+  </data>
+  <data name="Dialog_Page1Of1" xml:space="preserve">
+    <value>1 / 1ページ</value>
+  </data>
+  <data name="Dialog_Next" xml:space="preserve">
+    <value>次へ →</value>
+  </data>
+  <data name="Dialog_SelectAll" xml:space="preserve">
+    <value>すべて選択</value>
+  </data>
+  <data name="Dialog_EnterValue" xml:space="preserve">
+    <value>値を入力...</value>
+  </data>
+  <data name="Dialog_SelectFollowedArtists" xml:space="preserve">
+    <value>フォロー中の作者を選択</value>
+  </data>
+  <data name="Dialog_SearchArtistNameOrID" xml:space="preserve">
+    <value>作者名またはIDで検索...</value>
+  </data>
+  <data name="Common_Clear" xml:space="preserve">
+    <value>クリア</value>
+  </data>
+  <data name="Artist_ArtistDownloadSettings" xml:space="preserve">
+    <value>作者別ダウンロード設定</value>
+  </data>
+  <data name="Artist_LeaveFieldsBlankToInheritGlobal" xml:space="preserve">
+    <value>空白のフィールドはグローバル設定を継承します。</value>
+  </data>
+  <data name="Artist_UseGlobalDefaults" xml:space="preserve">
+    <value>グローバルデフォルトを使用</value>
+  </data>
+  <data name="Artist_ResetToDefaults" xml:space="preserve">
+    <value>デフォルトに戻す</value>
+  </data>
+  <data name="Common_Save" xml:space="preserve">
+    <value>保存</value>
+  </data>
+  <data name="Artist_Location" xml:space="preserve">
+    <value>📁 保存先</value>
+  </data>
+  <data name="Artist_DownloadFolder" xml:space="preserve">
+    <value>ダウンロードフォルダー</value>
+  </data>
+  <data name="Artist_GlobalFolder" xml:space="preserve">
+    <value>グローバルフォルダー</value>
+  </data>
+  <data name="Artist_Naming" xml:space="preserve">
+    <value>✏ 命名</value>
+  </data>
+  <data name="Artist_IncludeTags" xml:space="preserve">
+    <value>🔍 含めるタグ</value>
+  </data>
+  <data name="Artist_OnlyDownloadArtworksWithTheseTags" xml:space="preserve">
+    <value>これらのタグを含む作品のみダウンロード</value>
+  </data>
+  <data name="Artist_ExcludeTags" xml:space="preserve">
+    <value>🚫 除外タグ</value>
+  </data>
+  <data name="Artist_SkipArtworksThatHaveTheseTags" xml:space="preserve">
+    <value>これらのタグを含む作品をスキップ</value>
+  </data>
+  <data name="Artist_DateRange" xml:space="preserve">
+    <value>📅 期間</value>
+  </data>
+  <data name="Artist_FromYYYYMMDD" xml:space="preserve">
+    <value>開始 (YYYY-MM-DD)</value>
+  </data>
+  <data name="Artist_ToYYYYMMDD" xml:space="preserve">
+    <value>終了 (YYYY-MM-DD)</value>
+  </data>
+  <data name="Artist_ClearDates" xml:space="preserve">
+    <value>日付をクリア</value>
+  </data>
+  <data name="Artist_DownloadBehavior" xml:space="preserve">
+    <value>⚙ ダウンロード動作</value>
+  </data>
+  <data name="Artist_SubfolderPerSubmission" xml:space="preserve">
+    <value>投稿ごとにサブフォルダー</value>
+  </data>
+  <data name="Artist_SeparateR18Folder" xml:space="preserve">
+    <value>R-18を別フォルダーに</value>
+  </data>
+  <data name="Artist_SkipAIGeneratedArtworks" xml:space="preserve">
+    <value>AI生成作品をスキップ</value>
+  </data>
+  <data name="Artist_AllowReDownload" xml:space="preserve">
+    <value>再ダウンロードを許可</value>
+  </data>
+  <data name="Preview_PikuraBackgroundPreview" xml:space="preserve">
+    <value>Pikura — 背景プレビュー</value>
+  </data>
+  <data name="Preview_DragToRepositionScrollToZoom" xml:space="preserve">
+    <value>ドラッグで移動 · スクロールでズーム</value>
+  </data>
+  <data name="Preview_LoadingFullResolutionImage" xml:space="preserve">
+    <value>高解像度画像を読み込み中…</value>
+  </data>
+  <data name="Preview_ResetPosition" xml:space="preserve">
+    <value>位置をリセット</value>
+  </data>
+  <data name="Common_Apply" xml:space="preserve">
+    <value>適用</value>
+  </data>
+  <data name="Changelog_WhatSNew" xml:space="preserve">
+    <value>新機能</value>
+  </data>
+  <data name="Changelog_PikuraHasBeenUpdatedHereS" xml:space="preserve">
+    <value>Pikuraが更新されました。変更点はこちら:</value>
+  </data>
+  <data name="Changelog_FullReleaseNotes" xml:space="preserve">
+    <value>完全なリリースノート ↗</value>
+  </data>
+  <data name="Changelog_GotIt" xml:space="preserve">
+    <value>了解</value>
+  </data>
+  <data name="Crash_PikuraCrashDetected" xml:space="preserve">
+    <value>Pikura - クラッシュ検出</value>
+  </data>
+  <data name="Crash_PikuraCrashed" xml:space="preserve">
+    <value>Pikuraがクラッシュしました</value>
+  </data>
+  <data name="Crash_WeDetectedACrashFromYour" xml:space="preserve">
+    <value>前回のセッションでクラッシュを検出しました。</value>
+  </data>
+  <data name="Crash_Time" xml:space="preserve">
+    <value>時刻:</value>
+  </data>
+  <data name="Crash_Unknown" xml:space="preserve">
+    <value>不明</value>
+  </data>
+  <data name="Crash_Error" xml:space="preserve">
+    <value>エラー:</value>
+  </data>
+  <data name="Crash_Message" xml:space="preserve">
+    <value>メッセージ:</value>
+  </data>
+  <data name="Crash_CrashLogLocation" xml:space="preserve">
+    <value>クラッシュログの場所:</value>
+  </data>
+  <data name="Crash_ADetailedCrashReportHasBeen" xml:space="preserve">
+    <value>詳細なクラッシュレポートが保存されました。問題の報告やトラブルシューティングに利用できます。</value>
+  </data>
+  <data name="Crash_ViewLogFile" xml:space="preserve">
+    <value>ログファイルを表示</value>
+  </data>
+  <data name="Crash_OpenLogFolder" xml:space="preserve">
+    <value>ログフォルダーを開く</value>
+  </data>
+  <data name="Crash_CopyPath" xml:space="preserve">
+    <value>パスをコピー</value>
+  </data>
+  <data name="Crash_CopyContents" xml:space="preserve">
+    <value>内容をコピー</value>
+  </data>
+  <data name="DateRange_CustomDateRange" xml:space="preserve">
+    <value>カスタム期間</value>
+  </data>
+  <data name="DateRange_FromMMDDYYYY" xml:space="preserve">
+    <value>開始 (MM-DD-YYYY)</value>
+  </data>
+  <data name="DateRange_ToMMDDYYYY" xml:space="preserve">
+    <value>終了 (MM-DD-YYYY)</value>
+  </data>
+  <data name="DateRange_ApplyRange" xml:space="preserve">
+    <value>期間を適用</value>
+  </data>
+  <data name="DateRange_PickRange" xml:space="preserve">
+    <value>期間を選択</value>
+  </data>
+  <data name="Preset_PikuraDownloadWithPreset" xml:space="preserve">
+    <value>Pikura — プリセットでダウンロード</value>
+  </data>
+  <data name="Preset_Presets" xml:space="preserve">
+    <value>プリセット</value>
+  </data>
+  <data name="Preset_SearchPresets" xml:space="preserve">
+    <value>プリセットを検索...</value>
+  </data>
+  <data name="Preset_Orientation" xml:space="preserve">
+    <value>方向:</value>
+  </data>
+  <data name="Preset_Portrait" xml:space="preserve">
+    <value>縦向き</value>
+  </data>
+  <data name="Preset_Landscape" xml:space="preserve">
+    <value>横向き</value>
+  </data>
+  <data name="Preset_CustomEdit" xml:space="preserve">
+    <value>✏️ カスタム編集...</value>
+  </data>
+  <data name="Preset_1ImageSelected" xml:space="preserve">
+    <value>1件の画像を選択中</value>
+  </data>
+  <data name="Preset_Submission1Of1" xml:space="preserve">
+    <value>投稿 1 / 1</value>
+  </data>
+  <data name="Preset_5TotalPagesAcross2Submissions" xml:space="preserve">
+    <value>2件の投稿・計5ページ</value>
+  </data>
+  <data name="Preset_Pg13" xml:space="preserve">
+    <value>1/3ページ</value>
+  </data>
+  <data name="Preset_Play" xml:space="preserve">
+    <value>再生</value>
+  </data>
+  <data name="Preset_SelectAnImageToPreview" xml:space="preserve">
+    <value>プレビューする画像を選択</value>
+  </data>
+  <data name="Preset_PreviewQuality" xml:space="preserve">
+    <value>プレビュー品質:</value>
+  </data>
+  <data name="Preset_800px" xml:space="preserve">
+    <value>800px</value>
+  </data>
+  <data name="Preset_ShowCrop" xml:space="preserve">
+    <value>切り抜きを表示</value>
+  </data>
+  <data name="Preset_Reset" xml:space="preserve">
+    <value>🔄 リセット</value>
+  </data>
+  <data name="Preset_OutputOptions" xml:space="preserve">
+    <value>出力オプション</value>
+  </data>
+  <data name="Preset_SaveMode" xml:space="preserve">
+    <value>保存モード</value>
+  </data>
+  <data name="Preset_SaveAsNewFileProcessed" xml:space="preserve">
+    <value>新しいファイルとして保存 (_processed)</value>
+  </data>
+  <data name="Preset_OverwriteOriginal" xml:space="preserve">
+    <value>元ファイルを上書き</value>
+  </data>
+  <data name="Preset_AlsoDownloadUnprocessedCopy" xml:space="preserve">
+    <value>未処理コピーもダウンロード</value>
+  </data>
+  <data name="Preset_DownloadsTheOriginalUnprocessedImageAlon" xml:space="preserve">
+    <value>処理済みバージョンと一緒に元の未処理画像もダウンロードします。元が既に存在しても警告しません。</value>
+  </data>
+  <data name="Preset_KeepOriginal" xml:space="preserve">
+    <value>元のまま</value>
+  </data>
+  <data name="Preset_AnimationOutputFormats" xml:space="preserve">
+    <value>アニメーション出力形式</value>
+  </data>
+  <data name="Preset_SelectWhichFormatsToCreateFor" xml:space="preserve">
+    <value>うごイラ用に作成する形式を選択:</value>
+  </data>
+  <data name="Preset_MP4Recommended" xml:space="preserve">
+    <value>MP4（推奨）</value>
+  </data>
+  <data name="Preset_SaveProcessedFramesToSubfolder" xml:space="preserve">
+    <value>処理済みフレームをサブフォルダーに保存</value>
+  </data>
+  <data name="Preset_CreatesASubfolderWithEachProcessed" xml:space="preserve">
+    <value>各処理済みフレームを個別PNGファイルとしてサブフォルダーに作成</value>
+  </data>
+  <data name="Preset_FramesOnlySkipAnimation" xml:space="preserve">
+    <value>フレームのみ（アニメーション生成をスキップ）</value>
+  </data>
+  <data name="Preset_DownloadOnlyTheIndividualFramesWithout" xml:space="preserve">
+    <value>MP4/GIFアニメーションを作成せず個別フレームのみダウンロード</value>
+  </data>
+  <data name="Preset_ConfigureEachSubmission" xml:space="preserve">
+    <value>⚡ 投稿ごとに設定</value>
+  </data>
+  <data name="Preset_EnableToSetDifferentPageSelections" xml:space="preserve">
+    <value>有効にすると投稿ごとに異なるページ選択を設定できます</value>
+  </data>
+  <data name="Preset_OutputFolder" xml:space="preserve">
+    <value>出力フォルダー</value>
+  </data>
+  <data name="Preset_SaveToCustomFolder" xml:space="preserve">
+    <value>カスタムフォルダーに保存</value>
+  </data>
+  <data name="Preset_SelectFolder" xml:space="preserve">
+    <value>フォルダーを選択...</value>
+  </data>
+  <data name="Preset_PresetActions" xml:space="preserve">
+    <value>プリセット操作</value>
+  </data>
+  <data name="Preset_SaveCurrentAsPreset" xml:space="preserve">
+    <value>💾 現在の設定をプリセットとして保存</value>
+  </data>
+  <data name="Preset_DeleteCustomPreset" xml:space="preserve">
+    <value>🗑 カスタムプリセットを削除</value>
+  </data>
+  <data name="Preset_OriginalNoProcessing" xml:space="preserve">
+    <value>オリジナル（処理なし）</value>
+  </data>
+  <data name="Preset_NoResizeOrAdjustments" xml:space="preserve">
+    <value>リサイズ・調整なし</value>
+  </data>
+  <data name="Preset_Page" xml:space="preserve">
+    <value>ページ</value>
+  </data>
+  <data name="Preset_SelectedPages" xml:space="preserve">
+    <value>選択したページ</value>
+  </data>
+  <data name="Preset_SelectPagesToApplyPreset" xml:space="preserve">
+    <value>プリセットを適用するページを選択</value>
+  </data>
+  <data name="Preset_All" xml:space="preserve">
+    <value>すべて</value>
+  </data>
+  <data name="Preset_None" xml:space="preserve">
+    <value>なし</value>
+  </data>
+  <data name="Preset_Invert" xml:space="preserve">
+    <value>反転</value>
+  </data>
+  <data name="Preset_ApplyPreset" xml:space="preserve">
+    <value>プリセットを適用</value>
+  </data>
+  <data name="Preset_Artwork" xml:space="preserve">
+    <value>作品</value>
+  </data>
+  <data name="Preset_ApplyToSelectedArtworks" xml:space="preserve">
+    <value>選択した作品に適用</value>
+  </data>
+  <data name="Preset_DownloadArtworks" xml:space="preserve">
+    <value>作品をダウンロード</value>
+  </data>
+  <data name="Preset_CurrentArtworkOnly" xml:space="preserve">
+    <value>現在の作品のみ</value>
+  </data>
+  <data name="Preset_DownloadScope" xml:space="preserve">
+    <value>ダウンロード範囲</value>
+  </data>
+  <data name="Preset_AllPages" xml:space="preserve">
+    <value>すべてのページ</value>
+  </data>
+  <data name="Preset_PagesWithPresetsOnly" xml:space="preserve">
+    <value>プリセット適用ページのみ</value>
+  </data>
+  <data name="Preset_CurrentPageOnly" xml:space="preserve">
+    <value>現在のページのみ</value>
+  </data>
+  <data name="Preset_SelectedPages_2" xml:space="preserve">
+    <value>選択したページ</value>
+  </data>
+  <data name="Preset_Download" xml:space="preserve">
+    <value>⬇ ダウンロード</value>
+  </data>
+  <data name="Preset_LoadPreset" xml:space="preserve">
+    <value>プリセットを読み込み</value>
+  </data>
+  <data name="Preset_LoadDownloadPreset" xml:space="preserve">
+    <value>ダウンロードプリセットを読み込み</value>
+  </data>
+  <data name="Preset_Load" xml:space="preserve">
+    <value>読み込み</value>
+  </data>
+  <data name="Preset_SavePreset" xml:space="preserve">
+    <value>プリセットを保存</value>
+  </data>
+  <data name="Preset_SaveDownloadPreset" xml:space="preserve">
+    <value>ダウンロードプリセットを保存</value>
+  </data>
+  <data name="Preset_PresetName" xml:space="preserve">
+    <value>プリセット名</value>
+  </data>
+  <data name="Preset_DescriptionOptional" xml:space="preserve">
+    <value>説明（任意）</value>
+  </data>
+  <data name="Preset_BriefDescriptionOfThisPreset" xml:space="preserve">
+    <value>このプリセットの簡単な説明...</value>
+  </data>
+  <data name="Editor_PikuraImageEditor" xml:space="preserve">
+    <value>Pikura — 画像エディター</value>
+  </data>
+  <data name="Editor_CropRatio" xml:space="preserve">
+    <value>切り抜き比:</value>
+  </data>
+  <data name="Editor_Free" xml:space="preserve">
+    <value>自由</value>
+  </data>
+  <data name="Editor_Original" xml:space="preserve">
+    <value>元画像</value>
+  </data>
+  <data name="Editor_11Square" xml:space="preserve">
+    <value>1:1 正方形</value>
+  </data>
+  <data name="Editor_169Widescreen" xml:space="preserve">
+    <value>16:9 ワイド</value>
+  </data>
+  <data name="Editor_916Portrait" xml:space="preserve">
+    <value>9:16 縦向き</value>
+  </data>
+  <data name="Editor_43Standard" xml:space="preserve">
+    <value>4:3 標準</value>
+  </data>
+  <data name="Editor_34Portrait" xml:space="preserve">
+    <value>3:4 縦向き</value>
+  </data>
+  <data name="Editor_219UltraWide" xml:space="preserve">
+    <value>21:9 ウルトラワイド</value>
+  </data>
+  <data name="Editor_Lock" xml:space="preserve">
+    <value>固定</value>
+  </data>
+  <data name="Editor_Zoom" xml:space="preserve">
+    <value>ズーム:</value>
+  </data>
+  <data name="Editor_ResetPos" xml:space="preserve">
+    <value>位置リセット</value>
+  </data>
+  <data name="Editor_ResetCrop" xml:space="preserve">
+    <value>切り抜きリセット</value>
+  </data>
+  <data name="Editor_ResetAll" xml:space="preserve">
+    <value>すべてリセット</value>
+  </data>
+  <data name="Editor_UgoiraMode" xml:space="preserve">
+    <value>🎬 うごイラモード</value>
+  </data>
+  <data name="Editor_800X60012MB" xml:space="preserve">
+    <value>800 x 600 • 1.2 MB</value>
+  </data>
+  <data name="Editor_Preview600pxWideLive60Fps" xml:space="preserve">
+    <value>プレビュー: 幅600px（ライブ約60fps）</value>
+  </data>
+  <data name="Editor_Adjustments" xml:space="preserve">
+    <value>調整</value>
+  </data>
+  <data name="Editor_Resize" xml:space="preserve">
+    <value>リサイズ</value>
+  </data>
+  <data name="Editor_W" xml:space="preserve">
+    <value>幅:</value>
+  </data>
+  <data name="Editor_H" xml:space="preserve">
+    <value>高さ:</value>
+  </data>
+  <data name="Editor_BasicAdjustments" xml:space="preserve">
+    <value>基本調整</value>
+  </data>
+  <data name="Editor_Brightness" xml:space="preserve">
+    <value>明るさ</value>
+  </data>
+  <data name="Editor_Contrast" xml:space="preserve">
+    <value>コントラスト</value>
+  </data>
+  <data name="Editor_Saturation" xml:space="preserve">
+    <value>彩度</value>
+  </data>
+  <data name="Editor_HueRotation" xml:space="preserve">
+    <value>色相回転</value>
+  </data>
+  <data name="Editor_ColorAdjustments" xml:space="preserve">
+    <value>色調整</value>
+  </data>
+  <data name="Editor_Cool" xml:space="preserve">
+    <value>寒色</value>
+  </data>
+  <data name="Editor_Temperature" xml:space="preserve">
+    <value>色温度</value>
+  </data>
+  <data name="Editor_Warm" xml:space="preserve">
+    <value>暖色</value>
+  </data>
+  <data name="Editor_Green" xml:space="preserve">
+    <value>緑</value>
+  </data>
+  <data name="Editor_Tint" xml:space="preserve">
+    <value>色合い</value>
+  </data>
+  <data name="Editor_Magenta" xml:space="preserve">
+    <value>マゼンタ</value>
+  </data>
+  <data name="Editor_Highlights" xml:space="preserve">
+    <value>ハイライト</value>
+  </data>
+  <data name="Editor_Shadows" xml:space="preserve">
+    <value>シャドウ</value>
+  </data>
+  <data name="Editor_Effects" xml:space="preserve">
+    <value>エフェクト</value>
+  </data>
+  <data name="Editor_Sharpness" xml:space="preserve">
+    <value>シャープネス</value>
+  </data>
+  <data name="Editor_GaussianBlur" xml:space="preserve">
+    <value>ガウスぼかし</value>
+  </data>
+  <data name="Editor_VignetteIntensity" xml:space="preserve">
+    <value>ビネット強度</value>
+  </data>
+  <data name="Editor_VignetteRadius" xml:space="preserve">
+    <value>ビネット半径</value>
+  </data>
+  <data name="Editor_ColorOverlay" xml:space="preserve">
+    <value>カラーオーバーレイ</value>
+  </data>
+  <data name="Editor_ClickToChooseOverlayColor" xml:space="preserve">
+    <value>クリックしてオーバーレイ色を選択</value>
+  </data>
+  <data name="Editor_SaveAsPreset" xml:space="preserve">
+    <value>プリセットとして保存</value>
+  </data>
+  <data name="Editor_EnterPresetName" xml:space="preserve">
+    <value>プリセット名を入力...</value>
+  </data>
+  <data name="Editor_SavePreset" xml:space="preserve">
+    <value>💾 プリセットを保存</value>
+  </data>
+  <data name="Editor_Ready" xml:space="preserve">
+    <value>準備完了</value>
+  </data>
+  <data name="Editor_ApplyClose" xml:space="preserve">
+    <value>✓ 適用して閉じる</value>
+  </data>
+  <data name="Discover_OpenInSidePanel" xml:space="preserve">
+    <value>サイドパネルで開く</value>
+  </data>
+  <data name="Discover_OpenFullScreen" xml:space="preserve">
+    <value>全画面で開く</value>
+  </data>
+  <data name="Discover_OpenInNewTab" xml:space="preserve">
+    <value>新しいタブで開く</value>
+  </data>
+  <data name="Discover_OpenInPopupWindow" xml:space="preserve">
+    <value>ポップアップウィンドウで開く</value>
+  </data>
+  <data name="Discover_OpenArtistGallery" xml:space="preserve">
+    <value>作者ギャラリーを開く</value>
+  </data>
+  <data name="Discover_OpenOnPixivNet" xml:space="preserve">
+    <value>pixiv.netで開く</value>
+  </data>
+  <data name="Discover_OpenArtistOnPixiv" xml:space="preserve">
+    <value>pixivで作者を開く</value>
+  </data>
+  <data name="Discover_AddToFavorites" xml:space="preserve">
+    <value>お気に入りに追加</value>
+  </data>
+  <data name="Discover_RemoveFromFavorites" xml:space="preserve">
+    <value>お気に入りから削除</value>
+  </data>
+  <data name="Discover_CopyArtworkID" xml:space="preserve">
+    <value>作品IDをコピー</value>
+  </data>
+  <data name="Discover_CopyArtworkURL" xml:space="preserve">
+    <value>作品URLをコピー</value>
+  </data>
+  <data name="Discover_CopyImage" xml:space="preserve">
+    <value>画像をコピー</value>
+  </data>
+  <data name="Discover_UseAsAppBackground" xml:space="preserve">
+    <value>アプリの背景に設定</value>
+  </data>
+  <data name="Discover_CopyArtistID" xml:space="preserve">
+    <value>作者IDをコピー</value>
+  </data>
+  <data name="Discover_ClickIndividualArtistIDsToQueue" xml:space="preserve">
+    <value>個別の作者IDをクリックしてキューに入れ、このボタンでキュー中の全IDを一括コピー</value>
+  </data>
+  <data name="Discover_CopyAll" xml:space="preserve">
+    <value>すべてコピー</value>
+  </data>
+  <data name="Discover_FixedCardHeight" xml:space="preserve">
+    <value>カード高さ固定</value>
+  </data>
+  <data name="Discover_NaturalHeightPreservesAspectRatio" xml:space="preserve">
+    <value>自然な高さ（縦横比を維持）</value>
+  </data>
+  <data name="Discover_ShowHideTagChips" xml:space="preserve">
+    <value>タグチップの表示 / 非表示</value>
+  </data>
+  <data name="Discover_Tags" xml:space="preserve">
+    <value>タグ</value>
+  </data>
+  <data name="Discover_ShowHideTitleArtist" xml:space="preserve">
+    <value>タイトル＋作者の表示 / 非表示</value>
+  </data>
+  <data name="Discover_Info" xml:space="preserve">
+    <value>情報</value>
+  </data>
+  <data name="Discover_ShowHideLikedBookmarkedFavoriteBadges" xml:space="preserve">
+    <value>カードのいいね / ブックマーク / お気に入りバッジの表示切替</value>
+  </data>
+  <data name="Discover_Badges" xml:space="preserve">
+    <value>バッジ</value>
+  </data>
+  <data name="Discover_ToggleTheSidePanel" xml:space="preserve">
+    <value>サイドパネル切替</value>
+  </data>
+  <data name="Discover_ShowPanel" xml:space="preserve">
+    <value>パネルを表示</value>
+  </data>
+  <data name="Discover_HidePanel" xml:space="preserve">
+    <value>パネルを隠す</value>
+  </data>
+  <data name="Discover_ShowHideR18Content" xml:space="preserve">
+    <value>R-18コンテンツの表示 / 非表示</value>
+  </data>
+  <data name="Discover_Size" xml:space="preserve">
+    <value>サイズ</value>
+  </data>
+  <data name="Discover_GridView" xml:space="preserve">
+    <value>グリッド表示</value>
+  </data>
+  <data name="Discover_Grid" xml:space="preserve">
+    <value>グリッド</value>
+  </data>
+  <data name="Discover_ListView" xml:space="preserve">
+    <value>リスト表示</value>
+  </data>
+  <data name="Discover_List" xml:space="preserve">
+    <value>リスト</value>
+  </data>
+  <data name="Discover_SelectAllVisibleArtworks" xml:space="preserve">
+    <value>表示中の作品をすべて選択</value>
+  </data>
+  <data name="Discover_SelectAll" xml:space="preserve">
+    <value>すべて選択</value>
+  </data>
+  <data name="Discover_ClearSelection" xml:space="preserve">
+    <value>選択をクリア</value>
+  </data>
+  <data name="Discover_DeselectAll" xml:space="preserve">
+    <value>すべて解除</value>
+  </data>
+  <data name="Discover_DownloadSelectedArtworks" xml:space="preserve">
+    <value>選択した作品をダウンロード</value>
+  </data>
+  <data name="Discover_ShowTheSelectedArtworksTiledTogether" xml:space="preserve">
+    <value>選択した作品をサイドパネルにタイル表示（最大10件）</value>
+  </data>
+  <data name="Discover_Collage" xml:space="preserve">
+    <value>コラージュ</value>
+  </data>
+  <data name="Discover_AddTheSelectedArtworksToThe" xml:space="preserve">
+    <value>選択した作品を有効なコラージュに追加。矢印でコラージュを選択</value>
+  </data>
+  <data name="Discover_OpenEachSelectedArtworkInIts" xml:space="preserve">
+    <value>選択した各作品を個別のタブで開く</value>
+  </data>
+  <data name="Discover_ViewInNewTabs" xml:space="preserve">
+    <value>新しいタブで表示</value>
+  </data>
+  <data name="Discover_DownloadAllVisibleArtworks" xml:space="preserve">
+    <value>表示中のすべての作品をダウンロード</value>
+  </data>
+  <data name="Discover_DownloadVisible" xml:space="preserve">
+    <value>表示分をダウンロード</value>
+  </data>
+  <data name="Discover_DownloadWithImageProcessingPreset" xml:space="preserve">
+    <value>画像処理プリセットでダウンロード</value>
+  </data>
+  <data name="Discover_DownloadPreset" xml:space="preserve">
+    <value>ダウンロードプリセット</value>
+  </data>
+  <data name="Discover_NoRecommendedWorks" xml:space="preserve">
+    <value>おすすめ作品がありません</value>
+  </data>
+  <data name="Common_Retry" xml:space="preserve">
+    <value>再試行</value>
+  </data>
+  <data name="Discover_LoadMore" xml:space="preserve">
+    <value>さらに読み込む</value>
+  </data>
+  <data name="Discover_NoRecommendedUsers" xml:space="preserve">
+    <value>おすすめユーザーがありません</value>
+  </data>
+  <data name="Discover_ClickToCopyID" xml:space="preserve">
+    <value>クリックでIDをコピー</value>
+  </data>
+  <data name="Discover_OpenInGallery" xml:space="preserve">
+    <value>ギャラリーで開く</value>
+  </data>
+  <data name="Discover_DownloadEveryArtworkFromThisArtist" xml:space="preserve">
+    <value>この作者の全作品をダウンロード</value>
+  </data>
+  <data name="Discover_DownloadAll" xml:space="preserve">
+    <value>すべてダウンロード</value>
+  </data>
+  <data name="Discover_DownloadOnlyTheArtworksCurrentlyShown" xml:space="preserve">
+    <value>現在表示中の作品のみダウンロード</value>
+  </data>
+  <data name="Discover_DownloadLoaded" xml:space="preserve">
+    <value>読み込み済みをダウンロード</value>
+  </data>
+  <data name="Discover_DownloadOnlyTheCheckedArtworks" xml:space="preserve">
+    <value>チェックした作品のみダウンロード</value>
+  </data>
+  <data name="Discover_OpenArtistSFullGallery" xml:space="preserve">
+    <value>作者の全ギャラリーを開く</value>
+  </data>
+  <data name="Discover_OpenGallery" xml:space="preserve">
+    <value>ギャラリーを開く</value>
+  </data>
+  <data name="Discover_LoadingWorks" xml:space="preserve">
+    <value>作品を読み込み中…</value>
+  </data>
+  <data name="Discover_SelectAnArtistToViewTheir" xml:space="preserve">
+    <value>作者を選択して作品を表示</value>
+  </data>
+  <data name="Discover_NoWorksToShowCheckR" xml:space="preserve">
+    <value>表示する作品がありません（R-18フィルターを確認）</value>
+  </data>
+  <data name="Batch_DownloadQueue" xml:space="preserve">
+    <value>ダウンロードキュー</value>
+  </data>
+  <data name="Batch_Queue" xml:space="preserve">
+    <value>キュー</value>
+  </data>
+  <data name="Batch_ByArtist" xml:space="preserve">
+    <value>👤 作者別</value>
+  </data>
+  <data name="Batch_SelectedArtists" xml:space="preserve">
+    <value>選択した作者</value>
+  </data>
+  <data name="Batch_ClearAll" xml:space="preserve">
+    <value>🗑 すべてクリア</value>
+  </data>
+  <data name="Batch_RemoveAllSelectedArtists" xml:space="preserve">
+    <value>選択した作者をすべて削除</value>
+  </data>
+  <data name="Batch_RemoveArtist" xml:space="preserve">
+    <value>作者を削除</value>
+  </data>
+  <data name="Batch_ConfigureCustomDownloadSettingsForThis" xml:space="preserve">
+    <value>この作者のカスタムダウンロード設定を構成</value>
+  </data>
+  <data name="Batch_HasCustomDownloadSettings" xml:space="preserve">
+    <value>カスタムダウンロード設定あり</value>
+  </data>
+  <data name="Batch_AddFollowedArtists" xml:space="preserve">
+    <value>+ フォロー中の作者を追加</value>
+  </data>
+  <data name="Batch_AddAllArtistsYouFollowOn" xml:space="preserve">
+    <value>Pixivでフォロー中の全作者をダウンロードリストに追加</value>
+  </data>
+  <data name="Batch_ImportFromFile" xml:space="preserve">
+    <value>📁 ファイルからインポート</value>
+  </data>
+  <data name="Batch_ImportAListOfArtistIDs" xml:space="preserve">
+    <value>テキストファイルから作者IDリストをインポート（1行に1件）</value>
+  </data>
+  <data name="Batch_ArtistIDsOrURLs" xml:space="preserve">
+    <value>作者IDまたはURL</value>
+  </data>
+  <data name="Batch_EnterArtistIDsOrURLs" xml:space="preserve">
+    <value>作者IDまたはURLを入力...</value>
+  </data>
+  <data name="Batch_Paste" xml:space="preserve">
+    <value>📋 貼り付け</value>
+  </data>
+  <data name="Batch_PasteLastCopiedID" xml:space="preserve">
+    <value>最後にコピーしたIDを貼り付け</value>
+  </data>
+  <data name="Batch_Clear" xml:space="preserve">
+    <value>✕ クリア</value>
+  </data>
+  <data name="Batch_ClearTheInputBox" xml:space="preserve">
+    <value>入力ボックスをクリア</value>
+  </data>
+  <data name="Batch_AddArtists" xml:space="preserve">
+    <value>+ 作者を追加</value>
+  </data>
+  <data name="Batch_AddArtistsByIDOrPixiv" xml:space="preserve">
+    <value>IDまたはPixivプロフィールURLで作者を追加</value>
+  </data>
+  <data name="Batch_Add" xml:space="preserve">
+    <value>+ 追加</value>
+  </data>
+  <data name="Batch_DefaultPageRangeAllArtists" xml:space="preserve">
+    <value>デフォルトページ範囲（全作者）</value>
+  </data>
+  <data name="Batch_SpecifyWhichPagesToDownload0" xml:space="preserve">
+    <value>ダウンロードするページを指定: 0 = 全部, 1-5 = 範囲, 2,4,6 = 特定ページ</value>
+  </data>
+  <data name="Batch_EnterPageNumbers0OrAll" xml:space="preserve">
+    <value>ページ番号を入力: 全ページは0または'all', 範囲は'1-5', 特定ページは'2,4,6'</value>
+  </data>
+  <data name="Batch_Format0OrAllAllPages" xml:space="preserve">
+    <value>形式: 0または'all' = 全ページ, '2' = 2ページ, '1-5' = 1-5ページ, '2,4,6-10' = 特定ページ</value>
+  </data>
+  <data name="Batch_InvalidFormatUse021" xml:space="preserve">
+    <value>⚠ 無効な形式。使用できるのは: 0, 2, 1-5, または 2,4,6-10</value>
+  </data>
+  <data name="Batch_SetCustomPageRangesAndSettings" xml:space="preserve">
+    <value>作者ごとにカスタムページ範囲と設定を指定</value>
+  </data>
+  <data name="Batch_EnableToSetDifferentPageRanges" xml:space="preserve">
+    <value>有効にすると作者ごとに異なるページ範囲とダウンロード設定を指定できます</value>
+  </data>
+  <data name="Batch_Artist" xml:space="preserve">
+    <value>作者</value>
+  </data>
+  <data name="Batch_PageRange" xml:space="preserve">
+    <value>ページ範囲</value>
+  </data>
+  <data name="Batch_CustomSettings" xml:space="preserve">
+    <value>カスタム設定</value>
+  </data>
+  <data name="Batch_Custom" xml:space="preserve">
+    <value>カスタム</value>
+  </data>
+  <data name="Batch_Default" xml:space="preserve">
+    <value>デフォルト</value>
+  </data>
+  <data name="Batch_Settings" xml:space="preserve">
+    <value>⚙ 設定</value>
+  </data>
+  <data name="Batch_DownloadSettings" xml:space="preserve">
+    <value>ダウンロード設定</value>
+  </data>
+  <data name="Batch_UseGlobalSettings" xml:space="preserve">
+    <value>グローバル設定を使用</value>
+  </data>
+  <data name="Batch_UseCustomSettingsForThisDownload" xml:space="preserve">
+    <value>このダウンロードにカスタム設定を使用</value>
+  </data>
+  <data name="Batch_CreateSubfolderPerSubmission" xml:space="preserve">
+    <value>投稿ごとにサブフォルダーを作成</value>
+  </data>
+  <data name="Batch_CreateASeparateFolderForEach" xml:space="preserve">
+    <value>各作品 / ダウンロードごとに個別フォルダーを作成</value>
+  </data>
+  <data name="Batch_SeparateR18Folder" xml:space="preserve">
+    <value>R-18を別フォルダーに</value>
+  </data>
+  <data name="Batch_SaveR18MatureContentTo" xml:space="preserve">
+    <value>R-18（成人向け）コンテンツを別フォルダーに保存</value>
+  </data>
+  <data name="Batch_SkipContentTypes" xml:space="preserve">
+    <value>スキップするコンテンツタイプ:</value>
+  </data>
+  <data name="Batch_AIGenerated" xml:space="preserve">
+    <value>AI生成</value>
+  </data>
+  <data name="Batch_Manga" xml:space="preserve">
+    <value>マンガ</value>
+  </data>
+  <data name="Batch_Ugoira" xml:space="preserve">
+    <value>うごイラ</value>
+  </data>
+  <data name="Batch_R18GOnly" xml:space="preserve">
+    <value>R-18Gのみ</value>
+  </data>
+  <data name="Batch_SkipGrotesqueViolentR18GBut" xml:space="preserve">
+    <value>グロ/暴力的なR-18Gをスキップし通常のR-18はダウンロード</value>
+  </data>
+  <data name="Batch_MustIncludeTagS" xml:space="preserve">
+    <value>必須タグ</value>
+  </data>
+  <data name="Batch_CommaSeparatedArtworkMustMatchAt" xml:space="preserve">
+    <value>カンマ区切り。作品は少なくとも1つに一致する必要あり。</value>
+  </data>
+  <data name="Batch_ExcludeTagS" xml:space="preserve">
+    <value>除外タグ</value>
+  </data>
+  <data name="Batch_CommaSeparatedArtworkIsSkippedIf" xml:space="preserve">
+    <value>カンマ区切り。いずれかのタグを含む作品はスキップ。</value>
+  </data>
+  <data name="Batch_AutoRetryFailedDownloads" xml:space="preserve">
+    <value>失敗したダウンロードを自動リトライ</value>
+  </data>
+  <data name="Batch_AutomaticallyRetryFailedDownloadsWithThe" xml:space="preserve">
+    <value>設定した間隔で失敗したダウンロードを自動リトライ</value>
+  </data>
+  <data name="Batch_MaxRetries" xml:space="preserve">
+    <value>最大リトライ回数</value>
+  </data>
+  <data name="Batch_RetryDelaySec" xml:space="preserve">
+    <value>リトライ間隔（秒）</value>
+  </data>
+  <data name="Batch_Save" xml:space="preserve">
+    <value>💾 保存</value>
+  </data>
+  <data name="Batch_SaveCurrentArtistListAndSettings" xml:space="preserve">
+    <value>現在の作者リストと設定を再利用可能なプリセットとして保存</value>
+  </data>
+  <data name="Batch_Load" xml:space="preserve">
+    <value>📂 読み込み</value>
+  </data>
+  <data name="Batch_LoadAPreviouslySavedPresetWith" xml:space="preserve">
+    <value>以前に保存した作者リストと設定のプリセットを読み込み</value>
+  </data>
+  <data name="Batch_AddToQueue" xml:space="preserve">
+    <value>+ キューに追加</value>
+  </data>
+  <data name="Batch_AddToQueueWithoutStartingImmediately" xml:space="preserve">
+    <value>すぐに開始せずキューに追加 — Queueウィンドウから開始</value>
+  </data>
+  <data name="Batch_StartDownload" xml:space="preserve">
+    <value>▶ ダウンロード開始</value>
+  </data>
+  <data name="Batch_BeginDownloadingArtworksFromAllSelected" xml:space="preserve">
+    <value>選択した全作者の作品ダウンロードを今すぐ開始</value>
+  </data>
+  <data name="Batch_ByImageID" xml:space="preserve">
+    <value>🖼️ 画像ID別</value>
+  </data>
+  <data name="Batch_ImageIDsOrURLs" xml:space="preserve">
+    <value>画像IDまたはURL</value>
+  </data>
+  <data name="Batch_EnterImageIDsURLs" xml:space="preserve">
+    <value>画像ID、URLを入力...</value>
+  </data>
+  <data name="Batch_StartImageIDDownload" xml:space="preserve">
+    <value>▶ 画像IDダウンロード開始</value>
+  </data>
+  <data name="Batch_ByCollection" xml:space="preserve">
+    <value>🗂️ コレクション別</value>
+  </data>
+  <data name="Batch_CollectionURLsOrIDs" xml:space="preserve">
+    <value>コレクションURLまたはID</value>
+  </data>
+  <data name="Batch_EnterCollectionIDsOrURLsOne" xml:space="preserve">
+    <value>コレクションIDまたはURLを1行に1件入力...</value>
+  </data>
+  <data name="Batch_KeepEachCollectionInItsOwn" xml:space="preserve">
+    <value>各コレクションを個別フォルダーに保持</value>
+  </data>
+  <data name="Batch_OnEachCollectionSWorksGo" xml:space="preserve">
+    <value>オン: 各コレクションの作品を個別の Collections\{title} フォルダーへ。オフ: Collections\ フォルダー配下に、通常の作者別/作品別構造を維持。</value>
+  </data>
+  <data name="Batch_StartCollectionDownload" xml:space="preserve">
+    <value>▶ コレクションダウンロード開始</value>
+  </data>
+  <data name="Batch_Bookmarks" xml:space="preserve">
+    <value>🔖 ブックマーク</value>
+  </data>
+  <data name="Batch_Source" xml:space="preserve">
+    <value>ソース</value>
+  </data>
+  <data name="Batch_BookmarkedImagesIllustrationsManga" xml:space="preserve">
+    <value>ブックマーク画像（イラスト/マンガ）</value>
+  </data>
+  <data name="Batch_BookmarkedArtists" xml:space="preserve">
+    <value>ブックマークした作者</value>
+  </data>
+  <data name="Batch_Visibility" xml:space="preserve">
+    <value>公開範囲</value>
+  </data>
+  <data name="Batch_PublicBookmarksOnly" xml:space="preserve">
+    <value>公開ブックマークのみ</value>
+  </data>
+  <data name="Batch_PrivateBookmarksOnly" xml:space="preserve">
+    <value>非公開ブックマークのみ</value>
+  </data>
+  <data name="Batch_BothPublicAndPrivate" xml:space="preserve">
+    <value>公開と非公開の両方</value>
+  </data>
+  <data name="Batch_FilterOptions" xml:space="preserve">
+    <value>フィルターオプション</value>
+  </data>
+  <data name="Batch_IncludeR18" xml:space="preserve">
+    <value>R-18を含む</value>
+  </data>
+  <data name="Batch_IncludeAIGenerated" xml:space="preserve">
+    <value>AI生成を含む</value>
+  </data>
+  <data name="Batch_IncludeManga" xml:space="preserve">
+    <value>マンガを含む</value>
+  </data>
+  <data name="Batch_StartRemoteBookmarkDownload" xml:space="preserve">
+    <value>▶ リモートブックマークダウンロード開始</value>
+  </data>
+  <data name="Batch_DownloadFromPixivBookmarksPublicPrivate" xml:space="preserve">
+    <value>Pixivブックマーク（公開/非公開）からダウンロード</value>
+  </data>
+  <data name="Batch_LocalFavorites" xml:space="preserve">
+    <value>ローカルお気に入り</value>
+  </data>
+  <data name="Batch_DownloadAllFavorites" xml:space="preserve">
+    <value>↓ すべてのお気に入りをダウンロード</value>
+  </data>
+  <data name="Batch_DownloadFromFolder" xml:space="preserve">
+    <value>ダウンロード先フォルダー:</value>
+  </data>
+  <data name="Batch_SelectFolder" xml:space="preserve">
+    <value>フォルダーを選択...</value>
+  </data>
+  <data name="Batch_UseCustomDownloadPath" xml:space="preserve">
+    <value>カスタムダウンロードパスを使用</value>
+  </data>
+  <data name="Batch_CustomDownloadPath" xml:space="preserve">
+    <value>カスタムダウンロードパス...</value>
+  </data>
+  <data name="Batch_FromList" xml:space="preserve">
+    <value>📋 リストから</value>
+  </data>
+  <data name="Batch_DownloadFromList" xml:space="preserve">
+    <value>📋 リストからダウンロード</value>
+  </data>
+  <data name="Batch_DownloadFromListTxtOrTags" xml:space="preserve">
+    <value>list.txtまたはtags.txtファイルからダウンロード</value>
+  </data>
+  <data name="Batch_NoFileSelected" xml:space="preserve">
+    <value>ファイルが選択されていません...</value>
+  </data>
+  <data name="Batch_Browse" xml:space="preserve">
+    <value>📁 参照</value>
+  </data>
+  <data name="Batch_Items" xml:space="preserve">
+    <value>件数:</value>
+  </data>
+  <data name="Batch_Search" xml:space="preserve">
+    <value>🔍 検索</value>
+  </data>
+  <data name="Batch_SearchKeyword" xml:space="preserve">
+    <value>検索キーワード</value>
+  </data>
+  <data name="Batch_EnterSearchKeyword" xml:space="preserve">
+    <value>検索キーワードを入力...</value>
+  </data>
+  <data name="Batch_Mode" xml:space="preserve">
+    <value>モード</value>
+  </data>
+  <data name="Batch_Safe" xml:space="preserve">
+    <value>セーフ</value>
+  </data>
+  <data name="Batch_All" xml:space="preserve">
+    <value>すべて</value>
+  </data>
+  <data name="Batch_SortOrder" xml:space="preserve">
+    <value>並び順</value>
+  </data>
+  <data name="Batch_PopularitySortRequiresPixivPremium" xml:space="preserve">
+    <value>人気順にはPixivプレミアムが必要</value>
+  </data>
+  <data name="Batch_NewestFirst" xml:space="preserve">
+    <value>新しい順</value>
+  </data>
+  <data name="Batch_PopularFirst" xml:space="preserve">
+    <value>人気順</value>
+  </data>
+  <data name="Batch_SortByPopularityPixivPremium" xml:space="preserve">
+    <value>人気順（Pixivプレミアム）</value>
+  </data>
+  <data name="Batch_MaxResults" xml:space="preserve">
+    <value>最大件数</value>
+  </data>
+  <data name="Batch_Results" xml:space="preserve">
+    <value>結果</value>
+  </data>
+  <data name="Batch_AI" xml:space="preserve">
+    <value>AI</value>
+  </data>
+  <data name="Batch_ClearResults" xml:space="preserve">
+    <value>結果をクリア</value>
+  </data>
+  <data name="Batch_FANBOX" xml:space="preserve">
+    <value>📦 FANBOX</value>
+  </data>
+  <data name="Batch_SearchByPostID" xml:space="preserve">
+    <value>投稿IDで検索</value>
+  </data>
+  <data name="Batch_EnterFANBOXPostID" xml:space="preserve">
+    <value>FANBOX投稿IDを入力...</value>
+  </data>
+  <data name="Batch_SearchByCreatorID" xml:space="preserve">
+    <value>クリエイターIDで検索</value>
+  </data>
+  <data name="Batch_EnterCreatorID" xml:space="preserve">
+    <value>クリエイターIDを入力...</value>
+  </data>
+  <data name="Batch_CoverFilename" xml:space="preserve">
+    <value>カバーファイル名:</value>
+  </data>
+  <data name="Batch_InfoFilename" xml:space="preserve">
+    <value>情報ファイル名:</value>
+  </data>
+  <data name="Batch_ImageFilenames" xml:space="preserve">
+    <value>画像ファイル名:</value>
+  </data>
+  <data name="Batch_Download" xml:space="preserve">
+    <value>▶ ダウンロード</value>
+  </data>
+  <data name="Batch_Schedules" xml:space="preserve">
+    <value>⏰ スケジュール</value>
+  </data>
+  <data name="Batch_NewSchedule" xml:space="preserve">
+    <value>+ 新規スケジュール</value>
+  </data>
+  <data name="Batch_BackToSchedules" xml:space="preserve">
+    <value>← スケジュールに戻る</value>
+  </data>
+  <data name="Batch_Running" xml:space="preserve">
+    <value>● 実行中</value>
+  </data>
+  <data name="Batch_Edit" xml:space="preserve">
+    <value>✏ 編集</value>
+  </data>
+  <data name="Batch_EditThisSchedule" xml:space="preserve">
+    <value>このスケジュールを編集</value>
+  </data>
+  <data name="Batch_Run" xml:space="preserve">
+    <value>▶ 実行</value>
+  </data>
+  <data name="Batch_RunThisScheduleImmediately" xml:space="preserve">
+    <value>このスケジュールを今すぐ実行</value>
+  </data>
+  <data name="Batch_DeleteThisSchedule" xml:space="preserve">
+    <value>このスケジュールを削除</value>
+  </data>
+  <data name="Batch_NoSchedulesYetClickNewSchedule" xml:space="preserve">
+    <value>まだスケジュールがありません。「+ 新規スケジュール」をクリックして作成。</value>
+  </data>
+  <data name="Batch_ScheduleName" xml:space="preserve">
+    <value>スケジュール名</value>
+  </data>
+  <data name="Batch_ClearAll_2" xml:space="preserve">
+    <value>✕ すべてクリア</value>
+  </data>
+  <data name="Batch_ArtistIDOrPixivNetEn" xml:space="preserve">
+    <value>作者IDまたは pixiv.net/en/users/123…</value>
+  </data>
+  <data name="Batch_Pages" xml:space="preserve">
+    <value>ページ</value>
+  </data>
+  <data name="Batch_PageRangeForThisArtistE" xml:space="preserve">
+    <value>この作者のページ範囲。例: 0 = 全部, 1-5 = 範囲</value>
+  </data>
+  <data name="Batch_ResolveArtistNameAndAddTo" xml:space="preserve">
+    <value>作者名を解決してリストに追加</value>
+  </data>
+  <data name="Batch_WhenToRun" xml:space="preserve">
+    <value>実行タイミング</value>
+  </data>
+  <data name="Batch_DailyRecurring" xml:space="preserve">
+    <value>毎日 / 繰り返し</value>
+  </data>
+  <data name="Batch_RunOnAppStartup" xml:space="preserve">
+    <value>アプリ起動時に実行</value>
+  </data>
+  <data name="Batch_RunOnceAtASpecificDate" xml:space="preserve">
+    <value>指定日時に1回だけ実行</value>
+  </data>
+  <data name="Batch_Time" xml:space="preserve">
+    <value>時刻:</value>
+  </data>
+  <data name="Batch_Hour112" xml:space="preserve">
+    <value>時（1–12）</value>
+  </data>
+  <data name="Batch_Minute" xml:space="preserve">
+    <value>分</value>
+  </data>
+  <data name="Batch_ChecksDay" xml:space="preserve">
+    <value>チェック回数/日:</value>
+  </data>
+  <data name="Batch_1OnceDaily2TwiceEvery" xml:space="preserve">
+    <value>1 = 毎日1回, 2 = 2回（12時間ごと）, 3 = 3回（8時間ごと）</value>
+  </data>
+  <data name="Batch_2Every12H3Every" xml:space="preserve">
+    <value>2回 = 12時間ごと · 3回 = 8時間ごと（選択時刻から分散）</value>
+  </data>
+  <data name="Batch_RunOnceOn" xml:space="preserve">
+    <value>実行日（1回のみ）:</value>
+  </data>
+  <data name="Batch_PickTheDate" xml:space="preserve">
+    <value>日付を選択</value>
+  </data>
+  <data name="Batch_Hour" xml:space="preserve">
+    <value>時</value>
+  </data>
+  <data name="Batch_TheScheduleWillRunExactlyOnce" xml:space="preserve">
+    <value>このスケジュールは1回だけ実行され、その後期限切れになります。</value>
+  </data>
+  <data name="Batch_OnlyDownloadArtworksPosted" xml:space="preserve">
+    <value>投稿日が次の作品のみダウンロード:</value>
+  </data>
+  <data name="Batch_AllTime" xml:space="preserve">
+    <value>全期間</value>
+  </data>
+  <data name="Batch_SinceLastRun" xml:space="preserve">
+    <value>前回実行以降</value>
+  </data>
+  <data name="Batch_WithinTheLast24Hours" xml:space="preserve">
+    <value>過去24時間以内</value>
+  </data>
+  <data name="Batch_WithinTheLast7Days" xml:space="preserve">
+    <value>過去7日以内</value>
+  </data>
+  <data name="Batch_WithinTheLast30Days" xml:space="preserve">
+    <value>過去30日以内</value>
+  </data>
+  <data name="Batch_MaxArtworksPerArtist" xml:space="preserve">
+    <value>作者ごとの最大作品数:</value>
+  </data>
+  <data name="Batch_OnlyFetchTheNMostRecent" xml:space="preserve">
+    <value>作者ごとに最新N件のみ取得。空白または0で無制限。</value>
+  </data>
+  <data name="Batch_NamingOverridesOptional" xml:space="preserve">
+    <value>📁 命名の上書き（任意）</value>
+  </data>
+  <data name="Batch_OverrideGlobalFolderFilenameTemplatesFor" xml:space="preserve">
+    <value>このスケジュールでグローバルのフォルダー/ファイル名テンプレートを上書き</value>
+  </data>
+  <data name="Batch_LeaveBlankForGlobal" xml:space="preserve">
+    <value>空白でグローバルを使用</value>
+  </data>
+  <data name="Batch_SeparateR18IntoSubfolder" xml:space="preserve">
+    <value>R-18をサブフォルダーに分離</value>
+  </data>
+  <data name="DlBookmarks_DownloadFromBookmarks" xml:space="preserve">
+    <value>ブックマークからダウンロード</value>
+  </data>
+  <data name="DlBookmarks_DownloadArtworksFromYourBookmarkedArtist" xml:space="preserve">
+    <value>ブックマークした作者や画像から作品をダウンロード</value>
+  </data>
+  <data name="DlBookmarks_Source" xml:space="preserve">
+    <value>ソース</value>
+  </data>
+  <data name="DlBookmarks_BookmarkedImagesIllustrationsManga" xml:space="preserve">
+    <value>ブックマーク画像（イラスト/マンガ）</value>
+  </data>
+  <data name="DlBookmarks_BookmarkedArtists" xml:space="preserve">
+    <value>ブックマークした作者</value>
+  </data>
+  <data name="DlBookmarks_Visibility" xml:space="preserve">
+    <value>公開範囲</value>
+  </data>
+  <data name="DlBookmarks_PublicBookmarksOnly" xml:space="preserve">
+    <value>公開ブックマークのみ</value>
+  </data>
+  <data name="DlBookmarks_PrivateBookmarksOnly" xml:space="preserve">
+    <value>非公開ブックマークのみ</value>
+  </data>
+  <data name="DlBookmarks_BothPublicAndPrivate" xml:space="preserve">
+    <value>公開と非公開の両方</value>
+  </data>
+  <data name="DlBookmarks_FilterOptions" xml:space="preserve">
+    <value>フィルターオプション</value>
+  </data>
+  <data name="DlBookmarks_IncludeR18" xml:space="preserve">
+    <value>R-18を含む</value>
+  </data>
+  <data name="DlBookmarks_IncludeAIGenerated" xml:space="preserve">
+    <value>AI生成を含む</value>
+  </data>
+  <data name="DlBookmarks_IncludeManga" xml:space="preserve">
+    <value>マンガを含む</value>
+  </data>
+  <data name="DlBookmarks_StartDownload" xml:space="preserve">
+    <value>▶ ダウンロード開始</value>
+  </data>
+  <data name="DlArtist_DownloadByArtist" xml:space="preserve">
+    <value>作者別ダウンロード</value>
+  </data>
+  <data name="DlArtist_DownloadArtworksFromFollowedArtistsOr" xml:space="preserve">
+    <value>フォロー中の作者または指定IDの作者から作品をダウンロード</value>
+  </data>
+  <data name="DlArtist_Help" xml:space="preserve">
+    <value>? ヘルプ</value>
+  </data>
+  <data name="DlArtist_SelectedArtists" xml:space="preserve">
+    <value>選択した作者</value>
+  </data>
+  <data name="DlArtist_HasCustomDownloadSettings" xml:space="preserve">
+    <value>カスタムダウンロード設定あり</value>
+  </data>
+  <data name="DlArtist_ConfigureCustomSettings" xml:space="preserve">
+    <value>カスタム設定を構成</value>
+  </data>
+  <data name="DlArtist_NoArtistsSelectedAddArtistsUsing" xml:space="preserve">
+    <value>作者が選択されていません。下のボタンで追加してください。</value>
+  </data>
+  <data name="DlArtist_AddFollowedArtists" xml:space="preserve">
+    <value>+ フォロー中の作者を追加</value>
+  </data>
+  <data name="DlArtist_ImportFromFile" xml:space="preserve">
+    <value>📁 ファイルからインポート</value>
+  </data>
+  <data name="DlArtist_ClearAll" xml:space="preserve">
+    <value>すべてクリア</value>
+  </data>
+  <data name="DlArtist_ArtistIDsOrURLs" xml:space="preserve">
+    <value>作者IDまたはURL</value>
+  </data>
+  <data name="DlArtist_EnterArtistIDsOrURLs" xml:space="preserve">
+    <value>作者IDまたはURLを入力...</value>
+  </data>
+  <data name="DlArtist_Paste" xml:space="preserve">
+    <value>📋 貼り付け</value>
+  </data>
+  <data name="DlArtist_PasteLastCopiedID" xml:space="preserve">
+    <value>最後にコピーしたIDを貼り付け</value>
+  </data>
+  <data name="DlArtist_AddArtists" xml:space="preserve">
+    <value>+ 作者を追加</value>
+  </data>
+  <data name="DlArtist_PageRangeConfiguration" xml:space="preserve">
+    <value>ページ範囲の設定</value>
+  </data>
+  <data name="DlArtist_DefaultPageRangeForAllArtists" xml:space="preserve">
+    <value>全作者のデフォルトページ範囲</value>
+  </data>
+  <data name="DlArtist_Examples0OrAllAllPages" xml:space="preserve">
+    <value>例: '0'または'all' = 全ページ, '2' = 2ページのみ, '1-5' = 1〜5ページ, '2,4,6-10' = 特定ページ</value>
+  </data>
+  <data name="DlArtist_SetCustomPageRangesAndSettings" xml:space="preserve">
+    <value>作者ごとにカスタムページ範囲と設定を指定</value>
+  </data>
+  <data name="DlArtist_Artist" xml:space="preserve">
+    <value>作者</value>
+  </data>
+  <data name="DlArtist_PageRange" xml:space="preserve">
+    <value>ページ範囲</value>
+  </data>
+  <data name="DlArtist_Custom" xml:space="preserve">
+    <value>カスタム</value>
+  </data>
+  <data name="DlArtist_Default" xml:space="preserve">
+    <value>デフォルト</value>
+  </data>
+  <data name="DlArtist_Settings" xml:space="preserve">
+    <value>⚙ 設定</value>
+  </data>
+  <data name="DlArtist_ConfigureCustomDownloadSettingsForThis" xml:space="preserve">
+    <value>この作者のカスタムダウンロード設定を構成</value>
+  </data>
+  <data name="DlArtist_DownloadSettings" xml:space="preserve">
+    <value>ダウンロード設定</value>
+  </data>
+  <data name="DlArtist_UseGlobalSettings" xml:space="preserve">
+    <value>グローバル設定を使用</value>
+  </data>
+  <data name="DlArtist_UseCustomSettingsForThisDownload" xml:space="preserve">
+    <value>このダウンロードにカスタム設定を使用</value>
+  </data>
+  <data name="DlArtist_CreateSubfolderPerSubmission" xml:space="preserve">
+    <value>投稿ごとにサブフォルダーを作成</value>
+  </data>
+  <data name="DlArtist_SeparateR18Folder" xml:space="preserve">
+    <value>R-18を別フォルダーに</value>
+  </data>
+  <data name="DlArtist_FilterAIGenerated" xml:space="preserve">
+    <value>AI生成を除外</value>
+  </data>
+  <data name="DlArtist_SavePreset" xml:space="preserve">
+    <value>💾 プリセットを保存</value>
+  </data>
+  <data name="DlArtist_StartDownload" xml:space="preserve">
+    <value>▶ ダウンロード開始</value>
+  </data>
+  <data name="DlId_DownloadByImageID" xml:space="preserve">
+    <value>画像ID別ダウンロード</value>
+  </data>
+  <data name="DlId_DownloadSpecificArtworksByTheirID" xml:space="preserve">
+    <value>IDまたはURLで特定の作品をダウンロード</value>
+  </data>
+  <data name="DlId_Help" xml:space="preserve">
+    <value>? ヘルプ</value>
+  </data>
+  <data name="DlId_ImageIDsOrURLs" xml:space="preserve">
+    <value>画像IDまたはURL</value>
+  </data>
+  <data name="DlId_EnterImageIDsURLsOrPaste" xml:space="preserve">
+    <value>画像ID、URLを入力するかクリップボードから貼り付け...</value>
+  </data>
+  <data name="DlId_PasteFromClipboard" xml:space="preserve">
+    <value>📋 クリップボードから貼り付け</value>
+  </data>
+  <data name="DlId_ImportFromFile" xml:space="preserve">
+    <value>📁 ファイルからインポート</value>
+  </data>
+  <data name="DlId_SomeEntriesCouldNotBeParsed" xml:space="preserve">
+    <value>⚠ 解析できなかったエントリ:</value>
+  </data>
+  <data name="DlId_DownloadOptions" xml:space="preserve">
+    <value>ダウンロードオプション</value>
+  </data>
+  <data name="DlId_PageRangeForMultiPageWorks" xml:space="preserve">
+    <value>ページ範囲（複数ページ作品用）</value>
+  </data>
+  <data name="DlId_SinglePageArtworksWillDownloadThe" xml:space="preserve">
+    <value>単一ページ作品はこの設定に関わらず画像全体をダウンロードします。</value>
+  </data>
+  <data name="DlId_SkipAlreadyDownloadedImages" xml:space="preserve">
+    <value>ダウンロード済み画像をスキップ</value>
+  </data>
+  <data name="DlId_DownloadSettings" xml:space="preserve">
+    <value>ダウンロード設定</value>
+  </data>
+  <data name="DlId_UseGlobalSettings" xml:space="preserve">
+    <value>グローバル設定を使用</value>
+  </data>
+  <data name="DlId_UseCustomSettingsForThisDownload" xml:space="preserve">
+    <value>このダウンロードにカスタム設定を使用</value>
+  </data>
+  <data name="DlId_SavePreset" xml:space="preserve">
+    <value>💾 プリセットを保存</value>
+  </data>
+  <data name="DlId_StartDownload" xml:space="preserve">
+    <value>▶ ダウンロード開始</value>
+  </data>
+  <data name="Queue_DownloadQueue" xml:space="preserve">
+    <value>ダウンロードキュー</value>
+  </data>
+  <data name="Queue_ClearCompleted" xml:space="preserve">
+    <value>完了分をクリア</value>
+  </data>
+  <data name="Jobs_Downloads" xml:space="preserve">
+    <value>ダウンロード</value>
+  </data>
+  <data name="Jobs_ManageAndMonitorYourDownloads" xml:space="preserve">
+    <value>ダウンロードの管理と監視</value>
+  </data>
+  <data name="Jobs_RefreshDownloads" xml:space="preserve">
+    <value>ダウンロードを更新</value>
+  </data>
+  <data name="WhatsNew_WhatSNewInPikura" xml:space="preserve">
+    <value>Pikuraの新機能</value>
+  </data>
+  <data name="Common_Previous" xml:space="preserve">
+    <value>前へ</value>
+  </data>
+  <data name="Common_Next" xml:space="preserve">
+    <value>次へ</value>
+  </data>
+  <data name="WhatsNew_Finish" xml:space="preserve">
+    <value>完了</value>
+  </data>
+  <data name="WhatsNew_NEW" xml:space="preserve">
+    <value>NEW</value>
+  </data>
+  <data name="Gallery_FollowedArtists" xml:space="preserve">
+    <value>フォロー中の作者</value>
+  </data>
+  <data name="Gallery_NumberOfFollowedArtistsLoaded" xml:space="preserve">
+    <value>読み込み済みのフォロー中作者数</value>
+  </data>
+  <data name="Gallery_RefreshFollowedArtistsListFromPixiv" xml:space="preserve">
+    <value>Pixivからフォロー中作者リストを更新（ローカルキャッシュをクリア）</value>
+  </data>
+  <data name="Gallery_ClickIndividualArtistIDsToQueue" xml:space="preserve">
+    <value>個別の作者IDをクリックしてキューに入れ、このボタンでキュー中の全IDを一括コピー</value>
+  </data>
+  <data name="Gallery_CopyAll" xml:space="preserve">
+    <value>すべてコピー</value>
+  </data>
+  <data name="Gallery_ViewRecentWorksFromAllFollowed" xml:space="preserve">
+    <value>フォロー中全作者の最近の作品を表示</value>
+  </data>
+  <data name="Gallery_RecentWorks" xml:space="preserve">
+    <value>最近の作品</value>
+  </data>
+  <data name="Gallery_SearchScopeCurrentArtistFiltersThe" xml:space="preserve">
+    <value>検索範囲: 「現在の作者」は読み込み済みギャラリーを絞り込み、「全フォロー」はフォロー中全作者のカタログを検索</value>
+  </data>
+  <data name="Gallery_CurrentArtist" xml:space="preserve">
+    <value>現在の作者</value>
+  </data>
+  <data name="Gallery_AllFollowed" xml:space="preserve">
+    <value>全フォロー</value>
+  </data>
+  <data name="Gallery_SearchTagArtistOrID" xml:space="preserve">
+    <value>タグ、作者、IDで検索…</value>
+  </data>
+  <data name="Gallery_PixivSearch" xml:space="preserve">
+    <value>Pixiv検索</value>
+  </data>
+  <data name="Gallery_SearchArtworksByTag" xml:space="preserve">
+    <value> — タグで作品を検索</value>
+  </data>
+  <data name="Gallery_OpenArtworkByID" xml:space="preserve">
+    <value> — IDで作品を開く</value>
+  </data>
+  <data name="Gallery_OpenArtistByUserID" xml:space="preserve">
+    <value> — ユーザーIDで作者を開く</value>
+  </data>
+  <data name="Gallery_SearchArtistByName" xml:space="preserve">
+    <value> — 名前で作者を検索</value>
+  </data>
+  <data name="Gallery_PressEnterToSearchUseThe" xml:space="preserve">
+    <value>Enterで検索。範囲ドロップダウンで現在の作者のみまたは全フォロー作者を検索できます。</value>
+  </data>
+  <data name="Gallery_ClearSearchAndReturnToGallery" xml:space="preserve">
+    <value>検索をクリアしてギャラリーに戻る</value>
+  </data>
+  <data name="Gallery_DownloadEveryArtworkFromThisArtist" xml:space="preserve">
+    <value>この作者の全作品をディスクにダウンロード</value>
+  </data>
+  <data name="Gallery_DownloadAll" xml:space="preserve">
+    <value>すべてダウンロード</value>
+  </data>
+  <data name="Gallery_DownloadOnlyTheArtworksCurrentlyShown" xml:space="preserve">
+    <value>グリッドに現在表示中の作品のみダウンロード</value>
+  </data>
+  <data name="Gallery_DownloadLoaded" xml:space="preserve">
+    <value>読み込み済みをダウンロード</value>
+  </data>
+  <data name="Gallery_DownloadOnlyTheCheckedArtworks" xml:space="preserve">
+    <value>チェックした作品のみダウンロード</value>
+  </data>
+  <data name="Gallery_ShowTheCheckedArtworksInA" xml:space="preserve">
+    <value>チェックした作品を新しいコラージュタブで表示（最大100件）</value>
+  </data>
+  <data name="Gallery_AddTheCheckedArtworksToThe" xml:space="preserve">
+    <value>チェックした作品を有効なコラージュに追加。矢印でコラージュを選択</value>
+  </data>
+  <data name="Gallery_OpenEachSelectedArtworkInIts" xml:space="preserve">
+    <value>選択した各作品を個別のタブで開く</value>
+  </data>
+  <data name="Gallery_ViewInNewTabs" xml:space="preserve">
+    <value>新しいタブで表示</value>
+  </data>
+  <data name="Gallery_ClearSelection" xml:space="preserve">
+    <value>選択をクリア</value>
+  </data>
+  <data name="Gallery_DeselectAll" xml:space="preserve">
+    <value>すべて解除 (</value>
+  </data>
+  <data name="Gallery_ChooseANumberedRangeToDownload" xml:space="preserve">
+    <value>ダウンロードする番号範囲を選択（例: 1-20）</value>
+  </data>
+  <data name="Gallery_DownloadRange" xml:space="preserve">
+    <value>範囲をダウンロード…</value>
+  </data>
+  <data name="Gallery_DownloadWithImageProcessingPreset" xml:space="preserve">
+    <value>画像処理プリセットでダウンロード</value>
+  </data>
+  <data name="Gallery_DownloadPreset" xml:space="preserve">
+    <value>ダウンロードプリセット</value>
+  </data>
+  <data name="Gallery_DownloadsWaitingInQueueAutoStart" xml:space="preserve">
+    <value>キューで待機中のダウンロード（現在の完了後に自動開始）</value>
+  </data>
+  <data name="Gallery_ToggleTheSidePanelBrowseArtworks" xml:space="preserve">
+    <value>サイドパネル切替（ビューアと並べて作品を閲覧）</value>
+  </data>
+  <data name="Gallery_ShowPanel" xml:space="preserve">
+    <value>パネルを表示</value>
+  </data>
+  <data name="Gallery_HidePanel" xml:space="preserve">
+    <value>パネルを隠す</value>
+  </data>
+  <data name="Gallery_ToggleTagAndDateFilters" xml:space="preserve">
+    <value>タグ・日付フィルター切替</value>
+  </data>
+  <data name="Gallery_Filters" xml:space="preserve">
+    <value>フィルター</value>
+  </data>
+  <data name="Gallery_SortArtworks" xml:space="preserve">
+    <value>作品の並び替え</value>
+  </data>
+  <data name="Gallery_Default" xml:space="preserve">
+    <value>デフォルト</value>
+  </data>
+  <data name="Gallery_AZ" xml:space="preserve">
+    <value>A → Z</value>
+  </data>
+  <data name="Gallery_ZA" xml:space="preserve">
+    <value>Z → A</value>
+  </data>
+  <data name="Gallery_NewestFirst" xml:space="preserve">
+    <value>新しい順</value>
+  </data>
+  <data name="Gallery_OldestFirst" xml:space="preserve">
+    <value>古い順</value>
+  </data>
+  <data name="Gallery_MostPages" xml:space="preserve">
+    <value>ページ数順</value>
+  </data>
+  <data name="Gallery_FixedCardHeight" xml:space="preserve">
+    <value>カード高さ固定</value>
+  </data>
+  <data name="Gallery_Fixed" xml:space="preserve">
+    <value>固定</value>
+  </data>
+  <data name="Gallery_NaturalHeightPreservesAspectRatio" xml:space="preserve">
+    <value>自然な高さ（縦横比を維持）</value>
+  </data>
+  <data name="Gallery_Natural" xml:space="preserve">
+    <value>自然</value>
+  </data>
+  <data name="Gallery_ShowHideTagsOnCards" xml:space="preserve">
+    <value>カードのタグ表示切替</value>
+  </data>
+  <data name="Gallery_Tags" xml:space="preserve">
+    <value>タグ</value>
+  </data>
+  <data name="Gallery_ShowHideCardInfoStripTitle" xml:space="preserve">
+    <value>カード情報ストリップ（タイトル＋タグ）の表示切替</value>
+  </data>
+  <data name="Gallery_Info" xml:space="preserve">
+    <value>情報</value>
+  </data>
+  <data name="Gallery_ShowHideLikedBookmarkedFavoriteBadges" xml:space="preserve">
+    <value>カードのいいね / ブックマーク / お気に入りバッジの表示切替</value>
+  </data>
+  <data name="Gallery_Badges" xml:space="preserve">
+    <value>バッジ</value>
+  </data>
+  <data name="Gallery_Size" xml:space="preserve">
+    <value>サイズ</value>
+  </data>
+  <data name="Gallery_GridView" xml:space="preserve">
+    <value>グリッド表示</value>
+  </data>
+  <data name="Gallery_Grid" xml:space="preserve">
+    <value>グリッド</value>
+  </data>
+  <data name="Gallery_ListView" xml:space="preserve">
+    <value>リスト表示</value>
+  </data>
+  <data name="Gallery_List" xml:space="preserve">
+    <value>リスト</value>
+  </data>
+  <data name="Gallery_INCLUDETAGS" xml:space="preserve">
+    <value>含めるタグ</value>
+  </data>
+  <data name="Gallery_ShowOnlyArtworksThatHaveALL" xml:space="preserve">
+    <value>これらのタグをすべて含む作品のみ表示（カンマ区切り）</value>
+  </data>
+  <data name="Gallery_EXCLUDETAGS" xml:space="preserve">
+    <value>除外タグ</value>
+  </data>
+  <data name="Gallery_HideArtworksThatHaveANYOf" xml:space="preserve">
+    <value>これらのタグのいずれかを含む作品を隠す（カンマ区切り）</value>
+  </data>
+  <data name="Gallery_DATERANGE" xml:space="preserve">
+    <value>期間</value>
+  </data>
+  <data name="Gallery_ShowArtworksFromThisDate" xml:space="preserve">
+    <value>この日以降の作品を表示</value>
+  </data>
+  <data name="Gallery_ShowArtworksUpToThisDate" xml:space="preserve">
+    <value>この日までの作品を表示</value>
+  </data>
+  <data name="Gallery_ClearFilters" xml:space="preserve">
+    <value>✕ フィルターをクリア</value>
+  </data>
+  <data name="Gallery_ClearAllTagAndDateFilters" xml:space="preserve">
+    <value>すべてのタグ・日付フィルターをクリア</value>
+  </data>
+  <data name="Gallery_FilterArtists" xml:space="preserve">
+    <value>作者を絞り込み…</value>
+  </data>
+  <data name="Gallery_OpenArtistPage" xml:space="preserve">
+    <value>作者ページを開く</value>
+  </data>
+  <data name="Gallery_CopyID" xml:space="preserve">
+    <value>IDをコピー</value>
+  </data>
+  <data name="Gallery_Unfollow" xml:space="preserve">
+    <value>💔 フォロー解除</value>
+  </data>
+  <data name="Gallery_ShowExplicitContent" xml:space="preserve">
+    <value>成人向けコンテンツを表示</value>
+  </data>
+  <data name="Gallery_ShowHideR18Content" xml:space="preserve">
+    <value>R-18コンテンツの表示 / 非表示</value>
+  </data>
+  <data name="Gallery_SelectAnArtist" xml:space="preserve">
+    <value>作者を選択</value>
+  </data>
+  <data name="Gallery_ChooseFromTheSidebarOrClick" xml:space="preserve">
+    <value>サイドバーから選択するか「最近の作品」をクリック</value>
+  </data>
+  <data name="Gallery_Select" xml:space="preserve">
+    <value>☑ 選択</value>
+  </data>
+  <data name="Gallery_Deselect" xml:space="preserve">
+    <value>☒ 解除</value>
+  </data>
+  <data name="Gallery_DownloadAll_2" xml:space="preserve">
+    <value>↓ すべてダウンロード</value>
+  </data>
+  <data name="Gallery_FirstPageOnly" xml:space="preserve">
+    <value>↓ 最初のページのみ</value>
+  </data>
+  <data name="Gallery_OpenInSidePanel" xml:space="preserve">
+    <value>👁 サイドパネルで開く</value>
+  </data>
+  <data name="Gallery_OpenFullScreen" xml:space="preserve">
+    <value>⛶ 全画面で開く</value>
+  </data>
+  <data name="Gallery_OpenInNewTab" xml:space="preserve">
+    <value>⊞ 新しいタブで開く</value>
+  </data>
+  <data name="Gallery_OpenInPopup" xml:space="preserve">
+    <value>⧉ ポップアップで開く</value>
+  </data>
+  <data name="Gallery_OpenOnPixivNet" xml:space="preserve">
+    <value>🌐 pixiv.netで開く</value>
+  </data>
+  <data name="Gallery_OpenArtistGallery" xml:space="preserve">
+    <value>👤 作者ギャラリーを開く</value>
+  </data>
+  <data name="Gallery_FollowArtist" xml:space="preserve">
+    <value>💙 作者をフォロー</value>
+  </data>
+  <data name="Gallery_UnfollowArtist" xml:space="preserve">
+    <value>💔 作者のフォロー解除</value>
+  </data>
+  <data name="Gallery_AddToLocalFavorites" xml:space="preserve">
+    <value>★ ローカルお気に入りに追加</value>
+  </data>
+  <data name="Gallery_RemoveFromFavorites" xml:space="preserve">
+    <value>★ お気に入りから削除</value>
+  </data>
+  <data name="Gallery_CopyArtworkID" xml:space="preserve">
+    <value>作品IDをコピー</value>
+  </data>
+  <data name="Gallery_CopyArtistID" xml:space="preserve">
+    <value>作者IDをコピー</value>
+  </data>
+  <data name="Gallery_CopyImage" xml:space="preserve">
+    <value>📋 画像をコピー</value>
+  </data>
+  <data name="Gallery_UseAsAppBackground" xml:space="preserve">
+    <value>🖼 アプリの背景に設定</value>
+  </data>
+  <data name="Gallery_ExportMetadata" xml:space="preserve">
+    <value>💾 メタデータを出力…</value>
+  </data>
+  <data name="Gallery_SaveIdArtistLinkSizeUpload" xml:space="preserve">
+    <value>id・作者・リンク・サイズ・投稿日・閲覧数・ブックマーク数・タグをCSV/TSV/JSON/TXTに保存</value>
+  </data>
+  <data name="Gallery_ExportMetadataOfSelected" xml:space="preserve">
+    <value>💾 選択分のメタデータを出力…</value>
+  </data>
+  <data name="Gallery_OpenPopup" xml:space="preserve">
+    <value>ポップアップを開く</value>
+  </data>
+  <data name="Gallery_OpenInNewTab_2" xml:space="preserve">
+    <value>新しいタブで開く</value>
+  </data>
+  <data name="Gallery_OpenOnPixivNet_2" xml:space="preserve">
+    <value>pixiv.netで開く</value>
+  </data>
+  <data name="Gallery_NoArtworksFoundForThisArtist" xml:space="preserve">
+    <value>この作者の作品が見つかりません</value>
+  </data>
+  <data name="Gallery_TryChangingFiltersOrSelectingA" xml:space="preserve">
+    <value>フィルターを変更するか別の作者を選択してください。</value>
+  </data>
+  <data name="Gallery_TogglePaginationOffShowAllOn" xml:space="preserve">
+    <value>ページネーション切替（オフ = すべて表示, オン = ページ分割）</value>
+  </data>
+  <data name="Gallery_Pages" xml:space="preserve">
+    <value>ページ</value>
+  </data>
+  <data name="Gallery_ItemsPerPage" xml:space="preserve">
+    <value>1ページあたりの件数</value>
+  </data>
+  <data name="Gallery_GoToFirstPage" xml:space="preserve">
+    <value>最初のページへ</value>
+  </data>
+  <data name="Gallery_PreviousPage" xml:space="preserve">
+    <value>前のページ</value>
+  </data>
+  <data name="Gallery_EnterPageNumberAndPressEnter" xml:space="preserve">
+    <value>ページ番号を入力してEnterで移動</value>
+  </data>
+  <data name="Gallery_NextPage" xml:space="preserve">
+    <value>次のページ</value>
+  </data>
+  <data name="Gallery_GoToLastPage" xml:space="preserve">
+    <value>最後のページへ</value>
+  </data>
+  <data name="Gallery_SelectAll" xml:space="preserve">
+    <value>すべて選択</value>
+  </data>
+  <data name="Gallery_LoadAllIntoView" xml:space="preserve">
+    <value>すべてを表示に読み込み</value>
+  </data>
+  <data name="Gallery_LoadEveryArtworkIntoTheGrid" xml:space="preserve">
+    <value>すべての作品をグリッドに読み込み（時間がかかる場合あり）</value>
+  </data>
+  <data name="Viewer_HideOrShowTheSidePanel" xml:space="preserve">
+    <value>サイドパネルの表示切替</value>
+  </data>
+  <data name="Viewer_ShowPanel" xml:space="preserve">
+    <value>パネルを表示</value>
+  </data>
+  <data name="Viewer_HidePanel" xml:space="preserve">
+    <value>パネルを隠す</value>
+  </data>
+  <data name="Viewer_ExpandToFullScreenRestoreSide" xml:space="preserve">
+    <value>全画面に拡大 / サイドパネルを復元</value>
+  </data>
+  <data name="Viewer_Expand" xml:space="preserve">
+    <value>拡大</value>
+  </data>
+  <data name="Viewer_Restore" xml:space="preserve">
+    <value>復元</value>
+  </data>
+  <data name="Viewer_OpenInFullscreenWindowF11" xml:space="preserve">
+    <value>全画面ウィンドウで開く（F11）</value>
+  </data>
+  <data name="Viewer_CloseAllTabs" xml:space="preserve">
+    <value>すべてのタブを閉じる</value>
+  </data>
+  <data name="Viewer_CloseAll" xml:space="preserve">
+    <value>すべて閉じる</value>
+  </data>
+  <data name="Viewer_CloseThisTab" xml:space="preserve">
+    <value>このタブを閉じる</value>
+  </data>
+  <data name="Viewer_AllOpenTabs" xml:space="preserve">
+    <value>開いているすべてのタブ</value>
+  </data>
+  <data name="Viewer_ClickToCopyArtistID" xml:space="preserve">
+    <value>クリックで作者IDをコピー</value>
+  </data>
+  <data name="Viewer_FollowOrUnfollowThisArtist" xml:space="preserve">
+    <value>この作者をフォロー / フォロー解除</value>
+  </data>
+  <data name="Viewer_Follow" xml:space="preserve">
+    <value>フォロー</value>
+  </data>
+  <data name="Viewer_ShowHidePixivLikeBookmarkView" xml:space="preserve">
+    <value>Pixivいいね / ブックマーク / 閲覧数の表示切替</value>
+  </data>
+  <data name="Viewer_Likes" xml:space="preserve">
+    <value>いいね</value>
+  </data>
+  <data name="Viewer_Views" xml:space="preserve">
+    <value>閲覧</value>
+  </data>
+  <data name="Viewer_EnterAnArtworkPositionAndPress" xml:space="preserve">
+    <value>作品の位置番号を入力してEnter</value>
+  </data>
+  <data name="Viewer_FirstArtwork" xml:space="preserve">
+    <value>最初の作品</value>
+  </data>
+  <data name="Viewer_PreviousArtwork" xml:space="preserve">
+    <value>前の作品</value>
+  </data>
+  <data name="Viewer_NextArtwork" xml:space="preserve">
+    <value>次の作品</value>
+  </data>
+  <data name="Viewer_LastArtwork" xml:space="preserve">
+    <value>最後の作品</value>
+  </data>
+  <data name="Viewer_ZoomOut" xml:space="preserve">
+    <value>縮小</value>
+  </data>
+  <data name="Viewer_FitToWindow" xml:space="preserve">
+    <value>ウィンドウに合わせる</value>
+  </data>
+  <data name="Viewer_ZoomIn" xml:space="preserve">
+    <value>拡大</value>
+  </data>
+  <data name="Viewer_PreviousPage" xml:space="preserve">
+    <value>前のページ</value>
+  </data>
+  <data name="Viewer_Prev" xml:space="preserve">
+    <value>前へ</value>
+  </data>
+  <data name="Viewer_NextPage" xml:space="preserve">
+    <value>次のページ</value>
+  </data>
+  <data name="Viewer_DownloadCurrentPage" xml:space="preserve">
+    <value>現在のページをダウンロード</value>
+  </data>
+  <data name="Viewer_Page" xml:space="preserve">
+    <value>ページ</value>
+  </data>
+  <data name="Viewer_DownloadAllPages" xml:space="preserve">
+    <value>すべてのページをダウンロード</value>
+  </data>
+  <data name="Viewer_DownloadPageRange" xml:space="preserve">
+    <value>ページ範囲をダウンロード</value>
+  </data>
+  <data name="Viewer_DownloadWithImageProcessingPreset" xml:space="preserve">
+    <value>画像処理プリセットでダウンロード</value>
+  </data>
+  <data name="Viewer_Preset" xml:space="preserve">
+    <value>プリセット</value>
+  </data>
+  <data name="Viewer_OpenOnPixivNet" xml:space="preserve">
+    <value>pixiv.netで開く</value>
+  </data>
+  <data name="Viewer_OpenThisArtistSGallery" xml:space="preserve">
+    <value>この作者のギャラリーを開く</value>
+  </data>
+  <data name="Viewer_Artist" xml:space="preserve">
+    <value>作者</value>
+  </data>
+  <data name="Viewer_OpenInFloatingPopupWindow" xml:space="preserve">
+    <value>フローティングポップアップウィンドウで開く</value>
+  </data>
+  <data name="Viewer_Popup" xml:space="preserve">
+    <value>ポップアップ</value>
+  </data>
+  <data name="Viewer_CopyThisImageToTheClipboard" xml:space="preserve">
+    <value>この画像をクリップボードにコピー</value>
+  </data>
+  <data name="Viewer_AddRemoveFromLocalFavorites" xml:space="preserve">
+    <value>ローカルお気に入りに追加 / 削除</value>
+  </data>
+  <data name="Viewer_Favorite" xml:space="preserve">
+    <value>お気に入り</value>
+  </data>
+  <data name="Viewer_LikeThisArtworkOnPixiv" xml:space="preserve">
+    <value>この作品をPixivでいいね</value>
+  </data>
+  <data name="Viewer_Like" xml:space="preserve">
+    <value>いいね</value>
+  </data>
+  <data name="Viewer_MainClickAddsAPublicPixiv" xml:space="preserve">
+    <value>メインクリックで公開Pixivブックマークを追加（または現在のものを削除）。矢印で公開/非公開を選択。</value>
+  </data>
+  <data name="Viewer_Bookmark" xml:space="preserve">
+    <value>ブックマーク</value>
+  </data>
+  <data name="Viewer_PublicBookmark" xml:space="preserve">
+    <value>公開ブックマーク</value>
+  </data>
+  <data name="Viewer_AddAsAPublicPixivBookmark" xml:space="preserve">
+    <value>公開Pixivブックマークとして追加（既に非公開なら公開に切替）</value>
+  </data>
+  <data name="Viewer_PrivateBookmark" xml:space="preserve">
+    <value>非公開ブックマーク</value>
+  </data>
+  <data name="Viewer_AddAsAPrivatePixivBookmark" xml:space="preserve">
+    <value>非公開Pixivブックマークとして追加（既に公開なら非公開に切替）</value>
+  </data>
+  <data name="Viewer_ViewAndPostComments" xml:space="preserve">
+    <value>コメントの閲覧と投稿</value>
+  </data>
+  <data name="Viewer_Comments" xml:space="preserve">
+    <value>コメント</value>
+  </data>
+  <data name="Viewer_LoadingComments" xml:space="preserve">
+    <value>コメントを読み込み中…</value>
+  </data>
+  <data name="Viewer_CancelReply" xml:space="preserve">
+    <value>返信をキャンセル</value>
+  </data>
+  <data name="Viewer_SendASticker" xml:space="preserve">
+    <value>スタンプを送信</value>
+  </data>
+  <data name="Viewer_Emoji" xml:space="preserve">
+    <value>絵文字</value>
+  </data>
+  <data name="Viewer_Stickers" xml:space="preserve">
+    <value>スタンプ</value>
+  </data>
+  <data name="Viewer_LoadingStickers" xml:space="preserve">
+    <value>スタンプを読み込み中…</value>
+  </data>
+  <data name="Viewer_AddAComment" xml:space="preserve">
+    <value>コメントを追加…</value>
+  </data>
+  <data name="Viewer_Post" xml:space="preserve">
+    <value>投稿</value>
+  </data>
+  <data name="Viewer_ExitCollageView" xml:space="preserve">
+    <value>コラージュ表示を終了</value>
+  </data>
+  <data name="Viewer_ReturnToTheStoredCollageView" xml:space="preserve">
+    <value>保存されたコラージュビューに戻る</value>
+  </data>
+  <data name="Viewer_DownloadAllCollageArtworksIntoA" xml:space="preserve">
+    <value>コラージュ内の全作品を Collage_###### フォルダーにダウンロード</value>
+  </data>
+  <data name="Viewer_ToggleHoshiAIAssistant" xml:space="preserve">
+    <value>Hoshi（星）切替 — AIアシスタント</value>
+  </data>
+  <data name="Viewer_CloseTheCollageTab" xml:space="preserve">
+    <value>コラージュタブを閉じる</value>
+  </data>
+  <data name="Viewer_Preview" xml:space="preserve">
+    <value>プレビュー</value>
+  </data>
+  <data name="Viewer_ClickAnImageToPreviewIt" xml:space="preserve">
+    <value>画像をクリックしてここにプレビュー</value>
+  </data>
+  <data name="Viewer_Retry" xml:space="preserve">
+    <value>↺ 再試行</value>
+  </data>
+  <data name="Viewer_DownloadThisPage" xml:space="preserve">
+    <value>↓ このページをダウンロード</value>
+  </data>
+  <data name="Viewer_DownloadAllPages_2" xml:space="preserve">
+    <value>↓ すべてのページをダウンロード</value>
+  </data>
+  <data name="Viewer_DownloadPageRange_2" xml:space="preserve">
+    <value>↓ ページ範囲をダウンロード…</value>
+  </data>
+  <data name="Viewer_FullscreenF11" xml:space="preserve">
+    <value>⛶ 全画面（F11）</value>
+  </data>
+  <data name="Viewer_OpenInPopupWindow" xml:space="preserve">
+    <value>ポップアップウィンドウで開く</value>
+  </data>
+  <data name="Viewer_OpenArtworkOnPixiv" xml:space="preserve">
+    <value>🌐 Pixivで作品を開く</value>
+  </data>
+  <data name="Viewer_GoToArtistSGallery" xml:space="preserve">
+    <value>👤 作者のギャラリーへ</value>
+  </data>
+  <data name="Viewer_OpenArtistOnPixiv" xml:space="preserve">
+    <value>🌐 Pixivで作者を開く</value>
+  </data>
+  <data name="Viewer_CopyArtworkID" xml:space="preserve">
+    <value>作品IDをコピー</value>
+  </data>
+  <data name="Viewer_CopyArtistID" xml:space="preserve">
+    <value>作者IDをコピー</value>
+  </data>
+  <data name="Viewer_CopyImage" xml:space="preserve">
+    <value>📋 画像をコピー</value>
+  </data>
+  <data name="Viewer_UseAsAppBackground" xml:space="preserve">
+    <value>🖼 アプリの背景に設定</value>
+  </data>
+  <data name="Viewer_ResetZoom" xml:space="preserve">
+    <value>ズームをリセット</value>
+  </data>
+  <data name="Viewer_ExpandIntoPageTiles" xml:space="preserve">
+    <value>ページタイルに展開</value>
+  </data>
+  <data name="Viewer_RemoveFromCollage" xml:space="preserve">
+    <value>コラージュから削除</value>
+  </data>
+  <data name="Viewer_Hoshi" xml:space="preserve">
+    <value>✦ Hoshi 星</value>
+  </data>
+  <data name="Viewer_FullView" xml:space="preserve">
+    <value>⤢ 全体表示</value>
+  </data>
+  <data name="Viewer_ContinueThisChatInTheFull" xml:space="preserve">
+    <value>このチャットをHoshiタブで続ける</value>
+  </data>
+  <data name="Viewer_Describe" xml:space="preserve">
+    <value>👁 説明</value>
+  </data>
+  <data name="Viewer_DescribeThisImage" xml:space="preserve">
+    <value>この画像を説明</value>
+  </data>
+  <data name="Viewer_DescribeThisImageUseTheArrow" xml:space="preserve">
+    <value>この画像を説明。矢印ですべてのページを説明できます。</value>
+  </data>
+  <data name="Viewer_DescribeCurrentPage" xml:space="preserve">
+    <value>👁 現在のページを説明</value>
+  </data>
+  <data name="Viewer_DescribeAllPages" xml:space="preserve">
+    <value>📚 すべてのページを説明</value>
+  </data>
+  <data name="Viewer_DescribesEveryPageOfAMulti" xml:space="preserve">
+    <value>複数ページ投稿の各ページを説明（表示中のページだけでなく）</value>
+  </data>
+  <data name="Viewer_Tags" xml:space="preserve">
+    <value>🏷 タグ</value>
+  </data>
+  <data name="Viewer_SuggestTags" xml:space="preserve">
+    <value>タグを提案</value>
+  </data>
+  <data name="Viewer_SimilarArt" xml:space="preserve">
+    <value>🖼 類似作品</value>
+  </data>
+  <data name="Viewer_RecommendArtworksSimilarToThisImage" xml:space="preserve">
+    <value>この画像に似た作品を推薦</value>
+  </data>
+  <data name="Viewer_SimilarArtists" xml:space="preserve">
+    <value>🧑‍🎨 類似作者</value>
+  </data>
+  <data name="Viewer_RecommendArtistsWithASimilarStyle" xml:space="preserve">
+    <value>似た画風の作者を推薦</value>
+  </data>
+  <data name="Viewer_Fav" xml:space="preserve">
+    <value>⭐ お気に入り</value>
+  </data>
+  <data name="Viewer_AddToLocalFavorites" xml:space="preserve">
+    <value>ローカルお気に入りに追加</value>
+  </data>
+  <data name="Viewer_DL" xml:space="preserve">
+    <value>↓ DL</value>
+  </data>
+  <data name="Viewer_DownloadThisArtwork" xml:space="preserve">
+    <value>この作品をダウンロード</value>
+  </data>
+  <data name="Viewer_Clear" xml:space="preserve">
+    <value>🗑 クリア</value>
+  </data>
+  <data name="Viewer_ClearChatHistory" xml:space="preserve">
+    <value>チャット履歴をクリア</value>
+  </data>
+  <data name="Viewer_ViewArtwork" xml:space="preserve">
+    <value>🖼 作品を表示</value>
+  </data>
+  <data name="Viewer_OpenThisArtworkInANew" xml:space="preserve">
+    <value>この作品を新しいビューアタブで開く</value>
+  </data>
+  <data name="Viewer_Gallery" xml:space="preserve">
+    <value>👤 ギャラリー</value>
+  </data>
+  <data name="Viewer_OpenURL" xml:space="preserve">
+    <value>🌐 URLを開く</value>
+  </data>
+  <data name="Viewer_OpenThisPixivPageInYour" xml:space="preserve">
+    <value>このPixivページをブラウザーで開く</value>
+  </data>
+  <data name="Viewer_HoshiIsThinking" xml:space="preserve">
+    <value>Hoshiが考え中…</value>
+  </data>
+  <data name="Viewer_AskHoshiAnythingDescribeSuggestTags" xml:space="preserve">
+    <value>Hoshiに何でも聞く — 説明、タグ提案、ダウンロード、お気に入り追加、フォルダー移動…</value>
+  </data>
+  <data name="Viewer_Send" xml:space="preserve">
+    <value>送信</value>
+  </data>
+  <data name="Viewer_ClickTagFilterShiftClickSearch" xml:space="preserve">
+    <value>タグをクリック: 絞り込み • Shift+クリック: グローバル検索</value>
+  </data>
+  <data name="History_ActiveAndCompletedDownloads" xml:space="preserve">
+    <value>実行中および完了したダウンロード</value>
+  </data>
+  <data name="History_RetryAllFailed" xml:space="preserve">
+    <value>すべての失敗を再試行</value>
+  </data>
+  <data name="History_CardView" xml:space="preserve">
+    <value>カード表示</value>
+  </data>
+  <data name="History_ListView" xml:space="preserve">
+    <value>リスト表示</value>
+  </data>
+  <data name="History_PauseAll" xml:space="preserve">
+    <value>すべて一時停止</value>
+  </data>
+  <data name="History_ResumeAll" xml:space="preserve">
+    <value>すべて再開</value>
+  </data>
+  <data name="History_Pause" xml:space="preserve">
+    <value>一時停止</value>
+  </data>
+  <data name="History_Resume" xml:space="preserve">
+    <value>再開</value>
+  </data>
+  <data name="History_MoveToTop" xml:space="preserve">
+    <value>先頭へ移動</value>
+  </data>
+  <data name="History_MoveUp" xml:space="preserve">
+    <value>上へ移動</value>
+  </data>
+  <data name="History_MoveDown" xml:space="preserve">
+    <value>下へ移動</value>
+  </data>
+  <data name="History_MoveToBottom" xml:space="preserve">
+    <value>最後へ移動</value>
+  </data>
+  <data name="History_RemoveFromQueue" xml:space="preserve">
+    <value>キューから削除</value>
+  </data>
+  <data name="History_PreparingFetchingArtworkList" xml:space="preserve">
+    <value>準備中…（作品リストを取得）</value>
+  </data>
+  <data name="History_Actions" xml:space="preserve">
+    <value>操作</value>
+  </data>
+  <data name="History_NoActiveDownloads" xml:space="preserve">
+    <value>実行中のダウンロードはありません</value>
+  </data>
+  <data name="History_QueueAJobFromGalleryOr" xml:space="preserve">
+    <value>ギャラリーまたは発見からジョブをキューに追加して開始</value>
+  </data>
+  <data name="History_Completed" xml:space="preserve">
+    <value>完了</value>
+  </data>
+  <data name="History_ClearAll" xml:space="preserve">
+    <value>すべてクリア</value>
+  </data>
+  <data name="History_OpenFolder" xml:space="preserve">
+    <value>フォルダーを開く</value>
+  </data>
+  <data name="Common_Remove" xml:space="preserve">
+    <value>削除</value>
+  </data>
+  <data name="History_ExportMetadata" xml:space="preserve">
+    <value>💾 メタデータを出力…</value>
+  </data>
+  <data name="History_FetchAndSaveIdArtistLink" xml:space="preserve">
+    <value>このジョブの全作品のid・作者・リンク・サイズ・投稿日・閲覧数・ブックマーク数・タグを取得して保存</value>
+  </data>
+  <data name="History_NoCompletedDownloads" xml:space="preserve">
+    <value>完了したダウンロードはありません</value>
+  </data>
+  <data name="History_Failed" xml:space="preserve">
+    <value>失敗</value>
+  </data>
+  <data name="History_RetryAll" xml:space="preserve">
+    <value>すべて再試行</value>
+  </data>
+  <data name="History_NoFailedDownloads" xml:space="preserve">
+    <value>失敗したダウンロードはありません</value>
+  </data>
+  <data name="History_Cancelled" xml:space="preserve">
+    <value>キャンセル済み</value>
+  </data>
+  <data name="History_NoCancelledDownloads" xml:space="preserve">
+    <value>キャンセルしたダウンロードはありません</value>
+  </data>
+  <data name="Viewed_Select" xml:space="preserve">
+    <value>☑ 選択</value>
+  </data>
+  <data name="Viewed_Deselect" xml:space="preserve">
+    <value>☒ 解除</value>
+  </data>
+  <data name="Viewed_DownloadAll" xml:space="preserve">
+    <value>↓ すべてダウンロード</value>
+  </data>
+  <data name="Viewed_FirstPageOnly" xml:space="preserve">
+    <value>↓ 最初のページのみ</value>
+  </data>
+  <data name="Viewed_OpenInSidePanel" xml:space="preserve">
+    <value>👁 サイドパネルで開く</value>
+  </data>
+  <data name="Viewed_OpenFullScreen" xml:space="preserve">
+    <value>⛶ 全画面で開く</value>
+  </data>
+  <data name="Viewed_OpenInNewTab" xml:space="preserve">
+    <value>⊞ 新しいタブで開く</value>
+  </data>
+  <data name="Viewed_OpenInPopup" xml:space="preserve">
+    <value>⧉ ポップアップで開く</value>
+  </data>
+  <data name="Viewed_OpenOnPixivNet" xml:space="preserve">
+    <value>🌐 pixiv.netで開く</value>
+  </data>
+  <data name="Viewed_OpenArtistGallery" xml:space="preserve">
+    <value>👤 作者ギャラリーを開く</value>
+  </data>
+  <data name="Viewed_AddToLocalFavorites" xml:space="preserve">
+    <value>★ ローカルお気に入りに追加</value>
+  </data>
+  <data name="Viewed_RemoveFromFavorites" xml:space="preserve">
+    <value>★ お気に入りから削除</value>
+  </data>
+  <data name="Viewed_CopyArtworkID" xml:space="preserve">
+    <value>作品IDをコピー</value>
+  </data>
+  <data name="Viewed_CopyArtistID" xml:space="preserve">
+    <value>作者IDをコピー</value>
+  </data>
+  <data name="Viewed_CopyImage" xml:space="preserve">
+    <value>📋 画像をコピー</value>
+  </data>
+  <data name="Viewed_UseAsAppBackground" xml:space="preserve">
+    <value>🖼 アプリの背景に設定</value>
+  </data>
+  <data name="Viewed_RemoveFromHistory" xml:space="preserve">
+    <value>✕ 履歴から削除</value>
+  </data>
+  <data name="Viewed_IncognitoModeArtworksYouOpenWon" xml:space="preserve">
+    <value>シークレットモード: 有効な間、開いた作品はこの履歴に追加されません。</value>
+  </data>
+  <data name="Viewed_IncognitoOff" xml:space="preserve">
+    <value>シークレット: オフ</value>
+  </data>
+  <data name="Viewed_IncognitoOn" xml:space="preserve">
+    <value>シークレット: オン</value>
+  </data>
+  <data name="Viewed_BrowseByExactDate" xml:space="preserve">
+    <value>正確な日付で閲覧</value>
+  </data>
+  <data name="Viewed_QuickRange" xml:space="preserve">
+    <value>クイック範囲</value>
+  </data>
+  <data name="Viewed_Today" xml:space="preserve">
+    <value>今日</value>
+  </data>
+  <data name="Viewed_PastDay" xml:space="preserve">
+    <value>過去1日</value>
+  </data>
+  <data name="Viewed_PastWeek" xml:space="preserve">
+    <value>過去1週間</value>
+  </data>
+  <data name="Viewed_PastMonth" xml:space="preserve">
+    <value>過去1か月</value>
+  </data>
+  <data name="Viewed_PastYear" xml:space="preserve">
+    <value>過去1年</value>
+  </data>
+  <data name="Viewed_CustomRange" xml:space="preserve">
+    <value>カスタム範囲…</value>
+  </data>
+  <data name="Viewed_AllTime" xml:space="preserve">
+    <value>全期間</value>
+  </data>
+  <data name="Viewed_BackToAllTime" xml:space="preserve">
+    <value>全期間に戻る</value>
+  </data>
+  <data name="Viewed_DefaultFlatChronologicalFeed" xml:space="preserve">
+    <value>デフォルト — 時系列のフラットフィード</value>
+  </data>
+  <data name="Viewed_GroupedCollageThumbnailPerDay" xml:space="preserve">
+    <value>グループ — 日ごとのコラージュサムネイル</value>
+  </data>
+  <data name="Viewed_ListDayByDayList" xml:space="preserve">
+    <value>リスト — 日ごとの一覧</value>
+  </data>
+  <data name="Viewed_ShowPanel" xml:space="preserve">
+    <value>パネルを表示</value>
+  </data>
+  <data name="Viewed_HidePanel" xml:space="preserve">
+    <value>パネルを隠す</value>
+  </data>
+  <data name="Viewed_ClearHistory" xml:space="preserve">
+    <value>履歴をクリア…</value>
+  </data>
+  <data name="Viewed_PastHour" xml:space="preserve">
+    <value>過去1時間</value>
+  </data>
+  <data name="Viewed_DownloadVisible" xml:space="preserve">
+    <value>表示分をダウンロード</value>
+  </data>
+  <data name="Viewed_SelectAll" xml:space="preserve">
+    <value>☑ すべて選択</value>
+  </data>
+  <data name="Viewed_DownloadPreset" xml:space="preserve">
+    <value>🎨 ダウンロードプリセット</value>
+  </data>
+  <data name="Viewed_DownloadWithImageProcessingPreset" xml:space="preserve">
+    <value>画像処理プリセットでダウンロード</value>
+  </data>
+  <data name="Viewed_BackToDays" xml:space="preserve">
+    <value>← 日付一覧に戻る</value>
+  </data>
+  <data name="Viewed_TogglePaginationOffAutoloadWhileScrollin" xml:space="preserve">
+    <value>ページネーション切替（オフ = スクロールで自動読み込み）</value>
+  </data>
+  <data name="Viewed_Pages" xml:space="preserve">
+    <value>ページ</value>
+  </data>
+  <data name="Viewed_ItemsPerPage" xml:space="preserve">
+    <value>1ページあたりの件数</value>
+  </data>
+  <data name="Viewed_Prev" xml:space="preserve">
+    <value>‹ 前へ</value>
+  </data>
+  <data name="Viewed_TypeAPageNumberAndPress" xml:space="preserve">
+    <value>ページ番号を入力してEnter</value>
+  </data>
+  <data name="Viewed_Next" xml:space="preserve">
+    <value>次へ ›</value>
+  </data>
+  <data name="Viewed_LoadMore" xml:space="preserve">
+    <value>さらに読み込む</value>
+  </data>
+  <data name="Hoshi_Sessions" xml:space="preserve">
+    <value>セッション</value>
+  </data>
+  <data name="Hoshi_ClearAll" xml:space="preserve">
+    <value>すべてクリア</value>
+  </data>
+  <data name="Hoshi_New" xml:space="preserve">
+    <value>✚ 新規</value>
+  </data>
+  <data name="Hoshi_NoSessionsYet" xml:space="preserve">
+    <value>まだセッションがありません</value>
+  </data>
+  <data name="Hoshi_ClickNewToStartThenDrop" xml:space="preserve">
+    <value>✚ 新規をクリックして開始し、画像をドロップしてください。</value>
+  </data>
+  <data name="Hoshi_DeleteSelected" xml:space="preserve">
+    <value>選択を削除</value>
+  </data>
+  <data name="Hoshi_Duplicate" xml:space="preserve">
+    <value>複製</value>
+  </data>
+  <data name="Hoshi_DeleteSession" xml:space="preserve">
+    <value>セッションを削除</value>
+  </data>
+  <data name="Hoshi_Enable" xml:space="preserve">
+    <value>有効化</value>
+  </data>
+  <data name="Hoshi_ClickToViewLarger" xml:space="preserve">
+    <value>クリックで拡大表示</value>
+  </data>
+  <data name="Hoshi_NoImageAttached" xml:space="preserve">
+    <value>画像が添付されていません</value>
+  </data>
+  <data name="Hoshi_DropAnImageHerePasteWith" xml:space="preserve">
+    <value>ここに画像をドロップ、Ctrl+Vで貼り付け、または 📂 開く をクリック</value>
+  </data>
+  <data name="Hoshi_ViewArtwork" xml:space="preserve">
+    <value>🖼 作品を表示</value>
+  </data>
+  <data name="Hoshi_OpenThisArtworkInTheGallery" xml:space="preserve">
+    <value>この作品をギャラリービューアで開く</value>
+  </data>
+  <data name="Hoshi_Open" xml:space="preserve">
+    <value>📂 開く</value>
+  </data>
+  <data name="Hoshi_AttachAnImageFromYourComputer" xml:space="preserve">
+    <value>コンピューターから画像を添付</value>
+  </data>
+  <data name="Hoshi_Paste" xml:space="preserve">
+    <value>📋 貼り付け</value>
+  </data>
+  <data name="Hoshi_PasteImageFromClipboardCtrlV" xml:space="preserve">
+    <value>クリップボードから画像を貼り付け（Ctrl+Vでも可）</value>
+  </data>
+  <data name="Hoshi_URL" xml:space="preserve">
+    <value>🌐 URL</value>
+  </data>
+  <data name="Hoshi_ClearChat" xml:space="preserve">
+    <value>🗑 チャットをクリア</value>
+  </data>
+  <data name="Hoshi_ClearsTheConversationOnlyTheAttached" xml:space="preserve">
+    <value>会話のみクリア — 添付画像はそのまま残ります。</value>
+  </data>
+  <data name="Hoshi_You" xml:space="preserve">
+    <value>あなた</value>
+  </data>
+  <data name="Hoshi_OpenThisArtworkInANew" xml:space="preserve">
+    <value>この作品を新しいビューアタブで開く</value>
+  </data>
+  <data name="Hoshi_Gallery" xml:space="preserve">
+    <value>👤 ギャラリー</value>
+  </data>
+  <data name="Hoshi_OpenThisArtistSGallery" xml:space="preserve">
+    <value>この作者のギャラリーを開く</value>
+  </data>
+  <data name="Hoshi_OpenURL" xml:space="preserve">
+    <value>🌐 URLを開く</value>
+  </data>
+  <data name="Hoshi_OpenThisPixivPageInYour" xml:space="preserve">
+    <value>このPixivページをブラウザーで開く</value>
+  </data>
+  <data name="Hoshi_HoshiIsThinking" xml:space="preserve">
+    <value>Hoshiが考え中…</value>
+  </data>
+  <data name="Hoshi_Describe" xml:space="preserve">
+    <value>👁 説明</value>
+  </data>
+  <data name="Hoshi_DescribeTheImageItsStyleAnd" xml:space="preserve">
+    <value>画像、そのスタイル、キャラクターを説明</value>
+  </data>
+  <data name="Hoshi_DescribeTheImageItsStyleAnd_2" xml:space="preserve">
+    <value>画像、そのスタイル、キャラクターを説明。矢印ですべてのページを説明できます。</value>
+  </data>
+  <data name="Hoshi_DescribeCurrentPage" xml:space="preserve">
+    <value>👁 現在のページを説明</value>
+  </data>
+  <data name="Hoshi_DescribeAllPages" xml:space="preserve">
+    <value>📚 すべてのページを説明</value>
+  </data>
+  <data name="Hoshi_DescribesEveryPageOfAMulti" xml:space="preserve">
+    <value>複数ページ投稿の各ページを説明（表示中のページだけでなく）</value>
+  </data>
+  <data name="Hoshi_Tags" xml:space="preserve">
+    <value>🏷 タグ</value>
+  </data>
+  <data name="Hoshi_SimilarArt" xml:space="preserve">
+    <value>🖼 類似作品</value>
+  </data>
+  <data name="Hoshi_RecommendArtworksSimilarToThisImage" xml:space="preserve">
+    <value>この画像に似た作品を推薦</value>
+  </data>
+  <data name="Hoshi_SimilarArtists" xml:space="preserve">
+    <value>🧑‍🎨 類似作者</value>
+  </data>
+  <data name="Hoshi_RecommendArtistsWithASimilarStyle" xml:space="preserve">
+    <value>似た画風の作者を推薦</value>
+  </data>
+  <data name="Hoshi_Fav" xml:space="preserve">
+    <value>⭐ お気に入り</value>
+  </data>
+  <data name="Hoshi_DL" xml:space="preserve">
+    <value>↓ DL</value>
+  </data>
+  <data name="Hoshi_AskHoshiAnythingDropAnImage" xml:space="preserve">
+    <value>Hoshiに何でも聞く — 画像をドロップ、貼り付け、または質問を入力…</value>
+  </data>
+  <data name="Hoshi_Sending" xml:space="preserve">
+    <value>送信中…</value>
+  </data>
+  <data name="Hoshi_Send" xml:space="preserve">
+    <value>送信</value>
+  </data>
+  <data name="Login_SettingUpSignIn" xml:space="preserve">
+    <value>サインインを準備中</value>
+  </data>
+  <data name="Login_DownloadingTheBundledBrowserUsedTo" xml:space="preserve">
+    <value>サインインに使う同梱ブラウザーをダウンロードしています。初回のみで数分かかります（約150 MB）。</value>
+  </data>
+  <data name="Login_ContactingPlaywrightDev" xml:space="preserve">
+    <value>playwright.devに接続中…</value>
+  </data>
+  <data name="Login_PastePHPSESSID" xml:space="preserve">
+    <value>PHPSESSIDを貼り付け</value>
+  </data>
+  <data name="Login_ManualSignInEmergencyFallback" xml:space="preserve">
+    <value>手動サインイン（緊急用）</value>
+  </data>
+  <data name="Login_PastePHPSESSIDValueHere" xml:space="preserve">
+    <value>PHPSESSIDの値をここに貼り付け…</value>
+  </data>
+  <data name="Common_Confirm" xml:space="preserve">
+    <value>確認</value>
+  </data>
+  <data name="Login_SignInToPixiv" xml:space="preserve">
+    <value>Pixivにサインイン</value>
+  </data>
+  <data name="Login_SignInWithYourPixivAccount" xml:space="preserve">
+    <value>下でPixivアカウントにサインインしてください。セッションは自動的に取得されます。</value>
+  </data>
+  <data name="Pixivision_Select" xml:space="preserve">
+    <value>☑ 選択</value>
+  </data>
+  <data name="Pixivision_Deselect" xml:space="preserve">
+    <value>☒ 解除</value>
+  </data>
+  <data name="Pixivision_DownloadAll" xml:space="preserve">
+    <value>↓ すべてダウンロード</value>
+  </data>
+  <data name="Pixivision_FirstPageOnly" xml:space="preserve">
+    <value>↓ 最初のページのみ</value>
+  </data>
+  <data name="Pixivision_OpenInSidePanel" xml:space="preserve">
+    <value>👁 サイドパネルで開く</value>
+  </data>
+  <data name="Pixivision_OpenFullScreen" xml:space="preserve">
+    <value>⛶ 全画面で開く</value>
+  </data>
+  <data name="Pixivision_OpenInNewTab" xml:space="preserve">
+    <value>⊞ 新しいタブで開く</value>
+  </data>
+  <data name="Pixivision_OpenInPopup" xml:space="preserve">
+    <value>⧉ ポップアップで開く</value>
+  </data>
+  <data name="Pixivision_OpenOnPixivNet" xml:space="preserve">
+    <value>🌐 pixiv.netで開く</value>
+  </data>
+  <data name="Pixivision_OpenArtistGallery" xml:space="preserve">
+    <value>👤 作者ギャラリーを開く</value>
+  </data>
+  <data name="Pixivision_AddToLocalFavorites" xml:space="preserve">
+    <value>★ ローカルお気に入りに追加</value>
+  </data>
+  <data name="Pixivision_RemoveFromFavorites" xml:space="preserve">
+    <value>★ お気に入りから削除</value>
+  </data>
+  <data name="Pixivision_CopyArtworkID" xml:space="preserve">
+    <value>作品IDをコピー</value>
+  </data>
+  <data name="Pixivision_CopyArtistID" xml:space="preserve">
+    <value>作者IDをコピー</value>
+  </data>
+  <data name="Pixivision_CopyImage" xml:space="preserve">
+    <value>📋 画像をコピー</value>
+  </data>
+  <data name="Pixivision_UseAsAppBackground" xml:space="preserve">
+    <value>🖼 アプリの背景に設定</value>
+  </data>
+  <data name="Pixivision_UgoiraOptions" xml:space="preserve">
+    <value>うごイラオプション…</value>
+  </data>
+  <data name="Pixivision_SaveForLater" xml:space="preserve">
+    <value>🔖 あとで読む</value>
+  </data>
+  <data name="Pixivision_RemoveFromSaved" xml:space="preserve">
+    <value>🔖 保存から削除</value>
+  </data>
+  <data name="Pixivision_OpenOnPixivisionNet" xml:space="preserve">
+    <value>🌐 pixivision.netで開く</value>
+  </data>
+  <data name="Pixivision_ArticlesSavedForReadingLater" xml:space="preserve">
+    <value>あとで読むに保存した記事</value>
+  </data>
+  <data name="Pixivision_Back" xml:space="preserve">
+    <value>← 戻る</value>
+  </data>
+  <data name="Pixivision_BrowseArticlesByDate" xml:space="preserve">
+    <value>日付で記事を閲覧</value>
+  </data>
+  <data name="Pixivision_QuickRange" xml:space="preserve">
+    <value>クイック範囲</value>
+  </data>
+  <data name="Pixivision_Today" xml:space="preserve">
+    <value>今日</value>
+  </data>
+  <data name="Pixivision_PastDay" xml:space="preserve">
+    <value>過去1日</value>
+  </data>
+  <data name="Pixivision_PastWeek" xml:space="preserve">
+    <value>過去1週間</value>
+  </data>
+  <data name="Pixivision_PastMonth" xml:space="preserve">
+    <value>過去1か月</value>
+  </data>
+  <data name="Pixivision_PastYear" xml:space="preserve">
+    <value>過去1年</value>
+  </data>
+  <data name="Pixivision_CustomRange" xml:space="preserve">
+    <value>カスタム範囲…</value>
+  </data>
+  <data name="Pixivision_AllTime" xml:space="preserve">
+    <value>全期間</value>
+  </data>
+  <data name="Pixivision_BackToAllDates" xml:space="preserve">
+    <value>全日付に戻る</value>
+  </data>
+  <data name="Pixivision_SaveThisArticleToReadLater" xml:space="preserve">
+    <value>この記事をあとで読むに保存</value>
+  </data>
+  <data name="Pixivision_CardSize" xml:space="preserve">
+    <value>カードサイズ</value>
+  </data>
+  <data name="Pixivision_ShowOrHideTheMonthlyRanking" xml:space="preserve">
+    <value>月間ランキング / 注目サイドバーの表示切替</value>
+  </data>
+  <data name="Pixivision_SidebarSizeWidensTheMonthlyRanking" xml:space="preserve">
+    <value>サイドバーサイズ — 月間ランキング / 注目パネルを広げサムネイルを拡大</value>
+  </data>
+  <data name="Pixivision_ToggleTheSidePanelBrowseArtworks" xml:space="preserve">
+    <value>サイドパネル切替（ビューアと並べて作品を閲覧）</value>
+  </data>
+  <data name="Pixivision_SwitchBetweenShowingEmbeddedArtworksInli" xml:space="preserve">
+    <value>記事内の埋め込み作品をその場表示するか、下部のギャラリーにまとめるかを切替</value>
+  </data>
+  <data name="Pixivision_Artworks" xml:space="preserve">
+    <value>作品:</value>
+  </data>
+  <data name="Pixivision_ShowHideLikedBookmarkedFavoriteBadges" xml:space="preserve">
+    <value>カードのいいね / ブックマーク / お気に入りバッジの表示切替</value>
+  </data>
+  <data name="Pixivision_Badges" xml:space="preserve">
+    <value>バッジ</value>
+  </data>
+  <data name="Pixivision_ShowTheSelectedArtworksTiledTogether" xml:space="preserve">
+    <value>選択した作品をサイドパネルにタイル表示（最大10件）</value>
+  </data>
+  <data name="Pixivision_Collage" xml:space="preserve">
+    <value>コラージュ</value>
+  </data>
+  <data name="Pixivision_AddTheSelectedArtworksToThe" xml:space="preserve">
+    <value>選択した作品を有効なコラージュに追加。矢印でコラージュを選択</value>
+  </data>
+  <data name="Pixivision_OpenEachSelectedArtworkInIts" xml:space="preserve">
+    <value>選択した各作品を個別のタブで開く</value>
+  </data>
+  <data name="Pixivision_ViewInNewTabs" xml:space="preserve">
+    <value>新しいタブで表示</value>
+  </data>
+  <data name="Pixivision_DownloadAllFeatured" xml:space="preserve">
+    <value>注目の全作品をダウンロード</value>
+  </data>
+  <data name="Pixivision_SelectAll" xml:space="preserve">
+    <value>☑ すべて選択</value>
+  </data>
+  <data name="Pixivision_DownloadPreset" xml:space="preserve">
+    <value>🎨 ダウンロードプリセット</value>
+  </data>
+  <data name="Pixivision_DownloadWithImageProcessingPreset" xml:space="preserve">
+    <value>画像処理プリセットでダウンロード</value>
+  </data>
+  <data name="Pixivision_OpenOnPixivisionNet_2" xml:space="preserve">
+    <value>pixivision.netで開く</value>
+  </data>
+  <data name="Pixivision_SaveForLater_2" xml:space="preserve">
+    <value>あとで読む</value>
+  </data>
+  <data name="Pixivision_MonthlyRanking" xml:space="preserve">
+    <value>🏆 月間ランキング</value>
+  </data>
+  <data name="Pixivision_Featured" xml:space="preserve">
+    <value>⭐ 注目</value>
+  </data>
+  <data name="Pixivision_SavedArticles" xml:space="preserve">
+    <value>🔖 保存した記事</value>
+  </data>
+  <data name="Pixivision_NoSavedArticlesYetOpenAn" xml:space="preserve">
+    <value>まだ保存した記事がありません。記事を開いて 🔖 保存をタップするとあとで読めます。</value>
+  </data>
+  <data name="Pixivision_RemoveFromSaved_2" xml:space="preserve">
+    <value>保存から削除</value>
+  </data>
+  <data name="Pixivision_Index" xml:space="preserve">
+    <value>📑 目次</value>
+  </data>
+  <data name="Pixivision_FeaturedArtworks" xml:space="preserve">
+    <value>注目の作品</value>
+  </data>
+  <data name="Pixivision_TogglePaginationOffAutoloadWhileScrollin" xml:space="preserve">
+    <value>ページネーション切替（オフ = スクロールで自動読み込み）</value>
+  </data>
+  <data name="Pixivision_Pages" xml:space="preserve">
+    <value>ページ</value>
+  </data>
+  <data name="Pixivision_Prev" xml:space="preserve">
+    <value>‹ 前へ</value>
+  </data>
+  <data name="Pixivision_TypeAPageNumberAndPress" xml:space="preserve">
+    <value>ページ番号を入力してEnter</value>
+  </data>
+  <data name="Pixivision_Next" xml:space="preserve">
+    <value>次へ ›</value>
+  </data>
+  <data name="Rankings_LoadRankings" xml:space="preserve">
+    <value>ランキングを読み込み</value>
+  </data>
+  <data name="Rankings_DailyWeeklyAndMonthlyRankings" xml:space="preserve">
+    <value>デイリー・ウィークリー・マンスリーランキング</value>
+  </data>
+  <data name="Rankings_OpenInSidePanel" xml:space="preserve">
+    <value>👁 サイドパネルで開く</value>
+  </data>
+  <data name="Rankings_OpenInTheInlineViewerWith" xml:space="preserve">
+    <value>サイドパネル表示のインラインビューアで開く</value>
+  </data>
+  <data name="Rankings_OpenFullScreen" xml:space="preserve">
+    <value>⛶ 全画面で開く</value>
+  </data>
+  <data name="Rankings_OpenInTheInlineViewerIn" xml:space="preserve">
+    <value>全画面モードのインラインビューアで開く</value>
+  </data>
+  <data name="Rankings_OpenInNewTab" xml:space="preserve">
+    <value>⊞ 新しいタブで開く</value>
+  </data>
+  <data name="Rankings_OpenThisArtworkInANew" xml:space="preserve">
+    <value>この作品を新しいビューアタブで開く</value>
+  </data>
+  <data name="Rankings_OpenInPopupWindow" xml:space="preserve">
+    <value>⧉ ポップアップウィンドウで開く</value>
+  </data>
+  <data name="Rankings_OpenInAFloatingWindow" xml:space="preserve">
+    <value>フローティングウィンドウで開く</value>
+  </data>
+  <data name="Rankings_Select" xml:space="preserve">
+    <value>☑ 選択</value>
+  </data>
+  <data name="Rankings_AddToBulkSelection" xml:space="preserve">
+    <value>一括選択に追加</value>
+  </data>
+  <data name="Rankings_Deselect" xml:space="preserve">
+    <value>☒ 解除</value>
+  </data>
+  <data name="Rankings_OpenArtistGallery" xml:space="preserve">
+    <value>👤 作者ギャラリーを開く</value>
+  </data>
+  <data name="Rankings_SwitchToTheGalleryTabAnd" xml:space="preserve">
+    <value>ギャラリータブに切り替えてこの作者を読み込み</value>
+  </data>
+  <data name="Rankings_OpenOnPixivNet" xml:space="preserve">
+    <value>🌐 pixiv.netで開く</value>
+  </data>
+  <data name="Rankings_OpenArtistOnPixiv" xml:space="preserve">
+    <value>🌐 pixivで作者を開く</value>
+  </data>
+  <data name="Rankings_AddToLocalFavorites" xml:space="preserve">
+    <value>★ ローカルお気に入りに追加</value>
+  </data>
+  <data name="Rankings_RemoveFromFavorites" xml:space="preserve">
+    <value>★ お気に入りから削除</value>
+  </data>
+  <data name="Rankings_CopyArtworkID" xml:space="preserve">
+    <value>作品IDをコピー</value>
+  </data>
+  <data name="Rankings_CopyArtworkURL" xml:space="preserve">
+    <value>作品URLをコピー</value>
+  </data>
+  <data name="Rankings_CopyImage" xml:space="preserve">
+    <value>📋 画像をコピー</value>
+  </data>
+  <data name="Rankings_UseAsAppBackground" xml:space="preserve">
+    <value>🖼 アプリの背景に設定</value>
+  </data>
+  <data name="Rankings_NewerDate" xml:space="preserve">
+    <value>新しい日付</value>
+  </data>
+  <data name="Rankings_PickADate" xml:space="preserve">
+    <value>日付を選択</value>
+  </data>
+  <data name="Rankings_YYYYMMDD" xml:space="preserve">
+    <value>YYYY-MM-DD</value>
+  </data>
+  <data name="Rankings_TypeYYYYMMDDAndPress" xml:space="preserve">
+    <value>YYYY-MM-DDを入力してEnter</value>
+  </data>
+  <data name="Rankings_ResetToLatestRanking" xml:space="preserve">
+    <value>最新ランキングに戻す</value>
+  </data>
+  <data name="Rankings_OlderDate" xml:space="preserve">
+    <value>古い日付</value>
+  </data>
+  <data name="Rankings_Reload" xml:space="preserve">
+    <value>再読み込み</value>
+  </data>
+  <data name="Rankings_ShowR18Rankings" xml:space="preserve">
+    <value>R-18ランキングを表示</value>
+  </data>
+  <data name="Rankings_Overall" xml:space="preserve">
+    <value>総合</value>
+  </data>
+  <data name="Rankings_Illustrations" xml:space="preserve">
+    <value>イラスト</value>
+  </data>
+  <data name="Rankings_Ugoira" xml:space="preserve">
+    <value>うごイラ</value>
+  </data>
+  <data name="Rankings_Manga" xml:space="preserve">
+    <value>マンガ</value>
+  </data>
+  <data name="Rankings_GridView" xml:space="preserve">
+    <value>グリッド表示</value>
+  </data>
+  <data name="Rankings_ListView" xml:space="preserve">
+    <value>リスト表示</value>
+  </data>
+  <data name="Rankings_FixedCardHeightImagesCroppedTo" xml:space="preserve">
+    <value>カード高さ固定 — 画像はフィットするよう切り抜き</value>
+  </data>
+  <data name="Rankings_NaturalCardHeightImagesShowFull" xml:space="preserve">
+    <value>自然なカード高さ — 画像は完全な縦横比で表示</value>
+  </data>
+  <data name="Rankings_CardSize" xml:space="preserve">
+    <value>カードサイズ</value>
+  </data>
+  <data name="Rankings_ToggleTheSidePanelBrowseArtworks" xml:space="preserve">
+    <value>サイドパネル切替（ビューアと並べて作品を閲覧）</value>
+  </data>
+  <data name="Rankings_ShowPanel" xml:space="preserve">
+    <value>パネルを表示</value>
+  </data>
+  <data name="Rankings_HidePanel" xml:space="preserve">
+    <value>パネルを隠す</value>
+  </data>
+  <data name="Rankings_ShowHideArtworkInfo" xml:space="preserve">
+    <value>作品情報の表示 / 非表示</value>
+  </data>
+  <data name="Rankings_ShowHideTags" xml:space="preserve">
+    <value>タグの表示 / 非表示</value>
+  </data>
+  <data name="Rankings_ShowHideLikedBookmarkedFavoriteBadges" xml:space="preserve">
+    <value>カードのいいね / ブックマーク / お気に入りバッジの表示切替</value>
+  </data>
+  <data name="Rankings_Badges" xml:space="preserve">
+    <value>バッジ</value>
+  </data>
+  <data name="Rankings_Daily" xml:space="preserve">
+    <value>デイリー</value>
+  </data>
+  <data name="Rankings_Weekly" xml:space="preserve">
+    <value>ウィークリー</value>
+  </data>
+  <data name="Rankings_AI" xml:space="preserve">
+    <value>AI</value>
+  </data>
+  <data name="Rankings_Male" xml:space="preserve">
+    <value>男性向け</value>
+  </data>
+  <data name="Rankings_Female" xml:space="preserve">
+    <value>女性向け</value>
+  </data>
+  <data name="Rankings_Monthly" xml:space="preserve">
+    <value>マンスリー</value>
+  </data>
+  <data name="Rankings_Rookie" xml:space="preserve">
+    <value>ルーキー</value>
+  </data>
+  <data name="Rankings_Original" xml:space="preserve">
+    <value>オリジナル</value>
+  </data>
+  <data name="Rankings_DownloadSelectedArtworks" xml:space="preserve">
+    <value>選択した作品をダウンロード</value>
+  </data>
+  <data name="Rankings_ShowTheSelectedArtworksTiledTogether" xml:space="preserve">
+    <value>選択した作品をサイドパネルにタイル表示（最大10件）</value>
+  </data>
+  <data name="Rankings_Collage" xml:space="preserve">
+    <value>コラージュ</value>
+  </data>
+  <data name="Rankings_AddTheSelectedArtworksToThe" xml:space="preserve">
+    <value>選択した作品を有効なコラージュに追加。矢印でコラージュを選択</value>
+  </data>
+  <data name="Rankings_OpenEachSelectedArtworkInIts" xml:space="preserve">
+    <value>選択した各作品を個別のタブで開く</value>
+  </data>
+  <data name="Rankings_ViewInNewTabs" xml:space="preserve">
+    <value>新しいタブで表示</value>
+  </data>
+  <data name="Rankings_DownloadAllVisibleArtworks" xml:space="preserve">
+    <value>表示中のすべての作品をダウンロード</value>
+  </data>
+  <data name="Rankings_DownloadVisible" xml:space="preserve">
+    <value>表示分をダウンロード</value>
+  </data>
+  <data name="Rankings_DownloadPreset" xml:space="preserve">
+    <value>🎨 ダウンロードプリセット</value>
+  </data>
+  <data name="Rankings_DownloadWithImageProcessingPreset" xml:space="preserve">
+    <value>画像処理プリセットでダウンロード</value>
+  </data>
+  <data name="Rankings_SelectAll" xml:space="preserve">
+    <value>☑ すべて選択</value>
+  </data>
+  <data name="Rankings_SelectAllVisibleArtworks" xml:space="preserve">
+    <value>表示中の作品をすべて選択</value>
+  </data>
+  <data name="Rankings_LoadingRankings" xml:space="preserve">
+    <value>🏆 ランキングを読み込み中…</value>
+  </data>
+  <data name="Rankings_NoRankingsToShow" xml:space="preserve">
+    <value>🏆 表示するランキングがありません</value>
+  </data>
+  <data name="Rankings_TogglePaginationOffAutoloadWhileScrollin" xml:space="preserve">
+    <value>ページネーション切替（オフ = スクロールで自動読み込み）</value>
+  </data>
+  <data name="Rankings_Pages" xml:space="preserve">
+    <value>ページ</value>
+  </data>
+  <data name="Rankings_ItemsPerPage" xml:space="preserve">
+    <value>1ページあたりの件数</value>
+  </data>
+  <data name="Rankings_Prev" xml:space="preserve">
+    <value>‹ 前へ</value>
+  </data>
+  <data name="Rankings_TypeAPageNumberAndPress" xml:space="preserve">
+    <value>ページ番号を入力してEnter</value>
+  </data>
+  <data name="Rankings_Next" xml:space="preserve">
+    <value>次へ ›</value>
+  </data>
+  <data name="Search_Select" xml:space="preserve">
+    <value>☑ 選択</value>
+  </data>
+  <data name="Search_Deselect" xml:space="preserve">
+    <value>☒ 解除</value>
+  </data>
+  <data name="Search_DownloadAll" xml:space="preserve">
+    <value>↓ すべてダウンロード</value>
+  </data>
+  <data name="Search_FirstPageOnly" xml:space="preserve">
+    <value>↓ 最初のページのみ</value>
+  </data>
+  <data name="Search_OpenInSidePanel" xml:space="preserve">
+    <value>👁 サイドパネルで開く</value>
+  </data>
+  <data name="Search_OpenFullScreen" xml:space="preserve">
+    <value>⛶ 全画面で開く</value>
+  </data>
+  <data name="Search_OpenInNewTab" xml:space="preserve">
+    <value>⊞ 新しいタブで開く</value>
+  </data>
+  <data name="Search_OpenInPopup" xml:space="preserve">
+    <value>⧉ ポップアップで開く</value>
+  </data>
+  <data name="Search_OpenOnPixivNet" xml:space="preserve">
+    <value>🌐 pixiv.netで開く</value>
+  </data>
+  <data name="Search_OpenArtistGallery" xml:space="preserve">
+    <value>👤 作者ギャラリーを開く</value>
+  </data>
+  <data name="Search_AddToLocalFavorites" xml:space="preserve">
+    <value>★ ローカルお気に入りに追加</value>
+  </data>
+  <data name="Search_RemoveFromFavorites" xml:space="preserve">
+    <value>★ お気に入りから削除</value>
+  </data>
+  <data name="Search_CopyArtworkID" xml:space="preserve">
+    <value>作品IDをコピー</value>
+  </data>
+  <data name="Search_CopyArtistID" xml:space="preserve">
+    <value>作者IDをコピー</value>
+  </data>
+  <data name="Search_CopyImage" xml:space="preserve">
+    <value>📋 画像をコピー</value>
+  </data>
+  <data name="Search_UseAsAppBackground" xml:space="preserve">
+    <value>🖼 アプリの背景に設定</value>
+  </data>
+  <data name="Search_SearchAllOfPixiv" xml:space="preserve">
+    <value>Pixiv全体を検索…</value>
+  </data>
+  <data name="Search_ClearHistory" xml:space="preserve">
+    <value>履歴をクリア</value>
+  </data>
+  <data name="Search_NoSearchHistoryYet" xml:space="preserve">
+    <value>まだ検索履歴がありません。</value>
+  </data>
+  <data name="Search_Reset" xml:space="preserve">
+    <value>✕ リセット</value>
+  </data>
+  <data name="Search_ClearResultsAndGoBackTo" xml:space="preserve">
+    <value>結果をクリアして検索スタート画面に戻る</value>
+  </data>
+  <data name="Search_Keywords" xml:space="preserve">
+    <value>± キーワード</value>
+  </data>
+  <data name="Search_ShowIncludeExcludeKeywordOptions" xml:space="preserve">
+    <value>キーワードの包含/除外オプションを表示</value>
+  </data>
+  <data name="Search_AdvancedSearchOptions" xml:space="preserve">
+    <value>詳細検索オプション</value>
+  </data>
+  <data name="Search_Options" xml:space="preserve">
+    <value>⚙ オプション</value>
+  </data>
+  <data name="Search_Options_2" xml:space="preserve">
+    <value>⚙ オプション •</value>
+  </data>
+  <data name="Search_SearchOptions" xml:space="preserve">
+    <value>検索オプション</value>
+  </data>
+  <data name="Search_Targets" xml:space="preserve">
+    <value>対象</value>
+  </data>
+  <data name="Search_TagsPartialMatch" xml:space="preserve">
+    <value>タグ（部分一致）</value>
+  </data>
+  <data name="Search_TagsExactMatch" xml:space="preserve">
+    <value>タグ（完全一致）</value>
+  </data>
+  <data name="Search_TitleAndCaption" xml:space="preserve">
+    <value>タイトルとキャプション</value>
+  </data>
+  <data name="Search_WorkType" xml:space="preserve">
+    <value>作品タイプ</value>
+  </data>
+  <data name="Search_IllustrationsUgoira" xml:space="preserve">
+    <value>イラスト＋うごイラ</value>
+  </data>
+  <data name="Search_IllustrationsOnly" xml:space="preserve">
+    <value>イラストのみ</value>
+  </data>
+  <data name="Search_UgoiraOnly" xml:space="preserve">
+    <value>うごイラのみ</value>
+  </data>
+  <data name="Search_AIGeneratedWork" xml:space="preserve">
+    <value>AI生成作品</value>
+  </data>
+  <data name="Search_Display" xml:space="preserve">
+    <value>表示</value>
+  </data>
+  <data name="Search_Hide" xml:space="preserve">
+    <value>非表示</value>
+  </data>
+  <data name="Search_AspectRatio" xml:space="preserve">
+    <value>縦横比</value>
+  </data>
+  <data name="Search_Any" xml:space="preserve">
+    <value>すべて</value>
+  </data>
+  <data name="Search_Portrait" xml:space="preserve">
+    <value>縦向き</value>
+  </data>
+  <data name="Search_Square" xml:space="preserve">
+    <value>正方形</value>
+  </data>
+  <data name="Search_Landscape" xml:space="preserve">
+    <value>横向き</value>
+  </data>
+  <data name="Search_CreationTool" xml:space="preserve">
+    <value>作成ツール</value>
+  </data>
+  <data name="Search_PostedDateRange" xml:space="preserve">
+    <value>投稿日期間</value>
+  </data>
+  <data name="Search_ImageWidthPx" xml:space="preserve">
+    <value>画像幅（px）</value>
+  </data>
+  <data name="Search_ImageHeightPx" xml:space="preserve">
+    <value>画像高さ（px）</value>
+  </data>
+  <data name="Search_PixivPremiumRequired" xml:space="preserve">
+    <value>Pixivプレミアムが必要</value>
+  </data>
+  <data name="Common_Reset" xml:space="preserve">
+    <value>リセット</value>
+  </data>
+  <data name="Search_IncludeAnyOfTheKeywords" xml:space="preserve">
+    <value>いずれかのキーワードを含む</value>
+  </data>
+  <data name="Search_ExcludeKeywords" xml:space="preserve">
+    <value>キーワードを除外</value>
+  </data>
+  <data name="Search_Related" xml:space="preserve">
+    <value>関連:</value>
+  </data>
+  <data name="Search_Illustrations" xml:space="preserve">
+    <value>イラスト</value>
+  </data>
+  <data name="Search_Manga" xml:space="preserve">
+    <value>マンガ</value>
+  </data>
+  <data name="Search_Novels" xml:space="preserve">
+    <value>小説</value>
+  </data>
+  <data name="Search_User" xml:space="preserve">
+    <value>ユーザー</value>
+  </data>
+  <data name="Search_Safe" xml:space="preserve">
+    <value>セーフ</value>
+  </data>
+  <data name="Search_All" xml:space="preserve">
+    <value>すべて</value>
+  </data>
+  <data name="Search_NewestFirst" xml:space="preserve">
+    <value>新しい順</value>
+  </data>
+  <data name="Search_PopularFirst" xml:space="preserve">
+    <value>人気順</value>
+  </data>
+  <data name="Search_PopularMale" xml:space="preserve">
+    <value>人気（男性）</value>
+  </data>
+  <data name="Search_PopularFemale" xml:space="preserve">
+    <value>人気（女性）</value>
+  </data>
+  <data name="Search_ShowPanel" xml:space="preserve">
+    <value>パネルを表示</value>
+  </data>
+  <data name="Search_HidePanel" xml:space="preserve">
+    <value>パネルを隠す</value>
+  </data>
+  <data name="Search_ShowHideLikedBookmarkedFavoriteBadges" xml:space="preserve">
+    <value>カードのいいね / ブックマーク / お気に入りバッジの表示切替</value>
+  </data>
+  <data name="Search_Badges" xml:space="preserve">
+    <value>バッジ</value>
+  </data>
+  <data name="Search_ShowTheSelectedArtworksTiledTogether" xml:space="preserve">
+    <value>選択した作品をサイドパネルにタイル表示（最大10件）</value>
+  </data>
+  <data name="Search_Collage" xml:space="preserve">
+    <value>コラージュ</value>
+  </data>
+  <data name="Search_AddTheSelectedArtworksToThe" xml:space="preserve">
+    <value>選択した作品を有効なコラージュに追加。矢印でコラージュを選択</value>
+  </data>
+  <data name="Search_OpenEachSelectedArtworkInIts" xml:space="preserve">
+    <value>選択した各作品を個別のタブで開く</value>
+  </data>
+  <data name="Search_ViewInNewTabs" xml:space="preserve">
+    <value>新しいタブで表示</value>
+  </data>
+  <data name="Search_DownloadVisible" xml:space="preserve">
+    <value>表示分をダウンロード</value>
+  </data>
+  <data name="Search_SelectAll" xml:space="preserve">
+    <value>☑ すべて選択</value>
+  </data>
+  <data name="Search_DownloadPreset" xml:space="preserve">
+    <value>🎨 ダウンロードプリセット</value>
+  </data>
+  <data name="Search_DownloadWithImageProcessingPreset" xml:space="preserve">
+    <value>画像処理プリセットでダウンロード</value>
+  </data>
+  <data name="Search_SearchAllOfPixiv_2" xml:space="preserve">
+    <value>🔍 Pixiv全体を検索</value>
+  </data>
+  <data name="Search_PopularTagsRightNow" xml:space="preserve">
+    <value>今人気のタグ</value>
+  </data>
+  <data name="Search_VisitRankingsOnceToPopulateThis" xml:space="preserve">
+    <value>ランキングを一度開くと、実際のトレンドがここに表示されます。</value>
+  </data>
+  <data name="Search_OpenGallery" xml:space="preserve">
+    <value>ギャラリーを開く →</value>
+  </data>
+  <data name="Search_TogglePaginationOffAutoloadWhileScrollin" xml:space="preserve">
+    <value>ページネーション切替（オフ = スクロールで自動読み込み）</value>
+  </data>
+  <data name="Search_Pages" xml:space="preserve">
+    <value>ページ</value>
+  </data>
+  <data name="Search_ItemsPerPage" xml:space="preserve">
+    <value>1ページあたりの件数</value>
+  </data>
+  <data name="Search_First" xml:space="preserve">
+    <value>« 最初</value>
+  </data>
+  <data name="Search_Prev" xml:space="preserve">
+    <value>‹ 前へ</value>
+  </data>
+  <data name="Search_TypeAPageNumberAndPress" xml:space="preserve">
+    <value>ページ番号を入力してEnter</value>
+  </data>
+  <data name="Search_Next" xml:space="preserve">
+    <value>次へ ›</value>
+  </data>
+  <data name="Search_Last" xml:space="preserve">
+    <value>最後 »</value>
+  </data>
+  <data name="Search_LoadMore" xml:space="preserve">
+    <value>さらに読み込む</value>
+  </data>
+  <data name="Batch_EnterArtistIdsMulti" xml:space="preserve">
+    <value>作者IDまたはURLを入力...
+1行に1件またはカンマ区切り
+例: 1234567
+https://www.pixiv.net/en/users/1234567</value>
+  </data>
+  <data name="Batch_EnterImageIdsMulti" xml:space="preserve">
+    <value>画像ID、URLを入力...
+1行に1件またはカンマ区切り
+例: 12345678
+https://www.pixiv.net/en/artworks/12345678</value>
+  </data>
+  <data name="Batch_EnterCollectionIdsMulti" xml:space="preserve">
+    <value>コレクションIDまたはURLを1行に1件入力...
+例: 99928968526562868893
+https://www.pixiv.net/collections/99928968526562868893</value>
+  </data>
+  <data name="Batch_DownloadFromListFiles" xml:space="preserve">
+    <value>list.txtまたはtags.txtファイルからダウンロード
+テキストファイルからURL、ID、タグをインポート</value>
+  </data>
+  <data name="DlId_EnterImageIdsMulti" xml:space="preserve">
+    <value>画像ID、URLを入力するかクリップボードから貼り付け...
+例:
+12345678
+https://www.pixiv.net/en/artworks/12345678
+12345679, 12345680</value>
+  </data>
+  <data name="Artwork_BookmarkActionFailed" xml:space="preserve">
+    <value>ブックマーク操作に失敗しました</value>
+  </data>
+  <data name="Artwork_CouldNotBookmark" xml:space="preserve">
+    <value>ブックマークできませんでした</value>
+  </data>
+  <data name="Artwork_CouldNotFollow" xml:space="preserve">
+    <value>フォローできませんでした</value>
+  </data>
+  <data name="Artwork_CouldNotLikeArtwork" xml:space="preserve">
+    <value>いいねできませんでした</value>
+  </data>
+  <data name="Artwork_CouldNotLikeArtwork_2" xml:space="preserve">
+    <value>いいねできませんでした。</value>
+  </data>
+  <data name="Artwork_CouldNotRemoveBookmark" xml:space="preserve">
+    <value>ブックマークを削除できませんでした</value>
+  </data>
+  <data name="Artwork_CouldNotUnfollow" xml:space="preserve">
+    <value>フォロー解除できませんでした</value>
+  </data>
+  <data name="Artwork_CouldNotUpdateBookmark" xml:space="preserve">
+    <value>ブックマークを更新できませんでした。</value>
+  </data>
+  <data name="Artwork_CouldNotUpdateFollowState" xml:space="preserve">
+    <value>フォロー状態を更新できませんでした。</value>
+  </data>
+  <data name="Artwork_CouldNotUpdateFollowStateMake" xml:space="preserve">
+    <value>フォロー状態を更新できませんでした。サインインしているか確認してください。</value>
+  </data>
+  <data name="Artwork_DownloadCompletedSimulated" xml:space="preserve">
+    <value>ダウンロード完了（シミュレーション）</value>
+  </data>
+  <data name="Artwork_DownloadFailedPleaseTryAgain" xml:space="preserve">
+    <value>ダウンロードに失敗しました。再試行してください。</value>
+  </data>
+  <data name="Artwork_DownloadingAllPages" xml:space="preserve">
+    <value>すべてのページをダウンロード中...</value>
+  </data>
+  <data name="Artwork_DownloadingCurrentPage" xml:space="preserve">
+    <value>現在のページをダウンロード中...</value>
+  </data>
+  <data name="Artwork_ExportArtworkMetadata" xml:space="preserve">
+    <value>作品メタデータを出力</value>
+  </data>
+  <data name="Artwork_FailedToLoadArtworkPages" xml:space="preserve">
+    <value>作品ページの読み込みに失敗しました</value>
+  </data>
+  <data name="Artwork_FollowActionFailed" xml:space="preserve">
+    <value>フォロー操作に失敗しました</value>
+  </data>
+  <data name="Artwork_LikeFailed" xml:space="preserve">
+    <value>いいねに失敗しました</value>
+  </data>
+  <data name="Artwork_LoadingArtworkPages" xml:space="preserve">
+    <value>作品ページを読み込み中...</value>
+  </data>
+  <data name="Artwork_RemovedBookmark" xml:space="preserve">
+    <value>ブックマークを削除しました</value>
+  </data>
+  <data name="Batch_AddAtLeastOneArtistTo" xml:space="preserve">
+    <value>リストに作者を1人以上追加してください。</value>
+  </data>
+  <data name="Batch_CreateANewScheduleAddArtists" xml:space="preserve">
+    <value>新規スケジュール — 作者を追加して設定を構成し、「保存」をクリック。</value>
+  </data>
+  <data name="Batch_PickADateAndTimeFor" xml:space="preserve">
+    <value>1回だけ実行する日時を選択してください。</value>
+  </data>
+  <data name="Batch_Validation" xml:space="preserve">
+    <value>検証</value>
+  </data>
+  <data name="Bookmarks_FolderDownloadIsOnlyAvailableOn" xml:space="preserve">
+    <value>フォルダーダウンロードは「ローカルお気に入り」タブでのみ利用できます。</value>
+  </data>
+  <data name="Bookmarks_NoBookmarkedCollectionsFound" xml:space="preserve">
+    <value>ブックマークしたコレクションが見つかりません。</value>
+  </data>
+  <data name="Bookmarks_NoBookmarksToDownloadInThe" xml:space="preserve">
+    <value>現在のタブにダウンロードするブックマークがありません。</value>
+  </data>
+  <data name="Bookmarks_NoCustomFoldersFoundInLocal" xml:space="preserve">
+    <value>ローカルお気に入りにカスタムフォルダーが見つかりません。</value>
+  </data>
+  <data name="Bookmarks_NoFolderSelected" xml:space="preserve">
+    <value>フォルダー未選択</value>
+  </data>
+  <data name="Bookmarks_NoFolders" xml:space="preserve">
+    <value>フォルダーなし</value>
+  </data>
+  <data name="Bookmarks_NoItems" xml:space="preserve">
+    <value>アイテムなし</value>
+  </data>
+  <data name="Bookmarks_NoSelection" xml:space="preserve">
+    <value>未選択</value>
+  </data>
+  <data name="Bookmarks_NotAvailable" xml:space="preserve">
+    <value>利用不可</value>
+  </data>
+  <data name="Bookmarks_NotSignedIn" xml:space="preserve">
+    <value>サインインしていません。</value>
+  </data>
+  <data name="Bookmarks_SelectOneOrMoreBookmarksFirst" xml:space="preserve">
+    <value>まず1つ以上のブックマークを選択してください。</value>
+  </data>
+  <data name="Bookmarks_UseTheFolderSidebarToSelect" xml:space="preserve">
+    <value>まずフォルダーサイドバーでフォルダーを選択してください。</value>
+  </data>
+  <data name="Collections_AddToCollageCancelled" xml:space="preserve">
+    <value>コラージュへの追加をキャンセルしました。</value>
+  </data>
+  <data name="Collections_BookmarkedThisCollection" xml:space="preserve">
+    <value>このコレクションをブックマークしました。</value>
+  </data>
+  <data name="Collections_CouldNotLoadThatCollectionIt" xml:space="preserve">
+    <value>そのコレクションを読み込めませんでした — 非公開、削除済み、またはIDが間違っている可能性があります。</value>
+  </data>
+  <data name="Collections_CouldnTLoadCollectionsYouCan" xml:space="preserve">
+    <value>コレクションを読み込めませんでした — 上に特定のコレクションURL/IDを貼ることができます。</value>
+  </data>
+  <data name="Collections_DeleteComment" xml:space="preserve">
+    <value>コメントを削除</value>
+  </data>
+  <data name="Collections_DeleteThisCommentThisCannotBe" xml:space="preserve">
+    <value>このコメントを削除しますか？元に戻せません。</value>
+  </data>
+  <data name="Collections_DownloadCancelled" xml:space="preserve">
+    <value>ダウンロードをキャンセルしました。</value>
+  </data>
+  <data name="Collections_FailedToBookmarkCollection" xml:space="preserve">
+    <value>コレクションのブックマークに失敗しました。</value>
+  </data>
+  <data name="Collections_FailedToDeleteComment" xml:space="preserve">
+    <value>コメントの削除に失敗しました。</value>
+  </data>
+  <data name="Collections_FailedToPostComment" xml:space="preserve">
+    <value>コメントの投稿に失敗しました。</value>
+  </data>
+  <data name="Collections_FailedToPostSticker" xml:space="preserve">
+    <value>スタンプの投稿に失敗しました。</value>
+  </data>
+  <data name="Collections_FailedToRemoveCollectionBookmark" xml:space="preserve">
+    <value>コレクションのブックマーク解除に失敗しました。</value>
+  </data>
+  <data name="Collections_LoadingCollection" xml:space="preserve">
+    <value>コレクションを読み込み中…</value>
+  </data>
+  <data name="Collections_NoArtworksFoundInTheSelected" xml:space="preserve">
+    <value>選択したコレクションに作品が見つかりません。</value>
+  </data>
+  <data name="Collections_NoArtworksToDownload" xml:space="preserve">
+    <value>ダウンロードする作品がありません。</value>
+  </data>
+  <data name="Collections_NoneOfTheSelectedCollectionsCould" xml:space="preserve">
+    <value>選択したコレクションはどれも読み込めませんでした。</value>
+  </data>
+  <data name="Collections_RemovedCollectionBookmark" xml:space="preserve">
+    <value>コレクションのブックマークを解除しました。</value>
+  </data>
+  <data name="Collections_SelectOneOrMoreArtworksFirst" xml:space="preserve">
+    <value>まず1つ以上の作品を選択してください。</value>
+  </data>
+  <data name="Collections_SelectOneOrMoreCollectionsFirst" xml:space="preserve">
+    <value>まず1つ以上のコレクションを選択してください。</value>
+  </data>
+  <data name="Collections_ThatDoesnTLookLikeA" xml:space="preserve">
+    <value>コレクションURLまたはIDではないようです。</value>
+  </data>
+  <data name="Dialog_FileAlreadyExists" xml:space="preserve">
+    <value>ファイルは既に存在します</value>
+  </data>
+  <data name="Discover_DownloadWithPresetCancelled" xml:space="preserve">
+    <value>プリセットダウンロードをキャンセルしました。</value>
+  </data>
+  <data name="Discover_FailedToLoad" xml:space="preserve">
+    <value>読み込み失敗: </value>
+  </data>
+  <data name="Discover_FailedToLoadRecommendedUsers" xml:space="preserve">
+    <value>おすすめユーザーの読み込み失敗: </value>
+  </data>
+  <data name="Discover_LoadingRecommendedUsers" xml:space="preserve">
+    <value>おすすめユーザーを読み込み中…</value>
+  </data>
+  <data name="Discover_LoadingRecommendedWorks" xml:space="preserve">
+    <value>おすすめ作品を読み込み中…</value>
+  </data>
+  <data name="Discover_NoArtistIDsQueuedClickIndividual" xml:space="preserve">
+    <value>キューに作者IDがありません — まず個別の作者IDをクリックしてください。</value>
+  </data>
+  <data name="Discover_NoArtworksAvailableToDownload" xml:space="preserve">
+    <value>ダウンロードできる作品がありません。</value>
+  </data>
+  <data name="Discover_NoArtworksFoundForThisArtist" xml:space="preserve">
+    <value>この作者の作品が見つかりません。</value>
+  </data>
+  <data name="Discover_NoMoreNewWorksRightNow" xml:space="preserve">
+    <value>現在これ以上の新着作品はありません — 更新してみてください。</value>
+  </data>
+  <data name="Discover_NoRecommendedUsersFound" xml:space="preserve">
+    <value>おすすめユーザーが見つかりません。</value>
+  </data>
+  <data name="Discover_NoRecommendedWorksFound" xml:space="preserve">
+    <value>おすすめ作品が見つかりません。</value>
+  </data>
+  <data name="DlArtist_AllArtistsAlreadyInList" xml:space="preserve">
+    <value>すべての作者は既にリストにあります</value>
+  </data>
+  <data name="DlArtist_CannotSave" xml:space="preserve">
+    <value>保存できません</value>
+  </data>
+  <data name="DlArtist_CreatingDownloadJob" xml:space="preserve">
+    <value>ダウンロードジョブを作成中...</value>
+  </data>
+  <data name="DlArtist_DownloadCancelled" xml:space="preserve">
+    <value>ダウンロードをキャンセルしました</value>
+  </data>
+  <data name="DlArtist_DownloadStarted" xml:space="preserve">
+    <value>ダウンロード開始...</value>
+  </data>
+  <data name="DlArtist_InvalidPageRange" xml:space="preserve">
+    <value>無効なページ範囲</value>
+  </data>
+  <data name="DlArtist_LoadingFollowedArtists" xml:space="preserve">
+    <value>フォロー中の作者を読み込み中...</value>
+  </data>
+  <data name="DlArtist_LoadingFollowedArtistsFromPixiv" xml:space="preserve">
+    <value>Pixivからフォロー中の作者を読み込み中...</value>
+  </data>
+  <data name="DlArtist_NoArtists" xml:space="preserve">
+    <value>作者なし</value>
+  </data>
+  <data name="DlArtist_NoFollowedArtistsFound" xml:space="preserve">
+    <value>フォロー中の作者が見つかりません。</value>
+  </data>
+  <data name="DlArtist_NoPresets" xml:space="preserve">
+    <value>プリセットなし</value>
+  </data>
+  <data name="DlArtist_NoSavedPresetsFoundCreateOne" xml:space="preserve">
+    <value>保存済みプリセットがありません。先に作成してください！</value>
+  </data>
+  <data name="DlArtist_PleaseAddAtLeastOneArtist" xml:space="preserve">
+    <value>ダウンロードする作者を1人以上追加してください。</value>
+  </data>
+  <data name="DlArtist_PleaseAddAtLeastOneArtist_2" xml:space="preserve">
+    <value>プリセットを保存する前に作者を1人以上追加してください。</value>
+  </data>
+  <data name="DlBookmarks_NoBookmarkedArtistsFound" xml:space="preserve">
+    <value>ブックマークした作者が見つかりません。</value>
+  </data>
+  <data name="DlBookmarks_NoBookmarkedArtworksFoundForThe" xml:space="preserve">
+    <value>選択した公開範囲のブックマーク作品が見つかりません。</value>
+  </data>
+  <data name="DlBookmarks_NoBookmarks" xml:space="preserve">
+    <value>ブックマークなし</value>
+  </data>
+  <data name="DlBookmarks_NoLocalFavoritesFound" xml:space="preserve">
+    <value>ローカルお気に入りが見つかりません。</value>
+  </data>
+  <data name="DlBookmarks_NotLoggedInPleaseSignIn" xml:space="preserve">
+    <value>未ログインです。先にサインインしてください。</value>
+  </data>
+  <data name="DlBookmarks_PleaseSelectAFolderToDownload" xml:space="preserve">
+    <value>ダウンロードするフォルダーを選択してください。</value>
+  </data>
+  <data name="DlBookmarks_StartingBookmarkDownload" xml:space="preserve">
+    <value>ブックマークダウンロードを開始...</value>
+  </data>
+  <data name="DlId_ConfigurationSavedNotYetImplemented" xml:space="preserve">
+    <value>設定を保存しました（未実装）</value>
+  </data>
+  <data name="DlId_ImportedIDsFromFile" xml:space="preserve">
+    <value>ファイルからIDをインポートしました</value>
+  </data>
+  <data name="DlId_NoIDs" xml:space="preserve">
+    <value>IDなし</value>
+  </data>
+  <data name="DlId_PastedFromClipboard" xml:space="preserve">
+    <value>クリップボードから貼り付けました</value>
+  </data>
+  <data name="DlId_PleaseEnterAtLeastOneImage" xml:space="preserve">
+    <value>画像IDまたはURLを1つ以上入力してください。</value>
+  </data>
+  <data name="DlId_PresetSaved" xml:space="preserve">
+    <value>プリセットを保存しました</value>
+  </data>
+  <data name="DlList_NoItemsToDownloadPleaseSelect" xml:space="preserve">
+    <value>ダウンロードするアイテムがありません。先にリストファイルを選択してください。</value>
+  </data>
+  <data name="DlList_PleaseSelectAValidFile" xml:space="preserve">
+    <value>有効なファイルを選択してください。</value>
+  </data>
+  <data name="DlList_SelectListFile" xml:space="preserve">
+    <value>リストファイルを選択</value>
+  </data>
+  <data name="DlList_StorageProviderNotAvailable" xml:space="preserve">
+    <value>ストレージプロバイダーを利用できません。</value>
+  </data>
+  <data name="Gallery_AbstractThoughts" xml:space="preserve">
+    <value>Abstract Thoughts</value>
+  </data>
+  <data name="Gallery_AllArtworksSkipped" xml:space="preserve">
+    <value>すべての作品がスキップされました。</value>
+  </data>
+  <data name="Gallery_ArtistChangedDownloadCancelled" xml:space="preserve">
+    <value>作者が変更されました。ダウンロードをキャンセルしました。</value>
+  </data>
+  <data name="Gallery_CharacterPortrait" xml:space="preserve">
+    <value>Character Portrait</value>
+  </data>
+  <data name="Gallery_DiscoverFeatureComingSoon" xml:space="preserve">
+    <value>発見機能は近日公開！</value>
+  </data>
+  <data name="Gallery_DownloadPaused" xml:space="preserve">
+    <value>ダウンロードを一時停止しました。</value>
+  </data>
+  <data name="Gallery_EnterANewNameForThis" xml:space="preserve">
+    <value>このタブの新しい名前を入力:</value>
+  </data>
+  <data name="Gallery_FailedToLoadArtworks" xml:space="preserve">
+    <value>作品の読み込み失敗: </value>
+  </data>
+  <data name="Gallery_FailedToLoadFollowedArtists" xml:space="preserve">
+    <value>フォロー中作者の読み込み失敗: </value>
+  </data>
+  <data name="Gallery_FailedToLoadRecentWorks" xml:space="preserve">
+    <value>最近の作品の読み込み失敗: </value>
+  </data>
+  <data name="Gallery_FailedToRefresh" xml:space="preserve">
+    <value>更新失敗: </value>
+  </data>
+  <data name="Gallery_Loading" xml:space="preserve">
+    <value>読み込み中 </value>
+  </data>
+  <data name="Gallery_LoadingFollowedArtists_2" xml:space="preserve">
+    <value>フォロー中の作者を読み込み中…</value>
+  </data>
+  <data name="Gallery_LoadingRecentWorksFromFollowedArtists" xml:space="preserve">
+    <value>フォロー中作者の最近の作品を読み込み中…</value>
+  </data>
+  <data name="Gallery_NoArtistIDsQueuedClickIndividual" xml:space="preserve">
+    <value>キューに作者IDがありません — まず個別の作者IDをクリックして追加してください。</value>
+  </data>
+  <data name="Gallery_NoArtworksLoaded" xml:space="preserve">
+    <value>読み込まれた作品がありません。</value>
+  </data>
+  <data name="Gallery_NoArtworksSelectedForDownload" xml:space="preserve">
+    <value>ダウンロードする作品が選択されていません。</value>
+  </data>
+  <data name="Gallery_RefreshingFollowedArtists" xml:space="preserve">
+    <value>フォロー中の作者を更新中…</value>
+  </data>
+  <data name="Gallery_RenameTab" xml:space="preserve">
+    <value>タブ名を変更</value>
+  </data>
+  <data name="Gallery_SearchCleared" xml:space="preserve">
+    <value>検索をクリアしました</value>
+  </data>
+  <data name="Gallery_SearchFailed" xml:space="preserve">
+    <value>検索失敗: </value>
+  </data>
+  <data name="Gallery_SearchIndexUnavailable" xml:space="preserve">
+    <value>検索インデックスを利用できません。</value>
+  </data>
+  <data name="Gallery_Searching" xml:space="preserve">
+    <value>検索中...</value>
+  </data>
+  <data name="Gallery_SelectAnArtistFirst" xml:space="preserve">
+    <value>まず作者を選択してください。</value>
+  </data>
+  <data name="Gallery_SelectionCleared" xml:space="preserve">
+    <value>選択をクリアしました</value>
+  </data>
+  <data name="Gallery_SignInToSeeFollowedArtists" xml:space="preserve">
+    <value>サインインしてフォロー中の作者を表示。</value>
+  </data>
+  <data name="Gallery_ValidatingSession" xml:space="preserve">
+    <value>セッションを検証中…</value>
+  </data>
+  <data name="History_Paused" xml:space="preserve">
+    <value>⏸ 一時停止</value>
+  </data>
+  <data name="History_Queued" xml:space="preserve">
+    <value>⏳ キュー待ち</value>
+  </data>
+  <data name="History_Running" xml:space="preserve">
+    <value>▶ 実行中</value>
+  </data>
+  <data name="Hoshi_AnimeTaggerModelIsNotInstalled" xml:space="preserve">
+    <value>アニメタガーモデルがインストールされていません。設定 → Hoshi AI でインストールしてください。</value>
+  </data>
+  <data name="Hoshi_ChatCleared" xml:space="preserve">
+    <value>チャットをクリアしました。</value>
+  </data>
+  <data name="Hoshi_Copy" xml:space="preserve">
+    <value> （コピー）</value>
+  </data>
+  <data name="Hoshi_CouldNotIdentifyThisImageIt" xml:space="preserve">
+    <value>⚠ この画像を識別できませんでした。Danbooru/SauceNAOにまだ登録されていない可能性があります。</value>
+  </data>
+  <data name="Hoshi_HoshiIsOff" xml:space="preserve">
+    <value>Hoshiはオフです</value>
+  </data>
+  <data name="Hoshi_HoshiIsnTReadyYetEnable" xml:space="preserve">
+    <value>⚠ Hoshiはまだ準備できていません — まず設定で有効にしてください。</value>
+  </data>
+  <data name="Hoshi_HoshiReady" xml:space="preserve">
+    <value>Hoshi 星 準備完了</value>
+  </data>
+  <data name="Hoshi_HoshiReadyICanDescribeImages" xml:space="preserve">
+    <value>Hoshi 星 準備完了！画像の説明、タグ提案、作品ダウンロード、お気に入り追加、フォルダー移動ができます。何をしましょうか？</value>
+  </data>
+  <data name="Hoshi_InstallingOllama" xml:space="preserve">
+    <value>Ollamaをインストール中…</value>
+  </data>
+  <data name="Hoshi_LoadingHoshiSModel" xml:space="preserve">
+    <value>Hoshiのモデルを読み込み中…</value>
+  </data>
+  <data name="Hoshi_NewChat" xml:space="preserve">
+    <value>新しいチャット</value>
+  </data>
+  <data name="Hoshi_NoImageAttachedYetWaitFor" xml:space="preserve">
+    <value>⚠ まだ画像が添付されていません — 作品の読み込みを待つか、画像をチャットにドラッグしてください。</value>
+  </data>
+  <data name="Hoshi_RunningAnimeTagger" xml:space="preserve">
+    <value>アニメタガーを実行中…</value>
+  </data>
+  <data name="Hoshi_Starting" xml:space="preserve">
+    <value>開始中…</value>
+  </data>
+  <data name="Hoshi_System" xml:space="preserve">
+    <value>system</value>
+  </data>
+  <data name="Hoshi_Untitled" xml:space="preserve">
+    <value>無題</value>
+  </data>
+  <data name="Hoshi_WakingUpHoshi" xml:space="preserve">
+    <value>Hoshiを起動中…</value>
+  </data>
+  <data name="Jobs_DownloadsRefreshed" xml:space="preserve">
+    <value>ダウンロードを更新しました</value>
+  </data>
+  <data name="Jobs_FailedToRefreshDownloads" xml:space="preserve">
+    <value>ダウンロードの更新に失敗しました</value>
+  </data>
+  <data name="Jobs_FailedToRefreshDownloads_2" xml:space="preserve">
+    <value>ダウンロードの更新に失敗しました。</value>
+  </data>
+  <data name="Jobs_RefreshingDownloads" xml:space="preserve">
+    <value>ダウンロードを更新中...</value>
+  </data>
+  <data name="Main_CannotInstallUpdateInfoLostPlease" xml:space="preserve">
+    <value>インストールできません: 更新情報が失われました。アプリを再起動して再試行してください。</value>
+  </data>
+  <data name="Main_StartingDownload" xml:space="preserve">
+    <value>ダウンロードを開始...</value>
+  </data>
+  <data name="Main_StartingInstaller" xml:space="preserve">
+    <value>インストーラーを起動中...</value>
+  </data>
+  <data name="Pikura_AddedPrivateBookmark" xml:space="preserve">
+    <value>非公開ブックマークを追加しました</value>
+  </data>
+  <data name="Pikura_All" xml:space="preserve">
+    <value>all</value>
+  </data>
+  <data name="Pikura_AllReleasesOnGitHub" xml:space="preserve">
+    <value>全リリース（GitHub）↗</value>
+  </data>
+  <data name="Pikura_ApplyToSelectedPages" xml:space="preserve">
+    <value>選択したページに適用</value>
+  </data>
+  <data name="Pikura_BookmarkedOnPixiv" xml:space="preserve">
+    <value>Pixivでブックマークしました</value>
+  </data>
+  <data name="Pikura_CommentDeleted" xml:space="preserve">
+    <value>コメントを削除しました</value>
+  </data>
+  <data name="Pikura_CommentPosted" xml:space="preserve">
+    <value>コメントを投稿しました</value>
+  </data>
+  <data name="Pikura_ConfirmingSession" xml:space="preserve">
+    <value>セッションを確認中…</value>
+  </data>
+  <data name="Pikura_Copied" xml:space="preserve">
+    <value>コピーしました！</value>
+  </data>
+  <data name="Pikura_CouldNotDeleteComment" xml:space="preserve">
+    <value>コメントを削除できませんでした。</value>
+  </data>
+  <data name="Pikura_CouldNotDetectSessionTrySigning" xml:space="preserve">
+    <value>セッションを検出できませんでした。もう一度サインインしてください。</value>
+  </data>
+  <data name="Pikura_CouldNotLoadComments" xml:space="preserve">
+    <value>コメントを読み込めませんでした。</value>
+  </data>
+  <data name="Pikura_CouldNotLoadImagePreview" xml:space="preserve">
+    <value>画像プレビューを読み込めませんでした</value>
+  </data>
+  <data name="Pikura_CouldNotLoadReplies" xml:space="preserve">
+    <value>返信を読み込めませんでした</value>
+  </data>
+  <data name="Pikura_CouldNotPostComment" xml:space="preserve">
+    <value>コメントを投稿できませんでした。</value>
+  </data>
+  <data name="Pikura_CouldNotPostComment_2" xml:space="preserve">
+    <value>コメントを投稿できませんでした</value>
+  </data>
+  <data name="Pikura_CouldNotReAddBookmark" xml:space="preserve">
+    <value>ブックマークを再追加できませんでした</value>
+  </data>
+  <data name="Pikura_CouldNotUpdateBookmarkPrivacy" xml:space="preserve">
+    <value>ブックマークの公開設定を更新できませんでした</value>
+  </data>
+  <data name="Pikura_CouldNotUpdateFollowFollowUnfollow" xml:space="preserve">
+    <value>フォローを更新できませんでした。フォロー/フォロー解除にはPixiv App APIリフレッシュトークン（設定 &gt; アカウント）または有効なWebセッションが必要です。</value>
+  </data>
+  <data name="Pikura_DeleteALLSessionsThisCannotBe" xml:space="preserve">
+    <value>すべてのセッションを削除しますか？元に戻せません。</value>
+  </data>
+  <data name="Pikura_DeleteAllSessions" xml:space="preserve">
+    <value>すべてのセッションを削除しますか？</value>
+  </data>
+  <data name="Pikura_DeleteSelectedSessions" xml:space="preserve">
+    <value>選択したセッションを削除しますか？</value>
+  </data>
+  <data name="Pikura_DeleteSession" xml:space="preserve">
+    <value>セッションを削除しますか？</value>
+  </data>
+  <data name="Pikura_DetectingSession" xml:space="preserve">
+    <value>セッションを検出中…</value>
+  </data>
+  <data name="Pikura_DownloadStarted" xml:space="preserve">
+    <value>ダウンロード開始</value>
+  </data>
+  <data name="Pikura_Empty" xml:space="preserve">
+    <value>（空）</value>
+  </data>
+  <data name="Pikura_EnterBothDatesAsMMDD" xml:space="preserve">
+    <value>両方の日付をMM-DD-YYYY形式で入力（例: 10-14-2015）。</value>
+  </data>
+  <data name="Pikura_Error" xml:space="preserve">
+    <value>エラー</value>
+  </data>
+  <data name="Pikura_Favorited" xml:space="preserve">
+    <value>お気に入りに追加しました</value>
+  </data>
+  <data name="Pikura_FilePickerNotInitialized" xml:space="preserve">
+    <value>ファイルピッカーが初期化されていません</value>
+  </data>
+  <data name="Pikura_FolderNameEmptyNone" xml:space="preserve">
+    <value>フォルダー名（空 = なし）</value>
+  </data>
+  <data name="Pikura_FromCurrentArtwork" xml:space="preserve">
+    <value>現在の作品から</value>
+  </data>
+  <data name="Pikura_HideReplies" xml:space="preserve">
+    <value>▴ 返信を隠す</value>
+  </data>
+  <data name="Pikura_Hoshi" xml:space="preserve">
+    <value>Hoshi…</value>
+  </data>
+  <data name="Pikura_Hoshi_2" xml:space="preserve">
+    <value>Hoshi 星</value>
+  </data>
+  <data name="Pikura_ImageURLCopiedPasteIntoA" xml:space="preserve">
+    <value>画像URLをコピーしました — ダウンロードマネージャーに貼り付けてください（ブラウザーは403; Pixiv CDNはRefererヘッダー必須）。</value>
+  </data>
+  <data name="Pikura_LikedOnPixiv" xml:space="preserve">
+    <value>Pixivでいいねしました</value>
+  </data>
+  <data name="Pikura_LoadImageFromURL" xml:space="preserve">
+    <value>URLから画像を読み込み</value>
+  </data>
+  <data name="Pikura_LoadingUgoira" xml:space="preserve">
+    <value>うごイラを読み込み中...</value>
+  </data>
+  <data name="Pikura_MMDdYyyy" xml:space="preserve">
+    <value>MM-dd-yyyy</value>
+  </data>
+  <data name="Pikura_MoveDown" xml:space="preserve">
+    <value>▼ 下へ移動</value>
+  </data>
+  <data name="Pikura_MoveToBottom" xml:space="preserve">
+    <value>⏬ 最後へ移動</value>
+  </data>
+  <data name="Pikura_MoveToTop" xml:space="preserve">
+    <value>⏫ 先頭へ移動</value>
+  </data>
+  <data name="Pikura_MoveUp" xml:space="preserve">
+    <value>▲ 上へ移動</value>
+  </data>
+  <data name="Pikura_N0" xml:space="preserve">
+    <value>N0</value>
+  </data>
+  <data name="Pikura_NewFolderNameOrPickBelow" xml:space="preserve">
+    <value>新しいフォルダー名（または下から選択）</value>
+  </data>
+  <data name="Pikura_NewTitle" xml:space="preserve">
+    <value>新しいタイトル:</value>
+  </data>
+  <data name="Pikura_NoArtworkSelectedOrOpenClick" xml:space="preserve">
+    <value>作品が選択または開かれていません。作品をクリックするか複数選択してください。</value>
+  </data>
+  <data name="Pikura_NoArtworksAreSelectedCheckAt" xml:space="preserve">
+    <value>作品が選択されていません。リストで少なくとも1つにチェックを入れてください。</value>
+  </data>
+  <data name="Pikura_NoArtworksFoundForThisSearch" xml:space="preserve">
+    <value>この検索で作品が見つかりません。</value>
+  </data>
+  <data name="Pikura_NoCommentsYetBeTheFirst" xml:space="preserve">
+    <value>まだコメントがありません — 最初のコメントをどうぞ！</value>
+  </data>
+  <data name="Pikura_NoPagesSelected" xml:space="preserve">
+    <value>ページが選択されていません。</value>
+  </data>
+  <data name="Pikura_NoPostsToDownloadPleaseSearch" xml:space="preserve">
+    <value>ダウンロードする投稿がありません。先に検索してください。</value>
+  </data>
+  <data name="Pikura_NoRepliesFound" xml:space="preserve">
+    <value>返信が見つかりません</value>
+  </data>
+  <data name="Pikura_NoResults" xml:space="preserve">
+    <value>結果なし</value>
+  </data>
+  <data name="Pikura_NoSearchResultsToDownloadPlease" xml:space="preserve">
+    <value>ダウンロードする検索結果がありません。先に検索してください。</value>
+  </data>
+  <data name="Pikura_NoStickersCouldBeLoaded" xml:space="preserve">
+    <value>スタンプを読み込めませんでした。</value>
+  </data>
+  <data name="Pikura_OpenImage" xml:space="preserve">
+    <value>画像を開く</value>
+  </data>
+  <data name="Pikura_PleaseEnterACreatorID" xml:space="preserve">
+    <value>クリエイターIDを入力してください。</value>
+  </data>
+  <data name="Pikura_PleaseEnterAPostID" xml:space="preserve">
+    <value>投稿IDを入力してください。</value>
+  </data>
+  <data name="Pikura_PleaseEnterASearchKeyword" xml:space="preserve">
+    <value>検索キーワードを入力してください。</value>
+  </data>
+  <data name="Pikura_PreviewError" xml:space="preserve">
+    <value>プレビューエラー</value>
+  </data>
+  <data name="Pikura_ReleaseHistory" xml:space="preserve">
+    <value>リリース履歴</value>
+  </data>
+  <data name="Pikura_RemovedPixivBookmark" xml:space="preserve">
+    <value>Pixivブックマークを解除しました</value>
+  </data>
+  <data name="Pikura_RenameSession" xml:space="preserve">
+    <value>セッション名を変更</value>
+  </data>
+  <data name="Pikura_RetryingSessionCheck" xml:space="preserve">
+    <value>セッション確認を再試行中…</value>
+  </data>
+  <data name="Pikura_SelectBookmarksFirstOrOpenOne" xml:space="preserve">
+    <value>まずブックマークを選択するか、サイドパネルで1つ開いてください。</value>
+  </data>
+  <data name="Pikura_SelectFrame" xml:space="preserve">
+    <value>フレームを選択</value>
+  </data>
+  <data name="Pikura_SelectOutputFolder" xml:space="preserve">
+    <value>出力フォルダーを選択</value>
+  </data>
+  <data name="Pikura_Selected" xml:space="preserve">
+    <value>)} 件選択</value>
+  </data>
+  <data name="Pikura_SessionDetectedButUserIDMissing" xml:space="preserve">
+    <value>セッションを検出しましたがユーザーIDがありません — 再試行してください。</value>
+  </data>
+  <data name="Pikura_SetFolder" xml:space="preserve">
+    <value>フォルダーを設定</value>
+  </data>
+  <data name="Pikura_SwitchedToPrivateBookmark" xml:space="preserve">
+    <value>非公開ブックマークに切り替えました</value>
+  </data>
+  <data name="Pikura_SwitchedToPublicBookmark" xml:space="preserve">
+    <value>公開ブックマークに切り替えました</value>
+  </data>
+  <data name="Pikura_Thinking" xml:space="preserve">
+    <value>考え中…</value>
+  </data>
+  <data name="Pikura_UgoiraAnimatedWatchingOnly" xml:space="preserve">
+    <value>うごイラ（アニメーション）— 閲覧のみ</value>
+  </data>
+  <data name="Pikura_UgoiraCoverImageStatic" xml:space="preserve">
+    <value>うごイラ — カバー画像（静止）</value>
+  </data>
+  <data name="Pikura_UgoiraEditingCoverImageStatic" xml:space="preserve">
+    <value>うごイラ — カバー画像を編集中（静止）</value>
+  </data>
+  <data name="Pikura_UgoiraOptions" xml:space="preserve">
+    <value>うごイラオプション</value>
+  </data>
+  <data name="Pikura_UnfollowNotAvailablePixivOAuthAuthentication" xml:space="preserve">
+    <value>フォロー解除できません: Pixiv OAuth認証がブロックされています</value>
+  </data>
+  <data name="Pikura_WebViewDidNotLoadUseEnter" xml:space="preserve">
+    <value>WebViewが読み込まれませんでした。代わりに「Cookieを手動入力」を使用してください。</value>
+  </data>
+  <data name="Pikura_YyyyMMDd" xml:space="preserve">
+    <value>yyyy-MM-dd</value>
+  </data>
+  <data name="Pixivision_FailedToLoadArticle" xml:space="preserve">
+    <value>記事の読み込みに失敗しました。</value>
+  </data>
+  <data name="Pixivision_LoadingPixivisionArticles" xml:space="preserve">
+    <value>pixivision記事を読み込み中…</value>
+  </data>
+  <data name="Rankings_FailedToLoadRankings" xml:space="preserve">
+    <value>ランキングの読み込みに失敗しました</value>
+  </data>
+  <data name="Rankings_FailedToLoadRankingsPleaseTry" xml:space="preserve">
+    <value>ランキングの読み込みに失敗しました。再試行してください。</value>
+  </data>
+  <data name="Rankings_NoArtworksSelected" xml:space="preserve">
+    <value>作品が選択されていません。</value>
+  </data>
+  <data name="Rankings_NoResultsCheckYourSessionOr" xml:space="preserve">
+    <value>結果なし — セッションを確認するか別のモードを試してください。</value>
+  </data>
+  <data name="Rankings_NovelsCanTBeDownloadedFrom" xml:space="preserve">
+    <value>小説はランキングからダウンロードできません — pixiv.netで開いてください。</value>
+  </data>
+  <data name="Rankings_RankingsLoadedSuccessfully" xml:space="preserve">
+    <value>ランキングを読み込みました</value>
+  </data>
+  <data name="Search_NoNovelsFound" xml:space="preserve">
+    <value>小説が見つかりません。</value>
+  </data>
+  <data name="Search_NoResultsFound" xml:space="preserve">
+    <value>結果が見つかりません。</value>
+  </data>
+  <data name="Search_NoUsersFound" xml:space="preserve">
+    <value>ユーザーが見つかりません。</value>
+  </data>
+  <data name="Search_Searching" xml:space="preserve">
+    <value>検索中…</value>
+  </data>
+  <data name="Settings_AreYouSureYouWantTo" xml:space="preserve">
+    <value>すべての設定をデフォルトに戻しますか？</value>
+  </data>
+  <data name="Settings_CheckFailed" xml:space="preserve">
+    <value>確認に失敗しました</value>
+  </data>
+  <data name="Settings_Checking" xml:space="preserve">
+    <value>確認中…</value>
+  </data>
+  <data name="Settings_CheckingForUpdates" xml:space="preserve">
+    <value>更新を確認中...</value>
+  </data>
+  <data name="Settings_ClearYourSessionCookieAndSign" xml:space="preserve">
+    <value>セッションCookieをクリアしてサインアウトしますか？</value>
+  </data>
+  <data name="Settings_CloudflareSession" xml:space="preserve">
+    <value>Cloudflareセッション</value>
+  </data>
+  <data name="Settings_Downloading" xml:space="preserve">
+    <value>ダウンロード中…</value>
+  </data>
+  <data name="Settings_FailedToChangeDownloadFolder" xml:space="preserve">
+    <value>ダウンロードフォルダーの変更に失敗しました。</value>
+  </data>
+  <data name="Settings_FailedToResetSettings" xml:space="preserve">
+    <value>設定のリセットに失敗しました。</value>
+  </data>
+  <data name="Settings_NotInstalledRequiredForUgoiraConversion" xml:space="preserve">
+    <value>未インストール（うごイラ変換に必要）</value>
+  </data>
+  <data name="Settings_ResetSettings" xml:space="preserve">
+    <value>設定をリセット</value>
+  </data>
+  <data name="Settings_SettingsHaveBeenResetToDefaults" xml:space="preserve">
+    <value>設定をデフォルトに戻しました（シミュレーション）。</value>
+  </data>
+  <data name="Settings_Success" xml:space="preserve">
+    <value>成功</value>
+  </data>
+  <data name="Viewed_HistoryCleared" xml:space="preserve">
+    <value>履歴をクリアしました。</value>
+  </data>
+  <data name="Viewed_LoadingHistory" xml:space="preserve">
+    <value>履歴を読み込み中…</value>
+  </data>
+  <data name="WhatsNew_BookmarksImprovements" xml:space="preserve">
+    <value>ブックマークの改善</value>
+  </data>
+  <data name="WhatsNew_ChromeStyleTabReordering" xml:space="preserve">
+    <value>Chrome風タブ並べ替え</value>
+  </data>
+  <data name="WhatsNew_Pikura210" xml:space="preserve">
+    <value>Pikura 2.1.0</value>
+  </data>
+  <data name="WhatsNew_PixivConnectedActions" xml:space="preserve">
+    <value>Pixiv連携アクション</value>
+  </data>
+  <data name="WhatsNew_RefreshedLightDarkThemes" xml:space="preserve">
+    <value>刷新されたライト &amp; ダークテーマ</value>
+  </data>
+  <data name="WhatsNew_SearchImprovements" xml:space="preserve">
+    <value>検索の改善</value>
+  </data>
+  <data name="Artwork_Error" xml:space="preserve">
+    <value>エラー</value>
+  </data>
+  <data name="Bookmarks_Error" xml:space="preserve">
+    <value>エラー</value>
+  </data>
+  <data name="DlArtist_Error" xml:space="preserve">
+    <value>エラー</value>
+  </data>
+  <data name="DlBookmarks_Error" xml:space="preserve">
+    <value>エラー</value>
+  </data>
+  <data name="DlId_Error" xml:space="preserve">
+    <value>エラー</value>
+  </data>
+  <data name="DlList_Error" xml:space="preserve">
+    <value>エラー</value>
+  </data>
+  <data name="Jobs_Error" xml:space="preserve">
+    <value>エラー</value>
+  </data>
+  <data name="Rankings_Error" xml:space="preserve">
+    <value>エラー</value>
+  </data>
+  <data name="Settings_Error" xml:space="preserve">
+    <value>エラー</value>
+  </data>
+  <data name="DlBookmarks_NoCustomFoldersFoundInLocal" xml:space="preserve">
+    <value>ローカルお気に入りにカスタムフォルダーが見つかりません。</value>
+  </data>
+  <data name="DlBookmarks_NoFolders" xml:space="preserve">
+    <value>フォルダーなし</value>
+  </data>
+  <data name="DlBookmarks_NoItems" xml:space="preserve">
+    <value>アイテムなし</value>
+  </data>
+  <data name="DlBookmarks_NoSelection" xml:space="preserve">
+    <value>未選択</value>
+  </data>
+  <data name="DlId_CreatingDownloadJob" xml:space="preserve">
+    <value>ダウンロードジョブを作成中...</value>
+  </data>
+  <data name="DlId_DownloadCancelled" xml:space="preserve">
+    <value>ダウンロードをキャンセルしました</value>
+  </data>
+  <data name="DlId_DownloadStarted" xml:space="preserve">
+    <value>ダウンロード開始...</value>
+  </data>
+  <data name="DlList_DownloadStarted" xml:space="preserve">
+    <value>ダウンロード開始...</value>
+  </data>
+  <data name="DlList_NoItems" xml:space="preserve">
+    <value>アイテムなし</value>
+  </data>
+  <data name="Gallery_AName" xml:space="preserve">
+    <value>a:name</value>
+  </data>
+  <data name="Gallery_LoadingFollowedArtists" xml:space="preserve">
+    <value>フォロー中の作者を読み込み中...</value>
+  </data>
+  <data name="Gallery_NoArtworksSelected" xml:space="preserve">
+    <value>作品が選択されていません。</value>
+  </data>
+  <data name="Gallery_NoArtworksToDownload" xml:space="preserve">
+    <value>ダウンロードする作品がありません。</value>
+  </data>
+  <data name="Gallery_Sakura" xml:space="preserve">
+    <value>sakura</value>
+  </data>
+  <data name="Gallery_Tag1Tag2" xml:space="preserve">
+    <value>tag1, tag2, …</value>
+  </data>
+  <data name="Gallery_ToClipboard" xml:space="preserve">
+    <value>)} をクリップボードにコピー</value>
+  </data>
+  <data name="Gallery_U12345" xml:space="preserve">
+    <value>u:12345</value>
+  </data>
+  <data name="Main_DownloadCancelled" xml:space="preserve">
+    <value>ダウンロードをキャンセルしました</value>
+  </data>
+  <data name="Pikura_CouldNotBookmark" xml:space="preserve">
+    <value>ブックマークできませんでした</value>
+  </data>
+  <data name="Pikura_CouldNotLikeArtwork" xml:space="preserve">
+    <value>いいねできませんでした</value>
+  </data>
+  <data name="Pikura_CouldNotRemoveBookmark" xml:space="preserve">
+    <value>ブックマークを削除できませんでした</value>
+  </data>
+  <data name="Pikura_NoItems" xml:space="preserve">
+    <value>アイテムなし</value>
+  </data>
+  <data name="Pikura_Pikura" xml:space="preserve">
+    <value>Pikura</value>
+  </data>
+  <data name="Pikura_Starting" xml:space="preserve">
+    <value>開始中…</value>
+  </data>
+  <data name="Gallery_CopiedQueuedArtistIds" xml:space="preserve">
+    <value>キュー中の作者ID {0}件をクリップボードにコピーしました</value>
+  </data>
+  <data name="Preset_ImagesSelected" xml:space="preserve">
+    <value>{0}件の画像を選択中</value>
+  </data>
+  <data name="Preset_AllSelectedArtworks" xml:space="preserve">
+    <value>すべての選択作品</value>
+  </data>
+  <data name="Preset_SelectedArtworks" xml:space="preserve">
+    <value>選択した作品</value>
+  </data>
+  <data name="Viewed_ClearedEntriesPast" xml:space="preserve">
+    <value>過去{1}の{0}件をクリアしました。</value>
+  </data>
+  <data name="DlArtist_ArtistsStartedDownloading" xml:space="preserve">
+    <value>{0}人の作者のダウンロードを開始しました</value>
+  </data>
+  <data name="DlArtist_ArtistsQueuedSlot" xml:space="preserve">
+    <value>{0}人の作者をキューに追加 — 空き次第開始</value>
+  </data>
+  <data name="History_DownloadsCount" xml:space="preserve">
+    <value>{0}件のダウンロード</value>
+  </data>
+  <data name="History_JobsCount" xml:space="preserve">
+    <value>{0}件のジョブ</value>
+  </data>
+  <data name="Jobs_JobItemCount" xml:space="preserve">
+    <value>{0} — {1}件</value>
+  </data>
+  <data name="Jobs_DownloadedSoFar" xml:space="preserve">
+    <value>{0}
+{1}/{2}作品をダウンロード済み</value>
+  </data>
+  <data name="Jobs_ResumingFrom" xml:space="preserve">
+    <value>{0}
+{1}/{2}作品から再開</value>
+  </data>
+  <data name="Jobs_SucceededFailed" xml:space="preserve">
+    <value>{0}
+{1}作品 · {2}失敗</value>
+  </data>
+  <data name="Jobs_ArtworksDownloaded" xml:space="preserve">
+    <value>{0}
+{1}作品をダウンロードしました</value>
+  </data>
+  <data name="Changelog_ReleaseCount" xml:space="preserve">
+    <value>{0}件のリリース — 新しい順</value>
+  </data>
+  <data name="Preset_ArtworkListItem" xml:space="preserve">
+    <value>{0}. {1}  ({2}ページ)</value>
+  </data>
 </root>

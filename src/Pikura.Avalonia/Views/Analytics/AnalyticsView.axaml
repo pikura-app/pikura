@@ -1,5 +1,6 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:loc="using:Pikura.Avalonia.Localization"
              xmlns:vm="using:Pikura.Avalonia.ViewModels"
              xmlns:actipro="http://schemas.actiprosoftware.com/avaloniaui"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -21,8 +22,8 @@
             <Grid ColumnDefinitions="Auto,*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
                     <TextBlock Text="📊" FontSize="18" VerticalAlignment="Center"/>
-                    <TextBlock Text="Analytics" FontWeight="SemiBold" FontSize="16" VerticalAlignment="Center"/>
-                    <TextBlock Text="Download statistics and insights" FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}" VerticalAlignment="Center"/>
+                    <TextBlock Text="{loc:Tr Nav_Analytics}" FontWeight="SemiBold" FontSize="16" VerticalAlignment="Center"/>
+                    <TextBlock Text="{loc:Tr Analytics_DownloadStatisticsAndInsights}" FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}" VerticalAlignment="Center"/>
                 </StackPanel>
                 <Border Grid.Column="1"/>
                 <Button Grid.Column="2"
@@ -32,7 +33,7 @@
                         <PathIcon Data="{StaticResource RefreshIcon}" Width="14" Height="14"
                                   VerticalAlignment="Center"
                                   Foreground="{Binding $parent[Button].Foreground}"/>
-                        <TextBlock Text="Refresh" FontSize="12" VerticalAlignment="Center"/>
+                        <TextBlock Text="{loc:Tr Common_Refresh}" FontSize="12" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
             </Grid>
@@ -47,7 +48,7 @@
                             BorderBrush="{DynamicResource Container2BorderBrush}"
                             BorderThickness="1" CornerRadius="8" Padding="16" Margin="0,0,8,0">
                         <StackPanel Spacing="4">
-                            <TextBlock Text="Total Jobs" FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
+                            <TextBlock Text="{loc:Tr Analytics_TotalJobs}" FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                             <TextBlock Text="{Binding TotalJobs}" FontSize="24" FontWeight="SemiBold"/>
                         </StackPanel>
                     </Border>
@@ -55,7 +56,7 @@
                             BorderBrush="{DynamicResource Container2BorderBrush}"
                             BorderThickness="1" CornerRadius="8" Padding="16" Margin="0,0,8,0">
                         <StackPanel Spacing="4">
-                            <TextBlock Text="Completed" FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
+                            <TextBlock Text="{loc:Tr History_Completed}" FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                             <TextBlock Text="{Binding CompletedJobs}" FontSize="24" FontWeight="SemiBold" Foreground="Green"/>
                         </StackPanel>
                     </Border>
@@ -63,7 +64,7 @@
                             BorderBrush="{DynamicResource Container2BorderBrush}"
                             BorderThickness="1" CornerRadius="8" Padding="16" Margin="0,0,8,0">
                         <StackPanel Spacing="4">
-                            <TextBlock Text="Failed" FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
+                            <TextBlock Text="{loc:Tr History_Failed}" FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                             <TextBlock Text="{Binding FailedJobs}" FontSize="24" FontWeight="SemiBold" Foreground="Red"/>
                         </StackPanel>
                     </Border>
@@ -71,7 +72,7 @@
                             BorderBrush="{DynamicResource Container2BorderBrush}"
                             BorderThickness="1" CornerRadius="8" Padding="16">
                         <StackPanel Spacing="4">
-                            <TextBlock Text="Success Rate" FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
+                            <TextBlock Text="{loc:Tr Analytics_SuccessRate}" FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                             <TextBlock Text="{Binding SuccessRate, StringFormat='{}{0:F1}%'}" FontSize="24" FontWeight="SemiBold"/>
                         </StackPanel>
                     </Border>
@@ -83,7 +84,7 @@
                             BorderBrush="{DynamicResource Container2BorderBrush}"
                             BorderThickness="1" CornerRadius="8" Padding="16" Margin="0,0,8,0">
                         <StackPanel Spacing="4">
-                            <TextBlock Text="Total Downloaded Items" FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
+                            <TextBlock Text="{loc:Tr Analytics_TotalDownloadedItems}" FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                             <TextBlock Text="{Binding TotalDownloadedItems}" FontSize="20" FontWeight="SemiBold"/>
                         </StackPanel>
                     </Border>
@@ -91,7 +92,7 @@
                             BorderBrush="{DynamicResource Container2BorderBrush}"
                             BorderThickness="1" CornerRadius="8" Padding="16">
                         <StackPanel Spacing="4">
-                            <TextBlock Text="Total Failed Items" FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
+                            <TextBlock Text="{loc:Tr Analytics_TotalFailedItems}" FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                             <TextBlock Text="{Binding TotalFailedItems}" FontSize="20" FontWeight="SemiBold" Foreground="Red"/>
                         </StackPanel>
                     </Border>
@@ -102,7 +103,7 @@
                         BorderBrush="{DynamicResource Container2BorderBrush}"
                         BorderThickness="1" CornerRadius="8" Padding="16">
                     <StackPanel Spacing="12">
-                        <TextBlock Text="Jobs by Type" FontSize="14" FontWeight="SemiBold"/>
+                        <TextBlock Text="{loc:Tr Analytics_JobsByType}" FontSize="14" FontWeight="SemiBold"/>
                         <ItemsControl ItemsSource="{Binding JobsByType}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
@@ -121,7 +122,7 @@
                         BorderBrush="{DynamicResource Container2BorderBrush}"
                         BorderThickness="1" CornerRadius="8" Padding="16">
                     <StackPanel Spacing="12">
-                        <TextBlock Text="Recent Activity" FontSize="14" FontWeight="SemiBold"/>
+                        <TextBlock Text="{loc:Tr Analytics_RecentActivity}" FontSize="14" FontWeight="SemiBold"/>
                         <Border Background="{DynamicResource Container3BackgroundBrush}"
                                 BorderBrush="{DynamicResource Container3BorderBrush}"
                                 BorderThickness="1" CornerRadius="6" MaxHeight="300">
@@ -154,9 +155,9 @@
                         <StackPanel Spacing="12">
                             <StackPanel Orientation="Horizontal" Spacing="8">
                                 <TextBlock Text="🏆" FontSize="14"/>
-                                <TextBlock Text="Most Downloaded Artists" FontSize="14" FontWeight="SemiBold"/>
+                                <TextBlock Text="{loc:Tr Analytics_MostDownloadedArtists}" FontSize="14" FontWeight="SemiBold"/>
                             </StackPanel>
-                            <TextBlock Text="Ranked by total artworks downloaded" FontSize="11"
+                            <TextBlock Text="{loc:Tr Analytics_RankedByTotalArtworksDownloaded}" FontSize="11"
                                        Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                             <ItemsControl ItemsSource="{Binding TopArtists}">
                                 <ItemsControl.ItemTemplate>
@@ -174,7 +175,7 @@
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
-                            <TextBlock Text="No data yet" FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}" HorizontalAlignment="Center"
+                            <TextBlock Text="{loc:Tr Analytics_NoDataYet}" FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}" HorizontalAlignment="Center"
                                        IsVisible="{Binding !TopArtists.Count}"/>
                         </StackPanel>
                     </Border>
@@ -185,9 +186,9 @@
                         <StackPanel Spacing="12">
                             <StackPanel Orientation="Horizontal" Spacing="8">
                                 <TextBlock Text="🔁" FontSize="14"/>
-                                <TextBlock Text="Most Frequented Artists" FontSize="14" FontWeight="SemiBold"/>
+                                <TextBlock Text="{loc:Tr Analytics_MostFrequentedArtists}" FontSize="14" FontWeight="SemiBold"/>
                             </StackPanel>
-                            <TextBlock Text="Ranked by number of download sessions" FontSize="11"
+                            <TextBlock Text="{loc:Tr Analytics_RankedByNumberOfDownloadSessions}" FontSize="11"
                                        Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                             <ItemsControl ItemsSource="{Binding MostFrequentedArtists}">
                                 <ItemsControl.ItemTemplate>
@@ -205,7 +206,7 @@
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
-                            <TextBlock Text="No data yet" FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}" HorizontalAlignment="Center"
+                            <TextBlock Text="{loc:Tr Analytics_NoDataYet}" FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}" HorizontalAlignment="Center"
                                        IsVisible="{Binding !MostFrequentedArtists.Count}"/>
                         </StackPanel>
                     </Border>

@@ -8,6 +8,7 @@ using Pikura.Core.Data;
 using Pikura.Core.Models;
 using Pikura.Core.Services;
 using Pikura.Core.Settings;
+using Pikura.Avalonia.Localization;
 using Pikura.Avalonia.Services;
 using SkiaSharp;
 using System.Collections.ObjectModel;
@@ -406,7 +407,7 @@ public partial class GalleryViewModel : ViewModelBase
     {
         if (tab == null) return;
         var current = tab.Header;
-        var result = await _dialogService.ShowInputDialogAsync("Rename tab", "Enter a new name for this tab:", current);
+        var result = await _dialogService.ShowInputDialogAsync(Pikura.Avalonia.Localization.LocalizationService.Instance["Gallery_RenameTab"], Pikura.Avalonia.Localization.LocalizationService.Instance["Gallery_EnterANewNameForThis"], current);
         if (string.IsNullOrWhiteSpace(result)) return;
         tab.Header = result.Trim();
         if (tab == SelectedViewerTab)
@@ -589,7 +590,7 @@ public partial class GalleryViewModel : ViewModelBase
         collage.CachedBitmap = null;
         collage.CachedOriginalUrl = null;
         collage.CachedFullResLoaded = false;
-        collage.Header = "Collage";
+        collage.Header = Pikura.Avalonia.Localization.LocalizationService.Instance["Search_Collage"];
         InlineViewerCard = null;
         InlineViewerCardList = null;
         OnPropertyChanged(nameof(IsViewingCollageImage));
@@ -1238,7 +1239,7 @@ public partial class GalleryViewModel : ViewModelBase
         {
             if (_indexService is null)
             {
-                StatusMessage = "Search index unavailable.";
+                StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Gallery_SearchIndexUnavailable"];
                 return;
             }
 
@@ -1361,7 +1362,7 @@ public partial class GalleryViewModel : ViewModelBase
         }
         catch (Exception ex)
         {
-            StatusMessage = "Search failed: " + ex.Message;
+            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Gallery_SearchFailed"] + ex.Message;
         }
         finally { IsLoading = false; }
     }
@@ -1434,7 +1435,7 @@ public partial class GalleryViewModel : ViewModelBase
         IsSearchActive = false;
         ShowSearchInfo = false;
         IdSearchQuery = string.Empty;
-        StatusMessage = "Search cleared";
+        StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Gallery_SearchCleared"];
     }
 
     public async Task SearchArtistByNameAsync(string artistName)
@@ -1732,20 +1733,20 @@ public partial class GalleryViewModel : ViewModelBase
         var isInitialLoad = Artists.Count == 0;
         IsLoadingArtists = true;
         if (isInitialLoad)
-            StatusMessage = "Loading followed artists…";
+            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Gallery_LoadingFollowedArtists_2"];
 
         try
         {
             if (string.IsNullOrWhiteSpace(_settingsService.Current.UserId))
             {
-                if (isInitialLoad) StatusMessage = "Validating session…";
+                if (isInitialLoad) StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Gallery_ValidatingSession"];
                 await _pixivClient.ValidateSessionAsync();
             }
 
             var userId = _settingsService.Current.UserId;
             if (string.IsNullOrWhiteSpace(userId))
             {
-                StatusMessage = "Sign in to see followed artists.";
+                StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Gallery_SignInToSeeFollowedArtists"];
                 return;
             }
 
@@ -1825,7 +1826,7 @@ public partial class GalleryViewModel : ViewModelBase
         catch (Exception ex)
         {
             Logger.LogError(ex, "Failed to load followed artists");
-            StatusMessage = "Failed to load followed artists: " + ex.Message;
+            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Gallery_FailedToLoadFollowedArtists"] + ex.Message;
         }
         finally
         {
@@ -1885,7 +1886,7 @@ public partial class GalleryViewModel : ViewModelBase
         if (Interlocked.Exchange(ref _loadingArtistsGuard, 1) == 1) return;
 
         IsLoadingArtists = true;
-        StatusMessage = "Refreshing followed artists…";
+        StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Gallery_RefreshingFollowedArtists"];
 
         // Preserve the currently-selected artist so clearing the list (which
         // resets the bound ListBox selection to null) doesn't drop it — otherwise
@@ -1898,7 +1899,7 @@ public partial class GalleryViewModel : ViewModelBase
         {
             if (string.IsNullOrWhiteSpace(_settingsService.Current.UserId))
             {
-                StatusMessage = "Validating session…";
+                StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Gallery_ValidatingSession"];
                 await _pixivClient.ValidateSessionAsync();
             }
 
@@ -1914,7 +1915,7 @@ public partial class GalleryViewModel : ViewModelBase
             var userId = _settingsService.Current.UserId;
             if (string.IsNullOrWhiteSpace(userId))
             {
-                StatusMessage = "Sign in to see followed artists.";
+                StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Gallery_SignInToSeeFollowedArtists"];
                 return;
             }
             
@@ -1978,7 +1979,7 @@ public partial class GalleryViewModel : ViewModelBase
         catch (Exception ex)
         {
             Logger.LogError(ex, "Failed to refresh followed artists");
-            StatusMessage = "Failed to refresh: " + ex.Message;
+            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Gallery_FailedToRefresh"] + ex.Message;
         }
         finally
         {
@@ -2157,7 +2158,7 @@ public partial class GalleryViewModel : ViewModelBase
         catch (Exception ex)
         {
             Logger.LogError(ex, "Failed to open Discover page");
-            StatusMessage = "Discover feature coming soon!";
+            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Gallery_DiscoverFeatureComingSoon"];
         }
     }
 
@@ -2169,7 +2170,7 @@ public partial class GalleryViewModel : ViewModelBase
         IsRecentFeedActive = true;
         SelectedArtist = null;
         VisibleArtworks.Clear();
-        StatusMessage = "Loading recent works from followed artists…";
+        StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Gallery_LoadingRecentWorksFromFollowedArtists"];
         try
         {
             var allIds = new List<ArtworkPreview>();
@@ -2195,7 +2196,7 @@ public partial class GalleryViewModel : ViewModelBase
         }
         catch (Exception ex)
         {
-            StatusMessage = "Failed to load recent works: " + ex.Message;
+            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Gallery_FailedToLoadRecentWorks"] + ex.Message;
         }
         finally { IsLoading = false; }
     }
@@ -2571,14 +2572,14 @@ public partial class GalleryViewModel : ViewModelBase
         var flushed = QuickClipboardService.FlushArtistIds();
         if (flushed == null)
         {
-            StatusMessage = "No artist IDs queued — click individual artist IDs first to add them.";
+            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Gallery_NoArtistIDsQueuedClickIndividual"];
             return;
         }
 
         var count = flushed.Split(',').Length;
         // Raise event so the view can write to the system clipboard
         CopyToClipboardRequested?.Invoke(flushed);
-        StatusMessage = $"Copied {count} queued artist ID{(count == 1 ? "" : "s")} to clipboard";
+        StatusMessage = string.Format(Pikura.Avalonia.Localization.LocalizationService.Instance["Gallery_CopiedQueuedArtistIds"], count);
     }
 
     /// <summary>Raised when the ViewModel wants to write text to the system clipboard.</summary>
@@ -3039,7 +3040,7 @@ public partial class GalleryViewModel : ViewModelBase
         catch (Exception ex)
         {
             Logger.LogError(ex, "Failed to load artworks for {Artist}", artist.Name);
-            StatusMessage = "Failed to load artworks: " + ex.Message;
+            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Gallery_FailedToLoadArtworks"] + ex.Message;
         }
         finally
         {
@@ -3047,7 +3048,7 @@ public partial class GalleryViewModel : ViewModelBase
             {
                 IsLoading = false;
                 if (SelectedArtist?.UserId == artist.UserId
-                    && StatusMessage.StartsWith("Loading ", StringComparison.Ordinal))
+                    && StatusMessage.StartsWith(Pikura.Avalonia.Localization.LocalizationService.Instance["Gallery_Loading"], StringComparison.Ordinal))
                     UpdateArtworkCountStatus();
             }
         }
@@ -3098,7 +3099,7 @@ public partial class GalleryViewModel : ViewModelBase
         var picked = VisibleArtworks.Where(a => a.IsSelected).ToList();
         if (picked.Count == 0)
         {
-            StatusMessage = "No artworks selected.";
+            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Gallery_NoArtworksSelected"];
             return;
         }
 
@@ -3119,7 +3120,7 @@ public partial class GalleryViewModel : ViewModelBase
     public async Task DownloadVisibleAsync()
     {
         var snapshot = VisibleArtworks.ToList();
-        if (snapshot.Count == 0) { StatusMessage = "No artworks loaded."; return; }
+        if (snapshot.Count == 0) { StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Gallery_NoArtworksLoaded"]; return; }
 
         Func<Task> downloadTask = () => DownloadCoreAsync(snapshot);
 
@@ -3139,7 +3140,7 @@ public partial class GalleryViewModel : ViewModelBase
     {
         if (SelectedArtist == null)
         {
-            StatusMessage = "Select an artist first.";
+            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Gallery_SelectAnArtistFirst"];
             return;
         }
 
@@ -3158,7 +3159,7 @@ public partial class GalleryViewModel : ViewModelBase
                 await Task.Delay(200);
                 if (SelectedArtist?.UserId != artistUserId)
                 {
-                    StatusMessage = "Artist changed; download cancelled.";
+                    StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Gallery_ArtistChangedDownloadCancelled"];
                     return;
                 }
             }
@@ -3237,7 +3238,7 @@ public partial class GalleryViewModel : ViewModelBase
 
         if (picked.Count == 0)
         {
-            StatusMessage = "No artworks to download.";
+            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Gallery_NoArtworksToDownload"];
             return;
         }
 
@@ -3339,7 +3340,7 @@ public partial class GalleryViewModel : ViewModelBase
                 .ToList()
             : approved.Select((c, i) => (card: c, originalIdx: i)).ToList();
 
-        if (artworkFilter.Count == 0) { StatusMessage = "No artworks selected for download."; return; }
+        if (artworkFilter.Count == 0) { StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Gallery_NoArtworksSelectedForDownload"]; return; }
 
         var total = artworkFilter.Count;
         var done = 0;
@@ -3432,7 +3433,7 @@ public partial class GalleryViewModel : ViewModelBase
         try { await Task.WhenAll(tasks); } catch (OperationCanceledException) { }
 
         var currentStatus = (await _coordinator.GetJobsAsync()).FirstOrDefault(j => j.Id == activeJob.Id)?.Status;
-        if (currentStatus == JobStatus.Paused) { StatusMessage = "Download paused."; _coordinator.UnregisterExternalJob(activeJob.Id); return; }
+        if (currentStatus == JobStatus.Paused) { StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Gallery_DownloadPaused"]; _coordinator.UnregisterExternalJob(activeJob.Id); return; }
 
         StatusMessage = failed == 0 ? $"Downloaded {done}/{total} artworks with preset." : $"Done: {done} ok, {failed} failed.";
         activeJob.Status      = ct.IsCancellationRequested ? JobStatus.Cancelled : failed == 0 ? JobStatus.Completed : JobStatus.Failed;
@@ -3502,7 +3503,7 @@ public partial class GalleryViewModel : ViewModelBase
         // per-card disk scan or confirmation dialog here (that froze the UI on
         // large jobs and bypassed the configured behavior).
         var approved = cards.ToList();
-        if (approved.Count == 0) { StatusMessage = "All artworks skipped."; return; }
+        if (approved.Count == 0) { StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Gallery_AllArtworksSkipped"]; return; }
 
         var total = approved.Count;
         var done = 0;
@@ -3601,7 +3602,7 @@ public partial class GalleryViewModel : ViewModelBase
         var currentStatus = (await _coordinator.GetJobsAsync()).FirstOrDefault(j => j.Id == activeJob.Id)?.Status;
         if (currentStatus == JobStatus.Paused)
         {
-            StatusMessage = "Download paused.";
+            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Gallery_DownloadPaused"];
             _coordinator.UnregisterExternalJob(activeJob.Id);
             return;
         }

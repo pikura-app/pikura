@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Pikura.Core.Models;
 using Pikura.Core.Services;
 using Pikura.Core.Settings;
+using Pikura.Avalonia.Localization;
 using Pikura.Avalonia.Services;
 using Pikura.Avalonia.Views.Login;
 using Pikura.Avalonia.Views.Dialogs;
@@ -211,7 +212,7 @@ public partial class SettingsViewModel : ViewModelBase
 
     // FFmpeg status (computed)
     [ObservableProperty] private bool _isFfmpegInstalled;
-    [ObservableProperty] private string _ffmpegStatusText = "Checking…";
+    [ObservableProperty] private string _ffmpegStatusText = Pikura.Avalonia.Localization.LocalizationService.Instance["Settings_Checking"];
     [ObservableProperty] private string _ffmpegVersionText = "";
 
     // FANBOX
@@ -807,7 +808,7 @@ public partial class SettingsViewModel : ViewModelBase
     private async Task CheckForUpdatesNowAsync()
     {
         CheckingForUpdates  = true;
-        UpdateStatusMessage = "Checking for updates...";
+        UpdateStatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Settings_CheckingForUpdates"];
         try
         {
             // Force a check regardless of frequency. Also clear any previous dismissal — asking
@@ -896,7 +897,7 @@ public partial class SettingsViewModel : ViewModelBase
         catch (Exception ex)
         {
             Logger.LogError(ex, "Login failed");
-            await _dialogService.ShowMessageAsync("Error", $"Login failed: {ex.Message}");
+            await _dialogService.ShowMessageAsync(Pikura.Avalonia.Localization.LocalizationService.Instance["Settings_Error"], $"Login failed: {ex.Message}");
         }
     }
 
@@ -931,7 +932,7 @@ public partial class SettingsViewModel : ViewModelBase
         {
             var login = AppServices.Get<Services.PixivLoginService>();
             await login.RefreshCloudflareSessionAsync();
-            await _dialogService.ShowMessageAsync("Cloudflare Session",
+            await _dialogService.ShowMessageAsync(Pikura.Avalonia.Localization.LocalizationService.Instance["Settings_CloudflareSession"],
                 string.IsNullOrWhiteSpace(_settingsService.Current.CfClearance)
                     ? "Couldn't obtain a Cloudflare clearance cookie. Some features (like Collection thumbnails) may not load."
                     : "Cloudflare session refreshed.");
@@ -939,7 +940,7 @@ public partial class SettingsViewModel : ViewModelBase
         catch (Exception ex)
         {
             Logger.LogError(ex, "Cloudflare session refresh failed");
-            await _dialogService.ShowMessageAsync("Error", $"Failed to refresh Cloudflare session: {ex.Message}");
+            await _dialogService.ShowMessageAsync(Pikura.Avalonia.Localization.LocalizationService.Instance["Settings_Error"], $"Failed to refresh Cloudflare session: {ex.Message}");
         }
         finally { IsRefreshingCloudflareSession = false; }
     }
@@ -948,7 +949,7 @@ public partial class SettingsViewModel : ViewModelBase
     private async Task LogoutAsync()
     {
         if (!IsSignedIn) return;
-        var confirmed = await _dialogService.ShowConfirmationAsync("Sign out", "Clear your session cookie and sign out?");
+        var confirmed = await _dialogService.ShowConfirmationAsync(Pikura.Avalonia.Localization.LocalizationService.Instance["Settings_SignOut"], Pikura.Avalonia.Localization.LocalizationService.Instance["Settings_ClearYourSessionCookieAndSign"]);
         if (!confirmed) return;
         _settingsService.Update(s => { s.PhpSessId = string.Empty; s.UserId = null; s.UserName = null; });
         LoadSettings();
@@ -969,14 +970,14 @@ public partial class SettingsViewModel : ViewModelBase
         catch (Exception ex)
         {
             Logger.LogError(ex, "Failed to change download folder");
-            await _dialogService.ShowMessageAsync("Error", "Failed to change download folder.");
+            await _dialogService.ShowMessageAsync(Pikura.Avalonia.Localization.LocalizationService.Instance["Settings_Error"], Pikura.Avalonia.Localization.LocalizationService.Instance["Settings_FailedToChangeDownloadFolder"]);
         }
     }
 
     [RelayCommand]
     private async Task ResetSettingsAsync()
     {
-        var confirmed = await _dialogService.ShowConfirmationAsync("Reset Settings", "Are you sure you want to reset all settings to defaults?");
+        var confirmed = await _dialogService.ShowConfirmationAsync(Pikura.Avalonia.Localization.LocalizationService.Instance["Settings_ResetSettings"], Pikura.Avalonia.Localization.LocalizationService.Instance["Settings_AreYouSureYouWantTo"]);
         if (confirmed)
         {
             try
@@ -984,12 +985,12 @@ public partial class SettingsViewModel : ViewModelBase
                 // Simplified for now - will implement actual reset later
                 await Task.Delay(500);
                 LoadSettings();
-                await _dialogService.ShowMessageAsync("Success", "Settings have been reset to defaults (simulated).");
+                await _dialogService.ShowMessageAsync(Pikura.Avalonia.Localization.LocalizationService.Instance["Settings_Success"], Pikura.Avalonia.Localization.LocalizationService.Instance["Settings_SettingsHaveBeenResetToDefaults"]);
             }
             catch (Exception ex)
             {
                 Logger.LogError(ex, "Failed to reset settings");
-                await _dialogService.ShowMessageAsync("Error", "Failed to reset settings.");
+                await _dialogService.ShowMessageAsync(Pikura.Avalonia.Localization.LocalizationService.Instance["Settings_Error"], Pikura.Avalonia.Localization.LocalizationService.Instance["Settings_FailedToResetSettings"]);
             }
         }
     }
@@ -1428,20 +1429,20 @@ public partial class SettingsViewModel : ViewModelBase
             IsFfmpegInstalled = isAvailable;
             if (isAvailable)
             {
-                FfmpegStatusText = "Installed";
+                FfmpegStatusText = Pikura.Avalonia.Localization.LocalizationService.Instance["Settings_Installed"];
                 var version = await _ffmpegService.ProbeVersionAsync();
                 FfmpegVersionText = version != null ? $"Version {version}" : "";
             }
             else
             {
-                FfmpegStatusText = "Not installed (required for ugoira conversion)";
+                FfmpegStatusText = Pikura.Avalonia.Localization.LocalizationService.Instance["Settings_NotInstalledRequiredForUgoiraConversion"];
                 FfmpegVersionText = "";
             }
         }
         catch
         {
             IsFfmpegInstalled = false;
-            FfmpegStatusText = "Check failed";
+            FfmpegStatusText = Pikura.Avalonia.Localization.LocalizationService.Instance["Settings_CheckFailed"];
             FfmpegVersionText = "";
         }
     }
@@ -1449,7 +1450,7 @@ public partial class SettingsViewModel : ViewModelBase
     [RelayCommand]
     private async Task CheckFfmpeg()
     {
-        FfmpegStatusText = "Checking…";
+        FfmpegStatusText = Pikura.Avalonia.Localization.LocalizationService.Instance["Settings_Checking"];
         await CheckFfmpegAsync();
     }
 
@@ -1458,11 +1459,11 @@ public partial class SettingsViewModel : ViewModelBase
     {
         try
         {
-            FfmpegStatusText = "Downloading…";
+            FfmpegStatusText = Pikura.Avalonia.Localization.LocalizationService.Instance["Settings_Downloading"];
             var progress = new Progress<string>(msg => FfmpegStatusText = msg);
             var path = await _ffmpegService.InstallAsync(progress);
             IsFfmpegInstalled = true;
-            FfmpegStatusText = "Installed";
+            FfmpegStatusText = Pikura.Avalonia.Localization.LocalizationService.Instance["Settings_Installed"];
             var version = await _ffmpegService.ProbeVersionAsync();
             FfmpegVersionText = version != null ? $"Version {version}" : "";
         }

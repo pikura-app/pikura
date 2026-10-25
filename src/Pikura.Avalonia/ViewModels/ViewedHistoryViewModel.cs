@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Pikura.Avalonia.Localization;
 using Pikura.Avalonia.Services;
 using Pikura.Core.Data;
 using Pikura.Core.Models;
@@ -497,7 +498,7 @@ public partial class ViewedHistoryViewModel : ViewModelBase
         SelectedCount = 0;
         CurrentPage = 1;
         IsLoading = true;
-        StatusMessage = "Loading history…";
+        StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Viewed_LoadingHistory"];
 
         try
         {
@@ -547,7 +548,7 @@ public partial class ViewedHistoryViewModel : ViewModelBase
         DateGroups.Clear();
         SelectedCount = 0;
         IsLoading = true;
-        StatusMessage = "Loading history…";
+        StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Viewed_LoadingHistory"];
 
         try
         {
@@ -656,7 +657,7 @@ public partial class ViewedHistoryViewModel : ViewModelBase
         await _repository.ClearAllAsync();
         Results.Clear();
         DateGroups.Clear();
-        StatusMessage = "History cleared.";
+        StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Viewed_HistoryCleared"];
         OnPropertyChanged(nameof(HasResults));
     }
 
@@ -687,12 +688,12 @@ public partial class ViewedHistoryViewModel : ViewModelBase
         if (cutoff is { } c)
         {
             var removed = await _repository.ClearSinceAsync(c);
-            StatusMessage = $"Cleared {removed:N0} entr{(removed == 1 ? "y" : "ies")} from the past {range}.";
+            StatusMessage = string.Format(Pikura.Avalonia.Localization.LocalizationService.Instance["Viewed_ClearedEntriesPast"], removed, range);
         }
         else
         {
             await _repository.ClearAllAsync();
-            StatusMessage = "History cleared.";
+            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Viewed_HistoryCleared"];
         }
 
         await ReloadAsync();

@@ -1,5 +1,6 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:loc="using:Pikura.Avalonia.Localization"
              xmlns:actipro="http://schemas.actiprosoftware.com/avaloniaui"
              xmlns:vm="using:Pikura.Avalonia.ViewModels"
              xmlns:conv="using:Pikura.Avalonia.Converters"
@@ -16,28 +17,28 @@
         <conv:BoolToBlurRadiusConverter x:Key="BoolToBlurRadiusConverter"/>
 
         <ContextMenu x:Key="ViewedCardContextMenu" x:DataType="vm:ArtworkCardViewModel">
-            <MenuItem Header="☑ Select" Click="OnContextToggleSelection" IsVisible="{Binding !IsSelected}"/>
-            <MenuItem Header="☒ Deselect" Click="OnContextToggleSelection" IsVisible="{Binding IsSelected}"/>
+            <MenuItem Header="{loc:Tr Search_Select}" Click="OnContextToggleSelection" IsVisible="{Binding !IsSelected}"/>
+            <MenuItem Header="{loc:Tr Search_Deselect}" Click="OnContextToggleSelection" IsVisible="{Binding IsSelected}"/>
             <Separator/>
-            <MenuItem Header="↓ Download all" Click="OnContextDownloadAll"/>
-            <MenuItem Header="↓ First page only" Click="OnContextDownloadThisPage" IsVisible="{Binding IsMultiPage}"/>
+            <MenuItem Header="{loc:Tr Search_DownloadAll}" Click="OnContextDownloadAll"/>
+            <MenuItem Header="{loc:Tr Search_FirstPageOnly}" Click="OnContextDownloadThisPage" IsVisible="{Binding IsMultiPage}"/>
             <Separator/>
-            <MenuItem Header="👁 Open in side panel" Click="OnContextPreview"/>
-            <MenuItem Header="⛶ Open full screen" Click="OnContextOpenFullScreen"/>
-            <MenuItem Header="⊞ Open in new tab" Click="OnContextOpenInNewTab"/>
-            <MenuItem Header="⧉ Open in popup" Click="OnContextOpenPopup"/>
-            <MenuItem Header="🌐 Open on pixiv.net" Click="OnContextOpenPixiv"/>
-            <MenuItem Header="👤 Open artist gallery" Click="OnContextOpenArtistGallery"/>
+            <MenuItem Header="{loc:Tr Search_OpenInSidePanel}" Click="OnContextPreview"/>
+            <MenuItem Header="{loc:Tr Search_OpenFullScreen}" Click="OnContextOpenFullScreen"/>
+            <MenuItem Header="{loc:Tr Search_OpenInNewTab}" Click="OnContextOpenInNewTab"/>
+            <MenuItem Header="{loc:Tr Search_OpenInPopup}" Click="OnContextOpenPopup"/>
+            <MenuItem Header="{loc:Tr Search_OpenOnPixivNet}" Click="OnContextOpenPixiv"/>
+            <MenuItem Header="{loc:Tr Search_OpenArtistGallery}" Click="OnContextOpenArtistGallery"/>
             <Separator/>
-            <MenuItem Header="★ Add to local favorites" Click="OnContextToggleFavorite" IsVisible="{Binding !IsLocalFavorite}"/>
-            <MenuItem Header="★ Remove from favorites" Click="OnContextToggleFavorite" IsVisible="{Binding IsLocalFavorite}"/>
+            <MenuItem Header="{loc:Tr Search_AddToLocalFavorites}" Click="OnContextToggleFavorite" IsVisible="{Binding !IsLocalFavorite}"/>
+            <MenuItem Header="{loc:Tr Search_RemoveFromFavorites}" Click="OnContextToggleFavorite" IsVisible="{Binding IsLocalFavorite}"/>
             <Separator/>
-            <MenuItem Header="Copy artwork ID" Click="OnContextCopyId"/>
-            <MenuItem Header="Copy artist ID" Click="OnContextCopyArtistId"/>
-            <MenuItem Header="📋 Copy image" Click="OnContextCopyImage"/>
-            <MenuItem Header="🖼 Use as app background" Click="OnContextUseAsBackground" IsVisible="{Binding IsEnabled, Source={x:Static services:AppServices.OverlayService}}"/>
+            <MenuItem Header="{loc:Tr Search_CopyArtworkID}" Click="OnContextCopyId"/>
+            <MenuItem Header="{loc:Tr Search_CopyArtistID}" Click="OnContextCopyArtistId"/>
+            <MenuItem Header="{loc:Tr Search_CopyImage}" Click="OnContextCopyImage"/>
+            <MenuItem Header="{loc:Tr Search_UseAsAppBackground}" Click="OnContextUseAsBackground" IsVisible="{Binding IsEnabled, Source={x:Static services:AppServices.OverlayService}}"/>
             <Separator/>
-            <MenuItem Header="✕ Remove from history" Click="OnContextRemove"/>
+            <MenuItem Header="{loc:Tr Viewed_RemoveFromHistory}" Click="OnContextRemove"/>
         </ContextMenu>
     </UserControl.Resources>
 
@@ -51,13 +52,13 @@
                 Margin="0,32,0,0">
             <Grid ColumnDefinitions="Auto,*,Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
-                    <TextBlock Text="History" FontWeight="Bold" FontSize="20" VerticalAlignment="Center"/>
+                    <TextBlock Text="{loc:Tr Nav_History}" FontWeight="Bold" FontSize="20" VerticalAlignment="Center"/>
                     <Button Content="⟳"   FontSize="11"
                             VerticalAlignment="Center"
-                            Command="{Binding ReloadCommand}" ToolTip.Tip="Refresh"/>
+                            Command="{Binding ReloadCommand}" ToolTip.Tip="{loc:Tr Common_Refresh}"/>
                     <ToggleButton IsChecked="{Binding IncognitoModeEnabled, Mode=TwoWay}"   FontSize="11"
                                   BorderThickness="1" VerticalAlignment="Center"
-                                  ToolTip.Tip="Incognito mode: artworks you open won't be added to this history while enabled.">
+                                  ToolTip.Tip="{loc:Tr Viewed_IncognitoModeArtworksYouOpenWon}">
                         <ToggleButton.Styles>
                             <Style Selector="ToggleButton">
                                 <Setter Property="Background" Value="Transparent"/>
@@ -73,8 +74,8 @@
                         </ToggleButton.Styles>
                         <StackPanel Orientation="Horizontal" Spacing="4">
                             <TextBlock Text="🕶" FontSize="12"/>
-                            <TextBlock Text="Incognito: Off" FontSize="11" IsVisible="{Binding !IncognitoModeEnabled}"/>
-                            <TextBlock Text="Incognito: On" FontSize="11" FontWeight="Bold" IsVisible="{Binding IncognitoModeEnabled}"/>
+                            <TextBlock Text="{loc:Tr Viewed_IncognitoOff}" FontSize="11" IsVisible="{Binding !IncognitoModeEnabled}"/>
+                            <TextBlock Text="{loc:Tr Viewed_IncognitoOn}" FontSize="11" FontWeight="Bold" IsVisible="{Binding IncognitoModeEnabled}"/>
                         </StackPanel>
                     </ToggleButton>
                     <ProgressBar IsIndeterminate="True" Width="70" Height="3"
@@ -89,7 +90,7 @@
                         <StackPanel Orientation="Horizontal" Spacing="0">
                             <Button Name="CalendarFlyoutButton" Content="📅" FontSize="12"
                                       Background="Transparent" BorderThickness="0"
-                                    ToolTip.Tip="Browse by exact date">
+                                    ToolTip.Tip="{loc:Tr Viewed_BrowseByExactDate}">
                                 <Button.Flyout>
                                     <Flyout Placement="Bottom" ShowMode="Standard" Opened="OnCalendarOpened">
                                         <Calendar Name="DatePopupCalendar"
@@ -100,18 +101,18 @@
                             </Button>
                             <Button Name="QuickRangeButton" Content="⏱" FontSize="12"
                                       Background="Transparent" BorderThickness="0"
-                                    ToolTip.Tip="Quick range">
+                                    ToolTip.Tip="{loc:Tr Pixivision_QuickRange}">
                                 <Button.Flyout>
                                     <MenuFlyout Placement="Bottom">
-                                        <MenuItem Header="Today"      Command="{Binding SetQuickRangeCommand}" CommandParameter="today"/>
-                                        <MenuItem Header="Past day"   Command="{Binding SetQuickRangeCommand}" CommandParameter="day"/>
-                                        <MenuItem Header="Past week"  Command="{Binding SetQuickRangeCommand}" CommandParameter="week"/>
-                                        <MenuItem Header="Past month" Command="{Binding SetQuickRangeCommand}" CommandParameter="month"/>
-                                        <MenuItem Header="Past year"  Command="{Binding SetQuickRangeCommand}" CommandParameter="year"/>
+                                        <MenuItem Header="{loc:Tr Pixivision_Today}"      Command="{Binding SetQuickRangeCommand}" CommandParameter="today"/>
+                                        <MenuItem Header="{loc:Tr Pixivision_PastDay}"   Command="{Binding SetQuickRangeCommand}" CommandParameter="day"/>
+                                        <MenuItem Header="{loc:Tr Pixivision_PastWeek}"  Command="{Binding SetQuickRangeCommand}" CommandParameter="week"/>
+                                        <MenuItem Header="{loc:Tr Pixivision_PastMonth}" Command="{Binding SetQuickRangeCommand}" CommandParameter="month"/>
+                                        <MenuItem Header="{loc:Tr Pixivision_PastYear}"  Command="{Binding SetQuickRangeCommand}" CommandParameter="year"/>
                                         <Separator/>
-                                        <MenuItem Header="Custom range…" Click="OnCustomRangeMenuClick"/>
+                                        <MenuItem Header="{loc:Tr Pixivision_CustomRange}" Click="OnCustomRangeMenuClick"/>
                                         <Separator/>
-                                        <MenuItem Header="All time" Command="{Binding GoToAllTimeCommand}"/>
+                                        <MenuItem Header="{loc:Tr Pixivision_AllTime}" Command="{Binding GoToAllTimeCommand}"/>
                                     </MenuFlyout>
                                 </Button.Flyout>
                             </Button>
@@ -120,7 +121,7 @@
                                     Background="Transparent" BorderThickness="0"
                                     IsVisible="{Binding IsFilteredByDate}"
                                     Command="{Binding GoToAllTimeCommand}"
-                                    ToolTip.Tip="Back to all time"/>
+                                    ToolTip.Tip="{loc:Tr Viewed_BackToAllTime}"/>
                         </StackPanel>
                     </Border>
                     <!-- Custom range picker — an anchored Popup (like an airline booking site's
@@ -136,13 +137,13 @@
                 <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="3" VerticalAlignment="Center">
                     <ToggleButton IsChecked="{Binding IsDefaultMode}"   FontSize="11"
                                   Command="{Binding SetViewModeCommand}" CommandParameter="default"
-                                  ToolTip.Tip="Default — flat, chronological feed">🕒 Default</ToggleButton>
+                                  ToolTip.Tip="{loc:Tr Viewed_DefaultFlatChronologicalFeed}">🕒 Default</ToggleButton>
                     <ToggleButton IsChecked="{Binding IsGroupedMode}"   FontSize="11"
                                   Command="{Binding SetViewModeCommand}" CommandParameter="grouped"
-                                  ToolTip.Tip="Grouped — collage thumbnail per day">▦ Grouped</ToggleButton>
+                                  ToolTip.Tip="{loc:Tr Viewed_GroupedCollageThumbnailPerDay}">▦ Grouped</ToggleButton>
                     <ToggleButton IsChecked="{Binding IsListMode}"   FontSize="11"
                                   Command="{Binding SetViewModeCommand}" CommandParameter="list"
-                                  ToolTip.Tip="List — day-by-day list">📋 List</ToggleButton>
+                                  ToolTip.Tip="{loc:Tr Viewed_ListDayByDayList}">📋 List</ToggleButton>
                     <Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}" Margin="3,0"/>
                     <ToggleButton IsChecked="{Binding IsGridView}"   FontSize="11"
                                   Command="{Binding SetGridViewCommand}" IsVisible="{Binding IsDefaultMode}">⊞ Grid</ToggleButton>
@@ -166,20 +167,20 @@
                     <ToggleButton IsChecked="{Binding ShowPreview}"  Padding="10,5" FontSize="11">
                         <StackPanel Orientation="Horizontal" Spacing="4">
                             <TextBlock Text="▣" FontSize="12"/>
-                            <TextBlock Text="Show Panel" FontSize="11" IsVisible="{Binding !ShowPreview}"/>
-                            <TextBlock Text="Hide Panel" FontSize="11" IsVisible="{Binding ShowPreview}"/>
+                            <TextBlock Text="{loc:Tr Search_ShowPanel}" FontSize="11" IsVisible="{Binding !ShowPreview}"/>
+                            <TextBlock Text="{loc:Tr Search_HidePanel}" FontSize="11" IsVisible="{Binding ShowPreview}"/>
                         </StackPanel>
                     </ToggleButton>
-                    <Button Content="🗑"   FontSize="11" ToolTip.Tip="Clear history…">
+                    <Button Content="🗑"   FontSize="11" ToolTip.Tip="{loc:Tr Viewed_ClearHistory}">
                         <Button.Flyout>
                             <MenuFlyout Placement="BottomEdgeAlignedRight">
-                                <MenuItem Header="Past hour"  Command="{Binding ClearHistoryRangeCommand}" CommandParameter="hour"/>
-                                <MenuItem Header="Past day"   Command="{Binding ClearHistoryRangeCommand}" CommandParameter="day"/>
-                                <MenuItem Header="Past week"  Command="{Binding ClearHistoryRangeCommand}" CommandParameter="week"/>
-                                <MenuItem Header="Past month" Command="{Binding ClearHistoryRangeCommand}" CommandParameter="month"/>
-                                <MenuItem Header="Past year"  Command="{Binding ClearHistoryRangeCommand}" CommandParameter="year"/>
+                                <MenuItem Header="{loc:Tr Viewed_PastHour}"  Command="{Binding ClearHistoryRangeCommand}" CommandParameter="hour"/>
+                                <MenuItem Header="{loc:Tr Pixivision_PastDay}"   Command="{Binding ClearHistoryRangeCommand}" CommandParameter="day"/>
+                                <MenuItem Header="{loc:Tr Pixivision_PastWeek}"  Command="{Binding ClearHistoryRangeCommand}" CommandParameter="week"/>
+                                <MenuItem Header="{loc:Tr Pixivision_PastMonth}" Command="{Binding ClearHistoryRangeCommand}" CommandParameter="month"/>
+                                <MenuItem Header="{loc:Tr Pixivision_PastYear}"  Command="{Binding ClearHistoryRangeCommand}" CommandParameter="year"/>
                                 <Separator/>
-                                <MenuItem Header="All time"   Command="{Binding ClearHistoryRangeCommand}" CommandParameter="all"/>
+                                <MenuItem Header="{loc:Tr Pixivision_AllTime}"   Command="{Binding ClearHistoryRangeCommand}" CommandParameter="all"/>
                             </MenuFlyout>
                         </Button.Flyout>
                     </Button>
@@ -206,17 +207,17 @@
                         Command="{Binding DownloadAllVisibleCommand}">
                     <StackPanel Orientation="Horizontal" Spacing="5">
                         <TextBlock Text="⊞" FontSize="12"/>
-                        <TextBlock Text="Download Visible"/>
+                        <TextBlock Text="{loc:Tr Search_DownloadVisible}"/>
                     </StackPanel>
                 </Button>
-                <Button Content="☑ Select All"   FontSize="11" Command="{Binding SelectAllCommand}"/>
+                <Button Content="{loc:Tr Search_SelectAll}"   FontSize="11" Command="{Binding SelectAllCommand}"/>
                 <Button Content="{Binding SelectedCount, StringFormat='☒ Deselect All ({0})'}"
                           FontSize="11"
                         Command="{Binding ClearSelectionCommand}" IsVisible="{Binding HasSelection}"/>
-                <Button Content="🎨 Download Preset"   FontSize="11"
+                <Button Content="{loc:Tr Search_DownloadPreset}"   FontSize="11"
                         Classes="accent"
                         Click="OnDownloadPresetClicked"
-                        ToolTip.Tip="Download with image processing preset"/>
+                        ToolTip.Tip="{loc:Tr Search_DownloadWithImageProcessingPreset}"/>
             </StackPanel>
         </Border>
 
@@ -381,7 +382,7 @@
                     </ScrollViewer>
 
                     <Grid RowDefinitions="Auto,*" IsVisible="{Binding !ShowDateGroups}">
-                        <Button Grid.Row="0" Content="← Back to days"  Padding="10,5" FontSize="11"
+                        <Button Grid.Row="0" Content="{loc:Tr Viewed_BackToDays}"  Padding="10,5" FontSize="11"
                                 Margin="10,10,0,0" HorizontalAlignment="Left"
                                 Command="{Binding BackToGroupsCommand}"
                                 IsVisible="{Binding DrillDownDate, Converter={x:Static ObjectConverters.IsNotNull}}"/>
@@ -552,10 +553,10 @@
                             IsVisible="{Binding IsDefaultMode}">
                     <ToggleButton IsChecked="{Binding UsePagination, Mode=TwoWay}"
                                     FontSize="11"
-                                  ToolTip.Tip="Toggle pagination (off = autoload while scrolling)">
+                                  ToolTip.Tip="{loc:Tr Search_TogglePaginationOffAutoloadWhileScrollin}">
                         <StackPanel Orientation="Horizontal" Spacing="4">
                             <TextBlock Text="📄" FontSize="12" VerticalAlignment="Center"/>
-                            <TextBlock Text="Pages" FontSize="11" VerticalAlignment="Center"/>
+                            <TextBlock Text="{loc:Tr Search_Pages}" FontSize="11" VerticalAlignment="Center"/>
                         </StackPanel>
                     </ToggleButton>
 
@@ -563,10 +564,10 @@
                               SelectedItem="{Binding ItemsPerPage, Mode=TwoWay}"
                               ItemsSource="{Binding ItemsPerPageOptions}"
                               CornerRadius="6" MinWidth="75" FontSize="11"
-                              ToolTip.Tip="Items per page"/>
+                              ToolTip.Tip="{loc:Tr Search_ItemsPerPage}"/>
 
                     <StackPanel IsVisible="{Binding UsePagination}" Orientation="Horizontal" Spacing="6">
-                        <Button Content="‹ Prev"  Padding="10,5" FontSize="11"
+                        <Button Content="{loc:Tr Search_Prev}"  Padding="10,5" FontSize="11"
                                 Command="{Binding PreviousPageCommand}" IsEnabled="{Binding CanGoPrevious}"/>
                         <TextBlock Text="{Binding CurrentPage, StringFormat='Page {0} of'}" FontSize="11"
                                    VerticalAlignment="Center" Margin="4,0"/>
@@ -576,12 +577,12 @@
                                  Padding="6,4" FontSize="11" Margin="6,0,0,0"
                                  VerticalContentAlignment="Center"
                                  KeyDown="OnHistoryPageInputKeyDown"
-                                 ToolTip.Tip="Type a page number and press Enter"/>
-                        <Button Content="Next ›"  Padding="10,5" FontSize="11"
+                                 ToolTip.Tip="{loc:Tr Search_TypeAPageNumberAndPress}"/>
+                        <Button Content="{loc:Tr Search_Next}"  Padding="10,5" FontSize="11"
                                 Command="{Binding NextPageCommand}" IsEnabled="{Binding CanGoNext}"/>
                     </StackPanel>
 
-                    <Button Content="Load More"   FontSize="11"
+                    <Button Content="{loc:Tr Search_LoadMore}"   FontSize="11"
                             Command="{Binding LoadMoreCommand}">
                         <Button.IsVisible>
                             <MultiBinding Converter="{x:Static BoolConverters.And}">
@@ -591,7 +592,7 @@
                         </Button.IsVisible>
                     </Button>
                 </StackPanel>
-                <Button Grid.Column="1" Content="Load More"   FontSize="11"
+                <Button Grid.Column="1" Content="{loc:Tr Search_LoadMore}"   FontSize="11"
                         Command="{Binding LoadMoreCommand}">
                     <Button.IsVisible>
                         <MultiBinding Converter="{x:Static BoolConverters.And}">

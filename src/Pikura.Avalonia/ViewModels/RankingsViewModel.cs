@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
 using Pikura.Core.Services;
+using Pikura.Avalonia.Localization;
 using Pikura.Avalonia.Services;
 using System;
 using System.Threading.Tasks;
@@ -41,19 +42,19 @@ public partial class RankingsViewModel : ViewModelBase
     private async Task LoadRankingsAsync()
     {
         IsLoading = true;
-        StatusMessage = "Loading rankings...";
+        StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Rankings_LoadingRankings"];
 
         try
         {
             // This would load actual rankings from Pixiv
             await Task.Delay(1000); // Simulate loading
-            StatusMessage = "Rankings loaded successfully";
+            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Rankings_RankingsLoadedSuccessfully"];
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "Failed to load rankings");
-            StatusMessage = "Failed to load rankings";
-            await _dialogService.ShowMessageAsync("Error", "Failed to load rankings. Please try again.");
+            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Rankings_FailedToLoadRankings"];
+            await _dialogService.ShowMessageAsync(Pikura.Avalonia.Localization.LocalizationService.Instance["Rankings_Error"], Pikura.Avalonia.Localization.LocalizationService.Instance["Rankings_FailedToLoadRankingsPleaseTry"]);
         }
         finally
         {

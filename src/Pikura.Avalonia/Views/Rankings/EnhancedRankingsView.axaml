@@ -22,33 +22,33 @@
 
         <!-- Shared context menu — DataContext is RankingCardViewModel -->
         <ContextMenu x:Key="RankingCardContextMenu" x:DataType="vm:RankingCardViewModel">
-            <MenuItem Header="👁 Open in side panel" Click="OnContextPreview"
-                      ToolTip.Tip="Open in the inline viewer with side panel visible"/>
-            <MenuItem Header="⛶ Open full screen" Click="OnContextOpenFullScreen"
-                      ToolTip.Tip="Open in the inline viewer in full-screen mode"/>
-            <MenuItem Header="⊞ Open in new tab" Click="OnContextOpenInNewTab"
-                      ToolTip.Tip="Open this artwork in a new viewer tab"/>
-            <MenuItem Header="⧉ Open in popup window" Click="OnContextOpenPopup"
-                      ToolTip.Tip="Open in a floating window"/>
+            <MenuItem Header="{loc:Tr Search_OpenInSidePanel}" Click="OnContextPreview"
+                      ToolTip.Tip="{loc:Tr Rankings_OpenInTheInlineViewerWith}"/>
+            <MenuItem Header="{loc:Tr Search_OpenFullScreen}" Click="OnContextOpenFullScreen"
+                      ToolTip.Tip="{loc:Tr Rankings_OpenInTheInlineViewerIn}"/>
+            <MenuItem Header="{loc:Tr Search_OpenInNewTab}" Click="OnContextOpenInNewTab"
+                      ToolTip.Tip="{loc:Tr Rankings_OpenThisArtworkInANew}"/>
+            <MenuItem Header="{loc:Tr Rankings_OpenInPopupWindow}" Click="OnContextOpenPopup"
+                      ToolTip.Tip="{loc:Tr Rankings_OpenInAFloatingWindow}"/>
             <Separator/>
-            <MenuItem Header="☑ Select" Click="OnContextToggleSelection"
+            <MenuItem Header="{loc:Tr Search_Select}" Click="OnContextToggleSelection"
                       IsVisible="{Binding !IsSelected}"
-                      ToolTip.Tip="Add to bulk selection"/>
-            <MenuItem Header="☒ Deselect" Click="OnContextToggleSelection"
+                      ToolTip.Tip="{loc:Tr Rankings_AddToBulkSelection}"/>
+            <MenuItem Header="{loc:Tr Search_Deselect}" Click="OnContextToggleSelection"
                       IsVisible="{Binding IsSelected}"/>
             <Separator/>
-            <MenuItem Header="👤 Open artist gallery" Click="OnContextOpenArtistGallery"
-                      ToolTip.Tip="Switch to the Gallery tab and load this artist"/>
-            <MenuItem Header="🌐 Open on pixiv.net" Click="OnContextOpenPixiv"/>
-            <MenuItem Header="🌐 Open artist on pixiv" Click="OnContextOpenArtist"/>
+            <MenuItem Header="{loc:Tr Search_OpenArtistGallery}" Click="OnContextOpenArtistGallery"
+                      ToolTip.Tip="{loc:Tr Rankings_SwitchToTheGalleryTabAnd}"/>
+            <MenuItem Header="{loc:Tr Search_OpenOnPixivNet}" Click="OnContextOpenPixiv"/>
+            <MenuItem Header="{loc:Tr Rankings_OpenArtistOnPixiv}" Click="OnContextOpenArtist"/>
             <Separator/>
-            <MenuItem Header="★ Add to local favorites" Click="OnContextAddFavorite" IsVisible="{Binding !IsSelected}"/>
-            <MenuItem Header="★ Remove from favorites" Click="OnContextRemoveFavorite" IsVisible="{Binding IsSelected}"/>
+            <MenuItem Header="{loc:Tr Search_AddToLocalFavorites}" Click="OnContextAddFavorite" IsVisible="{Binding !IsSelected}"/>
+            <MenuItem Header="{loc:Tr Search_RemoveFromFavorites}" Click="OnContextRemoveFavorite" IsVisible="{Binding IsSelected}"/>
             <Separator/>
-            <MenuItem Header="Copy artwork ID" Click="OnContextCopyId"/>
-            <MenuItem Header="Copy artwork URL" Click="OnContextCopyUrl"/>
-            <MenuItem Header="📋 Copy image" Click="OnContextCopyImage"/>
-            <MenuItem Header="🖼 Use as app background" Click="OnContextUseAsBackground" IsVisible="{Binding IsEnabled, Source={x:Static services:AppServices.OverlayService}}"/>
+            <MenuItem Header="{loc:Tr Search_CopyArtworkID}" Click="OnContextCopyId"/>
+            <MenuItem Header="{loc:Tr Rankings_CopyArtworkURL}" Click="OnContextCopyUrl"/>
+            <MenuItem Header="{loc:Tr Search_CopyImage}" Click="OnContextCopyImage"/>
+            <MenuItem Header="{loc:Tr Search_UseAsAppBackground}" Click="OnContextUseAsBackground" IsVisible="{Binding IsEnabled, Source={x:Static services:AppServices.OverlayService}}"/>
         </ContextMenu>
     </UserControl.Resources>
 
@@ -65,7 +65,7 @@
 
                 <!-- Title -->
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
-                    <TextBlock Text="Rankings" FontWeight="Bold" FontSize="20" VerticalAlignment="Center"/>
+                    <TextBlock Text="{loc:Tr Nav_Rankings}" FontWeight="Bold" FontSize="20" VerticalAlignment="Center"/>
                     <ProgressBar IsIndeterminate="True" Width="70" Height="3"
                                  IsVisible="{Binding IsLoading}" VerticalAlignment="Center"/>
                 </StackPanel>
@@ -95,10 +95,10 @@
                             <Button Classes="tool" Content="‹"
                                     Command="{Binding GoToNextDateCommand}"
                                     IsVisible="{Binding NextDate, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
-                                    ToolTip.Tip="Newer date"/>
+                                    ToolTip.Tip="{loc:Tr Rankings_NewerDate}"/>
                             <!-- Calendar popup trigger -->
                             <Button Name="CalendarFlyoutButton" Classes="tool" Content="📅"
-                                    FontSize="12" ToolTip.Tip="Pick a date">
+                                    FontSize="12" ToolTip.Tip="{loc:Tr Rankings_PickADate}">
                                 <Button.Flyout>
                                     <Flyout Placement="Bottom" ShowMode="Standard"
                                             Opened="OnCalendarOpened">
@@ -110,27 +110,27 @@
                             </Button>
                             <!-- Manual date input -->
                             <TextBox Text="{Binding DateInput}"
-                                     PlaceholderText="YYYY-MM-DD"
+                                     PlaceholderText="{loc:Tr Rankings_YYYYMMDD}"
                                      Width="100" BorderThickness="0"
                                      Background="Transparent"
                                      Padding="6,4" FontSize="11"
                                      VerticalContentAlignment="Center"
                                      KeyDown="OnDateInputKeyDown"
-                                     ToolTip.Tip="Type YYYY-MM-DD and press Enter"/>
+                                     ToolTip.Tip="{loc:Tr Rankings_TypeYYYYMMDDAndPress}"/>
                             <!-- Reset to Latest -->
                             <Button Classes="tool" Content="⊙" FontSize="12"
                                     Command="{Binding GoToLatestCommand}"
                                     IsVisible="{Binding NextDate, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
-                                    ToolTip.Tip="Reset to latest ranking"/>
+                                    ToolTip.Tip="{loc:Tr Rankings_ResetToLatestRanking}"/>
                             <!-- › = older -->
                             <Button Classes="tool" Content="›"
                                     Command="{Binding GoToPrevDateCommand}"
                                     IsEnabled="{Binding PrevDate, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
-                                    ToolTip.Tip="Older date"/>
+                                    ToolTip.Tip="{loc:Tr Rankings_OlderDate}"/>
                         </StackPanel>
                     </Border>
                     <Button CornerRadius="6" Padding="9,5" FontSize="12"
-                            Command="{Binding ReloadCommand}" ToolTip.Tip="Reload">⟳</Button>
+                            Command="{Binding ReloadCommand}" ToolTip.Tip="{loc:Tr Rankings_Reload}">⟳</Button>
                 </StackPanel>
 
                 <!-- R-18 toggle — right -->
@@ -138,7 +138,7 @@
                             IsVisible="{Binding ShowR18Buttons}">
                     <ToggleButton IsChecked="{Binding ShowR18}" CornerRadius="8" Padding="8,4"
                                   FontSize="11"
-                                  ToolTip.Tip="Show R-18 rankings">
+                                  ToolTip.Tip="{loc:Tr Rankings_ShowR18Rankings}">
                         <ToggleButton.Styles>
                             <Style Selector="ToggleButton:checked">
                                 <Setter Property="Background" Value="#EF4444"/>
@@ -173,16 +173,16 @@
             <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
                 <!-- LEFT: content type tabs -->
                 <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
-                    <Button Content="Overall"      CornerRadius="6" Padding="14,5" FontSize="12"
+                    <Button Content="{loc:Tr Rankings_Overall}"      CornerRadius="6" Padding="14,5" FontSize="12"
                             Command="{Binding SelectContentCommand}" CommandParameter="all"
                             Classes.accent="{Binding SelectedContent, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=all}"/>
-                    <Button Content="Illustrations" CornerRadius="6" Padding="14,5" FontSize="12"
+                    <Button Content="{loc:Tr Search_Illustrations}" CornerRadius="6" Padding="14,5" FontSize="12"
                             Command="{Binding SelectContentCommand}" CommandParameter="illust"
                             Classes.accent="{Binding SelectedContent, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=illust}"/>
-                    <Button Content="Ugoira"        CornerRadius="6" Padding="14,5" FontSize="12"
+                    <Button Content="{loc:Tr Rankings_Ugoira}"        CornerRadius="6" Padding="14,5" FontSize="12"
                             Command="{Binding SelectContentCommand}" CommandParameter="ugoira"
                             Classes.accent="{Binding SelectedContent, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=ugoira}"/>
-                    <Button Content="Manga"         CornerRadius="6" Padding="14,5" FontSize="12"
+                    <Button Content="{loc:Tr Search_Manga}"         CornerRadius="6" Padding="14,5" FontSize="12"
                             Command="{Binding SelectContentCommand}" CommandParameter="manga"
                             Classes.accent="{Binding SelectedContent, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=manga}"/>
                 </StackPanel>
@@ -193,17 +193,17 @@
                     <!-- Grid/List -->
                     <ToggleButton IsChecked="{Binding IsGridView}" CornerRadius="5" Padding="9,5" FontSize="11"
                                   Command="{Binding SetGridViewCommand}"
-                                  ToolTip.Tip="Grid view">⊞ Grid</ToggleButton>
+                                  ToolTip.Tip="{loc:Tr Rankings_GridView}">⊞ Grid</ToggleButton>
                     <ToggleButton IsChecked="{Binding IsListView}" CornerRadius="5" Padding="9,5" FontSize="11"
                                   Command="{Binding SetListViewCommand}"
-                                  ToolTip.Tip="List view">☰ List</ToggleButton>
+                                  ToolTip.Tip="{loc:Tr Rankings_ListView}">☰ List</ToggleButton>
                     <Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}" Margin="3,0"
                                IsVisible="{Binding IsGridView}"/>
                     <!-- Fixed / Natural height -->
                     <ToggleButton IsChecked="{Binding IsFixedHeight}" CornerRadius="5" Padding="9,5" FontSize="11"
                                   Command="{Binding SetFixedHeightCommand}"
                                   IsVisible="{Binding IsGridView}"
-                                  ToolTip.Tip="Fixed card height - images cropped to fit">
+                                  ToolTip.Tip="{loc:Tr Rankings_FixedCardHeightImagesCroppedTo}">
                         <ToggleButton.Styles>
                             <Style Selector="ToggleButton:checked">
                                 <Setter Property="Background" Value="#3B82F6"/>
@@ -216,7 +216,7 @@
                     <ToggleButton IsChecked="{Binding IsNaturalHeight}" CornerRadius="5" Padding="9,5" FontSize="11"
                                   Command="{Binding SetNaturalHeightCommand}"
                                   IsVisible="{Binding IsGridView}"
-                                  ToolTip.Tip="Natural card height - images show full aspect ratio">
+                                  ToolTip.Tip="{loc:Tr Rankings_NaturalCardHeightImagesShowFull}">
                         <ToggleButton.Styles>
                             <Style Selector="ToggleButton:checked">
                                 <Setter Property="Background" Value="#3B82F6"/>
@@ -232,29 +232,29 @@
                     <Slider Value="{Binding CardSize}" Minimum="100" Maximum="320"
                             Width="90" VerticalAlignment="Center"
                             IsVisible="{Binding IsGridView}"
-                            ToolTip.Tip="Card size"/>
+                            ToolTip.Tip="{loc:Tr Rankings_CardSize}"/>
                     <Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}" Margin="3,0"/>
                     <!-- Side panel toggle -->
                     <ToggleButton IsChecked="{Binding ShowPreview}"
                                   CornerRadius="5" Padding="10,5" FontSize="11"
-                                  ToolTip.Tip="Toggle the side panel (browse artworks alongside the viewer)">
+                                  ToolTip.Tip="{loc:Tr Rankings_ToggleTheSidePanelBrowseArtworks}">
                         <StackPanel Orientation="Horizontal" Spacing="4">
                             <TextBlock Text="▣" FontSize="12" VerticalAlignment="Center"/>
-                            <TextBlock Text="Show Panel" FontSize="11" VerticalAlignment="Center" IsVisible="{Binding !ShowPreview}"/>
-                            <TextBlock Text="Hide Panel" FontSize="11" VerticalAlignment="Center" IsVisible="{Binding ShowPreview}"/>
+                            <TextBlock Text="{loc:Tr Search_ShowPanel}" FontSize="11" VerticalAlignment="Center" IsVisible="{Binding !ShowPreview}"/>
+                            <TextBlock Text="{loc:Tr Search_HidePanel}" FontSize="11" VerticalAlignment="Center" IsVisible="{Binding ShowPreview}"/>
                         </StackPanel>
                     </ToggleButton>
                     <Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}" Margin="3,0"/>
                     <!-- Info / Tags -->
                     <ToggleButton IsChecked="{Binding ShowInfo}" CornerRadius="5" Padding="9,5" FontSize="11"
-                                  ToolTip.Tip="Show/hide artwork info">Info</ToggleButton>
+                                  ToolTip.Tip="{loc:Tr Rankings_ShowHideArtworkInfo}">Info</ToggleButton>
                     <ToggleButton IsChecked="{Binding ShowTags}" CornerRadius="5" Padding="9,5" FontSize="11"
-                                  ToolTip.Tip="Show/hide tags">Tags</ToggleButton>
+                                  ToolTip.Tip="{loc:Tr Rankings_ShowHideTags}">Tags</ToggleButton>
                     <ToggleButton IsChecked="{Binding ShowBadges}" CornerRadius="5" Padding="9,5" FontSize="11"
-                                  ToolTip.Tip="Show/hide liked/bookmarked/favorite badges on cards">
+                                  ToolTip.Tip="{loc:Tr Search_ShowHideLikedBookmarkedFavoriteBadges}">
                         <StackPanel Orientation="Horizontal" Spacing="4">
                             <PathIcon Data="{StaticResource HeartFilledIcon}" Width="12" Height="12" VerticalAlignment="Center" Foreground="{DynamicResource HeartBadgeIconBrush}" />
-                            <TextBlock Text="Badges" VerticalAlignment="Center"/>
+                            <TextBlock Text="{loc:Tr Search_Badges}" VerticalAlignment="Center"/>
                         </StackPanel>
                     </ToggleButton>
                 </StackPanel>
@@ -272,20 +272,20 @@
                 <!-- Overall modes: Daily, Weekly, AI, Male, Female -->
                 <StackPanel Orientation="Horizontal" Spacing="4"
                             IsVisible="{Binding ShowOverallModes}">
-                    <Button Content="Daily"    CornerRadius="6" Padding="12,5" FontSize="11"
+                    <Button Content="{loc:Tr Rankings_Daily}"    CornerRadius="6" Padding="12,5" FontSize="11"
                             Command="{Binding SelectModeCommand}" CommandParameter="daily"
                             Classes.accent="{Binding SelectedMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=daily}"/>
-                    <Button Content="Weekly"   CornerRadius="6" Padding="12,5" FontSize="11"
+                    <Button Content="{loc:Tr Rankings_Weekly}"   CornerRadius="6" Padding="12,5" FontSize="11"
                             Command="{Binding SelectModeCommand}" CommandParameter="weekly"
                             Classes.accent="{Binding SelectedMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=weekly}"/>
-                    <Button Content="AI"       CornerRadius="6" Padding="12,5" FontSize="11"
+                    <Button Content="{loc:Tr Rankings_AI}"       CornerRadius="6" Padding="12,5" FontSize="11"
                             Command="{Binding SelectModeCommand}" CommandParameter="daily_ai"
                             Classes.accent="{Binding SelectedMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=daily_ai}"
                             IsVisible="{Binding ShowAiButton}"/>
-                    <Button Content="Male"     CornerRadius="6" Padding="12,5" FontSize="11"
+                    <Button Content="{loc:Tr Rankings_Male}"     CornerRadius="6" Padding="12,5" FontSize="11"
                             Command="{Binding SelectModeCommand}" CommandParameter="male"
                             Classes.accent="{Binding SelectedMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=male}"/>
-                    <Button Content="Female"   CornerRadius="6" Padding="12,5" FontSize="11"
+                    <Button Content="{loc:Tr Rankings_Female}"   CornerRadius="6" Padding="12,5" FontSize="11"
                             Command="{Binding SelectModeCommand}" CommandParameter="female"
                             Classes.accent="{Binding SelectedMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=female}"/>
                 </StackPanel>
@@ -293,10 +293,10 @@
                 <!-- Illustrations modes: Daily, Weekly only -->
                 <StackPanel Orientation="Horizontal" Spacing="4"
                             IsVisible="{Binding ShowIllustModes}">
-                    <Button Content="Daily"    CornerRadius="6" Padding="12,5" FontSize="11"
+                    <Button Content="{loc:Tr Rankings_Daily}"    CornerRadius="6" Padding="12,5" FontSize="11"
                             Command="{Binding SelectModeCommand}" CommandParameter="daily"
                             Classes.accent="{Binding SelectedMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=daily}"/>
-                    <Button Content="Weekly"   CornerRadius="6" Padding="12,5" FontSize="11"
+                    <Button Content="{loc:Tr Rankings_Weekly}"   CornerRadius="6" Padding="12,5" FontSize="11"
                             Command="{Binding SelectModeCommand}" CommandParameter="weekly"
                             Classes.accent="{Binding SelectedMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=weekly}"/>
                 </StackPanel>
@@ -304,10 +304,10 @@
                 <!-- Ugoira modes: Daily, Weekly only -->
                 <StackPanel Orientation="Horizontal" Spacing="4"
                             IsVisible="{Binding ShowUgoiraModes}">
-                    <Button Content="Daily"    CornerRadius="6" Padding="12,5" FontSize="11"
+                    <Button Content="{loc:Tr Rankings_Daily}"    CornerRadius="6" Padding="12,5" FontSize="11"
                             Command="{Binding SelectModeCommand}" CommandParameter="daily"
                             Classes.accent="{Binding SelectedMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=daily}"/>
-                    <Button Content="Weekly"   CornerRadius="6" Padding="12,5" FontSize="11"
+                    <Button Content="{loc:Tr Rankings_Weekly}"   CornerRadius="6" Padding="12,5" FontSize="11"
                             Command="{Binding SelectModeCommand}" CommandParameter="weekly"
                             Classes.accent="{Binding SelectedMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=weekly}"/>
                 </StackPanel>
@@ -315,10 +315,10 @@
                 <!-- Manga modes: Daily, Weekly only -->
                 <StackPanel Orientation="Horizontal" Spacing="4"
                             IsVisible="{Binding ShowMangaModes}">
-                    <Button Content="Daily"    CornerRadius="6" Padding="12,5" FontSize="11"
+                    <Button Content="{loc:Tr Rankings_Daily}"    CornerRadius="6" Padding="12,5" FontSize="11"
                             Command="{Binding SelectModeCommand}" CommandParameter="daily"
                             Classes.accent="{Binding SelectedMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=daily}"/>
-                    <Button Content="Weekly"   CornerRadius="6" Padding="12,5" FontSize="11"
+                    <Button Content="{loc:Tr Rankings_Weekly}"   CornerRadius="6" Padding="12,5" FontSize="11"
                             Command="{Binding SelectModeCommand}" CommandParameter="weekly"
                             Classes.accent="{Binding SelectedMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=weekly}"/>
                 </StackPanel>
@@ -326,29 +326,29 @@
                 <!-- Novel modes: Daily, Weekly, Monthly, Rookie, Original, AI, Male, Female -->
                 <StackPanel Orientation="Horizontal" Spacing="4"
                             IsVisible="{Binding ShowNovelModes}">
-                    <Button Content="Daily"    CornerRadius="6" Padding="12,5" FontSize="11"
+                    <Button Content="{loc:Tr Rankings_Daily}"    CornerRadius="6" Padding="12,5" FontSize="11"
                             Command="{Binding SelectModeCommand}" CommandParameter="daily"
                             Classes.accent="{Binding SelectedMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=daily}"/>
-                    <Button Content="Weekly"   CornerRadius="6" Padding="12,5" FontSize="11"
+                    <Button Content="{loc:Tr Rankings_Weekly}"   CornerRadius="6" Padding="12,5" FontSize="11"
                             Command="{Binding SelectModeCommand}" CommandParameter="weekly"
                             Classes.accent="{Binding SelectedMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=weekly}"/>
-                    <Button Content="Monthly"  CornerRadius="6" Padding="12,5" FontSize="11"
+                    <Button Content="{loc:Tr Rankings_Monthly}"  CornerRadius="6" Padding="12,5" FontSize="11"
                             Command="{Binding SelectModeCommand}" CommandParameter="monthly"
                             Classes.accent="{Binding SelectedMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=monthly}"/>
-                    <Button Content="Rookie"   CornerRadius="6" Padding="12,5" FontSize="11"
+                    <Button Content="{loc:Tr Rankings_Rookie}"   CornerRadius="6" Padding="12,5" FontSize="11"
                             Command="{Binding SelectModeCommand}" CommandParameter="rookie"
                             Classes.accent="{Binding SelectedMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=rookie}"/>
-                    <Button Content="Original" CornerRadius="6" Padding="12,5" FontSize="11"
+                    <Button Content="{loc:Tr Rankings_Original}" CornerRadius="6" Padding="12,5" FontSize="11"
                             Command="{Binding SelectModeCommand}" CommandParameter="weekly_original"
                             Classes.accent="{Binding SelectedMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=weekly_original}"/>
-                    <Button Content="AI"       CornerRadius="6" Padding="12,5" FontSize="11"
+                    <Button Content="{loc:Tr Rankings_AI}"       CornerRadius="6" Padding="12,5" FontSize="11"
                             Command="{Binding SelectModeCommand}" CommandParameter="weekly_ai"
                             Classes.accent="{Binding SelectedMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=weekly_ai}"
                             IsVisible="{Binding ShowAiButton}"/>
-                    <Button Content="Male"     CornerRadius="6" Padding="12,5" FontSize="11"
+                    <Button Content="{loc:Tr Rankings_Male}"     CornerRadius="6" Padding="12,5" FontSize="11"
                             Command="{Binding SelectModeCommand}" CommandParameter="male"
                             Classes.accent="{Binding SelectedMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=male}"/>
-                    <Button Content="Female"   CornerRadius="6" Padding="12,5" FontSize="11"
+                    <Button Content="{loc:Tr Rankings_Female}"   CornerRadius="6" Padding="12,5" FontSize="11"
                             Command="{Binding SelectModeCommand}" CommandParameter="female"
                             Classes.accent="{Binding SelectedMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=female}"/>
                 </StackPanel>
@@ -367,7 +367,7 @@
                         Classes.accent="{Binding HasSelection}"
                         IsEnabled="{Binding HasSelection}"
                         Command="{Binding DownloadSelectedCommand}"
-                        ToolTip.Tip="Download selected artworks">
+                        ToolTip.Tip="{loc:Tr Rankings_DownloadSelectedArtworks}">
                     <StackPanel Orientation="Horizontal" Spacing="5">
                         <TextBlock Text="↓" FontSize="12"/>
                         <TextBlock Text="{Binding SelectedCount, StringFormat='Download Selected ({0})'}" />
@@ -376,16 +376,16 @@
                 <Button CornerRadius="6" Padding="12,6" FontSize="11"
                         Command="{Binding ViewSelectedAsCollageCommand}"
                         IsVisible="{Binding CanViewSelectedAsCollage}"
-                        ToolTip.Tip="Show the selected artworks tiled together in the side panel (up to 10)">
+                        ToolTip.Tip="{loc:Tr Search_ShowTheSelectedArtworksTiledTogether}">
                     <StackPanel Orientation="Horizontal" Spacing="5">
                         <TextBlock Text="⊞" FontSize="12"/>
-                        <TextBlock Text="Collage" VerticalAlignment="Center"/>
+                        <TextBlock Text="{loc:Tr Search_Collage}" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
                 <SplitButton CornerRadius="6" Padding="12,6" FontSize="11"
                         Command="{Binding AddSelectedAsCollageCommand}"
                         IsVisible="{Binding CanAddSelectedAsCollage}"
-                        ToolTip.Tip="Add the selected artworks to the active collage. Use the arrow to choose which collage.">
+                        ToolTip.Tip="{loc:Tr Search_AddTheSelectedArtworksToThe}">
                     <StackPanel Orientation="Horizontal" Spacing="5">
                         <TextBlock Text="⊞" FontSize="12"/>
                         <TextBlock Text="{loc:Tr Collage_AddToCollage}" VerticalAlignment="Center"/>
@@ -400,28 +400,28 @@
                 <Button CornerRadius="6" Padding="12,6" FontSize="11"
                         Command="{Binding ViewSelectedInNewTabsCommand}"
                         IsVisible="{Binding CanViewSelectedInNewTabs}"
-                        ToolTip.Tip="Open each selected artwork in its own tab">
+                        ToolTip.Tip="{loc:Tr Search_OpenEachSelectedArtworkInIts}">
                     <StackPanel Orientation="Horizontal" Spacing="5">
                         <PathIcon Data="{StaticResource NewIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
-                        <TextBlock Text="View in New Tabs" VerticalAlignment="Center"/>
+                        <TextBlock Text="{loc:Tr Search_ViewInNewTabs}" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
                 <Button CornerRadius="6" Padding="12,6" FontSize="11"
                         Command="{Binding DownloadVisibleCommand}"
-                        ToolTip.Tip="Download all visible artworks">
+                        ToolTip.Tip="{loc:Tr Rankings_DownloadAllVisibleArtworks}">
                     <StackPanel Orientation="Horizontal" Spacing="5">
                         <TextBlock Text="⊞" FontSize="12"/>
-                        <TextBlock Text="Download Visible"/>
+                        <TextBlock Text="{loc:Tr Search_DownloadVisible}"/>
                     </StackPanel>
                 </Button>
-                <Button Content="🎨 Download Preset" CornerRadius="6" Padding="12,6" FontSize="11"
+                <Button Content="{loc:Tr Search_DownloadPreset}" CornerRadius="6" Padding="12,6" FontSize="11"
                         Classes="accent"
                         Click="OnDownloadPresetClicked"
                         IsEnabled="{Binding !IsLoading}"
-                        ToolTip.Tip="Download with image processing preset"/>
-                <Button Content="☑ Select All" CornerRadius="6" Padding="12,6" FontSize="11"
+                        ToolTip.Tip="{loc:Tr Search_DownloadWithImageProcessingPreset}"/>
+                <Button Content="{loc:Tr Search_SelectAll}" CornerRadius="6" Padding="12,6" FontSize="11"
                         Command="{Binding SelectAllCommand}"
-                        ToolTip.Tip="Select all visible artworks"/>
+                        ToolTip.Tip="{loc:Tr Rankings_SelectAllVisibleArtworks}"/>
                 <Button Content="{Binding SelectedCount, StringFormat='☒ Deselect All ({0})'}"
                         CornerRadius="6" Padding="12,6" FontSize="11"
                         Command="{Binding ClearSelectionCommand}"
@@ -466,11 +466,11 @@
                 <!-- Empty / loading hint -->
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="8"
                             IsVisible="{Binding !FilteredItems.Count}">
-                    <TextBlock Text="🏆 Loading rankings…" FontSize="15"
+                    <TextBlock Text="{loc:Tr Rankings_LoadingRankings}" FontSize="15"
                                IsVisible="{Binding IsLoading}"
                                Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                HorizontalAlignment="Center"/>
-                    <TextBlock Text="🏆 No rankings to show"
+                    <TextBlock Text="{loc:Tr Rankings_NoRankingsToShow}"
                                IsVisible="{Binding !IsLoading}"
                                FontSize="15" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                HorizontalAlignment="Center"/>
@@ -908,10 +908,10 @@
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
                     <ToggleButton IsChecked="{Binding UsePagination, Mode=TwoWay}"
                                   CornerRadius="6" Padding="8,4" FontSize="11"
-                                  ToolTip.Tip="Toggle pagination (off = autoload while scrolling)">
+                                  ToolTip.Tip="{loc:Tr Search_TogglePaginationOffAutoloadWhileScrollin}">
                         <StackPanel Orientation="Horizontal" Spacing="4">
                             <TextBlock Text="📄" FontSize="12" VerticalAlignment="Center"/>
-                            <TextBlock Text="Pages" FontSize="11" VerticalAlignment="Center"/>
+                            <TextBlock Text="{loc:Tr Search_Pages}" FontSize="11" VerticalAlignment="Center"/>
                         </StackPanel>
                     </ToggleButton>
 
@@ -919,10 +919,10 @@
                               SelectedItem="{Binding ItemsPerPage, Mode=TwoWay}"
                               ItemsSource="{Binding ItemsPerPageOptions}"
                               CornerRadius="6" MinWidth="75" FontSize="11"
-                              ToolTip.Tip="Items per page"/>
+                              ToolTip.Tip="{loc:Tr Search_ItemsPerPage}"/>
 
                     <StackPanel IsVisible="{Binding UsePagination}" Orientation="Horizontal" Spacing="6">
-                        <Button Content="‹ Prev" CornerRadius="6" Padding="10,5" FontSize="11"
+                        <Button Content="{loc:Tr Search_Prev}" CornerRadius="6" Padding="10,5" FontSize="11"
                                 Command="{Binding PreviousPageCommand}" IsEnabled="{Binding CanGoPrevious}"/>
                         <TextBlock Text="{Binding GalleryCurrentPage, StringFormat='Page {0} of'}" FontSize="11"
                                    VerticalAlignment="Center" Margin="4,0"/>
@@ -932,8 +932,8 @@
                                  Padding="6,4" FontSize="11" Margin="6,0,0,0"
                                  VerticalContentAlignment="Center"
                                  KeyDown="OnRankingsPageInputKeyDown"
-                                 ToolTip.Tip="Type a page number and press Enter"/>
-                        <Button Content="Next ›" CornerRadius="6" Padding="10,5" FontSize="11"
+                                 ToolTip.Tip="{loc:Tr Search_TypeAPageNumberAndPress}"/>
+                        <Button Content="{loc:Tr Search_Next}" CornerRadius="6" Padding="10,5" FontSize="11"
                                 Command="{Binding NextPageCommand}" IsEnabled="{Binding CanGoNext}"/>
                     </StackPanel>
 

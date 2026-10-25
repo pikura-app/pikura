@@ -48,49 +48,49 @@
                     Classes.selected="{Binding IsSelected}">
                 <Border.ContextMenu>
                     <ContextMenu>
-                        <MenuItem Header="Select" Click="OnContextSelectFavorite">
+                        <MenuItem Header="{loc:Tr Collections_Select}" Click="OnContextSelectFavorite">
                             <MenuItem.Icon><PathIcon Data="{StaticResource CheckIcon}" Width="14" Height="14"/></MenuItem.Icon>
                         </MenuItem>
                         <Separator/>
-                        <MenuItem Header="Open in side panel" Click="OnContextPreview">
+                        <MenuItem Header="{loc:Tr Discover_OpenInSidePanel}" Click="OnContextPreview">
                             <MenuItem.Icon><PathIcon Data="{StaticResource PanelIcon}" Width="14" Height="14"/></MenuItem.Icon>
                         </MenuItem>
-                        <MenuItem Header="Open full screen" Click="OnContextOpenFullScreen">
+                        <MenuItem Header="{loc:Tr Discover_OpenFullScreen}" Click="OnContextOpenFullScreen">
                             <MenuItem.Icon><PathIcon Data="{StaticResource FullscreenIcon}" Width="14" Height="14"/></MenuItem.Icon>
                         </MenuItem>
-                        <MenuItem Header="Open in new tab" Click="OnContextOpenInNewTab">
+                        <MenuItem Header="{loc:Tr Gallery_OpenInNewTab_2}" Click="OnContextOpenInNewTab">
                             <MenuItem.Icon><PathIcon Data="{StaticResource NewTabIcon}" Width="14" Height="14"/></MenuItem.Icon>
                         </MenuItem>
-                        <MenuItem Header="Open in popup" Click="OnContextOpenPopup">
+                        <MenuItem Header="{loc:Tr Collections_OpenInPopup}" Click="OnContextOpenPopup">
                             <MenuItem.Icon><PathIcon Data="{StaticResource PopupIcon}" Width="14" Height="14"/></MenuItem.Icon>
                         </MenuItem>
                         <Separator/>
-                        <MenuItem Header="Download" Click="OnContextDownload">
+                        <MenuItem Header="{loc:Tr Common_Download}" Click="OnContextDownload">
                             <MenuItem.Icon><PathIcon Data="{StaticResource DownloadIcon}" Width="14" Height="14"/></MenuItem.Icon>
                         </MenuItem>
-                        <MenuItem Header="Download with Preset" Click="OnContextDownloadPreset">
+                        <MenuItem Header="{loc:Tr Collections_DownloadWithPreset}" Click="OnContextDownloadPreset">
                             <MenuItem.Icon><PathIcon Data="{StaticResource PaletteIcon}" Width="14" Height="14"/></MenuItem.Icon>
                         </MenuItem>
                         <Separator/>
-                        <MenuItem Header="Open artist gallery" Click="OnContextOpenArtistGallery">
+                        <MenuItem Header="{loc:Tr Discover_OpenArtistGallery}" Click="OnContextOpenArtistGallery">
                             <MenuItem.Icon><PathIcon Data="{StaticResource PersonIcon}" Width="14" Height="14"/></MenuItem.Icon>
                         </MenuItem>
-                        <MenuItem Header="Open on pixiv.net" Click="OnContextOpenPixiv">
+                        <MenuItem Header="{loc:Tr Viewer_OpenOnPixivNet}" Click="OnContextOpenPixiv">
                             <MenuItem.Icon><PathIcon Data="{StaticResource GlobeIcon}" Width="14" Height="14"/></MenuItem.Icon>
                         </MenuItem>
                         <Separator/>
-                        <MenuItem Header="Add to local favorites" Click="OnContextAddFavorite" IsVisible="{Binding !IsLocalFavorite}">
+                        <MenuItem Header="{loc:Tr Viewer_AddToLocalFavorites}" Click="OnContextAddFavorite" IsVisible="{Binding !IsLocalFavorite}">
                             <MenuItem.Icon><PathIcon Data="{StaticResource StarIcon}" Width="14" Height="14"/></MenuItem.Icon>
                         </MenuItem>
-                        <MenuItem Header="Remove from favorites" Click="OnContextRemoveFavorite" IsVisible="{Binding IsLocalFavorite}">
+                        <MenuItem Header="{loc:Tr Discover_RemoveFromFavorites}" Click="OnContextRemoveFavorite" IsVisible="{Binding IsLocalFavorite}">
                             <MenuItem.Icon><PathIcon Data="{StaticResource StarIcon}" Width="14" Height="14"/></MenuItem.Icon>
                         </MenuItem>
                         <Separator/>
-                        <MenuItem Header="Copy ID" Click="OnContextCopyId"/>
-                        <MenuItem Header="Copy image" Click="OnContextCopyImage">
+                        <MenuItem Header="{loc:Tr Gallery_CopyID}" Click="OnContextCopyId"/>
+                        <MenuItem Header="{loc:Tr Discover_CopyImage}" Click="OnContextCopyImage">
                             <MenuItem.Icon><PathIcon Data="{StaticResource CopyIcon}" Width="14" Height="14"/></MenuItem.Icon>
                         </MenuItem>
-                        <MenuItem Header="Use as app background" Click="OnContextUseAsBackground" IsVisible="{Binding IsEnabled, Source={x:Static services:AppServices.OverlayService}}">
+                        <MenuItem Header="{loc:Tr Discover_UseAsAppBackground}" Click="OnContextUseAsBackground" IsVisible="{Binding IsEnabled, Source={x:Static services:AppServices.OverlayService}}">
                             <MenuItem.Icon><PathIcon Data="{StaticResource ImageIcon}" Width="14" Height="14"/></MenuItem.Icon>
                         </MenuItem>
                     </ContextMenu>
@@ -179,49 +179,49 @@
                     Classes.selected="{Binding IsSelected}">
                 <Border.ContextMenu>
                     <ContextMenu>
-                        <MenuItem Header="Select" Click="OnContextSelectFavorite">
+                        <MenuItem Header="{loc:Tr Collections_Select}" Click="OnContextSelectFavorite">
                             <MenuItem.Icon><PathIcon Data="{StaticResource CheckIcon}" Width="14" Height="14"/></MenuItem.Icon>
                         </MenuItem>
                         <Separator/>
-                        <MenuItem Header="Open in side panel" Click="OnContextPreview">
+                        <MenuItem Header="{loc:Tr Discover_OpenInSidePanel}" Click="OnContextPreview">
                             <MenuItem.Icon><PathIcon Data="{StaticResource PanelIcon}" Width="14" Height="14"/></MenuItem.Icon>
                         </MenuItem>
-                        <MenuItem Header="Open full screen" Click="OnContextOpenFullScreen">
+                        <MenuItem Header="{loc:Tr Discover_OpenFullScreen}" Click="OnContextOpenFullScreen">
                             <MenuItem.Icon><PathIcon Data="{StaticResource FullscreenIcon}" Width="14" Height="14"/></MenuItem.Icon>
                         </MenuItem>
-                        <MenuItem Header="Open in new tab" Click="OnContextOpenInNewTab">
+                        <MenuItem Header="{loc:Tr Gallery_OpenInNewTab_2}" Click="OnContextOpenInNewTab">
                             <MenuItem.Icon><PathIcon Data="{StaticResource NewTabIcon}" Width="14" Height="14"/></MenuItem.Icon>
                         </MenuItem>
-                        <MenuItem Header="Open in popup" Click="OnContextOpenPopup">
+                        <MenuItem Header="{loc:Tr Collections_OpenInPopup}" Click="OnContextOpenPopup">
                             <MenuItem.Icon><PathIcon Data="{StaticResource PopupIcon}" Width="14" Height="14"/></MenuItem.Icon>
                         </MenuItem>
                         <Separator/>
-                        <MenuItem Header="Download" Click="OnContextDownload">
+                        <MenuItem Header="{loc:Tr Common_Download}" Click="OnContextDownload">
                             <MenuItem.Icon><PathIcon Data="{StaticResource DownloadIcon}" Width="14" Height="14"/></MenuItem.Icon>
                         </MenuItem>
-                        <MenuItem Header="Download with Preset" Click="OnContextDownloadPreset">
+                        <MenuItem Header="{loc:Tr Collections_DownloadWithPreset}" Click="OnContextDownloadPreset">
                             <MenuItem.Icon><PathIcon Data="{StaticResource PaletteIcon}" Width="14" Height="14"/></MenuItem.Icon>
                         </MenuItem>
                         <Separator/>
-                        <MenuItem Header="Open artist gallery" Click="OnContextOpenArtistGallery">
+                        <MenuItem Header="{loc:Tr Discover_OpenArtistGallery}" Click="OnContextOpenArtistGallery">
                             <MenuItem.Icon><PathIcon Data="{StaticResource PersonIcon}" Width="14" Height="14"/></MenuItem.Icon>
                         </MenuItem>
-                        <MenuItem Header="Open on pixiv.net" Click="OnContextOpenPixiv">
+                        <MenuItem Header="{loc:Tr Viewer_OpenOnPixivNet}" Click="OnContextOpenPixiv">
                             <MenuItem.Icon><PathIcon Data="{StaticResource GlobeIcon}" Width="14" Height="14"/></MenuItem.Icon>
                         </MenuItem>
                         <Separator/>
-                        <MenuItem Header="Add to local favorites" Click="OnContextAddFavorite" IsVisible="{Binding !IsLocalFavorite}">
+                        <MenuItem Header="{loc:Tr Viewer_AddToLocalFavorites}" Click="OnContextAddFavorite" IsVisible="{Binding !IsLocalFavorite}">
                             <MenuItem.Icon><PathIcon Data="{StaticResource StarIcon}" Width="14" Height="14"/></MenuItem.Icon>
                         </MenuItem>
-                        <MenuItem Header="Remove from favorites" Click="OnContextRemoveFavorite" IsVisible="{Binding IsLocalFavorite}">
+                        <MenuItem Header="{loc:Tr Discover_RemoveFromFavorites}" Click="OnContextRemoveFavorite" IsVisible="{Binding IsLocalFavorite}">
                             <MenuItem.Icon><PathIcon Data="{StaticResource StarIcon}" Width="14" Height="14"/></MenuItem.Icon>
                         </MenuItem>
                         <Separator/>
-                        <MenuItem Header="Copy ID" Click="OnContextCopyId"/>
-                        <MenuItem Header="Copy image" Click="OnContextCopyImage">
+                        <MenuItem Header="{loc:Tr Gallery_CopyID}" Click="OnContextCopyId"/>
+                        <MenuItem Header="{loc:Tr Discover_CopyImage}" Click="OnContextCopyImage">
                             <MenuItem.Icon><PathIcon Data="{StaticResource CopyIcon}" Width="14" Height="14"/></MenuItem.Icon>
                         </MenuItem>
-                        <MenuItem Header="Use as app background" Click="OnContextUseAsBackground" IsVisible="{Binding IsEnabled, Source={x:Static services:AppServices.OverlayService}}">
+                        <MenuItem Header="{loc:Tr Discover_UseAsAppBackground}" Click="OnContextUseAsBackground" IsVisible="{Binding IsEnabled, Source={x:Static services:AppServices.OverlayService}}">
                             <MenuItem.Icon><PathIcon Data="{StaticResource ImageIcon}" Width="14" Height="14"/></MenuItem.Icon>
                         </MenuItem>
                     </ContextMenu>
@@ -308,49 +308,49 @@
                     Classes.selected="{Binding IsSelected}">
                 <Border.ContextMenu>
                     <ContextMenu>
-                        <MenuItem Header="Select" Click="OnContextSelectFavorite">
+                        <MenuItem Header="{loc:Tr Collections_Select}" Click="OnContextSelectFavorite">
                             <MenuItem.Icon><PathIcon Data="{StaticResource CheckIcon}" Width="14" Height="14"/></MenuItem.Icon>
                         </MenuItem>
                         <Separator/>
-                        <MenuItem Header="Open in side panel" Click="OnContextPreview">
+                        <MenuItem Header="{loc:Tr Discover_OpenInSidePanel}" Click="OnContextPreview">
                             <MenuItem.Icon><PathIcon Data="{StaticResource PanelIcon}" Width="14" Height="14"/></MenuItem.Icon>
                         </MenuItem>
-                        <MenuItem Header="Open full screen" Click="OnContextOpenFullScreen">
+                        <MenuItem Header="{loc:Tr Discover_OpenFullScreen}" Click="OnContextOpenFullScreen">
                             <MenuItem.Icon><PathIcon Data="{StaticResource FullscreenIcon}" Width="14" Height="14"/></MenuItem.Icon>
                         </MenuItem>
-                        <MenuItem Header="Open in new tab" Click="OnContextOpenInNewTab">
+                        <MenuItem Header="{loc:Tr Gallery_OpenInNewTab_2}" Click="OnContextOpenInNewTab">
                             <MenuItem.Icon><PathIcon Data="{StaticResource NewTabIcon}" Width="14" Height="14"/></MenuItem.Icon>
                         </MenuItem>
-                        <MenuItem Header="Open in popup" Click="OnContextOpenPopup">
+                        <MenuItem Header="{loc:Tr Collections_OpenInPopup}" Click="OnContextOpenPopup">
                             <MenuItem.Icon><PathIcon Data="{StaticResource PopupIcon}" Width="14" Height="14"/></MenuItem.Icon>
                         </MenuItem>
                         <Separator/>
-                        <MenuItem Header="Download" Click="OnContextDownload">
+                        <MenuItem Header="{loc:Tr Common_Download}" Click="OnContextDownload">
                             <MenuItem.Icon><PathIcon Data="{StaticResource DownloadIcon}" Width="14" Height="14"/></MenuItem.Icon>
                         </MenuItem>
-                        <MenuItem Header="Download with Preset" Click="OnContextDownloadPreset">
+                        <MenuItem Header="{loc:Tr Collections_DownloadWithPreset}" Click="OnContextDownloadPreset">
                             <MenuItem.Icon><PathIcon Data="{StaticResource PaletteIcon}" Width="14" Height="14"/></MenuItem.Icon>
                         </MenuItem>
                         <Separator/>
-                        <MenuItem Header="Open artist gallery" Click="OnContextOpenArtistGallery">
+                        <MenuItem Header="{loc:Tr Discover_OpenArtistGallery}" Click="OnContextOpenArtistGallery">
                             <MenuItem.Icon><PathIcon Data="{StaticResource PersonIcon}" Width="14" Height="14"/></MenuItem.Icon>
                         </MenuItem>
-                        <MenuItem Header="Open on pixiv.net" Click="OnContextOpenPixiv">
+                        <MenuItem Header="{loc:Tr Viewer_OpenOnPixivNet}" Click="OnContextOpenPixiv">
                             <MenuItem.Icon><PathIcon Data="{StaticResource GlobeIcon}" Width="14" Height="14"/></MenuItem.Icon>
                         </MenuItem>
                         <Separator/>
-                        <MenuItem Header="Add to local favorites" Click="OnContextAddFavorite" IsVisible="{Binding !IsLocalFavorite}">
+                        <MenuItem Header="{loc:Tr Viewer_AddToLocalFavorites}" Click="OnContextAddFavorite" IsVisible="{Binding !IsLocalFavorite}">
                             <MenuItem.Icon><PathIcon Data="{StaticResource StarIcon}" Width="14" Height="14"/></MenuItem.Icon>
                         </MenuItem>
-                        <MenuItem Header="Remove from favorites" Click="OnContextRemoveFavorite" IsVisible="{Binding IsLocalFavorite}">
+                        <MenuItem Header="{loc:Tr Discover_RemoveFromFavorites}" Click="OnContextRemoveFavorite" IsVisible="{Binding IsLocalFavorite}">
                             <MenuItem.Icon><PathIcon Data="{StaticResource StarIcon}" Width="14" Height="14"/></MenuItem.Icon>
                         </MenuItem>
                         <Separator/>
-                        <MenuItem Header="Copy ID" Click="OnContextCopyId"/>
-                        <MenuItem Header="Copy image" Click="OnContextCopyImage">
+                        <MenuItem Header="{loc:Tr Gallery_CopyID}" Click="OnContextCopyId"/>
+                        <MenuItem Header="{loc:Tr Discover_CopyImage}" Click="OnContextCopyImage">
                             <MenuItem.Icon><PathIcon Data="{StaticResource CopyIcon}" Width="14" Height="14"/></MenuItem.Icon>
                         </MenuItem>
-                        <MenuItem Header="Use as app background" Click="OnContextUseAsBackground" IsVisible="{Binding IsEnabled, Source={x:Static services:AppServices.OverlayService}}">
+                        <MenuItem Header="{loc:Tr Discover_UseAsAppBackground}" Click="OnContextUseAsBackground" IsVisible="{Binding IsEnabled, Source={x:Static services:AppServices.OverlayService}}">
                             <MenuItem.Icon><PathIcon Data="{StaticResource ImageIcon}" Width="14" Height="14"/></MenuItem.Icon>
                         </MenuItem>
                     </ContextMenu>
@@ -412,25 +412,25 @@
                     Classes.selected="{Binding IsSelected}">
                 <Border.ContextMenu>
                     <ContextMenu>
-                        <MenuItem Header="☑ Select"              Click="OnContextSelectFavorite"/>
+                        <MenuItem Header="{loc:Tr Search_Select}"              Click="OnContextSelectFavorite"/>
                         <Separator/>
-                        <MenuItem Header="👁 Open in side panel"  Click="OnContextPreview"/>
-                        <MenuItem Header="⧶ Open full screen"     Click="OnContextOpenFullScreen"/>
-                        <MenuItem Header="⊞ Open in new tab"      Click="OnContextOpenInNewTab"/>
-                        <MenuItem Header="⧉ Open in popup"        Click="OnContextOpenPopup"/>
+                        <MenuItem Header="{loc:Tr Search_OpenInSidePanel}"  Click="OnContextPreview"/>
+                        <MenuItem Header="{loc:Tr Bookmarks_OpenFullScreen_2}"     Click="OnContextOpenFullScreen"/>
+                        <MenuItem Header="{loc:Tr Search_OpenInNewTab}"      Click="OnContextOpenInNewTab"/>
+                        <MenuItem Header="{loc:Tr Search_OpenInPopup}"        Click="OnContextOpenPopup"/>
                         <Separator/>
-                        <MenuItem Header="↓ Download"             Click="OnContextDownload"/>
-                        <MenuItem Header="🎨 Download with Preset" Click="OnContextDownloadPreset"/>
+                        <MenuItem Header="{loc:Tr Bookmarks_Download}"             Click="OnContextDownload"/>
+                        <MenuItem Header="{loc:Tr Bookmarks_DownloadWithPreset_2}" Click="OnContextDownloadPreset"/>
                         <Separator/>
-                        <MenuItem Header="👤 Open artist gallery" Click="OnContextOpenArtistGallery"/>
-                        <MenuItem Header="🌐 Open on pixiv.net"   Click="OnContextOpenPixiv"/>
+                        <MenuItem Header="{loc:Tr Search_OpenArtistGallery}" Click="OnContextOpenArtistGallery"/>
+                        <MenuItem Header="{loc:Tr Search_OpenOnPixivNet}"   Click="OnContextOpenPixiv"/>
                         <Separator/>
-                        <MenuItem Header="★ Remove from favorites" Click="OnContextRemoveFavorite"/>
-                        <MenuItem Header="📁 Set folder…"          Click="OnContextSetFolder"/>
+                        <MenuItem Header="{loc:Tr Search_RemoveFromFavorites}" Click="OnContextRemoveFavorite"/>
+                        <MenuItem Header="{loc:Tr Bookmarks_SetFolder}"          Click="OnContextSetFolder"/>
                         <Separator/>
-                        <MenuItem Header="Copy ID"       Click="OnContextCopyId"/>
-                        <MenuItem Header="📋 Copy image" Click="OnContextCopyImage"/>
-                        <MenuItem Header="🖼 Use as app background" Click="OnContextUseAsBackground" IsVisible="{Binding IsEnabled, Source={x:Static services:AppServices.OverlayService}}"/>
+                        <MenuItem Header="{loc:Tr Gallery_CopyID}"       Click="OnContextCopyId"/>
+                        <MenuItem Header="{loc:Tr Search_CopyImage}" Click="OnContextCopyImage"/>
+                        <MenuItem Header="{loc:Tr Search_UseAsAppBackground}" Click="OnContextUseAsBackground" IsVisible="{Binding IsEnabled, Source={x:Static services:AppServices.OverlayService}}"/>
                     </ContextMenu>
                 </Border.ContextMenu>
                 <Border.Styles>
@@ -510,25 +510,25 @@
                     Classes.selected="{Binding IsSelected}">
                 <Border.ContextMenu>
                     <ContextMenu>
-                        <MenuItem Header="☑ Select"              Click="OnContextSelectFavorite"/>
+                        <MenuItem Header="{loc:Tr Search_Select}"              Click="OnContextSelectFavorite"/>
                         <Separator/>
-                        <MenuItem Header="👁 Open in side panel"  Click="OnContextPreview"/>
-                        <MenuItem Header="⧶ Open full screen"     Click="OnContextOpenFullScreen"/>
-                        <MenuItem Header="⊞ Open in new tab"      Click="OnContextOpenInNewTab"/>
-                        <MenuItem Header="⧉ Open in popup"        Click="OnContextOpenPopup"/>
+                        <MenuItem Header="{loc:Tr Search_OpenInSidePanel}"  Click="OnContextPreview"/>
+                        <MenuItem Header="{loc:Tr Bookmarks_OpenFullScreen_2}"     Click="OnContextOpenFullScreen"/>
+                        <MenuItem Header="{loc:Tr Search_OpenInNewTab}"      Click="OnContextOpenInNewTab"/>
+                        <MenuItem Header="{loc:Tr Search_OpenInPopup}"        Click="OnContextOpenPopup"/>
                         <Separator/>
-                        <MenuItem Header="↓ Download"             Click="OnContextDownload"/>
-                        <MenuItem Header="🎨 Download with Preset" Click="OnContextDownloadPreset"/>
+                        <MenuItem Header="{loc:Tr Bookmarks_Download}"             Click="OnContextDownload"/>
+                        <MenuItem Header="{loc:Tr Bookmarks_DownloadWithPreset_2}" Click="OnContextDownloadPreset"/>
                         <Separator/>
-                        <MenuItem Header="👤 Open artist gallery" Click="OnContextOpenArtistGallery"/>
-                        <MenuItem Header="🌐 Open on pixiv.net"   Click="OnContextOpenPixiv"/>
+                        <MenuItem Header="{loc:Tr Search_OpenArtistGallery}" Click="OnContextOpenArtistGallery"/>
+                        <MenuItem Header="{loc:Tr Search_OpenOnPixivNet}"   Click="OnContextOpenPixiv"/>
                         <Separator/>
-                        <MenuItem Header="★ Remove from favorites" Click="OnContextRemoveFavorite"/>
-                        <MenuItem Header="📁 Set folder…"          Click="OnContextSetFolder"/>
+                        <MenuItem Header="{loc:Tr Search_RemoveFromFavorites}" Click="OnContextRemoveFavorite"/>
+                        <MenuItem Header="{loc:Tr Bookmarks_SetFolder}"          Click="OnContextSetFolder"/>
                         <Separator/>
-                        <MenuItem Header="Copy ID"       Click="OnContextCopyId"/>
-                        <MenuItem Header="📋 Copy image" Click="OnContextCopyImage"/>
-                        <MenuItem Header="🖼 Use as app background" Click="OnContextUseAsBackground" IsVisible="{Binding IsEnabled, Source={x:Static services:AppServices.OverlayService}}"/>
+                        <MenuItem Header="{loc:Tr Gallery_CopyID}"       Click="OnContextCopyId"/>
+                        <MenuItem Header="{loc:Tr Search_CopyImage}" Click="OnContextCopyImage"/>
+                        <MenuItem Header="{loc:Tr Search_UseAsAppBackground}" Click="OnContextUseAsBackground" IsVisible="{Binding IsEnabled, Source={x:Static services:AppServices.OverlayService}}"/>
                     </ContextMenu>
                 </Border.ContextMenu>
                 <Border.Styles>
@@ -640,25 +640,25 @@
                     Classes.selected="{Binding IsSelected}">
                 <Border.ContextMenu>
                     <ContextMenu>
-                        <MenuItem Header="☑ Select"              Click="OnContextSelectFavorite"/>
+                        <MenuItem Header="{loc:Tr Search_Select}"              Click="OnContextSelectFavorite"/>
                         <Separator/>
-                        <MenuItem Header="👁 Open in side panel"  Click="OnContextPreview"/>
-                        <MenuItem Header="⧶ Open full screen"     Click="OnContextOpenFullScreen"/>
-                        <MenuItem Header="⊞ Open in new tab"      Click="OnContextOpenInNewTab"/>
-                        <MenuItem Header="⧉ Open in popup"        Click="OnContextOpenPopup"/>
+                        <MenuItem Header="{loc:Tr Search_OpenInSidePanel}"  Click="OnContextPreview"/>
+                        <MenuItem Header="{loc:Tr Bookmarks_OpenFullScreen_2}"     Click="OnContextOpenFullScreen"/>
+                        <MenuItem Header="{loc:Tr Search_OpenInNewTab}"      Click="OnContextOpenInNewTab"/>
+                        <MenuItem Header="{loc:Tr Search_OpenInPopup}"        Click="OnContextOpenPopup"/>
                         <Separator/>
-                        <MenuItem Header="↓ Download"             Click="OnContextDownload"/>
-                        <MenuItem Header="🎨 Download with Preset" Click="OnContextDownloadPreset"/>
+                        <MenuItem Header="{loc:Tr Bookmarks_Download}"             Click="OnContextDownload"/>
+                        <MenuItem Header="{loc:Tr Bookmarks_DownloadWithPreset_2}" Click="OnContextDownloadPreset"/>
                         <Separator/>
-                        <MenuItem Header="👤 Open artist gallery" Click="OnContextOpenArtistGallery"/>
-                        <MenuItem Header="🌐 Open on pixiv.net"   Click="OnContextOpenPixiv"/>
+                        <MenuItem Header="{loc:Tr Search_OpenArtistGallery}" Click="OnContextOpenArtistGallery"/>
+                        <MenuItem Header="{loc:Tr Search_OpenOnPixivNet}"   Click="OnContextOpenPixiv"/>
                         <Separator/>
-                        <MenuItem Header="★ Remove from favorites" Click="OnContextRemoveFavorite"/>
-                        <MenuItem Header="📁 Set folder…"          Click="OnContextSetFolder"/>
+                        <MenuItem Header="{loc:Tr Search_RemoveFromFavorites}" Click="OnContextRemoveFavorite"/>
+                        <MenuItem Header="{loc:Tr Bookmarks_SetFolder}"          Click="OnContextSetFolder"/>
                         <Separator/>
-                        <MenuItem Header="Copy ID"       Click="OnContextCopyId"/>
-                        <MenuItem Header="📋 Copy image" Click="OnContextCopyImage"/>
-                        <MenuItem Header="🖼 Use as app background" Click="OnContextUseAsBackground" IsVisible="{Binding IsEnabled, Source={x:Static services:AppServices.OverlayService}}"/>
+                        <MenuItem Header="{loc:Tr Gallery_CopyID}"       Click="OnContextCopyId"/>
+                        <MenuItem Header="{loc:Tr Search_CopyImage}" Click="OnContextCopyImage"/>
+                        <MenuItem Header="{loc:Tr Search_UseAsAppBackground}" Click="OnContextUseAsBackground" IsVisible="{Binding IsEnabled, Source={x:Static services:AppServices.OverlayService}}"/>
                     </ContextMenu>
                 </Border.ContextMenu>
                 <Border.Styles>
@@ -721,32 +721,32 @@
                 <!-- Left: tabs + refresh + R-18 -->
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="5" VerticalAlignment="Center">
                     <ToggleButton IsChecked="{Binding IsPublicTab}"    CornerRadius="6" Padding="10,5" FontSize="12" Click="OnTabClicked" Tag="0">
-                        <StackPanel Orientation="Horizontal" Spacing="5"><PathIcon Data="{StaticResource BookmarkIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[ToggleButton].Foreground}" /><TextBlock Text="Public" FontSize="12" VerticalAlignment="Center"/></StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="5"><PathIcon Data="{StaticResource BookmarkIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[ToggleButton].Foreground}" /><TextBlock Text="{loc:Tr Bookmarks_Public}" FontSize="12" VerticalAlignment="Center"/></StackPanel>
                     </ToggleButton>
                     <ToggleButton IsChecked="{Binding IsPrivateTab}"   CornerRadius="6" Padding="10,5" FontSize="12" Click="OnTabClicked" Tag="1">
-                        <StackPanel Orientation="Horizontal" Spacing="5"><PathIcon Data="{StaticResource LockIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[ToggleButton].Foreground}" /><TextBlock Text="Private" FontSize="12" VerticalAlignment="Center"/></StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="5"><PathIcon Data="{StaticResource LockIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[ToggleButton].Foreground}" /><TextBlock Text="{loc:Tr Bookmarks_Private}" FontSize="12" VerticalAlignment="Center"/></StackPanel>
                     </ToggleButton>
                     <ToggleButton IsChecked="{Binding IsFavoritesTab}" CornerRadius="6" Padding="10,5" FontSize="12" Click="OnTabClicked" Tag="2">
-                        <StackPanel Orientation="Horizontal" Spacing="5"><PathIcon Data="{StaticResource StarIcon}" Width="13" Height="13" VerticalAlignment="Center" Foreground="{Binding $parent[ToggleButton].Foreground}" /><TextBlock Text="Local Favorites" FontSize="12" VerticalAlignment="Center"/></StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="5"><PathIcon Data="{StaticResource StarIcon}" Width="13" Height="13" VerticalAlignment="Center" Foreground="{Binding $parent[ToggleButton].Foreground}" /><TextBlock Text="{loc:Tr Batch_LocalFavorites}" FontSize="12" VerticalAlignment="Center"/></StackPanel>
                     </ToggleButton>
                     <ToggleButton IsChecked="{Binding IsCollectionsTab}" CornerRadius="6" Padding="10,5" FontSize="12" Click="OnTabClicked" Tag="3"
-                                  ToolTip.Tip="Pixiv Collections you've bookmarked">
-                        <StackPanel Orientation="Horizontal" Spacing="5"><PathIcon Data="{StaticResource BookmarkFilledIcon}" Width="13" Height="13" VerticalAlignment="Center" Foreground="{Binding $parent[ToggleButton].Foreground}" /><TextBlock Text="Collections" FontSize="12" VerticalAlignment="Center"/></StackPanel>
+                                  ToolTip.Tip="{loc:Tr Bookmarks_PixivCollectionsYouVeBookmarked}">
+                        <StackPanel Orientation="Horizontal" Spacing="5"><PathIcon Data="{StaticResource BookmarkFilledIcon}" Width="13" Height="13" VerticalAlignment="Center" Foreground="{Binding $parent[ToggleButton].Foreground}" /><TextBlock Text="{loc:Tr Nav_Collections}" FontSize="12" VerticalAlignment="Center"/></StackPanel>
                     </ToggleButton>
                     <Rectangle Width="1" Height="18" Fill="{DynamicResource Container1BorderBrush}" Margin="2,0"/>
                     <Button CornerRadius="6" Padding="9,5" FontSize="12"
-                            Command="{Binding RefreshCommand}" ToolTip.Tip="Reload current tab">
+                            Command="{Binding RefreshCommand}" ToolTip.Tip="{loc:Tr Bookmarks_ReloadCurrentTab}">
                         <StackPanel Orientation="Horizontal" Spacing="4">
                             <PathIcon Data="{StaticResource RefreshIcon}" Width="14" Height="14"
                                       VerticalAlignment="Center"
                                       Foreground="{Binding $parent[Button].Foreground}"/>
-                            <TextBlock Text="Refresh" VerticalAlignment="Center"/>
+                            <TextBlock Text="{loc:Tr Common_Refresh}" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                     <Rectangle Width="1" Height="18" Fill="{DynamicResource Container1BorderBrush}" Margin="2,0"
                                IsVisible="{Binding ShowR18Buttons}"/>
                     <ToggleButton IsChecked="{Binding ShowR18}" CornerRadius="6" Padding="9,5" FontSize="12"
-                                  IsVisible="{Binding ShowR18Buttons}" ToolTip.Tip="Show / hide R-18 content">
+                                  IsVisible="{Binding ShowR18Buttons}" ToolTip.Tip="{loc:Tr Gallery_ShowHideR18Content}">
                         <ToggleButton.Styles>
                             <Style Selector="ToggleButton:checked">
                                 <Setter Property="Background" Value="#DC2626"/>
@@ -775,25 +775,25 @@
                     </ToggleButton>
                     <Rectangle Width="1" Height="18" Fill="{DynamicResource Container1BorderBrush}" Margin="2,0"/>
                     <Button CornerRadius="6" Padding="9,5" FontSize="11"
-                            Command="{Binding SelectAllFavoritesCommand}" ToolTip.Tip="Select all visible items">
+                            Command="{Binding SelectAllFavoritesCommand}" ToolTip.Tip="{loc:Tr Bookmarks_SelectAllVisibleItems}">
                         <StackPanel Orientation="Horizontal" Spacing="4">
                             <PathIcon Data="{StaticResource CheckIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
-                            <TextBlock Text="Select All" VerticalAlignment="Center"/>
+                            <TextBlock Text="{loc:Tr Gallery_SelectAll}" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                     <Button CornerRadius="6" Padding="9,5" FontSize="11"
                             Command="{Binding ClearFavoritesSelectionCommand}"
-                            IsVisible="{Binding HasSelection}" ToolTip.Tip="Clear selection">
+                            IsVisible="{Binding HasSelection}" ToolTip.Tip="{loc:Tr Gallery_ClearSelection}">
                         <StackPanel Orientation="Horizontal" Spacing="4">
                             <Path Data="{StaticResource CloseIcon}" Width="14" Height="14"
                                   Stretch="Uniform" Stroke="{Binding $parent[Button].Foreground}" StrokeThickness="2"
                                   StrokeLineCap="Round" VerticalAlignment="Center" UseLayoutRounding="False"/>
-                            <TextBlock Text="Deselect All" VerticalAlignment="Center"/>
+                            <TextBlock Text="{loc:Tr Discover_DeselectAll}" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                     <Button CornerRadius="6" Padding="9,5" FontSize="11"
                             IsVisible="{Binding HasSelection}"
-                            Command="{Binding DownloadSelectedCommand}" ToolTip.Tip="Download selected bookmarks">
+                            Command="{Binding DownloadSelectedCommand}" ToolTip.Tip="{loc:Tr Bookmarks_DownloadSelectedBookmarks}">
                         <StackPanel Orientation="Horizontal" Spacing="5">
                             <PathIcon Data="{StaticResource DownloadIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                             <TextBlock Text="{Binding SelectedCount, StringFormat='Download Selected ({0})'}" />
@@ -802,16 +802,16 @@
                     <Button CornerRadius="6" Padding="9,5" FontSize="11"
                             Command="{Binding ViewSelectedAsCollageCommand}"
                             IsVisible="{Binding CanViewSelectedAsCollage}"
-                            ToolTip.Tip="Show the selected artworks tiled together in the side panel (up to 10)">
+                            ToolTip.Tip="{loc:Tr Search_ShowTheSelectedArtworksTiledTogether}">
                         <StackPanel Orientation="Horizontal" Spacing="5">
                             <TextBlock Text="⊞" FontSize="12"/>
-                            <TextBlock Text="Collage" VerticalAlignment="Center"/>
+                            <TextBlock Text="{loc:Tr Search_Collage}" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                     <SplitButton CornerRadius="6" Padding="9,5" FontSize="11"
                             Command="{Binding AddSelectedAsCollageCommand}"
                             IsVisible="{Binding CanAddSelectedAsCollage}"
-                            ToolTip.Tip="Add the selected artworks to the active collage. Use the arrow to choose which collage.">
+                            ToolTip.Tip="{loc:Tr Search_AddTheSelectedArtworksToThe}">
                         <StackPanel Orientation="Horizontal" Spacing="5">
                             <TextBlock Text="⊞" FontSize="12"/>
                             <TextBlock Text="{loc:Tr Collage_AddToCollage}" VerticalAlignment="Center"/>
@@ -826,29 +826,29 @@
                     <Button CornerRadius="6" Padding="9,5" FontSize="11"
                             Command="{Binding ViewSelectedInNewTabsCommand}"
                             IsVisible="{Binding CanViewSelectedInNewTabs}"
-                            ToolTip.Tip="Open each selected artwork in its own tab">
+                            ToolTip.Tip="{loc:Tr Search_OpenEachSelectedArtworkInIts}">
                         <StackPanel Orientation="Horizontal" Spacing="5">
                             <PathIcon Data="{StaticResource NewIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
-                            <TextBlock Text="View in New Tabs" VerticalAlignment="Center"/>
+                            <TextBlock Text="{loc:Tr Search_ViewInNewTabs}" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                     <Button CornerRadius="6" Padding="9,5" FontSize="12"
-                            Command="{Binding DownloadAllCommand}" ToolTip.Tip="Download all bookmarks">
+                            Command="{Binding DownloadAllCommand}" ToolTip.Tip="{loc:Tr Bookmarks_DownloadAllBookmarks}">
                         <StackPanel Orientation="Horizontal" Spacing="4">
                             <PathIcon Data="{StaticResource DownloadIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
-                            <TextBlock Text="Download All" VerticalAlignment="Center"/>
+                            <TextBlock Text="{loc:Tr Gallery_DownloadAll}" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                     <Button CornerRadius="6" Padding="9,5" FontSize="12"
-                            Command="{Binding DownloadFolderCommand}" ToolTip.Tip="Download all bookmarks to folder"
+                            Command="{Binding DownloadFolderCommand}" ToolTip.Tip="{loc:Tr Bookmarks_DownloadAllBookmarksToFolder}"
                             IsVisible="{Binding IsFavoritesTab}">
                         <StackPanel Orientation="Horizontal" Spacing="4">
                             <PathIcon Data="{StaticResource FolderIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
-                            <TextBlock Text="Download Folder" VerticalAlignment="Center"/>
+                            <TextBlock Text="{loc:Tr Settings_DownloadFolder}" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                     <Button CornerRadius="6" Padding="9,5" FontSize="11"
-                            Click="OnDownloadPresetClicked" ToolTip.Tip="Download with image processing preset">
+                            Click="OnDownloadPresetClicked" ToolTip.Tip="{loc:Tr Search_DownloadWithImageProcessingPreset}">
                         <StackPanel Orientation="Horizontal" Spacing="4">
                             <PathIcon Data="{StaticResource PaletteIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                             <TextBlock Text="{Binding SelectedCount, StringFormat='Download Preset ({0})', TargetNullValue='Download Preset'}" VerticalAlignment="Center"/>
@@ -859,29 +859,29 @@
                 <!-- Center: height mode + toggles + tag filter + size -->
                 <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
                     <StackPanel Orientation="Horizontal" Spacing="4" IsVisible="{Binding IsGridView}">
-                        <Button CornerRadius="6" Padding="8,4" FontSize="11" Command="{Binding SetFixedHeightCommand}"   IsEnabled="{Binding !IsFixedHeight}"   ToolTip.Tip="Fixed card height">Fixed</Button>
-                        <Button CornerRadius="6" Padding="8,4" FontSize="11" Command="{Binding SetNaturalHeightCommand}" IsEnabled="{Binding !IsNaturalHeight}" ToolTip.Tip="Natural height">Natural</Button>
+                        <Button CornerRadius="6" Padding="8,4" FontSize="11" Command="{Binding SetFixedHeightCommand}"   IsEnabled="{Binding !IsFixedHeight}"   ToolTip.Tip="{loc:Tr Gallery_FixedCardHeight}">Fixed</Button>
+                        <Button CornerRadius="6" Padding="8,4" FontSize="11" Command="{Binding SetNaturalHeightCommand}" IsEnabled="{Binding !IsNaturalHeight}" ToolTip.Tip="{loc:Tr Collections_NaturalHeight}">Natural</Button>
                         <Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}" Margin="2,0"/>
                     </StackPanel>
-                    <ToggleButton IsChecked="{Binding ShowTags,    Mode=TwoWay}" CornerRadius="6" Padding="8,4" FontSize="11" ToolTip.Tip="Show/hide tag chips">
+                    <ToggleButton IsChecked="{Binding ShowTags,    Mode=TwoWay}" CornerRadius="6" Padding="8,4" FontSize="11" ToolTip.Tip="{loc:Tr Discover_ShowHideTagChips}">
                         <StackPanel Orientation="Horizontal" Spacing="4">
                             <PathIcon Data="{StaticResource TagIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[ToggleButton].Foreground}" />
-                            <TextBlock Text="Tags" VerticalAlignment="Center"/>
+                            <TextBlock Text="{loc:Tr Gallery_Tags}" VerticalAlignment="Center"/>
                         </StackPanel>
                     </ToggleButton>
-                    <ToggleButton IsChecked="{Binding ShowInfo,    Mode=TwoWay}" CornerRadius="6" Padding="8,4" FontSize="11" ToolTip.Tip="Show/hide info strip">
+                    <ToggleButton IsChecked="{Binding ShowInfo,    Mode=TwoWay}" CornerRadius="6" Padding="8,4" FontSize="11" ToolTip.Tip="{loc:Tr Bookmarks_ShowHideInfoStrip}">
                         <StackPanel Orientation="Horizontal" Spacing="4">
                             <PathIcon Data="{StaticResource InfoIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[ToggleButton].Foreground}" />
-                            <TextBlock Text="Info" VerticalAlignment="Center"/>
+                            <TextBlock Text="{loc:Tr Gallery_Info}" VerticalAlignment="Center"/>
                         </StackPanel>
                     </ToggleButton>
-                    <ToggleButton IsChecked="{Binding ShowBadges, Mode=TwoWay}" CornerRadius="6" Padding="8,4" FontSize="11" ToolTip.Tip="Show/hide liked/bookmarked/favorite badges on cards">
+                    <ToggleButton IsChecked="{Binding ShowBadges, Mode=TwoWay}" CornerRadius="6" Padding="8,4" FontSize="11" ToolTip.Tip="{loc:Tr Search_ShowHideLikedBookmarkedFavoriteBadges}">
                         <StackPanel Orientation="Horizontal" Spacing="4">
                             <PathIcon Data="{StaticResource HeartFilledIcon}" Width="12" Height="12" VerticalAlignment="Center" Foreground="{DynamicResource HeartBadgeIconBrush}" />
-                            <TextBlock Text="Badges" VerticalAlignment="Center"/>
+                            <TextBlock Text="{loc:Tr Search_Badges}" VerticalAlignment="Center"/>
                         </StackPanel>
                     </ToggleButton>
-                    <ToggleButton IsChecked="{Binding ShowPreview, Mode=TwoWay}" CornerRadius="6" Padding="8,4" FontSize="11" ToolTip.Tip="Toggle side panel">
+                    <ToggleButton IsChecked="{Binding ShowPreview, Mode=TwoWay}" CornerRadius="6" Padding="8,4" FontSize="11" ToolTip.Tip="{loc:Tr Bookmarks_ToggleSidePanel}">
                         <StackPanel Orientation="Horizontal" Spacing="4">
                             <Path Data="{StaticResource ShowPanelIcon}" Width="14" Height="14"
                                   Stretch="Uniform" Stroke="{Binding $parent[ToggleButton].Foreground}" StrokeThickness="1.5"
@@ -891,12 +891,12 @@
                                   Stretch="Uniform" Stroke="{Binding $parent[ToggleButton].Foreground}" StrokeThickness="1.5"
                                   StrokeLineCap="Round" VerticalAlignment="Center" UseLayoutRounding="False"
                                   IsVisible="{Binding ShowPreview}"/>
-                            <TextBlock Text="Show Panel" FontSize="11" IsVisible="{Binding !ShowPreview}"/>
-                            <TextBlock Text="Hide Panel" FontSize="11" IsVisible="{Binding ShowPreview}"/>
+                            <TextBlock Text="{loc:Tr Search_ShowPanel}" FontSize="11" IsVisible="{Binding !ShowPreview}"/>
+                            <TextBlock Text="{loc:Tr Search_HidePanel}" FontSize="11" IsVisible="{Binding ShowPreview}"/>
                         </StackPanel>
                     </ToggleButton>
                     <Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}" Margin="2,0"/>
-                    <TextBox x:Name="TagFilterBox" Text="{Binding TagFilter}" PlaceholderText="Filter by tag…"
+                    <TextBox x:Name="TagFilterBox" Text="{Binding TagFilter}" PlaceholderText="{loc:Tr Bookmarks_FilterByTag}"
                              CornerRadius="6" Width="140" FontSize="12" VerticalAlignment="Center"/>
                     <Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}" Margin="2,0"/>
                     <ComboBox x:Name="SortComboBox"
@@ -904,10 +904,10 @@
                               SelectedIndex="0"
                               Width="160" FontSize="11" VerticalAlignment="Center"
                               CornerRadius="6" Padding="8,4"
-                              ToolTip.Tip="Sort bookmarks"/>
+                              ToolTip.Tip="{loc:Tr Bookmarks_SortBookmarks}"/>
                     <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center" IsVisible="{Binding IsGridView}">
                         <Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}" Margin="2,0"/>
-                        <TextBlock Text="Size" FontSize="11" VerticalAlignment="Center" Opacity="0.7"/>
+                        <TextBlock Text="{loc:Tr Gallery_Size}" FontSize="11" VerticalAlignment="Center" Opacity="0.7"/>
                         <Slider Minimum="100" Maximum="320" Value="{Binding CardSize, Mode=TwoWay}"
                                 Width="80" VerticalAlignment="Center"
                                 ToolTip.Tip="{Binding CardSize, StringFormat='Card size: {0}px'}"/>
@@ -916,8 +916,8 @@
 
                 <!-- Right: Grid / List -->
                 <StackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Center">
-                    <Button CornerRadius="6" Padding="8,4" FontSize="11" Command="{Binding SetGridViewCommand}" IsEnabled="{Binding !IsGridView}" ToolTip.Tip="Grid view">⊞ Grid</Button>
-                    <Button CornerRadius="6" Padding="8,4" FontSize="11" Command="{Binding SetListViewCommand}" IsEnabled="{Binding !IsListView}" ToolTip.Tip="List view">≡ List</Button>
+                    <Button CornerRadius="6" Padding="8,4" FontSize="11" Command="{Binding SetGridViewCommand}" IsEnabled="{Binding !IsGridView}" ToolTip.Tip="{loc:Tr Rankings_GridView}">⊞ Grid</Button>
+                    <Button CornerRadius="6" Padding="8,4" FontSize="11" Command="{Binding SetListViewCommand}" IsEnabled="{Binding !IsListView}" ToolTip.Tip="{loc:Tr Rankings_ListView}">≡ List</Button>
                 </StackPanel>
             </StackPanel>
             </ScrollViewer>
@@ -965,8 +965,8 @@
                     <WrapPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <TextBlock VerticalAlignment="Center" Margin="0,0,12,0" FontSize="12" FontWeight="SemiBold"
                                    Text="{Binding SelectedCount, StringFormat='{}{0} selected'}"/>
-                        <Button Content="Select all"   CornerRadius="5" Padding="8,4" FontSize="11" Margin="0,0,6,0" Command="{Binding SelectAllFavoritesCommand}"/>
-                        <Button Content="Deselect All" CornerRadius="5" Padding="8,4" FontSize="11"                  Command="{Binding ClearFavoritesSelectionCommand}"/>
+                        <Button Content="{loc:Tr Common_SelectAll}"   CornerRadius="5" Padding="8,4" FontSize="11" Margin="0,0,6,0" Command="{Binding SelectAllFavoritesCommand}"/>
+                        <Button Content="{loc:Tr Discover_DeselectAll}" CornerRadius="5" Padding="8,4" FontSize="11"                  Command="{Binding ClearFavoritesSelectionCommand}"/>
                     </WrapPanel>
                 </Border>
                 <ScrollViewer Grid.Row="1" x:Name="PublicScrollViewer"
@@ -974,7 +974,7 @@
                               HorizontalScrollBarVisibility="Disabled"
                               AllowAutoHide="False">
                     <StackPanel>
-                        <TextBlock Text="No public bookmarks loaded yet."
+                        <TextBlock Text="{loc:Tr Bookmarks_NoPublicBookmarksLoadedYet}"
                                    HorizontalAlignment="Center" VerticalAlignment="Center"
                                    Margin="0,40" FontSize="14"
                                    Foreground="{DynamicResource DefaultForegroundBrushDisabled}">
@@ -1007,7 +1007,7 @@
                             <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Spacing="4"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
                         </ItemsControl>
 
-                        <Button Content="Load more…" Command="{Binding LoadMoreCommand}"
+                        <Button Content="{loc:Tr Bookmarks_LoadMore}" Command="{Binding LoadMoreCommand}"
                                 IsVisible="{Binding CanLoadMore}"
                                 HorizontalAlignment="Center" Margin="0,8" CornerRadius="6" Padding="16,8"/>
                     </StackPanel>
@@ -1024,8 +1024,8 @@
                     <WrapPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <TextBlock VerticalAlignment="Center" Margin="0,0,12,0" FontSize="12" FontWeight="SemiBold"
                                    Text="{Binding SelectedCount, StringFormat='{}{0} selected'}"/>
-                        <Button Content="Select all"   CornerRadius="5" Padding="8,4" FontSize="11" Margin="0,0,6,0" Command="{Binding SelectAllFavoritesCommand}"/>
-                        <Button Content="Deselect All" CornerRadius="5" Padding="8,4" FontSize="11"                  Command="{Binding ClearFavoritesSelectionCommand}"/>
+                        <Button Content="{loc:Tr Common_SelectAll}"   CornerRadius="5" Padding="8,4" FontSize="11" Margin="0,0,6,0" Command="{Binding SelectAllFavoritesCommand}"/>
+                        <Button Content="{loc:Tr Discover_DeselectAll}" CornerRadius="5" Padding="8,4" FontSize="11"                  Command="{Binding ClearFavoritesSelectionCommand}"/>
                     </WrapPanel>
                 </Border>
                 <ScrollViewer Grid.Row="1" x:Name="PrivateScrollViewer"
@@ -1033,7 +1033,7 @@
                               HorizontalScrollBarVisibility="Disabled"
                               AllowAutoHide="False">
                     <StackPanel>
-                        <TextBlock Text="No private bookmarks loaded yet."
+                        <TextBlock Text="{loc:Tr Bookmarks_NoPrivateBookmarksLoadedYet}"
                                    HorizontalAlignment="Center" VerticalAlignment="Center"
                                    Margin="0,40" FontSize="14"
                                    Foreground="{DynamicResource DefaultForegroundBrushDisabled}">
@@ -1066,7 +1066,7 @@
                             <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Spacing="4"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
                         </ItemsControl>
 
-                        <Button Content="Load more…" Command="{Binding LoadMoreCommand}"
+                        <Button Content="{loc:Tr Bookmarks_LoadMore}" Command="{Binding LoadMoreCommand}"
                                 IsVisible="{Binding CanLoadMore}"
                                 HorizontalAlignment="Center" Margin="0,8" CornerRadius="6" Padding="16,8"/>
                     </StackPanel>
@@ -1078,7 +1078,7 @@
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel Margin="20" Spacing="16">
                         <ProgressBar IsIndeterminate="True" Height="3" IsVisible="{Binding IsLoadingCollectionsUi}"/>
-                        <TextBlock Text="You haven't bookmarked any Collections yet."
+                        <TextBlock Text="{loc:Tr Bookmarks_YouHavenTBookmarkedAnyCollections}"
                                    Margin="0,40" FontSize="14" HorizontalAlignment="Center"
                                    Foreground="{DynamicResource DefaultForegroundBrushDisabled}"
                                    IsVisible="{Binding ShowEmptyCollectionsMessage}"/>
@@ -1145,8 +1145,8 @@
                         IsVisible="{Binding AvailableFolders.Count, Converter={x:Static ObjectConverters.IsNotNull}}">
                     <ScrollViewer VerticalScrollBarVisibility="Auto">
                         <StackPanel Spacing="2" Margin="6,8">
-                            <TextBlock Text="FOLDERS" FontSize="9" FontWeight="SemiBold" Opacity="0.5" Margin="4,0,0,4"/>
-                            <Button Content="All" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
+                            <TextBlock Text="{loc:Tr Bookmarks_FOLDERS}" FontSize="9" FontWeight="SemiBold" Opacity="0.5" Margin="4,0,0,4"/>
+                            <Button Content="{loc:Tr Search_All}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
                                     CornerRadius="5" Padding="8,5" FontSize="11"
                                     IsEnabled="{Binding FolderFilter, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
                                     Command="{Binding SetFolderCommand}" CommandParameter="{x:Null}"/>
@@ -1184,17 +1184,17 @@
                                 <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center">
                                     <PathIcon Data="{StaticResource StarIcon}" Width="16" Height="16" VerticalAlignment="Center"
                                               Foreground="{DynamicResource DefaultForegroundBrushDisabled}"/>
-                                    <TextBlock Text="No local favorites yet"
+                                    <TextBlock Text="{loc:Tr Bookmarks_NoLocalFavoritesYet}"
                                                HorizontalAlignment="Center" FontSize="14"
                                                Foreground="{DynamicResource DefaultForegroundBrushDisabled}"/>
                                 </StackPanel>
                                 <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center">
-                                    <TextBlock Text="Right-click any artwork anywhere and choose"
+                                    <TextBlock Text="{loc:Tr Bookmarks_RightClickAnyArtworkAnywhereAnd}"
                                                HorizontalAlignment="Center" FontSize="12"
                                                Foreground="{DynamicResource DefaultForegroundBrushDisabled}" VerticalAlignment="Center"/>
                                     <PathIcon Data="{StaticResource StarIcon}" Width="14" Height="14" VerticalAlignment="Center"
                                               Foreground="{DynamicResource DefaultForegroundBrushDisabled}"/>
-                                    <TextBlock Text="Add to favorites"
+                                    <TextBlock Text="{loc:Tr Discover_AddToFavorites}"
                                                HorizontalAlignment="Center" FontSize="12"
                                                Foreground="{DynamicResource DefaultForegroundBrushDisabled}" VerticalAlignment="Center"/>
                                 </StackPanel>

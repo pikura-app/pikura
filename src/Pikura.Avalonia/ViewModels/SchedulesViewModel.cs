@@ -5,6 +5,7 @@ using Pikura.Core.Data;
 using Pikura.Core.Models;
 using Pikura.Core.Services;
 using Pikura.Core.Settings;
+using Pikura.Avalonia.Localization;
 using Pikura.Avalonia.Services;
 using System;
 using System.Collections.ObjectModel;
@@ -250,7 +251,7 @@ public partial class SchedulesViewModel : ViewModelBase
     {
         if (StagedArtists.Count == 0)
         {
-            await _dialogService.ShowMessageAsync("Validation", "Add at least one artist to the list.");
+            await _dialogService.ShowMessageAsync(Pikura.Avalonia.Localization.LocalizationService.Instance["Batch_Validation"], Pikura.Avalonia.Localization.LocalizationService.Instance["Batch_AddAtLeastOneArtistTo"]);
             return;
         }
 
@@ -322,7 +323,7 @@ public partial class SchedulesViewModel : ViewModelBase
         {
             if (OnceDateTime == null)
             {
-                await _dialogService.ShowMessageAsync("Validation", "Pick a date and time for the one-time run.");
+                await _dialogService.ShowMessageAsync(Pikura.Avalonia.Localization.LocalizationService.Instance["Batch_Validation"], Pikura.Avalonia.Localization.LocalizationService.Instance["Batch_PickADateAndTimeFor"]);
                 return;
             }
             // Merge the chosen date with the chosen time
@@ -330,7 +331,7 @@ public partial class SchedulesViewModel : ViewModelBase
             var combined = new DateTime(d.Year, d.Month, d.Day, TriggerHour24, TriggerMinute, 0, DateTimeKind.Local);
             if (combined <= DateTime.Now)
             {
-                await _dialogService.ShowMessageAsync("Validation",
+                await _dialogService.ShowMessageAsync(Pikura.Avalonia.Localization.LocalizationService.Instance["Batch_Validation"],
                     $"The chosen date and time ({combined:MMM d, yyyy h:mm tt}) is in the past. Please pick a future time.");
                 return;
             }
@@ -503,7 +504,7 @@ public partial class SchedulesViewModel : ViewModelBase
         CustomSeparateR18 = false;
         OnPropertyChanged(nameof(HasStagedArtists));
         OnPropertyChanged(nameof(AddButtonLabel));
-        StatusMessage = "Create a new schedule — add artists and configure settings, then click Save.";
+        StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Batch_CreateANewScheduleAddArtists"];
     }
 
     [RelayCommand]

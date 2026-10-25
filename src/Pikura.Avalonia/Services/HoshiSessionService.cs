@@ -8,6 +8,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Pikura.Avalonia.ViewModels;
 
+using Pikura.Avalonia.Localization;
+
 namespace Pikura.Avalonia.Services;
 
 /// <summary>
@@ -99,7 +101,7 @@ public sealed class HoshiSessionService
     /// <summary>Creates a new empty session, persists it, and returns it.</summary>
     public HoshiSession CreateNew(string? title = null)
     {
-        var s = new HoshiSession { Title = title ?? "New chat" };
+        var s = new HoshiSession { Title = title ?? Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_NewChat"] };
         Sessions.Insert(0, s);
         _ = SaveAsync(s);
         // Do NOT raise SessionsChanged here — that event is reserved for
@@ -158,7 +160,7 @@ public sealed class HoshiSessionService
     {
         var copy = new HoshiSession
         {
-            Title = source.Title + " (copy)",
+            Title = source.Title + Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_Copy"],
             ImageSource = source.ImageSource,
             PixivArtworkId = source.PixivArtworkId,
             ImageBytes  = source.ImageBytes?.ToArray(),

@@ -10,6 +10,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 
+using Pikura.Avalonia.Localization;
+
 namespace Pikura.Avalonia.Views.Dialogs;
 
 public partial class ChangelogDialog : Window
@@ -40,12 +42,12 @@ public partial class ChangelogDialog : Window
     {
         InitializeComponent();
 
-        Title = "Release History";
-        VersionLabel.Text = "Release History";
+        Title = Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_ReleaseHistory"];
+        VersionLabel.Text = Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_ReleaseHistory"];
         SubtitleLabel.Text = releases.Count == 0
             ? "No published releases found."
-            : $"{releases.Count} release{(releases.Count == 1 ? "" : "s")} — newest first";
-        ReleasePageBtn.Content = "All releases on GitHub ↗";
+            : string.Format(Pikura.Avalonia.Localization.LocalizationService.Instance["Changelog_ReleaseCount"], releases.Count);
+        ReleasePageBtn.Content = Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_AllReleasesOnGitHub"];
 
         NotesPanel.Children.Clear();
         for (var i = 0; i < releases.Count; i++)

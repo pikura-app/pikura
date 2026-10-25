@@ -5,6 +5,7 @@ using Avalonia.Input.Platform;
 using Avalonia.Interactivity;
 using Avalonia.LogicalTree;
 using Avalonia.VisualTree;
+using Pikura.Avalonia.Localization;
 using Pikura.Avalonia.Services;
 using Pikura.Avalonia.ViewModels;
 using Pikura.Avalonia.Views.Artwork;
@@ -552,7 +553,7 @@ public partial class EnhancedRankingsView : UserControl
 
         if (previews.Count == 0)
         {
-            VM.StatusMessage = "No artwork selected or open. Click an artwork or select multiple first.";
+            VM.StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_NoArtworkSelectedOrOpenClick"];
             return;
         }
 

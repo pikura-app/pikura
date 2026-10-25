@@ -10,6 +10,7 @@ using Avalonia.Layout;
 using Avalonia.LogicalTree;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
+using Pikura.Avalonia.Localization;
 using Pikura.Avalonia.Services;
 using Pikura.Avalonia.ViewModels;
 using Pikura.Avalonia.Views.Artwork;
@@ -417,7 +418,7 @@ public partial class CollectionsView : UserControl
                 if (!foundAny)
                 {
                     CollectionStickerLoadingPanel.IsVisible = true;
-                    ((TextBlock)CollectionStickerLoadingPanel.Children[1]).Text = "No stickers could be loaded.";
+                    ((TextBlock)CollectionStickerLoadingPanel.Children[1]).Text = Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_NoStickersCouldBeLoaded"];
                     CollectionStickerLoadingPanel.Children[0].IsVisible = false;
                 }
             }

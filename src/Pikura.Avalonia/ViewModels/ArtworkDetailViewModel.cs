@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
 using Pikura.Core.Models;
 using Pikura.Core.Services;
+using Pikura.Avalonia.Localization;
 using Pikura.Avalonia.Services;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -105,15 +106,15 @@ public partial class ArtworkDetailViewModel : ViewModelBase
 
         try
         {
-            StatusMessage = "Downloading current page...";
+            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Artwork_DownloadingCurrentPage"];
             await Task.Delay(1000); // Simulate download
-            StatusMessage = "Download completed (simulated)";
+            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Artwork_DownloadCompletedSimulated"];
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "Download failed");
-            StatusMessage = "Download failed";
-            await _dialogService.ShowMessageAsync("Error", "Download failed. Please try again.");
+            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Settings_NotifyFailed"];
+            await _dialogService.ShowMessageAsync(Pikura.Avalonia.Localization.LocalizationService.Instance["Artwork_Error"], Pikura.Avalonia.Localization.LocalizationService.Instance["Artwork_DownloadFailedPleaseTryAgain"]);
         }
     }
 
@@ -124,15 +125,15 @@ public partial class ArtworkDetailViewModel : ViewModelBase
 
         try
         {
-            StatusMessage = "Downloading all pages...";
+            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Artwork_DownloadingAllPages"];
             await Task.Delay(2000); // Simulate download
-            StatusMessage = "Download completed (simulated)";
+            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Artwork_DownloadCompletedSimulated"];
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "Download failed");
-            StatusMessage = "Download failed";
-            await _dialogService.ShowMessageAsync("Error", "Download failed. Please try again.");
+            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Settings_NotifyFailed"];
+            await _dialogService.ShowMessageAsync(Pikura.Avalonia.Localization.LocalizationService.Instance["Artwork_Error"], Pikura.Avalonia.Localization.LocalizationService.Instance["Artwork_DownloadFailedPleaseTryAgain"]);
         }
     }
 
@@ -161,7 +162,7 @@ public partial class ArtworkDetailViewModel : ViewModelBase
         if (Artwork == null) return;
 
         IsLoading = true;
-        StatusMessage = "Loading artwork pages...";
+        StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Artwork_LoadingArtworkPages"];
 
         try
         {
@@ -173,7 +174,7 @@ public partial class ArtworkDetailViewModel : ViewModelBase
         catch (Exception ex)
         {
             Logger.LogError(ex, "Failed to load artwork pages");
-            StatusMessage = "Failed to load artwork pages";
+            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Artwork_FailedToLoadArtworkPages"];
         }
         finally
         {
@@ -240,18 +241,18 @@ public partial class ArtworkDetailViewModel : ViewModelBase
             {
                 IsLiked = true;
                 LikeCount = (LikeCount ?? 0) + 1;
-                StatusMessage = "Liked";
+                StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Artwork_Liked"];
             }
             else
             {
-                StatusMessage = "Could not like artwork";
+                StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Artwork_CouldNotLikeArtwork"];
             }
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "Like failed for {Id}", Artwork.Id);
-            StatusMessage = "Like failed";
-            await _dialogService.ShowMessageAsync("Error", "Could not like artwork.");
+            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Artwork_LikeFailed"];
+            await _dialogService.ShowMessageAsync(Pikura.Avalonia.Localization.LocalizationService.Instance["Artwork_Error"], Pikura.Avalonia.Localization.LocalizationService.Instance["Artwork_CouldNotLikeArtwork_2"]);
         }
         finally
         {
@@ -277,11 +278,11 @@ public partial class ArtworkDetailViewModel : ViewModelBase
                         IsBookmarked = false;
                         BookmarkId = null;
                         BookmarkCount = (BookmarkCount ?? 1) - 1;
-                        StatusMessage = "Removed bookmark";
+                        StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Artwork_RemovedBookmark"];
                     }
                     else
                     {
-                        StatusMessage = "Could not remove bookmark";
+                        StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Artwork_CouldNotRemoveBookmark"];
                     }
                 }
             }
@@ -293,19 +294,19 @@ public partial class ArtworkDetailViewModel : ViewModelBase
                     IsBookmarked = true;
                     BookmarkId = newBookmarkId;
                     BookmarkCount = (BookmarkCount ?? 0) + 1;
-                    StatusMessage = "Bookmarked";
+                    StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Collections_Bookmarked"];
                 }
                 else
                 {
-                    StatusMessage = "Could not bookmark";
+                    StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Artwork_CouldNotBookmark"];
                 }
             }
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "Toggle bookmark failed for {Id}", Artwork.Id);
-            StatusMessage = "Bookmark action failed";
-            await _dialogService.ShowMessageAsync("Error", "Could not update bookmark.");
+            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Artwork_BookmarkActionFailed"];
+            await _dialogService.ShowMessageAsync(Pikura.Avalonia.Localization.LocalizationService.Instance["Artwork_Error"], Pikura.Avalonia.Localization.LocalizationService.Instance["Artwork_CouldNotUpdateBookmark"]);
         }
         finally
         {
@@ -343,15 +344,15 @@ public partial class ArtworkDetailViewModel : ViewModelBase
 
             if (!ok)
             {
-                StatusMessage = IsFollowing ? "Could not unfollow" : "Could not follow";
-                await _dialogService.ShowMessageAsync("Error", "Could not update follow state. Make sure you are signed in.");
+                StatusMessage = IsFollowing ? Pikura.Avalonia.Localization.LocalizationService.Instance["Artwork_CouldNotUnfollow"] : Pikura.Avalonia.Localization.LocalizationService.Instance["Artwork_CouldNotFollow"];
+                await _dialogService.ShowMessageAsync(Pikura.Avalonia.Localization.LocalizationService.Instance["Artwork_Error"], Pikura.Avalonia.Localization.LocalizationService.Instance["Artwork_CouldNotUpdateFollowStateMake"]);
             }
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "Toggle follow failed for {UserId}", Artwork.UserId);
-            StatusMessage = "Follow action failed";
-            await _dialogService.ShowMessageAsync("Error", "Could not update follow state.");
+            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Artwork_FollowActionFailed"];
+            await _dialogService.ShowMessageAsync(Pikura.Avalonia.Localization.LocalizationService.Instance["Artwork_Error"], Pikura.Avalonia.Localization.LocalizationService.Instance["Artwork_CouldNotUpdateFollowState"]);
         }
         finally
         {

@@ -13,6 +13,7 @@ using Pikura.Core.Data;
 using Pikura.Core.Models;
 using Pikura.Core.Services;
 using Pikura.Core.Settings;
+using Pikura.Avalonia.Localization;
 using Pikura.Avalonia.Services;
 
 namespace Pikura.Avalonia.ViewModels;
@@ -293,7 +294,7 @@ public partial class HistoryViewModel : ViewModelBase
                 existing.IsPausable    = true;
                 existing.IsResumable   = false;
                 existing.IsCancellable = true;
-                existing.StatusText    = "▶ Running";
+                existing.StatusText    = Pikura.Avalonia.Localization.LocalizationService.Instance["History_Running"];
                 existing.Job.Status    = JobStatus.Running;
                 existing.RefreshStatusIndicators();
                 // Re-subscribe progress so events flow again after resume
@@ -334,7 +335,7 @@ public partial class HistoryViewModel : ViewModelBase
                         active.IsPausable = false;
                         active.IsResumable = true;
                         active.IsCancellable = true;
-                        active.StatusText = "⏸ Paused";
+                        active.StatusText = Pikura.Avalonia.Localization.LocalizationService.Instance["History_Paused"];
                         active.Job.Status = JobStatus.Paused;
                         active.RefreshStatusIndicators();
                         // Move it after all Running jobs
@@ -778,7 +779,7 @@ public partial class DownloadJobViewModel : ObservableObject
         IsPausable    = false;
         IsResumable   = true;
         IsCancellable = true;
-        StatusText    = "⏸ Paused";
+        StatusText    = Pikura.Avalonia.Localization.LocalizationService.Instance["History_Paused"];
         Job.Status    = JobStatus.Paused;
         OnPropertyChanged(nameof(IsPreparing));
         OnPropertyChanged(nameof(StatusAccentColor));
@@ -789,7 +790,7 @@ public partial class DownloadJobViewModel : ObservableObject
             IsPausable    = true;
             IsResumable   = false;
             IsCancellable = true;
-            StatusText    = "▶ Running";
+            StatusText    = Pikura.Avalonia.Localization.LocalizationService.Instance["History_Running"];
             Job.Status    = JobStatus.Running;
             OnPropertyChanged(nameof(IsPreparing));
             OnPropertyChanged(nameof(StatusAccentColor));
@@ -804,7 +805,7 @@ public partial class DownloadJobViewModel : ObservableObject
         IsPausable    = true;
         IsResumable   = false;
         IsCancellable = true;
-        StatusText    = "▶ Running";
+        StatusText    = Pikura.Avalonia.Localization.LocalizationService.Instance["History_Running"];
         Job.Status    = JobStatus.Running;
         OnPropertyChanged(nameof(IsPreparing));
         // forceStart=true: user explicitly pressed ▶, bypass the concurrent-slot limit
@@ -815,7 +816,7 @@ public partial class DownloadJobViewModel : ObservableObject
             IsPausable    = false;
             IsResumable   = true;
             IsCancellable = true;
-            StatusText    = "⏳ Queued";
+            StatusText    = Pikura.Avalonia.Localization.LocalizationService.Instance["History_Queued"];
             Job.Status    = JobStatus.Pending;
             OnPropertyChanged(nameof(IsPreparing));
             OnPropertyChanged(nameof(StatusAccentColor));

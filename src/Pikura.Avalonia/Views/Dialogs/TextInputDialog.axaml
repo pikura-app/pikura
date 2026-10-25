@@ -1,5 +1,6 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:loc="using:Pikura.Avalonia.Localization"
         x:Class="Pikura.Avalonia.Views.Dialogs.TextInputDialog"
         x:Name="This"
         Title="{Binding DialogTitle, ElementName=This}"
@@ -17,11 +18,11 @@
         <TextBox x:Name="InputTextBox"
                  CornerRadius="6"
                  FontSize="13"
-                 PlaceholderText="Enter value..."
+                 PlaceholderText="{loc:Tr Dialog_EnterValue}"
                  Text="{Binding InitialValue, ElementName=This}"/>
         <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Right">
-            <Button Content="Cancel" Click="OnCancel"/>
-            <Button Content="OK" Classes="accent" Click="OnOk" IsDefault="True"/>
+            <Button Content="{loc:Tr Common_Cancel}" Click="OnCancel"/>
+            <Button Content="{loc:Tr Common_OK}" Classes="accent" Click="OnOk" IsDefault="True"/>
         </StackPanel>
     </StackPanel>
 </Window>

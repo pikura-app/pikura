@@ -1063,4 +1063,4824 @@
   <data name="Nav_BatchDownload" xml:space="preserve">
     <value>일괄 다운로드</value>
   </data>
+  <data name="Analytics_DownloadStatisticsAndInsights" xml:space="preserve">
+    <value>다운로드 통계 및 분석</value>
+  </data>
+  <data name="Analytics_TotalJobs" xml:space="preserve">
+    <value>총 작업 수</value>
+  </data>
+  <data name="Analytics_Completed" xml:space="preserve">
+    <value>완료됨</value>
+  </data>
+  <data name="Analytics_Failed" xml:space="preserve">
+    <value>실패</value>
+  </data>
+  <data name="Analytics_SuccessRate" xml:space="preserve">
+    <value>성공률</value>
+  </data>
+  <data name="Analytics_TotalDownloadedItems" xml:space="preserve">
+    <value>다운로드된 항목 총수</value>
+  </data>
+  <data name="Analytics_TotalFailedItems" xml:space="preserve">
+    <value>실패한 항목 총수</value>
+  </data>
+  <data name="Analytics_JobsByType" xml:space="preserve">
+    <value>유형별 작업</value>
+  </data>
+  <data name="Analytics_RecentActivity" xml:space="preserve">
+    <value>최근 활동</value>
+  </data>
+  <data name="Analytics_MostDownloadedArtists" xml:space="preserve">
+    <value>가장 많이 다운로드한 작가</value>
+  </data>
+  <data name="Analytics_RankedByTotalArtworksDownloaded" xml:space="preserve">
+    <value>다운로드한 작품 총수 순</value>
+  </data>
+  <data name="Analytics_NoDataYet" xml:space="preserve">
+    <value>아직 데이터 없음</value>
+  </data>
+  <data name="Analytics_MostFrequentedArtists" xml:space="preserve">
+    <value>가장 자주 다운로드한 작가</value>
+  </data>
+  <data name="Analytics_RankedByNumberOfDownloadSessions" xml:space="preserve">
+    <value>다운로드 세션 수 순</value>
+  </data>
+  <data name="Artwork_Back" xml:space="preserve">
+    <value>← 뒤로</value>
+  </data>
+  <data name="Artwork_DownloadCurrent" xml:space="preserve">
+    <value>현재 페이지 다운로드</value>
+  </data>
+  <data name="Artwork_DownloadAll" xml:space="preserve">
+    <value>모두 다운로드</value>
+  </data>
+  <data name="Artwork_ArtworkImage" xml:space="preserve">
+    <value>작품 이미지</value>
+  </data>
+  <data name="Artwork_ArtworkInfo" xml:space="preserve">
+    <value>작품 정보</value>
+  </data>
+  <data name="Artwork_Artist" xml:space="preserve">
+    <value>작가:</value>
+  </data>
+  <data name="Artwork_Type" xml:space="preserve">
+    <value>유형:</value>
+  </data>
+  <data name="Artwork_Pages" xml:space="preserve">
+    <value>페이지:</value>
+  </data>
+  <data name="Artwork_Likes" xml:space="preserve">
+    <value>좋아요</value>
+  </data>
+  <data name="Artwork_Views" xml:space="preserve">
+    <value>조회</value>
+  </data>
+  <data name="Artwork_Like" xml:space="preserve">
+    <value>좋아요</value>
+  </data>
+  <data name="Artwork_Liked" xml:space="preserve">
+    <value>좋아요함</value>
+  </data>
+  <data name="Artwork_Bookmark" xml:space="preserve">
+    <value>북마크</value>
+  </data>
+  <data name="Artwork_Bookmarked" xml:space="preserve">
+    <value>북마크됨</value>
+  </data>
+  <data name="Artwork_Follow" xml:space="preserve">
+    <value>팔로우</value>
+  </data>
+  <data name="Artwork_Following" xml:space="preserve">
+    <value>팔로우 중</value>
+  </data>
+  <data name="Artwork_Tags" xml:space="preserve">
+    <value>태그:</value>
+  </data>
+  <data name="Artwork_Previous" xml:space="preserve">
+    <value>← 이전</value>
+  </data>
+  <data name="Artwork_Next" xml:space="preserve">
+    <value>다음 →</value>
+  </data>
+  <data name="Viewer_Fit" xml:space="preserve">
+    <value>맞춤</value>
+  </data>
+  <data name="Common_Loading_2" xml:space="preserve">
+    <value>로드 중…</value>
+  </data>
+  <data name="Viewer_ThisPage" xml:space="preserve">
+    <value>이 페이지</value>
+  </data>
+  <data name="Viewer_AllPages" xml:space="preserve">
+    <value>모든 페이지</value>
+  </data>
+  <data name="Viewer_Range" xml:space="preserve">
+    <value>범위…</value>
+  </data>
+  <data name="Viewer_OpenInNewTab" xml:space="preserve">
+    <value>새 탭에서 열기</value>
+  </data>
+  <data name="Viewer_OpenAllTilesInSeparateTabs" xml:space="preserve">
+    <value>모든 타일을 별도 탭에서 열기</value>
+  </data>
+  <data name="Viewer_ShowTheTileStripToJump" xml:space="preserve">
+    <value>타일 스트립을 표시해 이 콜라주의 작품으로 이동</value>
+  </data>
+  <data name="Viewer_Tiles" xml:space="preserve">
+    <value>☰ 타일</value>
+  </data>
+  <data name="Viewer_ChooseWhichTabCollageOrCombined" xml:space="preserve">
+    <value>아래 스트립에 표시할 탭, 콜라주 또는 결합 세트 선택</value>
+  </data>
+  <data name="Viewer_ShowTheArtworkStripToJump" xml:space="preserve">
+    <value>작품 스트립을 표시해 이 목록의 작품으로 이동</value>
+  </data>
+  <data name="Viewer_Artworks" xml:space="preserve">
+    <value>☰ 작품</value>
+  </data>
+  <data name="Viewer_FetchTheNextPageOfThis" xml:space="preserve">
+    <value>이 소스의 다음 페이지 가져오기</value>
+  </data>
+  <data name="Viewer_KeepFetchingUntilThisSourceIs" xml:space="preserve">
+    <value>이 소스가 모두 로드될 때까지 계속 가져오기</value>
+  </data>
+  <data name="Viewer_All" xml:space="preserve">
+    <value>전체</value>
+  </data>
+  <data name="Viewer_ShowAllPages" xml:space="preserve">
+    <value>모든 페이지 표시</value>
+  </data>
+  <data name="Bookmarks_Select" xml:space="preserve">
+    <value>선택</value>
+  </data>
+  <data name="Bookmarks_OpenInSidePanel" xml:space="preserve">
+    <value>사이드 패널에서 열기</value>
+  </data>
+  <data name="Bookmarks_OpenFullScreen" xml:space="preserve">
+    <value>전체 화면으로 열기</value>
+  </data>
+  <data name="Bookmarks_OpenInNewTab" xml:space="preserve">
+    <value>새 탭에서 열기</value>
+  </data>
+  <data name="Bookmarks_OpenInPopup" xml:space="preserve">
+    <value>팝업에서 열기</value>
+  </data>
+  <data name="Bookmarks_DownloadWithPreset" xml:space="preserve">
+    <value>프리셋으로 다운로드</value>
+  </data>
+  <data name="Bookmarks_OpenArtistGallery" xml:space="preserve">
+    <value>작가 갤러리 열기</value>
+  </data>
+  <data name="Bookmarks_OpenOnPixivNet" xml:space="preserve">
+    <value>pixiv.net에서 열기</value>
+  </data>
+  <data name="Bookmarks_AddToLocalFavorites" xml:space="preserve">
+    <value>로컬 즐겨찾기에 추가</value>
+  </data>
+  <data name="Bookmarks_RemoveFromFavorites" xml:space="preserve">
+    <value>즐겨찾기에서 제거</value>
+  </data>
+  <data name="Bookmarks_CopyID" xml:space="preserve">
+    <value>ID 복사</value>
+  </data>
+  <data name="Bookmarks_CopyImage" xml:space="preserve">
+    <value>이미지 복사</value>
+  </data>
+  <data name="Bookmarks_UseAsAppBackground" xml:space="preserve">
+    <value>앱 배경으로 사용</value>
+  </data>
+  <data name="Bookmarks_Select_2" xml:space="preserve">
+    <value>☑ 선택</value>
+  </data>
+  <data name="Bookmarks_OpenInSidePanel_2" xml:space="preserve">
+    <value>👁 사이드 패널에서 열기</value>
+  </data>
+  <data name="Bookmarks_OpenFullScreen_2" xml:space="preserve">
+    <value>⧶ 전체 화면으로 열기</value>
+  </data>
+  <data name="Bookmarks_OpenInNewTab_2" xml:space="preserve">
+    <value>⊞ 새 탭에서 열기</value>
+  </data>
+  <data name="Bookmarks_OpenInPopup_2" xml:space="preserve">
+    <value>⧉ 팝업에서 열기</value>
+  </data>
+  <data name="Bookmarks_Download" xml:space="preserve">
+    <value>↓ 다운로드</value>
+  </data>
+  <data name="Bookmarks_DownloadWithPreset_2" xml:space="preserve">
+    <value>🎨 프리셋으로 다운로드</value>
+  </data>
+  <data name="Bookmarks_OpenArtistGallery_2" xml:space="preserve">
+    <value>👤 작가 갤러리 열기</value>
+  </data>
+  <data name="Bookmarks_OpenOnPixivNet_2" xml:space="preserve">
+    <value>🌐 pixiv.net에서 열기</value>
+  </data>
+  <data name="Bookmarks_RemoveFromFavorites_2" xml:space="preserve">
+    <value>★ 즐겨찾기에서 제거</value>
+  </data>
+  <data name="Bookmarks_SetFolder" xml:space="preserve">
+    <value>📁 폴더 설정…</value>
+  </data>
+  <data name="Bookmarks_CopyImage_2" xml:space="preserve">
+    <value>📋 이미지 복사</value>
+  </data>
+  <data name="Bookmarks_UseAsAppBackground_2" xml:space="preserve">
+    <value>🖼 앱 배경으로 사용</value>
+  </data>
+  <data name="Bookmarks_Public" xml:space="preserve">
+    <value>공개</value>
+  </data>
+  <data name="Bookmarks_Private" xml:space="preserve">
+    <value>비공개</value>
+  </data>
+  <data name="Bookmarks_LocalFavorites" xml:space="preserve">
+    <value>로컬 즐겨찾기</value>
+  </data>
+  <data name="Bookmarks_PixivCollectionsYouVeBookmarked" xml:space="preserve">
+    <value>북마크한 Pixiv 컬렉션</value>
+  </data>
+  <data name="Bookmarks_ReloadCurrentTab" xml:space="preserve">
+    <value>현재 탭 새로 고침</value>
+  </data>
+  <data name="Bookmarks_ShowHideR18Content" xml:space="preserve">
+    <value>R-18 콘텐츠 표시 / 숨기기</value>
+  </data>
+  <data name="Bookmarks_SelectAllVisibleItems" xml:space="preserve">
+    <value>표시된 모든 항목 선택</value>
+  </data>
+  <data name="Bookmarks_SelectAll" xml:space="preserve">
+    <value>모두 선택</value>
+  </data>
+  <data name="Bookmarks_ClearSelection" xml:space="preserve">
+    <value>선택 해제</value>
+  </data>
+  <data name="Bookmarks_DeselectAll" xml:space="preserve">
+    <value>모두 해제</value>
+  </data>
+  <data name="Bookmarks_DownloadSelectedBookmarks" xml:space="preserve">
+    <value>선택한 북마크 다운로드</value>
+  </data>
+  <data name="Bookmarks_ShowTheSelectedArtworksTiledTogether" xml:space="preserve">
+    <value>선택한 작품을 사이드 패널에 타일로 표시(최대 10개)</value>
+  </data>
+  <data name="Bookmarks_Collage" xml:space="preserve">
+    <value>콜라주</value>
+  </data>
+  <data name="Bookmarks_AddTheSelectedArtworksToThe" xml:space="preserve">
+    <value>선택한 작품을 활성 콜라주에 추가. 화살표로 콜라주 선택</value>
+  </data>
+  <data name="Bookmarks_OpenEachSelectedArtworkInIts" xml:space="preserve">
+    <value>선택한 각 작품을 개별 탭에서 열기</value>
+  </data>
+  <data name="Bookmarks_ViewInNewTabs" xml:space="preserve">
+    <value>새 탭에서 보기</value>
+  </data>
+  <data name="Bookmarks_DownloadAllBookmarks" xml:space="preserve">
+    <value>모든 북마크 다운로드</value>
+  </data>
+  <data name="Bookmarks_DownloadAll" xml:space="preserve">
+    <value>모두 다운로드</value>
+  </data>
+  <data name="Bookmarks_DownloadAllBookmarksToFolder" xml:space="preserve">
+    <value>모든 북마크를 폴더에 다운로드</value>
+  </data>
+  <data name="Bookmarks_DownloadWithImageProcessingPreset" xml:space="preserve">
+    <value>이미지 처리 프리셋으로 다운로드</value>
+  </data>
+  <data name="Bookmarks_FixedCardHeight" xml:space="preserve">
+    <value>고정 카드 높이</value>
+  </data>
+  <data name="Bookmarks_NaturalHeight" xml:space="preserve">
+    <value>자연 높이</value>
+  </data>
+  <data name="Bookmarks_ShowHideTagChips" xml:space="preserve">
+    <value>태그 칩 표시 / 숨기기</value>
+  </data>
+  <data name="Bookmarks_Tags" xml:space="preserve">
+    <value>태그</value>
+  </data>
+  <data name="Bookmarks_ShowHideInfoStrip" xml:space="preserve">
+    <value>정보 스트립 표시 / 숨기기</value>
+  </data>
+  <data name="Bookmarks_Info" xml:space="preserve">
+    <value>정보</value>
+  </data>
+  <data name="Bookmarks_ShowHideLikedBookmarkedFavoriteBadges" xml:space="preserve">
+    <value>카드의 좋아요/북마크/즐겨찾기 배지 표시 / 숨기기</value>
+  </data>
+  <data name="Bookmarks_Badges" xml:space="preserve">
+    <value>배지</value>
+  </data>
+  <data name="Bookmarks_ToggleSidePanel" xml:space="preserve">
+    <value>사이드 패널 전환</value>
+  </data>
+  <data name="Bookmarks_ShowPanel" xml:space="preserve">
+    <value>패널 표시</value>
+  </data>
+  <data name="Bookmarks_HidePanel" xml:space="preserve">
+    <value>패널 숨기기</value>
+  </data>
+  <data name="Bookmarks_FilterByTag" xml:space="preserve">
+    <value>태그로 필터…</value>
+  </data>
+  <data name="Bookmarks_SortBookmarks" xml:space="preserve">
+    <value>북마크 정렬</value>
+  </data>
+  <data name="Bookmarks_Size" xml:space="preserve">
+    <value>크기</value>
+  </data>
+  <data name="Bookmarks_GridView" xml:space="preserve">
+    <value>그리드 보기</value>
+  </data>
+  <data name="Bookmarks_ListView" xml:space="preserve">
+    <value>목록 보기</value>
+  </data>
+  <data name="Common_SelectAll" xml:space="preserve">
+    <value>모두 선택</value>
+  </data>
+  <data name="Bookmarks_NoPublicBookmarksLoadedYet" xml:space="preserve">
+    <value>아직 로드된 공개 북마크가 없습니다.</value>
+  </data>
+  <data name="Bookmarks_LoadMore" xml:space="preserve">
+    <value>더 불러오기…</value>
+  </data>
+  <data name="Bookmarks_NoPrivateBookmarksLoadedYet" xml:space="preserve">
+    <value>아직 로드된 비공개 북마크가 없습니다.</value>
+  </data>
+  <data name="Bookmarks_YouHavenTBookmarkedAnyCollections" xml:space="preserve">
+    <value>아직 북마크한 컬렉션이 없습니다.</value>
+  </data>
+  <data name="Bookmarks_FOLDERS" xml:space="preserve">
+    <value>폴더</value>
+  </data>
+  <data name="Bookmarks_All" xml:space="preserve">
+    <value>전체</value>
+  </data>
+  <data name="Bookmarks_NoLocalFavoritesYet" xml:space="preserve">
+    <value>아직 로컬 즐겨찾기가 없습니다</value>
+  </data>
+  <data name="Bookmarks_RightClickAnyArtworkAnywhereAnd" xml:space="preserve">
+    <value>어디서든 작품을 우클릭하고</value>
+  </data>
+  <data name="Bookmarks_AddToFavorites" xml:space="preserve">
+    <value>즐겨찾기에 추가</value>
+  </data>
+  <data name="Collections_BackToBrowse" xml:space="preserve">
+    <value>← 목록으로</value>
+  </data>
+  <data name="Collections_PasteAPixivNetCollectionsId" xml:space="preserve">
+    <value>pixiv.net/collections/{id} URL 또는 ID 붙여넣기…</value>
+  </data>
+  <data name="Collections_Load" xml:space="preserve">
+    <value>불러오기</value>
+  </data>
+  <data name="Collections_DownloadEveryWorkInThisCollection" xml:space="preserve">
+    <value>이 컬렉션의 모든 작품 다운로드</value>
+  </data>
+  <data name="Collections_DownloadCollection" xml:space="preserve">
+    <value>컬렉션 다운로드</value>
+  </data>
+  <data name="Collections_KeepAsOneCollectionFolder" xml:space="preserve">
+    <value>하나의 컬렉션 폴더로 유지</value>
+  </data>
+  <data name="Collections_OnAllWorksGoIntoOne" xml:space="preserve">
+    <value>켜기: 모든 작품을 하나의 Collections\{title} 폴더에 넣습니다. 끄기: Collections\ 폴더 아래에 두되 일반 작가/작품별 폴더 구조를 유지합니다.</value>
+  </data>
+  <data name="Collections_ShowHideR18Collections" xml:space="preserve">
+    <value>R-18 컬렉션 표시 / 숨기기</value>
+  </data>
+  <data name="Collections_SelectAll" xml:space="preserve">
+    <value>모두 선택</value>
+  </data>
+  <data name="Collections_DeselectAll" xml:space="preserve">
+    <value>모두 해제</value>
+  </data>
+  <data name="Collections_DownloadSelected" xml:space="preserve">
+    <value>⊞ 선택 항목 다운로드</value>
+  </data>
+  <data name="Collections_DownloadSelectedWithPreset" xml:space="preserve">
+    <value>🎨 프리셋으로 선택 항목 다운로드</value>
+  </data>
+  <data name="Collections_ShowAllArtworksFromEachSelected" xml:space="preserve">
+    <value>선택한 각 컬렉션의 모든 작품을 새 콜라주 탭에 표시(최대 100개)</value>
+  </data>
+  <data name="Collections_AddAllArtworksFromEachSelected" xml:space="preserve">
+    <value>선택한 각 컬렉션의 모든 작품을 활성 콜라주에 추가. 화살표로 콜라주 선택</value>
+  </data>
+  <data name="Collections_DownloadLoaded" xml:space="preserve">
+    <value>⊞ 로드된 항목 다운로드</value>
+  </data>
+  <data name="Collections_DownloadEveryCollectionCurrentlyShownBel" xml:space="preserve">
+    <value>아래에 현재 표시된 모든 컬렉션 다운로드</value>
+  </data>
+  <data name="Collections_OneFolderPerCollection" xml:space="preserve">
+    <value>컬렉션당 하나의 폴더</value>
+  </data>
+  <data name="Collections_Refresh" xml:space="preserve">
+    <value>↻ 새로 고침</value>
+  </data>
+  <data name="Collections_ToggleTheSidePanelOnlyShows" xml:space="preserve">
+    <value>사이드 패널 전환(컬렉션을 열어야 내용이 표시됨)</value>
+  </data>
+  <data name="Collections_ShowPanel" xml:space="preserve">
+    <value>패널 표시</value>
+  </data>
+  <data name="Collections_HidePanel" xml:space="preserve">
+    <value>패널 숨기기</value>
+  </data>
+  <data name="Collections_ShowTheCheckedArtworksInA" xml:space="preserve">
+    <value>선택한 작품을 새 콜라주 탭에 표시(최대 100개)</value>
+  </data>
+  <data name="Collections_AddTheCheckedArtworksToThe" xml:space="preserve">
+    <value>선택한 작품을 활성 콜라주에 추가. 화살표로 콜라주 선택</value>
+  </data>
+  <data name="Collections_ShowEveryArtworkInThisCollection" xml:space="preserve">
+    <value>이 컬렉션의 모든 작품을 새 콜라주 탭에 표시(최대 100개)</value>
+  </data>
+  <data name="Collections_AddEveryArtworkInThisCollection" xml:space="preserve">
+    <value>이 컬렉션의 모든 작품을 활성 콜라주에 추가. 화살표로 콜라주 선택</value>
+  </data>
+  <data name="Collections_OpenEachSelectedArtworkInIts" xml:space="preserve">
+    <value>선택한 각 작품을 개별 탭에서 열기</value>
+  </data>
+  <data name="Collections_ViewInNewTabs" xml:space="preserve">
+    <value>새 탭에서 보기</value>
+  </data>
+  <data name="Collections_DownloadOnlyTheCheckedArtworks" xml:space="preserve">
+    <value>선택한 작품만 다운로드</value>
+  </data>
+  <data name="Collections_DownloadSelectedArtworksOrAllIf" xml:space="preserve">
+    <value>선택한 작품(없으면 전체)을 이미지 프리셋으로 다운로드</value>
+  </data>
+  <data name="Collections_DownloadWithPreset" xml:space="preserve">
+    <value>프리셋으로 다운로드</value>
+  </data>
+  <data name="Collections_DownloadEveryArtworkCurrentlyLoadedIn" xml:space="preserve">
+    <value>이 컬렉션에 현재 로드된 모든 작품 다운로드</value>
+  </data>
+  <data name="Collections_DownloadLoaded_2" xml:space="preserve">
+    <value>로드된 항목 다운로드</value>
+  </data>
+  <data name="Collections_ToggleTheSidePanel" xml:space="preserve">
+    <value>사이드 패널 전환</value>
+  </data>
+  <data name="Collections_BookmarkThisCollectionOnPixivSeparate" xml:space="preserve">
+    <value>이 컬렉션을 Pixiv에서 북마크(로컬 다운로드 설정과 별개)</value>
+  </data>
+  <data name="Collections_Bookmarked" xml:space="preserve">
+    <value>북마크됨</value>
+  </data>
+  <data name="Collections_Bookmark" xml:space="preserve">
+    <value>북마크</value>
+  </data>
+  <data name="Collections_FixedCardHeight" xml:space="preserve">
+    <value>고정 카드 높이</value>
+  </data>
+  <data name="Collections_NaturalHeight" xml:space="preserve">
+    <value>자연 높이</value>
+  </data>
+  <data name="Collections_ShowHideTagChips" xml:space="preserve">
+    <value>태그 칩 표시 / 숨기기</value>
+  </data>
+  <data name="Collections_Tags" xml:space="preserve">
+    <value>태그</value>
+  </data>
+  <data name="Collections_ShowHideCardInfoStrip" xml:space="preserve">
+    <value>카드 정보 스트립 표시 / 숨기기</value>
+  </data>
+  <data name="Collections_Info" xml:space="preserve">
+    <value>정보</value>
+  </data>
+  <data name="Collections_ShowHideLikedBookmarkedFavoriteBadges" xml:space="preserve">
+    <value>좋아요/북마크/즐겨찾기 배지 표시 / 숨기기</value>
+  </data>
+  <data name="Collections_Badges" xml:space="preserve">
+    <value>배지</value>
+  </data>
+  <data name="Collections_Size" xml:space="preserve">
+    <value>크기</value>
+  </data>
+  <data name="Collections_GridView" xml:space="preserve">
+    <value>그리드 보기</value>
+  </data>
+  <data name="Collections_ListView" xml:space="preserve">
+    <value>목록 보기</value>
+  </data>
+  <data name="Collections_CaptionTagsMoreFromThisCreator" xml:space="preserve">
+    <value>이 작가의 캡션, 태그 등</value>
+  </data>
+  <data name="Collections_MoreCollectionsByThisCreator" xml:space="preserve">
+    <value>이 작가의 다른 컬렉션</value>
+  </data>
+  <data name="Collections_ViewThisCollection" xml:space="preserve">
+    <value>이 컬렉션 보기</value>
+  </data>
+  <data name="Collections_Featured" xml:space="preserve">
+    <value>추천</value>
+  </data>
+  <data name="Common_Open" xml:space="preserve">
+    <value>열기</value>
+  </data>
+  <data name="Collections_LoadIntoSidePanel" xml:space="preserve">
+    <value>사이드 패널에 로드</value>
+  </data>
+  <data name="Collections_Select" xml:space="preserve">
+    <value>선택</value>
+  </data>
+  <data name="Collections_Deselect" xml:space="preserve">
+    <value>선택 해제</value>
+  </data>
+  <data name="Collections_DeselectAll_2" xml:space="preserve">
+    <value>모두 해제</value>
+  </data>
+  <data name="Collections_RemoveBookmark" xml:space="preserve">
+    <value>북마크 제거</value>
+  </data>
+  <data name="Collections_CopyCollectionID" xml:space="preserve">
+    <value>컬렉션 ID 복사</value>
+  </data>
+  <data name="Collections_CopyCollectionLink" xml:space="preserve">
+    <value>컬렉션 링크 복사</value>
+  </data>
+  <data name="Collections_OpenOnPixivNet" xml:space="preserve">
+    <value>pixiv.net에서 열기</value>
+  </data>
+  <data name="Collections_AllCollections" xml:space="preserve">
+    <value>모든 컬렉션</value>
+  </data>
+  <data name="Collections_NoCollectionsCouldBeLoadedYou" xml:space="preserve">
+    <value>컬렉션을 불러올 수 없습니다 — 위에 특정 컬렉션 URL/ID를 붙여넣을 수 있습니다.</value>
+  </data>
+  <data name="Collections_ToggleNumberedPagesOffLoadMore" xml:space="preserve">
+    <value>페이지 번호 전환(끄기 = 더 불러오기)</value>
+  </data>
+  <data name="Collections_Pages" xml:space="preserve">
+    <value>페이지</value>
+  </data>
+  <data name="Collections_ItemsPerPage" xml:space="preserve">
+    <value>페이지당 항목 수</value>
+  </data>
+  <data name="Collections_LoadMore" xml:space="preserve">
+    <value>더 불러오기</value>
+  </data>
+  <data name="Collections_Prev" xml:space="preserve">
+    <value>‹ 이전</value>
+  </data>
+  <data name="Collections_TypeAPageNumberAndPress" xml:space="preserve">
+    <value>페이지 번호 입력 후 Enter</value>
+  </data>
+  <data name="Collections_Next" xml:space="preserve">
+    <value>다음 ›</value>
+  </data>
+  <data name="Collections_ThisCollectionHasNoArtworkYet" xml:space="preserve">
+    <value>이 컬렉션에는 아직 작품이 없습니다.</value>
+  </data>
+  <data name="Collections_OpenInSidePanel" xml:space="preserve">
+    <value>사이드 패널에서 열기</value>
+  </data>
+  <data name="Collections_OpenFullScreen" xml:space="preserve">
+    <value>전체 화면으로 열기</value>
+  </data>
+  <data name="Collections_OpenInNewTab" xml:space="preserve">
+    <value>새 탭에서 열기</value>
+  </data>
+  <data name="Collections_OpenInPopup" xml:space="preserve">
+    <value>팝업에서 열기</value>
+  </data>
+  <data name="Collections_DownloadAll" xml:space="preserve">
+    <value>모두 다운로드</value>
+  </data>
+  <data name="Collections_DownloadFirstPageOnly" xml:space="preserve">
+    <value>첫 페이지만 다운로드</value>
+  </data>
+  <data name="Collections_OpenArtistGallery" xml:space="preserve">
+    <value>작가 갤러리 열기</value>
+  </data>
+  <data name="Collections_FollowArtist" xml:space="preserve">
+    <value>작가 팔로우</value>
+  </data>
+  <data name="Collections_UnfollowArtist" xml:space="preserve">
+    <value>작가 언팔로우</value>
+  </data>
+  <data name="Collections_AddToLocalFavorites" xml:space="preserve">
+    <value>로컬 즐겨찾기에 추가</value>
+  </data>
+  <data name="Collections_RemoveFromFavorites" xml:space="preserve">
+    <value>즐겨찾기에서 제거</value>
+  </data>
+  <data name="Collections_CopyArtworkID" xml:space="preserve">
+    <value>작품 ID 복사</value>
+  </data>
+  <data name="Collections_CopyArtistID" xml:space="preserve">
+    <value>작가 ID 복사</value>
+  </data>
+  <data name="Collections_CopyImage" xml:space="preserve">
+    <value>이미지 복사</value>
+  </data>
+  <data name="Collections_UseAsAppBackground" xml:space="preserve">
+    <value>앱 배경으로 사용</value>
+  </data>
+  <data name="Collections_Comments" xml:space="preserve">
+    <value>댓글</value>
+  </data>
+  <data name="Collections_NoCommentsYet" xml:space="preserve">
+    <value>아직 댓글이 없습니다.</value>
+  </data>
+  <data name="Collections_SendAStickerOrInsertAn" xml:space="preserve">
+    <value>스티커를 보내거나 이모지 삽입</value>
+  </data>
+  <data name="Collections_Emoji" xml:space="preserve">
+    <value>이모지</value>
+  </data>
+  <data name="Collections_Stickers" xml:space="preserve">
+    <value>스티커</value>
+  </data>
+  <data name="Collections_LoadingStickers" xml:space="preserve">
+    <value>스티커 로드 중…</value>
+  </data>
+  <data name="Collections_LeaveAComment" xml:space="preserve">
+    <value>댓글 남기기</value>
+  </data>
+  <data name="Collections_Send" xml:space="preserve">
+    <value>보내기</value>
+  </data>
+  <data name="Dialog_SelectArtists" xml:space="preserve">
+    <value>작가 선택</value>
+  </data>
+  <data name="Dialog_SelectArtistsToDownload" xml:space="preserve">
+    <value>다운로드할 작가 선택</value>
+  </data>
+  <data name="Dialog_SearchArtists" xml:space="preserve">
+    <value>작가 검색...</value>
+  </data>
+  <data name="Dialog_Selected" xml:space="preserve">
+    <value>선택됨: </value>
+  </data>
+  <data name="Dialog_AddSelected" xml:space="preserve">
+    <value>선택 항목 추가</value>
+  </data>
+  <data name="Dialog_Previous" xml:space="preserve">
+    <value>← 이전</value>
+  </data>
+  <data name="Dialog_Page1Of1" xml:space="preserve">
+    <value>1 / 1페이지</value>
+  </data>
+  <data name="Dialog_Next" xml:space="preserve">
+    <value>다음 →</value>
+  </data>
+  <data name="Dialog_SelectAll" xml:space="preserve">
+    <value>모두 선택</value>
+  </data>
+  <data name="Dialog_EnterValue" xml:space="preserve">
+    <value>값 입력...</value>
+  </data>
+  <data name="Dialog_SelectFollowedArtists" xml:space="preserve">
+    <value>팔로우 중인 작가 선택</value>
+  </data>
+  <data name="Dialog_SearchArtistNameOrID" xml:space="preserve">
+    <value>작가 이름 또는 ID 검색...</value>
+  </data>
+  <data name="Common_Clear" xml:space="preserve">
+    <value>지우기</value>
+  </data>
+  <data name="Artist_ArtistDownloadSettings" xml:space="preserve">
+    <value>작가 다운로드 설정</value>
+  </data>
+  <data name="Artist_LeaveFieldsBlankToInheritGlobal" xml:space="preserve">
+    <value>비워 둔 필드는 전역 기본값을 따릅니다.</value>
+  </data>
+  <data name="Artist_UseGlobalDefaults" xml:space="preserve">
+    <value>전역 기본값 사용</value>
+  </data>
+  <data name="Artist_ResetToDefaults" xml:space="preserve">
+    <value>기본값으로 재설정</value>
+  </data>
+  <data name="Common_Save" xml:space="preserve">
+    <value>저장</value>
+  </data>
+  <data name="Artist_Location" xml:space="preserve">
+    <value>📁 위치</value>
+  </data>
+  <data name="Artist_DownloadFolder" xml:space="preserve">
+    <value>다운로드 폴더</value>
+  </data>
+  <data name="Artist_GlobalFolder" xml:space="preserve">
+    <value>전역 폴더</value>
+  </data>
+  <data name="Artist_Naming" xml:space="preserve">
+    <value>✏ 이름 지정</value>
+  </data>
+  <data name="Artist_IncludeTags" xml:space="preserve">
+    <value>🔍 포함 태그</value>
+  </data>
+  <data name="Artist_OnlyDownloadArtworksWithTheseTags" xml:space="preserve">
+    <value>이 태그가 있는 작품만 다운로드</value>
+  </data>
+  <data name="Artist_ExcludeTags" xml:space="preserve">
+    <value>🚫 제외 태그</value>
+  </data>
+  <data name="Artist_SkipArtworksThatHaveTheseTags" xml:space="preserve">
+    <value>이 태그가 있는 작품 건너뛰기</value>
+  </data>
+  <data name="Artist_DateRange" xml:space="preserve">
+    <value>📅 날짜 범위</value>
+  </data>
+  <data name="Artist_FromYYYYMMDD" xml:space="preserve">
+    <value>시작 (YYYY-MM-DD)</value>
+  </data>
+  <data name="Artist_ToYYYYMMDD" xml:space="preserve">
+    <value>종료 (YYYY-MM-DD)</value>
+  </data>
+  <data name="Artist_ClearDates" xml:space="preserve">
+    <value>날짜 지우기</value>
+  </data>
+  <data name="Artist_DownloadBehavior" xml:space="preserve">
+    <value>⚙ 다운로드 동작</value>
+  </data>
+  <data name="Artist_SubfolderPerSubmission" xml:space="preserve">
+    <value>게시물별 하위 폴더</value>
+  </data>
+  <data name="Artist_SeparateR18Folder" xml:space="preserve">
+    <value>R-18 별도 폴더</value>
+  </data>
+  <data name="Artist_SkipAIGeneratedArtworks" xml:space="preserve">
+    <value>AI 생성 작품 건너뛰기</value>
+  </data>
+  <data name="Artist_AllowReDownload" xml:space="preserve">
+    <value>재다운로드 허용</value>
+  </data>
+  <data name="Preview_PikuraBackgroundPreview" xml:space="preserve">
+    <value>Pikura — 배경 미리보기</value>
+  </data>
+  <data name="Preview_DragToRepositionScrollToZoom" xml:space="preserve">
+    <value>드래그로 이동 · 스크롤로 확대</value>
+  </data>
+  <data name="Preview_LoadingFullResolutionImage" xml:space="preserve">
+    <value>전체 해상도 이미지 로드 중…</value>
+  </data>
+  <data name="Preview_ResetPosition" xml:space="preserve">
+    <value>위치 재설정</value>
+  </data>
+  <data name="Common_Apply" xml:space="preserve">
+    <value>적용</value>
+  </data>
+  <data name="Changelog_WhatSNew" xml:space="preserve">
+    <value>새 기능</value>
+  </data>
+  <data name="Changelog_PikuraHasBeenUpdatedHereS" xml:space="preserve">
+    <value>Pikura가 업데이트되었습니다. 변경 사항:</value>
+  </data>
+  <data name="Changelog_FullReleaseNotes" xml:space="preserve">
+    <value>전체 릴리스 노트 ↗</value>
+  </data>
+  <data name="Changelog_GotIt" xml:space="preserve">
+    <value>확인</value>
+  </data>
+  <data name="Crash_PikuraCrashDetected" xml:space="preserve">
+    <value>Pikura - 크래시 감지됨</value>
+  </data>
+  <data name="Crash_PikuraCrashed" xml:space="preserve">
+    <value>Pikura 크래시</value>
+  </data>
+  <data name="Crash_WeDetectedACrashFromYour" xml:space="preserve">
+    <value>이전 세션에서 크래시를 감지했습니다.</value>
+  </data>
+  <data name="Crash_Time" xml:space="preserve">
+    <value>시간:</value>
+  </data>
+  <data name="Crash_Unknown" xml:space="preserve">
+    <value>알 수 없음</value>
+  </data>
+  <data name="Crash_Error" xml:space="preserve">
+    <value>오류:</value>
+  </data>
+  <data name="Crash_Message" xml:space="preserve">
+    <value>메시지:</value>
+  </data>
+  <data name="Crash_CrashLogLocation" xml:space="preserve">
+    <value>크래시 로그 위치:</value>
+  </data>
+  <data name="Crash_ADetailedCrashReportHasBeen" xml:space="preserve">
+    <value>자세한 크래시 보고서가 저장되었습니다. 문제 보고나 해결에 사용할 수 있습니다.</value>
+  </data>
+  <data name="Crash_ViewLogFile" xml:space="preserve">
+    <value>로그 파일 보기</value>
+  </data>
+  <data name="Crash_OpenLogFolder" xml:space="preserve">
+    <value>로그 폴더 열기</value>
+  </data>
+  <data name="Crash_CopyPath" xml:space="preserve">
+    <value>경로 복사</value>
+  </data>
+  <data name="Crash_CopyContents" xml:space="preserve">
+    <value>내용 복사</value>
+  </data>
+  <data name="DateRange_CustomDateRange" xml:space="preserve">
+    <value>사용자 지정 기간</value>
+  </data>
+  <data name="DateRange_FromMMDDYYYY" xml:space="preserve">
+    <value>시작 (MM-DD-YYYY)</value>
+  </data>
+  <data name="DateRange_ToMMDDYYYY" xml:space="preserve">
+    <value>종료 (MM-DD-YYYY)</value>
+  </data>
+  <data name="DateRange_ApplyRange" xml:space="preserve">
+    <value>범위 적용</value>
+  </data>
+  <data name="DateRange_PickRange" xml:space="preserve">
+    <value>범위 선택</value>
+  </data>
+  <data name="Preset_PikuraDownloadWithPreset" xml:space="preserve">
+    <value>Pikura — 프리셋으로 다운로드</value>
+  </data>
+  <data name="Preset_Presets" xml:space="preserve">
+    <value>프리셋</value>
+  </data>
+  <data name="Preset_SearchPresets" xml:space="preserve">
+    <value>프리셋 검색...</value>
+  </data>
+  <data name="Preset_Orientation" xml:space="preserve">
+    <value>방향:</value>
+  </data>
+  <data name="Preset_Portrait" xml:space="preserve">
+    <value>세로</value>
+  </data>
+  <data name="Preset_Landscape" xml:space="preserve">
+    <value>가로</value>
+  </data>
+  <data name="Preset_CustomEdit" xml:space="preserve">
+    <value>✏️ 사용자 지정 편집...</value>
+  </data>
+  <data name="Preset_1ImageSelected" xml:space="preserve">
+    <value>이미지 1개 선택됨</value>
+  </data>
+  <data name="Preset_Submission1Of1" xml:space="preserve">
+    <value>게시물 1 / 1</value>
+  </data>
+  <data name="Preset_5TotalPagesAcross2Submissions" xml:space="preserve">
+    <value>2개 게시물 총 5페이지</value>
+  </data>
+  <data name="Preset_Pg13" xml:space="preserve">
+    <value>1/3페이지</value>
+  </data>
+  <data name="Preset_Play" xml:space="preserve">
+    <value>재생</value>
+  </data>
+  <data name="Preset_SelectAnImageToPreview" xml:space="preserve">
+    <value>미리 볼 이미지 선택</value>
+  </data>
+  <data name="Preset_PreviewQuality" xml:space="preserve">
+    <value>미리보기 품질:</value>
+  </data>
+  <data name="Preset_800px" xml:space="preserve">
+    <value>800px</value>
+  </data>
+  <data name="Preset_ShowCrop" xml:space="preserve">
+    <value>자르기 표시</value>
+  </data>
+  <data name="Preset_Reset" xml:space="preserve">
+    <value>🔄 재설정</value>
+  </data>
+  <data name="Preset_OutputOptions" xml:space="preserve">
+    <value>출력 옵션</value>
+  </data>
+  <data name="Preset_SaveMode" xml:space="preserve">
+    <value>저장 모드</value>
+  </data>
+  <data name="Preset_SaveAsNewFileProcessed" xml:space="preserve">
+    <value>새 파일로 저장 (_processed)</value>
+  </data>
+  <data name="Preset_OverwriteOriginal" xml:space="preserve">
+    <value>원본 덮어쓰기</value>
+  </data>
+  <data name="Preset_AlsoDownloadUnprocessedCopy" xml:space="preserve">
+    <value>처리되지 않은 복사본도 다운로드</value>
+  </data>
+  <data name="Preset_DownloadsTheOriginalUnprocessedImageAlon" xml:space="preserve">
+    <value>처리된 버전과 함께 원본 미처리 이미지도 다운로드합니다. 원본이 이미 있어도 경고하지 않습니다.</value>
+  </data>
+  <data name="Preset_KeepOriginal" xml:space="preserve">
+    <value>원본 유지</value>
+  </data>
+  <data name="Preset_AnimationOutputFormats" xml:space="preserve">
+    <value>애니메이션 출력 형식</value>
+  </data>
+  <data name="Preset_SelectWhichFormatsToCreateFor" xml:space="preserve">
+    <value>우고이라용으로 생성할 형식 선택:</value>
+  </data>
+  <data name="Preset_MP4Recommended" xml:space="preserve">
+    <value>MP4(권장)</value>
+  </data>
+  <data name="Preset_SaveProcessedFramesToSubfolder" xml:space="preserve">
+    <value>처리된 프레임을 하위 폴더에 저장</value>
+  </data>
+  <data name="Preset_CreatesASubfolderWithEachProcessed" xml:space="preserve">
+    <value>처리된 각 프레임을 개별 PNG 파일로 하위 폴더에 생성</value>
+  </data>
+  <data name="Preset_FramesOnlySkipAnimation" xml:space="preserve">
+    <value>프레임만(애니메이션 생성 건너뛰기)</value>
+  </data>
+  <data name="Preset_DownloadOnlyTheIndividualFramesWithout" xml:space="preserve">
+    <value>MP4/GIF 애니메이션을 만들지 않고 개별 프레임만 다운로드</value>
+  </data>
+  <data name="Preset_ConfigureEachSubmission" xml:space="preserve">
+    <value>⚡ 게시물별 구성</value>
+  </data>
+  <data name="Preset_EnableToSetDifferentPageSelections" xml:space="preserve">
+    <value>사용하면 각 게시물마다 다른 페이지 선택을 설정할 수 있습니다</value>
+  </data>
+  <data name="Preset_OutputFolder" xml:space="preserve">
+    <value>출력 폴더</value>
+  </data>
+  <data name="Preset_SaveToCustomFolder" xml:space="preserve">
+    <value>사용자 지정 폴더에 저장</value>
+  </data>
+  <data name="Preset_SelectFolder" xml:space="preserve">
+    <value>폴더 선택...</value>
+  </data>
+  <data name="Preset_PresetActions" xml:space="preserve">
+    <value>프리셋 작업</value>
+  </data>
+  <data name="Preset_SaveCurrentAsPreset" xml:space="preserve">
+    <value>💾 현재 설정을 프리셋으로 저장</value>
+  </data>
+  <data name="Preset_DeleteCustomPreset" xml:space="preserve">
+    <value>🗑 사용자 지정 프리셋 삭제</value>
+  </data>
+  <data name="Preset_OriginalNoProcessing" xml:space="preserve">
+    <value>원본(처리 없음)</value>
+  </data>
+  <data name="Preset_NoResizeOrAdjustments" xml:space="preserve">
+    <value>크기 조정 또는 보정 없음</value>
+  </data>
+  <data name="Preset_Page" xml:space="preserve">
+    <value>페이지</value>
+  </data>
+  <data name="Preset_SelectedPages" xml:space="preserve">
+    <value>선택한 페이지</value>
+  </data>
+  <data name="Preset_SelectPagesToApplyPreset" xml:space="preserve">
+    <value>프리셋을 적용할 페이지 선택</value>
+  </data>
+  <data name="Preset_All" xml:space="preserve">
+    <value>전체</value>
+  </data>
+  <data name="Preset_None" xml:space="preserve">
+    <value>없음</value>
+  </data>
+  <data name="Preset_Invert" xml:space="preserve">
+    <value>반전</value>
+  </data>
+  <data name="Preset_ApplyPreset" xml:space="preserve">
+    <value>프리셋 적용</value>
+  </data>
+  <data name="Preset_Artwork" xml:space="preserve">
+    <value>작품</value>
+  </data>
+  <data name="Preset_ApplyToSelectedArtworks" xml:space="preserve">
+    <value>선택한 작품에 적용</value>
+  </data>
+  <data name="Preset_DownloadArtworks" xml:space="preserve">
+    <value>작품 다운로드</value>
+  </data>
+  <data name="Preset_CurrentArtworkOnly" xml:space="preserve">
+    <value>현재 작품만</value>
+  </data>
+  <data name="Preset_DownloadScope" xml:space="preserve">
+    <value>다운로드 범위</value>
+  </data>
+  <data name="Preset_AllPages" xml:space="preserve">
+    <value>모든 페이지</value>
+  </data>
+  <data name="Preset_PagesWithPresetsOnly" xml:space="preserve">
+    <value>프리셋이 있는 페이지만</value>
+  </data>
+  <data name="Preset_CurrentPageOnly" xml:space="preserve">
+    <value>현재 페이지만</value>
+  </data>
+  <data name="Preset_SelectedPages_2" xml:space="preserve">
+    <value>선택한 페이지</value>
+  </data>
+  <data name="Preset_Download" xml:space="preserve">
+    <value>⬇ 다운로드</value>
+  </data>
+  <data name="Preset_LoadPreset" xml:space="preserve">
+    <value>프리셋 불러오기</value>
+  </data>
+  <data name="Preset_LoadDownloadPreset" xml:space="preserve">
+    <value>다운로드 프리셋 불러오기</value>
+  </data>
+  <data name="Preset_Load" xml:space="preserve">
+    <value>불러오기</value>
+  </data>
+  <data name="Preset_SavePreset" xml:space="preserve">
+    <value>프리셋 저장</value>
+  </data>
+  <data name="Preset_SaveDownloadPreset" xml:space="preserve">
+    <value>다운로드 프리셋 저장</value>
+  </data>
+  <data name="Preset_PresetName" xml:space="preserve">
+    <value>프리셋 이름</value>
+  </data>
+  <data name="Preset_DescriptionOptional" xml:space="preserve">
+    <value>설명(선택 사항)</value>
+  </data>
+  <data name="Preset_BriefDescriptionOfThisPreset" xml:space="preserve">
+    <value>이 프리셋에 대한 간단한 설명...</value>
+  </data>
+  <data name="Editor_PikuraImageEditor" xml:space="preserve">
+    <value>Pikura — 이미지 편집기</value>
+  </data>
+  <data name="Editor_CropRatio" xml:space="preserve">
+    <value>자르기 비율:</value>
+  </data>
+  <data name="Editor_Free" xml:space="preserve">
+    <value>자유</value>
+  </data>
+  <data name="Editor_Original" xml:space="preserve">
+    <value>원본</value>
+  </data>
+  <data name="Editor_11Square" xml:space="preserve">
+    <value>1:1 정사각형</value>
+  </data>
+  <data name="Editor_169Widescreen" xml:space="preserve">
+    <value>16:9 와이드</value>
+  </data>
+  <data name="Editor_916Portrait" xml:space="preserve">
+    <value>9:16 세로</value>
+  </data>
+  <data name="Editor_43Standard" xml:space="preserve">
+    <value>4:3 표준</value>
+  </data>
+  <data name="Editor_34Portrait" xml:space="preserve">
+    <value>3:4 세로</value>
+  </data>
+  <data name="Editor_219UltraWide" xml:space="preserve">
+    <value>21:9 울트라와이드</value>
+  </data>
+  <data name="Editor_Lock" xml:space="preserve">
+    <value>잠금</value>
+  </data>
+  <data name="Editor_Zoom" xml:space="preserve">
+    <value>확대:</value>
+  </data>
+  <data name="Editor_ResetPos" xml:space="preserve">
+    <value>위치 재설정</value>
+  </data>
+  <data name="Editor_ResetCrop" xml:space="preserve">
+    <value>자르기 재설정</value>
+  </data>
+  <data name="Editor_ResetAll" xml:space="preserve">
+    <value>모두 재설정</value>
+  </data>
+  <data name="Editor_UgoiraMode" xml:space="preserve">
+    <value>🎬 우고이라 모드</value>
+  </data>
+  <data name="Editor_800X60012MB" xml:space="preserve">
+    <value>800 x 600 • 1.2 MB</value>
+  </data>
+  <data name="Editor_Preview600pxWideLive60Fps" xml:space="preserve">
+    <value>미리보기: 너비 600px(실시간 약 60fps)</value>
+  </data>
+  <data name="Editor_Adjustments" xml:space="preserve">
+    <value>조정</value>
+  </data>
+  <data name="Editor_Resize" xml:space="preserve">
+    <value>크기 조정</value>
+  </data>
+  <data name="Editor_W" xml:space="preserve">
+    <value>W:</value>
+  </data>
+  <data name="Editor_H" xml:space="preserve">
+    <value>H:</value>
+  </data>
+  <data name="Editor_BasicAdjustments" xml:space="preserve">
+    <value>기본 조정</value>
+  </data>
+  <data name="Editor_Brightness" xml:space="preserve">
+    <value>밝기</value>
+  </data>
+  <data name="Editor_Contrast" xml:space="preserve">
+    <value>대비</value>
+  </data>
+  <data name="Editor_Saturation" xml:space="preserve">
+    <value>채도</value>
+  </data>
+  <data name="Editor_HueRotation" xml:space="preserve">
+    <value>색상 회전</value>
+  </data>
+  <data name="Editor_ColorAdjustments" xml:space="preserve">
+    <value>색상 조정</value>
+  </data>
+  <data name="Editor_Cool" xml:space="preserve">
+    <value>차가움</value>
+  </data>
+  <data name="Editor_Temperature" xml:space="preserve">
+    <value>색온도</value>
+  </data>
+  <data name="Editor_Warm" xml:space="preserve">
+    <value>따뜻함</value>
+  </data>
+  <data name="Editor_Green" xml:space="preserve">
+    <value>초록</value>
+  </data>
+  <data name="Editor_Tint" xml:space="preserve">
+    <value>틴트</value>
+  </data>
+  <data name="Editor_Magenta" xml:space="preserve">
+    <value>자홍</value>
+  </data>
+  <data name="Editor_Highlights" xml:space="preserve">
+    <value>하이라이트</value>
+  </data>
+  <data name="Editor_Shadows" xml:space="preserve">
+    <value>섀도</value>
+  </data>
+  <data name="Editor_Effects" xml:space="preserve">
+    <value>효과</value>
+  </data>
+  <data name="Editor_Sharpness" xml:space="preserve">
+    <value>선명도</value>
+  </data>
+  <data name="Editor_GaussianBlur" xml:space="preserve">
+    <value>가우시안 흐림</value>
+  </data>
+  <data name="Editor_VignetteIntensity" xml:space="preserve">
+    <value>비네트 강도</value>
+  </data>
+  <data name="Editor_VignetteRadius" xml:space="preserve">
+    <value>비네트 반경</value>
+  </data>
+  <data name="Editor_ColorOverlay" xml:space="preserve">
+    <value>색상 오버레이</value>
+  </data>
+  <data name="Editor_ClickToChooseOverlayColor" xml:space="preserve">
+    <value>클릭하여 오버레이 색상 선택</value>
+  </data>
+  <data name="Editor_SaveAsPreset" xml:space="preserve">
+    <value>프리셋으로 저장</value>
+  </data>
+  <data name="Editor_EnterPresetName" xml:space="preserve">
+    <value>프리셋 이름 입력...</value>
+  </data>
+  <data name="Editor_SavePreset" xml:space="preserve">
+    <value>💾 프리셋 저장</value>
+  </data>
+  <data name="Editor_Ready" xml:space="preserve">
+    <value>준비됨</value>
+  </data>
+  <data name="Editor_ApplyClose" xml:space="preserve">
+    <value>✓ 적용 후 닫기</value>
+  </data>
+  <data name="Discover_OpenInSidePanel" xml:space="preserve">
+    <value>사이드 패널에서 열기</value>
+  </data>
+  <data name="Discover_OpenFullScreen" xml:space="preserve">
+    <value>전체 화면으로 열기</value>
+  </data>
+  <data name="Discover_OpenInNewTab" xml:space="preserve">
+    <value>새 탭에서 열기</value>
+  </data>
+  <data name="Discover_OpenInPopupWindow" xml:space="preserve">
+    <value>팝업 창에서 열기</value>
+  </data>
+  <data name="Discover_OpenArtistGallery" xml:space="preserve">
+    <value>작가 갤러리 열기</value>
+  </data>
+  <data name="Discover_OpenOnPixivNet" xml:space="preserve">
+    <value>pixiv.net에서 열기</value>
+  </data>
+  <data name="Discover_OpenArtistOnPixiv" xml:space="preserve">
+    <value>pixiv에서 작가 열기</value>
+  </data>
+  <data name="Discover_AddToFavorites" xml:space="preserve">
+    <value>즐겨찾기에 추가</value>
+  </data>
+  <data name="Discover_RemoveFromFavorites" xml:space="preserve">
+    <value>즐겨찾기에서 제거</value>
+  </data>
+  <data name="Discover_CopyArtworkID" xml:space="preserve">
+    <value>작품 ID 복사</value>
+  </data>
+  <data name="Discover_CopyArtworkURL" xml:space="preserve">
+    <value>작품 URL 복사</value>
+  </data>
+  <data name="Discover_CopyImage" xml:space="preserve">
+    <value>이미지 복사</value>
+  </data>
+  <data name="Discover_UseAsAppBackground" xml:space="preserve">
+    <value>앱 배경으로 사용</value>
+  </data>
+  <data name="Discover_CopyArtistID" xml:space="preserve">
+    <value>작가 ID 복사</value>
+  </data>
+  <data name="Discover_ClickIndividualArtistIDsToQueue" xml:space="preserve">
+    <value>개별 작가 ID를 클릭해 큐에 넣고, 이 버튼으로 큐의 모든 ID를 한 번에 복사</value>
+  </data>
+  <data name="Discover_CopyAll" xml:space="preserve">
+    <value>모두 복사</value>
+  </data>
+  <data name="Discover_FixedCardHeight" xml:space="preserve">
+    <value>고정 카드 높이</value>
+  </data>
+  <data name="Discover_NaturalHeightPreservesAspectRatio" xml:space="preserve">
+    <value>자연 높이(종횡비 유지)</value>
+  </data>
+  <data name="Discover_ShowHideTagChips" xml:space="preserve">
+    <value>태그 칩 표시 / 숨기기</value>
+  </data>
+  <data name="Discover_Tags" xml:space="preserve">
+    <value>태그</value>
+  </data>
+  <data name="Discover_ShowHideTitleArtist" xml:space="preserve">
+    <value>제목+작가 표시 / 숨기기</value>
+  </data>
+  <data name="Discover_Info" xml:space="preserve">
+    <value>정보</value>
+  </data>
+  <data name="Discover_ShowHideLikedBookmarkedFavoriteBadges" xml:space="preserve">
+    <value>카드의 좋아요/북마크/즐겨찾기 배지 표시 / 숨기기</value>
+  </data>
+  <data name="Discover_Badges" xml:space="preserve">
+    <value>배지</value>
+  </data>
+  <data name="Discover_ToggleTheSidePanel" xml:space="preserve">
+    <value>사이드 패널 전환</value>
+  </data>
+  <data name="Discover_ShowPanel" xml:space="preserve">
+    <value>패널 표시</value>
+  </data>
+  <data name="Discover_HidePanel" xml:space="preserve">
+    <value>패널 숨기기</value>
+  </data>
+  <data name="Discover_ShowHideR18Content" xml:space="preserve">
+    <value>R-18 콘텐츠 표시 / 숨기기</value>
+  </data>
+  <data name="Discover_Size" xml:space="preserve">
+    <value>크기</value>
+  </data>
+  <data name="Discover_GridView" xml:space="preserve">
+    <value>그리드 보기</value>
+  </data>
+  <data name="Discover_Grid" xml:space="preserve">
+    <value>그리드</value>
+  </data>
+  <data name="Discover_ListView" xml:space="preserve">
+    <value>목록 보기</value>
+  </data>
+  <data name="Discover_List" xml:space="preserve">
+    <value>목록</value>
+  </data>
+  <data name="Discover_SelectAllVisibleArtworks" xml:space="preserve">
+    <value>표시된 모든 작품 선택</value>
+  </data>
+  <data name="Discover_SelectAll" xml:space="preserve">
+    <value>모두 선택</value>
+  </data>
+  <data name="Discover_ClearSelection" xml:space="preserve">
+    <value>선택 해제</value>
+  </data>
+  <data name="Discover_DeselectAll" xml:space="preserve">
+    <value>모두 해제</value>
+  </data>
+  <data name="Discover_DownloadSelectedArtworks" xml:space="preserve">
+    <value>선택한 작품 다운로드</value>
+  </data>
+  <data name="Discover_ShowTheSelectedArtworksTiledTogether" xml:space="preserve">
+    <value>선택한 작품을 사이드 패널에 타일로 표시(최대 10개)</value>
+  </data>
+  <data name="Discover_Collage" xml:space="preserve">
+    <value>콜라주</value>
+  </data>
+  <data name="Discover_AddTheSelectedArtworksToThe" xml:space="preserve">
+    <value>선택한 작품을 활성 콜라주에 추가. 화살표로 콜라주 선택</value>
+  </data>
+  <data name="Discover_OpenEachSelectedArtworkInIts" xml:space="preserve">
+    <value>선택한 각 작품을 개별 탭에서 열기</value>
+  </data>
+  <data name="Discover_ViewInNewTabs" xml:space="preserve">
+    <value>새 탭에서 보기</value>
+  </data>
+  <data name="Discover_DownloadAllVisibleArtworks" xml:space="preserve">
+    <value>표시된 모든 작품 다운로드</value>
+  </data>
+  <data name="Discover_DownloadVisible" xml:space="preserve">
+    <value>표시 항목 다운로드</value>
+  </data>
+  <data name="Discover_DownloadWithImageProcessingPreset" xml:space="preserve">
+    <value>이미지 처리 프리셋으로 다운로드</value>
+  </data>
+  <data name="Discover_DownloadPreset" xml:space="preserve">
+    <value>다운로드 프리셋</value>
+  </data>
+  <data name="Discover_NoRecommendedWorks" xml:space="preserve">
+    <value>추천 작품 없음</value>
+  </data>
+  <data name="Common_Retry" xml:space="preserve">
+    <value>다시 시도</value>
+  </data>
+  <data name="Discover_LoadMore" xml:space="preserve">
+    <value>더 불러오기</value>
+  </data>
+  <data name="Discover_NoRecommendedUsers" xml:space="preserve">
+    <value>추천 사용자 없음</value>
+  </data>
+  <data name="Discover_ClickToCopyID" xml:space="preserve">
+    <value>클릭하여 ID 복사</value>
+  </data>
+  <data name="Discover_OpenInGallery" xml:space="preserve">
+    <value>갤러리에서 열기</value>
+  </data>
+  <data name="Discover_DownloadEveryArtworkFromThisArtist" xml:space="preserve">
+    <value>이 작가의 모든 작품 다운로드</value>
+  </data>
+  <data name="Discover_DownloadAll" xml:space="preserve">
+    <value>모두 다운로드</value>
+  </data>
+  <data name="Discover_DownloadOnlyTheArtworksCurrentlyShown" xml:space="preserve">
+    <value>현재 표시된 작품만 다운로드</value>
+  </data>
+  <data name="Discover_DownloadLoaded" xml:space="preserve">
+    <value>로드된 항목 다운로드</value>
+  </data>
+  <data name="Discover_DownloadOnlyTheCheckedArtworks" xml:space="preserve">
+    <value>선택한 작품만 다운로드</value>
+  </data>
+  <data name="Discover_OpenArtistSFullGallery" xml:space="preserve">
+    <value>작가 전체 갤러리 열기</value>
+  </data>
+  <data name="Discover_OpenGallery" xml:space="preserve">
+    <value>갤러리 열기</value>
+  </data>
+  <data name="Discover_LoadingWorks" xml:space="preserve">
+    <value>작품 로드 중…</value>
+  </data>
+  <data name="Discover_SelectAnArtistToViewTheir" xml:space="preserve">
+    <value>작품을 볼 작가를 선택하세요</value>
+  </data>
+  <data name="Discover_NoWorksToShowCheckR" xml:space="preserve">
+    <value>표시할 작품 없음(R-18 필터 확인)</value>
+  </data>
+  <data name="Batch_DownloadQueue" xml:space="preserve">
+    <value>다운로드 큐</value>
+  </data>
+  <data name="Batch_Queue" xml:space="preserve">
+    <value>큐</value>
+  </data>
+  <data name="Batch_ByArtist" xml:space="preserve">
+    <value>👤 작가별</value>
+  </data>
+  <data name="Batch_SelectedArtists" xml:space="preserve">
+    <value>선택한 작가</value>
+  </data>
+  <data name="Batch_ClearAll" xml:space="preserve">
+    <value>🗑 모두 지우기</value>
+  </data>
+  <data name="Batch_RemoveAllSelectedArtists" xml:space="preserve">
+    <value>선택한 모든 작가 제거</value>
+  </data>
+  <data name="Batch_RemoveArtist" xml:space="preserve">
+    <value>작가 제거</value>
+  </data>
+  <data name="Batch_ConfigureCustomDownloadSettingsForThis" xml:space="preserve">
+    <value>이 작가의 사용자 지정 다운로드 설정 구성</value>
+  </data>
+  <data name="Batch_HasCustomDownloadSettings" xml:space="preserve">
+    <value>사용자 지정 다운로드 설정 있음</value>
+  </data>
+  <data name="Batch_AddFollowedArtists" xml:space="preserve">
+    <value>+ 팔로우 중인 작가 추가</value>
+  </data>
+  <data name="Batch_AddAllArtistsYouFollowOn" xml:space="preserve">
+    <value>Pixiv에서 팔로우 중인 모든 작가를 다운로드 목록에 추가</value>
+  </data>
+  <data name="Batch_ImportFromFile" xml:space="preserve">
+    <value>📁 파일에서 가져오기</value>
+  </data>
+  <data name="Batch_ImportAListOfArtistIDs" xml:space="preserve">
+    <value>텍스트 파일에서 작가 ID 목록 가져오기(한 줄에 하나)</value>
+  </data>
+  <data name="Batch_ArtistIDsOrURLs" xml:space="preserve">
+    <value>작가 ID 또는 URL</value>
+  </data>
+  <data name="Batch_EnterArtistIDsOrURLs" xml:space="preserve">
+    <value>작가 ID 또는 URL 입력...</value>
+  </data>
+  <data name="Batch_Paste" xml:space="preserve">
+    <value>📋 붙여넣기</value>
+  </data>
+  <data name="Batch_PasteLastCopiedID" xml:space="preserve">
+    <value>마지막으로 복사한 ID 붙여넣기</value>
+  </data>
+  <data name="Batch_Clear" xml:space="preserve">
+    <value>✕ 지우기</value>
+  </data>
+  <data name="Batch_ClearTheInputBox" xml:space="preserve">
+    <value>입력 상자 지우기</value>
+  </data>
+  <data name="Batch_AddArtists" xml:space="preserve">
+    <value>+ 작가 추가</value>
+  </data>
+  <data name="Batch_AddArtistsByIDOrPixiv" xml:space="preserve">
+    <value>ID 또는 Pixiv 프로필 URL로 작가 추가</value>
+  </data>
+  <data name="Batch_Add" xml:space="preserve">
+    <value>+ 추가</value>
+  </data>
+  <data name="Batch_DefaultPageRangeAllArtists" xml:space="preserve">
+    <value>기본 페이지 범위(모든 작가)</value>
+  </data>
+  <data name="Batch_SpecifyWhichPagesToDownload0" xml:space="preserve">
+    <value>다운로드할 페이지 지정: 0 = 전체, 1-5 = 범위, 2,4,6 = 특정 페이지</value>
+  </data>
+  <data name="Batch_EnterPageNumbers0OrAll" xml:space="preserve">
+    <value>페이지 번호 입력: 전체는 0 또는 'all', 범위는 '1-5', 특정 페이지는 '2,4,6'</value>
+  </data>
+  <data name="Batch_Format0OrAllAllPages" xml:space="preserve">
+    <value>형식: 0 또는 'all' = 전체, '2' = 2페이지, '1-5' = 1-5페이지, '2,4,6-10' = 특정 페이지</value>
+  </data>
+  <data name="Batch_InvalidFormatUse021" xml:space="preserve">
+    <value>⚠ 잘못된 형식입니다. 사용 가능: 0, 2, 1-5, 또는 2,4,6-10</value>
+  </data>
+  <data name="Batch_SetCustomPageRangesAndSettings" xml:space="preserve">
+    <value>작가별 사용자 지정 페이지 범위 및 설정 지정</value>
+  </data>
+  <data name="Batch_EnableToSetDifferentPageRanges" xml:space="preserve">
+    <value>사용하면 각 작가마다 다른 페이지 범위와 다운로드 설정을 지정할 수 있습니다</value>
+  </data>
+  <data name="Batch_Artist" xml:space="preserve">
+    <value>작가</value>
+  </data>
+  <data name="Batch_PageRange" xml:space="preserve">
+    <value>페이지 범위</value>
+  </data>
+  <data name="Batch_CustomSettings" xml:space="preserve">
+    <value>사용자 지정 설정</value>
+  </data>
+  <data name="Batch_Custom" xml:space="preserve">
+    <value>사용자 지정</value>
+  </data>
+  <data name="Batch_Default" xml:space="preserve">
+    <value>기본값</value>
+  </data>
+  <data name="Batch_Settings" xml:space="preserve">
+    <value>⚙ 설정</value>
+  </data>
+  <data name="Batch_DownloadSettings" xml:space="preserve">
+    <value>다운로드 설정</value>
+  </data>
+  <data name="Batch_UseGlobalSettings" xml:space="preserve">
+    <value>전역 설정 사용</value>
+  </data>
+  <data name="Batch_UseCustomSettingsForThisDownload" xml:space="preserve">
+    <value>이 다운로드에 사용자 지정 설정 사용</value>
+  </data>
+  <data name="Batch_CreateSubfolderPerSubmission" xml:space="preserve">
+    <value>게시물별 하위 폴더 생성</value>
+  </data>
+  <data name="Batch_CreateASeparateFolderForEach" xml:space="preserve">
+    <value>각 작품/다운로드별 별도 폴더 생성</value>
+  </data>
+  <data name="Batch_SeparateR18Folder" xml:space="preserve">
+    <value>R-18 별도 폴더</value>
+  </data>
+  <data name="Batch_SaveR18MatureContentTo" xml:space="preserve">
+    <value>R-18(성인) 콘텐츠를 별도 폴더에 저장</value>
+  </data>
+  <data name="Batch_SkipContentTypes" xml:space="preserve">
+    <value>건너뛸 콘텐츠 유형:</value>
+  </data>
+  <data name="Batch_AIGenerated" xml:space="preserve">
+    <value>AI 생성</value>
+  </data>
+  <data name="Batch_Manga" xml:space="preserve">
+    <value>만화</value>
+  </data>
+  <data name="Batch_Ugoira" xml:space="preserve">
+    <value>우고이라</value>
+  </data>
+  <data name="Batch_R18GOnly" xml:space="preserve">
+    <value>R-18G만</value>
+  </data>
+  <data name="Batch_SkipGrotesqueViolentR18GBut" xml:space="preserve">
+    <value>잔혹/폭력적 R-18G는 건너뛰고 일반 R-18은 다운로드</value>
+  </data>
+  <data name="Batch_MustIncludeTagS" xml:space="preserve">
+    <value>필수 포함 태그</value>
+  </data>
+  <data name="Batch_CommaSeparatedArtworkMustMatchAt" xml:space="preserve">
+    <value>쉼표로 구분. 작품이 하나 이상 일치해야 합니다.</value>
+  </data>
+  <data name="Batch_ExcludeTagS" xml:space="preserve">
+    <value>제외 태그</value>
+  </data>
+  <data name="Batch_CommaSeparatedArtworkIsSkippedIf" xml:space="preserve">
+    <value>쉼표로 구분. 이 태그가 하나라도 있으면 작품을 건너뜁니다.</value>
+  </data>
+  <data name="Batch_AutoRetryFailedDownloads" xml:space="preserve">
+    <value>실패한 다운로드 자동 재시도</value>
+  </data>
+  <data name="Batch_AutomaticallyRetryFailedDownloadsWithThe" xml:space="preserve">
+    <value>설정된 간격으로 실패한 다운로드를 자동 재시도</value>
+  </data>
+  <data name="Batch_MaxRetries" xml:space="preserve">
+    <value>최대 재시도 횟수</value>
+  </data>
+  <data name="Batch_RetryDelaySec" xml:space="preserve">
+    <value>재시도 지연(초)</value>
+  </data>
+  <data name="Batch_Save" xml:space="preserve">
+    <value>💾 저장</value>
+  </data>
+  <data name="Batch_SaveCurrentArtistListAndSettings" xml:space="preserve">
+    <value>현재 작가 목록과 설정을 재사용 가능한 프리셋으로 저장</value>
+  </data>
+  <data name="Batch_Load" xml:space="preserve">
+    <value>📂 불러오기</value>
+  </data>
+  <data name="Batch_LoadAPreviouslySavedPresetWith" xml:space="preserve">
+    <value>이전에 저장한 작가 목록 및 설정 프리셋 불러오기</value>
+  </data>
+  <data name="Batch_AddToQueue" xml:space="preserve">
+    <value>+ 큐에 추가</value>
+  </data>
+  <data name="Batch_AddToQueueWithoutStartingImmediately" xml:space="preserve">
+    <value>즉시 시작하지 않고 큐에 추가 — 큐 창에서 시작</value>
+  </data>
+  <data name="Batch_StartDownload" xml:space="preserve">
+    <value>▶ 다운로드 시작</value>
+  </data>
+  <data name="Batch_BeginDownloadingArtworksFromAllSelected" xml:space="preserve">
+    <value>선택한 모든 작가의 작품 다운로드를 지금 시작</value>
+  </data>
+  <data name="Batch_ByImageID" xml:space="preserve">
+    <value>🖼️ 이미지 ID별</value>
+  </data>
+  <data name="Batch_ImageIDsOrURLs" xml:space="preserve">
+    <value>이미지 ID 또는 URL</value>
+  </data>
+  <data name="Batch_EnterImageIDsURLs" xml:space="preserve">
+    <value>이미지 ID, URL 입력...</value>
+  </data>
+  <data name="Batch_StartImageIDDownload" xml:space="preserve">
+    <value>▶ 이미지 ID 다운로드 시작</value>
+  </data>
+  <data name="Batch_ByCollection" xml:space="preserve">
+    <value>🗂️ 컬렉션별</value>
+  </data>
+  <data name="Batch_CollectionURLsOrIDs" xml:space="preserve">
+    <value>컬렉션 URL 또는 ID</value>
+  </data>
+  <data name="Batch_EnterCollectionIDsOrURLsOne" xml:space="preserve">
+    <value>컬렉션 ID 또는 URL을 한 줄에 하나씩 입력...</value>
+  </data>
+  <data name="Batch_KeepEachCollectionInItsOwn" xml:space="preserve">
+    <value>각 컬렉션을 개별 폴더에 유지</value>
+  </data>
+  <data name="Batch_OnEachCollectionSWorksGo" xml:space="preserve">
+    <value>켜기: 각 컬렉션의 작품을 개별 Collections\{title} 폴더에 넣습니다. 끄기: Collections\ 폴더 아래에 두되 일반 작가/작품별 구조 유지.</value>
+  </data>
+  <data name="Batch_StartCollectionDownload" xml:space="preserve">
+    <value>▶ 컬렉션 다운로드 시작</value>
+  </data>
+  <data name="Batch_Bookmarks" xml:space="preserve">
+    <value>🔖 북마크</value>
+  </data>
+  <data name="Batch_Source" xml:space="preserve">
+    <value>소스</value>
+  </data>
+  <data name="Batch_BookmarkedImagesIllustrationsManga" xml:space="preserve">
+    <value>북마크한 이미지(일러스트/만화)</value>
+  </data>
+  <data name="Batch_BookmarkedArtists" xml:space="preserve">
+    <value>북마크한 작가</value>
+  </data>
+  <data name="Batch_Visibility" xml:space="preserve">
+    <value>공개 범위</value>
+  </data>
+  <data name="Batch_PublicBookmarksOnly" xml:space="preserve">
+    <value>공개 북마크만</value>
+  </data>
+  <data name="Batch_PrivateBookmarksOnly" xml:space="preserve">
+    <value>비공개 북마크만</value>
+  </data>
+  <data name="Batch_BothPublicAndPrivate" xml:space="preserve">
+    <value>공개 및 비공개 모두</value>
+  </data>
+  <data name="Batch_FilterOptions" xml:space="preserve">
+    <value>필터 옵션</value>
+  </data>
+  <data name="Batch_IncludeR18" xml:space="preserve">
+    <value>R-18 포함</value>
+  </data>
+  <data name="Batch_IncludeAIGenerated" xml:space="preserve">
+    <value>AI 생성 포함</value>
+  </data>
+  <data name="Batch_IncludeManga" xml:space="preserve">
+    <value>만화 포함</value>
+  </data>
+  <data name="Batch_StartRemoteBookmarkDownload" xml:space="preserve">
+    <value>▶ 원격 북마크 다운로드 시작</value>
+  </data>
+  <data name="Batch_DownloadFromPixivBookmarksPublicPrivate" xml:space="preserve">
+    <value>Pixiv 북마크(공개/비공개)에서 다운로드</value>
+  </data>
+  <data name="Batch_LocalFavorites" xml:space="preserve">
+    <value>로컬 즐겨찾기</value>
+  </data>
+  <data name="Batch_DownloadAllFavorites" xml:space="preserve">
+    <value>↓ 모든 즐겨찾기 다운로드</value>
+  </data>
+  <data name="Batch_DownloadFromFolder" xml:space="preserve">
+    <value>다운로드 폴더:</value>
+  </data>
+  <data name="Batch_SelectFolder" xml:space="preserve">
+    <value>폴더 선택...</value>
+  </data>
+  <data name="Batch_UseCustomDownloadPath" xml:space="preserve">
+    <value>사용자 지정 다운로드 경로 사용</value>
+  </data>
+  <data name="Batch_CustomDownloadPath" xml:space="preserve">
+    <value>사용자 지정 다운로드 경로...</value>
+  </data>
+  <data name="Batch_FromList" xml:space="preserve">
+    <value>📋 목록에서</value>
+  </data>
+  <data name="Batch_DownloadFromList" xml:space="preserve">
+    <value>📋 목록에서 다운로드</value>
+  </data>
+  <data name="Batch_DownloadFromListTxtOrTags" xml:space="preserve">
+    <value>list.txt 또는 tags.txt 파일에서 다운로드</value>
+  </data>
+  <data name="Batch_NoFileSelected" xml:space="preserve">
+    <value>선택된 파일 없음...</value>
+  </data>
+  <data name="Batch_Browse" xml:space="preserve">
+    <value>📁 찾아보기</value>
+  </data>
+  <data name="Batch_Items" xml:space="preserve">
+    <value>항목:</value>
+  </data>
+  <data name="Batch_Search" xml:space="preserve">
+    <value>🔍 검색</value>
+  </data>
+  <data name="Batch_SearchKeyword" xml:space="preserve">
+    <value>검색 키워드</value>
+  </data>
+  <data name="Batch_EnterSearchKeyword" xml:space="preserve">
+    <value>검색 키워드 입력...</value>
+  </data>
+  <data name="Batch_Mode" xml:space="preserve">
+    <value>모드</value>
+  </data>
+  <data name="Batch_Safe" xml:space="preserve">
+    <value>세이프</value>
+  </data>
+  <data name="Batch_All" xml:space="preserve">
+    <value>전체</value>
+  </data>
+  <data name="Batch_SortOrder" xml:space="preserve">
+    <value>정렬 순서</value>
+  </data>
+  <data name="Batch_PopularitySortRequiresPixivPremium" xml:space="preserve">
+    <value>인기순 정렬에는 Pixiv 프리미엄 필요</value>
+  </data>
+  <data name="Batch_NewestFirst" xml:space="preserve">
+    <value>최신순</value>
+  </data>
+  <data name="Batch_PopularFirst" xml:space="preserve">
+    <value>인기순</value>
+  </data>
+  <data name="Batch_SortByPopularityPixivPremium" xml:space="preserve">
+    <value>인기순(Pixiv 프리미엄)</value>
+  </data>
+  <data name="Batch_MaxResults" xml:space="preserve">
+    <value>최대 결과 수</value>
+  </data>
+  <data name="Batch_Results" xml:space="preserve">
+    <value>결과</value>
+  </data>
+  <data name="Batch_AI" xml:space="preserve">
+    <value>AI</value>
+  </data>
+  <data name="Batch_ClearResults" xml:space="preserve">
+    <value>결과 지우기</value>
+  </data>
+  <data name="Batch_FANBOX" xml:space="preserve">
+    <value>📦 FANBOX</value>
+  </data>
+  <data name="Batch_SearchByPostID" xml:space="preserve">
+    <value>게시물 ID로 검색</value>
+  </data>
+  <data name="Batch_EnterFANBOXPostID" xml:space="preserve">
+    <value>FANBOX 게시물 ID 입력...</value>
+  </data>
+  <data name="Batch_SearchByCreatorID" xml:space="preserve">
+    <value>크리에이터 ID로 검색</value>
+  </data>
+  <data name="Batch_EnterCreatorID" xml:space="preserve">
+    <value>크리에이터 ID 입력...</value>
+  </data>
+  <data name="Batch_CoverFilename" xml:space="preserve">
+    <value>표지 파일명:</value>
+  </data>
+  <data name="Batch_InfoFilename" xml:space="preserve">
+    <value>정보 파일명:</value>
+  </data>
+  <data name="Batch_ImageFilenames" xml:space="preserve">
+    <value>이미지 파일명:</value>
+  </data>
+  <data name="Batch_Download" xml:space="preserve">
+    <value>▶ 다운로드</value>
+  </data>
+  <data name="Batch_Schedules" xml:space="preserve">
+    <value>⏰ 스케줄</value>
+  </data>
+  <data name="Batch_NewSchedule" xml:space="preserve">
+    <value>+ 새 스케줄</value>
+  </data>
+  <data name="Batch_BackToSchedules" xml:space="preserve">
+    <value>← 스케줄로 돌아가기</value>
+  </data>
+  <data name="Batch_Running" xml:space="preserve">
+    <value>● 실행 중</value>
+  </data>
+  <data name="Batch_Edit" xml:space="preserve">
+    <value>✏ 편집</value>
+  </data>
+  <data name="Batch_EditThisSchedule" xml:space="preserve">
+    <value>이 스케줄 편집</value>
+  </data>
+  <data name="Batch_Run" xml:space="preserve">
+    <value>▶ 실행</value>
+  </data>
+  <data name="Batch_RunThisScheduleImmediately" xml:space="preserve">
+    <value>이 스케줄 즉시 실행</value>
+  </data>
+  <data name="Batch_DeleteThisSchedule" xml:space="preserve">
+    <value>이 스케줄 삭제</value>
+  </data>
+  <data name="Batch_NoSchedulesYetClickNewSchedule" xml:space="preserve">
+    <value>아직 스케줄이 없습니다. '+ 새 스케줄'을 클릭하여 만드세요.</value>
+  </data>
+  <data name="Batch_ScheduleName" xml:space="preserve">
+    <value>스케줄 이름</value>
+  </data>
+  <data name="Batch_ClearAll_2" xml:space="preserve">
+    <value>✕ 모두 지우기</value>
+  </data>
+  <data name="Batch_ArtistIDOrPixivNetEn" xml:space="preserve">
+    <value>작가 ID 또는 pixiv.net/en/users/123…</value>
+  </data>
+  <data name="Batch_Pages" xml:space="preserve">
+    <value>페이지</value>
+  </data>
+  <data name="Batch_PageRangeForThisArtistE" xml:space="preserve">
+    <value>이 작가의 페이지 범위, 예: 0 = 전체, 1-5 = 범위</value>
+  </data>
+  <data name="Batch_ResolveArtistNameAndAddTo" xml:space="preserve">
+    <value>작가 이름을 확인해 목록에 추가</value>
+  </data>
+  <data name="Batch_WhenToRun" xml:space="preserve">
+    <value>실행 시점</value>
+  </data>
+  <data name="Batch_DailyRecurring" xml:space="preserve">
+    <value>매일 / 반복</value>
+  </data>
+  <data name="Batch_RunOnAppStartup" xml:space="preserve">
+    <value>앱 시작 시 실행</value>
+  </data>
+  <data name="Batch_RunOnceAtASpecificDate" xml:space="preserve">
+    <value>특정 날짜와 시간에 한 번 실행</value>
+  </data>
+  <data name="Batch_Time" xml:space="preserve">
+    <value>시간:</value>
+  </data>
+  <data name="Batch_Hour112" xml:space="preserve">
+    <value>시(1–12)</value>
+  </data>
+  <data name="Batch_Minute" xml:space="preserve">
+    <value>분</value>
+  </data>
+  <data name="Batch_ChecksDay" xml:space="preserve">
+    <value>하루 확인 횟수:</value>
+  </data>
+  <data name="Batch_1OnceDaily2TwiceEvery" xml:space="preserve">
+    <value>1 = 하루 1회, 2 = 2회(12시간마다), 3 = 3회(8시간마다)</value>
+  </data>
+  <data name="Batch_2Every12H3Every" xml:space="preserve">
+    <value>2회 = 12시간마다 · 3회 = 8시간마다(선택 시간부터 분산)</value>
+  </data>
+  <data name="Batch_RunOnceOn" xml:space="preserve">
+    <value>한 번만 실행할 날짜:</value>
+  </data>
+  <data name="Batch_PickTheDate" xml:space="preserve">
+    <value>날짜 선택</value>
+  </data>
+  <data name="Batch_Hour" xml:space="preserve">
+    <value>시</value>
+  </data>
+  <data name="Batch_TheScheduleWillRunExactlyOnce" xml:space="preserve">
+    <value>이 스케줄은 정확히 한 번 실행된 후 만료 표시됩니다.</value>
+  </data>
+  <data name="Batch_OnlyDownloadArtworksPosted" xml:space="preserve">
+    <value>다음 기간에 게시된 작품만 다운로드:</value>
+  </data>
+  <data name="Batch_AllTime" xml:space="preserve">
+    <value>전체 기간</value>
+  </data>
+  <data name="Batch_SinceLastRun" xml:space="preserve">
+    <value>마지막 실행 이후</value>
+  </data>
+  <data name="Batch_WithinTheLast24Hours" xml:space="preserve">
+    <value>최근 24시간 이내</value>
+  </data>
+  <data name="Batch_WithinTheLast7Days" xml:space="preserve">
+    <value>최근 7일 이내</value>
+  </data>
+  <data name="Batch_WithinTheLast30Days" xml:space="preserve">
+    <value>최근 30일 이내</value>
+  </data>
+  <data name="Batch_MaxArtworksPerArtist" xml:space="preserve">
+    <value>작가당 최대 작품 수:</value>
+  </data>
+  <data name="Batch_OnlyFetchTheNMostRecent" xml:space="preserve">
+    <value>작가당 최근 N개 작품만 가져옵니다. 비우거나 0이면 제한 없음.</value>
+  </data>
+  <data name="Batch_NamingOverridesOptional" xml:space="preserve">
+    <value>📁 이름 지정 재정의(선택)</value>
+  </data>
+  <data name="Batch_OverrideGlobalFolderFilenameTemplatesFor" xml:space="preserve">
+    <value>이 스케줄에 대해 전역 폴더/파일명 템플릿 재정의</value>
+  </data>
+  <data name="Batch_LeaveBlankForGlobal" xml:space="preserve">
+    <value>비워 두면 전역 사용</value>
+  </data>
+  <data name="Batch_SeparateR18IntoSubfolder" xml:space="preserve">
+    <value>R-18을 하위 폴더로 분리</value>
+  </data>
+  <data name="DlBookmarks_DownloadFromBookmarks" xml:space="preserve">
+    <value>북마크에서 다운로드</value>
+  </data>
+  <data name="DlBookmarks_DownloadArtworksFromYourBookmarkedArtist" xml:space="preserve">
+    <value>북마크한 작가와 이미지에서 작품 다운로드</value>
+  </data>
+  <data name="DlBookmarks_Source" xml:space="preserve">
+    <value>소스</value>
+  </data>
+  <data name="DlBookmarks_BookmarkedImagesIllustrationsManga" xml:space="preserve">
+    <value>북마크한 이미지(일러스트/만화)</value>
+  </data>
+  <data name="DlBookmarks_BookmarkedArtists" xml:space="preserve">
+    <value>북마크한 작가</value>
+  </data>
+  <data name="DlBookmarks_Visibility" xml:space="preserve">
+    <value>공개 범위</value>
+  </data>
+  <data name="DlBookmarks_PublicBookmarksOnly" xml:space="preserve">
+    <value>공개 북마크만</value>
+  </data>
+  <data name="DlBookmarks_PrivateBookmarksOnly" xml:space="preserve">
+    <value>비공개 북마크만</value>
+  </data>
+  <data name="DlBookmarks_BothPublicAndPrivate" xml:space="preserve">
+    <value>공개 및 비공개 모두</value>
+  </data>
+  <data name="DlBookmarks_FilterOptions" xml:space="preserve">
+    <value>필터 옵션</value>
+  </data>
+  <data name="DlBookmarks_IncludeR18" xml:space="preserve">
+    <value>R-18 포함</value>
+  </data>
+  <data name="DlBookmarks_IncludeAIGenerated" xml:space="preserve">
+    <value>AI 생성 포함</value>
+  </data>
+  <data name="DlBookmarks_IncludeManga" xml:space="preserve">
+    <value>만화 포함</value>
+  </data>
+  <data name="DlBookmarks_StartDownload" xml:space="preserve">
+    <value>▶ 다운로드 시작</value>
+  </data>
+  <data name="DlArtist_DownloadByArtist" xml:space="preserve">
+    <value>작가별 다운로드</value>
+  </data>
+  <data name="DlArtist_DownloadArtworksFromFollowedArtistsOr" xml:space="preserve">
+    <value>팔로우 중인 작가 또는 지정 ID의 작가에서 작품 다운로드</value>
+  </data>
+  <data name="DlArtist_Help" xml:space="preserve">
+    <value>? 도움말</value>
+  </data>
+  <data name="DlArtist_SelectedArtists" xml:space="preserve">
+    <value>선택한 작가</value>
+  </data>
+  <data name="DlArtist_HasCustomDownloadSettings" xml:space="preserve">
+    <value>사용자 지정 다운로드 설정 있음</value>
+  </data>
+  <data name="DlArtist_ConfigureCustomSettings" xml:space="preserve">
+    <value>사용자 지정 설정 구성</value>
+  </data>
+  <data name="DlArtist_NoArtistsSelectedAddArtistsUsing" xml:space="preserve">
+    <value>선택된 작가가 없습니다. 아래 버튼으로 추가하세요.</value>
+  </data>
+  <data name="DlArtist_AddFollowedArtists" xml:space="preserve">
+    <value>+ 팔로우 중인 작가 추가</value>
+  </data>
+  <data name="DlArtist_ImportFromFile" xml:space="preserve">
+    <value>📁 파일에서 가져오기</value>
+  </data>
+  <data name="DlArtist_ClearAll" xml:space="preserve">
+    <value>모두 지우기</value>
+  </data>
+  <data name="DlArtist_ArtistIDsOrURLs" xml:space="preserve">
+    <value>작가 ID 또는 URL</value>
+  </data>
+  <data name="DlArtist_EnterArtistIDsOrURLs" xml:space="preserve">
+    <value>작가 ID 또는 URL 입력...</value>
+  </data>
+  <data name="DlArtist_Paste" xml:space="preserve">
+    <value>📋 붙여넣기</value>
+  </data>
+  <data name="DlArtist_PasteLastCopiedID" xml:space="preserve">
+    <value>마지막으로 복사한 ID 붙여넣기</value>
+  </data>
+  <data name="DlArtist_AddArtists" xml:space="preserve">
+    <value>+ 작가 추가</value>
+  </data>
+  <data name="DlArtist_PageRangeConfiguration" xml:space="preserve">
+    <value>페이지 범위 구성</value>
+  </data>
+  <data name="DlArtist_DefaultPageRangeForAllArtists" xml:space="preserve">
+    <value>모든 작가의 기본 페이지 범위</value>
+  </data>
+  <data name="DlArtist_Examples0OrAllAllPages" xml:space="preserve">
+    <value>예: '0' 또는 'all' = 전체, '2' = 2페이지만, '1-5' = 1-5페이지, '2,4,6-10' = 특정 페이지</value>
+  </data>
+  <data name="DlArtist_SetCustomPageRangesAndSettings" xml:space="preserve">
+    <value>작가별 사용자 지정 페이지 범위 및 설정 지정</value>
+  </data>
+  <data name="DlArtist_Artist" xml:space="preserve">
+    <value>작가</value>
+  </data>
+  <data name="DlArtist_PageRange" xml:space="preserve">
+    <value>페이지 범위</value>
+  </data>
+  <data name="DlArtist_Custom" xml:space="preserve">
+    <value>사용자 지정</value>
+  </data>
+  <data name="DlArtist_Default" xml:space="preserve">
+    <value>기본값</value>
+  </data>
+  <data name="DlArtist_Settings" xml:space="preserve">
+    <value>⚙ 설정</value>
+  </data>
+  <data name="DlArtist_ConfigureCustomDownloadSettingsForThis" xml:space="preserve">
+    <value>이 작가의 사용자 지정 다운로드 설정 구성</value>
+  </data>
+  <data name="DlArtist_DownloadSettings" xml:space="preserve">
+    <value>다운로드 설정</value>
+  </data>
+  <data name="DlArtist_UseGlobalSettings" xml:space="preserve">
+    <value>전역 설정 사용</value>
+  </data>
+  <data name="DlArtist_UseCustomSettingsForThisDownload" xml:space="preserve">
+    <value>이 다운로드에 사용자 지정 설정 사용</value>
+  </data>
+  <data name="DlArtist_CreateSubfolderPerSubmission" xml:space="preserve">
+    <value>게시물별 하위 폴더 생성</value>
+  </data>
+  <data name="DlArtist_SeparateR18Folder" xml:space="preserve">
+    <value>R-18 별도 폴더</value>
+  </data>
+  <data name="DlArtist_FilterAIGenerated" xml:space="preserve">
+    <value>AI 생성 필터링</value>
+  </data>
+  <data name="DlArtist_SavePreset" xml:space="preserve">
+    <value>💾 프리셋 저장</value>
+  </data>
+  <data name="DlArtist_StartDownload" xml:space="preserve">
+    <value>▶ 다운로드 시작</value>
+  </data>
+  <data name="DlId_DownloadByImageID" xml:space="preserve">
+    <value>이미지 ID별 다운로드</value>
+  </data>
+  <data name="DlId_DownloadSpecificArtworksByTheirID" xml:space="preserve">
+    <value>ID 또는 URL로 특정 작품 다운로드</value>
+  </data>
+  <data name="DlId_Help" xml:space="preserve">
+    <value>? 도움말</value>
+  </data>
+  <data name="DlId_ImageIDsOrURLs" xml:space="preserve">
+    <value>이미지 ID 또는 URL</value>
+  </data>
+  <data name="DlId_EnterImageIDsURLsOrPaste" xml:space="preserve">
+    <value>이미지 ID, URL 입력 또는 클립보드에서 붙여넣기...</value>
+  </data>
+  <data name="DlId_PasteFromClipboard" xml:space="preserve">
+    <value>📋 클립보드에서 붙여넣기</value>
+  </data>
+  <data name="DlId_ImportFromFile" xml:space="preserve">
+    <value>📁 파일에서 가져오기</value>
+  </data>
+  <data name="DlId_SomeEntriesCouldNotBeParsed" xml:space="preserve">
+    <value>⚠ 일부 항목을 해석할 수 없음:</value>
+  </data>
+  <data name="DlId_DownloadOptions" xml:space="preserve">
+    <value>다운로드 옵션</value>
+  </data>
+  <data name="DlId_PageRangeForMultiPageWorks" xml:space="preserve">
+    <value>페이지 범위(여러 페이지 작품)</value>
+  </data>
+  <data name="DlId_SinglePageArtworksWillDownloadThe" xml:space="preserve">
+    <value>한 페이지 작품은 이 설정과 관계없이 전체 이미지를 다운로드합니다.</value>
+  </data>
+  <data name="DlId_SkipAlreadyDownloadedImages" xml:space="preserve">
+    <value>이미 다운로드된 이미지 건너뛰기</value>
+  </data>
+  <data name="DlId_DownloadSettings" xml:space="preserve">
+    <value>다운로드 설정</value>
+  </data>
+  <data name="DlId_UseGlobalSettings" xml:space="preserve">
+    <value>전역 설정 사용</value>
+  </data>
+  <data name="DlId_UseCustomSettingsForThisDownload" xml:space="preserve">
+    <value>이 다운로드에 사용자 지정 설정 사용</value>
+  </data>
+  <data name="DlId_SavePreset" xml:space="preserve">
+    <value>💾 프리셋 저장</value>
+  </data>
+  <data name="DlId_StartDownload" xml:space="preserve">
+    <value>▶ 다운로드 시작</value>
+  </data>
+  <data name="Queue_DownloadQueue" xml:space="preserve">
+    <value>다운로드 큐</value>
+  </data>
+  <data name="Queue_ClearCompleted" xml:space="preserve">
+    <value>완료된 항목 지우기</value>
+  </data>
+  <data name="Jobs_Downloads" xml:space="preserve">
+    <value>다운로드</value>
+  </data>
+  <data name="Jobs_ManageAndMonitorYourDownloads" xml:space="preserve">
+    <value>다운로드 관리 및 모니터링</value>
+  </data>
+  <data name="Jobs_RefreshDownloads" xml:space="preserve">
+    <value>다운로드 새로 고침</value>
+  </data>
+  <data name="WhatsNew_WhatSNewInPikura" xml:space="preserve">
+    <value>Pikura의 새 기능</value>
+  </data>
+  <data name="Common_Previous" xml:space="preserve">
+    <value>이전</value>
+  </data>
+  <data name="Common_Next" xml:space="preserve">
+    <value>다음</value>
+  </data>
+  <data name="WhatsNew_Finish" xml:space="preserve">
+    <value>완료</value>
+  </data>
+  <data name="WhatsNew_NEW" xml:space="preserve">
+    <value>NEW</value>
+  </data>
+  <data name="Gallery_FollowedArtists" xml:space="preserve">
+    <value>팔로우 중인 작가</value>
+  </data>
+  <data name="Gallery_NumberOfFollowedArtistsLoaded" xml:space="preserve">
+    <value>로드된 팔로우 작가 수</value>
+  </data>
+  <data name="Gallery_RefreshFollowedArtistsListFromPixiv" xml:space="preserve">
+    <value>Pixiv에서 팔로우 작가 목록 새로 고침(로컬 캐시 삭제)</value>
+  </data>
+  <data name="Gallery_ClickIndividualArtistIDsToQueue" xml:space="preserve">
+    <value>개별 작가 ID를 클릭해 큐에 넣고, 이 버튼으로 큐의 모든 ID를 한 번에 복사</value>
+  </data>
+  <data name="Gallery_CopyAll" xml:space="preserve">
+    <value>모두 복사</value>
+  </data>
+  <data name="Gallery_ViewRecentWorksFromAllFollowed" xml:space="preserve">
+    <value>팔로우 중인 모든 작가의 최근 작품 보기</value>
+  </data>
+  <data name="Gallery_RecentWorks" xml:space="preserve">
+    <value>최근 작품</value>
+  </data>
+  <data name="Gallery_SearchScopeCurrentArtistFiltersThe" xml:space="preserve">
+    <value>검색 범위: '현재 작가'는 로드된 갤러리를 필터링하고, '전체 팔로우'는 팔로우 중인 모든 작가의 목록을 검색</value>
+  </data>
+  <data name="Gallery_CurrentArtist" xml:space="preserve">
+    <value>현재 작가</value>
+  </data>
+  <data name="Gallery_AllFollowed" xml:space="preserve">
+    <value>전체 팔로우</value>
+  </data>
+  <data name="Gallery_SearchTagArtistOrID" xml:space="preserve">
+    <value>태그, 작가 또는 ID 검색…</value>
+  </data>
+  <data name="Gallery_PixivSearch" xml:space="preserve">
+    <value>Pixiv 검색</value>
+  </data>
+  <data name="Gallery_SearchArtworksByTag" xml:space="preserve">
+    <value> — 태그로 작품 검색</value>
+  </data>
+  <data name="Gallery_OpenArtworkByID" xml:space="preserve">
+    <value> — ID로 작품 열기</value>
+  </data>
+  <data name="Gallery_OpenArtistByUserID" xml:space="preserve">
+    <value> — 사용자 ID로 작가 열기</value>
+  </data>
+  <data name="Gallery_SearchArtistByName" xml:space="preserve">
+    <value> — 이름으로 작가 검색</value>
+  </data>
+  <data name="Gallery_PressEnterToSearchUseThe" xml:space="preserve">
+    <value>Enter로 검색. 범위 드롭다운으로 현재 작가 또는 전체 팔로우 작가만 검색할 수 있습니다.</value>
+  </data>
+  <data name="Gallery_ClearSearchAndReturnToGallery" xml:space="preserve">
+    <value>검색 지우고 갤러리로 돌아가기</value>
+  </data>
+  <data name="Gallery_DownloadEveryArtworkFromThisArtist" xml:space="preserve">
+    <value>이 작가의 모든 작품을 디스크에 다운로드</value>
+  </data>
+  <data name="Gallery_DownloadAll" xml:space="preserve">
+    <value>모두 다운로드</value>
+  </data>
+  <data name="Gallery_DownloadOnlyTheArtworksCurrentlyShown" xml:space="preserve">
+    <value>현재 그리드에 표시된 작품만 다운로드</value>
+  </data>
+  <data name="Gallery_DownloadLoaded" xml:space="preserve">
+    <value>로드된 항목 다운로드</value>
+  </data>
+  <data name="Gallery_DownloadOnlyTheCheckedArtworks" xml:space="preserve">
+    <value>선택한 작품만 다운로드</value>
+  </data>
+  <data name="Gallery_ShowTheCheckedArtworksInA" xml:space="preserve">
+    <value>선택한 작품을 새 콜라주 탭에 표시(최대 100개)</value>
+  </data>
+  <data name="Gallery_AddTheCheckedArtworksToThe" xml:space="preserve">
+    <value>선택한 작품을 활성 콜라주에 추가. 화살표로 콜라주 선택</value>
+  </data>
+  <data name="Gallery_OpenEachSelectedArtworkInIts" xml:space="preserve">
+    <value>선택한 각 작품을 개별 탭에서 열기</value>
+  </data>
+  <data name="Gallery_ViewInNewTabs" xml:space="preserve">
+    <value>새 탭에서 보기</value>
+  </data>
+  <data name="Gallery_ClearSelection" xml:space="preserve">
+    <value>선택 해제</value>
+  </data>
+  <data name="Gallery_DeselectAll" xml:space="preserve">
+    <value>모두 해제 (</value>
+  </data>
+  <data name="Gallery_ChooseANumberedRangeToDownload" xml:space="preserve">
+    <value>다운로드할 번호 범위 선택(예: 1-20)</value>
+  </data>
+  <data name="Gallery_DownloadRange" xml:space="preserve">
+    <value>범위 다운로드…</value>
+  </data>
+  <data name="Gallery_DownloadWithImageProcessingPreset" xml:space="preserve">
+    <value>이미지 처리 프리셋으로 다운로드</value>
+  </data>
+  <data name="Gallery_DownloadPreset" xml:space="preserve">
+    <value>다운로드 프리셋</value>
+  </data>
+  <data name="Gallery_DownloadsWaitingInQueueAutoStart" xml:space="preserve">
+    <value>큐에서 대기 중인 다운로드(현재 작업 완료 후 자동 시작)</value>
+  </data>
+  <data name="Gallery_ToggleTheSidePanelBrowseArtworks" xml:space="preserve">
+    <value>사이드 패널 전환(뷰어와 나란히 작품 탐색)</value>
+  </data>
+  <data name="Gallery_ShowPanel" xml:space="preserve">
+    <value>패널 표시</value>
+  </data>
+  <data name="Gallery_HidePanel" xml:space="preserve">
+    <value>패널 숨기기</value>
+  </data>
+  <data name="Gallery_ToggleTagAndDateFilters" xml:space="preserve">
+    <value>태그 및 날짜 필터 전환</value>
+  </data>
+  <data name="Gallery_Filters" xml:space="preserve">
+    <value>필터</value>
+  </data>
+  <data name="Gallery_SortArtworks" xml:space="preserve">
+    <value>작품 정렬</value>
+  </data>
+  <data name="Gallery_Default" xml:space="preserve">
+    <value>기본값</value>
+  </data>
+  <data name="Gallery_AZ" xml:space="preserve">
+    <value>A → Z</value>
+  </data>
+  <data name="Gallery_ZA" xml:space="preserve">
+    <value>Z → A</value>
+  </data>
+  <data name="Gallery_NewestFirst" xml:space="preserve">
+    <value>최신순</value>
+  </data>
+  <data name="Gallery_OldestFirst" xml:space="preserve">
+    <value>오래된순</value>
+  </data>
+  <data name="Gallery_MostPages" xml:space="preserve">
+    <value>페이지 많은 순</value>
+  </data>
+  <data name="Gallery_FixedCardHeight" xml:space="preserve">
+    <value>고정 카드 높이</value>
+  </data>
+  <data name="Gallery_Fixed" xml:space="preserve">
+    <value>고정</value>
+  </data>
+  <data name="Gallery_NaturalHeightPreservesAspectRatio" xml:space="preserve">
+    <value>자연 높이(종횡비 유지)</value>
+  </data>
+  <data name="Gallery_Natural" xml:space="preserve">
+    <value>자연</value>
+  </data>
+  <data name="Gallery_ShowHideTagsOnCards" xml:space="preserve">
+    <value>카드의 태그 표시 / 숨기기</value>
+  </data>
+  <data name="Gallery_Tags" xml:space="preserve">
+    <value>태그</value>
+  </data>
+  <data name="Gallery_ShowHideCardInfoStripTitle" xml:space="preserve">
+    <value>카드 정보 스트립(제목+태그) 표시 / 숨기기</value>
+  </data>
+  <data name="Gallery_Info" xml:space="preserve">
+    <value>정보</value>
+  </data>
+  <data name="Gallery_ShowHideLikedBookmarkedFavoriteBadges" xml:space="preserve">
+    <value>카드의 좋아요/북마크/즐겨찾기 배지 표시 / 숨기기</value>
+  </data>
+  <data name="Gallery_Badges" xml:space="preserve">
+    <value>배지</value>
+  </data>
+  <data name="Gallery_Size" xml:space="preserve">
+    <value>크기</value>
+  </data>
+  <data name="Gallery_GridView" xml:space="preserve">
+    <value>그리드 보기</value>
+  </data>
+  <data name="Gallery_Grid" xml:space="preserve">
+    <value>그리드</value>
+  </data>
+  <data name="Gallery_ListView" xml:space="preserve">
+    <value>목록 보기</value>
+  </data>
+  <data name="Gallery_List" xml:space="preserve">
+    <value>목록</value>
+  </data>
+  <data name="Gallery_INCLUDETAGS" xml:space="preserve">
+    <value>포함 태그</value>
+  </data>
+  <data name="Gallery_ShowOnlyArtworksThatHaveALL" xml:space="preserve">
+    <value>이 태그를 모두 포함하는 작품만 표시(쉼표로 구분)</value>
+  </data>
+  <data name="Gallery_EXCLUDETAGS" xml:space="preserve">
+    <value>제외 태그</value>
+  </data>
+  <data name="Gallery_HideArtworksThatHaveANYOf" xml:space="preserve">
+    <value>이 태그 중 하나라도 포함하는 작품 숨기기(쉼표로 구분)</value>
+  </data>
+  <data name="Gallery_DATERANGE" xml:space="preserve">
+    <value>날짜 범위</value>
+  </data>
+  <data name="Gallery_ShowArtworksFromThisDate" xml:space="preserve">
+    <value>이 날짜 이후의 작품 표시</value>
+  </data>
+  <data name="Gallery_ShowArtworksUpToThisDate" xml:space="preserve">
+    <value>이 날짜까지의 작품 표시</value>
+  </data>
+  <data name="Gallery_ClearFilters" xml:space="preserve">
+    <value>✕ 필터 지우기</value>
+  </data>
+  <data name="Gallery_ClearAllTagAndDateFilters" xml:space="preserve">
+    <value>모든 태그 및 날짜 필터 지우기</value>
+  </data>
+  <data name="Gallery_FilterArtists" xml:space="preserve">
+    <value>작가 필터…</value>
+  </data>
+  <data name="Gallery_OpenArtistPage" xml:space="preserve">
+    <value>작가 페이지 열기</value>
+  </data>
+  <data name="Gallery_CopyID" xml:space="preserve">
+    <value>ID 복사</value>
+  </data>
+  <data name="Gallery_Unfollow" xml:space="preserve">
+    <value>💔 언팔로우</value>
+  </data>
+  <data name="Gallery_ShowExplicitContent" xml:space="preserve">
+    <value>성인 콘텐츠 표시</value>
+  </data>
+  <data name="Gallery_ShowHideR18Content" xml:space="preserve">
+    <value>R-18 콘텐츠 표시 / 숨기기</value>
+  </data>
+  <data name="Gallery_SelectAnArtist" xml:space="preserve">
+    <value>작가 선택</value>
+  </data>
+  <data name="Gallery_ChooseFromTheSidebarOrClick" xml:space="preserve">
+    <value>사이드바에서 선택하거나 '최근 작품'을 클릭하세요</value>
+  </data>
+  <data name="Gallery_Select" xml:space="preserve">
+    <value>☑ 선택</value>
+  </data>
+  <data name="Gallery_Deselect" xml:space="preserve">
+    <value>☒ 해제</value>
+  </data>
+  <data name="Gallery_DownloadAll_2" xml:space="preserve">
+    <value>↓ 모두 다운로드</value>
+  </data>
+  <data name="Gallery_FirstPageOnly" xml:space="preserve">
+    <value>↓ 첫 페이지만</value>
+  </data>
+  <data name="Gallery_OpenInSidePanel" xml:space="preserve">
+    <value>👁 사이드 패널에서 열기</value>
+  </data>
+  <data name="Gallery_OpenFullScreen" xml:space="preserve">
+    <value>⛶ 전체 화면으로 열기</value>
+  </data>
+  <data name="Gallery_OpenInNewTab" xml:space="preserve">
+    <value>⊞ 새 탭에서 열기</value>
+  </data>
+  <data name="Gallery_OpenInPopup" xml:space="preserve">
+    <value>⧉ 팝업에서 열기</value>
+  </data>
+  <data name="Gallery_OpenOnPixivNet" xml:space="preserve">
+    <value>🌐 pixiv.net에서 열기</value>
+  </data>
+  <data name="Gallery_OpenArtistGallery" xml:space="preserve">
+    <value>👤 작가 갤러리 열기</value>
+  </data>
+  <data name="Gallery_FollowArtist" xml:space="preserve">
+    <value>💙 작가 팔로우</value>
+  </data>
+  <data name="Gallery_UnfollowArtist" xml:space="preserve">
+    <value>💔 작가 언팔로우</value>
+  </data>
+  <data name="Gallery_AddToLocalFavorites" xml:space="preserve">
+    <value>★ 로컬 즐겨찾기에 추가</value>
+  </data>
+  <data name="Gallery_RemoveFromFavorites" xml:space="preserve">
+    <value>★ 즐겨찾기에서 제거</value>
+  </data>
+  <data name="Gallery_CopyArtworkID" xml:space="preserve">
+    <value>작품 ID 복사</value>
+  </data>
+  <data name="Gallery_CopyArtistID" xml:space="preserve">
+    <value>작가 ID 복사</value>
+  </data>
+  <data name="Gallery_CopyImage" xml:space="preserve">
+    <value>📋 이미지 복사</value>
+  </data>
+  <data name="Gallery_UseAsAppBackground" xml:space="preserve">
+    <value>🖼 앱 배경으로 사용</value>
+  </data>
+  <data name="Gallery_ExportMetadata" xml:space="preserve">
+    <value>💾 메타데이터 내보내기…</value>
+  </data>
+  <data name="Gallery_SaveIdArtistLinkSizeUpload" xml:space="preserve">
+    <value>id, 작가, 링크, 크기, 업로드 날짜, 조회수, 북마크 수, 태그를 CSV/TSV/JSON/TXT로 저장</value>
+  </data>
+  <data name="Gallery_ExportMetadataOfSelected" xml:space="preserve">
+    <value>💾 선택 항목 메타데이터 내보내기…</value>
+  </data>
+  <data name="Gallery_OpenPopup" xml:space="preserve">
+    <value>팝업 열기</value>
+  </data>
+  <data name="Gallery_OpenInNewTab_2" xml:space="preserve">
+    <value>새 탭에서 열기</value>
+  </data>
+  <data name="Gallery_OpenOnPixivNet_2" xml:space="preserve">
+    <value>pixiv.net에서 열기</value>
+  </data>
+  <data name="Gallery_NoArtworksFoundForThisArtist" xml:space="preserve">
+    <value>이 작가의 작품을 찾을 수 없음</value>
+  </data>
+  <data name="Gallery_TryChangingFiltersOrSelectingA" xml:space="preserve">
+    <value>필터를 바꾸거나 다른 작가를 선택해 보세요.</value>
+  </data>
+  <data name="Gallery_TogglePaginationOffShowAllOn" xml:space="preserve">
+    <value>페이지네이션 전환(끄기 = 전체 표시, 켜기 = 페이지 나누기)</value>
+  </data>
+  <data name="Gallery_Pages" xml:space="preserve">
+    <value>페이지</value>
+  </data>
+  <data name="Gallery_ItemsPerPage" xml:space="preserve">
+    <value>페이지당 항목 수</value>
+  </data>
+  <data name="Gallery_GoToFirstPage" xml:space="preserve">
+    <value>첫 페이지로</value>
+  </data>
+  <data name="Gallery_PreviousPage" xml:space="preserve">
+    <value>이전 페이지</value>
+  </data>
+  <data name="Gallery_EnterPageNumberAndPressEnter" xml:space="preserve">
+    <value>페이지 번호 입력 후 Enter로 이동</value>
+  </data>
+  <data name="Gallery_NextPage" xml:space="preserve">
+    <value>다음 페이지</value>
+  </data>
+  <data name="Gallery_GoToLastPage" xml:space="preserve">
+    <value>마지막 페이지로</value>
+  </data>
+  <data name="Gallery_SelectAll" xml:space="preserve">
+    <value>모두 선택</value>
+  </data>
+  <data name="Gallery_LoadAllIntoView" xml:space="preserve">
+    <value>모두 보기로 로드</value>
+  </data>
+  <data name="Gallery_LoadEveryArtworkIntoTheGrid" xml:space="preserve">
+    <value>모든 작품을 그리드에 로드(시간이 걸릴 수 있음)</value>
+  </data>
+  <data name="Viewer_HideOrShowTheSidePanel" xml:space="preserve">
+    <value>사이드 패널 표시 / 숨기기</value>
+  </data>
+  <data name="Viewer_ShowPanel" xml:space="preserve">
+    <value>패널 표시</value>
+  </data>
+  <data name="Viewer_HidePanel" xml:space="preserve">
+    <value>패널 숨기기</value>
+  </data>
+  <data name="Viewer_ExpandToFullScreenRestoreSide" xml:space="preserve">
+    <value>전체 화면 확장 / 사이드 패널 복원</value>
+  </data>
+  <data name="Viewer_Expand" xml:space="preserve">
+    <value>확장</value>
+  </data>
+  <data name="Viewer_Restore" xml:space="preserve">
+    <value>복원</value>
+  </data>
+  <data name="Viewer_OpenInFullscreenWindowF11" xml:space="preserve">
+    <value>전체 화면 창에서 열기(F11)</value>
+  </data>
+  <data name="Viewer_CloseAllTabs" xml:space="preserve">
+    <value>모든 탭 닫기</value>
+  </data>
+  <data name="Viewer_CloseAll" xml:space="preserve">
+    <value>모두 닫기</value>
+  </data>
+  <data name="Viewer_CloseThisTab" xml:space="preserve">
+    <value>이 탭 닫기</value>
+  </data>
+  <data name="Viewer_AllOpenTabs" xml:space="preserve">
+    <value>열려 있는 모든 탭</value>
+  </data>
+  <data name="Viewer_ClickToCopyArtistID" xml:space="preserve">
+    <value>클릭하여 작가 ID 복사</value>
+  </data>
+  <data name="Viewer_FollowOrUnfollowThisArtist" xml:space="preserve">
+    <value>이 작가 팔로우 / 언팔로우</value>
+  </data>
+  <data name="Viewer_Follow" xml:space="preserve">
+    <value>팔로우</value>
+  </data>
+  <data name="Viewer_ShowHidePixivLikeBookmarkView" xml:space="preserve">
+    <value>Pixiv 좋아요/북마크/조회수 표시 / 숨기기</value>
+  </data>
+  <data name="Viewer_Likes" xml:space="preserve">
+    <value>좋아요</value>
+  </data>
+  <data name="Viewer_Views" xml:space="preserve">
+    <value>조회</value>
+  </data>
+  <data name="Viewer_EnterAnArtworkPositionAndPress" xml:space="preserve">
+    <value>작품 위치 번호 입력 후 Enter</value>
+  </data>
+  <data name="Viewer_FirstArtwork" xml:space="preserve">
+    <value>첫 작품</value>
+  </data>
+  <data name="Viewer_PreviousArtwork" xml:space="preserve">
+    <value>이전 작품</value>
+  </data>
+  <data name="Viewer_NextArtwork" xml:space="preserve">
+    <value>다음 작품</value>
+  </data>
+  <data name="Viewer_LastArtwork" xml:space="preserve">
+    <value>마지막 작품</value>
+  </data>
+  <data name="Viewer_ZoomOut" xml:space="preserve">
+    <value>축소</value>
+  </data>
+  <data name="Viewer_FitToWindow" xml:space="preserve">
+    <value>창에 맞추기</value>
+  </data>
+  <data name="Viewer_ZoomIn" xml:space="preserve">
+    <value>확대</value>
+  </data>
+  <data name="Viewer_PreviousPage" xml:space="preserve">
+    <value>이전 페이지</value>
+  </data>
+  <data name="Viewer_Prev" xml:space="preserve">
+    <value>이전</value>
+  </data>
+  <data name="Viewer_NextPage" xml:space="preserve">
+    <value>다음 페이지</value>
+  </data>
+  <data name="Viewer_DownloadCurrentPage" xml:space="preserve">
+    <value>현재 페이지 다운로드</value>
+  </data>
+  <data name="Viewer_Page" xml:space="preserve">
+    <value>페이지</value>
+  </data>
+  <data name="Viewer_DownloadAllPages" xml:space="preserve">
+    <value>모든 페이지 다운로드</value>
+  </data>
+  <data name="Viewer_DownloadPageRange" xml:space="preserve">
+    <value>페이지 범위 다운로드</value>
+  </data>
+  <data name="Viewer_DownloadWithImageProcessingPreset" xml:space="preserve">
+    <value>이미지 처리 프리셋으로 다운로드</value>
+  </data>
+  <data name="Viewer_Preset" xml:space="preserve">
+    <value>프리셋</value>
+  </data>
+  <data name="Viewer_OpenOnPixivNet" xml:space="preserve">
+    <value>pixiv.net에서 열기</value>
+  </data>
+  <data name="Viewer_OpenThisArtistSGallery" xml:space="preserve">
+    <value>이 작가의 갤러리 열기</value>
+  </data>
+  <data name="Viewer_Artist" xml:space="preserve">
+    <value>작가</value>
+  </data>
+  <data name="Viewer_OpenInFloatingPopupWindow" xml:space="preserve">
+    <value>플로팅 팝업 창에서 열기</value>
+  </data>
+  <data name="Viewer_Popup" xml:space="preserve">
+    <value>팝업</value>
+  </data>
+  <data name="Viewer_CopyThisImageToTheClipboard" xml:space="preserve">
+    <value>이 이미지를 클립보드에 복사</value>
+  </data>
+  <data name="Viewer_AddRemoveFromLocalFavorites" xml:space="preserve">
+    <value>로컬 즐겨찾기 추가 / 제거</value>
+  </data>
+  <data name="Viewer_Favorite" xml:space="preserve">
+    <value>즐겨찾기</value>
+  </data>
+  <data name="Viewer_LikeThisArtworkOnPixiv" xml:space="preserve">
+    <value>Pixiv에서 이 작품 좋아요</value>
+  </data>
+  <data name="Viewer_Like" xml:space="preserve">
+    <value>좋아요</value>
+  </data>
+  <data name="Viewer_MainClickAddsAPublicPixiv" xml:space="preserve">
+    <value>기본 클릭은 공개 Pixiv 북마크 추가(또는 현재 것 제거). 화살표로 공개/비공개 선택.</value>
+  </data>
+  <data name="Viewer_Bookmark" xml:space="preserve">
+    <value>북마크</value>
+  </data>
+  <data name="Viewer_PublicBookmark" xml:space="preserve">
+    <value>공개 북마크</value>
+  </data>
+  <data name="Viewer_AddAsAPublicPixivBookmark" xml:space="preserve">
+    <value>공개 Pixiv 북마크로 추가(이미 비공개면 공개로 전환)</value>
+  </data>
+  <data name="Viewer_PrivateBookmark" xml:space="preserve">
+    <value>비공개 북마크</value>
+  </data>
+  <data name="Viewer_AddAsAPrivatePixivBookmark" xml:space="preserve">
+    <value>비공개 Pixiv 북마크로 추가(이미 공개면 비공개로 전환)</value>
+  </data>
+  <data name="Viewer_ViewAndPostComments" xml:space="preserve">
+    <value>댓글 보기 및 작성</value>
+  </data>
+  <data name="Viewer_Comments" xml:space="preserve">
+    <value>댓글</value>
+  </data>
+  <data name="Viewer_LoadingComments" xml:space="preserve">
+    <value>댓글 로드 중…</value>
+  </data>
+  <data name="Viewer_CancelReply" xml:space="preserve">
+    <value>답글 취소</value>
+  </data>
+  <data name="Viewer_SendASticker" xml:space="preserve">
+    <value>스티커 보내기</value>
+  </data>
+  <data name="Viewer_Emoji" xml:space="preserve">
+    <value>이모지</value>
+  </data>
+  <data name="Viewer_Stickers" xml:space="preserve">
+    <value>스티커</value>
+  </data>
+  <data name="Viewer_LoadingStickers" xml:space="preserve">
+    <value>스티커 로드 중…</value>
+  </data>
+  <data name="Viewer_AddAComment" xml:space="preserve">
+    <value>댓글 추가…</value>
+  </data>
+  <data name="Viewer_Post" xml:space="preserve">
+    <value>게시</value>
+  </data>
+  <data name="Viewer_ExitCollageView" xml:space="preserve">
+    <value>콜라주 보기 종료</value>
+  </data>
+  <data name="Viewer_ReturnToTheStoredCollageView" xml:space="preserve">
+    <value>저장된 콜라주 보기로 돌아가기</value>
+  </data>
+  <data name="Viewer_DownloadAllCollageArtworksIntoA" xml:space="preserve">
+    <value>콜라주의 모든 작품을 Collage_###### 폴더에 다운로드</value>
+  </data>
+  <data name="Viewer_ToggleHoshiAIAssistant" xml:space="preserve">
+    <value>Hoshi(성) 전환 — AI 어시스턴트</value>
+  </data>
+  <data name="Viewer_CloseTheCollageTab" xml:space="preserve">
+    <value>콜라주 탭 닫기</value>
+  </data>
+  <data name="Viewer_Preview" xml:space="preserve">
+    <value>미리보기</value>
+  </data>
+  <data name="Viewer_ClickAnImageToPreviewIt" xml:space="preserve">
+    <value>이미지를 클릭해 여기에 미리보기</value>
+  </data>
+  <data name="Viewer_Retry" xml:space="preserve">
+    <value>↺ 다시 시도</value>
+  </data>
+  <data name="Viewer_DownloadThisPage" xml:space="preserve">
+    <value>↓ 이 페이지 다운로드</value>
+  </data>
+  <data name="Viewer_DownloadAllPages_2" xml:space="preserve">
+    <value>↓ 모든 페이지 다운로드</value>
+  </data>
+  <data name="Viewer_DownloadPageRange_2" xml:space="preserve">
+    <value>↓ 페이지 범위 다운로드…</value>
+  </data>
+  <data name="Viewer_FullscreenF11" xml:space="preserve">
+    <value>⛶ 전체 화면(F11)</value>
+  </data>
+  <data name="Viewer_OpenInPopupWindow" xml:space="preserve">
+    <value>팝업 창에서 열기</value>
+  </data>
+  <data name="Viewer_OpenArtworkOnPixiv" xml:space="preserve">
+    <value>🌐 Pixiv에서 작품 열기</value>
+  </data>
+  <data name="Viewer_GoToArtistSGallery" xml:space="preserve">
+    <value>👤 작가 갤러리로 이동</value>
+  </data>
+  <data name="Viewer_OpenArtistOnPixiv" xml:space="preserve">
+    <value>🌐 Pixiv에서 작가 열기</value>
+  </data>
+  <data name="Viewer_CopyArtworkID" xml:space="preserve">
+    <value>작품 ID 복사</value>
+  </data>
+  <data name="Viewer_CopyArtistID" xml:space="preserve">
+    <value>작가 ID 복사</value>
+  </data>
+  <data name="Viewer_CopyImage" xml:space="preserve">
+    <value>📋 이미지 복사</value>
+  </data>
+  <data name="Viewer_UseAsAppBackground" xml:space="preserve">
+    <value>🖼 앱 배경으로 사용</value>
+  </data>
+  <data name="Viewer_ResetZoom" xml:space="preserve">
+    <value>확대/축소 재설정</value>
+  </data>
+  <data name="Viewer_ExpandIntoPageTiles" xml:space="preserve">
+    <value>페이지 타일로 펼치기</value>
+  </data>
+  <data name="Viewer_RemoveFromCollage" xml:space="preserve">
+    <value>콜라주에서 제거</value>
+  </data>
+  <data name="Viewer_Hoshi" xml:space="preserve">
+    <value>✦ Hoshi 별</value>
+  </data>
+  <data name="Viewer_FullView" xml:space="preserve">
+    <value>⤢ 전체 보기</value>
+  </data>
+  <data name="Viewer_ContinueThisChatInTheFull" xml:space="preserve">
+    <value>전체 Hoshi 탭에서 이 대화 계속하기</value>
+  </data>
+  <data name="Viewer_Describe" xml:space="preserve">
+    <value>👁 설명</value>
+  </data>
+  <data name="Viewer_DescribeThisImage" xml:space="preserve">
+    <value>이 이미지 설명</value>
+  </data>
+  <data name="Viewer_DescribeThisImageUseTheArrow" xml:space="preserve">
+    <value>이 이미지를 설명합니다. 화살표로 모든 페이지를 설명할 수 있습니다.</value>
+  </data>
+  <data name="Viewer_DescribeCurrentPage" xml:space="preserve">
+    <value>👁 현재 페이지 설명</value>
+  </data>
+  <data name="Viewer_DescribeAllPages" xml:space="preserve">
+    <value>📚 모든 페이지 설명</value>
+  </data>
+  <data name="Viewer_DescribesEveryPageOfAMulti" xml:space="preserve">
+    <value>여러 페이지 게시물의 모든 페이지를 설명(현재 페이지만이 아님)</value>
+  </data>
+  <data name="Viewer_Tags" xml:space="preserve">
+    <value>🏷 태그</value>
+  </data>
+  <data name="Viewer_SuggestTags" xml:space="preserve">
+    <value>태그 제안</value>
+  </data>
+  <data name="Viewer_SimilarArt" xml:space="preserve">
+    <value>🖼 유사 작품</value>
+  </data>
+  <data name="Viewer_RecommendArtworksSimilarToThisImage" xml:space="preserve">
+    <value>이 이미지와 유사한 작품 추천</value>
+  </data>
+  <data name="Viewer_SimilarArtists" xml:space="preserve">
+    <value>🧑‍🎨 유사 작가</value>
+  </data>
+  <data name="Viewer_RecommendArtistsWithASimilarStyle" xml:space="preserve">
+    <value>유사한 화풍의 작가 추천</value>
+  </data>
+  <data name="Viewer_Fav" xml:space="preserve">
+    <value>⭐ 즐겨찾기</value>
+  </data>
+  <data name="Viewer_AddToLocalFavorites" xml:space="preserve">
+    <value>로컬 즐겨찾기에 추가</value>
+  </data>
+  <data name="Viewer_DL" xml:space="preserve">
+    <value>↓ DL</value>
+  </data>
+  <data name="Viewer_DownloadThisArtwork" xml:space="preserve">
+    <value>이 작품 다운로드</value>
+  </data>
+  <data name="Viewer_Clear" xml:space="preserve">
+    <value>🗑 지우기</value>
+  </data>
+  <data name="Viewer_ClearChatHistory" xml:space="preserve">
+    <value>채팅 기록 지우기</value>
+  </data>
+  <data name="Viewer_ViewArtwork" xml:space="preserve">
+    <value>🖼 작품 보기</value>
+  </data>
+  <data name="Viewer_OpenThisArtworkInANew" xml:space="preserve">
+    <value>새 뷰어 탭에서 이 작품 열기</value>
+  </data>
+  <data name="Viewer_Gallery" xml:space="preserve">
+    <value>👤 갤러리</value>
+  </data>
+  <data name="Viewer_OpenURL" xml:space="preserve">
+    <value>🌐 URL 열기</value>
+  </data>
+  <data name="Viewer_OpenThisPixivPageInYour" xml:space="preserve">
+    <value>이 Pixiv 페이지를 브라우저에서 열기</value>
+  </data>
+  <data name="Viewer_HoshiIsThinking" xml:space="preserve">
+    <value>Hoshi 생각 중…</value>
+  </data>
+  <data name="Viewer_AskHoshiAnythingDescribeSuggestTags" xml:space="preserve">
+    <value>Hoshi에게 무엇이든 물어보세요 — 설명, 태그 제안, 다운로드, 즐겨찾기 추가, 폴더 이동…</value>
+  </data>
+  <data name="Viewer_Send" xml:space="preserve">
+    <value>보내기</value>
+  </data>
+  <data name="Viewer_ClickTagFilterShiftClickSearch" xml:space="preserve">
+    <value>태그 클릭: 필터 • Shift+클릭: 전역 검색</value>
+  </data>
+  <data name="History_ActiveAndCompletedDownloads" xml:space="preserve">
+    <value>진행 중 및 완료된 다운로드</value>
+  </data>
+  <data name="History_RetryAllFailed" xml:space="preserve">
+    <value>모든 실패 재시도</value>
+  </data>
+  <data name="History_CardView" xml:space="preserve">
+    <value>카드 보기</value>
+  </data>
+  <data name="History_ListView" xml:space="preserve">
+    <value>목록 보기</value>
+  </data>
+  <data name="History_PauseAll" xml:space="preserve">
+    <value>모두 일시 중지</value>
+  </data>
+  <data name="History_ResumeAll" xml:space="preserve">
+    <value>모두 재개</value>
+  </data>
+  <data name="History_Pause" xml:space="preserve">
+    <value>일시 중지</value>
+  </data>
+  <data name="History_Resume" xml:space="preserve">
+    <value>재개</value>
+  </data>
+  <data name="History_MoveToTop" xml:space="preserve">
+    <value>맨 위로 이동</value>
+  </data>
+  <data name="History_MoveUp" xml:space="preserve">
+    <value>위로 이동</value>
+  </data>
+  <data name="History_MoveDown" xml:space="preserve">
+    <value>아래로 이동</value>
+  </data>
+  <data name="History_MoveToBottom" xml:space="preserve">
+    <value>맨 아래로 이동</value>
+  </data>
+  <data name="History_RemoveFromQueue" xml:space="preserve">
+    <value>큐에서 제거</value>
+  </data>
+  <data name="History_PreparingFetchingArtworkList" xml:space="preserve">
+    <value>준비 중…(작품 목록 가져오는 중)</value>
+  </data>
+  <data name="History_Actions" xml:space="preserve">
+    <value>작업</value>
+  </data>
+  <data name="History_NoActiveDownloads" xml:space="preserve">
+    <value>진행 중인 다운로드 없음</value>
+  </data>
+  <data name="History_QueueAJobFromGalleryOr" xml:space="preserve">
+    <value>갤러리 또는 발견에서 작업을 큐에 추가하세요</value>
+  </data>
+  <data name="History_Completed" xml:space="preserve">
+    <value>완료됨</value>
+  </data>
+  <data name="History_ClearAll" xml:space="preserve">
+    <value>모두 지우기</value>
+  </data>
+  <data name="History_OpenFolder" xml:space="preserve">
+    <value>폴더 열기</value>
+  </data>
+  <data name="Common_Remove" xml:space="preserve">
+    <value>제거</value>
+  </data>
+  <data name="History_ExportMetadata" xml:space="preserve">
+    <value>💾 메타데이터 내보내기…</value>
+  </data>
+  <data name="History_FetchAndSaveIdArtistLink" xml:space="preserve">
+    <value>이 작업의 모든 작품에 대해 id, 작가, 링크, 크기, 업로드 날짜, 조회수, 북마크 수, 태그를 가져와 저장</value>
+  </data>
+  <data name="History_NoCompletedDownloads" xml:space="preserve">
+    <value>완료된 다운로드 없음</value>
+  </data>
+  <data name="History_Failed" xml:space="preserve">
+    <value>실패</value>
+  </data>
+  <data name="History_RetryAll" xml:space="preserve">
+    <value>모두 재시도</value>
+  </data>
+  <data name="History_NoFailedDownloads" xml:space="preserve">
+    <value>실패한 다운로드 없음</value>
+  </data>
+  <data name="History_Cancelled" xml:space="preserve">
+    <value>취소됨</value>
+  </data>
+  <data name="History_NoCancelledDownloads" xml:space="preserve">
+    <value>취소된 다운로드 없음</value>
+  </data>
+  <data name="Viewed_Select" xml:space="preserve">
+    <value>☑ 선택</value>
+  </data>
+  <data name="Viewed_Deselect" xml:space="preserve">
+    <value>☒ 해제</value>
+  </data>
+  <data name="Viewed_DownloadAll" xml:space="preserve">
+    <value>↓ 모두 다운로드</value>
+  </data>
+  <data name="Viewed_FirstPageOnly" xml:space="preserve">
+    <value>↓ 첫 페이지만</value>
+  </data>
+  <data name="Viewed_OpenInSidePanel" xml:space="preserve">
+    <value>👁 사이드 패널에서 열기</value>
+  </data>
+  <data name="Viewed_OpenFullScreen" xml:space="preserve">
+    <value>⛶ 전체 화면으로 열기</value>
+  </data>
+  <data name="Viewed_OpenInNewTab" xml:space="preserve">
+    <value>⊞ 새 탭에서 열기</value>
+  </data>
+  <data name="Viewed_OpenInPopup" xml:space="preserve">
+    <value>⧉ 팝업에서 열기</value>
+  </data>
+  <data name="Viewed_OpenOnPixivNet" xml:space="preserve">
+    <value>🌐 pixiv.net에서 열기</value>
+  </data>
+  <data name="Viewed_OpenArtistGallery" xml:space="preserve">
+    <value>👤 작가 갤러리 열기</value>
+  </data>
+  <data name="Viewed_AddToLocalFavorites" xml:space="preserve">
+    <value>★ 로컬 즐겨찾기에 추가</value>
+  </data>
+  <data name="Viewed_RemoveFromFavorites" xml:space="preserve">
+    <value>★ 즐겨찾기에서 제거</value>
+  </data>
+  <data name="Viewed_CopyArtworkID" xml:space="preserve">
+    <value>작품 ID 복사</value>
+  </data>
+  <data name="Viewed_CopyArtistID" xml:space="preserve">
+    <value>작가 ID 복사</value>
+  </data>
+  <data name="Viewed_CopyImage" xml:space="preserve">
+    <value>📋 이미지 복사</value>
+  </data>
+  <data name="Viewed_UseAsAppBackground" xml:space="preserve">
+    <value>🖼 앱 배경으로 사용</value>
+  </data>
+  <data name="Viewed_RemoveFromHistory" xml:space="preserve">
+    <value>✕ 기록에서 제거</value>
+  </data>
+  <data name="Viewed_IncognitoModeArtworksYouOpenWon" xml:space="preserve">
+    <value>시크릿 모드: 켜져 있는 동안 연 작품이 이 기록에 추가되지 않습니다.</value>
+  </data>
+  <data name="Viewed_IncognitoOff" xml:space="preserve">
+    <value>시크릿: 끄기</value>
+  </data>
+  <data name="Viewed_IncognitoOn" xml:space="preserve">
+    <value>시크릿: 켜기</value>
+  </data>
+  <data name="Viewed_BrowseByExactDate" xml:space="preserve">
+    <value>정확한 날짜로 보기</value>
+  </data>
+  <data name="Viewed_QuickRange" xml:space="preserve">
+    <value>빠른 범위</value>
+  </data>
+  <data name="Viewed_Today" xml:space="preserve">
+    <value>오늘</value>
+  </data>
+  <data name="Viewed_PastDay" xml:space="preserve">
+    <value>지난 하루</value>
+  </data>
+  <data name="Viewed_PastWeek" xml:space="preserve">
+    <value>지난주</value>
+  </data>
+  <data name="Viewed_PastMonth" xml:space="preserve">
+    <value>지난달</value>
+  </data>
+  <data name="Viewed_PastYear" xml:space="preserve">
+    <value>지난 1년</value>
+  </data>
+  <data name="Viewed_CustomRange" xml:space="preserve">
+    <value>사용자 지정 범위…</value>
+  </data>
+  <data name="Viewed_AllTime" xml:space="preserve">
+    <value>전체 기간</value>
+  </data>
+  <data name="Viewed_BackToAllTime" xml:space="preserve">
+    <value>전체 기간으로 돌아가기</value>
+  </data>
+  <data name="Viewed_DefaultFlatChronologicalFeed" xml:space="preserve">
+    <value>기본 — 시간순 플랫 피드</value>
+  </data>
+  <data name="Viewed_GroupedCollageThumbnailPerDay" xml:space="preserve">
+    <value>그룹 — 날짜별 콜라주 섬네일</value>
+  </data>
+  <data name="Viewed_ListDayByDayList" xml:space="preserve">
+    <value>목록 — 날짜별 목록</value>
+  </data>
+  <data name="Viewed_ShowPanel" xml:space="preserve">
+    <value>패널 표시</value>
+  </data>
+  <data name="Viewed_HidePanel" xml:space="preserve">
+    <value>패널 숨기기</value>
+  </data>
+  <data name="Viewed_ClearHistory" xml:space="preserve">
+    <value>기록 지우기…</value>
+  </data>
+  <data name="Viewed_PastHour" xml:space="preserve">
+    <value>지난 1시간</value>
+  </data>
+  <data name="Viewed_DownloadVisible" xml:space="preserve">
+    <value>표시 항목 다운로드</value>
+  </data>
+  <data name="Viewed_SelectAll" xml:space="preserve">
+    <value>☑ 모두 선택</value>
+  </data>
+  <data name="Viewed_DownloadPreset" xml:space="preserve">
+    <value>🎨 다운로드 프리셋</value>
+  </data>
+  <data name="Viewed_DownloadWithImageProcessingPreset" xml:space="preserve">
+    <value>이미지 처리 프리셋으로 다운로드</value>
+  </data>
+  <data name="Viewed_BackToDays" xml:space="preserve">
+    <value>← 날짜 목록으로</value>
+  </data>
+  <data name="Viewed_TogglePaginationOffAutoloadWhileScrollin" xml:space="preserve">
+    <value>페이지네이션 전환(끄기 = 스크롤 자동 로드)</value>
+  </data>
+  <data name="Viewed_Pages" xml:space="preserve">
+    <value>페이지</value>
+  </data>
+  <data name="Viewed_ItemsPerPage" xml:space="preserve">
+    <value>페이지당 항목 수</value>
+  </data>
+  <data name="Viewed_Prev" xml:space="preserve">
+    <value>‹ 이전</value>
+  </data>
+  <data name="Viewed_TypeAPageNumberAndPress" xml:space="preserve">
+    <value>페이지 번호 입력 후 Enter</value>
+  </data>
+  <data name="Viewed_Next" xml:space="preserve">
+    <value>다음 ›</value>
+  </data>
+  <data name="Viewed_LoadMore" xml:space="preserve">
+    <value>더 불러오기</value>
+  </data>
+  <data name="Hoshi_Sessions" xml:space="preserve">
+    <value>세션</value>
+  </data>
+  <data name="Hoshi_ClearAll" xml:space="preserve">
+    <value>모두 지우기</value>
+  </data>
+  <data name="Hoshi_New" xml:space="preserve">
+    <value>✚ 새로 만들기</value>
+  </data>
+  <data name="Hoshi_NoSessionsYet" xml:space="preserve">
+    <value>아직 세션 없음</value>
+  </data>
+  <data name="Hoshi_ClickNewToStartThenDrop" xml:space="preserve">
+    <value>✚ 새로 만들기를 클릭한 후 이미지를 드롭하세요.</value>
+  </data>
+  <data name="Hoshi_DeleteSelected" xml:space="preserve">
+    <value>선택 항목 삭제</value>
+  </data>
+  <data name="Hoshi_Duplicate" xml:space="preserve">
+    <value>복제</value>
+  </data>
+  <data name="Hoshi_DeleteSession" xml:space="preserve">
+    <value>세션 삭제</value>
+  </data>
+  <data name="Hoshi_Enable" xml:space="preserve">
+    <value>사용</value>
+  </data>
+  <data name="Hoshi_ClickToViewLarger" xml:space="preserve">
+    <value>클릭하여 크게 보기</value>
+  </data>
+  <data name="Hoshi_NoImageAttached" xml:space="preserve">
+    <value>첨부된 이미지 없음</value>
+  </data>
+  <data name="Hoshi_DropAnImageHerePasteWith" xml:space="preserve">
+    <value>여기에 이미지를 드롭하거나 Ctrl+V로 붙여넣기 또는 📂 열기 클릭</value>
+  </data>
+  <data name="Hoshi_ViewArtwork" xml:space="preserve">
+    <value>🖼 작품 보기</value>
+  </data>
+  <data name="Hoshi_OpenThisArtworkInTheGallery" xml:space="preserve">
+    <value>갤러리 뷰어에서 이 작품 열기</value>
+  </data>
+  <data name="Hoshi_Open" xml:space="preserve">
+    <value>📂 열기</value>
+  </data>
+  <data name="Hoshi_AttachAnImageFromYourComputer" xml:space="preserve">
+    <value>컴퓨터에서 이미지 첨부</value>
+  </data>
+  <data name="Hoshi_Paste" xml:space="preserve">
+    <value>📋 붙여넣기</value>
+  </data>
+  <data name="Hoshi_PasteImageFromClipboardCtrlV" xml:space="preserve">
+    <value>클립보드에서 이미지 붙여넣기(Ctrl+V도 가능)</value>
+  </data>
+  <data name="Hoshi_URL" xml:space="preserve">
+    <value>🌐 URL</value>
+  </data>
+  <data name="Hoshi_ClearChat" xml:space="preserve">
+    <value>🗑 대화 지우기</value>
+  </data>
+  <data name="Hoshi_ClearsTheConversationOnlyTheAttached" xml:space="preserve">
+    <value>대화만 지웁니다 — 첨부된 이미지는 유지됩니다.</value>
+  </data>
+  <data name="Hoshi_You" xml:space="preserve">
+    <value>나</value>
+  </data>
+  <data name="Hoshi_OpenThisArtworkInANew" xml:space="preserve">
+    <value>새 뷰어 탭에서 이 작품 열기</value>
+  </data>
+  <data name="Hoshi_Gallery" xml:space="preserve">
+    <value>👤 갤러리</value>
+  </data>
+  <data name="Hoshi_OpenThisArtistSGallery" xml:space="preserve">
+    <value>이 작가의 갤러리 열기</value>
+  </data>
+  <data name="Hoshi_OpenURL" xml:space="preserve">
+    <value>🌐 URL 열기</value>
+  </data>
+  <data name="Hoshi_OpenThisPixivPageInYour" xml:space="preserve">
+    <value>이 Pixiv 페이지를 브라우저에서 열기</value>
+  </data>
+  <data name="Hoshi_HoshiIsThinking" xml:space="preserve">
+    <value>Hoshi 생각 중…</value>
+  </data>
+  <data name="Hoshi_Describe" xml:space="preserve">
+    <value>👁 설명</value>
+  </data>
+  <data name="Hoshi_DescribeTheImageItsStyleAnd" xml:space="preserve">
+    <value>이미지, 스타일, 캐릭터 설명</value>
+  </data>
+  <data name="Hoshi_DescribeTheImageItsStyleAnd_2" xml:space="preserve">
+    <value>이미지, 스타일, 캐릭터를 설명합니다. 화살표로 모든 페이지를 설명할 수 있습니다.</value>
+  </data>
+  <data name="Hoshi_DescribeCurrentPage" xml:space="preserve">
+    <value>👁 현재 페이지 설명</value>
+  </data>
+  <data name="Hoshi_DescribeAllPages" xml:space="preserve">
+    <value>📚 모든 페이지 설명</value>
+  </data>
+  <data name="Hoshi_DescribesEveryPageOfAMulti" xml:space="preserve">
+    <value>여러 페이지 게시물의 모든 페이지를 설명(현재 페이지만이 아님)</value>
+  </data>
+  <data name="Hoshi_Tags" xml:space="preserve">
+    <value>🏷 태그</value>
+  </data>
+  <data name="Hoshi_SimilarArt" xml:space="preserve">
+    <value>🖼 유사 작품</value>
+  </data>
+  <data name="Hoshi_RecommendArtworksSimilarToThisImage" xml:space="preserve">
+    <value>이 이미지와 유사한 작품 추천</value>
+  </data>
+  <data name="Hoshi_SimilarArtists" xml:space="preserve">
+    <value>🧑‍🎨 유사 작가</value>
+  </data>
+  <data name="Hoshi_RecommendArtistsWithASimilarStyle" xml:space="preserve">
+    <value>유사한 화풍의 작가 추천</value>
+  </data>
+  <data name="Hoshi_Fav" xml:space="preserve">
+    <value>⭐ 즐겨찾기</value>
+  </data>
+  <data name="Hoshi_DL" xml:space="preserve">
+    <value>↓ DL</value>
+  </data>
+  <data name="Hoshi_AskHoshiAnythingDropAnImage" xml:space="preserve">
+    <value>Hoshi에게 무엇이든 물어보세요 — 이미지 드롭, 붙여넣기 또는 질문 입력…</value>
+  </data>
+  <data name="Hoshi_Sending" xml:space="preserve">
+    <value>보내는 중…</value>
+  </data>
+  <data name="Hoshi_Send" xml:space="preserve">
+    <value>보내기</value>
+  </data>
+  <data name="Login_SettingUpSignIn" xml:space="preserve">
+    <value>로그인 설정 중</value>
+  </data>
+  <data name="Login_DownloadingTheBundledBrowserUsedTo" xml:space="preserve">
+    <value>로그인에 사용할 번들 브라우저를 다운로드하고 있습니다. 한 번만 발생하며 몇 분 걸립니다(약 150MB).</value>
+  </data>
+  <data name="Login_ContactingPlaywrightDev" xml:space="preserve">
+    <value>playwright.dev에 연결 중…</value>
+  </data>
+  <data name="Login_PastePHPSESSID" xml:space="preserve">
+    <value>PHPSESSID 붙여넣기</value>
+  </data>
+  <data name="Login_ManualSignInEmergencyFallback" xml:space="preserve">
+    <value>수동 로그인(비상용)</value>
+  </data>
+  <data name="Login_PastePHPSESSIDValueHere" xml:space="preserve">
+    <value>여기에 PHPSESSID 값 붙여넣기…</value>
+  </data>
+  <data name="Common_Confirm" xml:space="preserve">
+    <value>확인</value>
+  </data>
+  <data name="Login_SignInToPixiv" xml:space="preserve">
+    <value>Pixiv에 로그인</value>
+  </data>
+  <data name="Login_SignInWithYourPixivAccount" xml:space="preserve">
+    <value>아래에서 Pixiv 계정으로 로그인하세요. 세션이 자동으로 캡처됩니다.</value>
+  </data>
+  <data name="Pixivision_Select" xml:space="preserve">
+    <value>☑ 선택</value>
+  </data>
+  <data name="Pixivision_Deselect" xml:space="preserve">
+    <value>☒ 해제</value>
+  </data>
+  <data name="Pixivision_DownloadAll" xml:space="preserve">
+    <value>↓ 모두 다운로드</value>
+  </data>
+  <data name="Pixivision_FirstPageOnly" xml:space="preserve">
+    <value>↓ 첫 페이지만</value>
+  </data>
+  <data name="Pixivision_OpenInSidePanel" xml:space="preserve">
+    <value>👁 사이드 패널에서 열기</value>
+  </data>
+  <data name="Pixivision_OpenFullScreen" xml:space="preserve">
+    <value>⛶ 전체 화면으로 열기</value>
+  </data>
+  <data name="Pixivision_OpenInNewTab" xml:space="preserve">
+    <value>⊞ 새 탭에서 열기</value>
+  </data>
+  <data name="Pixivision_OpenInPopup" xml:space="preserve">
+    <value>⧉ 팝업에서 열기</value>
+  </data>
+  <data name="Pixivision_OpenOnPixivNet" xml:space="preserve">
+    <value>🌐 pixiv.net에서 열기</value>
+  </data>
+  <data name="Pixivision_OpenArtistGallery" xml:space="preserve">
+    <value>👤 작가 갤러리 열기</value>
+  </data>
+  <data name="Pixivision_AddToLocalFavorites" xml:space="preserve">
+    <value>★ 로컬 즐겨찾기에 추가</value>
+  </data>
+  <data name="Pixivision_RemoveFromFavorites" xml:space="preserve">
+    <value>★ 즐겨찾기에서 제거</value>
+  </data>
+  <data name="Pixivision_CopyArtworkID" xml:space="preserve">
+    <value>작품 ID 복사</value>
+  </data>
+  <data name="Pixivision_CopyArtistID" xml:space="preserve">
+    <value>작가 ID 복사</value>
+  </data>
+  <data name="Pixivision_CopyImage" xml:space="preserve">
+    <value>📋 이미지 복사</value>
+  </data>
+  <data name="Pixivision_UseAsAppBackground" xml:space="preserve">
+    <value>🖼 앱 배경으로 사용</value>
+  </data>
+  <data name="Pixivision_UgoiraOptions" xml:space="preserve">
+    <value>우고이라 옵션…</value>
+  </data>
+  <data name="Pixivision_SaveForLater" xml:space="preserve">
+    <value>🔖 나중에 읽기</value>
+  </data>
+  <data name="Pixivision_RemoveFromSaved" xml:space="preserve">
+    <value>🔖 저장에서 제거</value>
+  </data>
+  <data name="Pixivision_OpenOnPixivisionNet" xml:space="preserve">
+    <value>🌐 pixivision.net에서 열기</value>
+  </data>
+  <data name="Pixivision_ArticlesSavedForReadingLater" xml:space="preserve">
+    <value>나중에 읽기 위해 저장한 기사</value>
+  </data>
+  <data name="Pixivision_Back" xml:space="preserve">
+    <value>← 뒤로</value>
+  </data>
+  <data name="Pixivision_BrowseArticlesByDate" xml:space="preserve">
+    <value>날짜별 기사 보기</value>
+  </data>
+  <data name="Pixivision_QuickRange" xml:space="preserve">
+    <value>빠른 범위</value>
+  </data>
+  <data name="Pixivision_Today" xml:space="preserve">
+    <value>오늘</value>
+  </data>
+  <data name="Pixivision_PastDay" xml:space="preserve">
+    <value>지난 하루</value>
+  </data>
+  <data name="Pixivision_PastWeek" xml:space="preserve">
+    <value>지난주</value>
+  </data>
+  <data name="Pixivision_PastMonth" xml:space="preserve">
+    <value>지난달</value>
+  </data>
+  <data name="Pixivision_PastYear" xml:space="preserve">
+    <value>지난 1년</value>
+  </data>
+  <data name="Pixivision_CustomRange" xml:space="preserve">
+    <value>사용자 지정 범위…</value>
+  </data>
+  <data name="Pixivision_AllTime" xml:space="preserve">
+    <value>전체 기간</value>
+  </data>
+  <data name="Pixivision_BackToAllDates" xml:space="preserve">
+    <value>모든 날짜로 돌아가기</value>
+  </data>
+  <data name="Pixivision_SaveThisArticleToReadLater" xml:space="preserve">
+    <value>이 기사를 나중에 읽기로 저장</value>
+  </data>
+  <data name="Pixivision_CardSize" xml:space="preserve">
+    <value>카드 크기</value>
+  </data>
+  <data name="Pixivision_ShowOrHideTheMonthlyRanking" xml:space="preserve">
+    <value>월간 랭킹 / 추천 사이드바 표시 / 숨기기</value>
+  </data>
+  <data name="Pixivision_SidebarSizeWidensTheMonthlyRanking" xml:space="preserve">
+    <value>사이드바 크기 — 월간 랭킹 / 추천 패널을 넓히고 섬네일 확대</value>
+  </data>
+  <data name="Pixivision_ToggleTheSidePanelBrowseArtworks" xml:space="preserve">
+    <value>사이드 패널 전환(뷰어와 나란히 작품 탐색)</value>
+  </data>
+  <data name="Pixivision_SwitchBetweenShowingEmbeddedArtworksInli" xml:space="preserve">
+    <value>기사 내 포함된 작품을 그 자리에 표시할지, 하단 갤러리에 모을지 전환</value>
+  </data>
+  <data name="Pixivision_Artworks" xml:space="preserve">
+    <value>작품:</value>
+  </data>
+  <data name="Pixivision_ShowHideLikedBookmarkedFavoriteBadges" xml:space="preserve">
+    <value>카드의 좋아요/북마크/즐겨찾기 배지 표시 / 숨기기</value>
+  </data>
+  <data name="Pixivision_Badges" xml:space="preserve">
+    <value>배지</value>
+  </data>
+  <data name="Pixivision_ShowTheSelectedArtworksTiledTogether" xml:space="preserve">
+    <value>선택한 작품을 사이드 패널에 타일로 표시(최대 10개)</value>
+  </data>
+  <data name="Pixivision_Collage" xml:space="preserve">
+    <value>콜라주</value>
+  </data>
+  <data name="Pixivision_AddTheSelectedArtworksToThe" xml:space="preserve">
+    <value>선택한 작품을 활성 콜라주에 추가. 화살표로 콜라주 선택</value>
+  </data>
+  <data name="Pixivision_OpenEachSelectedArtworkInIts" xml:space="preserve">
+    <value>선택한 각 작품을 개별 탭에서 열기</value>
+  </data>
+  <data name="Pixivision_ViewInNewTabs" xml:space="preserve">
+    <value>새 탭에서 보기</value>
+  </data>
+  <data name="Pixivision_DownloadAllFeatured" xml:space="preserve">
+    <value>모든 추천 작품 다운로드</value>
+  </data>
+  <data name="Pixivision_SelectAll" xml:space="preserve">
+    <value>☑ 모두 선택</value>
+  </data>
+  <data name="Pixivision_DownloadPreset" xml:space="preserve">
+    <value>🎨 다운로드 프리셋</value>
+  </data>
+  <data name="Pixivision_DownloadWithImageProcessingPreset" xml:space="preserve">
+    <value>이미지 처리 프리셋으로 다운로드</value>
+  </data>
+  <data name="Pixivision_OpenOnPixivisionNet_2" xml:space="preserve">
+    <value>pixivision.net에서 열기</value>
+  </data>
+  <data name="Pixivision_SaveForLater_2" xml:space="preserve">
+    <value>나중에 읽기</value>
+  </data>
+  <data name="Pixivision_MonthlyRanking" xml:space="preserve">
+    <value>🏆 월간 랭킹</value>
+  </data>
+  <data name="Pixivision_Featured" xml:space="preserve">
+    <value>⭐ 추천</value>
+  </data>
+  <data name="Pixivision_SavedArticles" xml:space="preserve">
+    <value>🔖 저장한 기사</value>
+  </data>
+  <data name="Pixivision_NoSavedArticlesYetOpenAn" xml:space="preserve">
+    <value>아직 저장한 기사가 없습니다. 기사를 열고 🔖 저장을 누르면 나중에 읽을 수 있습니다.</value>
+  </data>
+  <data name="Pixivision_RemoveFromSaved_2" xml:space="preserve">
+    <value>저장에서 제거</value>
+  </data>
+  <data name="Pixivision_Index" xml:space="preserve">
+    <value>📑 목차</value>
+  </data>
+  <data name="Pixivision_FeaturedArtworks" xml:space="preserve">
+    <value>추천 작품</value>
+  </data>
+  <data name="Pixivision_TogglePaginationOffAutoloadWhileScrollin" xml:space="preserve">
+    <value>페이지네이션 전환(끄기 = 스크롤 자동 로드)</value>
+  </data>
+  <data name="Pixivision_Pages" xml:space="preserve">
+    <value>페이지</value>
+  </data>
+  <data name="Pixivision_Prev" xml:space="preserve">
+    <value>‹ 이전</value>
+  </data>
+  <data name="Pixivision_TypeAPageNumberAndPress" xml:space="preserve">
+    <value>페이지 번호 입력 후 Enter</value>
+  </data>
+  <data name="Pixivision_Next" xml:space="preserve">
+    <value>다음 ›</value>
+  </data>
+  <data name="Rankings_LoadRankings" xml:space="preserve">
+    <value>랭킹 불러오기</value>
+  </data>
+  <data name="Rankings_DailyWeeklyAndMonthlyRankings" xml:space="preserve">
+    <value>일간, 주간, 월간 랭킹</value>
+  </data>
+  <data name="Rankings_OpenInSidePanel" xml:space="preserve">
+    <value>👁 사이드 패널에서 열기</value>
+  </data>
+  <data name="Rankings_OpenInTheInlineViewerWith" xml:space="preserve">
+    <value>사이드 패널이 있는 인라인 뷰어에서 열기</value>
+  </data>
+  <data name="Rankings_OpenFullScreen" xml:space="preserve">
+    <value>⛶ 전체 화면으로 열기</value>
+  </data>
+  <data name="Rankings_OpenInTheInlineViewerIn" xml:space="preserve">
+    <value>전체 화면 모드의 인라인 뷰어에서 열기</value>
+  </data>
+  <data name="Rankings_OpenInNewTab" xml:space="preserve">
+    <value>⊞ 새 탭에서 열기</value>
+  </data>
+  <data name="Rankings_OpenThisArtworkInANew" xml:space="preserve">
+    <value>새 뷰어 탭에서 이 작품 열기</value>
+  </data>
+  <data name="Rankings_OpenInPopupWindow" xml:space="preserve">
+    <value>⧉ 팝업 창에서 열기</value>
+  </data>
+  <data name="Rankings_OpenInAFloatingWindow" xml:space="preserve">
+    <value>플로팅 창에서 열기</value>
+  </data>
+  <data name="Rankings_Select" xml:space="preserve">
+    <value>☑ 선택</value>
+  </data>
+  <data name="Rankings_AddToBulkSelection" xml:space="preserve">
+    <value>일괄 선택에 추가</value>
+  </data>
+  <data name="Rankings_Deselect" xml:space="preserve">
+    <value>☒ 해제</value>
+  </data>
+  <data name="Rankings_OpenArtistGallery" xml:space="preserve">
+    <value>👤 작가 갤러리 열기</value>
+  </data>
+  <data name="Rankings_SwitchToTheGalleryTabAnd" xml:space="preserve">
+    <value>갤러리 탭으로 전환해 이 작가 로드</value>
+  </data>
+  <data name="Rankings_OpenOnPixivNet" xml:space="preserve">
+    <value>🌐 pixiv.net에서 열기</value>
+  </data>
+  <data name="Rankings_OpenArtistOnPixiv" xml:space="preserve">
+    <value>🌐 pixiv에서 작가 열기</value>
+  </data>
+  <data name="Rankings_AddToLocalFavorites" xml:space="preserve">
+    <value>★ 로컬 즐겨찾기에 추가</value>
+  </data>
+  <data name="Rankings_RemoveFromFavorites" xml:space="preserve">
+    <value>★ 즐겨찾기에서 제거</value>
+  </data>
+  <data name="Rankings_CopyArtworkID" xml:space="preserve">
+    <value>작품 ID 복사</value>
+  </data>
+  <data name="Rankings_CopyArtworkURL" xml:space="preserve">
+    <value>작품 URL 복사</value>
+  </data>
+  <data name="Rankings_CopyImage" xml:space="preserve">
+    <value>📋 이미지 복사</value>
+  </data>
+  <data name="Rankings_UseAsAppBackground" xml:space="preserve">
+    <value>🖼 앱 배경으로 사용</value>
+  </data>
+  <data name="Rankings_NewerDate" xml:space="preserve">
+    <value>이전 날짜로</value>
+  </data>
+  <data name="Rankings_PickADate" xml:space="preserve">
+    <value>날짜 선택</value>
+  </data>
+  <data name="Rankings_YYYYMMDD" xml:space="preserve">
+    <value>YYYY-MM-DD</value>
+  </data>
+  <data name="Rankings_TypeYYYYMMDDAndPress" xml:space="preserve">
+    <value>YYYY-MM-DD 입력 후 Enter</value>
+  </data>
+  <data name="Rankings_ResetToLatestRanking" xml:space="preserve">
+    <value>최신 랭킹으로 재설정</value>
+  </data>
+  <data name="Rankings_OlderDate" xml:space="preserve">
+    <value>이후 날짜로</value>
+  </data>
+  <data name="Rankings_Reload" xml:space="preserve">
+    <value>다시 로드</value>
+  </data>
+  <data name="Rankings_ShowR18Rankings" xml:space="preserve">
+    <value>R-18 랭킹 표시</value>
+  </data>
+  <data name="Rankings_Overall" xml:space="preserve">
+    <value>종합</value>
+  </data>
+  <data name="Rankings_Illustrations" xml:space="preserve">
+    <value>일러스트</value>
+  </data>
+  <data name="Rankings_Ugoira" xml:space="preserve">
+    <value>우고이라</value>
+  </data>
+  <data name="Rankings_Manga" xml:space="preserve">
+    <value>만화</value>
+  </data>
+  <data name="Rankings_GridView" xml:space="preserve">
+    <value>그리드 보기</value>
+  </data>
+  <data name="Rankings_ListView" xml:space="preserve">
+    <value>목록 보기</value>
+  </data>
+  <data name="Rankings_FixedCardHeightImagesCroppedTo" xml:space="preserve">
+    <value>고정 카드 높이 — 이미지가 맞게 잘림</value>
+  </data>
+  <data name="Rankings_NaturalCardHeightImagesShowFull" xml:space="preserve">
+    <value>자연 카드 높이 — 이미지가 전체 종횡비로 표시</value>
+  </data>
+  <data name="Rankings_CardSize" xml:space="preserve">
+    <value>카드 크기</value>
+  </data>
+  <data name="Rankings_ToggleTheSidePanelBrowseArtworks" xml:space="preserve">
+    <value>사이드 패널 전환(뷰어와 나란히 작품 탐색)</value>
+  </data>
+  <data name="Rankings_ShowPanel" xml:space="preserve">
+    <value>패널 표시</value>
+  </data>
+  <data name="Rankings_HidePanel" xml:space="preserve">
+    <value>패널 숨기기</value>
+  </data>
+  <data name="Rankings_ShowHideArtworkInfo" xml:space="preserve">
+    <value>작품 정보 표시 / 숨기기</value>
+  </data>
+  <data name="Rankings_ShowHideTags" xml:space="preserve">
+    <value>태그 표시 / 숨기기</value>
+  </data>
+  <data name="Rankings_ShowHideLikedBookmarkedFavoriteBadges" xml:space="preserve">
+    <value>카드의 좋아요/북마크/즐겨찾기 배지 표시 / 숨기기</value>
+  </data>
+  <data name="Rankings_Badges" xml:space="preserve">
+    <value>배지</value>
+  </data>
+  <data name="Rankings_Daily" xml:space="preserve">
+    <value>일간</value>
+  </data>
+  <data name="Rankings_Weekly" xml:space="preserve">
+    <value>주간</value>
+  </data>
+  <data name="Rankings_AI" xml:space="preserve">
+    <value>AI</value>
+  </data>
+  <data name="Rankings_Male" xml:space="preserve">
+    <value>남성향</value>
+  </data>
+  <data name="Rankings_Female" xml:space="preserve">
+    <value>여성향</value>
+  </data>
+  <data name="Rankings_Monthly" xml:space="preserve">
+    <value>월간</value>
+  </data>
+  <data name="Rankings_Rookie" xml:space="preserve">
+    <value>루키</value>
+  </data>
+  <data name="Rankings_Original" xml:space="preserve">
+    <value>오리지널</value>
+  </data>
+  <data name="Rankings_DownloadSelectedArtworks" xml:space="preserve">
+    <value>선택한 작품 다운로드</value>
+  </data>
+  <data name="Rankings_ShowTheSelectedArtworksTiledTogether" xml:space="preserve">
+    <value>선택한 작품을 사이드 패널에 타일로 표시(최대 10개)</value>
+  </data>
+  <data name="Rankings_Collage" xml:space="preserve">
+    <value>콜라주</value>
+  </data>
+  <data name="Rankings_AddTheSelectedArtworksToThe" xml:space="preserve">
+    <value>선택한 작품을 활성 콜라주에 추가. 화살표로 콜라주 선택</value>
+  </data>
+  <data name="Rankings_OpenEachSelectedArtworkInIts" xml:space="preserve">
+    <value>선택한 각 작품을 개별 탭에서 열기</value>
+  </data>
+  <data name="Rankings_ViewInNewTabs" xml:space="preserve">
+    <value>새 탭에서 보기</value>
+  </data>
+  <data name="Rankings_DownloadAllVisibleArtworks" xml:space="preserve">
+    <value>표시된 모든 작품 다운로드</value>
+  </data>
+  <data name="Rankings_DownloadVisible" xml:space="preserve">
+    <value>표시 항목 다운로드</value>
+  </data>
+  <data name="Rankings_DownloadPreset" xml:space="preserve">
+    <value>🎨 다운로드 프리셋</value>
+  </data>
+  <data name="Rankings_DownloadWithImageProcessingPreset" xml:space="preserve">
+    <value>이미지 처리 프리셋으로 다운로드</value>
+  </data>
+  <data name="Rankings_SelectAll" xml:space="preserve">
+    <value>☑ 모두 선택</value>
+  </data>
+  <data name="Rankings_SelectAllVisibleArtworks" xml:space="preserve">
+    <value>표시된 모든 작품 선택</value>
+  </data>
+  <data name="Rankings_LoadingRankings" xml:space="preserve">
+    <value>🏆 랭킹 로드 중…</value>
+  </data>
+  <data name="Rankings_NoRankingsToShow" xml:space="preserve">
+    <value>🏆 표시할 랭킹 없음</value>
+  </data>
+  <data name="Rankings_TogglePaginationOffAutoloadWhileScrollin" xml:space="preserve">
+    <value>페이지네이션 전환(끄기 = 스크롤 자동 로드)</value>
+  </data>
+  <data name="Rankings_Pages" xml:space="preserve">
+    <value>페이지</value>
+  </data>
+  <data name="Rankings_ItemsPerPage" xml:space="preserve">
+    <value>페이지당 항목 수</value>
+  </data>
+  <data name="Rankings_Prev" xml:space="preserve">
+    <value>‹ 이전</value>
+  </data>
+  <data name="Rankings_TypeAPageNumberAndPress" xml:space="preserve">
+    <value>페이지 번호 입력 후 Enter</value>
+  </data>
+  <data name="Rankings_Next" xml:space="preserve">
+    <value>다음 ›</value>
+  </data>
+  <data name="Search_Select" xml:space="preserve">
+    <value>☑ 선택</value>
+  </data>
+  <data name="Search_Deselect" xml:space="preserve">
+    <value>☒ 해제</value>
+  </data>
+  <data name="Search_DownloadAll" xml:space="preserve">
+    <value>↓ 모두 다운로드</value>
+  </data>
+  <data name="Search_FirstPageOnly" xml:space="preserve">
+    <value>↓ 첫 페이지만</value>
+  </data>
+  <data name="Search_OpenInSidePanel" xml:space="preserve">
+    <value>👁 사이드 패널에서 열기</value>
+  </data>
+  <data name="Search_OpenFullScreen" xml:space="preserve">
+    <value>⛶ 전체 화면으로 열기</value>
+  </data>
+  <data name="Search_OpenInNewTab" xml:space="preserve">
+    <value>⊞ 새 탭에서 열기</value>
+  </data>
+  <data name="Search_OpenInPopup" xml:space="preserve">
+    <value>⧉ 팝업에서 열기</value>
+  </data>
+  <data name="Search_OpenOnPixivNet" xml:space="preserve">
+    <value>🌐 pixiv.net에서 열기</value>
+  </data>
+  <data name="Search_OpenArtistGallery" xml:space="preserve">
+    <value>👤 작가 갤러리 열기</value>
+  </data>
+  <data name="Search_AddToLocalFavorites" xml:space="preserve">
+    <value>★ 로컬 즐겨찾기에 추가</value>
+  </data>
+  <data name="Search_RemoveFromFavorites" xml:space="preserve">
+    <value>★ 즐겨찾기에서 제거</value>
+  </data>
+  <data name="Search_CopyArtworkID" xml:space="preserve">
+    <value>작품 ID 복사</value>
+  </data>
+  <data name="Search_CopyArtistID" xml:space="preserve">
+    <value>작가 ID 복사</value>
+  </data>
+  <data name="Search_CopyImage" xml:space="preserve">
+    <value>📋 이미지 복사</value>
+  </data>
+  <data name="Search_UseAsAppBackground" xml:space="preserve">
+    <value>🖼 앱 배경으로 사용</value>
+  </data>
+  <data name="Search_SearchAllOfPixiv" xml:space="preserve">
+    <value>Pixiv 전체 검색…</value>
+  </data>
+  <data name="Search_ClearHistory" xml:space="preserve">
+    <value>기록 지우기</value>
+  </data>
+  <data name="Search_NoSearchHistoryYet" xml:space="preserve">
+    <value>아직 검색 기록이 없습니다.</value>
+  </data>
+  <data name="Search_Reset" xml:space="preserve">
+    <value>✕ 재설정</value>
+  </data>
+  <data name="Search_ClearResultsAndGoBackTo" xml:space="preserve">
+    <value>결과를 지우고 검색 시작 화면으로 돌아가기</value>
+  </data>
+  <data name="Search_Keywords" xml:space="preserve">
+    <value>± 키워드</value>
+  </data>
+  <data name="Search_ShowIncludeExcludeKeywordOptions" xml:space="preserve">
+    <value>키워드 포함/제외 옵션 표시</value>
+  </data>
+  <data name="Search_AdvancedSearchOptions" xml:space="preserve">
+    <value>고급 검색 옵션</value>
+  </data>
+  <data name="Search_Options" xml:space="preserve">
+    <value>⚙ 옵션</value>
+  </data>
+  <data name="Search_Options_2" xml:space="preserve">
+    <value>⚙ 옵션 •</value>
+  </data>
+  <data name="Search_SearchOptions" xml:space="preserve">
+    <value>검색 옵션</value>
+  </data>
+  <data name="Search_Targets" xml:space="preserve">
+    <value>대상</value>
+  </data>
+  <data name="Search_TagsPartialMatch" xml:space="preserve">
+    <value>태그(부분 일치)</value>
+  </data>
+  <data name="Search_TagsExactMatch" xml:space="preserve">
+    <value>태그(정확히 일치)</value>
+  </data>
+  <data name="Search_TitleAndCaption" xml:space="preserve">
+    <value>제목 및 캡션</value>
+  </data>
+  <data name="Search_WorkType" xml:space="preserve">
+    <value>작품 유형</value>
+  </data>
+  <data name="Search_IllustrationsUgoira" xml:space="preserve">
+    <value>일러스트+우고이라</value>
+  </data>
+  <data name="Search_IllustrationsOnly" xml:space="preserve">
+    <value>일러스트만</value>
+  </data>
+  <data name="Search_UgoiraOnly" xml:space="preserve">
+    <value>우고이라만</value>
+  </data>
+  <data name="Search_AIGeneratedWork" xml:space="preserve">
+    <value>AI 생성 작품</value>
+  </data>
+  <data name="Search_Display" xml:space="preserve">
+    <value>표시</value>
+  </data>
+  <data name="Search_Hide" xml:space="preserve">
+    <value>숨기기</value>
+  </data>
+  <data name="Search_AspectRatio" xml:space="preserve">
+    <value>종횡비</value>
+  </data>
+  <data name="Search_Any" xml:space="preserve">
+    <value>전체</value>
+  </data>
+  <data name="Search_Portrait" xml:space="preserve">
+    <value>세로</value>
+  </data>
+  <data name="Search_Square" xml:space="preserve">
+    <value>정사각형</value>
+  </data>
+  <data name="Search_Landscape" xml:space="preserve">
+    <value>가로</value>
+  </data>
+  <data name="Search_CreationTool" xml:space="preserve">
+    <value>제작 도구</value>
+  </data>
+  <data name="Search_PostedDateRange" xml:space="preserve">
+    <value>게시 날짜 범위</value>
+  </data>
+  <data name="Search_ImageWidthPx" xml:space="preserve">
+    <value>이미지 너비(px)</value>
+  </data>
+  <data name="Search_ImageHeightPx" xml:space="preserve">
+    <value>이미지 높이(px)</value>
+  </data>
+  <data name="Search_PixivPremiumRequired" xml:space="preserve">
+    <value>Pixiv 프리미엄 필요</value>
+  </data>
+  <data name="Common_Reset" xml:space="preserve">
+    <value>재설정</value>
+  </data>
+  <data name="Search_IncludeAnyOfTheKeywords" xml:space="preserve">
+    <value>키워드 중 하나 포함</value>
+  </data>
+  <data name="Search_ExcludeKeywords" xml:space="preserve">
+    <value>키워드 제외</value>
+  </data>
+  <data name="Search_Related" xml:space="preserve">
+    <value>관련:</value>
+  </data>
+  <data name="Search_Illustrations" xml:space="preserve">
+    <value>일러스트</value>
+  </data>
+  <data name="Search_Manga" xml:space="preserve">
+    <value>만화</value>
+  </data>
+  <data name="Search_Novels" xml:space="preserve">
+    <value>소설</value>
+  </data>
+  <data name="Search_User" xml:space="preserve">
+    <value>사용자</value>
+  </data>
+  <data name="Search_Safe" xml:space="preserve">
+    <value>세이프</value>
+  </data>
+  <data name="Search_All" xml:space="preserve">
+    <value>전체</value>
+  </data>
+  <data name="Search_NewestFirst" xml:space="preserve">
+    <value>최신순</value>
+  </data>
+  <data name="Search_PopularFirst" xml:space="preserve">
+    <value>인기순</value>
+  </data>
+  <data name="Search_PopularMale" xml:space="preserve">
+    <value>인기(남성)</value>
+  </data>
+  <data name="Search_PopularFemale" xml:space="preserve">
+    <value>인기(여성)</value>
+  </data>
+  <data name="Search_ShowPanel" xml:space="preserve">
+    <value>패널 표시</value>
+  </data>
+  <data name="Search_HidePanel" xml:space="preserve">
+    <value>패널 숨기기</value>
+  </data>
+  <data name="Search_ShowHideLikedBookmarkedFavoriteBadges" xml:space="preserve">
+    <value>카드의 좋아요/북마크/즐겨찾기 배지 표시 / 숨기기</value>
+  </data>
+  <data name="Search_Badges" xml:space="preserve">
+    <value>배지</value>
+  </data>
+  <data name="Search_ShowTheSelectedArtworksTiledTogether" xml:space="preserve">
+    <value>선택한 작품을 사이드 패널에 타일로 표시(최대 10개)</value>
+  </data>
+  <data name="Search_Collage" xml:space="preserve">
+    <value>콜라주</value>
+  </data>
+  <data name="Search_AddTheSelectedArtworksToThe" xml:space="preserve">
+    <value>선택한 작품을 활성 콜라주에 추가. 화살표로 콜라주 선택</value>
+  </data>
+  <data name="Search_OpenEachSelectedArtworkInIts" xml:space="preserve">
+    <value>선택한 각 작품을 개별 탭에서 열기</value>
+  </data>
+  <data name="Search_ViewInNewTabs" xml:space="preserve">
+    <value>새 탭에서 보기</value>
+  </data>
+  <data name="Search_DownloadVisible" xml:space="preserve">
+    <value>표시 항목 다운로드</value>
+  </data>
+  <data name="Search_SelectAll" xml:space="preserve">
+    <value>☑ 모두 선택</value>
+  </data>
+  <data name="Search_DownloadPreset" xml:space="preserve">
+    <value>🎨 다운로드 프리셋</value>
+  </data>
+  <data name="Search_DownloadWithImageProcessingPreset" xml:space="preserve">
+    <value>이미지 처리 프리셋으로 다운로드</value>
+  </data>
+  <data name="Search_SearchAllOfPixiv_2" xml:space="preserve">
+    <value>🔍 Pixiv 전체 검색</value>
+  </data>
+  <data name="Search_PopularTagsRightNow" xml:space="preserve">
+    <value>지금 인기 있는 태그</value>
+  </data>
+  <data name="Search_VisitRankingsOnceToPopulateThis" xml:space="preserve">
+    <value>랭킹을 한 번 방문하면 실제 트렌드가 여기에 표시됩니다.</value>
+  </data>
+  <data name="Search_OpenGallery" xml:space="preserve">
+    <value>갤러리 열기 →</value>
+  </data>
+  <data name="Search_TogglePaginationOffAutoloadWhileScrollin" xml:space="preserve">
+    <value>페이지네이션 전환(끄기 = 스크롤 자동 로드)</value>
+  </data>
+  <data name="Search_Pages" xml:space="preserve">
+    <value>페이지</value>
+  </data>
+  <data name="Search_ItemsPerPage" xml:space="preserve">
+    <value>페이지당 항목 수</value>
+  </data>
+  <data name="Search_First" xml:space="preserve">
+    <value>« 처음</value>
+  </data>
+  <data name="Search_Prev" xml:space="preserve">
+    <value>‹ 이전</value>
+  </data>
+  <data name="Search_TypeAPageNumberAndPress" xml:space="preserve">
+    <value>페이지 번호 입력 후 Enter</value>
+  </data>
+  <data name="Search_Next" xml:space="preserve">
+    <value>다음 ›</value>
+  </data>
+  <data name="Search_Last" xml:space="preserve">
+    <value>마지막 »</value>
+  </data>
+  <data name="Search_LoadMore" xml:space="preserve">
+    <value>더 불러오기</value>
+  </data>
+  <data name="Batch_EnterArtistIdsMulti" xml:space="preserve">
+    <value>작가 ID 또는 URL 입력...
+한 줄에 하나 또는 쉼표로 구분
+예: 1234567
+https://www.pixiv.net/en/users/1234567</value>
+  </data>
+  <data name="Batch_EnterImageIdsMulti" xml:space="preserve">
+    <value>이미지 ID, URL 입력...
+한 줄에 하나 또는 쉼표로 구분
+예: 12345678
+https://www.pixiv.net/en/artworks/12345678</value>
+  </data>
+  <data name="Batch_EnterCollectionIdsMulti" xml:space="preserve">
+    <value>컬렉션 ID 또는 URL을 한 줄에 하나씩 입력...
+예: 99928968526562868893
+https://www.pixiv.net/collections/99928968526562868893</value>
+  </data>
+  <data name="Batch_DownloadFromListFiles" xml:space="preserve">
+    <value>list.txt 또는 tags.txt 파일에서 다운로드
+텍스트 파일에서 URL, ID 또는 태그 가져오기</value>
+  </data>
+  <data name="DlId_EnterImageIdsMulti" xml:space="preserve">
+    <value>이미지 ID, URL 입력 또는 클립보드에서 붙여넣기...
+예:
+12345678
+https://www.pixiv.net/en/artworks/12345678
+12345679, 12345680</value>
+  </data>
+  <data name="Artwork_BookmarkActionFailed" xml:space="preserve">
+    <value>북마크 작업 실패</value>
+  </data>
+  <data name="Artwork_CouldNotBookmark" xml:space="preserve">
+    <value>북마크할 수 없음</value>
+  </data>
+  <data name="Artwork_CouldNotFollow" xml:space="preserve">
+    <value>팔로우할 수 없음</value>
+  </data>
+  <data name="Artwork_CouldNotLikeArtwork" xml:space="preserve">
+    <value>좋아요할 수 없음</value>
+  </data>
+  <data name="Artwork_CouldNotLikeArtwork_2" xml:space="preserve">
+    <value>좋아요할 수 없습니다.</value>
+  </data>
+  <data name="Artwork_CouldNotRemoveBookmark" xml:space="preserve">
+    <value>북마크를 제거할 수 없음</value>
+  </data>
+  <data name="Artwork_CouldNotUnfollow" xml:space="preserve">
+    <value>언팔로우할 수 없음</value>
+  </data>
+  <data name="Artwork_CouldNotUpdateBookmark" xml:space="preserve">
+    <value>북마크를 업데이트할 수 없습니다.</value>
+  </data>
+  <data name="Artwork_CouldNotUpdateFollowState" xml:space="preserve">
+    <value>팔로우 상태를 업데이트할 수 없습니다.</value>
+  </data>
+  <data name="Artwork_CouldNotUpdateFollowStateMake" xml:space="preserve">
+    <value>팔로우 상태를 업데이트할 수 없습니다. 로그인했는지 확인하세요.</value>
+  </data>
+  <data name="Artwork_DownloadCompletedSimulated" xml:space="preserve">
+    <value>다운로드 완료(시뮬레이션)</value>
+  </data>
+  <data name="Artwork_DownloadFailedPleaseTryAgain" xml:space="preserve">
+    <value>다운로드에 실패했습니다. 다시 시도하세요.</value>
+  </data>
+  <data name="Artwork_DownloadingAllPages" xml:space="preserve">
+    <value>모든 페이지 다운로드 중...</value>
+  </data>
+  <data name="Artwork_DownloadingCurrentPage" xml:space="preserve">
+    <value>현재 페이지 다운로드 중...</value>
+  </data>
+  <data name="Artwork_ExportArtworkMetadata" xml:space="preserve">
+    <value>작품 메타데이터 내보내기</value>
+  </data>
+  <data name="Artwork_FailedToLoadArtworkPages" xml:space="preserve">
+    <value>작품 페이지 로드 실패</value>
+  </data>
+  <data name="Artwork_FollowActionFailed" xml:space="preserve">
+    <value>팔로우 작업 실패</value>
+  </data>
+  <data name="Artwork_LikeFailed" xml:space="preserve">
+    <value>좋아요 실패</value>
+  </data>
+  <data name="Artwork_LoadingArtworkPages" xml:space="preserve">
+    <value>작품 페이지 로드 중...</value>
+  </data>
+  <data name="Artwork_RemovedBookmark" xml:space="preserve">
+    <value>북마크를 제거했습니다</value>
+  </data>
+  <data name="Batch_AddAtLeastOneArtistTo" xml:space="preserve">
+    <value>목록에 작가를 한 명 이상 추가하세요.</value>
+  </data>
+  <data name="Batch_CreateANewScheduleAddArtists" xml:space="preserve">
+    <value>새 스케줄 — 작가를 추가하고 설정을 구성한 후 저장을 클릭하세요.</value>
+  </data>
+  <data name="Batch_PickADateAndTimeFor" xml:space="preserve">
+    <value>한 번만 실행할 날짜와 시간을 선택하세요.</value>
+  </data>
+  <data name="Batch_Validation" xml:space="preserve">
+    <value>유효성 검사</value>
+  </data>
+  <data name="Bookmarks_FolderDownloadIsOnlyAvailableOn" xml:space="preserve">
+    <value>폴더 다운로드는 '로컬 즐겨찾기' 탭에서만 사용할 수 있습니다.</value>
+  </data>
+  <data name="Bookmarks_NoBookmarkedCollectionsFound" xml:space="preserve">
+    <value>북마크한 컬렉션을 찾을 수 없습니다.</value>
+  </data>
+  <data name="Bookmarks_NoBookmarksToDownloadInThe" xml:space="preserve">
+    <value>현재 탭에 다운로드할 북마크가 없습니다.</value>
+  </data>
+  <data name="Bookmarks_NoCustomFoldersFoundInLocal" xml:space="preserve">
+    <value>로컬 즐겨찾기에 사용자 지정 폴더가 없습니다.</value>
+  </data>
+  <data name="Bookmarks_NoFolderSelected" xml:space="preserve">
+    <value>폴더가 선택되지 않음</value>
+  </data>
+  <data name="Bookmarks_NoFolders" xml:space="preserve">
+    <value>폴더 없음</value>
+  </data>
+  <data name="Bookmarks_NoItems" xml:space="preserve">
+    <value>항목 없음</value>
+  </data>
+  <data name="Bookmarks_NoSelection" xml:space="preserve">
+    <value>선택 없음</value>
+  </data>
+  <data name="Bookmarks_NotAvailable" xml:space="preserve">
+    <value>사용할 수 없음</value>
+  </data>
+  <data name="Bookmarks_NotSignedIn" xml:space="preserve">
+    <value>로그인되어 있지 않습니다.</value>
+  </data>
+  <data name="Bookmarks_SelectOneOrMoreBookmarksFirst" xml:space="preserve">
+    <value>먼저 하나 이상의 북마크를 선택하세요.</value>
+  </data>
+  <data name="Bookmarks_UseTheFolderSidebarToSelect" xml:space="preserve">
+    <value>먼저 폴더 사이드바에서 폴더를 선택하세요.</value>
+  </data>
+  <data name="Collections_AddToCollageCancelled" xml:space="preserve">
+    <value>콜라주 추가가 취소되었습니다.</value>
+  </data>
+  <data name="Collections_BookmarkedThisCollection" xml:space="preserve">
+    <value>이 컬렉션을 북마크했습니다.</value>
+  </data>
+  <data name="Collections_CouldNotLoadThatCollectionIt" xml:space="preserve">
+    <value>해당 컬렉션을 불러올 수 없습니다 — 비공개이거나 삭제되었거나 ID가 잘못되었을 수 있습니다.</value>
+  </data>
+  <data name="Collections_CouldnTLoadCollectionsYouCan" xml:space="preserve">
+    <value>컬렉션을 불러올 수 없습니다 — 위에 특정 컬렉션 URL/ID를 붙여넣을 수 있습니다.</value>
+  </data>
+  <data name="Collections_DeleteComment" xml:space="preserve">
+    <value>댓글 삭제</value>
+  </data>
+  <data name="Collections_DeleteThisCommentThisCannotBe" xml:space="preserve">
+    <value>이 댓글을 삭제할까요? 되돌릴 수 없습니다.</value>
+  </data>
+  <data name="Collections_DownloadCancelled" xml:space="preserve">
+    <value>다운로드가 취소되었습니다.</value>
+  </data>
+  <data name="Collections_FailedToBookmarkCollection" xml:space="preserve">
+    <value>컬렉션 북마크에 실패했습니다.</value>
+  </data>
+  <data name="Collections_FailedToDeleteComment" xml:space="preserve">
+    <value>댓글 삭제에 실패했습니다.</value>
+  </data>
+  <data name="Collections_FailedToPostComment" xml:space="preserve">
+    <value>댓글 작성에 실패했습니다.</value>
+  </data>
+  <data name="Collections_FailedToPostSticker" xml:space="preserve">
+    <value>스티커 전송에 실패했습니다.</value>
+  </data>
+  <data name="Collections_FailedToRemoveCollectionBookmark" xml:space="preserve">
+    <value>컬렉션 북마크 제거에 실패했습니다.</value>
+  </data>
+  <data name="Collections_LoadingCollection" xml:space="preserve">
+    <value>컬렉션 로드 중…</value>
+  </data>
+  <data name="Collections_NoArtworksFoundInTheSelected" xml:space="preserve">
+    <value>선택한 컬렉션에 작품이 없습니다.</value>
+  </data>
+  <data name="Collections_NoArtworksToDownload" xml:space="preserve">
+    <value>다운로드할 작품이 없습니다.</value>
+  </data>
+  <data name="Collections_NoneOfTheSelectedCollectionsCould" xml:space="preserve">
+    <value>선택한 컬렉션을 모두 불러올 수 없습니다.</value>
+  </data>
+  <data name="Collections_RemovedCollectionBookmark" xml:space="preserve">
+    <value>컬렉션 북마크를 제거했습니다.</value>
+  </data>
+  <data name="Collections_SelectOneOrMoreArtworksFirst" xml:space="preserve">
+    <value>먼저 하나 이상의 작품을 선택하세요.</value>
+  </data>
+  <data name="Collections_SelectOneOrMoreCollectionsFirst" xml:space="preserve">
+    <value>먼저 하나 이상의 컬렉션을 선택하세요.</value>
+  </data>
+  <data name="Collections_ThatDoesnTLookLikeA" xml:space="preserve">
+    <value>컬렉션 URL 또는 ID가 아닌 것 같습니다.</value>
+  </data>
+  <data name="Dialog_FileAlreadyExists" xml:space="preserve">
+    <value>파일이 이미 존재합니다</value>
+  </data>
+  <data name="Discover_DownloadWithPresetCancelled" xml:space="preserve">
+    <value>프리셋 다운로드가 취소되었습니다.</value>
+  </data>
+  <data name="Discover_FailedToLoad" xml:space="preserve">
+    <value>로드 실패: </value>
+  </data>
+  <data name="Discover_FailedToLoadRecommendedUsers" xml:space="preserve">
+    <value>추천 사용자 로드 실패: </value>
+  </data>
+  <data name="Discover_LoadingRecommendedUsers" xml:space="preserve">
+    <value>추천 사용자 로드 중…</value>
+  </data>
+  <data name="Discover_LoadingRecommendedWorks" xml:space="preserve">
+    <value>추천 작품 로드 중…</value>
+  </data>
+  <data name="Discover_NoArtistIDsQueuedClickIndividual" xml:space="preserve">
+    <value>큐에 작가 ID가 없습니다 — 먼저 개별 작가 ID를 클릭하세요.</value>
+  </data>
+  <data name="Discover_NoArtworksAvailableToDownload" xml:space="preserve">
+    <value>다운로드할 작품이 없습니다.</value>
+  </data>
+  <data name="Discover_NoArtworksFoundForThisArtist" xml:space="preserve">
+    <value>이 작가의 작품을 찾을 수 없습니다.</value>
+  </data>
+  <data name="Discover_NoMoreNewWorksRightNow" xml:space="preserve">
+    <value>지금은 더 이상 새 작품이 없습니다 — 새로 고침해 보세요.</value>
+  </data>
+  <data name="Discover_NoRecommendedUsersFound" xml:space="preserve">
+    <value>추천 사용자를 찾을 수 없습니다.</value>
+  </data>
+  <data name="Discover_NoRecommendedWorksFound" xml:space="preserve">
+    <value>추천 작품을 찾을 수 없습니다.</value>
+  </data>
+  <data name="DlArtist_AllArtistsAlreadyInList" xml:space="preserve">
+    <value>모든 작가가 이미 목록에 있습니다</value>
+  </data>
+  <data name="DlArtist_CannotSave" xml:space="preserve">
+    <value>저장할 수 없음</value>
+  </data>
+  <data name="DlArtist_CreatingDownloadJob" xml:space="preserve">
+    <value>다운로드 작업 생성 중...</value>
+  </data>
+  <data name="DlArtist_DownloadCancelled" xml:space="preserve">
+    <value>다운로드 취소됨</value>
+  </data>
+  <data name="DlArtist_DownloadStarted" xml:space="preserve">
+    <value>다운로드 시작...</value>
+  </data>
+  <data name="DlArtist_InvalidPageRange" xml:space="preserve">
+    <value>잘못된 페이지 범위</value>
+  </data>
+  <data name="DlArtist_LoadingFollowedArtists" xml:space="preserve">
+    <value>팔로우 중인 작가 로드 중...</value>
+  </data>
+  <data name="DlArtist_LoadingFollowedArtistsFromPixiv" xml:space="preserve">
+    <value>Pixiv에서 팔로우 중인 작가 로드 중...</value>
+  </data>
+  <data name="DlArtist_NoArtists" xml:space="preserve">
+    <value>작가 없음</value>
+  </data>
+  <data name="DlArtist_NoFollowedArtistsFound" xml:space="preserve">
+    <value>팔로우 중인 작가를 찾을 수 없습니다.</value>
+  </data>
+  <data name="DlArtist_NoPresets" xml:space="preserve">
+    <value>프리셋 없음</value>
+  </data>
+  <data name="DlArtist_NoSavedPresetsFoundCreateOne" xml:space="preserve">
+    <value>저장된 프리셋이 없습니다. 먼저 만드세요!</value>
+  </data>
+  <data name="DlArtist_PleaseAddAtLeastOneArtist" xml:space="preserve">
+    <value>다운로드할 작가를 한 명 이상 추가하세요.</value>
+  </data>
+  <data name="DlArtist_PleaseAddAtLeastOneArtist_2" xml:space="preserve">
+    <value>프리셋을 저장하기 전에 작가를 한 명 이상 추가하세요.</value>
+  </data>
+  <data name="DlBookmarks_NoBookmarkedArtistsFound" xml:space="preserve">
+    <value>북마크한 작가를 찾을 수 없습니다.</value>
+  </data>
+  <data name="DlBookmarks_NoBookmarkedArtworksFoundForThe" xml:space="preserve">
+    <value>선택한 공개 범위의 북마크 작품을 찾을 수 없습니다.</value>
+  </data>
+  <data name="DlBookmarks_NoBookmarks" xml:space="preserve">
+    <value>북마크 없음</value>
+  </data>
+  <data name="DlBookmarks_NoLocalFavoritesFound" xml:space="preserve">
+    <value>로컬 즐겨찾기를 찾을 수 없습니다.</value>
+  </data>
+  <data name="DlBookmarks_NotLoggedInPleaseSignIn" xml:space="preserve">
+    <value>로그인되어 있지 않습니다. 먼저 로그인하세요.</value>
+  </data>
+  <data name="DlBookmarks_PleaseSelectAFolderToDownload" xml:space="preserve">
+    <value>다운로드할 폴더를 선택하세요.</value>
+  </data>
+  <data name="DlBookmarks_StartingBookmarkDownload" xml:space="preserve">
+    <value>북마크 다운로드 시작...</value>
+  </data>
+  <data name="DlId_ConfigurationSavedNotYetImplemented" xml:space="preserve">
+    <value>구성 저장됨(아직 구현되지 않음)</value>
+  </data>
+  <data name="DlId_ImportedIDsFromFile" xml:space="preserve">
+    <value>파일에서 ID를 가져왔습니다</value>
+  </data>
+  <data name="DlId_NoIDs" xml:space="preserve">
+    <value>ID 없음</value>
+  </data>
+  <data name="DlId_PastedFromClipboard" xml:space="preserve">
+    <value>클립보드에서 붙여넣었습니다</value>
+  </data>
+  <data name="DlId_PleaseEnterAtLeastOneImage" xml:space="preserve">
+    <value>이미지 ID 또는 URL을 하나 이상 입력하세요.</value>
+  </data>
+  <data name="DlId_PresetSaved" xml:space="preserve">
+    <value>프리셋 저장됨</value>
+  </data>
+  <data name="DlList_NoItemsToDownloadPleaseSelect" xml:space="preserve">
+    <value>다운로드할 항목이 없습니다. 먼저 목록 파일을 선택하세요.</value>
+  </data>
+  <data name="DlList_PleaseSelectAValidFile" xml:space="preserve">
+    <value>유효한 파일을 선택하세요.</value>
+  </data>
+  <data name="DlList_SelectListFile" xml:space="preserve">
+    <value>목록 파일 선택</value>
+  </data>
+  <data name="DlList_StorageProviderNotAvailable" xml:space="preserve">
+    <value>저장소 공급자를 사용할 수 없습니다.</value>
+  </data>
+  <data name="Gallery_AbstractThoughts" xml:space="preserve">
+    <value>Abstract Thoughts</value>
+  </data>
+  <data name="Gallery_AllArtworksSkipped" xml:space="preserve">
+    <value>모든 작품이 건너뛰어졌습니다.</value>
+  </data>
+  <data name="Gallery_ArtistChangedDownloadCancelled" xml:space="preserve">
+    <value>작가가 변경되었습니다. 다운로드가 취소되었습니다.</value>
+  </data>
+  <data name="Gallery_CharacterPortrait" xml:space="preserve">
+    <value>Character Portrait</value>
+  </data>
+  <data name="Gallery_DiscoverFeatureComingSoon" xml:space="preserve">
+    <value>발견 기능 곧 제공 예정!</value>
+  </data>
+  <data name="Gallery_DownloadPaused" xml:space="preserve">
+    <value>다운로드가 일시 중지되었습니다.</value>
+  </data>
+  <data name="Gallery_EnterANewNameForThis" xml:space="preserve">
+    <value>이 탭의 새 이름 입력:</value>
+  </data>
+  <data name="Gallery_FailedToLoadArtworks" xml:space="preserve">
+    <value>작품 로드 실패: </value>
+  </data>
+  <data name="Gallery_FailedToLoadFollowedArtists" xml:space="preserve">
+    <value>팔로우 작가 로드 실패: </value>
+  </data>
+  <data name="Gallery_FailedToLoadRecentWorks" xml:space="preserve">
+    <value>최근 작품 로드 실패: </value>
+  </data>
+  <data name="Gallery_FailedToRefresh" xml:space="preserve">
+    <value>새로 고침 실패: </value>
+  </data>
+  <data name="Gallery_Loading" xml:space="preserve">
+    <value>로드 중 </value>
+  </data>
+  <data name="Gallery_LoadingFollowedArtists_2" xml:space="preserve">
+    <value>팔로우 중인 작가 로드 중…</value>
+  </data>
+  <data name="Gallery_LoadingRecentWorksFromFollowedArtists" xml:space="preserve">
+    <value>팔로우 작가의 최근 작품 로드 중…</value>
+  </data>
+  <data name="Gallery_NoArtistIDsQueuedClickIndividual" xml:space="preserve">
+    <value>큐에 작가 ID가 없습니다 — 먼저 개별 작가 ID를 클릭해 추가하세요.</value>
+  </data>
+  <data name="Gallery_NoArtworksLoaded" xml:space="preserve">
+    <value>로드된 작품이 없습니다.</value>
+  </data>
+  <data name="Gallery_NoArtworksSelectedForDownload" xml:space="preserve">
+    <value>다운로드할 작품이 선택되지 않았습니다.</value>
+  </data>
+  <data name="Gallery_RefreshingFollowedArtists" xml:space="preserve">
+    <value>팔로우 중인 작가 새로 고침 중…</value>
+  </data>
+  <data name="Gallery_RenameTab" xml:space="preserve">
+    <value>탭 이름 바꾸기</value>
+  </data>
+  <data name="Gallery_SearchCleared" xml:space="preserve">
+    <value>검색이 지워졌습니다</value>
+  </data>
+  <data name="Gallery_SearchFailed" xml:space="preserve">
+    <value>검색 실패: </value>
+  </data>
+  <data name="Gallery_SearchIndexUnavailable" xml:space="preserve">
+    <value>검색 인덱스를 사용할 수 없습니다.</value>
+  </data>
+  <data name="Gallery_Searching" xml:space="preserve">
+    <value>검색 중...</value>
+  </data>
+  <data name="Gallery_SelectAnArtistFirst" xml:space="preserve">
+    <value>먼저 작가를 선택하세요.</value>
+  </data>
+  <data name="Gallery_SelectionCleared" xml:space="preserve">
+    <value>선택이 해제되었습니다</value>
+  </data>
+  <data name="Gallery_SignInToSeeFollowedArtists" xml:space="preserve">
+    <value>로그인하여 팔로우 중인 작가 보기.</value>
+  </data>
+  <data name="Gallery_ValidatingSession" xml:space="preserve">
+    <value>세션 확인 중…</value>
+  </data>
+  <data name="History_Paused" xml:space="preserve">
+    <value>⏸ 일시 중지됨</value>
+  </data>
+  <data name="History_Queued" xml:space="preserve">
+    <value>⏳ 대기 중</value>
+  </data>
+  <data name="History_Running" xml:space="preserve">
+    <value>▶ 실행 중</value>
+  </data>
+  <data name="Hoshi_AnimeTaggerModelIsNotInstalled" xml:space="preserve">
+    <value>애니메이션 태거 모델이 설치되지 않았습니다. 설정 → Hoshi AI에서 설치하세요.</value>
+  </data>
+  <data name="Hoshi_ChatCleared" xml:space="preserve">
+    <value>대화가 지워졌습니다.</value>
+  </data>
+  <data name="Hoshi_Copy" xml:space="preserve">
+    <value>(사본)</value>
+  </data>
+  <data name="Hoshi_CouldNotIdentifyThisImageIt" xml:space="preserve">
+    <value>⚠ 이 이미지를 식별할 수 없습니다. 아직 Danbooru/SauceNAO에 등록되지 않았을 수 있습니다.</value>
+  </data>
+  <data name="Hoshi_HoshiIsOff" xml:space="preserve">
+    <value>Hoshi 꺼짐</value>
+  </data>
+  <data name="Hoshi_HoshiIsnTReadyYetEnable" xml:space="preserve">
+    <value>⚠ Hoshi가 아직 준비되지 않았습니다 — 먼저 설정에서 사용하도록 설정하세요.</value>
+  </data>
+  <data name="Hoshi_HoshiReady" xml:space="preserve">
+    <value>Hoshi 별 준비됨</value>
+  </data>
+  <data name="Hoshi_HoshiReadyICanDescribeImages" xml:space="preserve">
+    <value>Hoshi 별 준비 완료! 이미지 설명, 태그 제안, 작품 다운로드, 즐겨찾기 추가, 폴더 이동이 가능합니다. 무엇을 할까요?</value>
+  </data>
+  <data name="Hoshi_InstallingOllama" xml:space="preserve">
+    <value>Ollama 설치 중…</value>
+  </data>
+  <data name="Hoshi_LoadingHoshiSModel" xml:space="preserve">
+    <value>Hoshi 모델 로드 중…</value>
+  </data>
+  <data name="Hoshi_NewChat" xml:space="preserve">
+    <value>새 대화</value>
+  </data>
+  <data name="Hoshi_NoImageAttachedYetWaitFor" xml:space="preserve">
+    <value>⚠ 아직 첨부된 이미지가 없습니다 — 작품 로드를 기다리거나 이미지를 대화에 드래그하세요.</value>
+  </data>
+  <data name="Hoshi_RunningAnimeTagger" xml:space="preserve">
+    <value>애니메이션 태거 실행 중…</value>
+  </data>
+  <data name="Hoshi_Starting" xml:space="preserve">
+    <value>시작 중…</value>
+  </data>
+  <data name="Hoshi_System" xml:space="preserve">
+    <value>system</value>
+  </data>
+  <data name="Hoshi_Untitled" xml:space="preserve">
+    <value>제목 없음</value>
+  </data>
+  <data name="Hoshi_WakingUpHoshi" xml:space="preserve">
+    <value>Hoshi 깨우는 중…</value>
+  </data>
+  <data name="Jobs_DownloadsRefreshed" xml:space="preserve">
+    <value>다운로드가 새로 고쳐졌습니다</value>
+  </data>
+  <data name="Jobs_FailedToRefreshDownloads" xml:space="preserve">
+    <value>다운로드 새로 고침 실패</value>
+  </data>
+  <data name="Jobs_FailedToRefreshDownloads_2" xml:space="preserve">
+    <value>다운로드 새로 고침에 실패했습니다.</value>
+  </data>
+  <data name="Jobs_RefreshingDownloads" xml:space="preserve">
+    <value>다운로드 새로 고치는 중...</value>
+  </data>
+  <data name="Main_CannotInstallUpdateInfoLostPlease" xml:space="preserve">
+    <value>설치할 수 없습니다: 업데이트 정보가 유실되었습니다. 앱을 다시 시작하고 다시 시도하세요.</value>
+  </data>
+  <data name="Main_StartingDownload" xml:space="preserve">
+    <value>다운로드 시작 중...</value>
+  </data>
+  <data name="Main_StartingInstaller" xml:space="preserve">
+    <value>설치 프로그램 시작 중...</value>
+  </data>
+  <data name="Pikura_AddedPrivateBookmark" xml:space="preserve">
+    <value>비공개 북마크를 추가했습니다</value>
+  </data>
+  <data name="Pikura_All" xml:space="preserve">
+    <value>all</value>
+  </data>
+  <data name="Pikura_AllReleasesOnGitHub" xml:space="preserve">
+    <value>GitHub의 모든 릴리스 ↗</value>
+  </data>
+  <data name="Pikura_ApplyToSelectedPages" xml:space="preserve">
+    <value>선택한 페이지에 적용</value>
+  </data>
+  <data name="Pikura_BookmarkedOnPixiv" xml:space="preserve">
+    <value>Pixiv에 북마크했습니다</value>
+  </data>
+  <data name="Pikura_CommentDeleted" xml:space="preserve">
+    <value>댓글이 삭제되었습니다</value>
+  </data>
+  <data name="Pikura_CommentPosted" xml:space="preserve">
+    <value>댓글이 등록되었습니다</value>
+  </data>
+  <data name="Pikura_ConfirmingSession" xml:space="preserve">
+    <value>세션 확인 중…</value>
+  </data>
+  <data name="Pikura_Copied" xml:space="preserve">
+    <value>복사됨!</value>
+  </data>
+  <data name="Pikura_CouldNotDeleteComment" xml:space="preserve">
+    <value>댓글을 삭제할 수 없습니다.</value>
+  </data>
+  <data name="Pikura_CouldNotDetectSessionTrySigning" xml:space="preserve">
+    <value>세션을 감지하지 못했습니다. 다시 로그인해 보세요.</value>
+  </data>
+  <data name="Pikura_CouldNotLoadComments" xml:space="preserve">
+    <value>댓글을 불러올 수 없습니다.</value>
+  </data>
+  <data name="Pikura_CouldNotLoadImagePreview" xml:space="preserve">
+    <value>이미지 미리보기를 불러올 수 없습니다</value>
+  </data>
+  <data name="Pikura_CouldNotLoadReplies" xml:space="preserve">
+    <value>답글을 불러올 수 없습니다</value>
+  </data>
+  <data name="Pikura_CouldNotPostComment" xml:space="preserve">
+    <value>댓글을 작성할 수 없습니다.</value>
+  </data>
+  <data name="Pikura_CouldNotPostComment_2" xml:space="preserve">
+    <value>댓글을 작성할 수 없습니다</value>
+  </data>
+  <data name="Pikura_CouldNotReAddBookmark" xml:space="preserve">
+    <value>북마크를 다시 추가할 수 없습니다</value>
+  </data>
+  <data name="Pikura_CouldNotUpdateBookmarkPrivacy" xml:space="preserve">
+    <value>북마크 공개 설정을 업데이트할 수 없습니다</value>
+  </data>
+  <data name="Pikura_CouldNotUpdateFollowFollowUnfollow" xml:space="preserve">
+    <value>팔로우를 업데이트할 수 없습니다. 팔로우/언팔로우에는 Pixiv App API 리프레시 토큰(설정 &gt; 계정) 또는 유효한 웹 세션이 필요합니다.</value>
+  </data>
+  <data name="Pikura_DeleteALLSessionsThisCannotBe" xml:space="preserve">
+    <value>모든 세션을 삭제할까요? 되돌릴 수 없습니다.</value>
+  </data>
+  <data name="Pikura_DeleteAllSessions" xml:space="preserve">
+    <value>모든 세션을 삭제할까요?</value>
+  </data>
+  <data name="Pikura_DeleteSelectedSessions" xml:space="preserve">
+    <value>선택한 세션을 삭제할까요?</value>
+  </data>
+  <data name="Pikura_DeleteSession" xml:space="preserve">
+    <value>세션을 삭제할까요?</value>
+  </data>
+  <data name="Pikura_DetectingSession" xml:space="preserve">
+    <value>세션 감지 중…</value>
+  </data>
+  <data name="Pikura_DownloadStarted" xml:space="preserve">
+    <value>다운로드 시작됨</value>
+  </data>
+  <data name="Pikura_Empty" xml:space="preserve">
+    <value>(비어 있음)</value>
+  </data>
+  <data name="Pikura_EnterBothDatesAsMMDD" xml:space="preserve">
+    <value>두 날짜를 MM-DD-YYYY 형식으로 입력하세요(예: 10-14-2015).</value>
+  </data>
+  <data name="Pikura_Error" xml:space="preserve">
+    <value>오류</value>
+  </data>
+  <data name="Pikura_Favorited" xml:space="preserve">
+    <value>즐겨찾기에 추가했습니다</value>
+  </data>
+  <data name="Pikura_FilePickerNotInitialized" xml:space="preserve">
+    <value>파일 선택 도구가 초기화되지 않았습니다</value>
+  </data>
+  <data name="Pikura_FolderNameEmptyNone" xml:space="preserve">
+    <value>폴더 이름(비어 있음 = 없음)</value>
+  </data>
+  <data name="Pikura_FromCurrentArtwork" xml:space="preserve">
+    <value>현재 작품에서</value>
+  </data>
+  <data name="Pikura_HideReplies" xml:space="preserve">
+    <value>▴ 답글 숨기기</value>
+  </data>
+  <data name="Pikura_Hoshi" xml:space="preserve">
+    <value>Hoshi…</value>
+  </data>
+  <data name="Pikura_Hoshi_2" xml:space="preserve">
+    <value>Hoshi 별</value>
+  </data>
+  <data name="Pikura_ImageURLCopiedPasteIntoA" xml:space="preserve">
+    <value>이미지 URL이 복사되었습니다 — 다운로드 관리자에 붙여넣으세요(브라우저는 403; Pixiv CDN은 Referer 헤더 필요).</value>
+  </data>
+  <data name="Pikura_LikedOnPixiv" xml:space="preserve">
+    <value>Pixiv에 좋아요했습니다</value>
+  </data>
+  <data name="Pikura_LoadImageFromURL" xml:space="preserve">
+    <value>URL에서 이미지 로드</value>
+  </data>
+  <data name="Pikura_LoadingUgoira" xml:space="preserve">
+    <value>우고이라 로드 중...</value>
+  </data>
+  <data name="Pikura_MMDdYyyy" xml:space="preserve">
+    <value>MM-dd-yyyy</value>
+  </data>
+  <data name="Pikura_MoveDown" xml:space="preserve">
+    <value>▼ 아래로 이동</value>
+  </data>
+  <data name="Pikura_MoveToBottom" xml:space="preserve">
+    <value>⏬ 맨 아래로 이동</value>
+  </data>
+  <data name="Pikura_MoveToTop" xml:space="preserve">
+    <value>⏫ 맨 위로 이동</value>
+  </data>
+  <data name="Pikura_MoveUp" xml:space="preserve">
+    <value>▲ 위로 이동</value>
+  </data>
+  <data name="Pikura_N0" xml:space="preserve">
+    <value>N0</value>
+  </data>
+  <data name="Pikura_NewFolderNameOrPickBelow" xml:space="preserve">
+    <value>새 폴더 이름(또는 아래에서 선택)</value>
+  </data>
+  <data name="Pikura_NewTitle" xml:space="preserve">
+    <value>새 제목:</value>
+  </data>
+  <data name="Pikura_NoArtworkSelectedOrOpenClick" xml:space="preserve">
+    <value>선택되었거나 열려 있는 작품이 없습니다. 작품을 클릭하거나 여러 개를 먼저 선택하세요.</value>
+  </data>
+  <data name="Pikura_NoArtworksAreSelectedCheckAt" xml:space="preserve">
+    <value>선택된 작품이 없습니다. 목록에서 하나 이상 선택하세요.</value>
+  </data>
+  <data name="Pikura_NoArtworksFoundForThisSearch" xml:space="preserve">
+    <value>이 검색으로 작품을 찾을 수 없습니다.</value>
+  </data>
+  <data name="Pikura_NoCommentsYetBeTheFirst" xml:space="preserve">
+    <value>아직 댓글이 없습니다 — 첫 댓글을 남겨보세요!</value>
+  </data>
+  <data name="Pikura_NoPagesSelected" xml:space="preserve">
+    <value>선택된 페이지가 없습니다.</value>
+  </data>
+  <data name="Pikura_NoPostsToDownloadPleaseSearch" xml:space="preserve">
+    <value>다운로드할 게시물이 없습니다. 먼저 검색하세요.</value>
+  </data>
+  <data name="Pikura_NoRepliesFound" xml:space="preserve">
+    <value>답글을 찾을 수 없습니다</value>
+  </data>
+  <data name="Pikura_NoResults" xml:space="preserve">
+    <value>결과 없음</value>
+  </data>
+  <data name="Pikura_NoSearchResultsToDownloadPlease" xml:space="preserve">
+    <value>다운로드할 검색 결과가 없습니다. 먼저 검색하세요.</value>
+  </data>
+  <data name="Pikura_NoStickersCouldBeLoaded" xml:space="preserve">
+    <value>스티커를 불러올 수 없습니다.</value>
+  </data>
+  <data name="Pikura_OpenImage" xml:space="preserve">
+    <value>이미지 열기</value>
+  </data>
+  <data name="Pikura_PleaseEnterACreatorID" xml:space="preserve">
+    <value>크리에이터 ID를 입력하세요.</value>
+  </data>
+  <data name="Pikura_PleaseEnterAPostID" xml:space="preserve">
+    <value>게시물 ID를 입력하세요.</value>
+  </data>
+  <data name="Pikura_PleaseEnterASearchKeyword" xml:space="preserve">
+    <value>검색 키워드를 입력하세요.</value>
+  </data>
+  <data name="Pikura_PreviewError" xml:space="preserve">
+    <value>미리보기 오류</value>
+  </data>
+  <data name="Pikura_ReleaseHistory" xml:space="preserve">
+    <value>릴리스 기록</value>
+  </data>
+  <data name="Pikura_RemovedPixivBookmark" xml:space="preserve">
+    <value>Pixiv 북마크를 제거했습니다</value>
+  </data>
+  <data name="Pikura_RenameSession" xml:space="preserve">
+    <value>세션 이름 바꾸기</value>
+  </data>
+  <data name="Pikura_RetryingSessionCheck" xml:space="preserve">
+    <value>세션 확인 재시도 중…</value>
+  </data>
+  <data name="Pikura_SelectBookmarksFirstOrOpenOne" xml:space="preserve">
+    <value>먼저 북마크를 선택하거나 사이드 패널에서 하나를 여세요.</value>
+  </data>
+  <data name="Pikura_SelectFrame" xml:space="preserve">
+    <value>프레임 선택</value>
+  </data>
+  <data name="Pikura_SelectOutputFolder" xml:space="preserve">
+    <value>출력 폴더 선택</value>
+  </data>
+  <data name="Pikura_Selected" xml:space="preserve">
+    <value>)}개 선택됨</value>
+  </data>
+  <data name="Pikura_SessionDetectedButUserIDMissing" xml:space="preserve">
+    <value>세션이 감지되었지만 사용자 ID가 없습니다 — 다시 시도하세요.</value>
+  </data>
+  <data name="Pikura_SetFolder" xml:space="preserve">
+    <value>폴더 설정</value>
+  </data>
+  <data name="Pikura_SwitchedToPrivateBookmark" xml:space="preserve">
+    <value>비공개 북마크로 전환했습니다</value>
+  </data>
+  <data name="Pikura_SwitchedToPublicBookmark" xml:space="preserve">
+    <value>공개 북마크로 전환했습니다</value>
+  </data>
+  <data name="Pikura_Thinking" xml:space="preserve">
+    <value>생각 중…</value>
+  </data>
+  <data name="Pikura_UgoiraAnimatedWatchingOnly" xml:space="preserve">
+    <value>우고이라(애니메이션) — 보기 전용</value>
+  </data>
+  <data name="Pikura_UgoiraCoverImageStatic" xml:space="preserve">
+    <value>우고이라 — 표지 이미지(정적)</value>
+  </data>
+  <data name="Pikura_UgoiraEditingCoverImageStatic" xml:space="preserve">
+    <value>우고이라 — 표지 이미지 편집 중(정적)</value>
+  </data>
+  <data name="Pikura_UgoiraOptions" xml:space="preserve">
+    <value>우고이라 옵션</value>
+  </data>
+  <data name="Pikura_UnfollowNotAvailablePixivOAuthAuthentication" xml:space="preserve">
+    <value>언팔로우할 수 없습니다: Pixiv OAuth 인증이 차단됨</value>
+  </data>
+  <data name="Pikura_WebViewDidNotLoadUseEnter" xml:space="preserve">
+    <value>WebView가 로드되지 않았습니다. 대신 "쿠키 수동 입력"을 사용하세요.</value>
+  </data>
+  <data name="Pikura_YyyyMMDd" xml:space="preserve">
+    <value>yyyy-MM-dd</value>
+  </data>
+  <data name="Pixivision_FailedToLoadArticle" xml:space="preserve">
+    <value>기사 로드에 실패했습니다.</value>
+  </data>
+  <data name="Pixivision_LoadingPixivisionArticles" xml:space="preserve">
+    <value>pixivision 기사 로드 중…</value>
+  </data>
+  <data name="Rankings_FailedToLoadRankings" xml:space="preserve">
+    <value>랭킹 로드 실패</value>
+  </data>
+  <data name="Rankings_FailedToLoadRankingsPleaseTry" xml:space="preserve">
+    <value>랭킹 로드에 실패했습니다. 다시 시도하세요.</value>
+  </data>
+  <data name="Rankings_NoArtworksSelected" xml:space="preserve">
+    <value>선택된 작품이 없습니다.</value>
+  </data>
+  <data name="Rankings_NoResultsCheckYourSessionOr" xml:space="preserve">
+    <value>결과 없음 — 세션을 확인하거나 다른 모드를 시도하세요.</value>
+  </data>
+  <data name="Rankings_NovelsCanTBeDownloadedFrom" xml:space="preserve">
+    <value>소설은 랭킹에서 다운로드할 수 없습니다 — pixiv.net에서 여세요.</value>
+  </data>
+  <data name="Rankings_RankingsLoadedSuccessfully" xml:space="preserve">
+    <value>랭킹을 불러왔습니다</value>
+  </data>
+  <data name="Search_NoNovelsFound" xml:space="preserve">
+    <value>소설을 찾을 수 없습니다.</value>
+  </data>
+  <data name="Search_NoResultsFound" xml:space="preserve">
+    <value>결과를 찾을 수 없습니다.</value>
+  </data>
+  <data name="Search_NoUsersFound" xml:space="preserve">
+    <value>사용자를 찾을 수 없습니다.</value>
+  </data>
+  <data name="Search_Searching" xml:space="preserve">
+    <value>검색 중…</value>
+  </data>
+  <data name="Settings_AreYouSureYouWantTo" xml:space="preserve">
+    <value>모든 설정을 기본값으로 재설정할까요?</value>
+  </data>
+  <data name="Settings_CheckFailed" xml:space="preserve">
+    <value>확인 실패</value>
+  </data>
+  <data name="Settings_Checking" xml:space="preserve">
+    <value>확인 중…</value>
+  </data>
+  <data name="Settings_CheckingForUpdates" xml:space="preserve">
+    <value>업데이트 확인 중...</value>
+  </data>
+  <data name="Settings_ClearYourSessionCookieAndSign" xml:space="preserve">
+    <value>세션 쿠키를 지우고 로그아웃할까요?</value>
+  </data>
+  <data name="Settings_CloudflareSession" xml:space="preserve">
+    <value>Cloudflare 세션</value>
+  </data>
+  <data name="Settings_Downloading" xml:space="preserve">
+    <value>다운로드 중…</value>
+  </data>
+  <data name="Settings_FailedToChangeDownloadFolder" xml:space="preserve">
+    <value>다운로드 폴더 변경에 실패했습니다.</value>
+  </data>
+  <data name="Settings_FailedToResetSettings" xml:space="preserve">
+    <value>설정 재설정에 실패했습니다.</value>
+  </data>
+  <data name="Settings_NotInstalledRequiredForUgoiraConversion" xml:space="preserve">
+    <value>설치되지 않음(우고이라 변환에 필요)</value>
+  </data>
+  <data name="Settings_ResetSettings" xml:space="preserve">
+    <value>설정 재설정</value>
+  </data>
+  <data name="Settings_SettingsHaveBeenResetToDefaults" xml:space="preserve">
+    <value>설정이 기본값으로 재설정되었습니다(시뮬레이션).</value>
+  </data>
+  <data name="Settings_Success" xml:space="preserve">
+    <value>성공</value>
+  </data>
+  <data name="Viewed_HistoryCleared" xml:space="preserve">
+    <value>기록이 지워졌습니다.</value>
+  </data>
+  <data name="Viewed_LoadingHistory" xml:space="preserve">
+    <value>기록 로드 중…</value>
+  </data>
+  <data name="WhatsNew_BookmarksImprovements" xml:space="preserve">
+    <value>북마크 개선</value>
+  </data>
+  <data name="WhatsNew_ChromeStyleTabReordering" xml:space="preserve">
+    <value>Chrome식 탭 재정렬</value>
+  </data>
+  <data name="WhatsNew_Pikura210" xml:space="preserve">
+    <value>Pikura 2.1.0</value>
+  </data>
+  <data name="WhatsNew_PixivConnectedActions" xml:space="preserve">
+    <value>Pixiv 연동 작업</value>
+  </data>
+  <data name="WhatsNew_RefreshedLightDarkThemes" xml:space="preserve">
+    <value>새로워진 라이트 &amp; 다크 테마</value>
+  </data>
+  <data name="WhatsNew_SearchImprovements" xml:space="preserve">
+    <value>검색 개선</value>
+  </data>
+  <data name="Artwork_Error" xml:space="preserve">
+    <value>오류</value>
+  </data>
+  <data name="Bookmarks_Error" xml:space="preserve">
+    <value>오류</value>
+  </data>
+  <data name="DlArtist_Error" xml:space="preserve">
+    <value>오류</value>
+  </data>
+  <data name="DlBookmarks_Error" xml:space="preserve">
+    <value>오류</value>
+  </data>
+  <data name="DlId_Error" xml:space="preserve">
+    <value>오류</value>
+  </data>
+  <data name="DlList_Error" xml:space="preserve">
+    <value>오류</value>
+  </data>
+  <data name="Jobs_Error" xml:space="preserve">
+    <value>오류</value>
+  </data>
+  <data name="Rankings_Error" xml:space="preserve">
+    <value>오류</value>
+  </data>
+  <data name="Settings_Error" xml:space="preserve">
+    <value>오류</value>
+  </data>
+  <data name="DlBookmarks_NoCustomFoldersFoundInLocal" xml:space="preserve">
+    <value>로컬 즐겨찾기에 사용자 지정 폴더가 없습니다.</value>
+  </data>
+  <data name="DlBookmarks_NoFolders" xml:space="preserve">
+    <value>폴더 없음</value>
+  </data>
+  <data name="DlBookmarks_NoItems" xml:space="preserve">
+    <value>항목 없음</value>
+  </data>
+  <data name="DlBookmarks_NoSelection" xml:space="preserve">
+    <value>선택 없음</value>
+  </data>
+  <data name="DlId_CreatingDownloadJob" xml:space="preserve">
+    <value>다운로드 작업 생성 중...</value>
+  </data>
+  <data name="DlId_DownloadCancelled" xml:space="preserve">
+    <value>다운로드 취소됨</value>
+  </data>
+  <data name="DlId_DownloadStarted" xml:space="preserve">
+    <value>다운로드 시작...</value>
+  </data>
+  <data name="DlList_DownloadStarted" xml:space="preserve">
+    <value>다운로드 시작...</value>
+  </data>
+  <data name="DlList_NoItems" xml:space="preserve">
+    <value>항목 없음</value>
+  </data>
+  <data name="Gallery_AName" xml:space="preserve">
+    <value>a:name</value>
+  </data>
+  <data name="Gallery_LoadingFollowedArtists" xml:space="preserve">
+    <value>팔로우 중인 작가 로드 중...</value>
+  </data>
+  <data name="Gallery_NoArtworksSelected" xml:space="preserve">
+    <value>선택된 작품이 없습니다.</value>
+  </data>
+  <data name="Gallery_NoArtworksToDownload" xml:space="preserve">
+    <value>다운로드할 작품이 없습니다.</value>
+  </data>
+  <data name="Gallery_Sakura" xml:space="preserve">
+    <value>sakura</value>
+  </data>
+  <data name="Gallery_Tag1Tag2" xml:space="preserve">
+    <value>tag1, tag2, …</value>
+  </data>
+  <data name="Gallery_ToClipboard" xml:space="preserve">
+    <value>)} 클립보드에 복사</value>
+  </data>
+  <data name="Gallery_U12345" xml:space="preserve">
+    <value>u:12345</value>
+  </data>
+  <data name="Main_DownloadCancelled" xml:space="preserve">
+    <value>다운로드 취소됨</value>
+  </data>
+  <data name="Pikura_CouldNotBookmark" xml:space="preserve">
+    <value>북마크할 수 없음</value>
+  </data>
+  <data name="Pikura_CouldNotLikeArtwork" xml:space="preserve">
+    <value>좋아요할 수 없음</value>
+  </data>
+  <data name="Pikura_CouldNotRemoveBookmark" xml:space="preserve">
+    <value>북마크를 제거할 수 없음</value>
+  </data>
+  <data name="Pikura_NoItems" xml:space="preserve">
+    <value>항목 없음</value>
+  </data>
+  <data name="Pikura_Pikura" xml:space="preserve">
+    <value>Pikura</value>
+  </data>
+  <data name="Pikura_Starting" xml:space="preserve">
+    <value>시작 중…</value>
+  </data>
+  <data name="Gallery_CopiedQueuedArtistIds" xml:space="preserve">
+    <value>큐의 작가 ID {0}개를 클립보드에 복사했습니다</value>
+  </data>
+  <data name="Preset_ImagesSelected" xml:space="preserve">
+    <value>이미지 {0}개 선택됨</value>
+  </data>
+  <data name="Preset_AllSelectedArtworks" xml:space="preserve">
+    <value>선택한 모든 작품</value>
+  </data>
+  <data name="Preset_SelectedArtworks" xml:space="preserve">
+    <value>선택한 작품</value>
+  </data>
+  <data name="Viewed_ClearedEntriesPast" xml:space="preserve">
+    <value>지난 {1}에서 {0}개의 항목을 삭제했습니다.</value>
+  </data>
+  <data name="DlArtist_ArtistsStartedDownloading" xml:space="preserve">
+    <value>작가 {0}명 다운로드 시작</value>
+  </data>
+  <data name="DlArtist_ArtistsQueuedSlot" xml:space="preserve">
+    <value>작가 {0}명 대기열 추가 — 슬롯이 비면 시작</value>
+  </data>
+  <data name="History_DownloadsCount" xml:space="preserve">
+    <value>다운로드 {0}개</value>
+  </data>
+  <data name="History_JobsCount" xml:space="preserve">
+    <value>작업 {0}개</value>
+  </data>
+  <data name="Jobs_JobItemCount" xml:space="preserve">
+    <value>{0} — {1}개 항목</value>
+  </data>
+  <data name="Jobs_DownloadedSoFar" xml:space="preserve">
+    <value>{0}
+{1}/{2} 작품 다운로드됨</value>
+  </data>
+  <data name="Jobs_ResumingFrom" xml:space="preserve">
+    <value>{0}
+{1}/{2} 작품부터 재개</value>
+  </data>
+  <data name="Jobs_SucceededFailed" xml:space="preserve">
+    <value>{0}
+{1} 작품 · {2} 실패</value>
+  </data>
+  <data name="Jobs_ArtworksDownloaded" xml:space="preserve">
+    <value>{0}
+{1} 작품 다운로드됨</value>
+  </data>
+  <data name="Changelog_ReleaseCount" xml:space="preserve">
+    <value>{0}개 릴리스 — 최신순</value>
+  </data>
+  <data name="Preset_ArtworkListItem" xml:space="preserve">
+    <value>{0}. {1}  ({2}페이지)</value>
+  </data>
 </root>

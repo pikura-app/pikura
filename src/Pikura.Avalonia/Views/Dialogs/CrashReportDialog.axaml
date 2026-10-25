@@ -1,8 +1,9 @@
 ﻿<Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:loc="using:Pikura.Avalonia.Localization"
         xmlns:actipro="http://schemas.actiprosoftware.com/avaloniaui"
         x:Class="Pikura.Avalonia.Views.Dialogs.CrashReportDialog"
-        Title="Pikura - Crash Detected"
+        Title="{loc:Tr Crash_PikuraCrashDetected}"
         Width="640"
         Height="400"
         WindowStartupLocation="CenterScreen"
@@ -28,10 +29,10 @@
                                    VerticalAlignment="Center"/>
                     </Border>
                     <StackPanel VerticalAlignment="Center">
-                        <TextBlock Text="Pikura Crashed"
+                        <TextBlock Text="{loc:Tr Crash_PikuraCrashed}"
                                    FontSize="20"
                                    FontWeight="Bold"/>
-                        <TextBlock Text="We detected a crash from your previous session."
+                        <TextBlock Text="{loc:Tr Crash_WeDetectedACrashFromYour}"
                                    FontSize="13"
                                    Opacity="0.7"/>
                     </StackPanel>
@@ -50,29 +51,29 @@
                         Padding="16">
                     <StackPanel Spacing="8">
                         <Grid ColumnDefinitions="Auto,*">
-                            <TextBlock Text="Time:"
+                            <TextBlock Text="{loc:Tr Batch_Time}"
                                        FontWeight="SemiBold"
                                        Width="80"/>
                             <TextBlock x:Name="CrashTimeText"
                                        Grid.Column="1"
-                                       Text="Unknown"/>
+                                       Text="{loc:Tr Crash_Unknown}"/>
                         </Grid>
                         <Grid ColumnDefinitions="Auto,*">
-                            <TextBlock Text="Error:"
+                            <TextBlock Text="{loc:Tr Crash_Error}"
                                        FontWeight="SemiBold"
                                        Width="80"/>
                             <TextBlock x:Name="CrashTypeText"
                                        Grid.Column="1"
-                                       Text="Unknown"
+                                       Text="{loc:Tr Crash_Unknown}"
                                        TextTrimming="CharacterEllipsis"/>
                         </Grid>
                         <Grid ColumnDefinitions="Auto,*">
-                            <TextBlock Text="Message:"
+                            <TextBlock Text="{loc:Tr Crash_Message}"
                                        FontWeight="SemiBold"
                                        Width="80"/>
                             <TextBlock x:Name="CrashMessageText"
                                        Grid.Column="1"
-                                       Text="Unknown"
+                                       Text="{loc:Tr Crash_Unknown}"
                                        TextWrapping="Wrap"
                                        MaxLines="2"
                                        Opacity="0.8"
@@ -83,7 +84,7 @@
 
                 <!-- Log File Path -->
                 <StackPanel Spacing="4">
-                    <TextBlock Text="Crash Log Location:"
+                    <TextBlock Text="{loc:Tr Crash_CrashLogLocation}"
                                FontWeight="SemiBold"
                                FontSize="12"/>
                     <TextBox x:Name="LogPathTextBox"
@@ -93,7 +94,7 @@
                 </StackPanel>
 
                 <!-- Explanation -->
-                <TextBlock Text="A detailed crash report has been saved. You can use this to report the issue or troubleshoot the problem."
+                <TextBlock Text="{loc:Tr Crash_ADetailedCrashReportHasBeen}"
                            TextWrapping="Wrap"
                            FontSize="12"
                            Opacity="0.7"/>
@@ -105,11 +106,11 @@
                         HorizontalAlignment="Right"
                         Spacing="12"
                         Margin="0,16,0,0">
-                <Button x:Name="ViewLogButton" Content="View Log File" Click="OnViewLogClick"/>
-                <Button x:Name="OpenFolderButton" Content="Open Log Folder" Click="OnOpenFolderClick"/>
-                <Button x:Name="CopyPathButton" Content="Copy Path" Click="OnCopyPathClick"/>
-                <Button x:Name="CopyContentsButton" Content="Copy Contents" Click="OnCopyContentsClick"/>
-                <Button x:Name="DismissButton" Content="Dismiss" Classes="accent" Click="OnDismissClick"/>
+                <Button x:Name="ViewLogButton" Content="{loc:Tr Crash_ViewLogFile}" Click="OnViewLogClick"/>
+                <Button x:Name="OpenFolderButton" Content="{loc:Tr Crash_OpenLogFolder}" Click="OnOpenFolderClick"/>
+                <Button x:Name="CopyPathButton" Content="{loc:Tr Crash_CopyPath}" Click="OnCopyPathClick"/>
+                <Button x:Name="CopyContentsButton" Content="{loc:Tr Crash_CopyContents}" Click="OnCopyContentsClick"/>
+                <Button x:Name="DismissButton" Content="{loc:Tr Common_Dismiss}" Classes="accent" Click="OnDismissClick"/>
             </StackPanel>
         </Grid>
     </Border>

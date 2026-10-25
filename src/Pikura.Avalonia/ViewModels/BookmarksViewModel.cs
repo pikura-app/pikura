@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Pikura.Core.Models;
 using Pikura.Core.Services;
 using Pikura.Core.Settings;
+using Pikura.Avalonia.Localization;
 using Pikura.Avalonia.Services;
 using System;
 using System.Collections.Generic;
@@ -398,7 +399,7 @@ public partial class BookmarksViewModel : ViewModelBase
         try
         {
             var self = await _pixivClient.ResolveSelfAsync();
-            if (self == null) { StatusMessage = "Not signed in."; return; }
+            if (self == null) { StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Bookmarks_NotSignedIn"]; return; }
 
             var collections = await _pixivClient.GetBookmarkedCollectionsAsync(self.Value.UserId);
             foreach (var c in collections)
@@ -410,7 +411,7 @@ public partial class BookmarksViewModel : ViewModelBase
             OnPropertyChanged(nameof(HasBookmarkedCollections));
             OnPropertyChanged(nameof(ShowEmptyCollectionsMessage));
             if (collections.Count == 0)
-                StatusMessage = "No bookmarked collections found.";
+                StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Bookmarks_NoBookmarkedCollectionsFound"];
         }
         catch (Exception ex)
         {
@@ -534,7 +535,7 @@ public partial class BookmarksViewModel : ViewModelBase
             var self = await _pixivClient.ResolveSelfAsync(ct);
             if (self == null)
             {
-                StatusMessage = "Not signed in.";
+                StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Bookmarks_NotSignedIn"];
                 return;
             }
 
@@ -1096,7 +1097,7 @@ public partial class BookmarksViewModel : ViewModelBase
         var selected = ActiveCollection.Where(c => c.IsSelected).ToList();
         if (selected.Count == 0)
         {
-            await _dialogService.ShowMessageAsync("No Selection", "Select one or more bookmarks first.");
+            await _dialogService.ShowMessageAsync(Pikura.Avalonia.Localization.LocalizationService.Instance["Bookmarks_NoSelection"], Pikura.Avalonia.Localization.LocalizationService.Instance["Bookmarks_SelectOneOrMoreBookmarksFirst"]);
             return;
         }
 
@@ -1115,7 +1116,7 @@ public partial class BookmarksViewModel : ViewModelBase
         var list = ActiveCollection;
         if (list.Count == 0)
         {
-            await _dialogService.ShowMessageAsync("No Items", "No bookmarks to download in the current tab.");
+            await _dialogService.ShowMessageAsync(Pikura.Avalonia.Localization.LocalizationService.Instance["Bookmarks_NoItems"], Pikura.Avalonia.Localization.LocalizationService.Instance["Bookmarks_NoBookmarksToDownloadInThe"]);
             return;
         }
 
@@ -1133,19 +1134,19 @@ public partial class BookmarksViewModel : ViewModelBase
     {
         if (SelectedTabIndex != 2)
         {
-            await _dialogService.ShowMessageAsync("Not Available", "Folder download is only available on the Local Favorites tab.");
+            await _dialogService.ShowMessageAsync(Pikura.Avalonia.Localization.LocalizationService.Instance["Bookmarks_NotAvailable"], Pikura.Avalonia.Localization.LocalizationService.Instance["Bookmarks_FolderDownloadIsOnlyAvailableOn"]);
             return;
         }
         if (AvailableFolders.Count == 0)
         {
-            await _dialogService.ShowMessageAsync("No Folders", "No custom folders found in local favorites.");
+            await _dialogService.ShowMessageAsync(Pikura.Avalonia.Localization.LocalizationService.Instance["Bookmarks_NoFolders"], Pikura.Avalonia.Localization.LocalizationService.Instance["Bookmarks_NoCustomFoldersFoundInLocal"]);
             return;
         }
 
         var folder = string.IsNullOrWhiteSpace(FolderFilter) ? null : FolderFilter;
         if (folder == null)
         {
-            await _dialogService.ShowMessageAsync("No Folder Selected", "Use the folder sidebar to select a folder first.");
+            await _dialogService.ShowMessageAsync(Pikura.Avalonia.Localization.LocalizationService.Instance["Bookmarks_NoFolderSelected"], Pikura.Avalonia.Localization.LocalizationService.Instance["Bookmarks_UseTheFolderSidebarToSelect"]);
             return;
         }
 
@@ -1155,7 +1156,7 @@ public partial class BookmarksViewModel : ViewModelBase
 
         if (items.Count == 0)
         {
-            await _dialogService.ShowMessageAsync("No Items", $"No favorites found in folder '{folder}'.");
+            await _dialogService.ShowMessageAsync(Pikura.Avalonia.Localization.LocalizationService.Instance["Bookmarks_NoItems"], $"No favorites found in folder '{folder}'.");
             return;
         }
 
@@ -1193,7 +1194,7 @@ public partial class BookmarksViewModel : ViewModelBase
         catch (Exception ex)
         {
             Logger.LogError(ex, "Failed to queue bookmark download");
-            await _dialogService.ShowMessageAsync("Error", $"Failed to start download: {ex.Message}");
+            await _dialogService.ShowMessageAsync(Pikura.Avalonia.Localization.LocalizationService.Instance["Bookmarks_Error"], $"Failed to start download: {ex.Message}");
         }
     }
 }

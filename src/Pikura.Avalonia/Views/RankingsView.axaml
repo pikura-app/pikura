@@ -1,5 +1,6 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:loc="using:Pikura.Avalonia.Localization"
              xmlns:vm="using:Pikura.Avalonia.ViewModels"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -28,14 +29,14 @@
                 </Grid.ColumnDefinitions>
 
                 <TextBlock Grid.Column="0" 
-                          Text="Rankings" 
+                          Text="{loc:Tr Nav_Rankings}" 
                           FontWeight="SemiBold" 
                           FontSize="20"/>
                 
                 <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8">
                     <CalendarDatePicker SelectedDate="{Binding SelectedDate}"/>
                     <CheckBox Content="R-18" IsChecked="{Binding ShowR18}"/>
-                    <Button Content="Load Rankings" Command="{Binding LoadRankingsCommand}"/>
+                    <Button Content="{loc:Tr Rankings_LoadRankings}" Command="{Binding LoadRankingsCommand}"/>
                 </StackPanel>
             </Grid>
         </Border>
@@ -52,14 +53,14 @@
                     Padding="32">
                 <StackPanel Spacing="16" HorizontalAlignment="Center">
                     <TextBlock Text="📊" FontSize="48" HorizontalAlignment="Center"/>
-                    <TextBlock Text="Rankings" 
+                    <TextBlock Text="{loc:Tr Nav_Rankings}" 
                               FontWeight="SemiBold" 
                               FontSize="24" 
                               HorizontalAlignment="Center"/>
-                    <TextBlock Text="Daily, weekly, and monthly rankings" 
+                    <TextBlock Text="{loc:Tr Rankings_DailyWeeklyAndMonthlyRankings}" 
                               TextAlignment="Center" 
                               Opacity="0.7"/>
-                    <Button Content="Load Rankings" 
+                    <Button Content="{loc:Tr Rankings_LoadRankings}" 
                             Command="{Binding LoadRankingsCommand}"
                             HorizontalAlignment="Center"/>
                 </StackPanel>

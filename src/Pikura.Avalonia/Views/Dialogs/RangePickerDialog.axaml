@@ -1,8 +1,9 @@
 ﻿<Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:loc="using:Pikura.Avalonia.Localization"
         xmlns:actipro="http://schemas.actiprosoftware.com/avaloniaui"
         x:Class="Pikura.Avalonia.Views.Dialogs.RangePickerDialog"
-        Title="Pick Range"
+        Title="{loc:Tr DateRange_PickRange}"
         Width="440" Height="230"
         CanResize="False"
         WindowStartupLocation="CenterOwner"
@@ -16,8 +17,8 @@
                  PlaceholderText="e.g. 1-20 or 1,5-10,50"
                  CornerRadius="6" FontSize="13"/>
         <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Right">
-            <Button Content="Cancel" Click="OnCancel"/>
-            <Button Content="OK" Classes="accent" Click="OnOk"/>
+            <Button Content="{loc:Tr Common_Cancel}" Click="OnCancel"/>
+            <Button Content="{loc:Tr Common_OK}" Classes="accent" Click="OnOk"/>
         </StackPanel>
     </StackPanel>
 </Window>

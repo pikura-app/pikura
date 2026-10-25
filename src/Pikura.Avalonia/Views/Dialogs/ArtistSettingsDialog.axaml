@@ -1,8 +1,9 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:loc="using:Pikura.Avalonia.Localization"
         xmlns:actipro="http://schemas.actiprosoftware.com/avaloniaui"
         x:Class="Pikura.Avalonia.Views.Dialogs.ArtistSettingsDialog"
-        Title="Artist Download Settings"
+        Title="{loc:Tr Artist_ArtistDownloadSettings}"
         Width="620"
         Height="620"
         MinWidth="520"
@@ -22,13 +23,13 @@
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Spacing="2">
                     <TextBlock x:Name="TitleTextBlock" FontSize="15" FontWeight="SemiBold"/>
-                    <TextBlock Text="Leave fields blank to inherit global defaults."
+                    <TextBlock Text="{loc:Tr Artist_LeaveFieldsBlankToInheritGlobal}"
                                FontSize="11"
                                Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                 </StackPanel>
                 <CheckBox x:Name="UseGlobalSettingsCheckBox"
                           Grid.Column="1"
-                          Content="Use global defaults"
+                          Content="{loc:Tr Artist_UseGlobalDefaults}"
                           FontSize="11"
                           VerticalAlignment="Center"
                           Margin="16,0,0,0"/>
@@ -42,10 +43,10 @@
                 BorderThickness="0,1,0,0"
                 Padding="16,10">
             <Grid ColumnDefinitions="Auto,*,Auto">
-                <Button Content="Reset to defaults" Click="ResetButton_Click" FontSize="12"/>
+                <Button Content="{loc:Tr Artist_ResetToDefaults}" Click="ResetButton_Click" FontSize="12"/>
                 <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8">
-                    <Button x:Name="CancelBtn" Content="Cancel" Click="CancelButton_Click"/>
-                    <Button Content="Save" Click="SaveButton_Click" Classes="accent"/>
+                    <Button x:Name="CancelBtn" Content="{loc:Tr Common_Cancel}" Click="CancelButton_Click"/>
+                    <Button Content="{loc:Tr Common_Save}" Click="SaveButton_Click" Classes="accent"/>
                 </StackPanel>
             </Grid>
         </Border>
@@ -62,14 +63,14 @@
                         BorderBrush="{DynamicResource Container2BorderBrush}"
                         BorderThickness="1" CornerRadius="8" Padding="12">
                     <StackPanel Spacing="8">
-                        <TextBlock Text="📁 Location" FontWeight="SemiBold" FontSize="12"/>
-                        <TextBlock Text="Download folder"
+                        <TextBlock Text="{loc:Tr Artist_Location}" FontWeight="SemiBold" FontSize="12"/>
+                        <TextBlock Text="{loc:Tr Artist_DownloadFolder}"
                                    FontSize="10"
                                    Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                         <Grid ColumnDefinitions="*,Auto" ColumnSpacing="6">
                             <TextBox Grid.Column="0"
                                      x:Name="DownloadRootTextBox"
-                                     PlaceholderText="Global folder"
+                                     PlaceholderText="{loc:Tr Artist_GlobalFolder}"
                                      FontSize="11"
                                      CornerRadius="5"/>
                             <Button Content="…" Click="BrowseFolderButton_Click" FontSize="12"/>
@@ -83,9 +84,9 @@
                         BorderBrush="{DynamicResource Container2BorderBrush}"
                         BorderThickness="1" CornerRadius="8" Padding="12">
                     <StackPanel Spacing="8">
-                        <TextBlock Text="✏ Naming" FontWeight="SemiBold" FontSize="12"/>
+                        <TextBlock Text="{loc:Tr Artist_Naming}" FontWeight="SemiBold" FontSize="12"/>
                         <StackPanel Spacing="4">
-                            <TextBlock Text="Folder template"
+                            <TextBlock Text="{loc:Tr Settings_FolderTemplate}"
                                        FontSize="10"
                                        Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                             <TextBox x:Name="FolderTemplateTextBox"
@@ -93,7 +94,7 @@
                                      FontSize="11" CornerRadius="5"/>
                         </StackPanel>
                         <StackPanel Spacing="4">
-                            <TextBlock Text="Filename template"
+                            <TextBlock Text="{loc:Tr Settings_FilenameTemplate}"
                                        FontSize="10"
                                        Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                             <TextBox x:Name="FilenameTemplateTextBox"
@@ -116,11 +117,11 @@
 
                     <!-- Include tags -->
                     <StackPanel Grid.Column="0" Spacing="4">
-                        <TextBlock Text="🔍 Include tags" FontWeight="SemiBold" FontSize="12"/>
+                        <TextBlock Text="{loc:Tr Artist_IncludeTags}" FontWeight="SemiBold" FontSize="12"/>
                         <TextBox x:Name="IncludeTagsTextBox"
                                  PlaceholderText="e.g. landscape, scenery"
                                  FontSize="11" CornerRadius="5"/>
-                        <TextBlock Text="Only download artworks with these tags"
+                        <TextBlock Text="{loc:Tr Artist_OnlyDownloadArtworksWithTheseTags}"
                                    FontSize="10"
                                    Foreground="{DynamicResource DefaultForegroundBrushDisabled}"
                                    TextWrapping="Wrap"/>
@@ -128,11 +129,11 @@
 
                     <!-- Exclude tags -->
                     <StackPanel Grid.Column="2" Spacing="4">
-                        <TextBlock Text="🚫 Exclude tags" FontWeight="SemiBold" FontSize="12"/>
+                        <TextBlock Text="{loc:Tr Artist_ExcludeTags}" FontWeight="SemiBold" FontSize="12"/>
                         <TextBox x:Name="ExcludeTagsTextBox"
                                  PlaceholderText="e.g. R-18G, sketch"
                                  FontSize="11" CornerRadius="5"/>
-                        <TextBlock Text="Skip artworks that have these tags"
+                        <TextBlock Text="{loc:Tr Artist_SkipArtworksThatHaveTheseTags}"
                                    FontSize="10"
                                    Foreground="{DynamicResource DefaultForegroundBrushDisabled}"
                                    TextWrapping="Wrap"/>
@@ -140,9 +141,9 @@
 
                     <!-- Date range + options -->
                     <StackPanel Grid.Column="4" Spacing="8" Width="140">
-                        <TextBlock Text="📅 Date range" FontWeight="SemiBold" FontSize="12"/>
+                        <TextBlock Text="{loc:Tr Artist_DateRange}" FontWeight="SemiBold" FontSize="12"/>
                         <StackPanel Spacing="4">
-                            <TextBlock Text="From (YYYY-MM-DD)"
+                            <TextBlock Text="{loc:Tr Artist_FromYYYYMMDD}"
                                        FontSize="10"
                                        Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                             <TextBox x:Name="DateFromTextBox"
@@ -150,14 +151,14 @@
                                      FontSize="11" CornerRadius="5"/>
                         </StackPanel>
                         <StackPanel Spacing="4">
-                            <TextBlock Text="To (YYYY-MM-DD)"
+                            <TextBlock Text="{loc:Tr Artist_ToYYYYMMDD}"
                                        FontSize="10"
                                        Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                             <TextBox x:Name="DateToTextBox"
                                      PlaceholderText="e.g. 2024-12-31"
                                      FontSize="11" CornerRadius="5"/>
                         </StackPanel>
-                        <Button Content="Clear dates" Click="ClearDatesButton_Click" HorizontalAlignment="Stretch" FontSize="11"/>
+                        <Button Content="{loc:Tr Artist_ClearDates}" Click="ClearDatesButton_Click" HorizontalAlignment="Stretch" FontSize="11"/>
                     </StackPanel>
 
                 </Grid>
@@ -168,17 +169,17 @@
                     BorderBrush="{DynamicResource Container2BorderBrush}"
                     BorderThickness="1" CornerRadius="8" Padding="12,10">
                 <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto,Auto">
-                    <TextBlock Grid.Column="0" Text="⚙ Download Behavior"
+                    <TextBlock Grid.Column="0" Text="{loc:Tr Artist_DownloadBehavior}"
                                FontWeight="SemiBold" FontSize="12"
                                VerticalAlignment="Center" Margin="0,0,20,0"/>
                     <CheckBox x:Name="CreateSubfolderCheckBox"
                               Grid.Column="1"
-                              Content="Subfolder per submission"
+                              Content="{loc:Tr Artist_SubfolderPerSubmission}"
                               FontSize="11"
                               VerticalAlignment="Center"/>
                     <CheckBox x:Name="SeparateR18CheckBox"
                               Grid.Column="2"
-                              Content="Separate R-18 folder"
+                              Content="{loc:Tr DlArtist_SeparateR18Folder}"
                               FontSize="11"
                               VerticalAlignment="Center"
                               Margin="12,0"/>
@@ -187,13 +188,13 @@
                             Margin="8,2" VerticalAlignment="Stretch"/>
                     <CheckBox x:Name="FilterAiCheckBox"
                               Grid.Column="4"
-                              Content="Skip AI-generated artworks"
+                              Content="{loc:Tr Artist_SkipAIGeneratedArtworks}"
                               FontSize="11"
                               VerticalAlignment="Center"
                               Margin="8,0,0,0"/>
                     <CheckBox x:Name="AllowRedownloadCheckBox"
                               Grid.Column="5"
-                              Content="Allow re-download"
+                              Content="{loc:Tr Artist_AllowReDownload}"
                               FontSize="11"
                               VerticalAlignment="Center"
                               Margin="12,0,0,0"/>

@@ -132,8 +132,9 @@ public partial class SettingsView : UserControl
         if (DataContext is not SettingsViewModel vm) return;
 
         var content = item.Content?.ToString() ?? "";
-        // Extract token from format: "%token% — Description"
-        var token = content.Split('—')[0].Trim();
+        var tm = System.Text.RegularExpressions.Regex.Match(content, @"%[A-Za-z0-9_]+%");
+        var token = tm.Success ? tm.Value : "";
+
         if (string.IsNullOrEmpty(token) || !token.StartsWith('%')) return;
 
         vm.FolderTemplate += token;
@@ -148,7 +149,9 @@ public partial class SettingsView : UserControl
         if (DataContext is not SettingsViewModel vm) return;
 
         var content = item.Content?.ToString() ?? "";
-        var token = content.Split('—')[0].Trim();
+        var tm = System.Text.RegularExpressions.Regex.Match(content, @"%[A-Za-z0-9_]+%");
+        var token = tm.Success ? tm.Value : "";
+
         if (string.IsNullOrEmpty(token) || !token.StartsWith('%')) return;
 
         vm.FilenameTemplate += token;
@@ -161,7 +164,9 @@ public partial class SettingsView : UserControl
         if (DataContext is not SettingsViewModel vm) return;
 
         var content = item.Content?.ToString() ?? "";
-        var token = content.Split('—')[0].Trim();
+        var tm = System.Text.RegularExpressions.Regex.Match(content, @"%[A-Za-z0-9_]+%");
+        var token = tm.Success ? tm.Value : "";
+
         if (string.IsNullOrEmpty(token) || !token.StartsWith('%')) return;
 
         vm.FilenameMangaFormat += token;
@@ -174,7 +179,9 @@ public partial class SettingsView : UserControl
         if (DataContext is not SettingsViewModel vm) return;
 
         var content = item.Content?.ToString() ?? "";
-        var token = content.Split('—')[0].Trim();
+        var tm = System.Text.RegularExpressions.Regex.Match(content, @"%[A-Za-z0-9_]+%");
+        var token = tm.Success ? tm.Value : "";
+
         if (string.IsNullOrEmpty(token) || !token.StartsWith('%')) return;
 
         vm.FilenameInfoFormat += token;
@@ -365,9 +372,9 @@ public partial class SettingsView : UserControl
         if (OverlayAddStatus is null) return;
 
         var parts = new List<string>();
-        if (result.Added > 0) parts.Add(string.Format(Loc["Settings_OverlayAdded"], result.Added));
-        if (result.Failed > 0) parts.Add(string.Format(Loc["Settings_OverlayFailed"], result.Failed));
-        if (result.Skipped > 0) parts.Add(string.Format(Loc["Settings_OverlaySkipped"], result.Skipped, BackgroundOverlayService.MaxImageItems));
+        if (result.Added > 0) parts.Add(string.Format(Pikura.Avalonia.Localization.LocalizationService.Instance["Settings_OverlayAdded"], result.Added));
+        if (result.Failed > 0) parts.Add(string.Format(Pikura.Avalonia.Localization.LocalizationService.Instance["Settings_OverlayFailed"], result.Failed));
+        if (result.Skipped > 0) parts.Add(string.Format(Pikura.Avalonia.Localization.LocalizationService.Instance["Settings_OverlaySkipped"], result.Skipped, BackgroundOverlayService.MaxImageItems));
 
         OverlayAddStatus.Text = parts.Count > 0 ? string.Join(", ", parts) : null;
         OverlayAddStatus.IsVisible = parts.Count > 0;
@@ -382,20 +389,20 @@ public partial class SettingsView : UserControl
 
         var options = new FilePickerOpenOptions
         {
-            Title = Loc["Settings_ChooseOverlayFiles"],
+            Title = Pikura.Avalonia.Localization.LocalizationService.Instance["Settings_ChooseOverlayFiles"],
             AllowMultiple = true,
             FileTypeFilter = new List<FilePickerFileType>
             {
-                new FilePickerFileType(Loc["Settings_FileTypeImagesLists"])
+                new FilePickerFileType(Pikura.Avalonia.Localization.LocalizationService.Instance["Settings_FileTypeImagesLists"])
                 {
                     Patterns = new[] { "*.png", "*.jpg", "*.jpeg", "*.gif", "*.bmp", "*.webp", "*.txt", "*.csv", "*.list" },
                 },
-                new FilePickerFileType(Loc["Settings_FileTypeImages"])
+                new FilePickerFileType(Pikura.Avalonia.Localization.LocalizationService.Instance["Settings_FileTypeImages"])
                 {
                     Patterns = new[] { "*.png", "*.jpg", "*.jpeg", "*.gif", "*.bmp", "*.webp" },
                     MimeTypes = new[] { "image/*" }
                 },
-                new FilePickerFileType(Loc["Settings_FileTypeLists"])
+                new FilePickerFileType(Pikura.Avalonia.Localization.LocalizationService.Instance["Settings_FileTypeLists"])
                 {
                     Patterns = new[] { "*.txt", "*.csv", "*.list" },
                 },

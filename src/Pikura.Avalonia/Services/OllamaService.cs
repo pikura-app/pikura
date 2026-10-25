@@ -13,6 +13,8 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Pikura.Avalonia.Localization;
+
 namespace Pikura.Avalonia.Services;
 
 /// <summary>Thrown when Ollama cannot be found running and no executable is installed.</summary>
@@ -42,7 +44,7 @@ public sealed class OllamaService : IDisposable
     public bool IsEnabled      { get; private set; }
     public bool IsReady        { get; private set; }
     public bool IsModelPulled  { get; private set; }
-    public string StatusText   { get; private set; } = "Hoshi is off";
+    public string StatusText   { get; private set; } = Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_HoshiIsOff"];
 
     public event EventHandler? StateChanged;
 
@@ -83,20 +85,20 @@ public sealed class OllamaService : IDisposable
         var startupCt = startupCts.Token;
 
         IsEnabled = true;
-        StatusText = "Waking up Hoshi…";
+        StatusText = Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_WakingUpHoshi"];
         NotifyState();
 
         try
         {
             await EnsureOllamaRunningAsync(startupCt);
             progress?.Report("Checking model…");
-            StatusText = "Loading Hoshi's model…";
+            StatusText = Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_LoadingHoshiSModel"];
             NotifyState();
 
             await EnsureModelAsync(progress, startupCt);
 
             IsReady = true;
-            StatusText = "Hoshi 星 ready";
+            StatusText = Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_HoshiReady"];
             NotifyState();
         }
         catch (Exception ex)
@@ -116,7 +118,7 @@ public sealed class OllamaService : IDisposable
     {
         IsEnabled = false;
         IsReady   = false;
-        StatusText = "Hoshi is off";
+        StatusText = Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_HoshiIsOff"];
         // We intentionally leave the Ollama process running — it's shared system software.
         NotifyState();
     }
@@ -437,7 +439,7 @@ public sealed class OllamaService : IDisposable
             var bytes = await http.GetByteArrayAsync(installerUrl, ct);
             await File.WriteAllBytesAsync(installerPath, bytes, ct);
 
-            StatusText = "Installing Ollama…";
+            StatusText = Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_InstallingOllama"];
             NotifyState();
 
             // Run the Inno Setup installer interactively so the user sees and controls the

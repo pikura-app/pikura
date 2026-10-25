@@ -3,6 +3,7 @@ using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
+using Pikura.Avalonia.Localization;
 using Pikura.Avalonia.Services;
 using Pikura.Core.Models;
 using Pikura.Core.Services;
@@ -216,12 +217,12 @@ public partial class DiscoverViewModel : ViewModelBase
         var flushed = QuickClipboardService.FlushArtistIds();
         if (flushed == null)
         {
-            StatusMessage = "No artist IDs queued — click individual artist IDs first.";
+            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Discover_NoArtistIDsQueuedClickIndividual"];
             return;
         }
         var count = flushed.Split(',').Length;
         CopyAllArtistIdsRequested?.Invoke(flushed);
-        StatusMessage = $"Copied {count} queued artist ID{(count == 1 ? "" : "s")} to clipboard";
+        StatusMessage = string.Format(Pikura.Avalonia.Localization.LocalizationService.Instance["Gallery_CopiedQueuedArtistIds"], count);
     }
 
     public event Action<string>? CopyAllArtistIdsRequested;
@@ -345,7 +346,7 @@ public partial class DiscoverViewModel : ViewModelBase
             var allIds = profile.AllArtworkIds();
             if (allIds.Count == 0)
             {
-                StatusMessage = "No artworks found for this artist.";
+                StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Discover_NoArtworksFoundForThisArtist"];
                 return;
             }
 
@@ -515,7 +516,7 @@ public partial class DiscoverViewModel : ViewModelBase
         if (_isLoadingWorks) return;
         _isLoadingWorks = true;
         IsLoading = true;
-        StatusMessage = "Loading recommended works…";
+        StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Discover_LoadingRecommendedWorks"];
         _cts?.Cancel();
         _cts = new CancellationTokenSource();
         var ct = _cts.Token;
@@ -529,7 +530,7 @@ public partial class DiscoverViewModel : ViewModelBase
             var response = await _pixivClient.GetDiscoveryArtworksAsync(RecommendedOffset, 48, ct);
             if (response?.Thumbnails?.Illust == null || response.Thumbnails.Illust.Count == 0)
             {
-                StatusMessage = "No recommended works found.";
+                StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Discover_NoRecommendedWorksFound"];
                 return;
             }
 
@@ -558,7 +559,7 @@ public partial class DiscoverViewModel : ViewModelBase
         catch (Exception ex)
         {
             Logger.LogError(ex, "Failed to load recommended works");
-            StatusMessage = "Failed to load: " + ex.Message;
+            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Discover_FailedToLoad"] + ex.Message;
         }
         finally
         {
@@ -584,7 +585,7 @@ public partial class DiscoverViewModel : ViewModelBase
                 // Pixiv exhausted this round of recommendations; allow user to retry later
                 // but do not permanently disable load-more — the endpoint produces fresh
                 // recommendations on subsequent visits.
-                StatusMessage = "No more new works right now — try refreshing.";
+                StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Discover_NoMoreNewWorksRightNow"];
                 return;
             }
 
@@ -633,7 +634,7 @@ public partial class DiscoverViewModel : ViewModelBase
     {
         if (_isLoadingUsers) return;
         _isLoadingUsers = true;
-        StatusMessage = "Loading recommended users…";
+        StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Discover_LoadingRecommendedUsers"];
         _usersCts?.Cancel();
         _usersCts = new CancellationTokenSource();
         var ct = _usersCts.Token;
@@ -648,7 +649,7 @@ public partial class DiscoverViewModel : ViewModelBase
             var response = await _pixivClient.GetDiscoveryUsersAsync(UsersOffset, 48, ct);
             if (response?.Users == null || response.Users.Count == 0)
             {
-                StatusMessage = "No recommended users found.";
+                StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Discover_NoRecommendedUsersFound"];
                 return;
             }
 
@@ -673,7 +674,7 @@ public partial class DiscoverViewModel : ViewModelBase
         catch (Exception ex)
         {
             Logger.LogError(ex, "Failed to load recommended users");
-            StatusMessage = "Failed to load recommended users: " + ex.Message;
+            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Discover_FailedToLoadRecommendedUsers"] + ex.Message;
         }
         finally { _isLoadingUsers = false; }
     }
@@ -736,7 +737,7 @@ public partial class DiscoverViewModel : ViewModelBase
         var artworks = ArtistWorks.Where(a => !string.IsNullOrEmpty(a.ThumbnailUrl)).ToList();
         if (artworks.Count == 0)
         {
-            StatusMessage = "No artworks available to download.";
+            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Discover_NoArtworksAvailableToDownload"];
             return;
         }
 
@@ -747,7 +748,7 @@ public partial class DiscoverViewModel : ViewModelBase
 
         if (preset == null)
         {
-            StatusMessage = "Download with preset cancelled.";
+            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Discover_DownloadWithPresetCancelled"];
             return;
         }
 

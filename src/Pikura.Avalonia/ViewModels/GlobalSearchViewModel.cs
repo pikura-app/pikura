@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Pikura.Avalonia.Localization;
 using Pikura.Avalonia.Services;
 using Pikura.Core.Models;
 using Pikura.Core.Services;
@@ -578,7 +579,7 @@ public partial class GlobalSearchViewModel : ViewModelBase
         HasSearched = true;
         IsLoading = true;
         _currentPage = 1;
-        StatusMessage = "Searching…";
+        StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Search_Searching"];
 
         RecordSearchHistory();
 
@@ -621,7 +622,7 @@ public partial class GlobalSearchViewModel : ViewModelBase
         _currentPage = 1;
         CanLoadMore = false;
         HasSearched = false;
-        StatusMessage = "Search all of Pixiv";
+        StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Search_SearchAllOfPixiv"];
         OnPropertyChanged(nameof(HasResults));
         OnPropertyChanged(nameof(HasNovelResults));
         OnPropertyChanged(nameof(HasUserResults));
@@ -643,7 +644,7 @@ public partial class GlobalSearchViewModel : ViewModelBase
         }
         var section = result?.IllustManga;
         var data = section?.Data;
-        if (data is null || data.Count == 0) { StatusMessage = "No results found."; CanLoadMore = false; return; }
+        if (data is null || data.Count == 0) { StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Search_NoResultsFound"]; CanLoadMore = false; return; }
 
         AddResults(FilterByCategory(data));
         UpdateKnownTotalAndCanLoadMore(section, data.Count);
@@ -903,7 +904,7 @@ public partial class GlobalSearchViewModel : ViewModelBase
     {
         var result = await _pixivClient.SearchNovelsAsync(BuildSearchWord(), SortOrder, SearchMode, TargetMode, _currentPage, ct);
         var data = result?.Novels;
-        if (data is null || data.Count == 0) { StatusMessage = "No novels found."; CanLoadMore = false; return; }
+        if (data is null || data.Count == 0) { StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Search_NoNovelsFound"]; CanLoadMore = false; return; }
 
         foreach (var novel in data)
         {
@@ -922,7 +923,7 @@ public partial class GlobalSearchViewModel : ViewModelBase
     {
         var result = await _pixivClient.SearchUsersAsync(SearchQuery.Trim(), _currentPage, ct);
         var data = result?.Users;
-        if (data is null || data.Count == 0) { StatusMessage = "No users found."; CanLoadMore = false; return; }
+        if (data is null || data.Count == 0) { StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Search_NoUsersFound"]; CanLoadMore = false; return; }
 
         foreach (var user in data)
         {

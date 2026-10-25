@@ -1,5 +1,6 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:loc="using:Pikura.Avalonia.Localization"
              xmlns:vm="using:Pikura.Avalonia.ViewModels"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -28,7 +29,7 @@
                 </Grid.ColumnDefinitions>
 
                 <TextBlock Grid.Column="0" 
-                          Text="Downloads" 
+                          Text="{loc:Tr Jobs_Downloads}" 
                           FontWeight="SemiBold" 
                           FontSize="20"/>
                 
@@ -36,7 +37,7 @@
                     <StackPanel Orientation="Horizontal" Spacing="4">
                         <PathIcon Data="{StaticResource RefreshIcon}" Width="14" Height="14"
                                   VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
-                        <TextBlock Text="Refresh" VerticalAlignment="Center"/>
+                        <TextBlock Text="{loc:Tr Common_Refresh}" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
             </Grid>
@@ -55,11 +56,11 @@
                     IsVisible="{Binding !IsLoading}">
                 <StackPanel Spacing="16" HorizontalAlignment="Center">
                     <PathIcon Data="{StaticResource DownloadIcon}" Width="48" Height="48" HorizontalAlignment="Center"/>
-                    <TextBlock Text="Downloads" 
+                    <TextBlock Text="{loc:Tr Jobs_Downloads}" 
                               FontWeight="SemiBold" 
                               FontSize="24" 
                               HorizontalAlignment="Center"/>
-                    <TextBlock Text="Manage and monitor your downloads" 
+                    <TextBlock Text="{loc:Tr Jobs_ManageAndMonitorYourDownloads}" 
                               TextAlignment="Center" 
                               Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                     <Button Command="{Binding RefreshDownloadsCommand}"
@@ -67,7 +68,7 @@
                         <StackPanel Orientation="Horizontal" Spacing="4">
                             <PathIcon Data="{StaticResource RefreshIcon}" Width="14" Height="14"
                                       VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
-                            <TextBlock Text="Refresh Downloads" VerticalAlignment="Center"/>
+                            <TextBlock Text="{loc:Tr Jobs_RefreshDownloads}" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                 </StackPanel>

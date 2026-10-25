@@ -1,8 +1,9 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:loc="using:Pikura.Avalonia.Localization"
         xmlns:actipro="http://schemas.actiprosoftware.com/avaloniaui"
         x:Class="Pikura.Avalonia.Views.Login.ManualCookieDialog"
-        Title="Paste PHPSESSID"
+        Title="{loc:Tr Login_PastePHPSESSID}"
         Width="520" Height="270"
         CanResize="False"
         WindowStartupLocation="CenterOwner"
@@ -10,7 +11,7 @@
 
     <StackPanel Margin="24,20" Spacing="14">
 
-        <TextBlock Text="Manual sign-in (emergency fallback)" FontWeight="SemiBold" FontSize="14"/>
+        <TextBlock Text="{loc:Tr Login_ManualSignInEmergencyFallback}" FontWeight="SemiBold" FontSize="14"/>
 
         <TextBlock x:Name="ReasonText" TextWrapping="Wrap" FontSize="11"
                    Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
@@ -26,12 +27,12 @@
         </TextBlock>
 
         <TextBox x:Name="CookieInput"
-                 PlaceholderText="Paste PHPSESSID value here…"
+                 PlaceholderText="{loc:Tr Login_PastePHPSESSIDValueHere}"
                  CornerRadius="6" FontSize="13"/>
 
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
-            <Button Content="Cancel" Click="OnCancel"/>
-            <Button Content="Confirm" Classes="accent" Click="OnConfirm"/>
+            <Button Content="{loc:Tr Common_Cancel}" Click="OnCancel"/>
+            <Button Content="{loc:Tr Common_Confirm}" Classes="accent" Click="OnConfirm"/>
         </StackPanel>
 
     </StackPanel>

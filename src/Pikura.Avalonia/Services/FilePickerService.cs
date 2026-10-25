@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+using Pikura.Avalonia.Localization;
+
 namespace Pikura.Avalonia.Services;
 
 /// <summary>
@@ -33,7 +35,7 @@ public class FilePickerService
     {
         if (_ownerWindow == null)
         {
-            await _dialogService.ShowMessageAsync("Error", "File picker not initialized");
+            await _dialogService.ShowMessageAsync(Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_Error"], Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_FilePickerNotInitialized"]);
             return null;
         }
 
@@ -55,7 +57,7 @@ public class FilePickerService
         }
         catch (Exception ex)
         {
-            await _dialogService.ShowMessageAsync("Error", $"Failed to open file picker: {ex.Message}");
+            await _dialogService.ShowMessageAsync(Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_Error"], $"Failed to open file picker: {ex.Message}");
             return null;
         }
     }
@@ -67,7 +69,7 @@ public class FilePickerService
     {
         if (_ownerWindow == null)
         {
-            await _dialogService.ShowMessageAsync("Error", "File picker not initialized");
+            await _dialogService.ShowMessageAsync(Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_Error"], Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_FilePickerNotInitialized"]);
             return null;
         }
 
@@ -84,7 +86,7 @@ public class FilePickerService
         }
         catch (Exception ex)
         {
-            await _dialogService.ShowMessageAsync("Error", $"Failed to open folder picker: {ex.Message}");
+            await _dialogService.ShowMessageAsync(Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_Error"], $"Failed to open folder picker: {ex.Message}");
             return null;
         }
     }
@@ -103,7 +105,7 @@ public class FilePickerService
         }
         catch (Exception ex)
         {
-            await _dialogService.ShowMessageAsync("Error", $"Failed to read file: {ex.Message}");
+            await _dialogService.ShowMessageAsync(Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_Error"], $"Failed to read file: {ex.Message}");
             return null;
         }
     }

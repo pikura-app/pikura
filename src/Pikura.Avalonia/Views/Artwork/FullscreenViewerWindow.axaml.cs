@@ -11,6 +11,7 @@ using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
+using Pikura.Avalonia.Localization;
 using Pikura.Avalonia.Services;
 using Pikura.Avalonia.ViewModels;
 using Pikura.Core.Models;
@@ -585,7 +586,7 @@ public partial class FullscreenViewerWindow : Window
         if (LoadMoreButton != null)
         {
             LoadMoreButton.IsVisible = canPage;
-            LoadMoreButton.Content = "Load more";
+            LoadMoreButton.Content = Pikura.Avalonia.Localization.LocalizationService.Instance["Collections_LoadMore"];
         }
 
         if (LoadAllButton != null)

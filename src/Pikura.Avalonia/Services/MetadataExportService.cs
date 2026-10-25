@@ -10,6 +10,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Pikura.Avalonia.Localization;
+
 namespace Pikura.Avalonia.Services;
 
 /// <summary>
@@ -42,7 +44,7 @@ public sealed class MetadataExportService
 
         var file = await owner.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
         {
-            Title = list.Count == 1 ? "Export artwork metadata" : $"Export metadata for {list.Count} artworks",
+            Title = list.Count == 1 ? Pikura.Avalonia.Localization.LocalizationService.Instance["Artwork_ExportArtworkMetadata"] : $"Export metadata for {list.Count} artworks",
             SuggestedFileName = defaultName,
             DefaultExtension = "csv",
             ShowOverwritePrompt = true,

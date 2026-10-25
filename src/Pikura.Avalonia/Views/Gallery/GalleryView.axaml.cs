@@ -4,6 +4,7 @@ using Avalonia.Input.Platform;
 using Avalonia.Interactivity;
 using Avalonia.LogicalTree;
 using Avalonia.Threading;
+using Pikura.Avalonia.Localization;
 using Pikura.Avalonia.Services;
 using Pikura.Avalonia.ViewModels;
 using Pikura.Avalonia.Views.Artwork;
@@ -484,7 +485,7 @@ public partial class GalleryView : UserControl
         }
         else
         {
-            vm.StatusMessage = "Could not update follow. Follow/unfollow requires a Pixiv App API refresh token (Settings > Accounts) or a valid web session.";
+            vm.StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_CouldNotUpdateFollowFollowUnfollow"];
         }
     }
 
@@ -614,7 +615,7 @@ public partial class GalleryView : UserControl
 
         if (picked.Count == 0)
         {
-            vm.StatusMessage = "No artwork selected or open. Click an artwork or select multiple first.";
+            vm.StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_NoArtworkSelectedOrOpenClick"];
             return;
         }
 

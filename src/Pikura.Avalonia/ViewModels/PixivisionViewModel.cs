@@ -9,6 +9,7 @@ using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Pikura.Avalonia.Localization;
 using Pikura.Avalonia.Services;
 using Pikura.Core.Models;
 using Pikura.Core.Services;
@@ -402,7 +403,7 @@ public partial class PixivisionViewModel : ViewModelBase
 
         if (!append) { Articles.Clear(); SelectedCount = 0; }
         IsLoading = true;
-        StatusMessage = "Loading pixivision articles…";
+        StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Pixivision_LoadingPixivisionArticles"];
 
         try
         {
@@ -679,7 +680,7 @@ public partial class PixivisionViewModel : ViewModelBase
             if (cts.IsCancellationRequested) return;
             if (detail == null)
             {
-                StatusMessage = "Failed to load article.";
+                StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Pixivision_FailedToLoadArticle"];
                 return;
             }
 

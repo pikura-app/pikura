@@ -7,6 +7,7 @@ using FollowedArtist = Pikura.Core.Models.FollowedArtist;
 using Pikura.Core.Settings;
 using Pikura.Core.Utilities;
 using Pikura.Core.Data;
+using Pikura.Avalonia.Localization;
 using Pikura.Avalonia.Services;
 using Pikura.Avalonia.Views.Dialogs;
 using Avalonia.Controls;
@@ -338,7 +339,7 @@ public partial class DownloadByArtistViewModel : ViewModelBase
     private async Task AddFollowedArtistsAsync()
     {
         IsLoading = true;
-        StatusMessage = "Loading followed artists...";
+        StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["DlArtist_LoadingFollowedArtists"];
 
         try
         {
@@ -349,13 +350,13 @@ public partial class DownloadByArtistViewModel : ViewModelBase
             // Gallery view, so the count here matches Gallery's count.
             if (_galleryVm.Artists.Count == 0)
             {
-                StatusMessage = "Loading followed artists from Pixiv...";
+                StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["DlArtist_LoadingFollowedArtistsFromPixiv"];
                 await _galleryVm.LoadFollowedArtistsCommand.ExecuteAsync(null);
             }
 
             if (_galleryVm.Artists.Count == 0)
             {
-                await _dialogService.ShowMessageAsync("Info", "No followed artists found.");
+                await _dialogService.ShowMessageAsync(Pikura.Avalonia.Localization.LocalizationService.Instance["Gallery_Info"], Pikura.Avalonia.Localization.LocalizationService.Instance["DlArtist_NoFollowedArtistsFound"]);
                 return;
             }
 
@@ -406,7 +407,7 @@ public partial class DownloadByArtistViewModel : ViewModelBase
         catch (Exception ex)
         {
             Logger.LogError(ex, "Failed to load followed artists");
-            await _dialogService.ShowMessageAsync("Error", $"Failed to load followed artists: {ex.Message}");
+            await _dialogService.ShowMessageAsync(Pikura.Avalonia.Localization.LocalizationService.Instance["DlArtist_Error"], $"Failed to load followed artists: {ex.Message}");
         }
         finally
         {
@@ -533,7 +534,7 @@ public partial class DownloadByArtistViewModel : ViewModelBase
         else if (added > 0)
             StatusMessage = $"Added {added} artist(s)";
         else
-            StatusMessage = "All artists already in list";
+            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["DlArtist_AllArtistsAlreadyInList"];
 
         // Resolve real names for newly-added placeholder entries in the background
         if (added > 0)
@@ -589,7 +590,7 @@ public partial class DownloadByArtistViewModel : ViewModelBase
         catch (Exception ex)
         {
             Logger.LogError(ex, "Failed to import artist list");
-            await _dialogService.ShowMessageAsync("Error", $"Failed to import: {ex.Message}");
+            await _dialogService.ShowMessageAsync(Pikura.Avalonia.Localization.LocalizationService.Instance["DlArtist_Error"], $"Failed to import: {ex.Message}");
         }
     }
 
@@ -696,19 +697,19 @@ public partial class DownloadByArtistViewModel : ViewModelBase
     {
         if (SelectedArtists.Count == 0)
         {
-            await _dialogService.ShowMessageAsync("No Artists", "Please add at least one artist to download.");
+            await _dialogService.ShowMessageAsync(Pikura.Avalonia.Localization.LocalizationService.Instance["DlArtist_NoArtists"], Pikura.Avalonia.Localization.LocalizationService.Instance["DlArtist_PleaseAddAtLeastOneArtist"]);
             return;
         }
 
         // Validate page range
         if (!PageRangeParser.IsValid(DefaultPageRange))
         {
-            await _dialogService.ShowMessageAsync("Invalid Page Range", PageRangeParser.GetValidationError(DefaultPageRange) ?? string.Empty);
+            await _dialogService.ShowMessageAsync(Pikura.Avalonia.Localization.LocalizationService.Instance["DlArtist_InvalidPageRange"], PageRangeParser.GetValidationError(DefaultPageRange) ?? string.Empty);
             return;
         }
 
         IsLoading = true;
-        StatusMessage = "Creating download job...";
+        StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["DlArtist_CreatingDownloadJob"];
 
         try
         {
@@ -766,12 +767,12 @@ public partial class DownloadByArtistViewModel : ViewModelBase
 
             _coordinator.SubscribeToProgress(job.Id, progress);
 
-            StatusMessage = "Download started...";
+            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["DlArtist_DownloadStarted"];
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "Failed to start download");
-            await _dialogService.ShowMessageAsync("Error", $"Failed to start download: {ex.Message}");
+            await _dialogService.ShowMessageAsync(Pikura.Avalonia.Localization.LocalizationService.Instance["DlArtist_Error"], $"Failed to start download: {ex.Message}");
             IsLoading = false;
         }
     }
@@ -784,7 +785,7 @@ public partial class DownloadByArtistViewModel : ViewModelBase
             await _coordinator.CancelJobAsync(CurrentJobId.Value);
             HasActiveJob = false;
             IsLoading = false;
-            StatusMessage = "Download cancelled";
+            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["DlArtist_DownloadCancelled"];
         }
     }
 
@@ -793,13 +794,13 @@ public partial class DownloadByArtistViewModel : ViewModelBase
     {
         if (SelectedArtists.Count == 0)
         {
-            await _dialogService.ShowMessageAsync("No Artists", "Please add at least one artist to download.");
+            await _dialogService.ShowMessageAsync(Pikura.Avalonia.Localization.LocalizationService.Instance["DlArtist_NoArtists"], Pikura.Avalonia.Localization.LocalizationService.Instance["DlArtist_PleaseAddAtLeastOneArtist"]);
             return;
         }
 
         if (!PageRangeParser.IsValid(DefaultPageRange))
         {
-            await _dialogService.ShowMessageAsync("Invalid Page Range", PageRangeParser.GetValidationError(DefaultPageRange) ?? string.Empty);
+            await _dialogService.ShowMessageAsync(Pikura.Avalonia.Localization.LocalizationService.Instance["DlArtist_InvalidPageRange"], PageRangeParser.GetValidationError(DefaultPageRange) ?? string.Empty);
             return;
         }
 
@@ -835,15 +836,15 @@ public partial class DownloadByArtistViewModel : ViewModelBase
             _notificationService.ShowNotification(
                 started ? "Download Started" : "Added to Queue",
                 started
-                    ? $"{SelectedArtists.Count} artist{(SelectedArtists.Count == 1 ? "" : "s")} started downloading"
-                    : $"{SelectedArtists.Count} artist{(SelectedArtists.Count == 1 ? "" : "s")} queued — will start when a slot is free",
+                    ? string.Format(Pikura.Avalonia.Localization.LocalizationService.Instance["DlArtist_ArtistsStartedDownloading"], SelectedArtists.Count)
+                    : string.Format(Pikura.Avalonia.Localization.LocalizationService.Instance["DlArtist_ArtistsQueuedSlot"], SelectedArtists.Count),
                 NotificationType.Info,
                 SelectedArtists.FirstOrDefault()?.ProfileImageUrl);
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "Failed to queue download");
-            await _dialogService.ShowMessageAsync("Error", $"Failed to queue: {ex.Message}");
+            await _dialogService.ShowMessageAsync(Pikura.Avalonia.Localization.LocalizationService.Instance["DlArtist_Error"], $"Failed to queue: {ex.Message}");
         }
     }
 
@@ -856,7 +857,7 @@ public partial class DownloadByArtistViewModel : ViewModelBase
     {
         if (SelectedArtists.Count == 0)
         {
-            await _dialogService.ShowMessageAsync("Cannot Save", "Please add at least one artist before saving a preset.");
+            await _dialogService.ShowMessageAsync(Pikura.Avalonia.Localization.LocalizationService.Instance["DlArtist_CannotSave"], Pikura.Avalonia.Localization.LocalizationService.Instance["DlArtist_PleaseAddAtLeastOneArtist_2"]);
             return;
         }
 
@@ -899,7 +900,7 @@ public partial class DownloadByArtistViewModel : ViewModelBase
 
         if (artistPresets.Count == 0)
         {
-            await _dialogService.ShowMessageAsync("No Presets", "No saved presets found. Create one first!");
+            await _dialogService.ShowMessageAsync(Pikura.Avalonia.Localization.LocalizationService.Instance["DlArtist_NoPresets"], Pikura.Avalonia.Localization.LocalizationService.Instance["DlArtist_NoSavedPresetsFoundCreateOne"]);
             return;
         }
 

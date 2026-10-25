@@ -1,12 +1,13 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:loc="using:Pikura.Avalonia.Localization"
         xmlns:actipro="http://schemas.actiprosoftware.com/avaloniaui"
         xmlns:anim="using:Pikura.Avalonia.Controls"
         xmlns:vm="clr-namespace:Pikura.Avalonia.ViewModels"
         xmlns:models="clr-namespace:Pikura.Core.Models"
         xmlns:dialogs="clr-namespace:Pikura.Avalonia.Views.Dialogs"
         x:Class="Pikura.Avalonia.Views.Dialogs.DownloadPresetWindow"
-        Title="Pikura — Download with Preset"
+        Title="{loc:Tr Preset_PikuraDownloadWithPreset}"
         Width="1300"
         Height="850"
         WindowStartupLocation="CenterOwner"
@@ -22,12 +23,12 @@
                 BorderThickness="0,0,1,0"
                 Padding="16">
             <Grid RowDefinitions="Auto,Auto,*,Auto,Auto" RowSpacing="12">
-                <TextBlock Grid.Row="0" Text="Presets" FontSize="18" FontWeight="Bold"/>
+                <TextBlock Grid.Row="0" Text="{loc:Tr Preset_Presets}" FontSize="18" FontWeight="Bold"/>
 
                 <!-- Search -->
                 <TextBox Grid.Row="1"
                          x:Name="PresetSearchBox"
-                         PlaceholderText="Search presets..."
+                         PlaceholderText="{loc:Tr Preset_SearchPresets}"
                          TextChanged="OnPresetSearchChanged"/>
 
                 <!-- Preset List -->
@@ -68,13 +69,13 @@
 
                 <!-- Orientation Toggle -->
                 <StackPanel Grid.Row="3" Orientation="Horizontal" Spacing="8">
-                    <TextBlock Text="Orientation:" VerticalAlignment="Center"/>
-                    <ToggleButton x:Name="PortraitToggle" Content="Portrait" IsCheckedChanged="OnOrientationChanged"/>
-                    <ToggleButton x:Name="LandscapeToggle" Content="Landscape" IsChecked="True" IsCheckedChanged="OnOrientationChanged"/>
+                    <TextBlock Text="{loc:Tr Preset_Orientation}" VerticalAlignment="Center"/>
+                    <ToggleButton x:Name="PortraitToggle" Content="{loc:Tr Search_Portrait}" IsCheckedChanged="OnOrientationChanged"/>
+                    <ToggleButton x:Name="LandscapeToggle" Content="{loc:Tr Search_Landscape}" IsChecked="True" IsCheckedChanged="OnOrientationChanged"/>
                 </StackPanel>
 
                 <!-- Custom Button -->
-                <Button x:Name="CustomPresetButton" Content="✏️ Custom Edit..." HorizontalAlignment="Stretch" Classes="accent" Click="OnCustomEditClick"/>
+                <Button x:Name="CustomPresetButton" Content="{loc:Tr Preset_CustomEdit}" HorizontalAlignment="Stretch" Classes="accent" Click="OnCustomEditClick"/>
             </Grid>
         </Border>
 
@@ -88,14 +89,14 @@
                     Padding="16">
                 <Grid ColumnDefinitions="*,Auto">
                     <StackPanel Grid.Column="0" Spacing="4">
-                        <TextBlock x:Name="SelectedCountText" Text="1 image selected" FontWeight="SemiBold"/>
+                        <TextBlock x:Name="SelectedCountText" Text="{loc:Tr Preset_1ImageSelected}" FontWeight="SemiBold"/>
                         <TextBlock x:Name="SubmissionInfoText"
-                                   Text="Submission 1 of 1"
+                                   Text="{loc:Tr Preset_Submission1Of1}"
                                    FontSize="12"
                                    Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                    IsVisible="False"/>
                         <TextBlock x:Name="MultiPageInfoText"
-                                   Text="5 total pages across 2 submissions"
+                                   Text="{loc:Tr Preset_5TotalPagesAcross2Submissions}"
                                    FontSize="12"
                                    Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                    IsVisible="False"/>
@@ -117,7 +118,7 @@
                                 CornerRadius="4"
                                 Padding="8,4"
                                 IsVisible="False">
-                            <TextBlock x:Name="PageNumberText" Text="Pg 1/3" VerticalAlignment="Center" FontSize="12" FontWeight="SemiBold" Foreground="White"/>
+                            <TextBlock x:Name="PageNumberText" Text="{loc:Tr Preset_Pg13}" VerticalAlignment="Center" FontSize="12" FontWeight="SemiBold" Foreground="White"/>
                         </Border>
                         <Button x:Name="NextImageButton" Content="▶" Click="OnNextImageClick" IsEnabled="False"/>
                     </StackPanel>
@@ -200,7 +201,7 @@
                                     Opacity="0.8">
                                 <StackPanel Orientation="Horizontal" Spacing="8">
                                     <TextBlock Text="▶" FontSize="24" Foreground="White"/>
-                                    <TextBlock Text="Play" FontSize="14" Foreground="White" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{loc:Tr Preset_Play}" FontSize="14" Foreground="White" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Border>
                         </Border>
@@ -213,7 +214,7 @@
 
                     <!-- Empty state -->
                     <TextBlock x:Name="NoPreviewText"
-                               Text="Select an image to preview"
+                               Text="{loc:Tr Preset_SelectAnImageToPreview}"
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"
                                Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
@@ -227,19 +228,19 @@
                     BorderThickness="0,1,0,0"
                     Padding="16">
                 <StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Center">
-                    <TextBlock Text="Preview Quality:" VerticalAlignment="Center"/>
+                    <TextBlock Text="{loc:Tr Preset_PreviewQuality}" VerticalAlignment="Center"/>
                     <Slider x:Name="PreviewQualitySlider"
                             Minimum="400"
                             Maximum="1200"
                             Value="800"
                             Width="150"
                             ValueChanged="OnPreviewQualityChanged"/>
-                    <TextBlock x:Name="PreviewQualityValue" Text="800px" VerticalAlignment="Center"/>
+                    <TextBlock x:Name="PreviewQualityValue" Text="{loc:Tr Preset_800px}" VerticalAlignment="Center"/>
                     <CheckBox x:Name="ShowCropOverlayCheck"
-                              Content="Show Crop"
+                              Content="{loc:Tr Preset_ShowCrop}"
                               IsChecked="False"
                               IsCheckedChanged="OnShowCropChanged"/>
-                    <Button x:Name="ResetPreviewButton" Content="🔄 Reset" Click="OnResetPreviewClick"/>
+                    <Button x:Name="ResetPreviewButton" Content="{loc:Tr Preset_Reset}" Click="OnResetPreviewClick"/>
                 </StackPanel>
             </Border>
         </Grid>
@@ -251,38 +252,38 @@
                 BorderThickness="1,0,0,0"
                 Padding="16">
             <Grid RowDefinitions="Auto,*,Auto,Auto,Auto" RowSpacing="16">
-                <TextBlock Grid.Row="0" Text="Output Options" FontSize="16" FontWeight="Bold"/>
+                <TextBlock Grid.Row="0" Text="{loc:Tr Preset_OutputOptions}" FontSize="16" FontWeight="Bold"/>
 
                 <!-- Output Options -->
                 <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
                     <StackPanel Spacing="12">
                         <!-- Save Mode -->
                         <StackPanel Spacing="4">
-                            <TextBlock Text="Save Mode" FontWeight="SemiBold"/>
+                            <TextBlock Text="{loc:Tr Preset_SaveMode}" FontWeight="SemiBold"/>
                             <RadioButton x:Name="SaveAsNewRadio"
-                                         Content="Save as new file (_processed)"
+                                         Content="{loc:Tr Preset_SaveAsNewFileProcessed}"
                                          IsChecked="True"
                                          GroupName="SaveModeGroup"/>
                             <RadioButton x:Name="OverwriteRadio"
-                                         Content="Overwrite original"
+                                         Content="{loc:Tr Preset_OverwriteOriginal}"
                                          GroupName="SaveModeGroup"/>
                         </StackPanel>
 
                         <!-- Also download unprocessed -->
                         <StackPanel Spacing="4">
                             <CheckBox x:Name="AlsoDownloadUnprocessedCheck"
-                                      Content="Also download unprocessed copy"
-                                      ToolTip.Tip="Downloads the original unprocessed image alongside any processed versions. No warning if original already exists."/>
+                                      Content="{loc:Tr Preset_AlsoDownloadUnprocessedCopy}"
+                                      ToolTip.Tip="{loc:Tr Preset_DownloadsTheOriginalUnprocessedImageAlon}"/>
                         </StackPanel>
 
                         <!-- Format -->
                         <StackPanel Spacing="4">
-                            <TextBlock Text="Output Format" FontWeight="SemiBold"/>
+                            <TextBlock Text="{loc:Tr Settings_OutputFormat}" FontWeight="SemiBold"/>
                             <ComboBox x:Name="FormatComboBox" SelectedIndex="0">
-                                <ComboBoxItem Content="Keep Original"/>
-                                <ComboBoxItem Content="JPEG (High Quality)"/>
-                                <ComboBoxItem Content="JPEG (Medium Quality)"/>
-                                <ComboBoxItem Content="PNG (Lossless)"/>
+                                <ComboBoxItem Content="{loc:Tr Preset_KeepOriginal}"/>
+                                <ComboBoxItem Content="{loc:Tr Settings_JpegHigh}"/>
+                                <ComboBoxItem Content="{loc:Tr Settings_JpegMedium}"/>
+                                <ComboBoxItem Content="{loc:Tr Settings_PngLossless}"/>
                                 <ComboBoxItem Content="WebP"/>
                             </ComboBox>
                             <Slider x:Name="JpegQualitySlider"
@@ -294,11 +295,11 @@
 
                         <!-- Ugoira (Animated) Format Options -->
                         <StackPanel x:Name="UgoiraFormatPanel" Spacing="4" IsVisible="False">
-                            <TextBlock Text="Animation Output Formats" FontWeight="SemiBold"/>
-                            <TextBlock Text="Select which formats to create for animated ugoira:"
+                            <TextBlock Text="{loc:Tr Preset_AnimationOutputFormats}" FontWeight="SemiBold"/>
+                            <TextBlock Text="{loc:Tr Preset_SelectWhichFormatsToCreateFor}"
                                        FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                             <WrapPanel>
-                                <CheckBox x:Name="UgoiraMp4Check" Content="MP4 (Recommended)" IsChecked="True"
+                                <CheckBox x:Name="UgoiraMp4Check" Content="{loc:Tr Preset_MP4Recommended}" IsChecked="True"
                                           FontSize="13" Margin="0,4,16,4"/>
                                 <CheckBox x:Name="UgoiraGifCheck" Content="GIF" IsChecked="False"
                                           FontSize="13" Margin="0,4,16,4"/>
@@ -309,16 +310,16 @@
                             </WrapPanel>
                             <StackPanel Spacing="4">
                                 <CheckBox x:Name="UgoiraSaveFramesCheck"
-                                          Content="Save processed frames to subfolder"
+                                          Content="{loc:Tr Preset_SaveProcessedFramesToSubfolder}"
                                           IsChecked="False"
                                           FontSize="12"
-                                          ToolTip.Tip="Creates a subfolder with each processed frame as individual PNG files"/>
+                                          ToolTip.Tip="{loc:Tr Preset_CreatesASubfolderWithEachProcessed}"/>
                                 <CheckBox x:Name="UgoiraFramesOnlyCheck"
-                                          Content="Frames only (skip animation)"
+                                          Content="{loc:Tr Preset_FramesOnlySkipAnimation}"
                                           IsChecked="False"
                                           FontSize="12"
                                           IsEnabled="{Binding #UgoiraSaveFramesCheck.IsChecked}"
-                                          ToolTip.Tip="Download only the individual frames without creating MP4/GIF animation"/>
+                                          ToolTip.Tip="{loc:Tr Preset_DownloadOnlyTheIndividualFramesWithout}"/>
                             </StackPanel>
                         </StackPanel>
 
@@ -326,8 +327,8 @@
                         <StackPanel x:Name="BatchModePanel" Spacing="4" IsVisible="False">
                             <Separator/>
                             <CheckBox x:Name="EnableBatchModeCheck"
-                                      Content="⚡ Configure each submission"
-                                      ToolTip.Tip="Enable to set different page selections for each submission individually"
+                                      Content="{loc:Tr Preset_ConfigureEachSubmission}"
+                                      ToolTip.Tip="{loc:Tr Preset_EnableToSetDifferentPageSelections}"
                                       IsChecked="False"
                                       IsCheckedChanged="OnBatchModeChanged"/>
                             <Border x:Name="BatchSubmissionsBorder"
@@ -346,16 +347,16 @@
 
                         <!-- Custom Folder -->
                         <StackPanel Spacing="4">
-                            <TextBlock Text="Output Folder" FontWeight="SemiBold"/>
+                            <TextBlock Text="{loc:Tr Preset_OutputFolder}" FontWeight="SemiBold"/>
                             <CheckBox x:Name="UseCustomFolderCheck"
-                                      Content="Save to custom folder"
+                                      Content="{loc:Tr Preset_SaveToCustomFolder}"
                                       IsChecked="False"
                                       IsCheckedChanged="OnCustomFolderChanged"/>
                             <TextBox x:Name="CustomFolderTextBox"
-                                     PlaceholderText="Select folder..."
+                                     PlaceholderText="{loc:Tr Batch_SelectFolder}"
                                      IsReadOnly="True"
                                      IsVisible="False"/>
-                            <Button x:Name="BrowseFolderButton" Content="Browse..." Click="OnBrowseFolderClick" IsVisible="False"/>
+                            <Button x:Name="BrowseFolderButton" Content="{loc:Tr Common_Browse}" Click="OnBrowseFolderClick" IsVisible="False"/>
                         </StackPanel>
 
                         <!-- Divider -->
@@ -363,9 +364,9 @@
 
                         <!-- Preset Actions -->
                         <StackPanel Spacing="4">
-                            <TextBlock Text="Preset Actions" FontWeight="SemiBold"/>
-                            <Button x:Name="SavePresetButton" Content="💾 Save Current as Preset" HorizontalAlignment="Stretch" Click="OnSavePresetClick"/>
-                            <Button x:Name="DeletePresetButton" Content="🗑 Delete Custom Preset" HorizontalAlignment="Stretch" IsEnabled="False" Click="OnDeletePresetClick"/>
+                            <TextBlock Text="{loc:Tr Preset_PresetActions}" FontWeight="SemiBold"/>
+                            <Button x:Name="SavePresetButton" Content="{loc:Tr Preset_SaveCurrentAsPreset}" HorizontalAlignment="Stretch" Click="OnSavePresetClick"/>
+                            <Button x:Name="DeletePresetButton" Content="{loc:Tr Preset_DeleteCustomPreset}" HorizontalAlignment="Stretch" IsEnabled="False" Click="OnDeletePresetClick"/>
                         </StackPanel>
                     </StackPanel>
                 </ScrollViewer>
@@ -378,9 +379,9 @@
                         CornerRadius="8"
                         Padding="12">
                     <StackPanel Spacing="4">
-                        <TextBlock x:Name="CurrentPresetName" Text="Original (No Processing)" FontWeight="SemiBold"/>
+                        <TextBlock x:Name="CurrentPresetName" Text="{loc:Tr Preset_OriginalNoProcessing}" FontWeight="SemiBold"/>
                         <TextBlock x:Name="CurrentPresetInfo"
-                                   Text="No resize or adjustments"
+                                   Text="{loc:Tr Preset_NoResizeOrAdjustments}"
                                    FontSize="11"
                                    TextWrapping="Wrap"
                                    Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
@@ -390,8 +391,8 @@
                 <!-- Apply Buttons -->
                 <StackPanel Grid.Row="3" Spacing="6">
                     <Grid ColumnDefinitions="*,4,*" RowDefinitions="Auto,4,Auto">
-                        <Button x:Name="ApplyToPageButton" Content="Page" HorizontalAlignment="Stretch" Height="34" FontSize="12" Click="OnApplyToPageClick"/>
-                        <Button x:Name="ApplyToSelectedPagesButton" Content="Selected Pages" HorizontalAlignment="Stretch" Height="34" FontSize="12" Click="OnApplyToSelectedPagesClick">
+                        <Button x:Name="ApplyToPageButton" Content="{loc:Tr Viewer_Page}" HorizontalAlignment="Stretch" Height="34" FontSize="12" Click="OnApplyToPageClick"/>
+                        <Button x:Name="ApplyToSelectedPagesButton" Content="{loc:Tr Preset_SelectedPages}" HorizontalAlignment="Stretch" Height="34" FontSize="12" Click="OnApplyToSelectedPagesClick">
                             <Button.Flyout>
                                 <Flyout Placement="BottomEdgeAlignedRight"
                                         ShowMode="TransientWithDismissOnPointerMoveAway">
@@ -402,7 +403,7 @@
                                             Padding="12"
                                             Width="280">
                                         <StackPanel Spacing="10">
-                                            <TextBlock Text="Select pages to apply preset"
+                                            <TextBlock Text="{loc:Tr Preset_SelectPagesToApplyPreset}"
                                                        FontWeight="SemiBold"
                                                        FontSize="13"/>
                                             <TextBox x:Name="PagePickerTextBox"
@@ -414,20 +415,20 @@
                                                        HorizontalAlignment="Center"
                                                        VerticalAlignment="Top"/>
                                             <Grid ColumnDefinitions="*,4,*,4,*">
-                                                <Button Content="All" HorizontalAlignment="Stretch" FontSize="11" Click="OnPagePickerAllClick"/>
-                                                <Button Content="None" HorizontalAlignment="Stretch" FontSize="11" Click="OnPagePickerNoneClick"/>
-                                                <Button Content="Invert" HorizontalAlignment="Stretch" FontSize="11" Click="OnPagePickerInvertClick"/>
+                                                <Button Content="{loc:Tr Search_All}" HorizontalAlignment="Stretch" FontSize="11" Click="OnPagePickerAllClick"/>
+                                                <Button Content="{loc:Tr Preset_None}" HorizontalAlignment="Stretch" FontSize="11" Click="OnPagePickerNoneClick"/>
+                                                <Button Content="{loc:Tr Preset_Invert}" HorizontalAlignment="Stretch" FontSize="11" Click="OnPagePickerInvertClick"/>
                                             </Grid>
-                                            <Button x:Name="PagePickerApplyButton" Content="Apply Preset" HorizontalAlignment="Stretch" Classes="accent" Height="34" Click="OnPagePickerApplyClick"/>
+                                            <Button x:Name="PagePickerApplyButton" Content="{loc:Tr Preset_ApplyPreset}" HorizontalAlignment="Stretch" Classes="accent" Height="34" Click="OnPagePickerApplyClick"/>
                                         </StackPanel>
                                     </Border>
                                 </Flyout>
                             </Button.Flyout>
                         </Button>
-                        <Button x:Name="ApplyToArtworkButton" Content="Artwork" HorizontalAlignment="Stretch" Height="34" FontSize="12" Click="OnApplyToArtworkClick"/>
-                        <Button x:Name="ApplyToAllButton" Content="All" HorizontalAlignment="Stretch" Height="34" FontSize="12" Click="OnApplyToAllClick"/>
+                        <Button x:Name="ApplyToArtworkButton" Content="{loc:Tr Preset_Artwork}" HorizontalAlignment="Stretch" Height="34" FontSize="12" Click="OnApplyToArtworkClick"/>
+                        <Button x:Name="ApplyToAllButton" Content="{loc:Tr Search_All}" HorizontalAlignment="Stretch" Height="34" FontSize="12" Click="OnApplyToAllClick"/>
                     </Grid>
-                    <Button x:Name="ApplyToSelectedArtworksButton" Content="Apply to Selected Artworks" HorizontalAlignment="Stretch" Height="34" FontSize="12" Click="OnApplyToSelectedArtworksClick"/>
+                    <Button x:Name="ApplyToSelectedArtworksButton" Content="{loc:Tr Preset_ApplyToSelectedArtworks}" HorizontalAlignment="Stretch" Height="34" FontSize="12" Click="OnApplyToSelectedArtworksClick"/>
                     <Border x:Name="ApplyToArtworksPanel"
                             Background="{DynamicResource Container3BackgroundBrush}"
                             BorderBrush="{DynamicResource Container3BorderBrush}"
@@ -452,10 +453,10 @@
                 <!-- Action Buttons -->
                 <StackPanel Grid.Row="4" Spacing="8">
                     <StackPanel Spacing="4">
-                        <TextBlock Text="Download Artworks" FontWeight="SemiBold"/>
+                        <TextBlock Text="{loc:Tr Preset_DownloadArtworks}" FontWeight="SemiBold"/>
                         <ComboBox x:Name="DownloadArtworksComboBox"
                                   SelectionChanged="OnDownloadArtworksChanged">
-                            <ComboBoxItem Content="Current artwork only"/>
+                            <ComboBoxItem Content="{loc:Tr Preset_CurrentArtworkOnly}"/>
                         </ComboBox>
                         <TextBox x:Name="DownloadArtworksTextBox"
                                  PlaceholderText="e.g. 1,3,5 or 1-3:1-2,5; 5:1,3 or artwork 1-3: page 1-2,5; artwork 5: page 1,3"
@@ -475,21 +476,21 @@
                         </Border>
                     </StackPanel>
                     <StackPanel Spacing="4">
-                        <TextBlock Text="Download Scope" FontWeight="SemiBold"/>
+                        <TextBlock Text="{loc:Tr Preset_DownloadScope}" FontWeight="SemiBold"/>
                         <ComboBox x:Name="DownloadScopeComboBox"
                                   SelectedIndex="0"
                                   SelectionChanged="OnDownloadScopeChanged">
-                            <ComboBoxItem Content="All pages"/>
-                            <ComboBoxItem Content="Pages with presets only"/>
-                            <ComboBoxItem Content="Current page only"/>
-                            <ComboBoxItem Content="Selected pages"/>
+                            <ComboBoxItem Content="{loc:Tr Viewer_AllPages}"/>
+                            <ComboBoxItem Content="{loc:Tr Preset_PagesWithPresetsOnly}"/>
+                            <ComboBoxItem Content="{loc:Tr Preset_CurrentPageOnly}"/>
+                            <ComboBoxItem Content="{loc:Tr Preset_SelectedPages_2}"/>
                         </ComboBox>
                         <TextBox x:Name="SelectedPagesTextBox"
                                  PlaceholderText="e.g., 1,3,5 or 1-3,6 or 5-6"
                                  IsVisible="False"/>
                     </StackPanel>
-                    <Button x:Name="DownloadButton" Content="⬇ Download" HorizontalAlignment="Stretch" Classes="accent" Height="44" FontSize="14" Click="OnDownloadClick"/>
-                    <Button x:Name="CancelButton" Content="Cancel" HorizontalAlignment="Stretch" Height="36" Click="OnCancelClick"/>
+                    <Button x:Name="DownloadButton" Content="{loc:Tr Preset_Download}" HorizontalAlignment="Stretch" Classes="accent" Height="44" FontSize="14" Click="OnDownloadClick"/>
+                    <Button x:Name="CancelButton" Content="{loc:Tr Common_Cancel}" HorizontalAlignment="Stretch" Height="36" Click="OnCancelClick"/>
                 </StackPanel>
             </Grid>
         </Border>

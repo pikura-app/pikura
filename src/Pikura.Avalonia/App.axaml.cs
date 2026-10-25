@@ -7,6 +7,7 @@ using Avalonia.Styling;
 using Avalonia.Threading;
 using Pikura.Avalonia.ViewModels;
 using Pikura.Avalonia.Views;
+using Pikura.Avalonia.Localization;
 using Pikura.Avalonia.Services;
 using Pikura.Avalonia.Views.Dialogs;
 using Pikura.Core.Services;
@@ -347,14 +348,14 @@ public partial class App : Application
         {
             new()
             {
-                Title = "Pikura 2.1.0",
+                Title = Pikura.Avalonia.Localization.LocalizationService.Instance["WhatsNew_Pikura210"],
                 Subtitle = "What's new in this update",
                 Description = "This release focuses on making Pikura feel more connected to Pixiv and easier to work with. Tabs reorder like a browser, collages behave like first-class tabs, and likes, bookmarks, follows, and comments now talk directly to Pixiv.",
                 IconKey = "RefreshIcon"
             },
             new()
             {
-                Title = "Refreshed Light & Dark Themes",
+                Title = Pikura.Avalonia.Localization.LocalizationService.Instance["WhatsNew_RefreshedLightDarkThemes"],
                 Subtitle = "A cleaner look in both modes",
                 Description = "The light and dark themes have been refined with better contrast, smoother button highlights, and improved readability for toggles, caption buttons, and the inline viewer.",
                 IconKey = "PaletteIcon",
@@ -368,14 +369,14 @@ public partial class App : Application
             },
             new()
             {
-                Title = "Chrome-Style Tab Reordering",
+                Title = Pikura.Avalonia.Localization.LocalizationService.Instance["WhatsNew_ChromeStyleTabReordering"],
                 Subtitle = "Drag tabs to reorder",
                 Description = "Grab any inline viewer tab and drag it left or right. The tab lifts and scales while the other tabs smoothly slide out of the way, just like in a web browser.",
                 IconKey = "NewTabIcon"
             },
             new()
             {
-                Title = "Collage",
+                Title = Pikura.Avalonia.Localization.LocalizationService.Instance["Search_Collage"],
                 Subtitle = "Unique collage tabs",
                 Description = "Open any selection of artworks as a single collage tab. Add or remove individual images, open each image in its own tab, or download the whole collage in one go.",
                 IconKey = "ImageIcon",
@@ -384,14 +385,14 @@ public partial class App : Application
             },
             new()
             {
-                Title = "View in New Tabs",
+                Title = Pikura.Avalonia.Localization.LocalizationService.Instance["Search_ViewInNewTabs"],
                 Subtitle = "Open selections individually",
                 Description = "From Gallery, Discover, Rankings, Pixivision, Bookmarks, Search, and Collections, open selected artworks as separate inline viewer tabs so you can compare them side by side.",
                 IconKey = "PopupIcon"
             },
             new()
             {
-                Title = "Pixiv-Connected Actions",
+                Title = Pikura.Avalonia.Localization.LocalizationService.Instance["WhatsNew_PixivConnectedActions"],
                 Subtitle = "Real likes, bookmarks, follows, and comments",
                 Description = "Likes, public/private bookmarks, follows, unfollows, views, comments, replies, stickers, and Pixiv emoji now operate on your real Pixiv account and stay in sync across the app.",
                 IconKey = "HeartFilledIcon",
@@ -404,7 +405,7 @@ public partial class App : Application
             },
             new()
             {
-                Title = "Collections",
+                Title = Pikura.Avalonia.Localization.LocalizationService.Instance["Nav_Collections"],
                 Subtitle = "A new way Pixiv artists curate their work",
                 Description = "Browse Featured and All Pixiv collections, open collection details, download selected works or an entire collection, bookmark collections, and read and post collection comments.",
                 IconKey = "FolderIcon",
@@ -417,7 +418,7 @@ public partial class App : Application
             },
             new()
             {
-                Title = "Bookmarks Improvements",
+                Title = Pikura.Avalonia.Localization.LocalizationService.Instance["WhatsNew_BookmarksImprovements"],
                 Subtitle = "Liked artworks and collections, all in one place",
                 Description = "The Bookmarks section now includes every artwork you've liked on Pixiv — even ones that aren't bookmarked — alongside your public/private bookmarks and bookmarked collections, all kept in sync as you browse.",
                 IconKey = "BookmarkFilledIcon",
@@ -430,7 +431,7 @@ public partial class App : Application
             },
             new()
             {
-                Title = "Search Improvements",
+                Title = Pikura.Avalonia.Localization.LocalizationService.Instance["WhatsNew_SearchImprovements"],
                 Subtitle = "History and popular tags",
                 Description = "Jump back to a previous search from the History dropdown under the search box — your last 25 queries are remembered along with the filters you used. Popular tags are also shown as clickable chips so you can search by tag with one click. Click anywhere outside the History dropdown to close it.",
                 IconKey = "SearchIcon",

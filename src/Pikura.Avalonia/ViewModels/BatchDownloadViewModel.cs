@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Pikura.Avalonia.Localization;
 using Pikura.Avalonia.Services;
 
 namespace Pikura.Avalonia.ViewModels;
@@ -47,7 +48,7 @@ public partial class BatchDownloadViewModel : ViewModelBase
         var queueView = new Views.Download.DownloadQueueView();
         var win = new global::Avalonia.Controls.Window
         {
-            Title = "Download Queue",
+            Title = Pikura.Avalonia.Localization.LocalizationService.Instance["Queue_DownloadQueue"],
             Width = 680,
             Height = 500,
             WindowStartupLocation = global::Avalonia.Controls.WindowStartupLocation.CenterOwner,

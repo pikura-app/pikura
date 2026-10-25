@@ -1,8 +1,9 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:loc="using:Pikura.Avalonia.Localization"
         xmlns:actipro="http://schemas.actiprosoftware.com/avaloniaui"
         x:Class="Pikura.Avalonia.Views.Dialogs.SelectFollowedArtistsDialog"
-        Title="Select Followed Artists"
+        Title="{loc:Tr Dialog_SelectFollowedArtists}"
         Width="650"
         Height="600"
         WindowStartupLocation="CenterOwner">
@@ -11,16 +12,16 @@
         <Grid RowDefinitions="Auto,Auto,*,Auto,Auto" RowSpacing="12">
             <!-- Header -->
             <StackPanel Grid.Row="0" Spacing="4">
-                <TextBlock Text="Select Artists to Download" FontSize="18" FontWeight="SemiBold"/>
-                <TextBlock x:Name="StatusText" Text="Loading..." FontSize="12" Opacity="0.7"/>
+                <TextBlock Text="{loc:Tr Dialog_SelectArtistsToDownload}" FontSize="18" FontWeight="SemiBold"/>
+                <TextBlock x:Name="StatusText" Text="{loc:Tr Common_Loading}" FontSize="12" Opacity="0.7"/>
             </StackPanel>
 
             <!-- Search -->
             <Grid Grid.Row="1" ColumnDefinitions="*,Auto,Auto">
-                <TextBox Grid.Column="0" x:Name="SearchTextBox" PlaceholderText="Search artist name or ID..."
+                <TextBox Grid.Column="0" x:Name="SearchTextBox" PlaceholderText="{loc:Tr Dialog_SearchArtistNameOrID}"
                          CornerRadius="6" Margin="0,0,8,0"/>
-                <Button x:Name="SearchButton" Content="Search" Margin="0,0,8,0"/>
-                <Button x:Name="ClearSearchButton" Content="Clear"/>
+                <Button x:Name="SearchButton" Content="{loc:Tr Nav_Search}" Margin="0,0,8,0"/>
+                <Button x:Name="ClearSearchButton" Content="{loc:Tr Common_Clear}"/>
             </Grid>
 
             <!-- Artist List -->
@@ -35,19 +36,19 @@
 
             <!-- Pagination -->
             <Grid Grid.Row="3" ColumnDefinitions="Auto,*,Auto">
-                <Button x:Name="PrevPageButton" Content="← Previous"/>
+                <Button x:Name="PrevPageButton" Content="{loc:Tr Dialog_Previous}"/>
                 <TextBlock x:Name="PageInfoText" Grid.Column="1"
                            HorizontalAlignment="Center" VerticalAlignment="Center"
-                           Text="Page 1 of 1"/>
-                <Button x:Name="NextPageButton" Content="Next →"/>
+                           Text="{loc:Tr Dialog_Page1Of1}"/>
+                <Button x:Name="NextPageButton" Content="{loc:Tr Dialog_Next}"/>
             </Grid>
 
             <!-- Bottom Controls -->
             <Grid Grid.Row="4" ColumnDefinitions="*,Auto,Auto,Auto">
                 <TextBlock Grid.Column="0" x:Name="SummaryText" VerticalAlignment="Center" Text=""/>
-                <Button x:Name="SelectAllButton" Content="Select All" Margin="0,0,8,0"/>
-                <Button x:Name="CancelButton" Content="Cancel" Margin="0,0,8,0"/>
-                <Button x:Name="AddButton" Content="Add Selected" Classes="accent"/>
+                <Button x:Name="SelectAllButton" Content="{loc:Tr Gallery_SelectAll}" Margin="0,0,8,0"/>
+                <Button x:Name="CancelButton" Content="{loc:Tr Common_Cancel}" Margin="0,0,8,0"/>
+                <Button x:Name="AddButton" Content="{loc:Tr Dialog_AddSelected}" Classes="accent"/>
             </Grid>
         </Grid>
     </Border>

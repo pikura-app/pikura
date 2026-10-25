@@ -1,5 +1,6 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:loc="using:Pikura.Avalonia.Localization"
         xmlns:actipro="http://schemas.actiprosoftware.com/avaloniaui"
         xmlns:vm="using:Pikura.Avalonia.ViewModels"
         xmlns:anim="using:Pikura.Avalonia.Controls"
@@ -22,7 +23,7 @@
                 <Button Name="PopupZoomOutBtn" FontSize="14">
                     <PathIcon Data="{StaticResource MinusIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                 </Button>
-                <Button Name="PopupZoomFitBtn" Content="Fit" FontSize="12"/>
+                <Button Name="PopupZoomFitBtn" Content="{loc:Tr Viewer_Fit}" FontSize="12"/>
                 <Button Name="PopupZoomInBtn" FontSize="14">
                     <PathIcon Data="{StaticResource PlusIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                 </Button>
@@ -64,7 +65,7 @@
             <StackPanel Name="LoadingSpinner" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="10"
                         IsVisible="{Binding IsLoadingPage}">
                 <ProgressBar IsIndeterminate="True" Width="160"/>
-                <TextBlock Text="Loading…" Foreground="{DynamicResource DefaultForegroundBrushTertiary}" HorizontalAlignment="Center"/>
+                <TextBlock Text="{loc:Tr Common_Loading_2}" Foreground="{DynamicResource DefaultForegroundBrushTertiary}" HorizontalAlignment="Center"/>
             </StackPanel>
         </Grid>
 
@@ -99,19 +100,19 @@
                     <Button FontSize="12" Command="{Binding DownloadCurrentPageCommand}" IsEnabled="{Binding !IsDownloading}">
                         <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
                             <PathIcon Data="{StaticResource DownloadIcon}" Width="12" Height="12" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
-                            <TextBlock Text="This page" FontSize="12" VerticalAlignment="Center"/>
+                            <TextBlock Text="{loc:Tr Viewer_ThisPage}" FontSize="12" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                     <Button FontSize="12" Command="{Binding DownloadAllPagesCommand}" Classes="accent" IsEnabled="{Binding !IsDownloading}">
                         <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
                             <PathIcon Data="{StaticResource DownloadIcon}" Width="12" Height="12" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
-                            <TextBlock Text="All pages" FontSize="12" VerticalAlignment="Center"/>
+                            <TextBlock Text="{loc:Tr Viewer_AllPages}" FontSize="12" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                     <Button FontSize="12" Command="{Binding DownloadRangeCommand}" IsEnabled="{Binding !IsDownloading}" IsVisible="{Binding HasMultiplePages}">
                         <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
                             <PathIcon Data="{StaticResource DownloadIcon}" Width="12" Height="12" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
-                            <TextBlock Text="Range…" FontSize="12" VerticalAlignment="Center"/>
+                            <TextBlock Text="{loc:Tr Viewer_Range}" FontSize="12" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                     <Button FontSize="12" Command="{Binding CloseCommand}">
@@ -120,7 +121,7 @@
                                   Stretch="Uniform" Stroke="{Binding $parent[Button].Foreground}" StrokeThickness="2"
                                   StrokeLineCap="Round"
                                   VerticalAlignment="Center" UseLayoutRounding="False"/>
-                            <TextBlock Text="Close" FontSize="12" VerticalAlignment="Center"/>
+                            <TextBlock Text="{loc:Tr Common_Close}" FontSize="12" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                     <ProgressBar IsIndeterminate="True" Width="60" Height="4"

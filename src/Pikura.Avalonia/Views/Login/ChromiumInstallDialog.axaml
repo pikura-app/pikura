@@ -1,8 +1,9 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:loc="using:Pikura.Avalonia.Localization"
         xmlns:actipro="http://schemas.actiprosoftware.com/avaloniaui"
         x:Class="Pikura.Avalonia.Views.Login.ChromiumInstallDialog"
-        Title="Setting up sign-in"
+        Title="{loc:Tr Login_SettingUpSignIn}"
         Width="520" Height="240"
         CanResize="False"
         WindowStartupLocation="CenterOwner"
@@ -10,11 +11,11 @@
 
     <Grid Margin="24,20" RowDefinitions="Auto,Auto,Auto,*,Auto" RowSpacing="12">
 
-        <TextBlock Grid.Row="0" Text="Setting up sign-in"
+        <TextBlock Grid.Row="0" Text="{loc:Tr Login_SettingUpSignIn}"
                    FontWeight="SemiBold" FontSize="14"/>
 
         <TextBlock Grid.Row="1" x:Name="StatusText"
-                   Text="Downloading the bundled browser used to sign you in. This happens once and takes a few minutes (~150 MB)."
+                   Text="{loc:Tr Login_DownloadingTheBundledBrowserUsedTo}"
                    TextWrapping="Wrap" FontSize="12"
                    Foreground="{DynamicResource DefaultForegroundBrushSecondary}"/>
 
@@ -23,13 +24,13 @@
                      CornerRadius="3"/>
 
         <TextBlock Grid.Row="3" x:Name="DetailText"
-                   Text="Contacting playwright.dev…"
+                   Text="{loc:Tr Login_ContactingPlaywrightDev}"
                    FontSize="11" VerticalAlignment="Top"
                    Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
 
         <StackPanel Grid.Row="4" Orientation="Horizontal"
                     HorizontalAlignment="Right" Spacing="8">
-            <Button x:Name="CancelBtn" Content="Cancel" Click="OnCancel"/>
+            <Button x:Name="CancelBtn" Content="{loc:Tr Common_Cancel}" Click="OnCancel"/>
         </StackPanel>
     </Grid>
 </Window>

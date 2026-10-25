@@ -2,6 +2,7 @@ using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Pikura.Avalonia.Localization;
 using Pikura.Avalonia.Services;
 using Pikura.Core.Data;
 using Pikura.Core.Services;
@@ -158,6 +159,22 @@ public partial class AiViewModel : ObservableObject
     private readonly HashSet<string> _shownSimilarWorkIds = new();
     private readonly HashSet<string> _shownSimilarArtistIds = new();
 
+    /// <summary>True if a session title is still the default "New chat" name in any
+    /// supported language (titles are persisted, so older/other-language values occur).</summary>
+    public static bool IsDefaultChatTitle(string? title)
+    {
+        if (string.IsNullOrEmpty(title)) return true;
+        if (title == "New chat") return true;
+        var rm = new System.Resources.ResourceManager(
+            "Pikura.Avalonia.Localization.Strings", typeof(Localization.LocalizationService).Assembly);
+        foreach (var c in new[] { "en", "ja", "zh", "ko" })
+        {
+            try { if (rm.GetString("Hoshi_NewChat", System.Globalization.CultureInfo.GetCultureInfo(c)) == title) return true; }
+            catch { }
+        }
+        return false;
+    }
+
     public AiViewModel(
         OllamaService ollama,
         LocalFavoritesService favorites,
@@ -289,7 +306,7 @@ public partial class AiViewModel : ObservableObject
         {
             pinned.PixivArtworkId = card.Id;
             pinned.ImageSource = $"pixiv:{card.Id}";
-            if (!_sessionAutoNamed || pinned.Title == "New chat")
+            if (!_sessionAutoNamed || IsDefaultChatTitle(pinned.Title))
             {
                 pinned.Title = card.Title;
                 _sessionAutoNamed = true;
@@ -360,7 +377,7 @@ public partial class AiViewModel : ObservableObject
         try
         {
             CurrentSession = session;
-            _sessionAutoNamed = session.Messages.Count > 0 || session.Title != "New chat";
+            _sessionAutoNamed = session.Messages.Count > 0 || !IsDefaultChatTitle(session.Title);
             Messages.Clear();
             foreach (var m in session.Messages)
                 Messages.Add(ToAiChatMessage(m));
@@ -453,7 +470,7 @@ public partial class AiViewModel : ObservableObject
     public void RenameCurrentSession(string newTitle)
     {
         if (CurrentSession is not { } s) return;
-        s.Title = string.IsNullOrWhiteSpace(newTitle) ? "Untitled" : newTitle.Trim();
+        s.Title = string.IsNullOrWhiteSpace(newTitle) ? Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_Untitled"] : newTitle.Trim();
         _ = _sessions.SaveAsync(s);
     }
 
@@ -528,7 +545,7 @@ public partial class AiViewModel : ObservableObject
 
             IsEnabled    = true;
             IsThinking   = true;
-            StatusText   = "Starting…";
+            StatusText   = Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_Starting"];
 
             var progress = new Progress<string>(msg =>
                 Dispatcher.UIThread.Post(() => { StatusText = msg; externalProgress?.Report(msg); }));
@@ -542,7 +559,7 @@ public partial class AiViewModel : ObservableObject
             if (_ollama.IsReady)
             {
                 IsPanelOpen = true;
-                AddSystemMessage("Hoshi 星 ready! I can describe images, suggest tags, download artwork, add to favorites, or move to a folder. What would you like to do?");
+                AddSystemMessage(Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_HoshiReadyICanDescribeImages"]);
                 
                 // Save enabled state to settings
                 _settings.Update(s => s.HoshiEnabled = true);
@@ -732,7 +749,7 @@ public partial class AiViewModel : ObservableObject
             var autoTitle = CurrentCard != null
                 ? CurrentCard.Title
                 : (text.Length > 40 ? text[..40].TrimEnd() + "…" : text);
-            if (!string.IsNullOrWhiteSpace(autoTitle) && sess.Title == "New chat")
+            if (!string.IsNullOrWhiteSpace(autoTitle) && IsDefaultChatTitle(sess.Title))
                 RenameCurrentSession(autoTitle);
         }
 
@@ -987,7 +1004,7 @@ public partial class AiViewModel : ObservableObject
                 return;
             }
 
-            StatusText = "Anime tagger model is not installed. Install it in Settings → Hoshi AI.";
+            StatusText = Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_AnimeTaggerModelIsNotInstalled"];
             // Fall through to the LLM fallback so the user still gets some result.
         }
 
@@ -999,7 +1016,7 @@ public partial class AiViewModel : ObservableObject
     private async Task GenerateTagsWithTaggerAsync(TaggerModelInfo model)
     {
         IsThinking = true;
-        StatusText = "Running anime tagger…";
+        StatusText = Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_RunningAnimeTagger"];
         try
         {
             var result = await _tagger.TagImageAsync(
@@ -1046,7 +1063,7 @@ public partial class AiViewModel : ObservableObject
         finally
         {
             IsThinking = false;
-            StatusText = IsModelReady ? "Ready" : "Hoshi is off";
+            StatusText = IsModelReady ? Pikura.Avalonia.Localization.LocalizationService.Instance["Editor_Ready"] : Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_HoshiIsOff"];
         }
     }
 
@@ -1086,7 +1103,7 @@ public partial class AiViewModel : ObservableObject
         {
             if (!_ollama.IsReady)
             {
-                AddSystemMessage("⚠ Hoshi isn't ready yet — enable it in Settings first.");
+                AddSystemMessage(Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_HoshiIsnTReadyYetEnable"]);
                 return;
             }
 
@@ -1190,7 +1207,7 @@ public partial class AiViewModel : ObservableObject
             catch { /* fall through to status message */ }
         }
 
-        AddSystemMessage("⚠ No image attached yet — wait for the artwork to finish loading, or drag an image into the chat.");
+        AddSystemMessage(Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_NoImageAttachedYetWaitFor"]);
         return false;
     }
 
@@ -1200,7 +1217,7 @@ public partial class AiViewModel : ObservableObject
         Messages.Clear();
         _ollama.ClearHistory();
         if (_ollama.IsReady)
-            AddSystemMessage("Chat cleared.");
+            AddSystemMessage(Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_ChatCleared"]);
     }
 
     /// <summary>
@@ -1800,7 +1817,7 @@ public partial class AiViewModel : ObservableObject
                     }
                     else
                     {
-                        placeholder.Content = "⚠ Could not identify this image. It may not be indexed on Danbooru/SauceNAO yet.";
+                        placeholder.Content = Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_CouldNotIdentifyThisImageIt"];
                     }
                     return true;
                 }
@@ -1863,7 +1880,7 @@ public partial class AiViewModel : ObservableObject
     // chat that shows only the answer with no record of what they asked.
     private void AddUserMessage(string text)      => AddMessage("user", text);
     private void AddAssistantMessage(string text) => AddMessage("assistant", text);
-    private void AddSystemMessage(string text)    => AddMessage("system", text);
+    private void AddSystemMessage(string text)    => AddMessage(Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_System"], text);
 
     private void AddMessage(string role, string text)
     {

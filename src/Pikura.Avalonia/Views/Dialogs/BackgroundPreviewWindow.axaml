@@ -1,8 +1,9 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:loc="using:Pikura.Avalonia.Localization"
         xmlns:actipro="http://schemas.actiprosoftware.com/avaloniaui"
         x:Class="Pikura.Avalonia.Views.Dialogs.BackgroundPreviewWindow"
-        Title="Pikura — Background Preview"
+        Title="{loc:Tr Preview_PikuraBackgroundPreview}"
         Width="900"
         Height="720"
         WindowStartupLocation="CenterOwner"
@@ -32,7 +33,7 @@
                                    IsHitTestVisible="False"/>
                     </Panel>
                     <TextBlock x:Name="HintText"
-                               Text="Drag to reposition · Scroll to zoom"
+                               Text="{loc:Tr Preview_DragToRepositionScrollToZoom}"
                                FontSize="11" Opacity="0.5"
                                IsHitTestVisible="False"
                                TextAlignment="Center"/>
@@ -44,7 +45,7 @@
                             VerticalAlignment="Center"
                             Orientation="Vertical">
                     <ProgressBar IsIndeterminate="True" Width="120" />
-                    <TextBlock Text="Loading full-resolution image…"
+                    <TextBlock Text="{loc:Tr Preview_LoadingFullResolutionImage}"
                                FontSize="12" Opacity="0.7"
                                TextAlignment="Center"
                                Margin="0,8,0,0" />
@@ -59,7 +60,7 @@
                 BorderThickness="1" CornerRadius="8" Padding="20,16">
             <StackPanel Spacing="10">
                 <Grid ColumnDefinitions="100,*,50">
-                    <TextBlock Grid.Column="0" Text="Opacity" FontSize="12"
+                    <TextBlock Grid.Column="0" Text="{loc:Tr Settings_Opacity}" FontSize="12"
                                VerticalAlignment="Center"/>
                     <Slider x:Name="OpacitySlider" Grid.Column="1"
                             Minimum="0" Maximum="0.85" Value="0.25"
@@ -69,7 +70,7 @@
                                VerticalAlignment="Center" HorizontalAlignment="Right"/>
                 </Grid>
                 <Grid ColumnDefinitions="100,*,50">
-                    <TextBlock Grid.Column="0" Text="Lighten" FontSize="12"
+                    <TextBlock Grid.Column="0" Text="{loc:Tr Settings_Lighten}" FontSize="12"
                                VerticalAlignment="Center"/>
                     <Slider x:Name="BrightnessSlider" Grid.Column="1"
                             Minimum="0" Maximum="0.85" Value="0"
@@ -79,7 +80,7 @@
                                VerticalAlignment="Center" HorizontalAlignment="Right"/>
                 </Grid>
                 <Grid ColumnDefinitions="100,*,50">
-                    <TextBlock Grid.Column="0" Text="Darken" FontSize="12"
+                    <TextBlock Grid.Column="0" Text="{loc:Tr Settings_Darken}" FontSize="12"
                                VerticalAlignment="Center"/>
                     <Slider x:Name="DarknessSlider" Grid.Column="1"
                             Minimum="0" Maximum="0.85" Value="0"
@@ -94,9 +95,9 @@
         <!-- Action buttons -->
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right"
                     Spacing="10" Margin="12,0,12,12">
-            <Button Content="Reset Position" Click="OnResetPosition" FontSize="12"/>
-            <Button Content="Cancel" Click="OnCancel" FontSize="12"/>
-            <Button Content="Apply" Click="OnApply" Classes="accent" FontSize="12"/>
+            <Button Content="{loc:Tr Preview_ResetPosition}" Click="OnResetPosition" FontSize="12"/>
+            <Button Content="{loc:Tr Common_Cancel}" Click="OnCancel" FontSize="12"/>
+            <Button Content="{loc:Tr Common_Apply}" Click="OnApply" Classes="accent" FontSize="12"/>
         </StackPanel>
     </Grid>
 </Window>

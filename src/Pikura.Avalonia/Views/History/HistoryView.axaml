@@ -1,5 +1,6 @@
 ﻿<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:loc="using:Pikura.Avalonia.Localization"
              xmlns:actipro="http://schemas.actiprosoftware.com/avaloniaui"
              xmlns:vm="using:Pikura.Avalonia.ViewModels"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -91,8 +92,8 @@
                                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
                     <PathIcon Data="{StaticResource QueueIcon}" Width="24" Height="24" VerticalAlignment="Center"/>
                     <StackPanel Orientation="Vertical" Spacing="2" VerticalAlignment="Center">
-                        <TextBlock Text="Jobs" FontWeight="SemiBold" FontSize="18"/>
-                        <TextBlock Text="Active and completed downloads"
+                        <TextBlock Text="{loc:Tr Nav_Jobs}" FontWeight="SemiBold" FontSize="18"/>
+                        <TextBlock Text="{loc:Tr History_ActiveAndCompletedDownloads}"
                                    FontSize="11" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                     </StackPanel>
                 </StackPanel>
@@ -101,7 +102,7 @@
                              Padding="10,6" FontSize="12">
                         <StackPanel Orientation="Horizontal" Spacing="6">
                             <PathIcon Data="{StaticResource RefreshIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
-                            <TextBlock Text="Refresh" VerticalAlignment="Center"/>
+                            <TextBlock Text="{loc:Tr Common_Refresh}" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                     <Button Command="{Binding RetryAllFailedCommand}"
@@ -109,7 +110,7 @@
                              Padding="10,6" FontSize="12" Classes="accent">
                         <StackPanel Orientation="Horizontal" Spacing="6">
                             <PathIcon Data="{StaticResource RefreshIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
-                            <TextBlock Text="Retry All Failed" VerticalAlignment="Center"/>
+                            <TextBlock Text="{loc:Tr History_RetryAllFailed}" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                 </StackPanel>
@@ -124,7 +125,7 @@
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal" Spacing="6">
                         <PathIcon Data="{StaticResource ClockIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
-                        <TextBlock Text="Active" FontSize="12" VerticalAlignment="Center"/>
+                        <TextBlock Text="{loc:Tr Settings_Active}" FontSize="12" VerticalAlignment="Center"/>
                         <Border Background="{DynamicResource Container3BackgroundBrush}"
                                 CornerRadius="8" Padding="5,1"
                                 IsVisible="{Binding ActiveJobs.Count}">
@@ -142,12 +143,12 @@
                             <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="6">
                                 <StackPanel Orientation="Horizontal" Spacing="2"
                                             IsVisible="{Binding ActiveJobs.Count}">
-                                    <Button CornerRadius="6,0,0,6" Padding="10,6" FontSize="12" ToolTip.Tip="Card view"
+                                    <Button CornerRadius="6,0,0,6" Padding="10,6" FontSize="12" ToolTip.Tip="{loc:Tr History_CardView}"
                                             Classes.accent="{Binding !ActiveListView}"
                                             Command="{Binding SetActiveListViewCommand}" CommandParameter="false">
                                         <PathIcon Data="{StaticResource GridViewIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                                     </Button>
-                                    <Button CornerRadius="0,6,6,0" Padding="10,6" FontSize="12" ToolTip.Tip="List view"
+                                    <Button CornerRadius="0,6,6,0" Padding="10,6" FontSize="12" ToolTip.Tip="{loc:Tr Rankings_ListView}"
                                             Classes.accent="{Binding ActiveListView}"
                                             Command="{Binding SetActiveListViewCommand}" CommandParameter="true">
                                         <PathIcon Data="{StaticResource ListViewIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
@@ -159,14 +160,14 @@
                                              Padding="10,6" FontSize="12">
                                         <StackPanel Orientation="Horizontal" Spacing="6">
                                             <PathIcon Data="{StaticResource PauseIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
-                                            <TextBlock Text="Pause All" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{loc:Tr History_PauseAll}" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </Button>
                                     <Button Command="{Binding ResumeAllCommand}"
                                              Padding="10,6" FontSize="12" Classes="accent">
                                         <StackPanel Orientation="Horizontal" Spacing="6">
                                             <PathIcon Data="{StaticResource PlayIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
-                                            <TextBlock Text="Resume All" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{loc:Tr History_ResumeAll}" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </Button>
                                 </StackPanel>
@@ -206,7 +207,7 @@
                                                         <MenuItem.Header>
                                                             <StackPanel Orientation="Horizontal" Spacing="6">
                                                                 <PathIcon Data="{StaticResource PauseIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
-                                                                <TextBlock Text="Pause" VerticalAlignment="Center"/>
+                                                                <TextBlock Text="{loc:Tr History_Pause}" VerticalAlignment="Center"/>
                                                             </StackPanel>
                                                         </MenuItem.Header>
                                                     </MenuItem>
@@ -214,7 +215,7 @@
                                                         <MenuItem.Header>
                                                             <StackPanel Orientation="Horizontal" Spacing="6">
                                                                 <PathIcon Data="{StaticResource PlayIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
-                                                                <TextBlock Text="Resume" VerticalAlignment="Center"/>
+                                                                <TextBlock Text="{loc:Tr History_Resume}" VerticalAlignment="Center"/>
                                                             </StackPanel>
                                                         </MenuItem.Header>
                                                     </MenuItem>
@@ -224,15 +225,15 @@
                                                                 <Path Data="{StaticResource CloseIcon}" Width="12" Height="12"
                                   Stretch="Uniform" Stroke="{DynamicResource DefaultForegroundBrush}" StrokeThickness="2"
                                   StrokeLineCap="Round" VerticalAlignment="Center" UseLayoutRounding="False"/>
-                                                                <TextBlock Text="Cancel" VerticalAlignment="Center"/>
+                                                                <TextBlock Text="{loc:Tr Common_Cancel}" VerticalAlignment="Center"/>
                                                             </StackPanel>
                                                         </MenuItem.Header>
                                                     </MenuItem>
                                                     <Separator/>
-                                                    <MenuItem Header="Move to Top"    Command="{Binding MoveToTopCommand}"/>
-                                                    <MenuItem Header="Move Up"         Command="{Binding MoveUpCommand}"/>
-                                                    <MenuItem Header="Move Down"       Command="{Binding MoveDownCommand}"/>
-                                                    <MenuItem Header="Move to Bottom"  Command="{Binding MoveToBottomCommand}"/>
+                                                    <MenuItem Header="{loc:Tr History_MoveToTop}"    Command="{Binding MoveToTopCommand}"/>
+                                                    <MenuItem Header="{loc:Tr History_MoveUp}"         Command="{Binding MoveUpCommand}"/>
+                                                    <MenuItem Header="{loc:Tr History_MoveDown}"       Command="{Binding MoveDownCommand}"/>
+                                                    <MenuItem Header="{loc:Tr History_MoveToBottom}"  Command="{Binding MoveToBottomCommand}"/>
                                                     <Separator/>
                                                     <MenuItem Command="{Binding $parent[ListBox].DataContext.RemoveActiveJobCommand}" CommandParameter="{Binding}">
                                                         <MenuItem.Header>
@@ -240,7 +241,7 @@
                                                                 <Path Data="{StaticResource TrashIcon}" Width="14" Height="14"
                                   Stretch="Uniform" Stroke="{DynamicResource DefaultForegroundBrush}" StrokeThickness="2"
                                   StrokeLineCap="Round" VerticalAlignment="Center" UseLayoutRounding="False"/>
-                                                                <TextBlock Text="Remove from Queue" VerticalAlignment="Center"/>
+                                                                <TextBlock Text="{loc:Tr History_RemoveFromQueue}" VerticalAlignment="Center"/>
                                                             </StackPanel>
                                                         </MenuItem.Header>
                                                     </MenuItem>
@@ -297,7 +298,7 @@
                                                                IsVisible="{Binding HasCurrentFile}"
                                                                TextTrimming="CharacterEllipsis" MaxLines="1"/>
                                                     <!-- "Preparing…" hint only while actively enumerating (Running + no total yet) -->
-                                                    <TextBlock Text="Preparing… (fetching artwork list)" FontSize="12"
+                                                    <TextBlock Text="{loc:Tr History_PreparingFetchingArtworkList}" FontSize="12"
                                                                Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                                                IsVisible="{Binding IsPreparing}"/>
                                                     <ProgressBar Value="{Binding ProgressPercent}" Maximum="100" Height="5" CornerRadius="3" Margin="0,3,0,0"
@@ -334,17 +335,17 @@
                                                         <Button   FontSize="12"
                                                                 IsVisible="{Binding IsPausable}"
                                                                 Command="{Binding PauseCommand}"
-                                                                ToolTip.Tip="Pause">
+                                                                ToolTip.Tip="{loc:Tr History_Pause}">
                                                             <PathIcon Data="{StaticResource PauseIcon}" Width="16" Height="16" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                                                         </Button>
                                                         <Button   FontSize="12"
                                                                 IsVisible="{Binding IsResumable}"
                                                                 Command="{Binding ResumeCommand}"
-                                                                ToolTip.Tip="Resume" Classes="accent">
+                                                                ToolTip.Tip="{loc:Tr History_Resume}" Classes="accent">
                                                             <PathIcon Data="{StaticResource PlayIcon}" Width="16" Height="16" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                                                         </Button>
                                                         <Button   FontSize="14"
-                                                                ToolTip.Tip="Actions">
+                                                                ToolTip.Tip="{loc:Tr History_Actions}">
                                                             <PathIcon Data="{StaticResource HamburgerIcon}" Width="16" Height="16" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                                                             <Button.Flyout>
                                                                 <MenuFlyout>
@@ -352,7 +353,7 @@
                                                                         <MenuItem.Header>
                                                                             <StackPanel Orientation="Horizontal" Spacing="6">
                                                                                 <PathIcon Data="{StaticResource PauseIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
-                                                                                <TextBlock Text="Pause" VerticalAlignment="Center"/>
+                                                                                <TextBlock Text="{loc:Tr History_Pause}" VerticalAlignment="Center"/>
                                                                             </StackPanel>
                                                                         </MenuItem.Header>
                                                                     </MenuItem>
@@ -360,7 +361,7 @@
                                                                         <MenuItem.Header>
                                                                             <StackPanel Orientation="Horizontal" Spacing="6">
                                                                                 <PathIcon Data="{StaticResource PlayIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
-                                                                                <TextBlock Text="Resume" VerticalAlignment="Center"/>
+                                                                                <TextBlock Text="{loc:Tr History_Resume}" VerticalAlignment="Center"/>
                                                                             </StackPanel>
                                                                         </MenuItem.Header>
                                                                     </MenuItem>
@@ -370,15 +371,15 @@
                                                                                 <Path Data="{StaticResource CloseIcon}" Width="12" Height="12"
                                   Stretch="Uniform" Stroke="{DynamicResource DefaultForegroundBrush}" StrokeThickness="2"
                                   StrokeLineCap="Round" VerticalAlignment="Center" UseLayoutRounding="False"/>
-                                                                                <TextBlock Text="Cancel" VerticalAlignment="Center"/>
+                                                                                <TextBlock Text="{loc:Tr Common_Cancel}" VerticalAlignment="Center"/>
                                                                             </StackPanel>
                                                                         </MenuItem.Header>
                                                                     </MenuItem>
                                                                     <Separator/>
-                                                                    <MenuItem Header="Move to Top"    Command="{Binding MoveToTopCommand}"/>
-                                                                    <MenuItem Header="Move Up"         Command="{Binding MoveUpCommand}"/>
-                                                                    <MenuItem Header="Move Down"       Command="{Binding MoveDownCommand}"/>
-                                                                    <MenuItem Header="Move to Bottom"  Command="{Binding MoveToBottomCommand}"/>
+                                                                    <MenuItem Header="{loc:Tr History_MoveToTop}"    Command="{Binding MoveToTopCommand}"/>
+                                                                    <MenuItem Header="{loc:Tr History_MoveUp}"         Command="{Binding MoveUpCommand}"/>
+                                                                    <MenuItem Header="{loc:Tr History_MoveDown}"       Command="{Binding MoveDownCommand}"/>
+                                                                    <MenuItem Header="{loc:Tr History_MoveToBottom}"  Command="{Binding MoveToBottomCommand}"/>
                                                                     <Separator/>
                                                                     <MenuItem Command="{Binding $parent[ListBox].DataContext.RemoveActiveJobCommand}" CommandParameter="{Binding}">
                                                                         <MenuItem.Header>
@@ -386,7 +387,7 @@
                                                                                 <Path Data="{StaticResource TrashIcon}" Width="14" Height="14"
                                   Stretch="Uniform" Stroke="{DynamicResource DefaultForegroundBrush}" StrokeThickness="2"
                                   StrokeLineCap="Round" VerticalAlignment="Center" UseLayoutRounding="False"/>
-                                                                                <TextBlock Text="Remove from Queue" VerticalAlignment="Center"/>
+                                                                                <TextBlock Text="{loc:Tr History_RemoveFromQueue}" VerticalAlignment="Center"/>
                                                                             </StackPanel>
                                                                         </MenuItem.Header>
                                                                     </MenuItem>
@@ -424,11 +425,11 @@
                                                 </Border>
                                                 <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
                                                     <Button   FontSize="12"
-                                                            IsVisible="{Binding IsPausable}" Command="{Binding PauseCommand}" ToolTip.Tip="Pause">
+                                                            IsVisible="{Binding IsPausable}" Command="{Binding PauseCommand}" ToolTip.Tip="{loc:Tr History_Pause}">
                                                         <PathIcon Data="{StaticResource PauseIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                                                     </Button>
                                                     <Button   FontSize="12" Classes="accent"
-                                                            IsVisible="{Binding IsResumable}" Command="{Binding ResumeCommand}" ToolTip.Tip="Resume">
+                                                            IsVisible="{Binding IsResumable}" Command="{Binding ResumeCommand}" ToolTip.Tip="{loc:Tr History_Resume}">
                                                         <PathIcon Data="{StaticResource PlayIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                                                     </Button>
                                                 </StackPanel>
@@ -441,10 +442,10 @@
                                        HorizontalAlignment="Center" VerticalAlignment="Center"
                                        Spacing="8" Margin="0,-40,0,0">
                                 <PathIcon Data="{StaticResource QueueIcon}" Width="48" Height="48" Opacity="0.3" HorizontalAlignment="Center"/>
-                                <TextBlock Text="No active downloads" FontSize="15" FontWeight="SemiBold"
+                                <TextBlock Text="{loc:Tr History_NoActiveDownloads}" FontSize="15" FontWeight="SemiBold"
                                            Foreground="{DynamicResource DefaultForegroundBrushSecondary}"
                                            HorizontalAlignment="Center"/>
-                                <TextBlock Text="Queue a job from Gallery or Discover to get started"
+                                <TextBlock Text="{loc:Tr History_QueueAJobFromGalleryOr}"
                                            FontSize="12"
                                            Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                            HorizontalAlignment="Center"/>
@@ -458,7 +459,7 @@
             <TabItem>
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal" Spacing="6">
-                        <PathIcon Data="{StaticResource CheckIcon}" Width="14" Height="14" VerticalAlignment="Center"/><TextBlock Text="Completed" FontSize="12" VerticalAlignment="Center"/>
+                        <PathIcon Data="{StaticResource CheckIcon}" Width="14" Height="14" VerticalAlignment="Center"/><TextBlock Text="{loc:Tr History_Completed}" FontSize="12" VerticalAlignment="Center"/>
                         <Border Background="{DynamicResource Container3BackgroundBrush}"
                                 CornerRadius="8" Padding="5,1"
                                 IsVisible="{Binding CompletedJobs.Count}">
@@ -473,12 +474,12 @@
                                        FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}" VerticalAlignment="Center"/>
                             <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="6">
                                 <StackPanel Orientation="Horizontal" Spacing="2">
-                                    <Button CornerRadius="6,0,0,6" Padding="10,6" FontSize="12" ToolTip.Tip="Card view"
+                                    <Button CornerRadius="6,0,0,6" Padding="10,6" FontSize="12" ToolTip.Tip="{loc:Tr History_CardView}"
                                             Classes.accent="{Binding !CompletedListView}"
                                             Command="{Binding SetCompletedListViewCommand}" CommandParameter="false">
                                         <PathIcon Data="{StaticResource GridViewIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                                     </Button>
-                                    <Button CornerRadius="0,6,6,0" Padding="10,6" FontSize="12" ToolTip.Tip="List view"
+                                    <Button CornerRadius="0,6,6,0" Padding="10,6" FontSize="12" ToolTip.Tip="{loc:Tr Rankings_ListView}"
                                             Classes.accent="{Binding CompletedListView}"
                                             Command="{Binding SetCompletedListViewCommand}" CommandParameter="true">
                                         <PathIcon Data="{StaticResource ListViewIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
@@ -491,7 +492,7 @@
                                         <Path Data="{StaticResource TrashIcon}" Width="14" Height="14"
                                   Stretch="Uniform" Stroke="{Binding $parent[Button].Foreground}" StrokeThickness="2"
                                   StrokeLineCap="Round" VerticalAlignment="Center" UseLayoutRounding="False"/>
-                                        <TextBlock Text="Clear All" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{loc:Tr Hoshi_ClearAll}" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Button>
                             </StackPanel>
@@ -526,12 +527,12 @@
                                                        Margin="12,0" VerticalAlignment="Center"/>
                                             <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
                                                 <Button   FontSize="12"
-                                                        IsVisible="{Binding HasOutputFolder}" Command="{Binding OpenFolderCommand}" ToolTip.Tip="Open Folder">
+                                                        IsVisible="{Binding HasOutputFolder}" Command="{Binding OpenFolderCommand}" ToolTip.Tip="{loc:Tr History_OpenFolder}">
                                                     <PathIcon Data="{StaticResource FolderIcon}" Width="12" Height="12" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                                                 </Button>
                                                 <Button   FontSize="12"
                                                         Command="{Binding $parent[ListBox].DataContext.RemoveJobCommand}"
-                                                        CommandParameter="{Binding}" ToolTip.Tip="Remove">
+                                                        CommandParameter="{Binding}" ToolTip.Tip="{loc:Tr Common_Remove}">
                                                     <Path Data="{StaticResource CloseIcon}" Width="12" Height="12"
                                   Stretch="Uniform" Stroke="{Binding $parent[Button].Foreground}" StrokeThickness="2"
                                   StrokeLineCap="Round" VerticalAlignment="Center" UseLayoutRounding="False"/>
@@ -572,8 +573,8 @@
                                             Padding="10,10,12,10">
                                         <Border.ContextMenu>
                                             <ContextMenu>
-                                                <MenuItem Header="💾 Export metadata…" Click="OnExportJobMetadata"
-                                                          ToolTip.Tip="Fetch and save id, artist, link, size, upload date, views, bookmarks and tags for every artwork in this job"/>
+                                                <MenuItem Header="{loc:Tr History_ExportMetadata}" Click="OnExportJobMetadata"
+                                                          ToolTip.Tip="{loc:Tr History_FetchAndSaveIdArtistLink}"/>
                                             </ContextMenu>
                                         </Border.ContextMenu>
                                         <Grid ColumnDefinitions="Auto,*,Auto">
@@ -638,7 +639,7 @@
                                                           FontSize="12">
                                                     <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Left">
                                                         <PathIcon Data="{StaticResource FolderIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
-                                                        <TextBlock Text="Open Folder" VerticalAlignment="Center"/>
+                                                        <TextBlock Text="{loc:Tr History_OpenFolder}" VerticalAlignment="Center"/>
                                                     </StackPanel>
                                                 </Button>
                                                 <Button Command="{Binding $parent[ListBox].DataContext.RemoveJobCommand}"
@@ -649,7 +650,7 @@
                                                         <Path Data="{StaticResource CloseIcon}" Width="14" Height="14"
                                   Stretch="Uniform" Stroke="{Binding $parent[Button].Foreground}" StrokeThickness="2"
                                   StrokeLineCap="Round" VerticalAlignment="Center" UseLayoutRounding="False"/>
-                                                        <TextBlock Text="Remove" VerticalAlignment="Center"/>
+                                                        <TextBlock Text="{loc:Tr Common_Remove}" VerticalAlignment="Center"/>
                                                     </StackPanel>
                                                 </Button>
                                             </StackPanel>
@@ -658,7 +659,7 @@
                                 </DataTemplate>
                             </ListBox.DataTemplates>
                         </ListBox>
-                        <TextBlock Text="No completed downloads" FontSize="13"
+                        <TextBlock Text="{loc:Tr History_NoCompletedDownloads}" FontSize="13"
                                    Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                    IsVisible="{Binding !CompletedJobs.Count}"
                                    HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,24,0,0"/>
@@ -670,7 +671,7 @@
             <TabItem>
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal" Spacing="6">
-                        <PathIcon Data="{StaticResource WarningIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="OrangeRed"/><TextBlock Text="Failed" FontSize="12" VerticalAlignment="Center" Foreground="OrangeRed"/>
+                        <PathIcon Data="{StaticResource WarningIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="OrangeRed"/><TextBlock Text="{loc:Tr History_Failed}" FontSize="12" VerticalAlignment="Center" Foreground="OrangeRed"/>
                         <Border Background="{DynamicResource Container3BackgroundBrush}"
                                 CornerRadius="8" Padding="5,1"
                                 IsVisible="{Binding FailedJobs.Count}">
@@ -685,12 +686,12 @@
                                        FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}" VerticalAlignment="Center"/>
                             <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="6">
                                 <StackPanel Orientation="Horizontal" Spacing="2">
-                                    <Button CornerRadius="6,0,0,6" Padding="10,6" FontSize="12" ToolTip.Tip="Card view"
+                                    <Button CornerRadius="6,0,0,6" Padding="10,6" FontSize="12" ToolTip.Tip="{loc:Tr History_CardView}"
                                             Classes.accent="{Binding !FailedListView}"
                                             Command="{Binding SetFailedListViewCommand}" CommandParameter="false">
                                         <PathIcon Data="{StaticResource GridViewIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                                     </Button>
-                                    <Button CornerRadius="0,6,6,0" Padding="10,6" FontSize="12" ToolTip.Tip="List view"
+                                    <Button CornerRadius="0,6,6,0" Padding="10,6" FontSize="12" ToolTip.Tip="{loc:Tr Rankings_ListView}"
                                             Classes.accent="{Binding FailedListView}"
                                             Command="{Binding SetFailedListViewCommand}" CommandParameter="true">
                                         <PathIcon Data="{StaticResource ListViewIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
@@ -701,7 +702,7 @@
                                          Padding="10,6" FontSize="12" Classes="accent">
                                     <StackPanel Orientation="Horizontal" Spacing="6">
                                         <PathIcon Data="{StaticResource RefreshIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
-                                        <TextBlock Text="Retry All" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{loc:Tr History_RetryAll}" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Button>
                                 <Button Command="{Binding ClearFailedCommand}"
@@ -711,7 +712,7 @@
                                         <Path Data="{StaticResource TrashIcon}" Width="14" Height="14"
                                   Stretch="Uniform" Stroke="{Binding $parent[Button].Foreground}" StrokeThickness="2"
                                   StrokeLineCap="Round" VerticalAlignment="Center" UseLayoutRounding="False"/>
-                                        <TextBlock Text="Clear All" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{loc:Tr Hoshi_ClearAll}" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Button>
                             </StackPanel>
@@ -747,12 +748,12 @@
                                             <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
                                                 <Button   FontSize="12" Classes="accent"
                                                         Command="{Binding $parent[ListBox].DataContext.RetryJobCommand}"
-                                                        CommandParameter="{Binding}" ToolTip.Tip="Retry">
+                                                        CommandParameter="{Binding}" ToolTip.Tip="{loc:Tr Common_Retry}">
                                                     <PathIcon Data="{StaticResource RefreshIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                                                 </Button>
                                                 <Button   FontSize="12"
                                                         Command="{Binding $parent[ListBox].DataContext.RemoveJobCommand}"
-                                                        CommandParameter="{Binding}" ToolTip.Tip="Remove">
+                                                        CommandParameter="{Binding}" ToolTip.Tip="{loc:Tr Common_Remove}">
                                                     <Path Data="{StaticResource CloseIcon}" Width="12" Height="12"
                                   Stretch="Uniform" Stroke="{Binding $parent[Button].Foreground}" StrokeThickness="2"
                                   StrokeLineCap="Round" VerticalAlignment="Center" UseLayoutRounding="False"/>
@@ -793,8 +794,8 @@
                                             Padding="10,10,12,10">
                                         <Border.ContextMenu>
                                             <ContextMenu>
-                                                <MenuItem Header="💾 Export metadata…" Click="OnExportJobMetadata"
-                                                          ToolTip.Tip="Fetch and save id, artist, link, size, upload date, views, bookmarks and tags for every artwork in this job"/>
+                                                <MenuItem Header="{loc:Tr History_ExportMetadata}" Click="OnExportJobMetadata"
+                                                          ToolTip.Tip="{loc:Tr History_FetchAndSaveIdArtistLink}"/>
                                             </ContextMenu>
                                         </Border.ContextMenu>
                                         <Grid ColumnDefinitions="Auto,*,Auto">
@@ -844,7 +845,7 @@
                                                           FontSize="12" Classes="accent">
                                                     <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center">
                                                         <PathIcon Data="{StaticResource RefreshIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
-                                                        <TextBlock Text="Retry" VerticalAlignment="Center"/>
+                                                        <TextBlock Text="{loc:Tr Common_Retry}" VerticalAlignment="Center"/>
                                                     </StackPanel>
                                                 </Button>
                                                 <Button Command="{Binding $parent[ListBox].DataContext.RemoveJobCommand}"
@@ -855,7 +856,7 @@
                                                         <Path Data="{StaticResource CloseIcon}" Width="14" Height="14"
                                   Stretch="Uniform" Stroke="{Binding $parent[Button].Foreground}" StrokeThickness="2"
                                   StrokeLineCap="Round" VerticalAlignment="Center" UseLayoutRounding="False"/>
-                                                        <TextBlock Text="Remove" VerticalAlignment="Center"/>
+                                                        <TextBlock Text="{loc:Tr Common_Remove}" VerticalAlignment="Center"/>
                                                     </StackPanel>
                                                 </Button>
                                             </StackPanel>
@@ -864,7 +865,7 @@
                                 </DataTemplate>
                             </ListBox.DataTemplates>
                         </ListBox>
-                        <TextBlock Text="No failed downloads" FontSize="13"
+                        <TextBlock Text="{loc:Tr History_NoFailedDownloads}" FontSize="13"
                                    Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                    IsVisible="{Binding !FailedJobs.Count}"
                                    HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,24,0,0"/>
@@ -877,7 +878,7 @@
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal" Spacing="6">
                         <PathIcon Data="{StaticResource CloseFilledIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="OrangeRed"/>
-                        <TextBlock Text="Cancelled" FontSize="12" VerticalAlignment="Center" Foreground="OrangeRed"/>
+                        <TextBlock Text="{loc:Tr History_Cancelled}" FontSize="12" VerticalAlignment="Center" Foreground="OrangeRed"/>
                         <Border Background="{DynamicResource Container3BackgroundBrush}"
                                 CornerRadius="8" Padding="5,1"
                                 IsVisible="{Binding CancelledJobs.Count}">
@@ -892,12 +893,12 @@
                                        FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}" VerticalAlignment="Center"/>
                             <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="6">
                                 <StackPanel Orientation="Horizontal" Spacing="2">
-                                    <Button CornerRadius="6,0,0,6" Padding="10,6" FontSize="12" ToolTip.Tip="Card view"
+                                    <Button CornerRadius="6,0,0,6" Padding="10,6" FontSize="12" ToolTip.Tip="{loc:Tr History_CardView}"
                                             Classes.accent="{Binding !CancelledListView}"
                                             Command="{Binding SetCancelledListViewCommand}" CommandParameter="false">
                                         <PathIcon Data="{StaticResource GridViewIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                                     </Button>
-                                    <Button CornerRadius="0,6,6,0" Padding="10,6" FontSize="12" ToolTip.Tip="List view"
+                                    <Button CornerRadius="0,6,6,0" Padding="10,6" FontSize="12" ToolTip.Tip="{loc:Tr Rankings_ListView}"
                                             Classes.accent="{Binding CancelledListView}"
                                             Command="{Binding SetCancelledListViewCommand}" CommandParameter="true">
                                         <PathIcon Data="{StaticResource ListViewIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
@@ -910,7 +911,7 @@
                                         <Path Data="{StaticResource TrashIcon}" Width="14" Height="14"
                                   Stretch="Uniform" Stroke="{Binding $parent[Button].Foreground}" StrokeThickness="2"
                                   StrokeLineCap="Round" VerticalAlignment="Center" UseLayoutRounding="False"/>
-                                        <TextBlock Text="Clear All" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{loc:Tr Hoshi_ClearAll}" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Button>
                             </StackPanel>
@@ -947,12 +948,12 @@
                                             <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
                                                 <Button   FontSize="12" Classes="accent"
                                                         Command="{Binding $parent[ListBox].DataContext.RetryJobCommand}"
-                                                        CommandParameter="{Binding}" ToolTip.Tip="Retry">
+                                                        CommandParameter="{Binding}" ToolTip.Tip="{loc:Tr Common_Retry}">
                                                     <PathIcon Data="{StaticResource RefreshIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                                                 </Button>
                                                 <Button   FontSize="12"
                                                         Command="{Binding $parent[ListBox].DataContext.RemoveJobCommand}"
-                                                        CommandParameter="{Binding}" ToolTip.Tip="Remove">
+                                                        CommandParameter="{Binding}" ToolTip.Tip="{loc:Tr Common_Remove}">
                                                     <Path Data="{StaticResource CloseIcon}" Width="12" Height="12"
                                   Stretch="Uniform" Stroke="{Binding $parent[Button].Foreground}" StrokeThickness="2"
                                   StrokeLineCap="Round" VerticalAlignment="Center" UseLayoutRounding="False"/>
@@ -993,8 +994,8 @@
                                             Padding="10,10,12,10">
                                         <Border.ContextMenu>
                                             <ContextMenu>
-                                                <MenuItem Header="💾 Export metadata…" Click="OnExportJobMetadata"
-                                                          ToolTip.Tip="Fetch and save id, artist, link, size, upload date, views, bookmarks and tags for every artwork in this job"/>
+                                                <MenuItem Header="{loc:Tr History_ExportMetadata}" Click="OnExportJobMetadata"
+                                                          ToolTip.Tip="{loc:Tr History_FetchAndSaveIdArtistLink}"/>
                                             </ContextMenu>
                                         </Border.ContextMenu>
                                         <Grid ColumnDefinitions="Auto,*,Auto">
@@ -1046,7 +1047,7 @@
                                                           FontSize="12" Classes="accent">
                                                     <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center">
                                                         <PathIcon Data="{StaticResource RefreshIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
-                                                        <TextBlock Text="Retry" VerticalAlignment="Center"/>
+                                                        <TextBlock Text="{loc:Tr Common_Retry}" VerticalAlignment="Center"/>
                                                     </StackPanel>
                                                 </Button>
                                                 <Button Command="{Binding $parent[ListBox].DataContext.RemoveJobCommand}"
@@ -1057,7 +1058,7 @@
                                                         <Path Data="{StaticResource CloseIcon}" Width="14" Height="14"
                                   Stretch="Uniform" Stroke="{Binding $parent[Button].Foreground}" StrokeThickness="2"
                                   StrokeLineCap="Round" VerticalAlignment="Center" UseLayoutRounding="False"/>
-                                                        <TextBlock Text="Remove" VerticalAlignment="Center"/>
+                                                        <TextBlock Text="{loc:Tr Common_Remove}" VerticalAlignment="Center"/>
                                                     </StackPanel>
                                                 </Button>
                                             </StackPanel>
@@ -1066,7 +1067,7 @@
                                 </DataTemplate>
                             </ListBox.DataTemplates>
                         </ListBox>
-                        <TextBlock Text="No cancelled downloads" FontSize="13"
+                        <TextBlock Text="{loc:Tr History_NoCancelledDownloads}" FontSize="13"
                                    Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                    IsVisible="{Binding !CancelledJobs.Count}"
                                    HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,24,0,0"/>

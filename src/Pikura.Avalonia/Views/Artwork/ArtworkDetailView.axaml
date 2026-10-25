@@ -1,5 +1,6 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:loc="using:Pikura.Avalonia.Localization"
              xmlns:vm="using:Pikura.Avalonia.ViewModels"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -24,7 +25,7 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <Button Content="← Back" Command="{Binding GoBackCommand}"/>
+                <Button Content="{loc:Tr Pixivision_Back}" Command="{Binding GoBackCommand}"/>
                 
                 <SelectableTextBlock Grid.Column="1" 
                                      Text="{Binding Artwork.Title}" 
@@ -34,8 +35,8 @@
                                      VerticalAlignment="Center"/>
                 
                 <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8">
-                    <Button Content="Download Current" Command="{Binding DownloadCurrentPageCommand}"/>
-                    <Button Content="Download All" Command="{Binding DownloadAllPagesCommand}"/>
+                    <Button Content="{loc:Tr Artwork_DownloadCurrent}" Command="{Binding DownloadCurrentPageCommand}"/>
+                    <Button Content="{loc:Tr Gallery_DownloadAll}" Command="{Binding DownloadAllPagesCommand}"/>
                 </StackPanel>
             </Grid>
         </Border>
@@ -55,7 +56,7 @@
                     BorderBrush="{DynamicResource Container1BorderBrush}" 
                     BorderThickness="1">
                 <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <TextBlock Text="Artwork Image" 
+                    <TextBlock Text="{loc:Tr Artwork_ArtworkImage}" 
                               FontSize="24" 
                               Opacity="0.5"/>
                     <StackPanel VerticalAlignment="Bottom" 
@@ -77,31 +78,31 @@
                     Width="300"
                     Padding="16">
                 <StackPanel Spacing="16">
-                    <TextBlock Text="Artwork Info" FontWeight="SemiBold" FontSize="16"/>
+                    <TextBlock Text="{loc:Tr Artwork_ArtworkInfo}" FontWeight="SemiBold" FontSize="16"/>
                     
                     <StackPanel Spacing="8">
-                        <TextBlock Text="Artist:" FontWeight="SemiBold"/>
+                        <TextBlock Text="{loc:Tr Artwork_Artist}" FontWeight="SemiBold"/>
                         <TextBlock Text="{Binding Artwork.UserName}"/>
 
-                        <TextBlock Text="ID:" FontWeight="SemiBold" Margin="0,8,0,0"/>
+                        <TextBlock Text="{loc:Tr Settings_Id}" FontWeight="SemiBold" Margin="0,8,0,0"/>
                         <TextBlock Text="{Binding Artwork.Id}"/>
 
-                        <TextBlock Text="Type:" FontWeight="SemiBold" Margin="0,8,0,0"/>
+                        <TextBlock Text="{loc:Tr Artwork_Type}" FontWeight="SemiBold" Margin="0,8,0,0"/>
                         <TextBlock Text="{Binding Artwork.TypeLabel}"/>
 
-                        <TextBlock Text="Pages:" FontWeight="SemiBold" Margin="0,8,0,0"/>
+                        <TextBlock Text="{loc:Tr Artwork_Pages}" FontWeight="SemiBold" Margin="0,8,0,0"/>
                         <TextBlock Text="{Binding Artwork.PageCount}"/>
 
                         <StackPanel Orientation="Horizontal" Spacing="16" Margin="0,4,0,0">
-                            <StackPanel Orientation="Horizontal" Spacing="4" ToolTip.Tip="Bookmarks">
+                            <StackPanel Orientation="Horizontal" Spacing="4" ToolTip.Tip="{loc:Tr Nav_Bookmarks}">
                                 <PathIcon Data="{StaticResource BookmarkIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="#3B82F6"/>
                                 <TextBlock Text="{Binding BookmarkCount, StringFormat='{}{0:N0}', TargetNullValue='—'}" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center"/>
                             </StackPanel>
-                            <StackPanel Orientation="Horizontal" Spacing="4" ToolTip.Tip="Likes">
+                            <StackPanel Orientation="Horizontal" Spacing="4" ToolTip.Tip="{loc:Tr Viewer_Likes}">
                                 <PathIcon Data="{StaticResource HeartIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="#EF4444"/>
                                 <TextBlock Text="{Binding LikeCount, StringFormat='{}{0:N0}', TargetNullValue='—'}" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center"/>
                             </StackPanel>
-                            <StackPanel Orientation="Horizontal" Spacing="4" ToolTip.Tip="Views">
+                            <StackPanel Orientation="Horizontal" Spacing="4" ToolTip.Tip="{loc:Tr Viewer_Views}">
                                 <PathIcon Data="{StaticResource EyeIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="#10B981"/>
                                 <TextBlock Text="{Binding ViewCount, StringFormat='{}{0:N0}', TargetNullValue='—'}" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center"/>
                             </StackPanel>
@@ -113,8 +114,8 @@
                                 <StackPanel Orientation="Horizontal" Spacing="6">
                                     <Path Width="14" Height="14" Stretch="Uniform" Data="{StaticResource HeartIcon}" Fill="#EF4444" IsVisible="{Binding !IsLiked}"/>
                                     <Path Width="14" Height="14" Stretch="Uniform" Data="{StaticResource HeartFilledIcon}" Fill="#EF4444" IsVisible="{Binding IsLiked}"/>
-                                    <TextBlock Text="Like" FontSize="12" IsVisible="{Binding !IsLiked}"/>
-                                    <TextBlock Text="Liked" FontSize="12" IsVisible="{Binding IsLiked}"/>
+                                    <TextBlock Text="{loc:Tr Viewer_Like}" FontSize="12" IsVisible="{Binding !IsLiked}"/>
+                                    <TextBlock Text="{loc:Tr Artwork_Liked}" FontSize="12" IsVisible="{Binding IsLiked}"/>
                                 </StackPanel>
                             </Button>
 
@@ -122,21 +123,21 @@
                                 <StackPanel Orientation="Horizontal" Spacing="6">
                                     <Path Width="14" Height="14" Stretch="Uniform" Data="{StaticResource BookmarkIcon}" Fill="#3B82F6" IsVisible="{Binding !IsBookmarked}"/>
                                     <Path Width="14" Height="14" Stretch="Uniform" Data="{StaticResource BookmarkFilledIcon}" Fill="#3B82F6" IsVisible="{Binding IsBookmarked}"/>
-                                    <TextBlock Text="Bookmark" FontSize="12" IsVisible="{Binding !IsBookmarked}"/>
-                                    <TextBlock Text="Bookmarked" FontSize="12" IsVisible="{Binding IsBookmarked}"/>
+                                    <TextBlock Text="{loc:Tr Viewer_Bookmark}" FontSize="12" IsVisible="{Binding !IsBookmarked}"/>
+                                    <TextBlock Text="{loc:Tr Collections_Bookmarked}" FontSize="12" IsVisible="{Binding IsBookmarked}"/>
                                 </StackPanel>
                             </Button>
 
                             <Button Command="{Binding ToggleFollowCommand}" IsEnabled="{Binding !IsActionLoading}" Margin="0,0,8,8" BorderThickness="0">
                                 <StackPanel Orientation="Horizontal" Spacing="6">
                                     <Path Width="14" Height="14" Stretch="Uniform" Data="{StaticResource PersonIcon}" Fill="#10B981"/>
-                                    <TextBlock Text="Follow" FontSize="12" IsVisible="{Binding !IsFollowing}"/>
-                                    <TextBlock Text="Following" FontSize="12" IsVisible="{Binding IsFollowing}"/>
+                                    <TextBlock Text="{loc:Tr Viewer_Follow}" FontSize="12" IsVisible="{Binding !IsFollowing}"/>
+                                    <TextBlock Text="{loc:Tr Artwork_Following}" FontSize="12" IsVisible="{Binding IsFollowing}"/>
                                 </StackPanel>
                             </Button>
                         </WrapPanel>
 
-                        <TextBlock Text="Tags:" FontWeight="SemiBold" Margin="0,8,0,0"/>
+                        <TextBlock Text="{loc:Tr Artwork_Tags}" FontWeight="SemiBold" Margin="0,8,0,0"/>
                         <ItemsControl ItemsSource="{Binding Tags}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
@@ -174,14 +175,14 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <Button Content="← Previous" Command="{Binding GoToPreviousPageCommand}" IsEnabled="{Binding CanGoToPreviousPage}"/>
+                <Button Content="{loc:Tr Dialog_Previous}" Command="{Binding GoToPreviousPageCommand}" IsEnabled="{Binding CanGoToPreviousPage}"/>
                 
                 <TextBlock Grid.Column="2" 
                           Text="{Binding StatusMessage}" 
                           VerticalAlignment="Center"
                           Margin="16,0"/>
                 
-                <Button Content="Next →" Command="{Binding GoToNextPageCommand}" IsEnabled="{Binding CanGoToNextPage}"/>
+                <Button Content="{loc:Tr Dialog_Next}" Command="{Binding GoToNextPageCommand}" IsEnabled="{Binding CanGoToNextPage}"/>
             </Grid>
         </Border>
 
@@ -191,7 +192,7 @@
               IsVisible="{Binding IsLoading}">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="200" Margin="0,0,0,8"/>
-                <TextBlock Text="Loading..." Foreground="White" HorizontalAlignment="Center"/>
+                <TextBlock Text="{loc:Tr Common_Loading}" Foreground="White" HorizontalAlignment="Center"/>
             </StackPanel>
         </Grid>
     </Grid>

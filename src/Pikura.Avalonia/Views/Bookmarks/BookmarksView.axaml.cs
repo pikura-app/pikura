@@ -5,6 +5,7 @@ using Avalonia.Input.Platform;
 using Avalonia.Interactivity;
 using Avalonia.LogicalTree;
 using Avalonia.VisualTree;
+using Pikura.Avalonia.Localization;
 using Pikura.Avalonia.Services;
 using Pikura.Avalonia.ViewModels;
 using Pikura.Avalonia.Views.Artwork;
@@ -303,7 +304,7 @@ public partial class BookmarksView : UserControl
             CanResize = false,
             WindowStartupLocation = WindowStartupLocation.CenterOwner,
         };
-        var tb = new TextBox { PlaceholderText = "New folder name (or pick below)", Margin = new global::Avalonia.Thickness(12, 12, 12, 6) };
+        var tb = new TextBox { PlaceholderText = Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_NewFolderNameOrPickBelow"], Margin = new global::Avalonia.Thickness(12, 12, 12, 6) };
         var existingPanel = new WrapPanel { Margin = new global::Avalonia.Thickness(12, 0, 12, 6) };
         foreach (var f in VM.AvailableFolders)
         {
@@ -336,12 +337,12 @@ public partial class BookmarksView : UserControl
         // Build a simple input dialog using a TextBox in a Window
         var dialog = new Window
         {
-            Title = "Set Folder",
+            Title = Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_SetFolder"],
             Width = 340, Height = 140,
             CanResize = false,
             WindowStartupLocation = WindowStartupLocation.CenterOwner,
         };
-        var tb = new TextBox { Text = current, PlaceholderText = "Folder name (empty = none)", Margin = new global::Avalonia.Thickness(16, 16, 16, 8), VerticalAlignment = global::Avalonia.Layout.VerticalAlignment.Center };
+        var tb = new TextBox { Text = current, PlaceholderText = Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_FolderNameEmptyNone"], Margin = new global::Avalonia.Thickness(16, 16, 16, 8), VerticalAlignment = global::Avalonia.Layout.VerticalAlignment.Center };
         var ok = new Button { Content = "OK", HorizontalAlignment = global::Avalonia.Layout.HorizontalAlignment.Right, Margin = new global::Avalonia.Thickness(0, 0, 16, 12) };
         ok.Click += (_, _) => dialog.Close(tb.Text?.Trim());
         tb.KeyDown += (_, ke) => { if (ke.Key == global::Avalonia.Input.Key.Return) dialog.Close(tb.Text?.Trim()); };
@@ -455,7 +456,7 @@ public partial class BookmarksView : UserControl
 
         if (artworksToDownload.Count == 0)
         {
-            VM.StatusMessage = "Select bookmarks first or open one in the side panel.";
+            VM.StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_SelectBookmarksFirstOrOpenOne"];
             return;
         }
 

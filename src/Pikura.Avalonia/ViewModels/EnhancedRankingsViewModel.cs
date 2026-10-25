@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
+using Pikura.Avalonia.Localization;
 using Pikura.Avalonia.Services;
 using Pikura.Core.Services;
 using Pikura.Core.Settings;
@@ -382,7 +383,7 @@ public partial class EnhancedRankingsViewModel : ViewModelBase
                 var novelResp = await _pixivClient.GetNovelRankingsAsync(effectiveMode, dateParam, 1, ct);
                 if (novelResp.Contents.Count == 0)
                 {
-                    StatusMessage = "No results — check your session or try a different mode.";
+                    StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Rankings_NoResultsCheckYourSessionOr"];
                     return;
                 }
 
@@ -424,7 +425,7 @@ public partial class EnhancedRankingsViewModel : ViewModelBase
             var resp = await _pixivClient.GetRankingAsync(effectiveMode, SelectedContent, 1, ct, dateParam);
             if (resp is null || resp.Contents.Count == 0)
             {
-                StatusMessage = "No results — check your session or try a different mode.";
+                StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Rankings_NoResultsCheckYourSessionOr"];
                 return;
             }
 
@@ -666,7 +667,7 @@ public partial class EnhancedRankingsViewModel : ViewModelBase
         if (previews.Count == 0)
         {
             if (Items.Any(c => c.IsSelected && c.IsNovel))
-                StatusMessage = "Novels can't be downloaded from Rankings — open them on pixiv.net instead.";
+                StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Rankings_NovelsCanTBeDownloadedFrom"];
             return Task.CompletedTask;
         }
         return GalleryVm.DownloadPreviewsAsync(previews);
@@ -686,7 +687,7 @@ public partial class EnhancedRankingsViewModel : ViewModelBase
         var previews = Items.Where(c => c.IsSelected && !c.IsNovel).Select(c => c.ToPreview()).ToList();
         if (previews.Count == 0)
         {
-            StatusMessage = "No artworks selected.";
+            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Rankings_NoArtworksSelected"];
             return;
         }
 

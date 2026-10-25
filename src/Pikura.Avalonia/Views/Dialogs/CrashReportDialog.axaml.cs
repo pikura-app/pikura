@@ -3,6 +3,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
+using Pikura.Avalonia.Localization;
 using Pikura.Avalonia.Services;
 using System;
 using System.Diagnostics;
@@ -103,7 +104,7 @@ public partial class CrashReportDialog : Window
 
         // Visual feedback
         var originalText = CopyPathButton.Content?.ToString();
-        CopyPathButton.Content = "Copied!";
+        CopyPathButton.Content = Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_Copied"];
         _ = global::System.Threading.Tasks.Task.Run(async () =>
         {
             await global::System.Threading.Tasks.Task.Delay(1500);
@@ -131,7 +132,7 @@ public partial class CrashReportDialog : Window
 
             // Visual feedback
             var originalText = CopyContentsButton.Content?.ToString();
-            CopyContentsButton.Content = "Copied!";
+            CopyContentsButton.Content = Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_Copied"];
             _ = global::System.Threading.Tasks.Task.Run(async () =>
             {
                 await global::System.Threading.Tasks.Task.Delay(1500);

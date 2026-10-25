@@ -9,6 +9,7 @@ using CommunityToolkit.Mvvm.Input;
 using Pikura.Core.Models;
 using Pikura.Core.Services;
 using Pikura.Core.Settings;
+using Pikura.Avalonia.Localization;
 using Pikura.Avalonia.Services;
 
 namespace Pikura.Avalonia.ViewModels;
@@ -72,7 +73,7 @@ public partial class DownloadBySearchViewModel : ViewModelBase
     {
         if (string.IsNullOrWhiteSpace(SearchKeyword))
         {
-            await _dialogService.ShowMessageAsync("Error", "Please enter a search keyword.");
+            await _dialogService.ShowMessageAsync(Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_Error"], Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_PleaseEnterASearchKeyword"]);
             return;
         }
 
@@ -125,12 +126,12 @@ public partial class DownloadBySearchViewModel : ViewModelBase
             }
             else
             {
-                await _dialogService.ShowMessageAsync("No Results", "No artworks found for this search.");
+                await _dialogService.ShowMessageAsync(Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_NoResults"], Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_NoArtworksFoundForThisSearch"]);
             }
         }
         catch (Exception ex)
         {
-            await _dialogService.ShowMessageAsync("Error", $"Search failed: {ex.Message}");
+            await _dialogService.ShowMessageAsync(Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_Error"], $"Search failed: {ex.Message}");
         }
         finally
         {
@@ -171,7 +172,7 @@ public partial class DownloadBySearchViewModel : ViewModelBase
     {
         if (!HasResults)
         {
-            await _dialogService.ShowMessageAsync("No Items", "No search results to download. Please search first.");
+            await _dialogService.ShowMessageAsync(Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_NoItems"], Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_NoSearchResultsToDownloadPlease"]);
             return;
         }
 
@@ -204,12 +205,12 @@ public partial class DownloadBySearchViewModel : ViewModelBase
             // Start the job
             await _coordinator.StartJobAsync(job.Id);
 
-            await _dialogService.ShowMessageAsync("Download Started", 
+            await _dialogService.ShowMessageAsync(Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_DownloadStarted"], 
                 $"Queued {ResultCount} artworks for download.\n\nCheck the History tab for progress.");
         }
         catch (Exception ex)
         {
-            await _dialogService.ShowMessageAsync("Error", $"Failed to start download: {ex.Message}");
+            await _dialogService.ShowMessageAsync(Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_Error"], $"Failed to start download: {ex.Message}");
         }
     }
 }
