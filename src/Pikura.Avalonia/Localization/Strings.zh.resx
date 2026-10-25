@@ -6030,4 +6030,31 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="Settings_LibraryDupThreshold" xml:space="preserve">
     <value>重复阈值（pHash 距离 0-12）</value>
   </data>
+  <data name="Update_MigrateTitle" xml:space="preserve">
+    <value>切换到新的更新器</value>
+  </data>
+  <data name="Update_MigrateMessage" xml:space="preserve">
+    <value>Pikura 现在提供更快、下载量更小的新更新器。现在安装？您的设置、登录、媒体库和下载内容都会保留。</value>
+  </data>
+  <data name="Update_MigrateNoAsset" xml:space="preserve">
+    <value>最新版本中未找到更新包。请稍后重试。</value>
+  </data>
+  <data name="Update_MigrateFailed" xml:space="preserve">
+    <value>迁移失败：{0}。现有安装未受影响。</value>
+  </data>
+  <data name="Settings_SwitchUpdater" xml:space="preserve">
+    <value>切换到新的更新器…</value>
+  </data>
+  <data name="Settings_SwitchUpdaterDesc" xml:space="preserve">
+    <value>使用新的更新器重新安装 Pikura（下载量更小）。设置和下载内容保留。</value>
+  </data>
+  <data name="Settings_RemoveAllData" xml:space="preserve">
+    <value>删除所有 Pikura 数据…</value>
+  </data>
+  <data name="Settings_RemoveAllDataTitle" xml:space="preserve">
+    <value>删除所有数据</value>
+  </data>
+  <data name="Settings_RemoveAllDataConfirm" xml:space="preserve">
+    <value>这将永久删除设置、已保存的 pixiv 登录、下载历史/数据库、媒体库索引、缓存和 AI 模型。已下载的作品文件会保留。Pikura 将立即关闭。继续吗？</value>
+  </data>
 </root>

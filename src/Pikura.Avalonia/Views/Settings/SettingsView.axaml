@@ -2168,6 +2168,14 @@
                                         <TextBlock Text="{Binding LibraryDuplicateThreshold, StringFormat='{}{0}'}" VerticalAlignment="Center"/>
                             </StackPanel>
                         </StackPanel>
+                        <StackPanel Spacing="12" Margin="0,24,0,0">
+                            <Button Content="{loc:Tr Settings_SwitchUpdater}" Command="{Binding SwitchToNewUpdaterCommand}"
+                                    IsVisible="{Binding CanMigrateToVelopack}" IsEnabled="{Binding !IsMigrating}"/>
+                            <TextBlock Text="{loc:Tr Settings_SwitchUpdaterDesc}" FontSize="12"
+                                       IsVisible="{Binding CanMigrateToVelopack}"
+                                       Foreground="{DynamicResource DefaultForegroundBrushSecondary}" TextWrapping="Wrap"/>
+                            <Button Content="{loc:Tr Settings_RemoveAllData}" Command="{Binding RemoveAllDataCommand}"/>
+                        </StackPanel>
                     </StackPanel>
                             </ScrollViewer>
             </TabItem>

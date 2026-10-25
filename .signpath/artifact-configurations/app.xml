@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<artifact-configuration xmlns="http://signpath.io/artifact-configuration/v1">
+  <zip-file>
+    <!-- publish/win-x64 unsigned artifact: sign Pikura's own binaries, leave third-party files alone -->
+    <pe-file path="Pikura.exe">
+      <authenticode-sign/>
+    </pe-file>
+    <pe-file-set>
+      <include path="Pikura.*.dll" min-matches="0" max-matches="unbounded"/>
+      <include path="Pikura.Agent.exe" min-matches="0"/>
+      <for-each>
+        <authenticode-sign/>
+      </for-each>
+    </pe-file-set>
+  </zip-file>
+</artifact-configuration>

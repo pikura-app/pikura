@@ -291,6 +291,32 @@ public partial class MainWindowViewModel : ViewModelBase
             UpdateStatusText     = Pikura.Avalonia.Localization.LocalizationService.Instance["Main_StartingDownload"];
         });
 
+        // Velopack-managed install: the backend downloads and applies the update itself.
+        if (_updateCheck.IsManagedInstall)
+        {
+            try
+            {
+                await _updateCheck.InstallViaBackendAsync(progress, _downloadCts.Token).ConfigureAwait(false);
+            }
+            catch (OperationCanceledException)
+            {
+                await Dispatcher.UIThread.InvokeAsync(() =>
+                {
+                    UpdateDownloading = false;
+                    UpdateStatusText  = Pikura.Avalonia.Localization.LocalizationService.Instance["Main_DownloadCancelled"];
+                });
+            }
+            catch (Exception ex)
+            {
+                await Dispatcher.UIThread.InvokeAsync(() =>
+                {
+                    UpdateDownloading = false;
+                    UpdateStatusText  = $"Update failed: {ex.Message}";
+                });
+            }
+            return;
+        }
+
         try
         {
             _downloadedPath = await _updateCheck

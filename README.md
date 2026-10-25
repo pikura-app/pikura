@@ -48,11 +48,13 @@
 
 | Platform | Installer | Portable |
 |----------|-----------|----------|
-| **Windows** | [Pikura-Setup.exe](https://github.com/pikura-app/pikura/releases/latest) | [.zip](https://github.com/pikura-app/pikura/releases/latest) |
+| **Windows** | [Pikura-windows.exe](https://github.com/pikura-app/pikura/releases/latest) (Velopack, delta updates) | [.zip](https://github.com/pikura-app/pikura/releases/latest) |
 | **macOS** | [Pikura.dmg](https://github.com/pikura-app/pikura/releases/latest) | — |
 | **Linux** | [.AppImage](https://github.com/pikura-app/pikura/releases/latest) | [.tar.gz](https://github.com/pikura-app/pikura/releases/latest) |
 
 > **macOS note:** Pikura is not notarised. On first launch right-click → Open to bypass Gatekeeper.
+>
+> **Windows note:** the legacy `Pikura-*-Setup.exe` (Inno Setup) still ships only so older versions can auto-update once; new installs should use `Pikura-*-windows.exe` (Velopack — delta updates, per-user install).
 
 ## What's New in v2.1.0
 
@@ -105,7 +107,31 @@ git tag v1.0.0
 git push origin v1.0.0
 ```
 
-GitHub Actions builds Windows (installer + portable), macOS (DMG), and Linux (AppImage + tar.gz) automatically and attaches them to the release.
+GitHub Actions builds Windows, macOS, and Linux automatically and attaches them to the release.
+
+### Windows artifacts
+
+| Artifact | Purpose |
+|----------|---------|
+| `Pikura-{ver}-windows.exe` | **Velopack** setup — per-user install, delta updates (new installs) |
+| `Pikura-{ver}-Setup.exe` | Legacy Inno Setup installer — kept so pre-Velopack clients can auto-update |
+| `Pikura-{ver}-windows-portable.zip` | Portable zip (legacy updater) |
+| `releases.win.json`, `assets.win.json`, `*.nupkg` | Velopack update feed + full/delta packages (GithubSource reads these) |
+
+### Code signing
+
+Windows binaries and installers are signed via [SignPath Foundation](https://signpath.org) (OSS program). Signing is two-phase in `release.yml`: app binaries before `vpk pack`, installers after. It is skipped automatically until configured — set:
+
+- Secret: `SIGNPATH_API_TOKEN`
+- Variables: `SIGNPATH_ORGANIZATION_ID`, `SIGNPATH_PROJECT_SLUG`, `SIGNPATH_POLICY_SLUG`
+- Artifact configuration slugs: `app`, `installers` (see `.signpath/artifact-configurations/`)
+
+### Code signing policy
+
+Free code signing provided by [SignPath.io](https://signpath.io), certificate by SignPath Foundation.
+
+- **Team roles**: committers and approvers — mrplusultra.
+- **Privacy**: Pikura does not transfer information to networked systems unless the user requests it. The only network features are: pixiv/FANBOX API access when you sign in, the automatic GitHub update check (can be changed in Settings), Ollama on localhost, and AI model downloads initiated by the user.
 
 ## License
 

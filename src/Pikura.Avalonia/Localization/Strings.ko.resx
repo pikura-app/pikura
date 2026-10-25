@@ -6030,4 +6030,31 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="Settings_LibraryDupThreshold" xml:space="preserve">
     <value>중복 임계값(pHash 거리 0-12)</value>
   </data>
+  <data name="Update_MigrateTitle" xml:space="preserve">
+    <value>새 업데이터로 전환</value>
+  </data>
+  <data name="Update_MigrateMessage" xml:space="preserve">
+    <value>Pikura에 더 빠르고 다운로드 용량이 적은 새 업데이터가 있습니다. 지금 설치할까요? 설정, 로그인, 라이브러리, 다운로드는 유지됩니다.</value>
+  </data>
+  <data name="Update_MigrateNoAsset" xml:space="preserve">
+    <value>최신 릴리스에서 업데이트 패키지를 찾지 못했습니다. 나중에 다시 시도하세요.</value>
+  </data>
+  <data name="Update_MigrateFailed" xml:space="preserve">
+    <value>마이그레이션 실패: {0}. 기존 설치는 변경되지 않았습니다.</value>
+  </data>
+  <data name="Settings_SwitchUpdater" xml:space="preserve">
+    <value>새 업데이터로 전환…</value>
+  </data>
+  <data name="Settings_SwitchUpdaterDesc" xml:space="preserve">
+    <value>새 업데이터로 Pikura를 다시 설치합니다(다운로드 용량 감소). 설정과 다운로드는 유지됩니다.</value>
+  </data>
+  <data name="Settings_RemoveAllData" xml:space="preserve">
+    <value>모든 Pikura 데이터 삭제…</value>
+  </data>
+  <data name="Settings_RemoveAllDataTitle" xml:space="preserve">
+    <value>모든 데이터 삭제</value>
+  </data>
+  <data name="Settings_RemoveAllDataConfirm" xml:space="preserve">
+    <value>설정, 저장된 pixiv 로그인, 다운로드 기록/데이터베이스, 라이브러리 인덱스, 캐시, AI 모델을 영구 삭제합니다. 다운로드한 작품 파일은 유지됩니다. Pikura가 지금 종료됩니다. 계속할까요?</value>
+  </data>
 </root>

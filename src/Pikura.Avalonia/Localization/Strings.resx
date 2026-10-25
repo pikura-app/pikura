@@ -6094,4 +6094,31 @@ Resuming from {1}/{2} artworks</value>
   <data name="Settings_LibraryDupThreshold" xml:space="preserve">
     <value>Duplicate threshold (pHash distance 0-12)</value>
   </data>
+  <data name="Update_MigrateTitle" xml:space="preserve">
+    <value>Switch to the new updater</value>
+  </data>
+  <data name="Update_MigrateMessage" xml:space="preserve">
+    <value>Pikura now has a faster updater with smaller downloads. Install it now? Your settings, login, library and downloads are kept.</value>
+  </data>
+  <data name="Update_MigrateNoAsset" xml:space="preserve">
+    <value>No update package was found in the latest release. Try again later.</value>
+  </data>
+  <data name="Update_MigrateFailed" xml:space="preserve">
+    <value>Migration failed: {0}. Your existing installation is unchanged.</value>
+  </data>
+  <data name="Settings_SwitchUpdater" xml:space="preserve">
+    <value>Switch to the new updater…</value>
+  </data>
+  <data name="Settings_SwitchUpdaterDesc" xml:space="preserve">
+    <value>Reinstalls Pikura with the new updater (smaller downloads). Settings and downloads are kept.</value>
+  </data>
+  <data name="Settings_RemoveAllData" xml:space="preserve">
+    <value>Remove all Pikura data…</value>
+  </data>
+  <data name="Settings_RemoveAllDataTitle" xml:space="preserve">
+    <value>Remove all data</value>
+  </data>
+  <data name="Settings_RemoveAllDataConfirm" xml:space="preserve">
+    <value>This permanently deletes settings, saved pixiv login, download history/database, library index, caches, and AI models. Downloaded artwork files are kept. Pikura will now close. Continue?</value>
+  </data>
 </root>

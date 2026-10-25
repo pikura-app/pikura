@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<artifact-configuration xmlns="http://signpath.io/artifact-configuration/v1">
+  <zip-file>
+    <!-- win-installers-unsigned artifact: Velopack setup + legacy Inno setup -->
+    <pe-file path="PikuraApp-win-Setup.exe">
+      <authenticode-sign/>
+    </pe-file>
+    <pe-file path="Pikura-*-Setup.exe">
+      <authenticode-sign/>
+    </pe-file>
+  </zip-file>
+</artifact-configuration>

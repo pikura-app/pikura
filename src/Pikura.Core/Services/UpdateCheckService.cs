@@ -28,6 +28,12 @@ public sealed class UpdateCheckService
     private readonly SettingsService _settings;
     private readonly HttpClient _http;
 
+    /// <summary>Optional self-updating backend (Velopack on Windows). Set by the host app.</summary>
+    public IAppUpdateBackend? UpdateBackend { get; set; }
+
+    /// <summary>True when running from a managed (Velopack) install on Windows.</summary>
+    public bool IsManagedInstall => OperatingSystem.IsWindows() && UpdateBackend?.IsInstalled == true;
+
     public UpdateCheckService(ILogger<UpdateCheckService> logger, SettingsService settings)
     {
         _logger   = logger;
@@ -156,7 +162,7 @@ public sealed class UpdateCheckService
         };
     }
 
-    private static GitHubAsset? FindWindowsAsset(GitHubRelease release)
+    internal static GitHubAsset? FindWindowsAsset(GitHubRelease release)
     {
         if (release.Assets == null) return null;
         // Prefer the Inno Setup installer over portable zip
@@ -172,6 +178,21 @@ public sealed class UpdateCheckService
             a.Name.Contains("win", StringComparison.OrdinalIgnoreCase) &&
             (a.Name.EndsWith(".exe", StringComparison.OrdinalIgnoreCase) ||
              a.Name.EndsWith(".zip", StringComparison.OrdinalIgnoreCase)));
+    }
+
+    /// <summary>
+    /// Finds the Velopack Setup asset <c>Pikura-{ver}-windows.exe</c> for the Inno→Velopack
+    /// migration. Must NOT match "setup"/"install" so legacy clients never pick it.
+    /// </summary>
+    public static GitHubAsset? FindVelopackSetupAsset(GitHubRelease release)
+    {
+        if (release.Assets == null) return null;
+        return release.Assets.FirstOrDefault(a =>
+            a.Name != null &&
+            a.Name.StartsWith("Pikura-", StringComparison.OrdinalIgnoreCase) &&
+            a.Name.EndsWith("-windows.exe", StringComparison.OrdinalIgnoreCase) &&
+            !a.Name.Contains("setup", StringComparison.OrdinalIgnoreCase) &&
+            !a.Name.Contains("install", StringComparison.OrdinalIgnoreCase));
     }
 
     private static GitHubAsset? FindMacAsset(GitHubRelease release)
@@ -262,6 +283,32 @@ public sealed class UpdateCheckService
         return result;
     }
 
+    /// <summary>
+    /// Returns (version, url) of the Velopack Setup asset in the latest release —
+    /// used by the Inno→Velopack migration flow.
+    /// </summary>
+    public async Task<(string Version, string Url)?> GetLatestVelopackSetupAsync(CancellationToken ct = default)
+    {
+        try
+        {
+            var url = _settings.Current.UpdateChannel == "PreRelease" ? PreReleaseApiUrl : ReleasesApiUrl;
+            GitHubRelease? release;
+            if (_settings.Current.UpdateChannel == "PreRelease")
+            {
+                var list = await _http.GetFromJsonAsync<GitHubRelease[]>(url, ct).ConfigureAwait(false);
+                release = list?.FirstOrDefault(r => r.Prerelease) ?? list?.FirstOrDefault();
+            }
+            else
+            {
+                release = await _http.GetFromJsonAsync<GitHubRelease>(url, ct).ConfigureAwait(false);
+            }
+            var asset = release is null ? null : FindVelopackSetupAsset(release);
+            var ver = release?.TagName?.TrimStart('v');
+            return asset?.BrowserDownloadUrl is { } u && !string.IsNullOrEmpty(ver) ? (ver, u) : null;
+        }
+        catch (Exception ex) { _logger.LogWarning(ex, "Velopack setup lookup failed"); return null; }
+    }
+
     // ── Download ──────────────────────────────────────────────────────────────
 
     /// <summary>
@@ -310,6 +357,13 @@ public sealed class UpdateCheckService
     /// Writes a batch/shell script that waits for this process to exit,
     /// replaces the executable, then relaunches it. Then exits the app.
     /// </summary>
+    /// <summary>When running under Velopack, check+download+apply via the backend and restart.</summary>
+    public async Task<bool> InstallViaBackendAsync(IProgress<int>? progress, CancellationToken ct)
+    {
+        if (UpdateBackend is not { IsInstalled: true } b) return false;
+        return await b.DownloadAndApplyAsync(progress, ct).ConfigureAwait(false);
+    }
+
     public async Task InstallAndRestartAsync(string downloadedPath)
     {
         // When running as an AppImage the process is the extracted squashfs binary,
@@ -499,7 +553,7 @@ public sealed class UpdateCheckService
 
     // ── Private types ─────────────────────────────────────────────────────────
 
-    private sealed class GitHubRelease
+    public sealed class GitHubRelease
     {
         [JsonPropertyName("tag_name")]   public string?        TagName    { get; init; }
         [JsonPropertyName("name")]       public string?        Name       { get; init; }
@@ -508,7 +562,7 @@ public sealed class UpdateCheckService
         [JsonPropertyName("prerelease")] public bool           Prerelease { get; init; }
     }
 
-    private sealed class GitHubAsset
+    public sealed class GitHubAsset
     {
         [JsonPropertyName("name")]                 public string? Name                { get; init; }
         [JsonPropertyName("browser_download_url")] public string? BrowserDownloadUrl  { get; init; }

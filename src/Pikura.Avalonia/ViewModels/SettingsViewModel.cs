@@ -562,10 +562,13 @@ public partial class SettingsViewModel : ViewModelBase
         AnimeTaggerService animeTagger,
         AccountService accountService,
         FfmpegService ffmpegService,
-        BackgroundOverlayService overlayService)
+        BackgroundOverlayService overlayService,
+        VelopackMigrationService? velopackMigration = null)
     {
         _settingsService = settingsService;
         _dialogService = dialogService;
+        _velopackMigration = velopackMigration;
+        RefreshMigrationState();
         _pixivClient = pixivClient;
         _filePickerService = filePickerService;
         _ollama = ollama;
@@ -1246,6 +1249,50 @@ public partial class SettingsViewModel : ViewModelBase
         => _settingsService.Update(s => s.LibraryDuplicateThreshold = value);
     partial void OnLibraryAutoIndexDownloadsChanged(bool value)
         => _settingsService.Update(s => s.LibraryAutoIndexDownloads = value);
+
+    private readonly VelopackMigrationService? _velopackMigration;
+    [ObservableProperty] private bool _canMigrateToVelopack;
+    [ObservableProperty] private bool _isMigrating;
+
+    /// <summary>Refresh whether the "Switch to the new updater" button is visible.</summary>
+    public void RefreshMigrationState() => CanMigrateToVelopack = _velopackMigration?.CanMigrate == true;
+
+    [RelayCommand]
+    private async Task SwitchToNewUpdaterAsync()
+    {
+        if (_velopackMigration == null || IsMigrating) return;
+        IsMigrating = true;
+        try
+        {
+            var prog = new Progress<int>(p => UpdateStatusMessage = $"Downloading new updater... {p}%");
+            await _velopackMigration.MigrateAsync(prog);
+        }
+        catch (Exception ex)
+        {
+            UpdateStatusMessage = string.Format(
+                Pikura.Avalonia.Localization.LocalizationService.Instance["Update_MigrateFailed"], ex.Message);
+        }
+        finally { IsMigrating = false; }
+    }
+
+    [RelayCommand]
+    private async Task RemoveAllDataAsync()
+    {
+        var ok = await _dialogService.ShowConfirmationAsync(
+            Pikura.Avalonia.Localization.LocalizationService.Instance["Settings_RemoveAllDataTitle"],
+            Pikura.Avalonia.Localization.LocalizationService.Instance["Settings_RemoveAllDataConfirm"]);
+        if (!ok) return;
+        var script = Pikura.Core.Services.DataCleanupScript.WriteForCurrentProcess();
+        var psi = new System.Diagnostics.ProcessStartInfo
+        {
+            FileName = OperatingSystem.IsWindows() ? "cmd.exe" : "/bin/sh",
+            Arguments = OperatingSystem.IsWindows() ? $"/c \"{script}\"" : $"\"{script}\"",
+            CreateNoWindow = true,
+            UseShellExecute = false,
+        };
+        System.Diagnostics.Process.Start(psi);
+        Environment.Exit(0);
+    }
 
     partial void OnDownloadDelaySecondsChanged(int value)
         => _settingsService.Update(s => s.DownloadDelaySeconds = value);

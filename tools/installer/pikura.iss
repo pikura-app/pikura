@@ -173,6 +173,16 @@ end;
 var
   RemoveAllUserData: Boolean;
 
+function HasKeepDataParam: Boolean;
+var
+  I: Integer;
+begin
+  Result := False;
+  for I := 1 to ParamCount do
+    if CompareText(ParamStr(I), '/KEEPDATA') = 0 then
+      Result := True;
+end;
+
 procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
 var
   AppDataDir: String;
@@ -180,6 +190,9 @@ var
 begin
   if CurUninstallStep = usUninstall then
   begin
+    if HasKeepDataParam then
+      RemoveAllUserData := False
+    else
     RemoveAllUserData := (MsgBox(
       'Completely remove Pikura?' + Chr(13) + Chr(10) +
       Chr(13) + Chr(10) +

@@ -919,6 +919,10 @@ public sealed class AppSettings
     public int LibraryDuplicateThreshold { get => _libraryDuplicateThreshold; set => _libraryDuplicateThreshold = Math.Clamp(value, 0, 7); }
     /// <summary>Set after the one-time initial library scan finished.</summary>
     public bool LibraryInitialScanCompleted { get; set; } = false;
+    /// <summary>Set once the Inno→Velopack migration has been offered.</summary>
+    public bool VelopackMigrationOffered { get; set; } = false;
+    /// <summary>Set when the user declines the Inno→Velopack migration offer.</summary>
+    public bool VelopackMigrationDeclined { get; set; } = false;
 
     /// <summary>Format of the download metadata sidecar: "csv", "tsv", "json" or "txt".</summary>
     public string MetadataExportFormat { get; set; } = "csv";

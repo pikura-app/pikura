@@ -5,6 +5,25 @@ using System.IO;
 
 namespace Pikura.Avalonia;
 
+internal static class AgentServiceGuard
+{
+    /// <summary>Stop/start the PikuraAgent Windows service if it exists (best-effort).</summary>
+    public static void StopService() => Run("stop");
+    public static void StartService() => Run("start");
+
+    private static void Run(string verb)
+    {
+        if (!OperatingSystem.IsWindows()) return;
+        try
+        {
+            var p = System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(
+                "sc.exe", $"{verb} PikuraAgent") { CreateNoWindow = true, UseShellExecute = false });
+            p?.WaitForExit(15000);
+        }
+        catch { /* no service / no permission — fine */ }
+    }
+}
+
 sealed class Program
 {
     private static CrashReportService? _crashService;
@@ -15,6 +34,16 @@ sealed class Program
     [STAThread]
     public static void Main(string[] args)
     {
+        // Velopack lifecycle hook — must run before anything else.
+        // No-op when the app isn't installed via Velopack.
+        // OnAfterUpdateFastCallback: restart the Agent service if it was running
+        // (we stop it before applying an update so its files aren't locked).
+        if (OperatingSystem.IsWindows())
+        {
+            Velopack.VelopackApp.Build()
+                .OnAfterUpdateFastCallback(_ => AgentServiceGuard.StartService())
+                .Run();
+        }
         // On Linux, WebKitGTK's GL compositor produces a blank surface on systems
         // without hardware GPU acceleration (VMs, CI, broken Mesa drivers).
         // Setting these env vars before Avalonia/WebKit initialise tells WebKit to

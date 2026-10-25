@@ -15,6 +15,10 @@ jobs:
   # ── Windows ────────────────────────────────────────────────────────────────
   build-windows:
     runs-on: windows-latest
+    env:
+      # SignPath is optional: all signing steps are skipped until the org is approved
+      # and these are configured. secrets can't be used in step-level if: directly.
+      SIGNPATH_CONFIGURED: ${{ secrets.SIGNPATH_API_TOKEN != '' }}
     steps:
       - uses: actions/checkout@v4.2.2
 
@@ -45,6 +49,35 @@ jobs:
             -o publish/win-x64
         shell: pwsh
 
+      - name: Upload unsigned app binaries for signing
+        if: env.SIGNPATH_CONFIGURED == 'true'
+        uses: actions/upload-artifact@v4.6.2
+        id: upload-unsigned-app
+        with:
+          name: win-unsigned
+          path: publish/win-x64/**
+
+      - name: Sign app binaries (SignPath)
+        if: env.SIGNPATH_CONFIGURED == 'true'
+        uses: signpath/github-action-submit-signing-request@v3
+        id: sign-app
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: ${{ vars.SIGNPATH_PROJECT_SLUG }}
+          signing-policy-slug: ${{ vars.SIGNPATH_POLICY_SLUG }}
+          artifact-configuration-slug: app
+          github-artifact-id: ${{ steps.upload-unsigned-app.outputs.artifact-id }}
+          wait-for-completion: true
+          output-artifact-directory: publish/win-x64-signed
+
+      - name: Replace with signed binaries
+        if: env.SIGNPATH_CONFIGURED == 'true'
+        run: |
+          Remove-Item -Recurse -Force publish/win-x64
+          Move-Item publish/win-x64-signed publish/win-x64
+        shell: pwsh
+
       - name: Create portable ZIP
         run: Compress-Archive -Path publish/win-x64/* -DestinationPath publish/Pikura-${{ env.VERSION }}-windows-portable.zip
         shell: pwsh
@@ -62,6 +95,56 @@ jobs:
         run: iscc tools/installer/pikura.iss /DMyAppVersion=${{ env.VERSION }}
         shell: pwsh
 
+      - name: Install vpk (Velopack CLI)
+        run: dotnet tool install -g vpk --version 1.2.161
+        shell: pwsh
+
+      - name: Download previous Velopack release (for deltas)
+        continue-on-error: true
+        run: vpk download github --repoUrl https://github.com/pikura-app/pikura -o publish/velopack
+        shell: pwsh
+
+      - name: Pack Velopack release
+        run: vpk pack -u PikuraApp -v ${{ env.VERSION }} -p publish/win-x64 -e Pikura.exe --packTitle Pikura --packAuthors mrplusultra --icon src/Pikura.Avalonia/Assets/pikura.ico -o publish/velopack
+        shell: pwsh
+
+      - name: Upload unsigned installers for signing
+        if: env.SIGNPATH_CONFIGURED == 'true'
+        uses: actions/upload-artifact@v4.6.2
+        id: upload-unsigned-installers
+        with:
+          name: win-installers-unsigned
+          path: |
+            publish/velopack/PikuraApp-win-Setup.exe
+            publish/Pikura-${{ env.VERSION }}-Setup.exe
+
+      - name: Sign installers (SignPath)
+        if: env.SIGNPATH_CONFIGURED == 'true'
+        uses: signpath/github-action-submit-signing-request@v3
+        id: sign-installers
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: ${{ vars.SIGNPATH_PROJECT_SLUG }}
+          signing-policy-slug: ${{ vars.SIGNPATH_POLICY_SLUG }}
+          artifact-configuration-slug: installers
+          github-artifact-id: ${{ steps.upload-unsigned-installers.outputs.artifact-id }}
+          wait-for-completion: true
+          output-artifact-directory: publish/installers-signed
+
+      - name: Replace with signed installers
+        if: env.SIGNPATH_CONFIGURED == 'true'
+        run: |
+          Copy-Item publish/installers-signed/PikuraApp-win-Setup.exe publish/velopack/PikuraApp-win-Setup.exe -Force
+          Copy-Item publish/installers-signed/Pikura-${{ env.VERSION }}-Setup.exe publish/Pikura-${{ env.VERSION }}-Setup.exe -Force
+        shell: pwsh
+
+      # Velopack Setup must NOT contain "setup"/"install" — legacy clients' updater
+      # picks the first *Setup*.exe asset, and that must remain the Inno installer.
+      - name: Rename Velopack Setup
+        run: Move-Item publish/velopack/PikuraApp-win-Setup.exe publish/Pikura-${{ env.VERSION }}-windows.exe
+        shell: pwsh
+
       - name: Upload Windows artifacts
         uses: actions/upload-artifact@v4.6.2
         with:
@@ -69,6 +152,11 @@ jobs:
           path: |
             publish/Pikura-*-windows-portable.zip
             publish/Pikura-*-Setup.exe
+            publish/Pikura-*-windows.exe
+            publish/velopack/releases.win.json
+            publish/velopack/assets.win.json
+            publish/velopack/RELEASES
+            publish/velopack/PikuraApp-${{ env.VERSION }}-*.nupkg
 
   # ── macOS ──────────────────────────────────────────────────────────────────
   build-macos:

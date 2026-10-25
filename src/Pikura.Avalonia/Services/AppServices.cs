@@ -160,8 +160,24 @@ public static class AppServices
                         provider.GetRequiredService<SettingsService>(),
                         provider.GetRequiredService<DialogService>()));
 
+                services.AddSingleton<VelopackMigrationService>(provider =>
+                    new VelopackMigrationService(
+                        provider.GetRequiredService<UpdateCheckService>(),
+                        provider.GetRequiredService<SettingsService>(),
+                        provider.GetRequiredService<DialogService>(),
+                        provider.GetRequiredService<ILogger<VelopackMigrationService>>()));
+
                 // Update check
-                services.AddSingleton<UpdateCheckService>();
+                services.AddSingleton<UpdateCheckService>(provider =>
+                {
+                    var svc = new UpdateCheckService(
+                        provider.GetRequiredService<ILogger<UpdateCheckService>>(),
+                        provider.GetRequiredService<SettingsService>());
+                    svc.UpdateBackend = new VelopackUpdateBackend(
+                        provider.GetRequiredService<SettingsService>(),
+                        provider.GetRequiredService<ILogger<VelopackUpdateBackend>>());
+                    return svc;
+                });
 
                 // Multi-account
                 services.AddSingleton<AccountService>(provider =>
@@ -243,7 +259,8 @@ public static class AppServices
                         provider.GetRequiredService<AnimeTaggerService>(),
                         provider.GetRequiredService<AccountService>(),
                         provider.GetRequiredService<FfmpegService>(),
-                        provider.GetRequiredService<BackgroundOverlayService>()));
+                        provider.GetRequiredService<BackgroundOverlayService>(),
+                        provider.GetService<VelopackMigrationService>()));
                 services.AddSingleton<AnalyticsViewModel>();
                 services.AddTransient<DownloadsViewModel>();
                 services.AddSingleton<DownloadByArtistViewModel>();

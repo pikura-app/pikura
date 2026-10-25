@@ -288,6 +288,10 @@ public partial class App : Application
                     // startup dialog sequence is finished, so they never race with it.
                     StartupDialogsComplete = true;
                 }
+
+                // One-time Inno→Velopack migration offer (Windows Inno installs only).
+                try { await AppServices.Get<VelopackMigrationService>().OfferOnceAsync(); }
+                catch (Exception ex) { _ = ex; }
             });
         }
 
