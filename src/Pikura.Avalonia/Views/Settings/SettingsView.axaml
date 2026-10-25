@@ -1722,6 +1722,10 @@
                                               ToolTip.Tip="{loc:Tr Settings_WhatsNewTip}"/>
                                     <CheckBox Content="{loc:Tr Settings_StartWithWindows}"
                                               IsChecked="{Binding StartWithWindows, Mode=TwoWay}" FontSize="12"/>
+                                    <CheckBox Content="{loc:Tr Settings_RestoreViewerTabs}"
+                                              IsChecked="{Binding RestoreViewerTabs, Mode=TwoWay}" FontSize="12"/>
+                                    <TextBlock Text="{loc:Tr Settings_RestoreViewerTabsHint}" FontSize="11"
+                                               Foreground="{DynamicResource DefaultForegroundBrushSecondary}" TextWrapping="Wrap"/>
                                 </StackPanel>
                             </Border>
                         </Grid>

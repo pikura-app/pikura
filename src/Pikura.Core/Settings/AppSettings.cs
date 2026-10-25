@@ -923,6 +923,10 @@ public sealed class AppSettings
     public bool VelopackMigrationOffered { get; set; } = false;
     /// <summary>Set when the user declines the Inno→Velopack migration offer.</summary>
     public bool VelopackMigrationDeclined { get; set; } = false;
+    /// <summary>Reopen persisted viewer tabs on startup (when off the viewer starts empty).</summary>
+    public bool RestoreViewerTabsOnStartup { get; set; } = true;
+    /// <summary>Global browse-panel visibility for the artwork viewer (hidden when true).</summary>
+    public bool ViewerBrowsePanelHidden { get; set; } = false;
 
     /// <summary>Format of the download metadata sidecar: "csv", "tsv", "json" or "txt".</summary>
     public string MetadataExportFormat { get; set; } = "csv";

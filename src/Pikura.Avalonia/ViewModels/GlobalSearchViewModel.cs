@@ -551,7 +551,8 @@ public partial class GlobalSearchViewModel : ViewModelBase
         if (selected.Count == 0) return;
         foreach (var card in selected)
             GalleryVm.OpenInNewTab(card, selected, selected.Count, source: ViewerSourceKey);
-        ShowPreview = true;
+ShowPreview = true;
+        _settingsService.Update(s => s.ViewerBrowsePanelHidden = false);
     }
 
     // Re-run the search automatically when Mode (Safe/R-18/All) or Sort changes,
@@ -1024,7 +1025,8 @@ public partial class GlobalSearchViewModel : ViewModelBase
             };
         }
         GalleryVm.OpenInViewer(card, navList, Results.Count, loadMore, ViewerSourceKey);
-        ShowPreview = true;
+ShowPreview = true;
+        _settingsService.Update(s => s.ViewerBrowsePanelHidden = false);
     }
 
     [RelayCommand]

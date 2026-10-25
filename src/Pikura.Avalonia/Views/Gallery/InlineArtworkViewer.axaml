@@ -154,11 +154,13 @@
                 BorderThickness="0,0,0,1" Padding="10,6"
                 IsVisible="{Binding !IsCollageGridVisible}">
             <Grid ColumnDefinitions="*,Auto">
-                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                <ScrollViewer Grid.Column="0" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" AllowAutoHide="False"
+                              VerticalAlignment="Center" ClipToBounds="True" Margin="0,0,8,0">
+                <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
                     <SelectableTextBlock Text="{Binding InlineViewerCard.Title}"
                                          FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center"
                                          TextTrimming="CharacterEllipsis"
-                                         MaxWidth="340"/>
+                                         MaxWidth="260"/>
                     <SelectableTextBlock Text="{Binding InlineViewerCard.UserName}"
                                          FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushSecondary}" VerticalAlignment="Center"
                                          Cursor="Hand"
@@ -213,6 +215,7 @@
                         </StackPanel>
                     </StackPanel>
                 </StackPanel>
+                </ScrollViewer>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
                     <TextBlock Name="ArtworkCounterLabel" FontSize="12"
                                Foreground="{DynamicResource DefaultForegroundBrushSecondary}"

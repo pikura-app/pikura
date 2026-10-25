@@ -6057,4 +6057,10 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="Settings_RemoveAllDataConfirm" xml:space="preserve">
     <value>設定、保存されたpixivログイン、ダウンロード履歴/データベース、ライブラリインデックス、キャッシュ、AIモデルを完全に削除します。ダウンロードした作品ファイルは保持されます。Pikuraは終了します。続行しますか？</value>
   </data>
+  <data name="Settings_RestoreViewerTabs" xml:space="preserve">
+    <value>起動時に前回のビューアータブを復元</value>
+  </data>
+  <data name="Settings_RestoreViewerTabsHint" xml:space="preserve">
+    <value>オフの場合、ビューアーは空で起動します。タブは保存されるため、再度オンにすると復元されます。</value>
+  </data>
 </root>

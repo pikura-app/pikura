@@ -705,7 +705,8 @@ public partial class CollectionsViewModel : ObservableObject
             }
 
             GalleryVm.ShowCollage(cards);
-            ShowPreview = true;
+ShowPreview = true;
+            _settingsService.Update(s => s.ViewerBrowsePanelHidden = false);
             StatusMessage = $"Opened {cards.Count} artwork(s) from {selected.Count} collection(s) as a collage.";
         }
         catch (Exception ex)
@@ -777,7 +778,8 @@ public partial class CollectionsViewModel : ObservableObject
             }
 
             StatusMessage = GalleryVm.AddToPrimaryCollage(cards);
-            ShowPreview = true;
+ShowPreview = true;
+            _settingsService.Update(s => s.ViewerBrowsePanelHidden = false);
         }
         catch (Exception ex)
         {
@@ -953,7 +955,8 @@ public partial class CollectionsViewModel : ObservableObject
         if (Works.Count > 0)
         {
             GalleryVm.OpenInViewer(Works[0], Works.ToList(), Works.Count, source: ViewerSourceKey);
-            ShowPreview = true;
+ShowPreview = true;
+            _settingsService.Update(s => s.ViewerBrowsePanelHidden = false);
         }
     }
 
@@ -1043,7 +1046,8 @@ public partial class CollectionsViewModel : ObservableObject
         if (selected.Count == 0) return;
         foreach (var card in selected)
             GalleryVm.OpenInNewTab(card, selected, selected.Count, source: ViewerSourceKey);
-        ShowPreview = true;
+ShowPreview = true;
+        _settingsService.Update(s => s.ViewerBrowsePanelHidden = false);
     }
 
     /// <summary>Context-menu bookmark toggle for a browse tile — bookmarks/unbookmarks the
@@ -1285,7 +1289,8 @@ public partial class CollectionsViewModel : ObservableObject
     {
         if (card == null) return;
         GalleryVm.OpenInViewer(card, Works.ToList(), Works.Count, source: ViewerSourceKey);
-        ShowPreview = true;
+ShowPreview = true;
+        _settingsService.Update(s => s.ViewerBrowsePanelHidden = false);
     }
 
     [RelayCommand] private void TogglePreview() => ShowPreview = !ShowPreview;

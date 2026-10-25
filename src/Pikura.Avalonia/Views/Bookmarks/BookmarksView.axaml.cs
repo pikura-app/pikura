@@ -93,7 +93,11 @@ public partial class BookmarksView : UserControl
     private void OnViewerToggleBrowse(object? sender, RoutedEventArgs e)
     {
         e.Handled = true;
-        if (VM != null) VM.ShowPreview = !VM.ShowPreview;
+        if (VM != null)
+        {
+            VM.ShowPreview = !VM.ShowPreview;
+            Pikura.Avalonia.Services.AppServices.Get<Pikura.Core.Settings.SettingsService>().Update(s => s.ViewerBrowsePanelHidden = !VM.ShowPreview);
+        }
     }
 
     private void OnExpandViewer(object? sender, RoutedEventArgs e)

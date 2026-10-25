@@ -295,7 +295,8 @@ public partial class DiscoverViewModel : ViewModelBase
         if (selected.Count == 0) return;
         foreach (var card in selected)
             GalleryVm.OpenInNewTab(card, selected, selected.Count, source: "Discover");
-        ShowPreview = true;
+ShowPreview = true;
+        _settingsService.Update(s => s.ViewerBrowsePanelHidden = false);
     }
 
     [RelayCommand]
@@ -474,8 +475,9 @@ public partial class DiscoverViewModel : ViewModelBase
         // Always rebuild FilteredWorks so the grid isn't blank on re-entry
         UpdateFilteredWorks();
 
-        // Restore browse panel if a viewer tab is still open
-        if (GalleryVm.HasTabs && !ShowPreview) ShowPreview = true;
+        // Re-entry while tabs exist is a non-user reveal — honor the saved hidden state.
+        if (GalleryVm.HasTabs && !ShowPreview)
+            ShowPreview = !_settingsService.Current.ViewerBrowsePanelHidden;
 
         var isStale = _lastLoaded == DateTime.MinValue
             || DateTime.UtcNow - _lastLoaded > StaleThreshold

@@ -213,7 +213,11 @@ public partial class CollectionsView : UserControl
     private void OnToggleBrowse(object? sender, RoutedEventArgs e)
     {
         e.Handled = true;
-        if (VM != null) VM.ShowPreview = !VM.ShowPreview;
+        if (VM != null)
+        {
+            VM.ShowPreview = !VM.ShowPreview;
+            Pikura.Avalonia.Services.AppServices.Get<Pikura.Core.Settings.SettingsService>().Update(s => s.ViewerBrowsePanelHidden = !VM.ShowPreview);
+        }
     }
 
     /// <summary>Expand button → toggle full-screen overlay. Collage mode (IsCollageMode/

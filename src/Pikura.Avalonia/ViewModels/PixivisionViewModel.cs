@@ -975,7 +975,8 @@ public partial class PixivisionViewModel : ViewModelBase
     {
         var navList = FeaturedWorks.ToList();
         GalleryVm.OpenInViewer(card, navList, FeaturedWorks.Count, null, ViewerSourceKey);
-        ShowPreview = true;
+ShowPreview = true;
+        _settingsService.Update(s => s.ViewerBrowsePanelHidden = false);
     }
 
     public void NotifySelectionChanged()
@@ -1031,7 +1032,8 @@ public partial class PixivisionViewModel : ViewModelBase
         if (selected.Count == 0) return;
         foreach (var card in selected)
             GalleryVm.OpenInNewTab(card, selected, selected.Count, source: ViewerSourceKey);
-        ShowPreview = true;
+ShowPreview = true;
+        _settingsService.Update(s => s.ViewerBrowsePanelHidden = false);
     }
 
     [RelayCommand] public void SelectAll() { foreach (var c in FeaturedWorks) c.IsSelected = true; NotifySelectionChanged(); }

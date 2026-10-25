@@ -94,6 +94,7 @@ public partial class EnhancedRankingsView : UserControl
         e.Handled = true;
         if (VM == null) return;
         VM.ShowPreview = !VM.ShowPreview;
+        Pikura.Avalonia.Services.AppServices.Get<Pikura.Core.Settings.SettingsService>().Update(s => s.ViewerBrowsePanelHidden = !VM.ShowPreview);
     }
 
     private void OnExpandViewer(object? sender, RoutedEventArgs e)

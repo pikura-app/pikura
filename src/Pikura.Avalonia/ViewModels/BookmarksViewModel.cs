@@ -229,7 +229,8 @@ public partial class BookmarksViewModel : ViewModelBase
         if (selected.Count == 0) return;
         foreach (var card in selected)
             GalleryVm.OpenInNewTab(card, selected, selected.Count, source: ViewerSourceKey);
-        ShowPreview = true;
+ShowPreview = true;
+        _settingsService.Update(s => s.ViewerBrowsePanelHidden = false);
     }
 
     public void NotifyFavoritesSelectionChanged() => NotifySelectionChanged();

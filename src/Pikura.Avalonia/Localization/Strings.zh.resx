@@ -6057,4 +6057,10 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="Settings_RemoveAllDataConfirm" xml:space="preserve">
     <value>这将永久删除设置、已保存的 pixiv 登录、下载历史/数据库、媒体库索引、缓存和 AI 模型。已下载的作品文件会保留。Pikura 将立即关闭。继续吗？</value>
   </data>
+  <data name="Settings_RestoreViewerTabs" xml:space="preserve">
+    <value>启动时恢复上次会话的查看器标签页</value>
+  </data>
+  <data name="Settings_RestoreViewerTabsHint" xml:space="preserve">
+    <value>关闭时查看器以空白启动；标签页仍会保存，重新开启可恢复。</value>
+  </data>
 </root>

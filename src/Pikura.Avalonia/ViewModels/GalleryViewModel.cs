@@ -386,7 +386,8 @@ public partial class GalleryViewModel : ViewModelBase
         tab.CollageItems.Clear();
         AddToCollage(items, tab);
         SelectedViewerTab = tab;
-        ShowPreview = true;
+ShowPreview = true;
+        _settingsService.Update(s => s.ViewerBrowsePanelHidden = false);
     }
 
     /// <summary>Collage a cross-tab selection: append to the active collage tab when one is
@@ -497,7 +498,8 @@ public partial class GalleryViewModel : ViewModelBase
             InlineViewerCardList = null;
         }
 
-        ShowPreview = true;
+ShowPreview = true;
+        _settingsService.Update(s => s.ViewerBrowsePanelHidden = false);
 
         // Raise explicitly: when the tab was already selected, assigning it above is a no-op and
         // OnSelectedViewerTabChanged never fires, leaving the grid-visibility flags stale.
@@ -1538,7 +1540,8 @@ public partial class GalleryViewModel : ViewModelBase
         // ShowPreview, which was never flipped on here, so the artwork loaded into
         // InlineViewerCard with nothing on screen to display it if the panel wasn't already
         // open (e.g. arriving fresh from Discover/Bookmarks/Rankings).
-        ShowPreview = true;
+ShowPreview = true;
+        _settingsService.Update(s => s.ViewerBrowsePanelHidden = false);
         StatusMessage = $"Viewing artwork {artworkId}";
     }
 
@@ -1554,7 +1557,8 @@ public partial class GalleryViewModel : ViewModelBase
 
         var list = new List<ArtworkCardViewModel> { card };
         OpenInNewTab(card, list, list.Count, null, "Hoshi");
-        ShowPreview = true;
+ShowPreview = true;
+        _settingsService.Update(s => s.ViewerBrowsePanelHidden = false);
         StatusMessage = $"Opened artwork {artworkId} in a new tab";
     }
 
@@ -2516,7 +2520,8 @@ public partial class GalleryViewModel : ViewModelBase
         if (targets.Count == 1)
             ActivateCollage(targets[0]);
         else
-            ShowPreview = true;
+ShowPreview = true;
+            _settingsService.Update(s => s.ViewerBrowsePanelHidden = false);
 
         NotifyCollageTargetsChanged();
 
@@ -2552,7 +2557,8 @@ public partial class GalleryViewModel : ViewModelBase
         if (selected.Count == 0) return;
         foreach (var card in selected)
             OpenInNewTab(card, selected, selected.Count, source: CurrentGalleryViewerSource);
-        ShowPreview = true;
+ShowPreview = true;
+        _settingsService.Update(s => s.ViewerBrowsePanelHidden = false);
     }
 
     [RelayCommand]
@@ -2812,31 +2818,59 @@ public partial class GalleryViewModel : ViewModelBase
     {
         try
         {
-            var entries = _settingsService.Current.PersistedViewerTabs;
+            var settings = _settingsService.Current;
+            if (!settings.RestoreViewerTabsOnStartup) return;
+
+            var entries = settings.PersistedViewerTabs;
             if (entries == null || entries.Count == 0) return;
 
-            foreach (var entry in entries)
+            // Fetch cards with bounded parallelism (sequential under SafeMode),
+            // preserving tab order. Tabs are only added once their card arrives.
+            var maxParallel = settings.SafeMode ? 1 : 4;
+            var gate = new System.Threading.SemaphoreSlim(maxParallel);
+            var fetchTasks = entries.Select(async entry =>
             {
+                try
+                {
+                    if (entry.IsCollage)
+                    {
+                        if (entry.CollageArtworkIds is not { Count: > 0 }) return (entry, (List<ArtworkCardViewModel>?)null);
+                        var inner = entry.CollageArtworkIds.Select(async id =>
+                        {
+                            await gate.WaitAsync();
+                            try { return await BuildCardForArtworkAsync(id); }
+                            finally { gate.Release(); }
+                        });
+                        var cards = (await Task.WhenAll(inner)).Where(c => c != null).Cast<ArtworkCardViewModel>().ToList();
+                        return (entry, cards.Count > 0 ? cards : null);
+                    }
+                    else
+                    {
+                        if (string.IsNullOrEmpty(entry.ArtworkId)) return (entry, (List<ArtworkCardViewModel>?)null);
+                        await gate.WaitAsync();
+                        try
+                        {
+                            var card = await BuildCardForArtworkAsync(entry.ArtworkId);
+                            return (entry, card != null ? new List<ArtworkCardViewModel> { card } : null);
+                        }
+                        finally { gate.Release(); }
+                    }
+                }
+                catch { return (entry, (List<ArtworkCardViewModel>?)null); }
+            }).ToList();
+            var results = await Task.WhenAll(fetchTasks);
+
+            foreach (var (entry, cards) in results)
+            {
+                if (cards is not { Count: > 0 }) continue;
                 if (entry.IsCollage)
                 {
-                    if (entry.CollageArtworkIds is not { Count: > 0 }) continue;
-                    var cards = new List<ArtworkCardViewModel>();
-                    foreach (var id in entry.CollageArtworkIds)
-                    {
-                        var c = await BuildCardForArtworkAsync(id);
-                        if (c != null) cards.Add(c);
-                    }
-                    if (cards.Count == 0) continue;
                     var collageTab = CreateCollageTab();
                     AddToCollage(cards, collageTab);
                 }
                 else
                 {
-                    if (string.IsNullOrEmpty(entry.ArtworkId)) continue;
-                    var card = await BuildCardForArtworkAsync(entry.ArtworkId);
-                    if (card == null) continue;
-                    var list = new List<ArtworkCardViewModel> { card };
-                    OpenInNewTab(card, list, list.Count, null, entry.Source ?? "Gallery");
+                    OpenInNewTab(cards[0], cards, cards.Count, null, entry.Source ?? "Gallery");
                 }
             }
 
@@ -2844,8 +2878,9 @@ public partial class GalleryViewModel : ViewModelBase
             if (selIdx >= 0 && selIdx < ViewerTabs.Count)
                 SelectedViewerTab = ViewerTabs[selIdx];
 
+            // Non-user-initiated reveal: honor the saved hidden state.
             if (ViewerTabs.Count > 0)
-                ShowPreview = true;
+                ShowPreview = !_settingsService.Current.ViewerBrowsePanelHidden;
         }
         catch { /* non-fatal — worst case some/all tabs fail to restore */ }
     }

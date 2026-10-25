@@ -6121,4 +6121,10 @@ Resuming from {1}/{2} artworks</value>
   <data name="Settings_RemoveAllDataConfirm" xml:space="preserve">
     <value>This permanently deletes settings, saved pixiv login, download history/database, library index, caches, and AI models. Downloaded artwork files are kept. Pikura will now close. Continue?</value>
   </data>
+  <data name="Settings_RestoreViewerTabs" xml:space="preserve">
+    <value>Reopen viewer tabs from last session on startup</value>
+  </data>
+  <data name="Settings_RestoreViewerTabsHint" xml:space="preserve">
+    <value>When off, the viewer starts empty; your tabs are still saved so turning this back on restores them.</value>
+  </data>
 </root>
