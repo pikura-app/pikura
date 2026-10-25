@@ -9,7 +9,8 @@ using System.Text;
 namespace Pikura.Core.Services;
 
 /// <summary>Per-file/per-artwork download progress callbacks.</summary>
-public sealed record DownloadProgress(string ArtworkId, int PageIndex, int TotalPages, long BytesSoFar, long? TotalBytes);
+/// <param name="ResumedFromBytes">Set on the first report of a ranged resume — bytes already on disk.</param>
+public sealed record DownloadProgress(string ArtworkId, int PageIndex, int TotalPages, long BytesSoFar, long? TotalBytes, long? ResumedFromBytes = null);
 
 /// <summary>
 /// Streams original-size images from i.pximg.net into a local folder.
@@ -578,27 +579,11 @@ public sealed class PixivDownloadService
         string url, string destPath, string referer, CancellationToken ct = default)
     {
         var client = _httpFactory.GetClient();
-        using var resp = await SendWithRateLimitAsync(client, url, ct, referer).ConfigureAwait(false);
-        resp.EnsureSuccessStatusCode();
-
-        var tmp = destPath + ".part";
-        try
-        {
-            Directory.CreateDirectory(Path.GetDirectoryName(tmp)!);
-            await using (var src = await resp.Content.ReadAsStreamAsync(ct).ConfigureAwait(false))
-            await using (var dst = new FileStream(tmp, FileMode.Create, FileAccess.Write, FileShare.None, BufferSize, useAsync: true))
-            {
-                await src.CopyToAsync(dst, BufferSize, ct).ConfigureAwait(false);
-                await dst.FlushAsync(ct).ConfigureAwait(false);
-            }
-            if (File.Exists(destPath)) File.Delete(destPath);
-            File.Move(tmp, destPath);
-        }
-        catch
-        {
-            try { if (File.Exists(tmp)) File.Delete(tmp); } catch { /* best-effort */ }
-            throw;
-        }
+        await ResumableFileDownloader.DownloadAsync(
+            (u, cfg, c) => SendWithRateLimitAsync(client, u, c, referer, cfg),
+            url, destPath,
+            new ResumableFileDownloader.Context { TimeoutSec = 0, Diag = Diag },
+            ct).ConfigureAwait(false);
     }
 
     private async Task DownloadFileAsync(
@@ -608,124 +593,78 @@ public sealed class PixivDownloadService
         int minFileSizeKB = 0, int maxFileSizeKB = 0)
     {
         var client = _httpFactory.GetClient();
-
-        // Send the request. When SafeMode is on, intercept 429/503 here and back off
-        // before bubbling failure to the coordinator's retry loop — this prevents the
-        // coordinator from burning through its retry budget against a rate-limit wall
-        // and keeps the access pattern friendly to Pixiv's anti-scraper detection.
-        using var resp = await SendWithRateLimitAsync(client, url, ct).ConfigureAwait(false);
-        resp.EnsureSuccessStatusCode();
-
-        var expectedTotal = resp.Content.Headers.ContentLength;
-        var tmp = destPath + ".part";
-        long readTotal = 0;
-
-        // Per-download stall timeout (DownloadTimeout setting). Applied only to the data
-        // transfer — not the SafeMode 429/503 backoff above — and reset after each chunk so
-        // it acts as an inactivity timeout: a download is aborted only if no bytes arrive
-        // for the configured number of seconds. 0 = no timeout.
         var timeoutSec = _settings.Current.DownloadTimeout;
-        using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
-        if (timeoutSec > 0) timeoutCts.CancelAfter(TimeSpan.FromSeconds(timeoutSec));
-        var dlCt = timeoutCts.Token;
-        try
-        {
-            await using (var src = await resp.Content.ReadAsStreamAsync(dlCt).ConfigureAwait(false))
-            await using (var dst = new FileStream(tmp, FileMode.Create, FileAccess.Write, FileShare.None, BufferSize, useAsync: true))
+        await ResumableFileDownloader.DownloadAsync(
+            (u, cfg, c) => SendWithRateLimitAsync(client, u, c, null, cfg),
+            url, destPath,
+            new ResumableFileDownloader.Context
             {
-                var buffer = new byte[BufferSize];
-                int read;
-                while ((read = await src.ReadAsync(buffer.AsMemory(0, BufferSize), dlCt).ConfigureAwait(false)) > 0)
+                TimeoutSec = timeoutSec,
+                MinFileSizeKB = minFileSizeKB,
+                MaxFileSizeKB = maxFileSizeKB,
+                ValidateAsync = HasValidImageHeaderAsync,
+                Progress = (soFar, total) => progress?.Report(
+                    new DownloadProgress(artworkId, pageIndex, totalPages, soFar, total)),
+                Resuming = (have, total) =>
                 {
-                    await dst.WriteAsync(buffer.AsMemory(0, read), dlCt).ConfigureAwait(false);
-                    readTotal += read;
-                    progress?.Report(new DownloadProgress(artworkId, pageIndex, totalPages, readTotal, expectedTotal));
-                    // Reset the inactivity window: we just made progress.
-                    if (timeoutSec > 0) timeoutCts.CancelAfter(TimeSpan.FromSeconds(timeoutSec));
-                }
-                await dst.FlushAsync(dlCt).ConfigureAwait(false);
-            }
-
-            // ---- Integrity checks (fail-fast: deletes the .part file on any mismatch) ----
-            // 1) Empty file is always corrupt.
-            if (readTotal == 0)
-                throw new IOException($"Empty download for {url}");
-
-            // 2) Byte count must match Content-Length (when the server sent one).
-            //    Servers may legitimately omit it for chunked responses.
-            if (expectedTotal.HasValue && readTotal != expectedTotal.Value)
-                throw new IOException($"Truncated download: got {readTotal} bytes, expected {expectedTotal.Value} for {url}");
-
-            // 3) On-disk size must equal what we counted.
-            var fi = new FileInfo(tmp);
-            if (!fi.Exists || fi.Length != readTotal)
-                throw new IOException($"On-disk size mismatch for {tmp}: file={(fi.Exists ? fi.Length : -1)} counter={readTotal}");
-
-            // 4) Image magic bytes — catches HTML error pages saved as .jpg, etc.
-            if (!await HasValidImageHeaderAsync(tmp, ct).ConfigureAwait(false))
-                throw new IOException($"Downloaded file is not a recognized image (HTML error page?): {url}");
-
-            // 5) Min/Max file size filter (0 = disabled). Delete .part and skip without error.
-            if (minFileSizeKB > 0 && readTotal < (long)minFileSizeKB * 1024)
-            {
-                try { File.Delete(tmp); } catch { /* best-effort */ }
-                Diag($"  SKIP: file {readTotal} bytes is below MinFileSizeKB={minFileSizeKB} KB");
-                return;
-            }
-            if (maxFileSizeKB > 0 && readTotal > (long)maxFileSizeKB * 1024)
-            {
-                try { File.Delete(tmp); } catch { /* best-effort */ }
-                Diag($"  SKIP: file {readTotal} bytes exceeds MaxFileSizeKB={maxFileSizeKB} KB");
-                return;
-            }
-
-            if (File.Exists(destPath)) File.Delete(destPath);
-            File.Move(tmp, destPath);
-        }
-        catch (OperationCanceledException) when (!ct.IsCancellationRequested)
-        {
-            // The cancellation came from our inactivity-timeout, NOT a user pause/cancel.
-            // Translate it into a regular failure (TimeoutException) so the coordinator
-            // retries this download instead of treating the whole job as cancelled.
-            try { if (File.Exists(tmp)) File.Delete(tmp); } catch { /* best-effort */ }
-            throw new TimeoutException($"Download timed out after {timeoutSec}s of inactivity: {url}");
-        }
-        catch
-        {
-            // Don't leave a half-written .part file around — the next attempt
-            // would skip it because the existence check uses Length>0 only on
-            // the final path, but a stale .part can confuse retries.
-            try { if (File.Exists(tmp)) File.Delete(tmp); } catch { /* best-effort */ }
-            throw;
-        }
+                    ResumeSink?.Invoke(have, total);
+                    progress?.Report(new DownloadProgress(artworkId, pageIndex, totalPages, have, total, ResumedFromBytes: have));
+                },
+                Diag = Diag,
+            },
+            ct).ConfigureAwait(false);
     }
+
+    /// <summary>Optional hook invoked instead of a plain Task.Delay while waiting out a
+    /// rate-limit response — the coordinator uses it to publish skippable wait state.</summary>
+    public Func<WaitInfo, CancellationToken, Task>? WaitSink { get; set; }
+
+    /// <summary>Invoked when a ranged resume begins: (bytesAlreadyOnDisk, expectedTotal).</summary>
+    public Action<long, long?>? ResumeSink { get; set; }
+
+    /// <summary>Job currently executing on this async flow (set by the coordinator).</summary>
+    public static readonly AsyncLocal<Guid?> CurrentJobId = new();
+
+    /// <summary>Description of a wait the downloader is about to perform.</summary>
+    public sealed record WaitInfo(TimeSpan Wait, int Attempt, int MaxAttempts, string? Message);
 
     /// <summary>
     /// Sends a GET to <paramref name="url"/> with the Pixiv Referer header.
-    /// When <see cref="AppSettings.SafeMode"/> is enabled, automatically waits out
-    /// HTTP 429 / 503 responses up to a few times before bubbling failure:
+    /// Always waits out HTTP 429 / 503 responses before bubbling failure —
     /// honors the server's <c>Retry-After</c> header when present, otherwise
-    /// applies exponential backoff (5s → 10s → 20s → 60s) with ±25% jitter.
+    /// applies exponential backoff (5s → 10s → 20s → 60s). SafeMode adds ±25%
+    /// jitter and the full backoff schedule; without SafeMode at most 3
+    /// backoff attempts are made with no extra jitter.
     /// These backoff waits intentionally don't count against the coordinator's
     /// configured retry budget — they're "the server told us to slow down" pauses,
     /// not "the request failed unexpectedly" retries.
+    /// <paramref name="configure"/> adds per-request headers (Range/If-Range for resume).
     /// </summary>
-    private async Task<HttpResponseMessage> SendWithRateLimitAsync(
-        HttpClient client, string url, CancellationToken ct, string? referer = null)
+    private Task<HttpResponseMessage> SendWithRateLimitAsync(
+        HttpClient client, string url, CancellationToken ct, string? referer = null,
+        Action<HttpRequestMessage>? configure = null)
+        => SendWithRateLimitCoreAsync(client, url, referer ?? PixivReferer, configure,
+            _settings.Current.SafeMode, WaitSink, Diag, ct);
+
+    /// <summary>Testable core of the rate-limit retry loop.</summary>
+    internal static async Task<HttpResponseMessage> SendWithRateLimitCoreAsync(
+        HttpClient client, string url, string? referer,
+        Action<HttpRequestMessage>? configure, bool safeMode,
+        Func<WaitInfo, CancellationToken, Task>? waitSink,
+        Action<string>? diag, CancellationToken ct)
     {
-        // Schedule of jittered backoff waits, in seconds, used when SafeMode is on
-        // and the server doesn't supply a Retry-After header. Each entry is one
-        // attempt; the loop bails after the last one.
         var backoffSeconds = RateLimitBackoffSeconds;
         var jitter = Random.Shared;
-        var safeMode = _settings.Current.SafeMode;
+        // Without SafeMode cap at 3 backoff attempts.
+        var maxAttempts = safeMode ? backoffSeconds.Length : 3;
 
         HttpResponseMessage resp;
         int attempt = 0;
         while (true)
         {
             using var req = new HttpRequestMessage(HttpMethod.Get, url);
-            req.Headers.TryAddWithoutValidation("Referer", referer ?? PixivReferer);
+            req.Headers.TryAddWithoutValidation("Referer", referer ?? "https://www.pixiv.net/");
+            configure?.Invoke(req);
             resp = await client.SendAsync(req, HttpCompletionOption.ResponseHeadersRead, ct)
                 .ConfigureAwait(false);
 
@@ -733,7 +672,7 @@ public sealed class PixivDownloadService
             // (Caller calls EnsureSuccessStatusCode to surface real failures.)
             var status = (int)resp.StatusCode;
             var isRateLimited = status == 429 || status == 503;
-            if (!isRateLimited || !safeMode || attempt >= backoffSeconds.Length)
+            if (!isRateLimited || attempt >= maxAttempts)
                 return resp;
 
             // Prefer the server's hint if it sent one — that's the polite signal.
@@ -750,17 +689,20 @@ public sealed class PixivDownloadService
             }
             else
             {
-                // No header → exponential backoff with ±25% jitter
+                // No header → exponential backoff; SafeMode adds ±25% jitter.
                 var baseSec = backoffSeconds[attempt];
-                var jitterFactor = 0.75 + (jitter.NextDouble() * 0.5); // 0.75x – 1.25x
+                var jitterFactor = safeMode ? 0.75 + (jitter.NextDouble() * 0.5) : 1.0;
                 wait = TimeSpan.FromSeconds(baseSec * jitterFactor);
             }
             // Cap any single wait at 5 minutes so a misbehaving server can't park us forever.
             if (wait > TimeSpan.FromMinutes(5)) wait = TimeSpan.FromMinutes(5);
 
-            Diag($"SafeMode: HTTP {status} from {url} — backing off {wait.TotalSeconds:F1}s (attempt {attempt + 1}/{backoffSeconds.Length})");
+            diag?.Invoke($"Rate limit: HTTP {status} from {url} — backing off {wait.TotalSeconds:F1}s (attempt {attempt + 1}/{maxAttempts})");
             resp.Dispose();
-            await Task.Delay(wait, ct).ConfigureAwait(false);
+            if (waitSink != null)
+                await waitSink(new WaitInfo(wait, attempt + 1, maxAttempts, $"HTTP {status}"), ct).ConfigureAwait(false);
+            else
+                await Task.Delay(wait, ct).ConfigureAwait(false);
             attempt++;
         }
     }

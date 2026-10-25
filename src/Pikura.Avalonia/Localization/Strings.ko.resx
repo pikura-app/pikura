@@ -5883,4 +5883,16 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="Preset_ArtworkListItem" xml:space="preserve">
     <value>{0}. {1}  ({2}페이지)</value>
   </data>
+  <data name="Jobs_WaitRateLimited" xml:space="preserve">
+    <value>pixiv 속도 제한 — {0} 후 재시도</value>
+  </data>
+  <data name="Jobs_WaitRetry" xml:space="preserve">
+    <value>시도 {1}/{2} 실패({3}) — {0} 후 재시도</value>
+  </data>
+  <data name="Jobs_RetryNow" xml:space="preserve">
+    <value>지금 재시도</value>
+  </data>
+  <data name="Jobs_ResumingPartial" xml:space="preserve">
+    <value>부분 파일 이어 받기({1} 중 {0})</value>
+  </data>
 </root>

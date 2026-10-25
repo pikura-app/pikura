@@ -5947,4 +5947,16 @@ Resuming from {1}/{2} artworks</value>
   <data name="Preset_ArtworkListItem" xml:space="preserve">
     <value>{0}. {1}  ({2} pages)</value>
   </data>
+  <data name="Jobs_WaitRateLimited" xml:space="preserve">
+    <value>Rate limited by pixiv — retrying in {0}</value>
+  </data>
+  <data name="Jobs_WaitRetry" xml:space="preserve">
+    <value>Attempt {1}/{2} failed ({3}) — retrying in {0}</value>
+  </data>
+  <data name="Jobs_RetryNow" xml:space="preserve">
+    <value>Retry now</value>
+  </data>
+  <data name="Jobs_ResumingPartial" xml:space="preserve">
+    <value>Resuming partial file ({0} of {1})</value>
+  </data>
 </root>

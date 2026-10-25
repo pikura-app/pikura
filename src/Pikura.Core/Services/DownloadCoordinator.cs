@@ -32,12 +32,85 @@ public sealed record JobProgress(
     int? EtaSeconds = null,
     long ArtworkBytesCompleted = 0);
 
+/// <summary>Why a job is currently in a timed wait.</summary>
+public enum JobWaitReason { RateLimited, RetryingAfterError }
+
+/// <summary>Wait state for a running job. Raised when a timed wait starts and again when it ends.</summary>
+public sealed class JobWaitEventArgs : EventArgs
+{
+    public JobWaitEventArgs(Guid jobId, JobWaitReason? reason, DateTimeOffset? until,
+        int attempt, int maxAttempts, string? message)
+    {
+        JobId = jobId; Reason = reason; Until = until;
+        Attempt = attempt; MaxAttempts = maxAttempts; Message = message;
+    }
+    public Guid JobId { get; }
+    /// <summary>null = wait cleared.</summary>
+    public JobWaitReason? Reason { get; }
+    public DateTimeOffset? Until { get; }
+    public int Attempt { get; }
+    public int MaxAttempts { get; }
+    public string? Message { get; }
+    /// <summary>Bytes already on disk when a ranged resume begins (set only for resume notices).</summary>
+    public long? ResumedBytes { get; init; }
+    public long? ResumeTotal { get; init; }
+}
+
 /// <summary>
 /// Coordinates batch download operations.
 /// Manages download queue, job execution, and progress reporting.
 /// </summary>
 public sealed class DownloadCoordinator : IDisposable
 {
+    /// <summary>Raised when a job enters a timed wait (rate limit or retry delay).</summary>
+    public event EventHandler<JobWaitEventArgs>? JobWaiting;
+    /// <summary>Raised when a job's timed wait ends (or is skipped).</summary>
+    public event EventHandler<JobWaitEventArgs>? JobWaitCleared;
+    /// <summary>Raised once when a job resumes a partial file (Reason is meaningless here — see ResumedBytes).</summary>
+    public event EventHandler<JobWaitEventArgs>? FileResuming;
+
+    // Per-job cancellation for the *current wait only* — SkipWait cancels this, not the job.
+    // A job can have several concurrent waits (parallel artwork downloads), so track them all.
+    private readonly ConcurrentDictionary<Guid, ConcurrentDictionary<CancellationTokenSource, byte>> _waitCts = new();
+
+    /// <summary>Ends the current waits for <paramref name="jobId"/> immediately, without cancelling the job.</summary>
+    public void SkipWait(Guid jobId)
+    {
+        if (!_waitCts.TryGetValue(jobId, out var set)) return;
+        foreach (var cts in set.Keys)
+            try { cts.Cancel(); } catch (ObjectDisposedException) { }
+    }
+
+    /// <summary>Sleeps while publishing wait state; skippable via <see cref="SkipWait"/>.</summary>
+    private async Task WaitAsync(Guid jobId, JobWaitReason reason, TimeSpan wait,
+        int attempt, int maxAttempts, string? message, CancellationToken ct)
+    {
+        var until = DateTimeOffset.UtcNow + wait;
+        using var wcts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+        var set = _waitCts.GetOrAdd(jobId, _ => new());
+        set[wcts] = 0;
+        var args = new JobWaitEventArgs(jobId, reason, until, attempt, maxAttempts, message);
+        JobWaiting?.Invoke(this, args);
+        try
+        {
+            await Task.Delay(wait, wcts.Token).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException)
+        {
+            // SkipWait fired — proceed to the attempt now. Job cancellation rethrows.
+            if (ct.IsCancellationRequested) throw;
+        }
+        finally
+        {
+            set.TryRemove(wcts, out _);
+            if (set.IsEmpty)
+            {
+                _waitCts.TryRemove(new KeyValuePair<Guid, ConcurrentDictionary<CancellationTokenSource, byte>>(jobId, set));
+                JobWaitCleared?.Invoke(this, new JobWaitEventArgs(jobId, null, null, attempt, maxAttempts, message));
+            }
+        }
+    }
+
     private readonly PixivClient _client;
     private readonly PixivDownloadService _downloadService;
     private readonly SettingsService _settingsService;
@@ -126,6 +199,17 @@ public sealed class DownloadCoordinator : IDisposable
         _logger = logger;
         _resizeService = resizeService;
         _accountService = accountService;
+        // Route rate-limit waits inside the downloader through our skippable wait channel.
+        _downloadService.WaitSink = (info, ct) =>
+            PixivDownloadService.CurrentJobId.Value is { } jid
+                ? WaitAsync(jid, JobWaitReason.RateLimited, info.Wait, info.Attempt, info.MaxAttempts, info.Message, ct)
+                : Task.Delay(info.Wait, ct);
+        _downloadService.ResumeSink = (have, total) =>
+        {
+            if (PixivDownloadService.CurrentJobId.Value is { } jid)
+                FileResuming?.Invoke(this, new JobWaitEventArgs(jid, null, null, 0, 0, null)
+                    { ResumedBytes = have, ResumeTotal = total });
+        };
     }
 
     private readonly FanboxClient _fanboxClient;
@@ -700,6 +784,9 @@ public sealed class DownloadCoordinator : IDisposable
                 effectiveSettings.AllowRedownload = acctSettings.AllowRedownload;
         }
 
+        // Tag this async flow so downloader rate-limit waits can be attributed to this job.
+        PixivDownloadService.CurrentJobId.Value = job.Id;
+
         // Process each target
         var targetsToRun = job.Targets.Where(t =>
             t.Status != TargetStatus.Completed &&
@@ -879,7 +966,8 @@ public sealed class DownloadCoordinator : IDisposable
                         _logger.LogWarning(ex, "Attempt {Attempt} failed for target {TargetId}, retrying in {Delay:F1}s...",
                             attempt, target.TargetId, thisDelay.TotalSeconds);
 
-                        await Task.Delay(thisDelay, ct);
+                        await WaitAsync(job.Id, JobWaitReason.RetryingAfterError, thisDelay,
+                            attempt, maxRetries, ex.Message, ct);
                     }
                 }
             }

@@ -106,6 +106,15 @@ public partial class HistoryViewModel : ViewModelBase
         coordinator.JobStarted  += OnJobStarted;
         coordinator.JobCompleted += OnJobCompleted;
         coordinator.JobCreated   += OnJobCreated;
+        coordinator.JobWaiting   += OnJobWaitChanged;
+        coordinator.JobWaitCleared += OnJobWaitChanged;
+        coordinator.FileResuming += OnFileResuming;
+        _waitTimer.Tick += (_, _) =>
+        {
+            var any = false;
+            foreach (var j in ActiveJobs) any |= j.TickWait();
+            if (!any) _waitTimer.Stop();
+        };
         _activeJobs.CollectionChanged    += (_, _) => { UpdateQueuePositions(); OnPropertyChanged(nameof(ActiveSummary)); };
         _completedJobs.CollectionChanged += (_, _) => RegroupCompleted();
         _failedJobs.CollectionChanged    += (_, _) => RegroupFailed();
@@ -372,6 +381,27 @@ public partial class HistoryViewModel : ViewModelBase
         else Dispatcher.UIThread.Post(Route, global::Avalonia.Threading.DispatcherPriority.Normal);
     }
 
+    private readonly DispatcherTimer _waitTimer = new() { Interval = TimeSpan.FromSeconds(1) };
+
+    private void OnJobWaitChanged(object? sender, JobWaitEventArgs e)
+    {
+        Dispatcher.UIThread.Post(() =>
+        {
+            var jobVm = ActiveJobs.FirstOrDefault(j => j.Job.Id == e.JobId);
+            if (jobVm == null) return;
+            jobVm.ApplyWait(e);
+            if (e.Reason != null && !_waitTimer.IsEnabled) _waitTimer.Start();
+        });
+    }
+
+    private void OnFileResuming(object? sender, JobWaitEventArgs e)
+    {
+        Dispatcher.UIThread.Post(() =>
+        {
+            ActiveJobs.FirstOrDefault(j => j.Job.Id == e.JobId)?.ApplyResume(e);
+        });
+    }
+
     private void OnProgressReceived(JobProgress progress, DownloadJobViewModel jobVm)
     {
         Dispatcher.UIThread.Post(() =>
@@ -512,6 +542,64 @@ public partial class DownloadJobViewModel : ObservableObject
     [ObservableProperty] private bool _isPausable;
     [ObservableProperty] private bool _isResumable;
     [ObservableProperty] private int _queuePosition;
+
+    // Live wait state (rate-limit backoff / retry delay) — shown with a countdown + "Retry now".
+    [ObservableProperty] private string? _waitText;
+    [ObservableProperty] private bool _isWaiting;
+    [ObservableProperty] private string? _resumeText;
+    private DateTimeOffset? _waitUntil;
+    private JobWaitReason _waitReason;
+    private int _waitAttempt, _waitMax;
+    private string? _waitMessage;
+
+    /// <summary>Applies a JobWaiting event to this row.</summary>
+    public void ApplyWait(JobWaitEventArgs e)
+    {
+        if (e.Reason is null)
+        {
+            _waitUntil = null;
+            IsWaiting = false;
+            WaitText = null;
+            return;
+        }
+        _waitReason = e.Reason.Value;
+        _waitUntil = e.Until;
+        _waitAttempt = e.Attempt;
+        _waitMax = e.MaxAttempts;
+        _waitMessage = e.Message;
+        IsWaiting = true;
+        TickWait();
+    }
+
+    /// <summary>Applies a ranged-resume notice to this row (clears on next file/job update).</summary>
+    public void ApplyResume(JobWaitEventArgs e)
+    {
+        if (e.ResumedBytes is { } have)
+            ResumeText = string.Format(LocalizationService.Instance["Jobs_ResumingPartial"],
+                FormatBytes(have), e.ResumeTotal is { } t ? FormatBytes(t) : "?");
+    }
+
+    /// <summary>Recomputes the countdown text; returns false when the wait has expired.</summary>
+    public bool TickWait()
+    {
+        if (!IsWaiting || _waitUntil is not { } until) return IsWaiting;
+        var left = until - DateTimeOffset.UtcNow;
+        if (left <= TimeSpan.Zero)
+        {
+            IsWaiting = false;
+            WaitText = null;
+            return false;
+        }
+        var time = $"{(int)left.TotalMinutes}:{left.Seconds:D2}";
+        WaitText = _waitReason == JobWaitReason.RateLimited
+            ? string.Format(LocalizationService.Instance["Jobs_WaitRateLimited"], time)
+            : string.Format(LocalizationService.Instance["Jobs_WaitRetry"],
+                time, _waitAttempt, _waitMax, _waitMessage ?? "");
+        return true;
+    }
+
+    [RelayCommand]
+    private void RetryNow() => _coordinator?.SkipWait(Job.Id);
 
     public bool HasOutputFolder => !string.IsNullOrWhiteSpace(ResolvedOutputFolder)
                                    && Directory.Exists(ResolvedOutputFolder);
@@ -1036,6 +1124,14 @@ public partial class DownloadJobViewModel : ObservableObject
             var t = Job.Targets.FirstOrDefault();
             if (t != null && !string.IsNullOrEmpty(t.UserName))
                 CurrentArtist = t.UserName;
+        }
+
+        // Terminal states clear any lingering wait/resume rows.
+        if (progress.Status is JobStatus.Completed or JobStatus.Failed or JobStatus.Cancelled or JobStatus.Paused)
+        {
+            IsWaiting = false;
+            WaitText = null;
+            ResumeText = null;
         }
 
         // Per-file detail

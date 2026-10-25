@@ -22,4 +22,7 @@
     <PackageReference Include="Microsoft.ML.OnnxRuntime" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="Pikura.Core.Tests" />
+  </ItemGroup>
 </Project>

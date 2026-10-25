@@ -305,6 +305,17 @@
                                                                  IsIndeterminate="{Binding IsPreparing}"/>
                                                     <ProgressBar x:Name="FileProgress" Value="{Binding CurrentFilePct}" Maximum="100" Height="3" CornerRadius="2"
                                                                  IsVisible="{Binding HasCurrentFile}" Opacity="0.6"/>
+                                                    <TextBlock Text="{Binding ResumeText}" FontSize="12"
+                                                               Foreground="{DynamicResource DefaultForegroundBrushSecondary}"
+                                                               IsVisible="{Binding ResumeText, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+                                                    <StackPanel Orientation="Horizontal" Spacing="8"
+                                                                IsVisible="{Binding IsWaiting}">
+                                                        <TextBlock Text="{Binding WaitText}" FontSize="12" VerticalAlignment="Center"
+                                                                   Foreground="Orange" TextTrimming="CharacterEllipsis" MaxLines="1"/>
+                                                        <Button Content="{loc:Tr Jobs_RetryNow}" FontSize="11" Padding="8,2"
+                                                                VerticalAlignment="Center"
+                                                                Command="{Binding RetryNowCommand}"/>
+                                                    </StackPanel>
                                                 </StackPanel>
                                                 <StackPanel Grid.Column="3" Spacing="4" Margin="10,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Right">
                                                     <!-- Status badge (auto-width so "▶ Running"/"⏸ Paused" aren't clipped) -->

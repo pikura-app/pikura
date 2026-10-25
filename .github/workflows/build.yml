@@ -26,3 +26,7 @@ jobs:
       - name: Build solution
         run: dotnet build Pikura.slnx -c Release --verbosity minimal -p:TreatWarningsAsErrors=true
         shell: pwsh
+
+      - name: Test
+        run: dotnet test Pikura.slnx -c Release --no-build --verbosity minimal
+        shell: pwsh

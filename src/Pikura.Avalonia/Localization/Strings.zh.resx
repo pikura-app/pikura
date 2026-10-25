@@ -5883,4 +5883,16 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="Preset_ArtworkListItem" xml:space="preserve">
     <value>{0}. {1}  ({2} 页)</value>
   </data>
+  <data name="Jobs_WaitRateLimited" xml:space="preserve">
+    <value>被 pixiv 限速 — {0} 后重试</value>
+  </data>
+  <data name="Jobs_WaitRetry" xml:space="preserve">
+    <value>第 {1}/{2} 次尝试失败（{3}）— {0} 后重试</value>
+  </data>
+  <data name="Jobs_RetryNow" xml:space="preserve">
+    <value>立即重试</value>
+  </data>
+  <data name="Jobs_ResumingPartial" xml:space="preserve">
+    <value>正在续传部分文件（{1} 中的 {0}）</value>
+  </data>
 </root>

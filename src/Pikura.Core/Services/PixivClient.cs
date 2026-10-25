@@ -1369,6 +1369,9 @@ public sealed partial class PixivClient
         var backoffSeconds = new[] { 5, 10, 20, 60 };
         var jitter = Random.Shared;
         var safeMode = _settings.Current.SafeMode;
+        // Rate-limit waits are always honored; SafeMode keeps the full backoff
+        // schedule and jitter, otherwise cap at 3 attempts without jitter.
+        var maxRateLimitAttempts = safeMode ? backoffSeconds.Length : 3;
         int attempt = 0;
 
         while (true)
@@ -1384,7 +1387,7 @@ public sealed partial class PixivClient
             var status = (int)resp.StatusCode;
             var isRateLimited = status == 429 || status == 503;
 
-            if (isRateLimited && safeMode && attempt < backoffSeconds.Length)
+            if (isRateLimited && attempt < maxRateLimitAttempts)
             {
                 var retryAfter = resp.Headers.RetryAfter;
                 TimeSpan wait;
@@ -1400,7 +1403,7 @@ public sealed partial class PixivClient
                 else
                 {
                     var baseSec = backoffSeconds[attempt];
-                    var jitterFactor = 0.75 + (jitter.NextDouble() * 0.5);
+                    var jitterFactor = safeMode ? 0.75 + (jitter.NextDouble() * 0.5) : 1.0;
                     wait = TimeSpan.FromSeconds(baseSec * jitterFactor);
                 }
                 if (wait > TimeSpan.FromMinutes(5)) wait = TimeSpan.FromMinutes(5);
@@ -1426,6 +1429,9 @@ public sealed partial class PixivClient
         var backoffSeconds = new[] { 5, 10, 20, 60 };
         var jitter = Random.Shared;
         var safeMode = _settings.Current.SafeMode;
+        // Rate-limit waits are always honored; SafeMode keeps the full backoff
+        // schedule and jitter, otherwise cap at 3 attempts without jitter.
+        var maxRateLimitAttempts = safeMode ? backoffSeconds.Length : 3;
         int attempt = 0;
 
         while (true)
@@ -1453,7 +1459,7 @@ public sealed partial class PixivClient
                 var status = (int)resp.StatusCode;
                 var isRateLimited = status == 429 || status == 503;
 
-                if (isRateLimited && safeMode && attempt < backoffSeconds.Length)
+                if (isRateLimited && attempt < maxRateLimitAttempts)
                 {
                     var retryAfter = resp.Headers.RetryAfter;
                     TimeSpan wait;
@@ -1469,7 +1475,7 @@ public sealed partial class PixivClient
                     else
                     {
                         var baseSec = backoffSeconds[attempt];
-                        var jitterFactor = 0.75 + (jitter.NextDouble() * 0.5);
+                        var jitterFactor = safeMode ? 0.75 + (jitter.NextDouble() * 0.5) : 1.0;
                         wait = TimeSpan.FromSeconds(baseSec * jitterFactor);
                     }
 
