@@ -6063,4 +6063,5 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="Settings_RestoreViewerTabsHint" xml:space="preserve">
     <value>끄면 뷰어가 비어 있는 상태로 시작됩니다. 탭은 계속 저장되므로 다시 켜면 복원됩니다.</value>
   </data>
+  <data name="Library_Refingerprinting" xml:space="preserve"><value>{0}개 파일의 지문을 다시 계산하는 중입니다 — 중복 결과가 불완전합니다</value></data>
 </root>

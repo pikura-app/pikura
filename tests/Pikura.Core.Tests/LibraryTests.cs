@@ -180,7 +180,7 @@ public class NearDuplicateTests : IClassFixture<LibraryFixture>
     private LibraryFile F(string path, long? phash, string? sha = null) => new()
     {
         Path = path, Root = "/r", Size = 1, Mtime = "t", MediaType = "image",
-        Phash = phash, Sha256 = sha, AddedAt = "t",
+        Phash = phash, Sha256 = sha, AddedAt = "t", PhashVersion = 2,
     };
 
     [Fact]
@@ -235,6 +235,42 @@ public class NearDuplicateTests : IClassFixture<LibraryFixture>
         var g = groups.FirstOrDefault(g => g.Files.Any(f => f.Path == @"C:\u\a.jpg"));
         Assert.NotNull(g);
         Assert.Equal(3, g!.Files.Count); // transitive via shared edges within threshold
+    }
+}
+
+public class V1PhashExclusionTests : IDisposable
+{
+    private readonly string _dir;
+    private readonly Data.LibraryRepository _repo;
+    public V1PhashExclusionTests()
+    {
+        _dir = Path.Combine(Path.GetTempPath(), "pikura-v1-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(_dir);
+        _repo = new Data.LibraryRepository(Path.Combine(_dir, "t.db"),
+            Microsoft.Extensions.Logging.Abstractions.NullLogger<Data.LibraryRepository>.Instance);
+    }
+    public void Dispose() { _repo.Dispose(); try { Directory.Delete(_dir, true); } catch { } }
+
+    private static Data.LibraryFile Row(string p, long phash, int version) => new()
+    {
+        Path = p, Root = "root", Size = 1, Phash = phash, Sha256 = "x" + p.GetHashCode(),
+        AddedAt = "t", PhashVersion = version,
+    };
+
+    [Fact]
+    public async Task V1_Rows_Are_Excluded_From_NearDup_Grouping()
+    {
+        long ha = 0x0102030405060708, hb = 0x0102030405060709; // distance 1
+        await _repo.UpsertFileAsync(Row("v2a", ha, 2));
+        await _repo.UpsertFileAsync(Row("v1b", hb, 1)); // same hash, v1
+        var groups = await _repo.GetNearDuplicateGroupsAsync(6);
+        Assert.DoesNotContain(groups, g => g.Files.Any(f => f.Path == "v1b"));
+        Assert.Equal(1, await _repo.GetPendingRehashCountAsync());
+        // Once rehashed to v2, it joins the group again.
+        await _repo.UpsertFileAsync(Row("v1b", hb, 2));
+        groups = await _repo.GetNearDuplicateGroupsAsync(6);
+        Assert.Contains(groups, g => g.Files.Any(f => f.Path == "v1b"));
+        Assert.Equal(0, await _repo.GetPendingRehashCountAsync());
     }
 }
 

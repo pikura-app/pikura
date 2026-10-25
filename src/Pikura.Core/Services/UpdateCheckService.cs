@@ -391,12 +391,14 @@ public sealed class UpdateCheckService
             ? rawPath[4..]
             : rawPath;
 
+        _settings.Flush();
         if (OperatingSystem.IsWindows())
             await LaunchWindowsUpdaterAsync(downloadedPath, exePath, _logger);
         else
         {
             LaunchUnixUpdater(downloadedPath, exePath);
             // Exit the app — the script takes over from here
+            _settings.Flush();
             System.Diagnostics.Process.GetCurrentProcess().Kill();
         }
     }

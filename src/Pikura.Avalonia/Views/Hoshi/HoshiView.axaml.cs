@@ -76,7 +76,7 @@ public partial class HoshiView : UserControl
             try
             {
                 using var ms = new MemoryStream(bytes);
-                ImageThumb.Source = new Bitmap(ms);
+                ImageThumb.Source = Bitmap.DecodeToWidth(ms, 400);
             }
             catch { ImageThumb.Source = null; }
             ImageLabel.Text = $"Image attached ({bytes.Length / 1024} KB)";

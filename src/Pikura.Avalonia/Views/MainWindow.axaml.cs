@@ -308,6 +308,7 @@ public partial class MainWindow : Window
         try
         {
             AppServices.Get<ViewModels.GalleryViewModel>().SaveViewerTabsState();
+            AppServices.Get<Pikura.Core.Settings.SettingsService>().Flush();
         }
         catch { /* non-fatal */ }
 
@@ -883,6 +884,8 @@ public partial class MainWindow : Window
                 try { AppServices.Get<AiViewModel>().SaveCurrentSessionAsync().GetAwaiter().GetResult(); }
                 catch { /* best-effort */ }
                 try { AppServices.Get<ViewModels.GalleryViewModel>().SaveViewerTabsState(); }
+                catch { /* best-effort */ }
+                try { AppServices.Get<Pikura.Core.Settings.SettingsService>().Flush(); }
                 catch { /* best-effort */ }
                 Closing -= OnClosing;
                 Close();

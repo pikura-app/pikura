@@ -122,6 +122,7 @@ public sealed class VelopackMigrationService
             }
             catch (Exception ex) { _logger.LogWarning(ex, "Inno uninstaller launch failed — leaving old install"); }
         }
+        _settings.Flush();
         Environment.Exit(0);
     }
 }

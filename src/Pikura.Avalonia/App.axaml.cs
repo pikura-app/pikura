@@ -591,6 +591,7 @@ public partial class App : Application
     private void OnTrayOpen(object? sender, EventArgs e)       => ShowMainWindow();
     private void OnTrayQuit(object? sender, EventArgs e)
     {
+        AppServices.Get<Pikura.Core.Settings.SettingsService>().Flush();
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             desktop.Shutdown();
     }

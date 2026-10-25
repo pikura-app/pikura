@@ -75,7 +75,7 @@ public partial class BackgroundPreviewWindow : Window
             try
             {
                 using var ms = new MemoryStream(imageBytes);
-                _bitmap = new Bitmap(ms);
+                _bitmap = Bitmap.DecodeToWidth(ms, 1200);
                 _naturalSize = _bitmap.PixelSize;
                 PreviewImage.Source = _bitmap;
             }
@@ -108,7 +108,7 @@ public partial class BackgroundPreviewWindow : Window
                 try
                 {
                     using var ms = new MemoryStream(bytes);
-                    return new Bitmap(ms);
+                    return Bitmap.DecodeToWidth(ms, 1200);
                 }
                 catch { return null; }
             }, ct).ConfigureAwait(false);

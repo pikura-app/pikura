@@ -78,6 +78,7 @@ public partial class LibraryViewModel : ObservableObject
     [ObservableProperty] private string _lastScanText = "";
     [ObservableProperty] private double _dupThreshold;
     [ObservableProperty] private bool _dupScanDone;
+    [ObservableProperty] private string? _pendingRehashText;
 
     public ObservableCollection<LibraryItemViewModel> Items { get; } = [];
     public ObservableCollection<string> AiTagChips { get; } = [];
@@ -156,14 +157,20 @@ public partial class LibraryViewModel : ObservableObject
             {
                 using var codec = SkiaSharp.SKCodec.Create(vm.File.Path);
                 if (codec == null) return (Bitmap?)null;
+                const int target = 256;
+                // Scaled decode to the nearest supported size ≥ target, then
+                // high-quality resize — much cheaper than a full decode.
+                var info = Pikura.Core.Services.Library.PerceptualHash.ScaledInfo(codec, codec.Info, target);
+                using var small = new SkiaSharp.SKBitmap(info);
+                if (codec.GetPixels(small.Info, small.GetPixels()) != SkiaSharp.SKCodecResult.Success) return (Bitmap?)null;
                 var scale = codec.Info.Height > codec.Info.Width
-                    ? 256.0 / codec.Info.Height : 256.0 / codec.Info.Width;
-                using var full = new SkiaSharp.SKBitmap(codec.Info);
-                if (codec.GetPixels(full.Info, full.GetPixels()) != SkiaSharp.SKCodecResult.Success) return (Bitmap?)null;
+                    ? (double)target / codec.Info.Height : (double)target / codec.Info.Width;
                 var w = Math.Max(1, (int)(codec.Info.Width * scale));
                 var h = Math.Max(1, (int)(codec.Info.Height * scale));
-                using var small = full.Resize(new SkiaSharp.SKImageInfo(w, h), new SkiaSharp.SKSamplingOptions(SkiaSharp.SKCubicResampler.Mitchell));
-                return BitmapInterop.SkiaToAvalonia(small!);
+                using var final = w == small.Width && h == small.Height
+                    ? small
+                    : small.Resize(new SkiaSharp.SKImageInfo(w, h), new SkiaSharp.SKSamplingOptions(SkiaSharp.SKCubicResampler.Mitchell));
+                return BitmapInterop.SkiaToAvalonia(final!);
             });
             if (bmp != null)
             {
@@ -336,6 +343,10 @@ public partial class LibraryViewModel : ObservableObject
             var threshold = (int)Math.Round(DupThreshold);
             var exact = await Task.Run(() => _library.Repository.GetExactDuplicateGroupsAsync());
             var near = await Task.Run(() => _library.Repository.GetNearDuplicateGroupsAsync(threshold));
+            var pending = await Task.Run(() => _library.Repository.GetPendingRehashCountAsync());
+            PendingRehashText = pending > 0
+                ? string.Format(LocalizationService.Instance["Library_Refingerprinting"], pending)
+                : null;
             foreach (var g in exact) { var gv = new DuplicateGroupViewModel(g); _ = LoadDupThumbs(gv); DupGroups.Add(gv); }
             foreach (var g in near) { var gv = new DuplicateGroupViewModel(g); _ = LoadDupThumbs(gv); DupGroups.Add(gv); }
             DupScanDone = true;

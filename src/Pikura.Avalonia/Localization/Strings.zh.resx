@@ -6063,4 +6063,5 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="Settings_RestoreViewerTabsHint" xml:space="preserve">
     <value>关闭时查看器以空白启动；标签页仍会保存，重新开启可恢复。</value>
   </data>
+  <data name="Library_Refingerprinting" xml:space="preserve"><value>{0} 个文件仍在重新计算指纹 — 重复结果尚不完整</value></data>
 </root>

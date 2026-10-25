@@ -222,7 +222,7 @@ public partial class SelectFollowedArtistsDialog : Window
                     var url = artist.AvatarUrl.Replace("_square50", "_square120").Replace("_50", "_120");
                     var bytes = await _httpClient.GetByteArrayAsync(url);
                     using var stream = new System.IO.MemoryStream(bytes);
-                    artist.AvatarBitmap = new Bitmap(stream);
+                    artist.AvatarBitmap = Bitmap.DecodeToWidth(stream, 96);
                     anyLoaded = true;
                 }
                 catch

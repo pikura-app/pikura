@@ -266,10 +266,34 @@ public sealed class PixivImageLoader : IDisposable
         var bytes = await FetchBytesAsync(sizedUrl, ct).ConfigureAwait(false);
         if (bytes is null || ct.IsCancellationRequested) return null;
 
-        // Decode off-thread to avoid blocking
+        // Decode off-thread to avoid blocking. When the requested size implies a
+        // smaller target edge than the source, use the codec's scaled decode
+        // (nearest supported size ≥ target) instead of a full decode.
+        var target = size switch
+        {
+            ThumbnailSize.Small => 250,
+            ThumbnailSize.Medium => 540,
+            ThumbnailSize.Large => 1200,
+            _ => 0,
+        };
         var bitmap = await Task.Run(() =>
         {
-            try { return SKBitmap.Decode(bytes); }
+            try
+            {
+                if (target <= 0) return SKBitmap.Decode(bytes);
+                using var codec = SKCodec.Create(new SKMemoryStream(bytes));
+                if (codec == null) return SKBitmap.Decode(bytes);
+                if (Math.Max(codec.Info.Width, codec.Info.Height) <= target)
+                    return SKBitmap.Decode(bytes);
+                var info = Services.Library.PerceptualHash.ScaledInfo(codec, codec.Info, target);
+                var bmp = new SKBitmap(info);
+                if (codec.GetPixels(bmp.Info, bmp.GetPixels()) != SKCodecResult.Success)
+                {
+                    bmp.Dispose();
+                    return SKBitmap.Decode(bytes);
+                }
+                return bmp;
+            }
             catch { return null; }
         }, ct).ConfigureAwait(false);
 

@@ -44,6 +44,7 @@ public sealed class VelopackUpdateBackend : IAppUpdateBackend
             // The Agent may run as a service from the install dir — stop it so the
             // files Velopack replaces aren't locked (restarted by the after-update hook).
             AgentServiceGuard.StopService();
+            _settings.Flush();
             _mgr.ApplyUpdatesAndRestart(info);
             return true;
         }

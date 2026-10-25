@@ -3917,11 +3917,10 @@ public partial class ArtworkCardViewModel : ObservableObject
 
             // Fast SKBitmap → Avalonia Bitmap conversion via direct pixel copy
             // (avoids PNG encode/decode roundtrip — ~10× faster for thumbnails).
-            // WriteableBitmap creation must happen on the UI thread in Avalonia.
-            var bmp = await Dispatcher.UIThread.InvokeAsync<Bitmap?>(() =>
-                Pikura.Avalonia.Services.BitmapInterop.SkiaToAvalonia(skBitmap),
-                DispatcherPriority.Background,
-                ct);
+            // BitmapInterop is background-safe — only the property assignment
+            // below needs the UI thread (same pattern as UpgradeThumbnailAsync).
+            var bmp = await Task.Run(() =>
+                (Bitmap?)Pikura.Avalonia.Services.BitmapInterop.SkiaToAvalonia(skBitmap), ct);
 
             skBitmap.Dispose(); // Dispose the copy we received
 

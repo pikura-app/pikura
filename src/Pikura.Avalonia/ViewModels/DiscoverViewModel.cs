@@ -804,7 +804,7 @@ public partial class DiscoveryUserCardViewModel : ObservableObject
         {
             var bytes = await loader.FetchBytesAsync(ProfileImageUrl, ct);
             if (bytes is null || ct.IsCancellationRequested) return;
-            var bmp = await Task.Run(() => { using var ms = new MemoryStream(bytes); return new Bitmap(ms); }, ct);
+            var bmp = await Task.Run(() => { using var ms = new MemoryStream(bytes); return Bitmap.DecodeToWidth(ms, 300); }, ct);
             if (!ct.IsCancellationRequested)
                 await Dispatcher.UIThread.InvokeAsync(() => ProfileImage = bmp);
         }

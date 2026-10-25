@@ -38,6 +38,7 @@ public sealed class LibraryIndexService : IDisposable
     private sealed record HashWork(LibraryFile File);
     private readonly Channel<HashWork> _hashChannel = Channel.CreateUnbounded<HashWork>();
     private readonly Task _hashWorker;
+    private readonly Task _hashWorker2;
     private readonly CancellationTokenSource _disposeCts = new();
 
     public LibraryIndexService(
@@ -51,6 +52,7 @@ public sealed class LibraryIndexService : IDisposable
         _repo = repo; _settings = settings; _logger = logger;
         _accounts = accounts; _client = client; _tagger = tagger;
         _hashWorker = Task.Run(HashWorkerLoop);
+        _hashWorker2 = Task.Run(HashWorkerLoop);
     }
 
     public LibraryRepository Repository => _repo;
@@ -162,44 +164,22 @@ public sealed class LibraryIndexService : IDisposable
         f.Id = await _repo.UpsertFileAsync(f, ct);
         if (!File.Exists(f.Path)) return;
         var info = await Task.Run(() =>
-        {
-            using var sha = SHA256.Create();
-            using var fs = new FileStream(f.Path, FileMode.Open, FileAccess.Read, FileShare.Read);
-            var hash = Convert.ToHexString(sha.ComputeHash(fs)).ToLowerInvariant();
-            long? phash = f.MediaType == "video" ? null : PerceptualHash.Compute(f.Path);
-            (int w, int h) = DimensionsOf(f.Path);
-            return (hash, phash, w, h);
-        }, ct);
-        f.Sha256 = info.hash; f.Phash = info.phash;
-        f.Width = info.w; f.Height = info.h;
+            ImageProbe.IndexFile(f.Path, wantPhash: f.MediaType != "video"), ct);
+        f.Sha256 = info.Sha256; f.Phash = info.Phash;
+        f.Width = info.Width; f.Height = info.Height;
+        f.PhashVersion = info.PhashVersion;
         f.Id = await _repo.UpsertFileAsync(f, ct);
     }
 
     private async Task WriteHashColumnsAsync(long fileId, string path, CancellationToken ct)
     {
         if (!File.Exists(path)) return;
-        var info = await Task.Run(() =>
-        {
-            using var sha = SHA256.Create();
-            using var fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
-            var hash = Convert.ToHexString(sha.ComputeHash(fs)).ToLowerInvariant();
-            return (hash, PerceptualHash.Compute(path));
-        }, ct);
+        var info = await Task.Run(() => ImageProbe.IndexFile(path), ct);
         var f = await _repo.GetByIdAsync(fileId, ct);
         if (f == null) return;
-        f.Sha256 = info.hash; f.Phash = info.Item2;
+        f.Sha256 = info.Sha256; f.Phash = info.Phash;
+        f.PhashVersion = info.PhashVersion;
         await _repo.UpsertFileAsync(f, ct);
-    }
-
-    private static (int W, int H) DimensionsOf(string path)
-    {
-        try
-        {
-            using var codec = SkiaSharp.SKCodec.Create(path);
-            if (codec != null) return (codec.Info.Width, codec.Info.Height);
-        }
-        catch { }
-        return (0, 0);
     }
 
     // ── Scan ─────────────────────────────────────────────────────────────────
@@ -227,48 +207,72 @@ public sealed class LibraryIndexService : IDisposable
                 candidates.Add((Path.GetFullPath(file), fi.Length, mtime));
             }
 
-            foreach (var (path, size, mtime) in candidates)
+            // Compute hashes in parallel (half the cores — UI stays responsive);
+            // a single writer batches the DB upserts (SQLite is single-writer).
+            var write = Channel.CreateBounded<(LibraryFile File, List<LibraryAiTag>? Tags)>(512);
+            var writer = Task.Run(async () =>
             {
-                ct.ThrowIfCancellationRequested();
-                done++;
-                progress?.Report(new LibraryScanProgress(done, candidates.Count, path, phase));
-
-                var ext = Path.GetExtension(path);
-                var (artworkId, pageIndex) = ParseArtworkId(Path.GetFileNameWithoutExtension(path));
-                var file = new LibraryFile
+                var batch = new List<(LibraryFile File, List<LibraryAiTag>? Tags)>(128);
+                await foreach (var item in write.Reader.ReadAllAsync(ct))
                 {
-                    Path = path, Root = root, Size = size, Mtime = mtime,
-                    MediaType = MediaTypeOf(ext),
-                    ArtworkId = artworkId, PageIndex = pageIndex,
-                    AddedAt = DateTimeOffset.UtcNow.ToString("O"),
-                    MetadataSource = artworkId != null ? "filename" : null,
-                };
-
-                // Sidecar AI tags from prior auto-tagging.
-                var sidecar = path + ".tags.txt";
-                if (File.Exists(sidecar))
-                {
-                    try
-                    {
-                        var tags = ParseSidecarTags(await File.ReadAllTextAsync(sidecar, ct));
-                        if (tags.Count > 0)
-                        {
-                            file.AiTaggedAt = DateTimeOffset.UtcNow.ToString("O");
-                            file.Id = await HashAndUpsertReturnId(file, ct);
-                            await _repo.SetAiTagsAsync(file.Id, tags, ct);
-                            file.Id = 0; // SetAiTags already persisted; next upsert by path
-                        }
-                    }
-                    catch (Exception ex) { _logger.LogWarning(ex, "Failed to import sidecar {Path}", sidecar); }
+                    batch.Add(item);
+                    if (batch.Count >= 100) { await FlushBatch(batch, ct); batch.Clear(); }
                 }
-                if (file.Id == 0)
-                    await HashAndUpsertAsync(file, ct);
-            }
+                if (batch.Count > 0) await FlushBatch(batch, ct);
+            }, ct);
+
+            var dop = Math.Max(1, Environment.ProcessorCount / 2);
+            await Parallel.ForEachAsync(candidates,
+                new ParallelOptions { MaxDegreeOfParallelism = dop, CancellationToken = ct },
+                async (cand, c) =>
+                {
+                    var (path, size, mtime) = cand;
+                    var n = Interlocked.Increment(ref done);
+                    progress?.Report(new LibraryScanProgress(n, candidates.Count, path, phase));
+
+                    var ext = Path.GetExtension(path);
+                    var (artworkId, pageIndex) = ParseArtworkId(Path.GetFileNameWithoutExtension(path));
+                    var file = new LibraryFile
+                    {
+                        Path = path, Root = root, Size = size, Mtime = mtime,
+                        MediaType = MediaTypeOf(ext),
+                        ArtworkId = artworkId, PageIndex = pageIndex,
+                        AddedAt = DateTimeOffset.UtcNow.ToString("O"),
+                        MetadataSource = artworkId != null ? "filename" : null,
+                    };
+                    var info = ImageProbe.IndexFile(path, wantPhash: file.MediaType != "video");
+                    file.Sha256 = info.Sha256; file.Phash = info.Phash;
+                    file.Width = info.Width; file.Height = info.Height;
+                    file.PhashVersion = info.PhashVersion;
+
+                    List<LibraryAiTag>? tags = null;
+                    var sidecar = path + ".tags.txt";
+                    if (File.Exists(sidecar))
+                    {
+                        try
+                        {
+                            var t = ParseSidecarTags(await File.ReadAllTextAsync(sidecar, c));
+                            if (t.Count > 0) { tags = t; file.AiTaggedAt = DateTimeOffset.UtcNow.ToString("O"); }
+                        }
+                        catch (Exception ex) { _logger.LogWarning(ex, "Failed to import sidecar {Path}", sidecar); }
+                    }
+                    await write.Writer.WriteAsync((file, tags), c);
+                });
+            write.Writer.Complete();
+            await writer;
 
             // Drop rows for files that no longer exist under this root.
             progress?.Report(new LibraryScanProgress(done, candidates.Count, null, "cleanup"));
             await _repo.DeleteRowsNotInAsync(root, seen, ct);
         }
+    }
+
+    private async Task FlushBatch(List<(LibraryFile File, List<LibraryAiTag>? Tags)> batch, CancellationToken ct)
+    {
+        var ids = await _repo.UpsertFilesAsync(batch.Select(b => b.File).ToList(), ct);
+        for (var i = 0; i < batch.Count; i++)
+            if (batch[i].Tags is { Count: > 0 } t && ids[i] > 0)
+                await _repo.SetAiTagsAsync(ids[i], t, ct);
     }
 
     private async Task<long> HashAndUpsertReturnId(LibraryFile f, CancellationToken ct)
@@ -469,18 +473,25 @@ public sealed class LibraryIndexService : IDisposable
         return deleted;
     }
 
-    /// <summary>Hashes rows that were recorded without hashes (e.g. agent path).</summary>
+    /// <summary>
+    /// Low-priority background hashing pass: rows recorded without hashes, then
+    /// rows whose phash predates the v2 (scaled-decode) algorithm.
+    /// </summary>
     public async Task HashUnhashedAsync(IProgress<LibraryScanProgress>? progress, CancellationToken ct)
     {
-        var rows = await _repo.GetFilesWithoutHashAsync(ct);
+        var unhashed = await _repo.GetFilesWithoutHashAsync(ct);
+        var stale = await _repo.GetFilesNeedingRehashAsync(ct);
+        var rows = unhashed.Concat(stale).ToList();
         var total = rows.Count; var done = 0;
-        foreach (var f in rows)
-        {
-            ct.ThrowIfCancellationRequested();
-            done++;
-            progress?.Report(new LibraryScanProgress(done, total, f.Path, "hash"));
-            await WriteHashColumnsAsync(f.Id, f.Path, ct);
-        }
+        var dop = Math.Max(1, Environment.ProcessorCount / 2);
+        await Parallel.ForEachAsync(rows,
+            new ParallelOptions { MaxDegreeOfParallelism = dop, CancellationToken = ct },
+            async (f, c) =>
+            {
+                var n = Interlocked.Increment(ref done);
+                progress?.Report(new LibraryScanProgress(n, total, f.Path, "hash"));
+                await WriteHashColumnsAsync(f.Id, f.Path, c);
+            });
     }
 
     public void Dispose()

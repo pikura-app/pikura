@@ -123,6 +123,9 @@
                     <Slider Value="{Binding DupThreshold}" Minimum="0" Maximum="7" Width="140" VerticalAlignment="Center"/>
                     <TextBlock Text="{Binding DupThreshold, StringFormat='{}{0:0}'}" VerticalAlignment="Center"/>
                     <Button Content="{loc:Tr Library_DeleteMarked}" Command="{Binding DeleteMarkedCommand}" Margin="16,0,0,0"/>
+                    <TextBlock Text="{Binding PendingRehashText}" VerticalAlignment="Center" Margin="16,0,0,0"
+                               Foreground="{DynamicResource DefaultForegroundBrushSecondary}" FontSize="12"
+                               IsVisible="{Binding PendingRehashText, Converter={x:Static ObjectConverters.IsNotNull}}"/>
                 </StackPanel>
                 <ScrollViewer>
                     <ItemsControl ItemsSource="{Binding DupGroups}">

@@ -1294,6 +1294,9 @@ public partial class SettingsViewModel : ViewModelBase
             CreateNoWindow = true,
             UseShellExecute = false,
         };
+        // A pending save could recreate settings.json after the cleanup script
+        // deletes it — cancel background saves rather than flushing.
+        _settingsService.CancelPendingSaves();
         System.Diagnostics.Process.Start(psi);
         Environment.Exit(0);
     }
@@ -1416,6 +1419,7 @@ public partial class SettingsViewModel : ViewModelBase
         System.Diagnostics.Process.Start(psi);
 
         // Shutdown current instance
+        _settingsService.Flush();
         if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             desktop.Shutdown();
     }

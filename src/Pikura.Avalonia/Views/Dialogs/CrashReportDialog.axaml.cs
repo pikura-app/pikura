@@ -154,6 +154,8 @@ public partial class CrashReportDialog : Window
             await Task.Delay(100); // Small delay to let dialog close
             await global::Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
             {
+                try { Pikura.Avalonia.Services.AppServices.Get<Pikura.Core.Settings.SettingsService>().Flush(); }
+                catch { /* best-effort */ }
                 if (App.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
                 {
                     desktop.Shutdown();

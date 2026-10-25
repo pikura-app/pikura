@@ -26,12 +26,35 @@ public static class PerceptualHash
         try
         {
             using var codec = SKCodec.Create(path);
-            if (codec == null) return null;
-            using var bmp = new SKBitmap(codec.Info);
+            return Compute(codec);
+        }
+        catch { return null; }
+    }
+
+    /// <summary>
+    /// Computes the pHash via the codec's scaled decode (smallest supported size
+    /// ≥32 px) — much cheaper than decoding full-size. This is the v2 algorithm;
+    /// bits differ slightly from the old full-decode path.
+    /// </summary>
+    public static long? Compute(SKCodec codec)
+    {
+        try
+        {
+            var info = codec.Info;
+            var target = ScaledInfo(codec, info, SampleSize);
+            using var bmp = new SKBitmap(target);
             if (codec.GetPixels(bmp.Info, bmp.GetPixels()) != SKCodecResult.Success) return null;
             return Compute(bmp);
         }
         catch { return null; }
+    }
+
+    /// <summary>Smallest decode size the codec supports with every edge ≥ minEdge.</summary>
+    public static SKImageInfo ScaledInfo(SKCodec codec, SKImageInfo info, int minEdge)
+    {
+        var scale = Math.Max((float)minEdge / info.Width, (float)minEdge / info.Height);
+        var dims = codec.GetScaledDimensions(scale);
+        return new SKImageInfo(Math.Max(1, dims.Width), Math.Max(1, dims.Height));
     }
 
     /// <summary>Deterministic Hamming distance between two hashes.</summary>

@@ -36,6 +36,8 @@ public sealed class LibraryFile
     /// <summary>'download' | 'filename' | 'pixiv' | null</summary>
     public string? MetadataSource { get; set; }
     public string? AiTaggedAt { get; set; }
+    /// <summary>phash algorithm version (0/1 = legacy full-decode, 2 = scaled decode).</summary>
+    public int PhashVersion { get; set; }
 
     public bool IsR18 => XRestrict >= 1;
 }
@@ -137,7 +139,8 @@ public sealed class LibraryRepository : IDisposable
                 create_date TEXT,
                 added_at TEXT NOT NULL,
                 metadata_source TEXT,
-                ai_tagged_at TEXT
+                ai_tagged_at TEXT,
+                phash_version INTEGER NOT NULL DEFAULT 0
             );
             CREATE INDEX IF NOT EXISTS idx_library_sha256 ON library_files(sha256);
             CREATE INDEX IF NOT EXISTS idx_library_artwork ON library_files(artwork_id);
@@ -166,6 +169,21 @@ public sealed class LibraryRepository : IDisposable
         ";
         using var cmd = new SqliteCommand(sql, connection);
         cmd.ExecuteNonQuery();
+        // Migration: older databases lack phash_version (their rows are version 1 —
+        // they were hashed with the legacy full-decode algorithm).
+        using (var info = new SqliteCommand("PRAGMA table_info(library_files)", connection))
+        {
+            var hasCol = false;
+            using (var r = info.ExecuteReader())
+                while (r.Read())
+                    if (r.GetString(1) == "phash_version") { hasCol = true; break; }
+            if (!hasCol)
+            {
+                using var alter = new SqliteCommand(
+                    "ALTER TABLE library_files ADD COLUMN phash_version INTEGER NOT NULL DEFAULT 1", connection);
+                alter.ExecuteNonQuery();
+            }
+        }
     }
 
     private bool ProbeTrigram()
@@ -223,13 +241,14 @@ public sealed class LibraryRepository : IDisposable
             AddedAt = r.GetString(21),
             MetadataSource = S(22),
             AiTaggedAt = S(23),
+            PhashVersion = r.IsDBNull(24) ? 1 : r.GetInt32(24),
         };
     }
 
     private const string SelectColumns =
         "id, path, root, size, mtime, sha256, phash, width, height, media_type, artwork_id, page_index," +
         " title, artist_id, artist_name, tags, ai_tags_text, description, x_restrict, ai_type, create_date," +
-        " added_at, metadata_source, ai_tagged_at";
+        " added_at, metadata_source, ai_tagged_at, phash_version";
 
     private static void BindFile(SqliteCommand cmd, LibraryFile f)
     {
@@ -257,6 +276,7 @@ public sealed class LibraryRepository : IDisposable
         cmd.Parameters.AddWithValue("@added_at", f.AddedAt);
         cmd.Parameters.AddWithValue("@metadata_source", N(f.MetadataSource));
         cmd.Parameters.AddWithValue("@ai_tagged_at", N(f.AiTaggedAt));
+        cmd.Parameters.AddWithValue("@phash_version", f.PhashVersion);
     }
 
     // ── FTS sync (contentless tables need explicit delete with old values) ────
@@ -339,7 +359,7 @@ public sealed class LibraryRepository : IDisposable
                         page_index=@page_index, title=@title, artist_id=@artist_id, artist_name=@artist_name,
                         tags=@tags, ai_tags_text=@ai_tags_text, description=@description, x_restrict=@x_restrict,
                         ai_type=@ai_type, create_date=@create_date, metadata_source=@metadata_source,
-                        ai_tagged_at=@ai_tagged_at
+                        ai_tagged_at=@ai_tagged_at, phash_version=@phash_version
                     WHERE id=@id", c, tx);
                 cmd.Parameters.AddWithValue("@id", existing.Id);
                 BindFile(cmd, file);
@@ -351,10 +371,10 @@ public sealed class LibraryRepository : IDisposable
                 using var cmd = new SqliteCommand(@"
                     INSERT INTO library_files (path, root, size, mtime, sha256, phash, width, height, media_type,
                         artwork_id, page_index, title, artist_id, artist_name, tags, ai_tags_text, description,
-                        x_restrict, ai_type, create_date, added_at, metadata_source, ai_tagged_at)
+                        x_restrict, ai_type, create_date, added_at, metadata_source, ai_tagged_at, phash_version)
                     VALUES (@path, @root, @size, @mtime, @sha256, @phash, @width, @height, @media_type,
                         @artwork_id, @page_index, @title, @artist_id, @artist_name, @tags, @ai_tags_text, @description,
-                        @x_restrict, @ai_type, @create_date, @added_at, @metadata_source, @ai_tagged_at);
+                        @x_restrict, @ai_type, @create_date, @added_at, @metadata_source, @ai_tagged_at, @phash_version);
                     SELECT last_insert_rowid();", c, tx);
                 BindFile(cmd, file);
                 id = (long)(await cmd.ExecuteScalarAsync(ct))!;
@@ -364,6 +384,58 @@ public sealed class LibraryRepository : IDisposable
             SyncPhashBands(c, tx, id, file.Phash);
             tx.Commit();
             return id;
+        }
+        catch { tx.Rollback(); throw; }
+    }
+
+    /// <summary>Batch upsert in one transaction — returns ids aligned to input order.</summary>
+    public async Task<List<long>> UpsertFilesAsync(IReadOnlyList<LibraryFile> files, CancellationToken ct = default)
+    {
+        var ids = new List<long>(files.Count);
+        using var c = CreateConnection();
+        await c.OpenAsync(ct);
+        using var tx = c.BeginTransaction();
+        try
+        {
+            foreach (var file in files)
+            {
+                var existing = await GetByPathAsync(c, tx, file.Path, ct);
+                long id;
+                if (existing != null)
+                {
+                    using var cmd = new SqliteCommand(@"
+                        UPDATE library_files SET root=@root, size=@size, mtime=@mtime, sha256=@sha256, phash=@phash,
+                            width=@width, height=@height, media_type=@media_type, artwork_id=@artwork_id,
+                            page_index=@page_index, title=@title, artist_id=@artist_id, artist_name=@artist_name,
+                            tags=@tags, ai_tags_text=@ai_tags_text, description=@description, x_restrict=@x_restrict,
+                            ai_type=@ai_type, create_date=@create_date, metadata_source=@metadata_source,
+                            ai_tagged_at=@ai_tagged_at, phash_version=@phash_version
+                        WHERE id=@id", c, tx);
+                    cmd.Parameters.AddWithValue("@id", existing.Id);
+                    BindFile(cmd, file);
+                    await cmd.ExecuteNonQueryAsync(ct);
+                    id = existing.Id;
+                }
+                else
+                {
+                    using var cmd = new SqliteCommand(@"
+                        INSERT INTO library_files (path, root, size, mtime, sha256, phash, width, height, media_type,
+                            artwork_id, page_index, title, artist_id, artist_name, tags, ai_tags_text, description,
+                            x_restrict, ai_type, create_date, added_at, metadata_source, ai_tagged_at, phash_version)
+                        VALUES (@path, @root, @size, @mtime, @sha256, @phash, @width, @height, @media_type,
+                            @artwork_id, @page_index, @title, @artist_id, @artist_name, @tags, @ai_tags_text, @description,
+                            @x_restrict, @ai_type, @create_date, @added_at, @metadata_source, @ai_tagged_at, @phash_version);
+                        SELECT last_insert_rowid();", c, tx);
+                    BindFile(cmd, file);
+                    id = (long)(await cmd.ExecuteScalarAsync(ct))!;
+                }
+                SyncFts(c, tx, id, existing, file);
+                SyncPhashBands(c, tx, id, file.Phash);
+                file.Id = id;
+                ids.Add(id);
+            }
+            tx.Commit();
+            return ids;
         }
         catch { tx.Rollback(); throw; }
     }
@@ -650,7 +722,7 @@ public sealed class LibraryRepository : IDisposable
         // Load all phashed files.
         var files = new Dictionary<long, LibraryFile>();
         using (var cmd = new SqliteCommand(
-            $"SELECT {SelectColumns} FROM library_files WHERE phash IS NOT NULL", c))
+            $"SELECT {SelectColumns} FROM library_files WHERE phash IS NOT NULL AND phash_version >= 2", c))
         await using (var r = await cmd.ExecuteReaderAsync(ct))
             while (await r.ReadAsync(ct)) { var f = MapRow(r); files[f.Id] = f; }
         if (files.Count < 2) return [];
@@ -716,6 +788,20 @@ public sealed class LibraryRepository : IDisposable
 
     public async Task<IReadOnlyList<LibraryFile>> GetFilesWithoutHashAsync(CancellationToken ct = default) =>
         await QueryAllAsync("WHERE sha256 IS NULL", ct);
+
+    /// <summary>Rows hashed by the legacy v1 algorithm — they get re-fingerprinted.</summary>
+    public async Task<IReadOnlyList<LibraryFile>> GetFilesNeedingRehashAsync(CancellationToken ct = default) =>
+        await QueryAllAsync("WHERE phash IS NOT NULL AND phash_version < 2", ct);
+
+    /// <summary>Count of v1 rows still awaiting re-fingerprint (for the Duplicates tab note).</summary>
+    public async Task<long> GetPendingRehashCountAsync(CancellationToken ct = default)
+    {
+        using var c = CreateConnection();
+        await c.OpenAsync(ct);
+        using var cmd = new SqliteCommand(
+            "SELECT COUNT(*) FROM library_files WHERE phash IS NOT NULL AND phash_version < 2", c);
+        return (long)(await cmd.ExecuteScalarAsync(ct))!;
+    }
 
     public async Task<IReadOnlyList<LibraryFile>> GetAllAsync(CancellationToken ct = default) =>
         await QueryAllAsync("", ct);

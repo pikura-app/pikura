@@ -6063,4 +6063,5 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="Settings_RestoreViewerTabsHint" xml:space="preserve">
     <value>オフの場合、ビューアーは空で起動します。タブは保存されるため、再度オンにすると復元されます。</value>
   </data>
+  <data name="Library_Refingerprinting" xml:space="preserve"><value>{0} 件のファイルのフィンガープリントを再計算中です — 重複結果は不完全です</value></data>
 </root>

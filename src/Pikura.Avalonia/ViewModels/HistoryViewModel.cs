@@ -958,7 +958,7 @@ public partial class DownloadJobViewModel : ObservableObject
             if (bytes != null)
             {
                 // Decode on background thread to avoid UI-thread jank
-                var bmp = await Task.Run(() => new Bitmap(new System.IO.MemoryStream(bytes)));
+                var bmp = await Task.Run(() => Bitmap.DecodeToWidth(new System.IO.MemoryStream(bytes), 300));
                 await Dispatcher.UIThread.InvokeAsync(() => Thumbnail = bmp);
             }
         }
@@ -1194,7 +1194,7 @@ public partial class DownloadJobViewModel : ObservableObject
             if (bytes != null)
             {
                 // Decode on background thread, then assign on UI thread
-                var bmp = await Task.Run(() => new Bitmap(new System.IO.MemoryStream(bytes)));
+                var bmp = await Task.Run(() => Bitmap.DecodeToWidth(new System.IO.MemoryStream(bytes), 300));
                 await Dispatcher.UIThread.InvokeAsync(() => CurrentFileThumbnail = bmp);
             }
         }

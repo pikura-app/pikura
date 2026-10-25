@@ -90,3 +90,5 @@ if (OperatingSystem.IsWindows())
 
 var host = builder.Build();
 await host.RunAsync();
+try { host.Services.GetRequiredService<Pikura.Core.Settings.SettingsService>().Flush(); }
+catch { /* best-effort */ }
