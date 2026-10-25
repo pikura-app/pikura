@@ -8,6 +8,7 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
 using Avalonia.VisualTree;
+using Pikura.Avalonia.Localization;
 using Pikura.Avalonia.Services;
 using Pikura.Avalonia.ViewModels;
 using Pikura.Avalonia.Views.Dialogs;
@@ -19,6 +20,7 @@ namespace Pikura.Avalonia.Views.Settings;
 public partial class SettingsView : UserControl
 {
     private TabControl? _tabControl;
+    private static LocalizationService Loc => LocalizationService.Instance;
 
     public SettingsView()
     {
@@ -363,9 +365,9 @@ public partial class SettingsView : UserControl
         if (OverlayAddStatus is null) return;
 
         var parts = new List<string>();
-        if (result.Added > 0) parts.Add($"added {result.Added}");
-        if (result.Failed > 0) parts.Add($"{result.Failed} failed");
-        if (result.Skipped > 0) parts.Add($"{result.Skipped} skipped (limit {BackgroundOverlayService.MaxImageItems})");
+        if (result.Added > 0) parts.Add(string.Format(Loc["Settings_OverlayAdded"], result.Added));
+        if (result.Failed > 0) parts.Add(string.Format(Loc["Settings_OverlayFailed"], result.Failed));
+        if (result.Skipped > 0) parts.Add(string.Format(Loc["Settings_OverlaySkipped"], result.Skipped, BackgroundOverlayService.MaxImageItems));
 
         OverlayAddStatus.Text = parts.Count > 0 ? string.Join(", ", parts) : null;
         OverlayAddStatus.IsVisible = parts.Count > 0;
@@ -380,20 +382,20 @@ public partial class SettingsView : UserControl
 
         var options = new FilePickerOpenOptions
         {
-            Title = "Choose overlay images or a list file",
+            Title = Loc["Settings_ChooseOverlayFiles"],
             AllowMultiple = true,
             FileTypeFilter = new List<FilePickerFileType>
             {
-                new FilePickerFileType("Images and lists")
+                new FilePickerFileType(Loc["Settings_FileTypeImagesLists"])
                 {
                     Patterns = new[] { "*.png", "*.jpg", "*.jpeg", "*.gif", "*.bmp", "*.webp", "*.txt", "*.csv", "*.list" },
                 },
-                new FilePickerFileType("Image files")
+                new FilePickerFileType(Loc["Settings_FileTypeImages"])
                 {
                     Patterns = new[] { "*.png", "*.jpg", "*.jpeg", "*.gif", "*.bmp", "*.webp" },
                     MimeTypes = new[] { "image/*" }
                 },
-                new FilePickerFileType("Link lists")
+                new FilePickerFileType(Loc["Settings_FileTypeLists"])
                 {
                     Patterns = new[] { "*.txt", "*.csv", "*.list" },
                 },

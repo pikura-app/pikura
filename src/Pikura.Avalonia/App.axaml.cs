@@ -13,6 +13,7 @@ using Pikura.Core.Services;
 using Pikura.Core.Settings;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -39,7 +40,20 @@ public partial class App : Application
         // already in the right language. Previously AppLanguage was saved but never read by
         // anything, which is why switching it appeared to do nothing (issue #23).
         var settingsService = AppServices.Get<SettingsService>();
-        Localization.LocalizationService.Instance.SetLanguage(settingsService.Current.AppLanguage);
+        var loc = Localization.LocalizationService.Instance;
+        loc.SetLanguage(settingsService.Current.AppLanguage);
+
+        void UpdateTrayMenu()
+        {
+            var items = TrayIcon.GetIcons(this)
+                ?.SelectMany(t => t.Menu?.Items.OfType<NativeMenuItem>() ?? [])
+                .ToList();
+            if (items is null || items.Count < 2) return;
+            items[0].Header = loc["Tray_Open"];
+            items[^1].Header = loc["Tray_Quit"];
+        }
+        UpdateTrayMenu();
+        loc.PropertyChanged += (_, e) => { if (e.PropertyName is "Item[]" or "Item") UpdateTrayMenu(); };
 
         // Sync Windows startup registry with the saved user setting. The app/installer
         // may have left a stale Run key entry under a legacy or canonical name; this

@@ -46,7 +46,7 @@
                     VerticalAlignment="Stretch" VerticalContentAlignment="Stretch">
 
             <!-- ====================== APPEARANCE ====================== -->
-            <TabItem Header="Appearance">
+            <TabItem Header="{loc:Tr Settings_Appearance}">
                 <ScrollViewer VerticalScrollBarVisibility="Auto"
                               HorizontalScrollBarVisibility="Disabled"
                               VerticalAlignment="Stretch">
@@ -55,14 +55,14 @@
                                 BorderBrush="{DynamicResource Container1BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="28">
                             <StackPanel Spacing="20">
-                                <TextBlock Text="Theme" FontWeight="SemiBold" FontSize="14"/>
+                                <TextBlock Text="{loc:Tr Settings_Theme}" FontWeight="SemiBold" FontSize="14"/>
                                 <StackPanel Orientation="Horizontal" Spacing="12">
                                     <Button FontSize="13"
                                             Command="{Binding SetThemeCommand}" CommandParameter="Light"
                                             Classes.accent="{Binding IsThemeLight}">
                                         <StackPanel Orientation="Horizontal" Spacing="6">
                                             <PathIcon Data="{StaticResource SunIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
-                                            <TextBlock Text="Light" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{loc:Tr Settings_ThemeLight}" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </Button>
                                     <Button FontSize="13"
@@ -70,7 +70,7 @@
                                             Classes.accent="{Binding IsThemeDark}">
                                         <StackPanel Orientation="Horizontal" Spacing="6">
                                             <PathIcon Data="{StaticResource MoonIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
-                                            <TextBlock Text="Dark" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{loc:Tr Settings_ThemeDark}" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </Button>
                                     <Button FontSize="13"
@@ -78,7 +78,7 @@
                                             Classes.accent="{Binding IsThemeSystem}">
                                         <StackPanel Orientation="Horizontal" Spacing="6">
                                             <PathIcon Data="{StaticResource MonitorIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
-                                            <TextBlock Text="System" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{loc:Tr Settings_ThemeSystem}" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </Button>
                                     <Button FontSize="13"
@@ -86,17 +86,17 @@
                                             Classes.accent="{Binding IsThemeScheduled}">
                                         <StackPanel Orientation="Horizontal" Spacing="6">
                                             <PathIcon Data="{StaticResource ClockIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
-                                            <TextBlock Text="Scheduled" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{loc:Tr Settings_ThemeScheduled}" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </Button>
                                 </StackPanel>
                                 <StackPanel Orientation="Horizontal" Spacing="16" IsVisible="{Binding IsThemeScheduled}">
                                     <StackPanel Spacing="4">
-                                        <TextBlock Text="Dark from" FontSize="11" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
+                                        <TextBlock Text="{loc:Tr Settings_DarkFrom}" FontSize="11" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                         <TimePicker SelectedTime="{Binding ThemeScheduleDarkStart, Mode=TwoWay}" ClockIdentifier="12HourClock"/>
                                     </StackPanel>
                                     <StackPanel Spacing="4">
-                                        <TextBlock Text="Dark until" FontSize="11" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
+                                        <TextBlock Text="{loc:Tr Settings_DarkUntil}" FontSize="11" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                         <TimePicker SelectedTime="{Binding ThemeScheduleDarkEnd, Mode=TwoWay}" ClockIdentifier="12HourClock"/>
                                     </StackPanel>
                                 </StackPanel>
@@ -107,19 +107,19 @@
                                 BorderBrush="{DynamicResource Container1BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="28">
                             <StackPanel Spacing="20">
-                                <TextBlock Text="Accessibility" FontWeight="SemiBold" FontSize="14"/>
+                                <TextBlock Text="{loc:Tr Settings_Accessibility}" FontWeight="SemiBold" FontSize="14"/>
                                 <WrapPanel>
-                                    <CheckBox Content="High Contrast Mode" IsChecked="{Binding UseHighContrast, Mode=TwoWay}"
+                                    <CheckBox Content="{loc:Tr Settings_HighContrast}" IsChecked="{Binding UseHighContrast, Mode=TwoWay}"
                                               FontSize="13" Margin="0,0,24,8"/>
-                                    <CheckBox Content="Large Fonts" IsChecked="{Binding UseLargeFonts, Mode=TwoWay}"
+                                    <CheckBox Content="{loc:Tr Settings_LargeFonts}" IsChecked="{Binding UseLargeFonts, Mode=TwoWay}"
                                               FontSize="13" Margin="0,0,24,8"/>
-                                    <CheckBox Content="Increase Spacing" IsChecked="{Binding IncreaseSpacing, Mode=TwoWay}"
+                                    <CheckBox Content="{loc:Tr Settings_IncreaseSpacing}" IsChecked="{Binding IncreaseSpacing, Mode=TwoWay}"
                                               FontSize="13" Margin="0,0,24,8"/>
-                                    <CheckBox Content="Reduce Motion" IsChecked="{Binding ReduceMotion, Mode=TwoWay}"
+                                    <CheckBox Content="{loc:Tr Settings_ReduceMotion}" IsChecked="{Binding ReduceMotion, Mode=TwoWay}"
                                               FontSize="13" Margin="0,0,24,8"/>
                                 </WrapPanel>
                                 <StackPanel Spacing="8" Margin="0,8,0,0">
-                                    <TextBlock Text="Font Size Scale" FontSize="13"
+                                    <TextBlock Text="{loc:Tr Settings_FontSizeScale}" FontSize="13"
                                                Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                     <Grid ColumnDefinitions="*,Auto">
                                         <Slider Grid.Column="0" Value="{Binding FontSizeScale, Mode=TwoWay}"
@@ -137,8 +137,8 @@
                                 BorderBrush="{DynamicResource Container1BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="28">
                             <StackPanel Spacing="20">
-                                <TextBlock Text="Background Artwork Overlay" FontWeight="SemiBold" FontSize="14"/>
-                                <CheckBox Content="Enable artwork background overlay"
+                                <TextBlock Text="{loc:Tr Settings_BgOverlay}" FontWeight="SemiBold" FontSize="14"/>
+                                <CheckBox Content="{loc:Tr Settings_EnableBgOverlay}"
                                           IsChecked="{Binding OverlayService.IsEnabled, Mode=TwoWay}"
                                           FontSize="13"/>
 
@@ -181,7 +181,7 @@
                                                                            Foreground="{DynamicResource ControlForegroundBrushOutlineAccent}"/>
                                                             </Button>
                                                             <!-- Edit button -->
-                                                            <Button Grid.Column="2" Content="Edit" FontSize="11"
+                                                            <Button Grid.Column="2" Content="{loc:Tr Common_Edit}" FontSize="11"
                                                                     Padding="10,4" 
                                                                     VerticalAlignment="Center" Margin="6,0"
                                                                     Tag="{Binding Path}"
@@ -208,7 +208,7 @@
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
                                     </ItemsControl>
-                                    <Button Content="Clear all" FontSize="12" HorizontalAlignment="Left"
+                                    <Button Content="{loc:Tr Settings_ClearAll}" FontSize="12" HorizontalAlignment="Left"
                                             Padding="10,4" 
                                             Click="OnClearAllOverlayImagesClick"/>
 
@@ -218,11 +218,11 @@
                                                  AcceptsReturn="True" TextWrapping="Wrap"
                                                  MinHeight="58" MaxHeight="140"
                                                  VerticalContentAlignment="Top"
-                                                 PlaceholderText="One or more entries — artwork IDs (40594), pixiv.net links, image URLs or local paths. Separate with new lines or commas."
+                                                 PlaceholderText="{loc:Tr Settings_OverlayPlaceholder}"
                                                  CornerRadius="6" FontSize="12" Margin="0,0,8,0"
-                                                 ToolTip.Tip="Mix and match Pixiv artwork IDs, pixiv.net/artworks/… links, direct image URLs and local image paths. Separate entries with new lines, commas or semicolons. You can also paste the path of a .txt/.csv file containing a list of entries."/>
+                                                 ToolTip.Tip="{loc:Tr Settings_OverlayTip}"/>
                                         <StackPanel Grid.Column="1" Spacing="6" VerticalAlignment="Top" Margin="0,0,8,0">
-                                            <Button Content="Add" FontSize="12"
+                                            <Button Content="{loc:Tr Common_Add}" FontSize="12"
                                                     Padding="10,4" HorizontalAlignment="Stretch"
                                                     HorizontalContentAlignment="Center"
                                                     Click="OnAddOverlayUrlClick"/>
@@ -231,25 +231,25 @@
                                                        IsVisible="False"
                                                        Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                         </StackPanel>
-                                        <Button Grid.Column="2" Content="Browse images / list…" FontSize="12"
+                                        <Button Grid.Column="2" Content="{loc:Tr Settings_BrowseImages}" FontSize="12"
                                                 Padding="10,4" VerticalAlignment="Top"
-                                                ToolTip.Tip="Pick image files, or a .txt/.csv/.list file containing artwork IDs and links — the list is read and each entry added."
+                                                ToolTip.Tip="{loc:Tr Settings_BrowseImagesTip}"
                                                 Click="OnAddOverlayFilesClick"/>
                                     </Grid>
 
-                                    <TextBlock Text="Image adjustments"
+                                    <TextBlock Text="{loc:Tr Settings_ImageAdjustments}"
                                                FontSize="13" FontWeight="SemiBold" Margin="0,8,0,0"
                                                Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
-                                    <TextBlock Text="Use the Edit button on each image for per-image opacity, lighten, darken, zoom, and positioning. Enable global overrides below to apply the same values to all images."
+                                    <TextBlock Text="{loc:Tr Settings_ImageAdjustmentsHint}"
                                                FontSize="11" TextWrapping="Wrap"
                                                Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
-                                    <CheckBox Content="Use global overrides (apply to all images)"
+                                    <CheckBox Content="{loc:Tr Settings_GlobalOverrides}"
                                               IsChecked="{Binding OverlayService.UseGlobalOverrides, Mode=TwoWay}"
                                               FontSize="12" Margin="0,4,0,0"/>
                                     <StackPanel Spacing="10"
                                                 IsVisible="{Binding OverlayService.UseGlobalOverrides}">
                                         <Grid ColumnDefinitions="120,*,Auto">
-                                            <TextBlock Grid.Column="0" Text="Opacity" FontSize="12"
+                                            <TextBlock Grid.Column="0" Text="{loc:Tr Settings_Opacity}" FontSize="12"
                                                        VerticalAlignment="Center"/>
                                             <Slider Grid.Column="1" Value="{Binding OverlayService.ImageOpacity, Mode=TwoWay}"
                                                     Minimum="0" Maximum="0.85" TickFrequency="0.01" IsSnapToTickEnabled="True"
@@ -258,7 +258,7 @@
                                                        FontSize="12" MinWidth="40" VerticalAlignment="Center" HorizontalAlignment="Right"/>
                                         </Grid>
                                         <Grid ColumnDefinitions="120,*,Auto">
-                                            <TextBlock Grid.Column="0" Text="Lighten" FontSize="12"
+                                            <TextBlock Grid.Column="0" Text="{loc:Tr Settings_Lighten}" FontSize="12"
                                                        VerticalAlignment="Center"/>
                                             <Slider Grid.Column="1" Value="{Binding OverlayService.Brightness, Mode=TwoWay}"
                                                     Minimum="0" Maximum="0.85" TickFrequency="0.01" IsSnapToTickEnabled="True"
@@ -267,7 +267,7 @@
                                                        FontSize="12" MinWidth="40" VerticalAlignment="Center" HorizontalAlignment="Right"/>
                                         </Grid>
                                         <Grid ColumnDefinitions="120,*,Auto">
-                                            <TextBlock Grid.Column="0" Text="Darken" FontSize="12"
+                                            <TextBlock Grid.Column="0" Text="{loc:Tr Settings_Darken}" FontSize="12"
                                                        VerticalAlignment="Center"/>
                                             <Slider Grid.Column="1" Value="{Binding OverlayService.Darkness, Mode=TwoWay}"
                                                     Minimum="0" Maximum="0.85" TickFrequency="0.01" IsSnapToTickEnabled="True"
@@ -277,7 +277,7 @@
                                         </Grid>
                                     </StackPanel>
 
-                                    <TextBlock Text="Cycling"
+                                    <TextBlock Text="{loc:Tr Settings_Cycling}"
                                                FontSize="13" FontWeight="SemiBold" Margin="0,8,0,0"
                                                Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                     <Grid ColumnDefinitions="*,Auto">
@@ -297,7 +297,7 @@
             </TabItem>
 
             <!-- ====================== STORAGE & NAMING ====================== -->
-            <TabItem Header="Storage &amp; Naming">
+            <TabItem Header="{loc:Tr Settings_StorageNaming}">
                 <ScrollViewer VerticalScrollBarVisibility="Auto"
                               HorizontalScrollBarVisibility="Disabled"
                               VerticalAlignment="Stretch">
@@ -308,11 +308,11 @@
                                 BorderBrush="{DynamicResource Container1BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="28">
                             <StackPanel Spacing="20">
-                                <TextBlock Text="Download Folder" FontWeight="SemiBold" FontSize="14"/>
+                                <TextBlock Text="{loc:Tr Settings_DownloadFolder}" FontWeight="SemiBold" FontSize="14"/>
                                 <Grid ColumnDefinitions="*,Auto">
                                     <TextBox Grid.Column="0" Text="{Binding DownloadRoot}" IsReadOnly="True"
                                              CornerRadius="6" FontSize="13" Margin="0,0,10,0"/>
-                                    <Button Grid.Column="1" Content="Browse&#x2026;"
+                                    <Button Grid.Column="1" Content="{loc:Tr Common_Browse}"
                                             Command="{Binding ChangeDownloadFolderCommand}"
                                              FontSize="13" />
                                 </Grid>
@@ -324,18 +324,18 @@
                                 BorderBrush="{DynamicResource Container1BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="28">
                             <StackPanel Spacing="24">
-                                <TextBlock Text="Naming Templates" FontWeight="SemiBold" FontSize="14"/>
+                                <TextBlock Text="{loc:Tr Settings_NamingTemplates}" FontWeight="SemiBold" FontSize="14"/>
 
                                 <Grid ColumnDefinitions="*,20,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto">
 
                                     <!-- Folder template -->
-                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Folder template"
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="{loc:Tr Settings_FolderTemplate}"
                                                FontSize="13" Foreground="{DynamicResource DefaultForegroundBrushTertiary}" Margin="0,0,0,5"/>
                                     <Grid Grid.Row="1" Grid.Column="0" ColumnDefinitions="*,Auto">
                                         <TextBox Grid.Column="0" Text="{Binding FolderTemplate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                  CornerRadius="6" FontSize="13" Margin="0,0,8,0" PlaceholderText="%artist% (%member_id%)"/>
                                         <ComboBox Grid.Column="1" Width="120" CornerRadius="6" FontSize="12"
-                                                  PlaceholderText="Token&#x2026;" SelectionChanged="OnFolderTokenSelected">
+                                                  PlaceholderText="{loc:Tr Settings_Token}" SelectionChanged="OnFolderTokenSelected">
                                             <ComboBoxItem>%artist%</ComboBoxItem>
                                             <ComboBoxItem>%member_id%</ComboBoxItem>
                                             <ComboBoxItem>%member_token%</ComboBoxItem>
@@ -350,13 +350,13 @@
                                     </StackPanel>
 
                                     <!-- Filename template -->
-                                    <TextBlock Grid.Row="0" Grid.Column="2" Text="Filename template"
+                                    <TextBlock Grid.Row="0" Grid.Column="2" Text="{loc:Tr Settings_FilenameTemplate}"
                                                FontSize="13" Foreground="{DynamicResource DefaultForegroundBrushTertiary}" Margin="0,0,0,5"/>
                                     <Grid Grid.Row="1" Grid.Column="2" ColumnDefinitions="*,Auto">
                                         <TextBox Grid.Column="0" Text="{Binding FilenameTemplate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                  CornerRadius="6" FontSize="13" Margin="0,0,8,0" PlaceholderText="%image_id% - %title%"/>
                                         <ComboBox Grid.Column="1" Width="120" CornerRadius="6" FontSize="12"
-                                                  PlaceholderText="Token&#x2026;" SelectionChanged="OnFilenameTokenSelected">
+                                                  PlaceholderText="{loc:Tr Settings_Token}" SelectionChanged="OnFilenameTokenSelected">
                                             <ComboBoxItem>%image_id%</ComboBoxItem>
                                             <ComboBoxItem>%title%</ComboBoxItem>
                                             <ComboBoxItem>%artist%</ComboBoxItem>
@@ -386,13 +386,13 @@
                                                Background="{DynamicResource Container1BorderBrush}"/>
 
                                     <!-- Manga / Info templates -->
-                                    <TextBlock Grid.Row="4" Grid.Column="0" Text="Manga filename (multi-page)"
+                                    <TextBlock Grid.Row="4" Grid.Column="0" Text="{loc:Tr Settings_MangaFilename}"
                                                FontSize="13" Foreground="{DynamicResource DefaultForegroundBrushTertiary}" Margin="0,0,0,5"/>
                                     <Grid Grid.Row="5" Grid.Column="0" ColumnDefinitions="*,Auto">
                                         <TextBox Grid.Column="0" Text="{Binding FilenameMangaFormat, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                  CornerRadius="6" FontSize="13" Margin="0,0,8,0" PlaceholderText="%artist%\%image_id%\p%page_number%"/>
                                         <ComboBox Grid.Column="1" Width="120" CornerRadius="6" FontSize="12"
-                                                  PlaceholderText="Token&#x2026;" SelectionChanged="OnMangaFilenameTokenSelected">
+                                                  PlaceholderText="{loc:Tr Settings_Token}" SelectionChanged="OnMangaFilenameTokenSelected">
                                             <ComboBoxItem>%image_id%</ComboBoxItem>
                                             <ComboBoxItem>%title%</ComboBoxItem>
                                             <ComboBoxItem>%artist%</ComboBoxItem>
@@ -415,13 +415,13 @@
                                                    Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                     </StackPanel>
 
-                                    <TextBlock Grid.Row="4" Grid.Column="2" Text="Info text filename"
+                                    <TextBlock Grid.Row="4" Grid.Column="2" Text="{loc:Tr Settings_InfoFilename}"
                                                FontSize="13" Foreground="{DynamicResource DefaultForegroundBrushTertiary}" Margin="0,0,0,5"/>
                                     <Grid Grid.Row="5" Grid.Column="2" ColumnDefinitions="*,Auto">
                                         <TextBox Grid.Column="0" Text="{Binding FilenameInfoFormat, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                  CornerRadius="6" FontSize="13" Margin="0,0,8,0" PlaceholderText="%artist%\%image_id%.txt"/>
                                         <ComboBox Grid.Column="1" Width="120" CornerRadius="6" FontSize="12"
-                                                  PlaceholderText="Token&#x2026;" SelectionChanged="OnInfoFilenameTokenSelected">
+                                                  PlaceholderText="{loc:Tr Settings_Token}" SelectionChanged="OnInfoFilenameTokenSelected">
                                             <ComboBoxItem>%image_id%</ComboBoxItem>
                                             <ComboBoxItem>%title%</ComboBoxItem>
                                             <ComboBoxItem>%artist%</ComboBoxItem>
@@ -447,13 +447,13 @@
                                     <!-- Tags separator + Date format -->
                                     <StackPanel Grid.Row="8" Grid.Column="0" Orientation="Horizontal" Spacing="20">
                                         <StackPanel Spacing="5">
-                                            <TextBlock Text="Tags separator" FontSize="13"
+                                            <TextBlock Text="{loc:Tr Settings_TagsSeparator}" FontSize="13"
                                                        Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                             <TextBox Text="{Binding TagsSeparator, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                      CornerRadius="6" FontSize="13" Width="80"/>
                                         </StackPanel>
                                         <StackPanel Spacing="5">
-                                            <TextBlock Text="Date format" FontSize="13"
+                                            <TextBlock Text="{loc:Tr Settings_DateFormat}" FontSize="13"
                                                        Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                             <TextBox Text="{Binding DateFormat, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                      CornerRadius="6" FontSize="13" Width="160" PlaceholderText="yyyy-MM-dd"/>
@@ -462,9 +462,9 @@
 
                                     <!-- Subfolder checkboxes -->
                                     <StackPanel Grid.Row="8" Grid.Column="2" Spacing="10" VerticalAlignment="Bottom">
-                                        <CheckBox Content="Subfolder per multi-page work"
+                                        <CheckBox Content="{loc:Tr Settings_SubfolderPerWork}"
                                                   IsChecked="{Binding CreateSubfolderPerSubmission, Mode=TwoWay}" FontSize="13"/>
-                                        <CheckBox Content="R-18 works in separate folder"
+                                        <CheckBox Content="{loc:Tr Settings_R18SeparateFolder}"
                                                   IsChecked="{Binding SeparateR18Folder, Mode=TwoWay}" FontSize="13"/>
                                     </StackPanel>
                                 </Grid>
@@ -476,23 +476,23 @@
                                 BorderBrush="{DynamicResource Container1BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="28" Margin="0,0,0,8">
                             <StackPanel Spacing="20">
-                                <TextBlock Text="FFmpeg &amp; Animated (Ugoira)" FontWeight="SemiBold" FontSize="14"/>
+                                <TextBlock Text="{loc:Tr Settings_FfmpegUgoira}" FontWeight="SemiBold" FontSize="14"/>
 
                                 <!-- FFmpeg status row -->
                                 <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" RowSpacing="10">
                                     <StackPanel Grid.Row="0" Grid.Column="0" Spacing="4">
                                         <TextBlock FontSize="12">
-                                            <Run Text="Status: " FontWeight="SemiBold"/>
+                                            <Run Text="{loc:Tr Settings_Status}" FontWeight="SemiBold"/>
                                             <Run Text="{Binding FfmpegStatusText}"/>
                                         </TextBlock>
                                         <TextBlock FontSize="11" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                                    Text="{Binding FfmpegVersionText}"/>
                                     </StackPanel>
                                     <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Spacing="8">
-                                        <Button Content="Install FFmpeg" Command="{Binding InstallFfmpegCommand}"
+                                        <Button Content="{loc:Tr Settings_InstallFfmpeg}" Command="{Binding InstallFfmpegCommand}"
                                                 IsVisible="{Binding !IsFfmpegInstalled}"
                                                  FontSize="12" />
-                                        <Button Content="Check Again" Command="{Binding CheckFfmpegCommand}"
+                                        <Button Content="{loc:Tr Settings_CheckAgain}" Command="{Binding CheckFfmpegCommand}"
                                                  FontSize="12" />
                                     </StackPanel>
                                 </Grid>
@@ -500,12 +500,12 @@
                                 <Separator Background="{DynamicResource Container1BorderBrush}"/>
 
                                 <!-- Ugoira format toggles -->
-                                <TextBlock Text="When downloading ugoira (animated illustrations), also create:"
+                                <TextBlock Text="{loc:Tr Settings_UgoiraAlsoCreate}"
                                            FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                 <WrapPanel>
-                                    <CheckBox Content="MP4 (H.264) — Recommended" IsChecked="{Binding CreateUgoiraMp4, Mode=TwoWay}"
+                                    <CheckBox Content="{loc:Tr Settings_Mp4Recommended}" IsChecked="{Binding CreateUgoiraMp4, Mode=TwoWay}"
                                               FontSize="13" Margin="0,0,24,8"/>
-                                    <CheckBox Content="WebM (VP9)" IsChecked="{Binding CreateUgoiraWebm, Mode=TwoWay}"
+                                    <CheckBox Content="{loc:Tr Settings_WebmVp9}" IsChecked="{Binding CreateUgoiraWebm, Mode=TwoWay}"
                                               FontSize="13" Margin="0,0,24,8"/>
                                     <CheckBox Content="GIF" IsChecked="{Binding CreateUgoiraGif, Mode=TwoWay}"
                                               FontSize="13" Margin="0,0,24,8"/>
@@ -514,14 +514,14 @@
                                     <CheckBox Content="APNG" IsChecked="{Binding CreateUgoiraApng, Mode=TwoWay}"
                                               FontSize="13" Margin="0,0,24,8"/>
                                 </WrapPanel>
-                                <CheckBox Content="Keep original frame ZIP after conversion"
+                                <CheckBox Content="{loc:Tr Settings_KeepFrameZip}"
                                           IsChecked="{Binding KeepUgoiraZip, Mode=TwoWay}"
                                           FontSize="13" Margin="0,4,0,0"/>
                                 <Separator Background="{DynamicResource Container1BorderBrush}" Margin="0,8"/>
-                                <CheckBox Content="Save individual frames as PNG images"
+                                <CheckBox Content="{loc:Tr Settings_SaveFramesPng}"
                                           IsChecked="{Binding SaveUgoiraFrames, Mode=TwoWay}"
                                           FontSize="13" Margin="0,4,0,0"/>
-                                <CheckBox Content="Frames only (skip video/GIF generation)"
+                                <CheckBox Content="{loc:Tr Settings_FramesOnly}"
                                           IsChecked="{Binding UgoiraFramesOnly, Mode=TwoWay}"
                                           FontSize="13" Margin="0,4,0,0"
                                           IsEnabled="{Binding SaveUgoiraFrames}"/>
@@ -538,12 +538,12 @@
 
                                 <Grid ColumnDefinitions="*,Auto">
                                     <StackPanel Grid.Column="0" Spacing="2">
-                                        <TextBlock Text="Per-Account Download Settings" FontWeight="SemiBold" FontSize="14"/>
+                                        <TextBlock Text="{loc:Tr Settings_PerAccount}" FontWeight="SemiBold" FontSize="14"/>
                                         <TextBlock FontSize="11"
                                                    Foreground="{DynamicResource DefaultForegroundBrushTertiary}">
-                                            <Run Text="Overrides for "/>
+                                            <Run Text="{loc:Tr Settings_OverridesFor}"/>
                                             <Run Text="{Binding ActiveProfileLabel}" FontWeight="SemiBold"/>
-                                            <Run Text=" — leave blank to use global settings"/>
+                                            <Run Text="{loc:Tr Settings_OverridesBlank}"/>
                                         </TextBlock>
                                     </StackPanel>
                                     <ToggleSwitch Grid.Column="1" IsChecked="{Binding UseAccountSettings}"
@@ -556,34 +556,34 @@
                                 <StackPanel Spacing="14" IsEnabled="{Binding UseAccountSettings}">
 
                                     <StackPanel Spacing="5">
-                                        <TextBlock Text="Download Root" FontSize="12" FontWeight="SemiBold"/>
+                                        <TextBlock Text="{loc:Tr Settings_DownloadRoot}" FontSize="12" FontWeight="SemiBold"/>
                                         <Grid ColumnDefinitions="*,Auto" ColumnSpacing="6">
                                             <TextBox Grid.Column="0"
                                                      Text="{Binding AcctDownloadRoot}"
-                                                     PlaceholderText="Leave blank to use global root"
+                                                     PlaceholderText="{loc:Tr Settings_BlankGlobalRoot}"
                                                      FontSize="12" CornerRadius="6"/>
-                                            <Button Grid.Column="1" Content="Browse"
+                                            <Button Grid.Column="1" Content="{loc:Tr Common_Browse}"
                                                     Command="{Binding BrowseAcctDownloadRootCommand}"
                                                      FontSize="12" Padding="10,6"/>
                                         </Grid>
                                     </StackPanel>
 
                                     <StackPanel Spacing="5">
-                                        <TextBlock Text="Folder Template" FontSize="12" FontWeight="SemiBold"/>
+                                        <TextBlock Text="{loc:Tr Settings_FolderTemplate2}" FontSize="12" FontWeight="SemiBold"/>
                                         <TextBox Text="{Binding AcctFolderTemplate}"
                                                  PlaceholderText="e.g. %artist% (%member_id%)"
                                                  FontSize="12" CornerRadius="6"/>
                                     </StackPanel>
 
                                     <StackPanel Spacing="5">
-                                        <TextBlock Text="Filename Template" FontSize="12" FontWeight="SemiBold"/>
+                                        <TextBlock Text="{loc:Tr Settings_FilenameTemplate2}" FontSize="12" FontWeight="SemiBold"/>
                                         <TextBox Text="{Binding AcctFilenameTemplate}"
                                                  PlaceholderText="e.g. %image_id%_p%page_index%"
                                                  FontSize="12" CornerRadius="6"/>
                                     </StackPanel>
 
                                     <StackPanel Spacing="5">
-                                        <TextBlock Text="Max Concurrent Downloads" FontSize="12" FontWeight="SemiBold"/>
+                                        <TextBlock Text="{loc:Tr Settings_MaxConcurrent}" FontSize="12" FontWeight="SemiBold"/>
                                         <NumericUpDown Value="{Binding AcctMaxConcurrentDownloads}"
                                                        Minimum="1" Maximum="20"
                                                        FontSize="12" CornerRadius="6" Width="120"
@@ -591,22 +591,22 @@
                                     </StackPanel>
 
                                     <StackPanel Spacing="8">
-                                        <TextBlock Text="Content Filters" FontSize="12" FontWeight="SemiBold"/>
+                                        <TextBlock Text="{loc:Tr Settings_ContentFilters}" FontSize="12" FontWeight="SemiBold"/>
                                         <CheckBox IsChecked="{Binding AcctFilterAiGenerated}"
-                                                  Content="Filter AI-generated artworks" FontSize="12"/>
+                                                  Content="{loc:Tr Settings_FilterAi}" FontSize="12"/>
                                         <CheckBox IsChecked="{Binding AcctSkipR18}"
-                                                  Content="Skip R-18 content" FontSize="12"/>
+                                                  Content="{loc:Tr Settings_SkipR18}" FontSize="12"/>
                                         <CheckBox IsChecked="{Binding AcctSkipR18G}"
-                                                  Content="Skip R-18G content" FontSize="12"/>
+                                                  Content="{loc:Tr Settings_SkipR18G}" FontSize="12"/>
                                         <CheckBox IsChecked="{Binding AcctSeparateR18Folder}"
-                                                  Content="Place R-18 in separate subfolder" FontSize="12"/>
+                                                  Content="{loc:Tr Settings_R18Subfolder}" FontSize="12"/>
                                         <CheckBox IsChecked="{Binding AcctAllowRedownload}"
-                                                  Content="Allow re-download (overwrite existing files)" FontSize="12"/>
+                                                  Content="{loc:Tr Settings_AllowRedownload}" FontSize="12"/>
                                     </StackPanel>
 
                                 </StackPanel>
 
-                                <Button Content="Save Account Settings"
+                                <Button Content="{loc:Tr Settings_SaveAccount}"
                                         Command="{Binding SaveAccountSettingsCommand}"
                                         Classes="accent"  
                                         HorizontalAlignment="Right"/>
@@ -619,25 +619,25 @@
                                 BorderBrush="{DynamicResource Container1BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="28">
                             <StackPanel Spacing="20">
-                                <TextBlock Text="Metadata Export" FontWeight="SemiBold" FontSize="14"/>
+                                <TextBlock Text="{loc:Tr Settings_MetadataExport}" FontWeight="SemiBold" FontSize="14"/>
                                 <WrapPanel>
-                                    <CheckBox Content="JSON metadata" IsChecked="{Binding WriteImageJSON, Mode=TwoWay}"
+                                    <CheckBox Content="{loc:Tr Settings_JsonMetadata}" IsChecked="{Binding WriteImageJSON, Mode=TwoWay}"
                                               FontSize="13" Margin="0,0,24,8"/>
-                                    <CheckBox Content="Info text file" IsChecked="{Binding WriteImageInfo, Mode=TwoWay}"
+                                    <CheckBox Content="{loc:Tr Settings_InfoTextFile}" IsChecked="{Binding WriteImageInfo, Mode=TwoWay}"
                                               FontSize="13" Margin="0,0,24,8"/>
-                                    <CheckBox Content="Raw API JSON" IsChecked="{Binding WriteRawJSON, Mode=TwoWay}"
+                                    <CheckBox Content="{loc:Tr Settings_RawJson}" IsChecked="{Binding WriteRawJSON, Mode=TwoWay}"
                                               FontSize="13" Margin="0,0,24,8"/>
-                                    <CheckBox Content="Series metadata" IsChecked="{Binding IncludeSeriesJSON, Mode=TwoWay}"
+                                    <CheckBox Content="{loc:Tr Settings_SeriesMetadata}" IsChecked="{Binding IncludeSeriesJSON, Mode=TwoWay}"
                                               FontSize="13" Margin="0,0,24,8"/>
-                                    <CheckBox Content="Embed XMP" IsChecked="{Binding WriteImageXMP, Mode=TwoWay}"
+                                    <CheckBox Content="{loc:Tr Settings_EmbedXmp}" IsChecked="{Binding WriteImageXMP, Mode=TwoWay}"
                                               FontSize="13" Margin="0,0,24,8"/>
-                                    <CheckBox Content="XMP per page" IsChecked="{Binding WriteImageXMPPerImage, Mode=TwoWay}"
+                                    <CheckBox Content="{loc:Tr Settings_XmpPerPage}" IsChecked="{Binding WriteImageXMPPerImage, Mode=TwoWay}"
                                               IsEnabled="{Binding WriteImageXMP}" FontSize="13" Margin="0,0,24,8"/>
-                                    <CheckBox Content="Verify images" IsChecked="{Binding VerifyImage, Mode=TwoWay}"
+                                    <CheckBox Content="{loc:Tr Settings_VerifyImages}" IsChecked="{Binding VerifyImage, Mode=TwoWay}"
                                               FontSize="13" Margin="0,0,24,8"/>
-                                    <CheckBox Content="Preserve timestamps" IsChecked="{Binding SetLastModified, Mode=TwoWay}"
+                                    <CheckBox Content="{loc:Tr Settings_PreserveTimestamps}" IsChecked="{Binding SetLastModified, Mode=TwoWay}"
                                               FontSize="13" Margin="0,0,24,8"/>
-                                    <CheckBox Content="Local timezone" IsChecked="{Binding UseLocalTimezone, Mode=TwoWay}"
+                                    <CheckBox Content="{loc:Tr Settings_LocalTimezone}" IsChecked="{Binding UseLocalTimezone, Mode=TwoWay}"
                                               FontSize="13" Margin="0,0,24,8"/>
                                 </WrapPanel>
                             </StackPanel>
@@ -648,7 +648,7 @@
             </TabItem>
 
             <!-- ====================== IMAGE PROCESSING ====================== -->
-            <TabItem Header="Image Processing">
+            <TabItem Header="{loc:Tr Settings_ImageProcessing}">
                 <ScrollViewer VerticalScrollBarVisibility="Auto"
                               HorizontalScrollBarVisibility="Disabled"
                               VerticalAlignment="Stretch">
@@ -659,23 +659,23 @@
                                 BorderBrush="{DynamicResource Container1BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="28">
                             <StackPanel Spacing="16">
-                                <CheckBox Content="Enable automatic image processing on downloads"
+                                <CheckBox Content="{loc:Tr Settings_EnableProcessing}"
                                           IsChecked="{Binding EnableImageProcessing, Mode=TwoWay}"
                                           FontSize="14" FontWeight="SemiBold"/>
                                 <TextBlock FontSize="11"
                                            Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
-                                           Text="When enabled, all downloaded images will be processed according to the active preset below."/>
+                                           Text="{loc:Tr Settings_ProcessingHint}"/>
 
                                 <Separator/>
 
-                                <CheckBox Content="Also export artwork metadata with downloads"
+                                <CheckBox Content="{loc:Tr Settings_ExportMetadata}"
                                           IsChecked="{Binding ExportMetadataWithDownloads, Mode=TwoWay}"
                                           FontSize="14" FontWeight="SemiBold"/>
                                 <TextBlock FontSize="11" TextWrapping="Wrap"
                                            Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
-                                           Text="Writes a metadata file next to each job's images listing id, title, artist, link, size, upload date, views, bookmarks and tags. To export metadata without downloading anything, right-click an artwork and choose “Export metadata…”."/>
+                                           Text="{loc:Tr Settings_ExportMetadataHint}"/>
                                 <Grid ColumnDefinitions="120,*" IsVisible="{Binding ExportMetadataWithDownloads}">
-                                    <TextBlock Grid.Column="0" Text="File format" FontSize="12"
+                                    <TextBlock Grid.Column="0" Text="{loc:Tr Settings_FileFormat}" FontSize="12"
                                                VerticalAlignment="Center"/>
                                     <ComboBox Grid.Column="1" HorizontalAlignment="Left" MinWidth="220"
                                               ItemsSource="{Binding MetadataExportFormatOptions}"
@@ -689,11 +689,11 @@
                                 BorderBrush="{DynamicResource Container1BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="28">
                             <StackPanel Spacing="20">
-                                <TextBlock Text="Active Resize Preset" FontWeight="SemiBold" FontSize="14"/>
+                                <TextBlock Text="{loc:Tr Settings_ResizePreset}" FontWeight="SemiBold" FontSize="14"/>
 
                                 <ComboBox SelectedIndex="{Binding ActiveResizePresetIndex, Mode=TwoWay}"
                                           FontSize="13" CornerRadius="6" HorizontalAlignment="Left" MinWidth="250">
-                                    <ComboBoxItem Content="None (Original Quality)"/>
+                                    <ComboBoxItem Content="{loc:Tr Settings_PresetNone}"/>
                                     <ComboBoxItem Content="4K Desktop Wallpaper (3840x2160)"/>
                                     <ComboBoxItem Content="QHD Desktop Wallpaper (2560x1440)"/>
                                     <ComboBoxItem Content="Full HD Desktop Wallpaper (1920x1080)"/>
@@ -705,12 +705,12 @@
                                     <ComboBoxItem Content="iPad Pro 12.9&quot; (2048x2732)"/>
                                     <ComboBoxItem Content="Samsung Galaxy S24 Ultra (1440x3120)"/>
                                     <ComboBoxItem Content="Samsung Galaxy S24 / S24+ (1080x2340)"/>
-                                    <ComboBoxItem Content="Custom Resolution..."/>
+                                    <ComboBoxItem Content="{loc:Tr Settings_PresetCustom}"/>
                                 </ComboBox>
 
                                 <StackPanel Spacing="12" IsVisible="{Binding IsCustomResizePreset}">
                                     <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
-                                        <TextBlock Grid.Column="0" Text="Width:" VerticalAlignment="Center" FontSize="13"/>
+                                        <TextBlock Grid.Column="0" Text="{loc:Tr Settings_Width}" VerticalAlignment="Center" FontSize="13"/>
                                         <NumericUpDown Grid.Column="1"
                                                        Value="{Binding ResizeCustomWidth, Mode=TwoWay}"
                                                        Minimum="100" Maximum="7680"
@@ -719,7 +719,7 @@
                                                    Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                     </Grid>
                                     <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
-                                        <TextBlock Grid.Column="0" Text="Height:" VerticalAlignment="Center" FontSize="13"/>
+                                        <TextBlock Grid.Column="0" Text="{loc:Tr Settings_Height}" VerticalAlignment="Center" FontSize="13"/>
                                         <NumericUpDown Grid.Column="1"
                                                        Value="{Binding ResizeCustomHeight, Mode=TwoWay}"
                                                        Minimum="100" Maximum="4320"
@@ -727,7 +727,7 @@
                                         <TextBlock Grid.Column="2" Text="px" VerticalAlignment="Center" FontSize="12"
                                                    Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                     </Grid>
-                                    <CheckBox Content="Maintain aspect ratio"
+                                    <CheckBox Content="{loc:Tr Settings_MaintainAspect}"
                                               IsChecked="{Binding ResizeMaintainAspect, Mode=TwoWay}"
                                               FontSize="12"/>
                                 </StackPanel>
@@ -737,13 +737,13 @@
 
                                 <!-- Resize Mode -->
                                 <StackPanel Spacing="8">
-                                    <TextBlock Text="Resize Mode" FontSize="13" FontWeight="SemiBold"/>
+                                    <TextBlock Text="{loc:Tr Settings_ResizeMode}" FontSize="13" FontWeight="SemiBold"/>
                                     <StackPanel Orientation="Horizontal" Spacing="16">
-                                        <RadioButton Content="Fit (preserve aspect)"
+                                        <RadioButton Content="{loc:Tr Settings_Fit}"
                                                      IsChecked="{Binding ResizeMode, Mode=TwoWay, Converter={x:Static conv:EnumToBoolConverter.Instance}, ConverterParameter=Fit}"/>
-                                        <RadioButton Content="Fill (crop to fit)"
+                                        <RadioButton Content="{loc:Tr Settings_Fill}"
                                                      IsChecked="{Binding ResizeMode, Mode=TwoWay, Converter={x:Static conv:EnumToBoolConverter.Instance}, ConverterParameter=Fill}"/>
-                                        <RadioButton Content="Stretch (distort)"
+                                        <RadioButton Content="{loc:Tr Settings_Stretch}"
                                                      IsChecked="{Binding ResizeMode, Mode=TwoWay, Converter={x:Static conv:EnumToBoolConverter.Instance}, ConverterParameter=Stretch}"/>
                                     </StackPanel>
                                 </StackPanel>
@@ -755,19 +755,19 @@
                                 BorderBrush="{DynamicResource Container1BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="28">
                             <StackPanel Spacing="20">
-                                <TextBlock Text="Output Format" FontWeight="SemiBold" FontSize="14"/>
+                                <TextBlock Text="{loc:Tr Settings_OutputFormat}" FontWeight="SemiBold" FontSize="14"/>
 
                                 <ComboBox SelectedIndex="{Binding ResizeOutputFormatIndex, Mode=TwoWay}"
                                           FontSize="13" CornerRadius="6" HorizontalAlignment="Left" MinWidth="250">
-                                    <ComboBoxItem Content="Keep Original Format"/>
-                                    <ComboBoxItem Content="JPEG (High Quality)"/>
-                                    <ComboBoxItem Content="JPEG (Medium Quality)"/>
-                                    <ComboBoxItem Content="PNG (Lossless)"/>
-                                    <ComboBoxItem Content="WebP (Modern Format)"/>
+                                    <ComboBoxItem Content="{loc:Tr Settings_KeepFormat}"/>
+                                    <ComboBoxItem Content="{loc:Tr Settings_JpegHigh}"/>
+                                    <ComboBoxItem Content="{loc:Tr Settings_JpegMedium}"/>
+                                    <ComboBoxItem Content="{loc:Tr Settings_PngLossless}"/>
+                                    <ComboBoxItem Content="{loc:Tr Settings_WebpModern}"/>
                                 </ComboBox>
 
                                 <StackPanel Spacing="8" IsVisible="{Binding IsJpegOutputFormat}">
-                                    <TextBlock Text="JPEG Quality" FontSize="12" FontWeight="SemiBold"/>
+                                    <TextBlock Text="{loc:Tr Settings_JpegQuality}" FontSize="12" FontWeight="SemiBold"/>
                                     <Grid ColumnDefinitions="*,Auto">
                                         <Slider Grid.Column="0"
                                                 Value="{Binding ResizeJpegQuality, Mode=TwoWay}"
@@ -787,8 +787,8 @@
                                 BorderBrush="{DynamicResource Container1BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="28">
                             <StackPanel Spacing="16">
-                                <TextBlock Text="Custom Output Folder" FontWeight="SemiBold" FontSize="14"/>
-                                <CheckBox Content="Save processed images to a custom folder"
+                                <TextBlock Text="{loc:Tr Settings_CustomOutput}" FontWeight="SemiBold" FontSize="14"/>
+                                <CheckBox Content="{loc:Tr Settings_SaveToCustom}"
                                           IsChecked="{Binding UseCustomProcessingFolder, Mode=TwoWay}"
                                           FontSize="13"/>
                                 <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8"
@@ -796,16 +796,16 @@
                                     <TextBox Grid.Column="0"
                                              Text="{Binding ImageProcessingOutputFolder}"
                                              IsReadOnly="True"
-                                             PlaceholderText="Select a folder..."
+                                             PlaceholderText="{loc:Tr Settings_SelectFolder}"
                                              CornerRadius="6" FontSize="13"/>
                                     <Button Grid.Column="1"
-                                            Content="Browse..."
+                                            Content="{loc:Tr Common_Browse}"
                                             Command="{Binding BrowseProcessingFolderCommand}"
                                              FontSize="13" />
                                 </Grid>
                                 <TextBlock FontSize="11"
                                            Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
-                                           Text="If not set, processed images will be saved alongside the originals."
+                                           Text="{loc:Tr Settings_CustomOutputHint}"
                                            IsVisible="{Binding !UseCustomProcessingFolder}"/>
                             </StackPanel>
                         </Border>
@@ -816,19 +816,19 @@
                                 BorderThickness="1" CornerRadius="8" Padding="28">
                             <StackPanel Spacing="16">
                                 <Grid ColumnDefinitions="*,Auto">
-                                    <TextBlock Text="Custom Presets" FontWeight="SemiBold" FontSize="14"/>
+                                    <TextBlock Text="{loc:Tr Settings_CustomPresets}" FontWeight="SemiBold" FontSize="14"/>
                                     <Button Grid.Column="1"
                                             Command="{Binding OpenImageEditorCommand}"
                                              FontSize="12" >
                                         <StackPanel Orientation="Horizontal" Spacing="6">
                                             <PathIcon Data="{StaticResource EditIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
-                                            <TextBlock Text="Open Image Editor" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{loc:Tr Settings_OpenImageEditor}" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </Button>
                                 </Grid>
                                 <TextBlock FontSize="11"
                                            Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
-                                           Text="Create and save custom presets with advanced adjustments. Click the button above to open the image editor."/>
+                                           Text="{loc:Tr Settings_CustomPresetsHint}"/>
                             </StackPanel>
                         </Border>
 
@@ -837,7 +837,7 @@
             </TabItem>
 
             <!-- ====================== CONTENT FILTERING ====================== -->
-            <TabItem Header="Content Filtering">
+            <TabItem Header="{loc:Tr Settings_ContentFiltering}">
                 <ScrollViewer VerticalScrollBarVisibility="Auto"
                               HorizontalScrollBarVisibility="Disabled"
                               VerticalAlignment="Stretch">
@@ -847,16 +847,16 @@
                                 BorderBrush="{DynamicResource Container1BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="24">
                             <StackPanel Spacing="16">
-                                <TextBlock Text="Blocklist" FontWeight="SemiBold" FontSize="13"/>
+                                <TextBlock Text="{loc:Tr Settings_Blocklist}" FontWeight="SemiBold" FontSize="13"/>
                                 <TextBlock FontSize="11" Foreground="{DynamicResource DefaultForegroundBrushDisabled}"
-                                           Text="Hide or block artworks by tag, artist, or title. Choose whether a rule applies to a specific tab or all tabs, and whether it also prevents downloads."/>
+                                           Text="{loc:Tr Settings_BlocklistHint}"/>
 
                                 <!-- Add new rule -->
                                 <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto,Auto" ColumnSpacing="8">
                                     <ComboBox Grid.Column="0" ItemsSource="{Binding BlocklistTypes}" SelectedItem="{Binding NewBlocklistType, Mode=TwoWay}"
                                               FontSize="12" CornerRadius="5" Padding="8,4" VerticalAlignment="Center"/>
                                     <TextBox Grid.Column="1" Text="{Binding NewBlocklistValue, Mode=TwoWay}"
-                                             PlaceholderText="Tag, artist name, artist ID, or title&#x2026;" CornerRadius="5" FontSize="12" VerticalAlignment="Center"/>
+                                             PlaceholderText="{loc:Tr Settings_BlocklistPlaceholder}" CornerRadius="5" FontSize="12" VerticalAlignment="Center"/>
                                     <ComboBox Grid.Column="2" ItemsSource="{Binding BlocklistScopeOptions}"
                                               SelectedItem="{Binding SelectedBlocklistScope, Mode=TwoWay}"
                                               FontSize="12" CornerRadius="5" Padding="8,4" VerticalAlignment="Center">
@@ -866,11 +866,11 @@
                                             </DataTemplate>
                                         </ComboBox.ItemTemplate>
                                     </ComboBox>
-                                    <CheckBox Grid.Column="3" Content="Regex" FontSize="11"
+                                    <CheckBox Grid.Column="3" Content="{loc:Tr Settings_Regex}" FontSize="11"
                                               IsChecked="{Binding NewBlocklistUseRegex, Mode=TwoWay}" VerticalAlignment="Center"/>
-                                    <CheckBox Grid.Column="4" Content="Block downloads" FontSize="11"
+                                    <CheckBox Grid.Column="4" Content="{loc:Tr Settings_BlockDownloads}" FontSize="11"
                                               IsChecked="{Binding NewBlocklistBlockDownload, Mode=TwoWay}" VerticalAlignment="Center"/>
-                                    <Button Grid.Column="5" Content="Add"  FontSize="12" 
+                                    <Button Grid.Column="5" Content="{loc:Tr Common_Add}"  FontSize="12" 
                                             Command="{Binding AddBlocklistEntryCommand}" VerticalAlignment="Center"/>
                                 </Grid>
 
@@ -888,11 +888,11 @@
                                                     <TextBlock Grid.Column="2" Text="{Binding Scope, Converter={StaticResource BlocklistScopeToDisplayConverter}}" FontSize="11" Foreground="{DynamicResource DefaultForegroundBrushTertiary}" VerticalAlignment="Center"/>
                                                     <Border Grid.Column="3" Background="{DynamicResource Container3BackgroundBrush}" CornerRadius="3" Padding="4,2"
                                                             IsVisible="{Binding UseRegex}">
-                                                        <TextBlock Text="Regex" FontSize="10" VerticalAlignment="Center"/>
+                                                        <TextBlock Text="{loc:Tr Settings_Regex}" FontSize="10" VerticalAlignment="Center"/>
                                                     </Border>
                                                     <Border Grid.Column="4" Background="{DynamicResource Container3BackgroundBrush}" CornerRadius="3" Padding="4,2"
                                                             IsVisible="{Binding BlockDownload}">
-                                                        <TextBlock Text="Block downloads" FontSize="10" VerticalAlignment="Center"/>
+                                                        <TextBlock Text="{loc:Tr Settings_BlockDownloads}" FontSize="10" VerticalAlignment="Center"/>
                                                     </Border>
                                                     <Button Grid.Column="5" FontSize="10"  
                                                             Command="{Binding $parent[ItemsControl].DataContext.RemoveBlocklistEntryCommand}"
@@ -913,27 +913,27 @@
                                 BorderThickness="1" CornerRadius="8" Padding="28">
                             <Grid ColumnDefinitions="*,20,*">
                                 <StackPanel Grid.Column="0" Spacing="20">
-                                    <TextBlock Text="R-18 Content" FontWeight="SemiBold" FontSize="14"/>
+                                    <TextBlock Text="{loc:Tr Settings_R18Content}" FontWeight="SemiBold" FontSize="14"/>
                                     <StackPanel Spacing="8">
-                                        <TextBlock Text="Content mode" FontSize="13"
+                                        <TextBlock Text="{loc:Tr Settings_ContentMode}" FontSize="13"
                                                    Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                         <StackPanel Orientation="Horizontal" Spacing="8">
-                                            <Button Content="Off"   FontSize="12"
+                                            <Button Content="{loc:Tr Settings_ModeOff}"   FontSize="12"
                                                     Classes.accent="{Binding R18Mode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=Off}"
                                                     Click="OnR18ModeButtonClick" Tag="Off"/>
-                                            <Button Content="Show"   FontSize="12"
+                                            <Button Content="{loc:Tr Settings_ModeShow}"   FontSize="12"
                                                     Classes.accent="{Binding R18Mode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=Show}"
                                                     Click="OnR18ModeButtonClick" Tag="Show"/>
-                                            <Button Content="Only"   FontSize="12"
+                                            <Button Content="{loc:Tr Settings_ModeOnly}"   FontSize="12"
                                                     Classes.accent="{Binding R18Mode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=Only}"
                                                     Click="OnR18ModeButtonClick" Tag="Only"/>
                                         </StackPanel>
                                     </StackPanel>
                                     <StackPanel Spacing="8">
-                                        <TextBlock Text="Type filter" FontSize="13"
+                                        <TextBlock Text="{loc:Tr Settings_TypeFilter}" FontSize="13"
                                                    Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                         <StackPanel Orientation="Horizontal" Spacing="8">
-                                            <Button Content="Both"   FontSize="12"
+                                            <Button Content="{loc:Tr Settings_Both}"   FontSize="12"
                                                     Classes.accent="{Binding R18Type, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=Both}"
                                                     Click="OnR18TypeButtonClick" Tag="Both"/>
                                             <Button Content="R-18"   FontSize="12"
@@ -947,8 +947,8 @@
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="2" Spacing="24">
-                                    <TextBlock Text="Gallery Display" FontWeight="SemiBold" FontSize="14"/>
-                                    <CheckBox Content="Blur R-18 content in gallery"
+                                    <TextBlock Text="{loc:Tr Settings_GalleryDisplay}" FontWeight="SemiBold" FontSize="14"/>
+                                    <CheckBox Content="{loc:Tr Settings_BlurR18}"
                                               IsChecked="{Binding BlurR18Content, Mode=TwoWay}" FontSize="13"/>
                                     <StackPanel Spacing="6" IsEnabled="{Binding BlurR18Content}">
                                         <TextBlock Text="{Binding BlurIntensity, StringFormat='Blur intensity: {0}px'}"
@@ -956,10 +956,10 @@
                                         <Slider Value="{Binding BlurIntensity, Mode=TwoWay}"
                                                 Minimum="5" Maximum="50" TickFrequency="5" IsSnapToTickEnabled="True"/>
                                     </StackPanel>
-                                    <CheckBox Content="Filter AI-generated content"
+                                    <CheckBox Content="{loc:Tr Settings_FilterAiContent}"
                                               IsChecked="{Binding FilterAiGenerated, Mode=TwoWay}"
                                               FontSize="13"
-                                              ToolTip.Tip="Skip downloading AI-generated artworks (aiType==2)"/>
+                                              ToolTip.Tip="{loc:Tr Settings_SkipAiTip}"/>
                                 </StackPanel>
                             </Grid>
                         </Border>
@@ -969,7 +969,7 @@
             </TabItem>
 
             <!-- ====================== ADVANCED ====================== -->
-            <TabItem Header="Advanced">
+            <TabItem Header="{loc:Tr Settings_Advanced}">
                 <ScrollViewer VerticalScrollBarVisibility="Auto"
                               HorizontalScrollBarVisibility="Disabled"
                               VerticalAlignment="Stretch">
@@ -980,12 +980,12 @@
                                         BorderBrush="{DynamicResource Container1BorderBrush}"
                                         BorderThickness="1" CornerRadius="8" Padding="24">
                                     <StackPanel Spacing="16">
-                                        <TextBlock Text="Network / Proxy" FontWeight="SemiBold" FontSize="13"/>
-                                        <CheckBox Content="Use proxy" IsChecked="{Binding UseProxy, Mode=TwoWay}" FontSize="12"/>
+                                        <TextBlock Text="{loc:Tr Settings_Network}" FontWeight="SemiBold" FontSize="13"/>
+                                        <CheckBox Content="{loc:Tr Settings_UseProxy}" IsChecked="{Binding UseProxy, Mode=TwoWay}" FontSize="12"/>
                                         <TextBox Text="{Binding ProxyAddress, Mode=TwoWay}" CornerRadius="5" FontSize="12"
                                                  PlaceholderText="http://127.0.0.1:8080" IsEnabled="{Binding UseProxy}"/>
-                                        <CheckBox Content="Verify SSL certificates" IsChecked="{Binding EnableSSLVerification, Mode=TwoWay}" FontSize="12"/>
-                                        <CheckBox Content="Respect robots.txt" IsChecked="{Binding UseRobots, Mode=TwoWay}" FontSize="12"/>
+                                        <CheckBox Content="{loc:Tr Settings_VerifySsl}" IsChecked="{Binding EnableSSLVerification, Mode=TwoWay}" FontSize="12"/>
+                                        <CheckBox Content="{loc:Tr Settings_RespectRobots}" IsChecked="{Binding UseRobots, Mode=TwoWay}" FontSize="12"/>
                                     </StackPanel>
                                 </Border>
                                 <Border Background="{DynamicResource Container1BackgroundBrush}"
@@ -993,9 +993,9 @@
                                         BorderThickness="1" CornerRadius="8" Padding="24">
                                     <StackPanel Spacing="16">
                                         <TextBlock Text="FANBOX" FontWeight="SemiBold" FontSize="13"/>
-                                        <CheckBox Content="Download cover for restricted posts"
+                                        <CheckBox Content="{loc:Tr Settings_FanboxCover}"
                                                   IsChecked="{Binding DownloadFanboxCoverWhenRestricted, Mode=TwoWay}" FontSize="12"/>
-                                        <CheckBox Content="Generate HTML for article posts"
+                                        <CheckBox Content="{loc:Tr Settings_FanboxHtml}"
                                                   IsChecked="{Binding WriteFanboxHtml, Mode=TwoWay}" FontSize="12"/>
                                     </StackPanel>
                                 </Border>
@@ -1003,22 +1003,22 @@
                                         BorderBrush="{DynamicResource Container1BorderBrush}"
                                         BorderThickness="1" CornerRadius="8" Padding="24">
                                     <StackPanel Spacing="16">
-                                        <TextBlock Text="Viewed History" FontWeight="SemiBold" FontSize="13"/>
-                                        <CheckBox Content="🕶 Incognito mode"
+                                        <TextBlock Text="{loc:Tr Settings_ViewedHistory}" FontWeight="SemiBold" FontSize="13"/>
+                                        <CheckBox Content="{loc:Tr Settings_IncognitoMode}"
                                                   IsChecked="{Binding IncognitoModeEnabled, Mode=TwoWay}"
                                                   FontSize="12"
-                                                  ToolTip.Tip="While enabled, artworks you open anywhere in the app are not added to the Viewed tab. Existing history is left untouched. Can also be toggled from the Viewed tab toolbar."/>
+                                                  ToolTip.Tip="{loc:Tr Settings_IncognitoTip}"/>
                                         <Separator Margin="0,4"/>
-                                        <CheckBox Content="Auto-clear on start / restart"
+                                        <CheckBox Content="{loc:Tr Settings_AutoClearStart}"
                                                   IsChecked="{Binding AutoClearViewedHistoryEnabled, Mode=TwoWay}"
                                                   FontSize="12"
-                                                  ToolTip.Tip="Deletes Viewed-tab entries older than the retention window every time the app starts."/>
-                                        <CheckBox Content="Auto-clear while the app is running"
+                                                  ToolTip.Tip="{loc:Tr Settings_AutoClearStartTip}"/>
+                                        <CheckBox Content="{loc:Tr Settings_AutoClearRunning}"
                                                   IsChecked="{Binding AutoClearViewedHistoryWhileRunning, Mode=TwoWay}"
                                                   FontSize="12"
-                                                  ToolTip.Tip="Checks every few minutes and deletes Viewed-tab entries older than the retention window."/>
+                                                  ToolTip.Tip="{loc:Tr Settings_AutoClearRunningTip}"/>
                                         <StackPanel Orientation="Horizontal" Spacing="8" IsEnabled="{Binding AutoClearHistoryAnyEnabled}">
-                                            <TextBlock Text="Keep history for" FontSize="12" VerticalAlignment="Center"
+                                            <TextBlock Text="{loc:Tr Settings_KeepHistoryFor}" FontSize="12" VerticalAlignment="Center"
                                                        Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                             <NumericUpDown Value="{Binding AutoClearViewedHistoryValue, Mode=TwoWay}"
                                                            Minimum="1" Maximum="999" Increment="1" FormatString="0"
@@ -1028,7 +1028,7 @@
                                                       FontSize="12" CornerRadius="6" MinWidth="110"/>
                                         </StackPanel>
                                         <TextBlock FontSize="11" Foreground="{DynamicResource DefaultForegroundBrushDisabled}"
-                                                   Text="Entries older than this window are removed from the Viewed tab automatically." TextWrapping="Wrap"/>
+                                                   Text="{loc:Tr Settings_KeepHistoryHint}" TextWrapping="Wrap"/>
                                     </StackPanel>
                                 </Border>
                             </StackPanel>
@@ -1037,19 +1037,19 @@
                                     BorderBrush="{DynamicResource Container1BorderBrush}"
                                     BorderThickness="1" CornerRadius="8" Padding="24">
                                 <StackPanel Spacing="16">
-                                    <TextBlock Text="Ugoira (Animated Images)" FontWeight="SemiBold" FontSize="13"/>
+                                    <TextBlock Text="{loc:Tr Settings_UgoiraSection}" FontWeight="SemiBold" FontSize="13"/>
                                     <TextBlock FontSize="11" Foreground="{DynamicResource DefaultForegroundBrushDisabled}"
-                                               Text="Converting animated ZIP frames requires FFmpeg." TextWrapping="Wrap"/>
+                                               Text="{loc:Tr Settings_UgoiraFfmpeg}" TextWrapping="Wrap"/>
                                     <WrapPanel>
                                         <CheckBox Content="WebM" IsChecked="{Binding CreateUgoiraWebm, Mode=TwoWay}" FontSize="12" Margin="0,0,12,4"/>
                                         <CheckBox Content="GIF"  IsChecked="{Binding CreateUgoiraGif,  Mode=TwoWay}" FontSize="12" Margin="0,0,12,4"/>
                                         <CheckBox Content="WebP" IsChecked="{Binding CreateUgoiraWebp, Mode=TwoWay}" FontSize="12" Margin="0,0,12,4"/>
                                         <CheckBox Content="APNG" IsChecked="{Binding CreateUgoiraApng, Mode=TwoWay}" FontSize="12" Margin="0,0,12,4"/>
                                     </WrapPanel>
-                                    <CheckBox Content="Keep original ZIP after conversion"
+                                    <CheckBox Content="{loc:Tr Settings_KeepZip}"
                                               IsChecked="{Binding KeepUgoiraZip, Mode=TwoWay}" FontSize="12"/>
                                     <Grid ColumnDefinitions="Auto,*" Margin="0,4,0,0">
-                                        <TextBlock Text="Codec:" VerticalAlignment="Center" FontSize="12"
+                                        <TextBlock Text="{loc:Tr Settings_Codec}" VerticalAlignment="Center" FontSize="12"
                                                    Foreground="{DynamicResource DefaultForegroundBrushTertiary}" Margin="0,0,8,0"/>
                                         <ComboBox Grid.Column="1" CornerRadius="5" FontSize="12"
                                                   SelectedItem="{Binding FfMpegCodec, Mode=TwoWay}">
@@ -1071,7 +1071,7 @@
                             BorderBrush="{DynamicResource Container1BorderBrush}"
                             BorderThickness="1" CornerRadius="8" Padding="20" Margin="4,10,4,4">
                         <StackPanel Spacing="24">
-                            <TextBlock Text="Download Behavior" FontWeight="SemiBold" FontSize="14"/>
+                            <TextBlock Text="{loc:Tr Settings_DownloadBehavior}" FontWeight="SemiBold" FontSize="14"/>
 
                             <!-- Safe Mode (anti-suspension) -->
                             <Border Background="{DynamicResource Container2BackgroundBrush}"
@@ -1080,61 +1080,61 @@
                                 <StackPanel Spacing="6">
                                     <CheckBox IsChecked="{Binding SafeMode, Mode=TwoWay}"
                                               FontSize="13" FontWeight="SemiBold"
-                                              Content="Safe Mode — protect against Pixiv account suspension (recommended)"/>
+                                              Content="{loc:Tr Settings_SafeMode}"/>
                                     <TextBlock FontSize="12" TextWrapping="Wrap"
                                                Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
-                                               Text="Pixiv detects and temporarily suspends accounts (typically 24–72 hours) for &quot;unauthorized access attempts&quot; caused by mass downloaders. When Safe Mode is ON, Pikura: ① forces sequential downloads (concurrency 1), ② enforces a 2–4 second jittered delay between artworks even if your delay is 0, and ③ honors Retry-After headers on HTTP 429/503 with exponential backoff (5→10→20→60s, ±25% jitter) without consuming your retry budget. Disable only for small, occasional jobs."/>
+                                               Text="{loc:Tr Settings_SafeModeHint}"/>
                                 </StackPanel>
                             </Border>
 
                             <!-- Artist profile images -->
                             <CheckBox IsChecked="{Binding DownloadAvatarAndBanner, Mode=TwoWay}"
                                       FontSize="13"
-                                      Content="Download artist avatar and banner when downloading an artist's gallery"/>
+                                      Content="{loc:Tr Settings_ArtistAvatar}"/>
 
                             <Grid ColumnDefinitions="*,20,*,20,*">
 
                                 <!-- Concurrency + Overwrite -->
                                 <StackPanel Grid.Column="0" Spacing="24">
                                     <StackPanel Spacing="6">
-                                        <TextBlock Text="Max concurrent downloads" FontSize="13"
+                                        <TextBlock Text="{loc:Tr Settings_MaxConcurrentDl}" FontSize="13"
                                                    Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                         <NumericUpDown Minimum="1" Maximum="99" Increment="1" FormatString="0"
                                                        IsEnabled="{Binding !SafeMode}"
                                                        Value="{Binding MaxConcurrentDownloads, Mode=TwoWay}"
                                                        Width="100" HorizontalAlignment="Left"/>
                                         <TextBlock FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushDisabled}"
-                                                   Text="Parallel file downloads within a single job"
+                                                   Text="{loc:Tr Settings_MaxConcurrentDlHint}"
                                                    IsVisible="{Binding !SafeMode}"/>
                                         <TextBlock FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushDisabled}"
-                                                   Text="Overridden by Safe Mode (forced to 1)"
+                                                   Text="{loc:Tr Settings_SafeModeOverride}"
                                                    IsVisible="{Binding SafeMode}"/>
                                     </StackPanel>
                                     <StackPanel Spacing="6">
-                                        <TextBlock Text="Max concurrent jobs" FontSize="13"
+                                        <TextBlock Text="{loc:Tr Settings_MaxConcurrentJobs}" FontSize="13"
                                                    Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                         <NumericUpDown Minimum="1" Maximum="99" Increment="1" FormatString="0"
                                                        IsEnabled="{Binding !SafeMode}"
                                                        Value="{Binding MaxConcurrentJobs, Mode=TwoWay}"
                                                        Width="100" HorizontalAlignment="Left"/>
                                         <TextBlock FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushDisabled}"
-                                                   Text="Jobs running at once — extras queue as pending"
+                                                   Text="{loc:Tr Settings_MaxJobsHint}"
                                                    IsVisible="{Binding !SafeMode}"/>
                                         <TextBlock FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushDisabled}"
-                                                   Text="Overridden by Safe Mode (forced to 1)"
+                                                   Text="{loc:Tr Settings_SafeModeOverride}"
                                                    IsVisible="{Binding SafeMode}"/>
                                     </StackPanel>
                                     <StackPanel Spacing="6">
-                                        <TextBlock Text="Overwrite behavior" FontSize="13"
+                                        <TextBlock Text="{loc:Tr Settings_OverwriteBehavior}" FontSize="13"
                                                    Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                         <StackPanel Orientation="Horizontal" Spacing="8">
-                                            <Button Content="Skip"   FontSize="12"
+                                            <Button Content="{loc:Tr Settings_Skip}"   FontSize="12"
                                                     Classes.accent="{Binding OverwriteMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=0}"
                                                     Click="OnOverwriteModeButtonClick" Tag="0"/>
-                                            <Button Content="Overwrite"   FontSize="12"
+                                            <Button Content="{loc:Tr Settings_Overwrite}"   FontSize="12"
                                                     Classes.accent="{Binding OverwriteMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=1}"
                                                     Click="OnOverwriteModeButtonClick" Tag="1"/>
-                                            <Button Content="Backup"   FontSize="12"
+                                            <Button Content="{loc:Tr Settings_Backup}"   FontSize="12"
                                                     Classes.accent="{Binding OverwriteMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=2}"
                                                     Click="OnOverwriteModeButtonClick" Tag="2"/>
                                         </StackPanel>
@@ -1144,48 +1144,48 @@
                                 <!-- File size limits -->
                                 <StackPanel Grid.Column="2" Spacing="24">
                                     <StackPanel Spacing="6">
-                                        <TextBlock Text="Min file size (KB)" FontSize="13"
+                                        <TextBlock Text="{loc:Tr Settings_MinFileSize}" FontSize="13"
                                                    Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                         <NumericUpDown Value="{Binding MinFileSizeKB, Mode=TwoWay}"
                                                        Minimum="0" Maximum="102400" Increment="100"
                                                        CornerRadius="6" FontSize="13"/>
                                     </StackPanel>
                                     <StackPanel Spacing="6">
-                                        <TextBlock Text="Max file size (KB)" FontSize="13"
+                                        <TextBlock Text="{loc:Tr Settings_MaxFileSize}" FontSize="13"
                                                    Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                         <NumericUpDown Value="{Binding MaxFileSizeKB, Mode=TwoWay}"
                                                        Minimum="0" Maximum="102400" Increment="1000"
                                                        CornerRadius="6" FontSize="13"/>
                                     </StackPanel>
-                                    <TextBlock Text="0 = no limit" FontSize="12"
+                                    <TextBlock Text="{loc:Tr Settings_NoLimit}" FontSize="12"
                                                Foreground="{DynamicResource DefaultForegroundBrushDisabled}"/>
                                 </StackPanel>
 
                                 <!-- Timing -->
                                 <StackPanel Grid.Column="4" Spacing="24">
                                     <StackPanel Spacing="6">
-                                        <TextBlock Text="Timeout (s)" FontSize="13"
+                                        <TextBlock Text="{loc:Tr Settings_Timeout}" FontSize="13"
                                                    Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                         <NumericUpDown Value="{Binding DownloadTimeout, Mode=TwoWay}"
                                                        Minimum="10" Maximum="300" Increment="5"
                                                        CornerRadius="6" FontSize="13"/>
                                     </StackPanel>
                                     <StackPanel Spacing="6">
-                                        <TextBlock Text="Retry count" FontSize="13"
+                                        <TextBlock Text="{loc:Tr Settings_RetryCount}" FontSize="13"
                                                    Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                         <NumericUpDown Value="{Binding RetryCount, Mode=TwoWay}"
                                                        Minimum="0" Maximum="10" Increment="1"
                                                        CornerRadius="6" FontSize="13"/>
                                     </StackPanel>
                                     <StackPanel Spacing="6">
-                                        <TextBlock Text="Retry delay (s)" FontSize="13"
+                                        <TextBlock Text="{loc:Tr Settings_RetryDelay}" FontSize="13"
                                                    Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                         <NumericUpDown Value="{Binding RetryDelaySeconds, Mode=TwoWay}"
                                                        Minimum="0" Maximum="60" Increment="1"
                                                        CornerRadius="6" FontSize="13"/>
                                     </StackPanel>
                                     <StackPanel Spacing="6">
-                                        <TextBlock Text="Delay between downloads (s)" FontSize="13"
+                                        <TextBlock Text="{loc:Tr Settings_DownloadDelay}" FontSize="13"
                                                    Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                         <NumericUpDown Value="{Binding DownloadDelaySeconds, Mode=TwoWay}"
                                                        Minimum="0" Maximum="30" Increment="1"
@@ -1201,15 +1201,15 @@
                             BorderBrush="{DynamicResource Container1BorderBrush}"
                             BorderThickness="1" CornerRadius="8" Padding="20" Margin="4,10,4,24">
                         <StackPanel Spacing="16">
-                            <TextBlock Text="Diagnostics &amp; Logging" FontWeight="SemiBold" FontSize="14"/>
+                            <TextBlock Text="{loc:Tr Settings_Diagnostics}" FontWeight="SemiBold" FontSize="14"/>
 
-                            <CheckBox Content="Enable verbose logging (debug level)"
+                            <CheckBox Content="{loc:Tr Settings_VerboseLogging}"
                                       IsChecked="{Binding VerboseLogging, Mode=TwoWay}"/>
                             <StackPanel Orientation="Horizontal" Spacing="6"
                                         IsVisible="{Binding VerboseLogging}">
                                 <PathIcon Data="{StaticResource WarningIcon}" Width="14" Height="14" VerticalAlignment="Center"
                                           Foreground="Orange"/>
-                                <TextBlock Text="Verbose mode writes detailed debug output. Takes effect after restart."
+                                <TextBlock Text="{loc:Tr Settings_VerboseHint}"
                                            FontSize="12" TextWrapping="Wrap" VerticalAlignment="Center"
                                            Foreground="{DynamicResource DefaultForegroundBrushDisabled}"/>
                             </StackPanel>
@@ -1218,28 +1218,28 @@
 
                             <!-- App log -->
                             <StackPanel Spacing="6">
-                                <TextBlock Text="Application log" FontSize="13"
+                                <TextBlock Text="{loc:Tr Settings_AppLog}" FontSize="13"
                                            Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                 <Grid ColumnDefinitions="*,Auto,Auto">
                                     <TextBox Grid.Column="0" IsReadOnly="True" FontSize="13" CornerRadius="5"
                                              Text="{Binding AppLogPath, Mode=OneWay}"
                                              FontFamily="Consolas,Menlo,monospace"/>
-                                    <Button Grid.Column="1" Content="Copy" FontSize="12" Margin="6,0,0,0"
+                                    <Button Grid.Column="1" Content="{loc:Tr Common_Copy}" FontSize="12" Margin="6,0,0,0"
                                              Padding="10,5" Click="OnCopyAppLogPath"/>
-                                    <Button Grid.Column="2" Content="Open folder" FontSize="12" Margin="6,0,0,0"
+                                    <Button Grid.Column="2" Content="{loc:Tr Settings_OpenFolder}" FontSize="12" Margin="6,0,0,0"
                                              Padding="10,5" Click="OnOpenLogFolder"/>
                                 </Grid>
                             </StackPanel>
 
                             <!-- Crash log -->
                             <StackPanel Spacing="6">
-                                <TextBlock Text="Crash log (Desktop)" FontSize="13"
+                                <TextBlock Text="{loc:Tr Settings_CrashLog}" FontSize="13"
                                            Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                 <Grid ColumnDefinitions="*,Auto">
                                     <TextBox Grid.Column="0" IsReadOnly="True" FontSize="13" CornerRadius="5"
                                              Text="{Binding CrashLogPath, Mode=OneWay}"
                                              FontFamily="Consolas,Menlo,monospace"/>
-                                    <Button Grid.Column="1" Content="Copy" FontSize="12" Margin="6,0,0,0"
+                                    <Button Grid.Column="1" Content="{loc:Tr Common_Copy}" FontSize="12" Margin="6,0,0,0"
                                              Padding="10,5" Click="OnCopyCrashLogPath"/>
                                 </Grid>
                             </StackPanel>
@@ -1251,7 +1251,7 @@
             </TabItem>
 
             <!-- ====================== HOSHI AI ====================== -->
-            <TabItem Header="Hoshi AI">
+            <TabItem Header="{loc:Tr Settings_HoshiAI}">
                 <ScrollViewer VerticalScrollBarVisibility="Auto"
                               HorizontalScrollBarVisibility="Disabled"
                               VerticalAlignment="Stretch">
@@ -1263,11 +1263,11 @@
                                 BorderThickness="1" CornerRadius="8" Padding="28">
                             <StackPanel Spacing="24">
                                 <StackPanel Spacing="6">
-                                    <TextBlock Text="Active models" FontWeight="SemiBold" FontSize="14"/>
+                                    <TextBlock Text="{loc:Tr Settings_ActiveModels}" FontWeight="SemiBold" FontSize="14"/>
                                     <TextBlock FontSize="12"
                                                Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                                TextWrapping="Wrap"
-                                               Text="Choose the models Hoshi uses for chat, image understanding, and anime tag prediction."/>
+                                               Text="{loc:Tr Settings_ActiveModelsHint}"/>
                                 </StackPanel>
 
                                 <!-- Ollama models -->
@@ -1276,18 +1276,18 @@
                                     <TextBlock FontSize="12"
                                                Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                                TextWrapping="Wrap"
-                                               Text="Select the installed Ollama models Hoshi uses for chat and image understanding. Install more from Model management."/>
+                                               Text="{loc:Tr Settings_OllamaModelsHint}"/>
                                     <!-- Shown while the installed-models list is still loading (e.g. right after
                                          app startup while Ollama itself is spinning up) so an empty ComboBox
                                          doesn't read as "my selection got cleared" — it's just still loading. -->
                                     <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center"
                                                 IsVisible="{Binding IsLoadingModels}">
                                         <PathIcon Data="{StaticResource ClockIcon}" Width="14" Height="14" VerticalAlignment="Center"/>
-                                        <TextBlock Text="Loading your installed Ollama models…" FontSize="12" VerticalAlignment="Center"
+                                        <TextBlock Text="{loc:Tr Settings_LoadingOllama}" FontSize="12" VerticalAlignment="Center"
                                                    Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                     </StackPanel>
                                     <Grid ColumnDefinitions="*,20,*" RowDefinitions="Auto,Auto">
-                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Text model" FontSize="13"
+                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="{loc:Tr Settings_TextModel}" FontSize="13"
                                                    Foreground="{DynamicResource DefaultForegroundBrushTertiary}" Margin="0,0,0,5"/>
                                         <ComboBox Grid.Row="1" Grid.Column="0"
                                                   ItemsSource="{Binding InstalledOllamaModelNames}"
@@ -1295,7 +1295,7 @@
                                                   PlaceholderText="{Binding HoshiTextModel}"
                                                   CornerRadius="6" FontSize="13" HorizontalAlignment="Stretch"/>
 
-                                        <TextBlock Grid.Row="0" Grid.Column="2" Text="Vision model" FontSize="13"
+                                        <TextBlock Grid.Row="0" Grid.Column="2" Text="{loc:Tr Settings_VisionModel}" FontSize="13"
                                                    Foreground="{DynamicResource DefaultForegroundBrushTertiary}" Margin="0,0,0,5"/>
                                         <ComboBox Grid.Row="1" Grid.Column="2"
                                                   ItemsSource="{Binding InstalledVisionModelNames}"
@@ -1309,18 +1309,18 @@
 
                                 <!-- Anime tagger -->
                                 <StackPanel Spacing="14">
-                                    <TextBlock Text="Anime image tagger (ONNX)" FontWeight="SemiBold" FontSize="13"/>
+                                    <TextBlock Text="{loc:Tr Settings_AnimeTagger}" FontWeight="SemiBold" FontSize="13"/>
                                     <TextBlock FontSize="12"
                                                Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                                TextWrapping="Wrap"
-                                               Text="Run a local Danbooru-style tagger for accurate anime / Pixiv tag prediction. ONNX models are downloaded on demand."/>
+                                               Text="{loc:Tr Settings_AnimeTaggerHint}"/>
 
-                                    <CheckBox Content="Enable anime tagger"
+                                    <CheckBox Content="{loc:Tr Settings_EnableTagger}"
                                               IsChecked="{Binding HoshiUseAnimeTagger}"/>
 
                                     <StackPanel Spacing="14" IsEnabled="{Binding HoshiUseAnimeTagger}">
                                         <Grid ColumnDefinitions="Auto,12,*" RowDefinitions="Auto,Auto">
-                                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Model" FontSize="13"
+                                            <TextBlock Grid.Row="0" Grid.Column="0" Text="{loc:Tr Settings_Model}" FontSize="13"
                                                        Foreground="{DynamicResource DefaultForegroundBrushTertiary}" VerticalAlignment="Center" Margin="0,0,0,5"/>
                                             <ComboBox Grid.Row="0" Grid.Column="2"
                                                       ItemsSource="{Binding InstalledTaggerModelNames}"
@@ -1329,7 +1329,7 @@
 
                                             <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Spacing="8"
                                                         Margin="0,10,0,0">
-                                                <TextBlock Text="Available taggers" FontSize="11" FontWeight="SemiBold"
+                                                <TextBlock Text="{loc:Tr Settings_AvailableTaggers}" FontSize="11" FontWeight="SemiBold"
                                                            Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                                 <ItemsControl ItemsSource="{Binding RecommendedTaggerModels}">
                                                     <ItemsControl.ItemsPanel>
@@ -1350,9 +1350,9 @@
                                                                                 IsVisible="{Binding IsInstalled}">
                                                                         <PathIcon Data="{StaticResource CheckIcon}" Width="10" Height="10" VerticalAlignment="Center"
                                                                                   Foreground="#4ADE80"/>
-                                                                        <TextBlock Text="Installed" FontSize="11" Foreground="#4ADE80" VerticalAlignment="Center"/>
+                                                                        <TextBlock Text="{loc:Tr Settings_Installed}" FontSize="11" Foreground="#4ADE80" VerticalAlignment="Center"/>
                                                                     </StackPanel>
-                                                                    <Button Content="Install" FontSize="11"  
+                                                                    <Button Content="{loc:Tr Common_Install}" FontSize="11"  
                                                                             Classes="accent"
                                                                             IsVisible="{Binding !IsInstalled}"
                                                                             IsEnabled="{Binding !IsInstalling}"
@@ -1378,19 +1378,19 @@
 
                                                 <TextBlock FontSize="12" TextWrapping="Wrap" Foreground="#F87171"
                                                            IsVisible="{Binding !IsSelectedTaggerModelInstalled}"
-                                                           Text="The selected model is not installed yet. Click it above to install."/>
+                                                           Text="{loc:Tr Settings_ModelNotInstalled}"/>
                                             </StackPanel>
                                         </Grid>
 
                                         <StackPanel Spacing="14" IsVisible="{Binding IsSelectedTaggerModelInstalled}">
                                             <Grid ColumnDefinitions="Auto,12,*" RowDefinitions="Auto,Auto">
-                                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Confidence threshold" FontSize="13"
+                                                <TextBlock Grid.Row="0" Grid.Column="0" Text="{loc:Tr Settings_ConfidenceThreshold}" FontSize="13"
                                                            Foreground="{DynamicResource DefaultForegroundBrushTertiary}" VerticalAlignment="Center" Margin="0,0,0,0"/>
                                                 <Slider Grid.Row="0" Grid.Column="2"
                                                         Minimum="0" Maximum="1" TickFrequency="0.05" IsSnapToTickEnabled="True"
                                                         Value="{Binding HoshiAnimeTaggerThreshold, Mode=TwoWay}"/>
 
-                                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Max tags" FontSize="13"
+                                                <TextBlock Grid.Row="1" Grid.Column="0" Text="{loc:Tr Settings_MaxTags}" FontSize="13"
                                                            Foreground="{DynamicResource DefaultForegroundBrushTertiary}" VerticalAlignment="Center" Margin="0,8,0,0"/>
                                                 <NumericUpDown Grid.Row="1" Grid.Column="2"
                                                                Minimum="1" Maximum="1000"
@@ -1398,9 +1398,9 @@
                                                                Margin="0,8,0,0" FontSize="13"/>
                                             </Grid>
 
-                                            <CheckBox Content="Auto-tag downloaded images"
+                                            <CheckBox Content="{loc:Tr Settings_AutoTag}"
                                                       IsChecked="{Binding HoshiAnimeTaggerAutoTagDownloads}"
-                                                      ToolTip.Tip="Runs the tagger on each downloaded image and writes the tags into a sidecar file next to the image."/>
+                                                      ToolTip.Tip="{loc:Tr Settings_AutoTagTip}"/>
                                         </StackPanel>
                                     </StackPanel>
                                 </StackPanel>
@@ -1413,44 +1413,44 @@
                                 BorderThickness="1" CornerRadius="8" Padding="28">
                             <StackPanel Spacing="24">
                                 <StackPanel Spacing="6">
-                                    <TextBlock Text="Model management" FontWeight="SemiBold" FontSize="14"/>
+                                    <TextBlock Text="{loc:Tr Settings_ModelManagement}" FontWeight="SemiBold" FontSize="14"/>
                                     <TextBlock FontSize="12"
                                                Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                                TextWrapping="Wrap"
-                                               Text="Install, refresh, and manage Ollama and ONNX models. Ollama models are pulled through Ollama; ONNX taggers are downloaded from Hugging Face."/>
+                                               Text="{loc:Tr Settings_ModelManagementHint}"/>
                                 </StackPanel>
 
                                 <!-- Install a model -->
                                 <StackPanel Spacing="14">
                                     <StackPanel Spacing="6">
-                                        <TextBlock Text="Install a model" FontWeight="SemiBold" FontSize="13"/>
+                                        <TextBlock Text="{loc:Tr Settings_InstallModel}" FontWeight="SemiBold" FontSize="13"/>
                                         <TextBlock FontSize="12"
                                                    Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                                    TextWrapping="Wrap"
-                                                   Text="Type an Ollama model name below, or click a recommended chip to install it. Hover over a chip for its category, description, and estimated size."/>
+                                                   Text="{loc:Tr Settings_InstallModelHint}"/>
                                     </StackPanel>
 
                                     <Grid ColumnDefinitions="*,Auto,Auto">
                                         <TextBox Grid.Column="0"
                                                  Text="{Binding ModelToInstall, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                  CornerRadius="6" FontSize="13" Margin="0,0,8,0"
-                                                 PlaceholderText="Ollama model name (e.g. llama3.2)"/>
-                                        <Button Grid.Column="1" Content="Install"
+                                                 PlaceholderText="{loc:Tr Settings_OllamaModelName}"/>
+                                        <Button Grid.Column="1" Content="{loc:Tr Common_Install}"
                                                 Classes="accent"   FontSize="13"
                                                 Command="{Binding PullModelCommand}"
                                                 IsEnabled="{Binding !IsPullingModel}"/>
-                                        <Button Grid.Column="2" Content="Cancel" Margin="6,0,0,0"
+                                        <Button Grid.Column="2" Content="{loc:Tr Common_Cancel}" Margin="6,0,0,0"
                                                   FontSize="13"
                                                 Command="{Binding CancelModelPullCommand}"
                                                 IsVisible="{Binding IsPullingModel}"/>
                                     </Grid>
 
                                     <StackPanel Spacing="10">
-                                        <TextBlock Text="Recommended:" FontSize="11"
+                                        <TextBlock Text="{loc:Tr Settings_Recommended}" FontSize="11"
                                                    Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
 
                                         <StackPanel Spacing="6">
-                                            <TextBlock Text="Text / chat" FontSize="11" FontWeight="SemiBold"
+                                            <TextBlock Text="{loc:Tr Settings_TextChat}" FontSize="11" FontWeight="SemiBold"
                                                        Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                             <ItemsControl ItemsSource="{Binding RecommendedTextModels}">
                                                 <ItemsControl.ItemsPanel>
@@ -1472,7 +1472,7 @@
                                         </StackPanel>
 
                                         <StackPanel Spacing="6">
-                                            <TextBlock Text="Vision" FontSize="11" FontWeight="SemiBold"
+                                            <TextBlock Text="{loc:Tr Settings_Vision}" FontSize="11" FontWeight="SemiBold"
                                                        Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                             <ItemsControl ItemsSource="{Binding RecommendedVisionModels}">
                                                 <ItemsControl.ItemsPanel>
@@ -1512,7 +1512,7 @@
                                 <!-- Installed Ollama models -->
                                 <StackPanel Spacing="14">
                                     <Grid ColumnDefinitions="*,Auto">
-                                        <TextBlock Grid.Column="0" Text="Installed Ollama models" FontWeight="SemiBold" FontSize="13"
+                                        <TextBlock Grid.Column="0" Text="{loc:Tr Settings_InstalledOllama}" FontWeight="SemiBold" FontSize="13"
                                                    VerticalAlignment="Center"/>
                                         <Button Grid.Column="1"
                                                  Padding="10,5" FontSize="12"
@@ -1520,16 +1520,16 @@
                                                 IsEnabled="{Binding !IsLoadingModels}">
                                             <StackPanel Orientation="Horizontal" Spacing="6">
                                                 <PathIcon Data="{StaticResource RefreshIcon}" Width="12" Height="12" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
-                                                <TextBlock Text="Refresh" VerticalAlignment="Center"/>
+                                                <TextBlock Text="{loc:Tr Common_Refresh}" VerticalAlignment="Center"/>
                                             </StackPanel>
                                         </Button>
                                     </Grid>
 
-                                    <TextBlock Text="Loading…" FontSize="12"
+                                    <TextBlock Text="{loc:Tr Common_Loading}" FontSize="12"
                                                Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                                IsVisible="{Binding IsLoadingModels}"/>
 
-                                    <TextBlock Text="No Ollama models installed yet. Use the installer above to download one."
+                                    <TextBlock Text="{loc:Tr Settings_NoOllamaModels}"
                                                FontSize="12" TextWrapping="Wrap"
                                                Foreground="{DynamicResource DefaultForegroundBrushTertiary}">
                                         <TextBlock.IsVisible>
@@ -1558,15 +1558,15 @@
                                                             </TextBlock>
                                                         </StackPanel>
                                                         <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6">
-                                                            <Button Content="Use for chat"
+                                                            <Button Content="{loc:Tr Settings_UseForChat}"
                                                                       FontSize="11"
                                                                     Command="{Binding $parent[ItemsControl].((vm:SettingsViewModel)DataContext).UseModelForTextCommand}"
                                                                     CommandParameter="{Binding Name}"/>
-                                                            <Button Content="Use for vision"
+                                                            <Button Content="{loc:Tr Settings_UseForVision}"
                                                                       FontSize="11"
                                                                     Command="{Binding $parent[ItemsControl].((vm:SettingsViewModel)DataContext).UseModelForVisionCommand}"
                                                                     CommandParameter="{Binding Name}"/>
-                                                            <Button Content="Uninstall"
+                                                            <Button Content="{loc:Tr Common_Uninstall}"
                                                                       FontSize="11"
                                                                     Command="{Binding $parent[ItemsControl].((vm:SettingsViewModel)DataContext).DeleteModelCommand}"
                                                                     CommandParameter="{Binding}"/>
@@ -1582,9 +1582,9 @@
 
                                 <!-- Installed anime taggers -->
                                 <StackPanel Spacing="14">
-                                    <TextBlock Text="Installed anime taggers" FontWeight="SemiBold" FontSize="13"/>
+                                    <TextBlock Text="{loc:Tr Settings_InstalledTaggers}" FontWeight="SemiBold" FontSize="13"/>
 
-                                    <TextBlock Text="No anime tagger models installed yet. Install one from the Hoshi AI tab above."
+                                    <TextBlock Text="{loc:Tr Settings_NoTaggers}"
                                                FontSize="12" TextWrapping="Wrap"
                                                Foreground="{DynamicResource DefaultForegroundBrushTertiary}">
                                         <TextBlock.IsVisible>
@@ -1613,11 +1613,11 @@
                                                             </TextBlock>
                                                         </StackPanel>
                                                         <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6">
-                                                            <Button Content="Use for tagger"
+                                                            <Button Content="{loc:Tr Settings_UseForTagger}"
                                                                       FontSize="11"
                                                                     Command="{Binding $parent[ItemsControl].((vm:SettingsViewModel)DataContext).UseModelForTaggerCommand}"
                                                                     CommandParameter="{Binding Name}"/>
-                                                            <Button Content="Uninstall"
+                                                            <Button Content="{loc:Tr Common_Uninstall}"
                                                                       FontSize="11"
                                                                     Command="{Binding $parent[ItemsControl].((vm:SettingsViewModel)DataContext).DeleteModelCommand}"
                                                                     CommandParameter="{Binding}"/>
@@ -1631,7 +1631,7 @@
 
                                 <TextBlock FontSize="11" TextWrapping="Wrap"
                                            Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
-                                           Text="Tip: Browse models at https://ollama.com/library. Type the exact name (e.g. 'llama3.2:3b' for a smaller variant)."/>
+                                           Text="{loc:Tr Settings_OllamaLibraryTip}"/>
                             </StackPanel>
                         </Border>
 
@@ -1640,7 +1640,7 @@
             </TabItem>
 
             <!-- ====================== CONFIG ====================== -->
-            <TabItem Header="Config">
+            <TabItem Header="{loc:Tr Settings_Config}">
                 <ScrollViewer VerticalScrollBarVisibility="Auto"
                               HorizontalScrollBarVisibility="Disabled"
                               VerticalAlignment="Stretch">
@@ -1679,16 +1679,16 @@
                                     BorderBrush="{DynamicResource Container1BorderBrush}"
                                     BorderThickness="1" CornerRadius="8" Padding="24">
                                 <StackPanel Spacing="20">
-                                    <TextBlock Text="Startup" FontWeight="SemiBold" FontSize="13"/>
+                                    <TextBlock Text="{loc:Tr Settings_Startup}" FontWeight="SemiBold" FontSize="13"/>
                                     <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto">
-                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Window state" FontSize="12"
+                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="{loc:Tr Settings_WindowState}" FontSize="12"
                                                    Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                                    VerticalAlignment="Center" Margin="0,0,10,0"/>
                                         <ComboBox Grid.Row="0" Grid.Column="1"
                                                   SelectedItem="{Binding StartupWindowState, Mode=TwoWay}"
                                                   ItemsSource="{Binding StartupWindowStates}"
                                                   CornerRadius="5" FontSize="12"/>
-                                        <TextBlock Grid.Row="1" Grid.Column="0" Text="System tray" FontSize="12"
+                                        <TextBlock Grid.Row="1" Grid.Column="0" Text="{loc:Tr Settings_SystemTray}" FontSize="12"
                                                    Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                                    VerticalAlignment="Center" Margin="0,8,10,0"/>
                                         <ComboBox Grid.Row="1" Grid.Column="1" Margin="0,8,0,0"
@@ -1698,7 +1698,7 @@
                                             <ComboBoxItem>Minimize to tray</ComboBoxItem>
                                             <ComboBoxItem>Close to tray</ComboBoxItem>
                                         </ComboBox>
-                                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Startup tab" FontSize="12"
+                                        <TextBlock Grid.Row="2" Grid.Column="0" Text="{loc:Tr Settings_StartupTab}" FontSize="12"
                                                    Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                                    VerticalAlignment="Center" Margin="0,8,10,0"/>
                                         <ComboBox Grid.Row="2" Grid.Column="1" Margin="0,8,0,0"
@@ -1712,15 +1712,15 @@
                                             </ComboBox.ItemTemplate>
                                         </ComboBox>
                                     </Grid>
-                                    <CheckBox Content="Show splash screen on startup"
+                                    <CheckBox Content="{loc:Tr Settings_Splash}"
                                               IsChecked="{Binding ShowSplashScreen, Mode=TwoWay}"
                                               FontSize="12"
-                                              ToolTip.Tip="Display the Pikura splash screen when the app launches"/>
-                                    <CheckBox Content="Show feature highlights after updates"
+                                              ToolTip.Tip="{loc:Tr Settings_SplashTip}"/>
+                                    <CheckBox Content="{loc:Tr Settings_WhatsNew}"
                                               IsChecked="{Binding ShowFeatureHighlights, Mode=TwoWay}"
                                               FontSize="12"
-                                              ToolTip.Tip="Show the What's New dialog the first time you open a new major version"/>
-                                    <CheckBox Content="Start with Windows"
+                                              ToolTip.Tip="{loc:Tr Settings_WhatsNewTip}"/>
+                                    <CheckBox Content="{loc:Tr Settings_StartWithWindows}"
                                               IsChecked="{Binding StartWithWindows, Mode=TwoWay}" FontSize="12"/>
                                 </StackPanel>
                             </Border>
@@ -1731,18 +1731,18 @@
                                 BorderBrush="{DynamicResource Container1BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="28">
                             <StackPanel Spacing="16">
-                                <TextBlock Text="Gallery Viewer" FontWeight="SemiBold" FontSize="14"/>
+                                <TextBlock Text="{loc:Tr Settings_GalleryViewer}" FontWeight="SemiBold" FontSize="14"/>
                                 <TextBlock FontSize="12" TextWrapping="Wrap"
                                            Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
-                                           Text="Use arrow keys to navigate between artworks when the viewer is open."/>
-                                <CheckBox Content="Enable keyboard navigation in gallery (left/right arrow keys)"
+                                           Text="{loc:Tr Settings_GalleryViewerHint}"/>
+                                <CheckBox Content="{loc:Tr Settings_KeyNavGallery}"
                                           IsChecked="{Binding GalleryKeyboardNavEnabled, Mode=TwoWay}"
                                           FontSize="13"
-                                          ToolTip.Tip="Left/Right arrow keys move to the previous/next artwork while the inline viewer panel is open"/>
-                                <CheckBox Content="Enable keyboard navigation in fullscreen viewer"
+                                          ToolTip.Tip="{loc:Tr Settings_KeyNavGalleryTip}"/>
+                                <CheckBox Content="{loc:Tr Settings_KeyNavFullscreen}"
                                           IsChecked="{Binding FullscreenKeyboardNavEnabled, Mode=TwoWay}"
                                           FontSize="13"
-                                          ToolTip.Tip="Left/Right arrow keys navigate between artworks in the fullscreen viewer window"/>
+                                          ToolTip.Tip="{loc:Tr Settings_KeyNavFullscreenTip}"/>
                             </StackPanel>
                         </Border>
 
@@ -1751,39 +1751,39 @@
                                 BorderBrush="{DynamicResource Container1BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="20">
                             <StackPanel Spacing="14">
-                                <TextBlock Text="Download Notifications" FontWeight="SemiBold" FontSize="13"/>
+                                <TextBlock Text="{loc:Tr Settings_DownloadNotifications}" FontWeight="SemiBold" FontSize="13"/>
                                 <TextBlock FontSize="11" TextWrapping="Wrap"
                                            Foreground="{DynamicResource DefaultForegroundBrushDisabled}"
-                                           Text="Show a Windows toast notification for downloads. The artist thumbnail appears in the notification body."/>
+                                           Text="{loc:Tr Settings_NotificationsHint}"/>
 
                                 <CheckBox IsChecked="{Binding NotifyOnDownloadStarted, Mode=TwoWay}" FontSize="12">
                                     <StackPanel Spacing="1">
-                                        <TextBlock Text="Download started" FontSize="12"/>
-                                        <TextBlock Text="Notify when a job begins." FontSize="11"
+                                        <TextBlock Text="{loc:Tr Settings_NotifyStarted}" FontSize="12"/>
+                                        <TextBlock Text="{loc:Tr Settings_NotifyStartedHint}" FontSize="11"
                                                    Foreground="{DynamicResource DefaultForegroundBrushDisabled}"/>
                                     </StackPanel>
                                 </CheckBox>
 
                                 <CheckBox IsChecked="{Binding NotifyOnDownloadComplete, Mode=TwoWay}" FontSize="12">
                                     <StackPanel Spacing="1">
-                                        <TextBlock Text="Download completed" FontSize="12"/>
-                                        <TextBlock Text="Notify when a job finishes successfully." FontSize="11"
+                                        <TextBlock Text="{loc:Tr Settings_NotifyCompleted}" FontSize="12"/>
+                                        <TextBlock Text="{loc:Tr Settings_NotifyCompletedHint}" FontSize="11"
                                                    Foreground="{DynamicResource DefaultForegroundBrushDisabled}"/>
                                     </StackPanel>
                                 </CheckBox>
 
                                 <CheckBox IsChecked="{Binding NotifyOnDownloadFailed, Mode=TwoWay}" FontSize="12">
                                     <StackPanel Spacing="1">
-                                        <TextBlock Text="Download failed" FontSize="12"/>
-                                        <TextBlock Text="Notify when a job fails or completes with errors." FontSize="11"
+                                        <TextBlock Text="{loc:Tr Settings_NotifyFailed}" FontSize="12"/>
+                                        <TextBlock Text="{loc:Tr Settings_NotifyFailedHint}" FontSize="11"
                                                    Foreground="{DynamicResource DefaultForegroundBrushDisabled}"/>
                                     </StackPanel>
                                 </CheckBox>
 
                                 <CheckBox IsChecked="{Binding NotifyOnDownloadPaused, Mode=TwoWay}" FontSize="12">
                                     <StackPanel Spacing="1">
-                                        <TextBlock Text="Download paused / resumed" FontSize="12"/>
-                                        <TextBlock Text="Notify when a job is paused or resumed, with progress so far." FontSize="11"
+                                        <TextBlock Text="{loc:Tr Settings_NotifyPaused}" FontSize="12"/>
+                                        <TextBlock Text="{loc:Tr Settings_NotifyPausedHint}" FontSize="11"
                                                    Foreground="{DynamicResource DefaultForegroundBrushDisabled}"/>
                                     </StackPanel>
                                 </CheckBox>
@@ -1799,7 +1799,7 @@
                                            Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                            VerticalAlignment="Center"/>
                                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="16">
-                                    <Button Content="Reset to Defaults" Command="{Binding ResetSettingsCommand}"
+                                    <Button Content="{loc:Tr Settings_ResetDefaults}" Command="{Binding ResetSettingsCommand}"
                                              FontSize="12"/>
                                     <TextBlock Text="Pikura &#xB7; Avalonia UI 12" FontSize="11"
                                                Foreground="{DynamicResource DefaultForegroundBrushDisabled}"
@@ -1813,7 +1813,7 @@
             </TabItem>
 
             <!-- ====================== ACCOUNTS ====================== -->
-            <TabItem Header="Accounts">
+            <TabItem Header="{loc:Tr Settings_Accounts}">
                 <ScrollViewer VerticalScrollBarVisibility="Auto"
                               HorizontalScrollBarVisibility="Disabled"
                               VerticalAlignment="Stretch">
@@ -1828,15 +1828,15 @@
                                 <!-- Accounts header row -->
                                 <Grid ColumnDefinitions="*,Auto,Auto">
                                     <StackPanel Grid.Column="0" Spacing="2" VerticalAlignment="Center">
-                                        <TextBlock Text="Accounts" FontWeight="SemiBold" FontSize="15"/>
-                                        <TextBlock Text="Manage your signed-in Pixiv accounts" FontSize="11"
+                                        <TextBlock Text="{loc:Tr Settings_Accounts}" FontWeight="SemiBold" FontSize="15"/>
+                                        <TextBlock Text="{loc:Tr Settings_AccountsHint}" FontSize="11"
                                                    Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                     </StackPanel>
-                                    <Button Grid.Column="1" Content="Sign out all accounts"
+                                    <Button Grid.Column="1" Content="{loc:Tr Settings_SignOutAll}"
                                             Command="{Binding SignOutAllCommand}"
                                              Margin="0,0,8,0"
                                             IsVisible="{Binding IsSignedIn}"/>
-                                    <Button Grid.Column="2" Content="+ Add account"
+                                    <Button Grid.Column="2" Content="{loc:Tr Settings_AddAccount}"
                                             Command="{Binding AddAccountCommand}"
                                              Classes="accent"/>
                                 </Grid>
@@ -1866,21 +1866,21 @@
                                                                 <Border IsVisible="{Binding IsPremium}"
                                                                         Background="#F5A623" CornerRadius="4"
                                                                         Padding="4,2" VerticalAlignment="Center"
-                                                                        ToolTip.Tip="Pixiv Premium">
+                                                                        ToolTip.Tip="{loc:Tr Settings_PixivPremium}">
                                                                     <Path Data="{StaticResource PremiumCrownGeometry}"
                                                                           Width="10" Height="10" Stretch="Uniform" Fill="White"/>
                                                                 </Border>
                                                             </StackPanel>
                                                             <TextBlock FontSize="10"
                                                                        Foreground="{DynamicResource DefaultForegroundBrushTertiary}">
-                                                                <Run Text="ID: "/><Run Text="{Binding UserId}"/>
+                                                                <Run Text="{loc:Tr Settings_Id}"/><Run Text="{Binding UserId}"/>
                                                             </TextBlock>
                                                         </StackPanel>
                                                         <Panel Grid.Column="2" Margin="0,0,6,0">
                                                             <Border CornerRadius="5" Padding="10,4"
                                                                     Background="#6366F1"
                                                                     VerticalAlignment="Center">
-                                                                <TextBlock Text="Active" FontSize="11" FontWeight="SemiBold"
+                                                                <TextBlock Text="{loc:Tr Settings_Active}" FontSize="11" FontWeight="SemiBold"
                                                                            Foreground="White"
                                                                            HorizontalAlignment="Center"/>
                                                                 <Border.IsVisible>
@@ -1890,7 +1890,7 @@
                                                                     </MultiBinding>
                                                                 </Border.IsVisible>
                                                             </Border>
-                                                            <Button Content="Switch"
+                                                            <Button Content="{loc:Tr Settings_Switch}"
                                                                     
                                                                     Classes="accent"
                                                                     Padding="10,4"
@@ -1907,7 +1907,7 @@
                                                             </Button>
                                                         </Panel>
                                                         <Button Grid.Column="3"
-                                                                Content="Sign out"
+                                                                Content="{loc:Tr Settings_SignOut}"
                                                                 
                                                                 Padding="10,4"
                                                                 FontSize="11"
@@ -1921,7 +1921,7 @@
                                             <Style Selector="ItemsControl:empty">
                                                 <Setter Property="Template">
                                                     <ControlTemplate>
-                                                        <TextBlock Text="No accounts signed in. Click '+ Add account' to get started."
+                                                        <TextBlock Text="{loc:Tr Settings_NoAccounts}"
                                                                    FontSize="12" Padding="12"
                                                                    Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                                                    HorizontalAlignment="Center"/>
@@ -1939,7 +1939,7 @@
             </TabItem>
 
             <!-- ====================== UPDATES ====================== -->
-            <TabItem Header="Updates">
+            <TabItem Header="{loc:Tr Settings_Updates}">
                 <ScrollViewer VerticalScrollBarVisibility="Auto"
                               HorizontalScrollBarVisibility="Disabled"
                               VerticalAlignment="Stretch">
@@ -1957,11 +1957,11 @@
                                         <TextBlock Text="Pikura" FontWeight="SemiBold" FontSize="14"/>
                                         <TextBlock FontSize="12"
                                                    Foreground="{DynamicResource DefaultForegroundBrushTertiary}">
-                                            <Run Text="Current version: "/>
+                                            <Run Text="{loc:Tr Settings_CurrentVersion}"/>
                                             <Run Text="{Binding AppVersion}" FontWeight="SemiBold"/>
                                         </TextBlock>
                                     </StackPanel>
-                                    <Button Grid.Column="1" Content="Check Now"
+                                    <Button Grid.Column="1" Content="{loc:Tr Settings_CheckNow}"
                                             Command="{Binding CheckForUpdatesNowCommand}"
                                             Classes="accent"  
                                             IsEnabled="{Binding !CheckingForUpdates}"/>
@@ -1985,14 +1985,14 @@
                                 BorderThickness="1" CornerRadius="8" Padding="24">
                             <StackPanel Spacing="18">
 
-                                <TextBlock Text="Update Preferences" FontWeight="SemiBold" FontSize="14"/>
+                                <TextBlock Text="{loc:Tr Settings_UpdatePrefs}" FontWeight="SemiBold" FontSize="14"/>
                                 <Separator Background="{DynamicResource Container1BorderBrush}"/>
 
                                 <!-- Check frequency -->
                                 <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
                                     <StackPanel Grid.Column="0" Spacing="2">
-                                        <TextBlock Text="Check for updates" FontSize="12" FontWeight="SemiBold"/>
-                                        <TextBlock Text="How often Pikura checks for new versions on startup"
+                                        <TextBlock Text="{loc:Tr Settings_CheckUpdates}" FontSize="12" FontWeight="SemiBold"/>
+                                        <TextBlock Text="{loc:Tr Settings_CheckUpdatesHint}"
                                                    FontSize="11"
                                                    Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                     </StackPanel>
@@ -2005,8 +2005,8 @@
                                 <!-- Release channel -->
                                 <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
                                     <StackPanel Grid.Column="0" Spacing="2">
-                                        <TextBlock Text="Release channel" FontSize="12" FontWeight="SemiBold"/>
-                                        <TextBlock Text="Stable = tagged releases only; Pre-release includes betas"
+                                        <TextBlock Text="{loc:Tr Settings_ReleaseChannel}" FontSize="12" FontWeight="SemiBold"/>
+                                        <TextBlock Text="{loc:Tr Settings_ReleaseChannelHint}"
                                                    FontSize="11"
                                                    Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                     </StackPanel>
@@ -2019,8 +2019,8 @@
                                 <!-- Notify toggle -->
                                 <Grid ColumnDefinitions="*,Auto">
                                     <StackPanel Grid.Column="0" Spacing="2">
-                                        <TextBlock Text="Notify when update available" FontSize="12" FontWeight="SemiBold"/>
-                                        <TextBlock Text="Shows a banner at the top of the window"
+                                        <TextBlock Text="{loc:Tr Settings_NotifyUpdate}" FontSize="12" FontWeight="SemiBold"/>
+                                        <TextBlock Text="{loc:Tr Settings_NotifyUpdateHint}"
                                                    FontSize="11"
                                                    Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                     </StackPanel>
@@ -2031,8 +2031,8 @@
                                 <!-- Auto-download toggle -->
                                 <Grid ColumnDefinitions="*,Auto">
                                     <StackPanel Grid.Column="0" Spacing="2">
-                                        <TextBlock Text="Auto-download updates" FontSize="12" FontWeight="SemiBold"/>
-                                        <TextBlock Text="Silently download in background; you still confirm install"
+                                        <TextBlock Text="{loc:Tr Settings_AutoDownload}" FontSize="12" FontWeight="SemiBold"/>
+                                        <TextBlock Text="{loc:Tr Settings_AutoDownloadHint}"
                                                    FontSize="11"
                                                    Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                     </StackPanel>
@@ -2041,7 +2041,7 @@
                                 </Grid>
 
                                 <!-- Save -->
-                                <Button Content="Save Update Settings"
+                                <Button Content="{loc:Tr Settings_SaveUpdates}"
                                         Command="{Binding SaveUpdateSettingsCommand}"
                                         Classes="accent"  
                                         HorizontalAlignment="Right"/>
@@ -2054,7 +2054,7 @@
                                 BorderThickness="1" CornerRadius="8" Padding="16">
                             <TextBlock FontSize="12" TextWrapping="Wrap"
                                        Foreground="{DynamicResource DefaultForegroundBrushSecondary}"
-                                       Text="When an update is available, a banner will appear at the top of the window where you can download and install it."/>
+                                       Text="{loc:Tr Settings_UpdateBannerHint}"/>
                         </Border>
 
                     </StackPanel>
@@ -2062,7 +2062,7 @@
             </TabItem>
 
             <!-- ====================== ABOUT ====================== -->
-            <TabItem Header="About">
+            <TabItem Header="{loc:Tr Settings_About}">
                 <ScrollViewer VerticalScrollBarVisibility="Auto"
                               HorizontalScrollBarVisibility="Disabled"
                               VerticalAlignment="Stretch">
@@ -2080,29 +2080,29 @@
                                 <TextBlock Text="ピクラ" FontSize="13"
                                            Foreground="{DynamicResource DefaultForegroundBrushSecondary}"
                                            HorizontalAlignment="Center" Margin="0,-4,0,0"/>
-                                <TextBlock Text="Pixiv Artwork Manager" FontSize="14"
+                                <TextBlock Text="{loc:Tr Settings_Tagline}" FontSize="14"
                                            Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                            HorizontalAlignment="Center"/>
                                 <Separator Background="{DynamicResource Container1BorderBrush}" Margin="0,8"/>
                                 <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto" HorizontalAlignment="Center">
-                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Version" FontSize="13"
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="{loc:Tr Settings_Version}" FontSize="13"
                                                Foreground="{DynamicResource DefaultForegroundBrushTertiary}" Margin="0,0,20,6"/>
                                     <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding AppVersion}" FontSize="13" FontWeight="SemiBold"/>
-                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Developer" FontSize="13"
+                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="{loc:Tr Settings_Developer}" FontSize="13"
                                                Foreground="{DynamicResource DefaultForegroundBrushTertiary}" Margin="0,0,20,6"/>
                                     <TextBlock Grid.Row="1" Grid.Column="1" Text="mrplusultra" FontSize="13" FontWeight="SemiBold"/>
-                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Year" FontSize="13"
+                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="{loc:Tr Settings_Year}" FontSize="13"
                                                Foreground="{DynamicResource DefaultForegroundBrushTertiary}" Margin="0,0,20,0"/>
                                     <TextBlock Grid.Row="2" Grid.Column="1" Text="© 2026" FontSize="13" FontWeight="SemiBold"/>
                                 </Grid>
                                 <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center" Margin="0,8,0,0">
-                                    <Button Content="GitHub Page"
+                                    <Button Content="{loc:Tr Settings_GitHubPage}"
                                             Click="OnGitHubPageClick"
                                             Cursor="Hand"
                                             FontSize="13"
                                             
                                             />
-                                    <Button Content="View Changelog"
+                                    <Button Content="{loc:Tr Settings_ViewChangelog}"
                                             Click="OnViewChangelogClick"
                                             Cursor="Hand"
                                             FontSize="13"
@@ -2117,10 +2117,10 @@
                                 BorderBrush="{DynamicResource Container1BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="28">
                             <StackPanel Spacing="10">
-                                <TextBlock Text="License" FontWeight="SemiBold" FontSize="14"/>
+                                <TextBlock Text="{loc:Tr Settings_License}" FontWeight="SemiBold" FontSize="14"/>
                                 <TextBlock FontSize="12" TextWrapping="Wrap"
                                            Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
-                                           Text="Pikura is source-available software. Free for personal, non-commercial use. Commercial use requires a separate license. Contributions welcome."/>
+                                           Text="{loc:Tr Settings_LicenseText}"/>
                             </StackPanel>
                         </Border>
 
@@ -2129,7 +2129,7 @@
                                 BorderBrush="{DynamicResource Container1BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="28">
                             <StackPanel Spacing="10">
-                                <TextBlock Text="Built With" FontWeight="SemiBold" FontSize="14"/>
+                                <TextBlock Text="{loc:Tr Settings_BuiltWith}" FontWeight="SemiBold" FontSize="14"/>
                                 <WrapPanel>
                                     <Border Background="{DynamicResource Container2BackgroundBrush}"
                                             CornerRadius="4" Padding="8,3" Margin="0,0,6,6">

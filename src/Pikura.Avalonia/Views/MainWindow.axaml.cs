@@ -12,6 +12,7 @@ using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
+using Pikura.Avalonia.Localization;
 using Pikura.Avalonia.Services;
 using Pikura.Avalonia.ViewModels;
 using Pikura.Core.Settings;
@@ -390,6 +391,8 @@ public partial class MainWindow : Window
     private Pikura.Avalonia.Views.Pixivision.PixivisionView? _pixivisionView;
     private Pikura.Avalonia.Views.Collections.CollectionsView? _collectionsView;
 
+    private static LocalizationService Loc => LocalizationService.Instance;
+
     private void SetSectionTitle(string section) => Title = $"Pikura — {section}";
 
     public void LoadGalleryView()
@@ -399,7 +402,7 @@ public partial class MainWindow : Window
             var vm = AppServices.Get<Pikura.Avalonia.ViewModels.GalleryViewModel>();
             _galleryView ??= new Pikura.Avalonia.Views.Gallery.GalleryView { DataContext = vm };
             MainContentControl.Content = _galleryView;
-            SetSectionTitle("Gallery");
+            SetSectionTitle(Loc["Nav_Gallery"]);
             vm.RefreshLikedBookmarkedFavoriteFlags();
         }
         catch (Exception ex)
@@ -409,7 +412,7 @@ public partial class MainWindow : Window
                 Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
                 "Pikura", "gallery_crash.txt");
             System.IO.File.WriteAllText(logPath, msg);
-            MainContentControl.Content = new TextBlock { Text = "Gallery — sign in first", FontSize = 18, Foreground = Brush.Parse("#9CA3AF") };
+            MainContentControl.Content = new TextBlock { Text = string.Format(Loc["Main_SignInFirst"], Loc["Nav_Gallery"]), FontSize = 18, Foreground = Brush.Parse("#9CA3AF") };
         }
     }
 
@@ -424,12 +427,12 @@ public partial class MainWindow : Window
             var vm = AppServices.Get<Pikura.Avalonia.ViewModels.SettingsViewModel>();
             _settingsView ??= new Pikura.Avalonia.Views.Settings.SettingsView { DataContext = vm };
             MainContentControl.Content = _settingsView;
-            SetSectionTitle("Settings");
+            SetSectionTitle(Loc["Nav_Settings"]);
         }
         catch
         {
-            MainContentControl.Content = new TextBlock { Text = "Settings", FontSize = 18, Foreground = Brush.Parse("#9CA3AF") };
-            SetSectionTitle("Settings");
+            MainContentControl.Content = new TextBlock { Text = Loc["Nav_Settings"], FontSize = 18, Foreground = Brush.Parse("#9CA3AF") };
+            SetSectionTitle(Loc["Nav_Settings"]);
         }
     }
 
@@ -440,12 +443,12 @@ public partial class MainWindow : Window
             var vm = AppServices.Get<Pikura.Avalonia.ViewModels.EnhancedRankingsViewModel>();
             _rankingsView ??= new Pikura.Avalonia.Views.Rankings.EnhancedRankingsView { DataContext = vm };
             MainContentControl.Content = _rankingsView;
-            SetSectionTitle("Rankings");
+            SetSectionTitle(Loc["Nav_Rankings"]);
             vm.RefreshLikedBookmarkedFavoriteFlags();
         }
         catch
         {
-            MainContentControl.Content = new TextBlock { Text = "Rankings — sign in first", FontSize = 18, Foreground = Brush.Parse("#9CA3AF"), VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center };
+            MainContentControl.Content = new TextBlock { Text = string.Format(Loc["Main_SignInFirst"], Loc["Nav_Rankings"]), FontSize = 18, Foreground = Brush.Parse("#9CA3AF"), VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center };
         }
     }
 
@@ -456,13 +459,13 @@ public partial class MainWindow : Window
             var vm = AppServices.Get<Pikura.Avalonia.ViewModels.DiscoverViewModel>();
             _discoverView ??= new Pikura.Avalonia.Views.Discover.DiscoverView { DataContext = vm };
             MainContentControl.Content = _discoverView;
-            SetSectionTitle("Discover");
+            SetSectionTitle(Loc["Nav_Discover"]);
             vm.OnNavigatedTo();
             vm.RefreshLikedBookmarkedFavoriteFlags();
         }
         catch (Exception ex)
         {
-            MainContentControl.Content = new TextBlock { Text = $"Discover — error: {ex.Message}", FontSize = 18, Foreground = Brush.Parse("#9CA3AF"), VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center };
+            MainContentControl.Content = new TextBlock { Text = string.Format(Loc["Main_ErrorFormat"], Loc["Nav_Discover"], ex.Message), FontSize = 18, Foreground = Brush.Parse("#9CA3AF"), VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center };
         }
     }
 
@@ -473,12 +476,12 @@ public partial class MainWindow : Window
             var vm = AppServices.Get<Pikura.Avalonia.ViewModels.GlobalSearchViewModel>();
             _searchView ??= new Pikura.Avalonia.Views.Search.GlobalSearchView { DataContext = vm };
             MainContentControl.Content = _searchView;
-            SetSectionTitle("Search");
+            SetSectionTitle(Loc["Nav_Search"]);
             vm.RefreshPopularTags();
         }
         catch (Exception ex)
         {
-            MainContentControl.Content = new TextBlock { Text = $"Search — error: {ex.Message}", FontSize = 18, Foreground = Brush.Parse("#9CA3AF"), VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center };
+            MainContentControl.Content = new TextBlock { Text = string.Format(Loc["Main_ErrorFormat"], Loc["Nav_Search"], ex.Message), FontSize = 18, Foreground = Brush.Parse("#9CA3AF"), VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center };
         }
     }
 
@@ -489,12 +492,12 @@ public partial class MainWindow : Window
             var vm = AppServices.Get<Pikura.Avalonia.ViewModels.BookmarksViewModel>();
             _bookmarksView ??= new Pikura.Avalonia.Views.Bookmarks.BookmarksView { DataContext = vm };
             MainContentControl.Content = _bookmarksView;
-            SetSectionTitle("Bookmarks");
+            SetSectionTitle(Loc["Nav_Bookmarks"]);
             vm.OnNavigatedTo();
         }
         catch (Exception ex)
         {
-            MainContentControl.Content = new TextBlock { Text = $"Bookmarks — error: {ex.Message}", FontSize = 18, Foreground = Brush.Parse("#9CA3AF"), VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center };
+            MainContentControl.Content = new TextBlock { Text = string.Format(Loc["Main_ErrorFormat"], Loc["Nav_Bookmarks"], ex.Message), FontSize = 18, Foreground = Brush.Parse("#9CA3AF"), VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center };
         }
     }
 
@@ -506,14 +509,14 @@ public partial class MainWindow : Window
             var isFirstLoad = _historyView == null;
             _historyView ??= new History.HistoryView { DataContext = vm };
             MainContentControl.Content = _historyView;
-            SetSectionTitle("Jobs");
+            SetSectionTitle(Loc["Nav_Jobs"]);
             // Only reload on first visit to prevent re-render flicker when switching tabs
             if (isFirstLoad)
                 await vm.ReloadAsync();
         }
         catch (Exception ex)
         {
-            MainContentControl.Content = new TextBlock { Text = $"Jobs — error: {ex.Message}", FontSize = 18, Foreground = Brush.Parse("#9CA3AF"), VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center };
+            MainContentControl.Content = new TextBlock { Text = string.Format(Loc["Main_ErrorFormat"], Loc["Nav_Jobs"], ex.Message), FontSize = 18, Foreground = Brush.Parse("#9CA3AF"), VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center };
         }
     }
 
@@ -525,13 +528,13 @@ public partial class MainWindow : Window
             var isFirstLoad = _viewedHistoryView == null;
             _viewedHistoryView ??= new Pikura.Avalonia.Views.History.ViewedHistoryView { DataContext = vm };
             MainContentControl.Content = _viewedHistoryView;
-            SetSectionTitle("Viewed");
+            SetSectionTitle(Loc["Nav_Viewed"]);
             if (!isFirstLoad)
                 _ = vm.RefreshOnActivateAsync();
         }
         catch (Exception ex)
         {
-            MainContentControl.Content = new TextBlock { Text = $"Viewed — error: {ex.Message}", FontSize = 18, Foreground = Brush.Parse("#9CA3AF"), VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center };
+            MainContentControl.Content = new TextBlock { Text = string.Format(Loc["Main_ErrorFormat"], Loc["Nav_Viewed"], ex.Message), FontSize = 18, Foreground = Brush.Parse("#9CA3AF"), VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center };
         }
     }
 
@@ -542,11 +545,11 @@ public partial class MainWindow : Window
         {
             _collectionsView ??= new Pikura.Avalonia.Views.Collections.CollectionsView { DataContext = vm };
             MainContentControl.Content = _collectionsView;
-            SetSectionTitle("Collections");
+            SetSectionTitle(Loc["Nav_Collections"]);
         }
         catch (Exception ex)
         {
-            MainContentControl.Content = new TextBlock { Text = $"Collections — error: {ex.Message}", FontSize = 18, Foreground = Brush.Parse("#9CA3AF"), VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center };
+            MainContentControl.Content = new TextBlock { Text = string.Format(Loc["Main_ErrorFormat"], Loc["Nav_Collections"], ex.Message), FontSize = 18, Foreground = Brush.Parse("#9CA3AF"), VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center };
         }
         return vm;
     }
@@ -564,7 +567,7 @@ public partial class MainWindow : Window
         }
         catch (Exception ex)
         {
-            MainContentControl.Content = new TextBlock { Text = $"Pixivision — error: {ex.Message}", FontSize = 18, Foreground = Brush.Parse("#9CA3AF"), VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center };
+            MainContentControl.Content = new TextBlock { Text = string.Format(Loc["Main_ErrorFormat"], "Pixivision", ex.Message), FontSize = 18, Foreground = Brush.Parse("#9CA3AF"), VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center };
         }
     }
 
@@ -575,12 +578,12 @@ public partial class MainWindow : Window
             var vm = AppServices.Get<AnalyticsViewModel>();
             _analyticsView ??= new Pikura.Avalonia.Views.Analytics.AnalyticsView { DataContext = vm };
             MainContentControl.Content = _analyticsView;
-            SetSectionTitle("Analytics");
+            SetSectionTitle(Loc["Nav_Analytics"]);
         }
         catch (Exception ex)
         {
-            MainContentControl.Content = new TextBlock { Text = $"Analytics — error: {ex.Message}", FontSize = 18, Foreground = Brush.Parse("#9CA3AF"), VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center };
-            SetSectionTitle("Analytics");
+            MainContentControl.Content = new TextBlock { Text = string.Format(Loc["Main_ErrorFormat"], Loc["Nav_Analytics"], ex.Message), FontSize = 18, Foreground = Brush.Parse("#9CA3AF"), VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center };
+            SetSectionTitle(Loc["Nav_Analytics"]);
         }
     }
 
@@ -590,18 +593,18 @@ public partial class MainWindow : Window
         {
             var vm = AppServices.Get<BatchDownloadViewModel>();
             MainContentControl.Content = new BatchDownloadView { DataContext = vm };
-            SetSectionTitle("Batch Download");
+            SetSectionTitle(Loc["Nav_BatchDownload"]);
         }
         catch (Exception ex)
         {
-            MainContentControl.Content = new TextBlock { Text = $"Batch Download — error: {ex.Message}", FontSize = 18, Foreground = Brush.Parse("#9CA3AF"), VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center };
+            MainContentControl.Content = new TextBlock { Text = string.Format(Loc["Main_ErrorFormat"], Loc["Nav_BatchDownload"], ex.Message), FontSize = 18, Foreground = Brush.Parse("#9CA3AF"), VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center };
         }
     }
 
     private void ArtistsButton_Click(object? sender, RoutedEventArgs e)
     {
-        MainContentControl.Content = new TextBlock { Text = "Artists — coming soon", FontSize = 18, Foreground = Brush.Parse("#9CA3AF"), VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center };
-        SetSectionTitle("Artists");
+        MainContentControl.Content = new TextBlock { Text = string.Format(Loc["Main_ComingSoon"], Loc["Nav_Artists"]), FontSize = 18, Foreground = Brush.Parse("#9CA3AF"), VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center };
+        SetSectionTitle(Loc["Nav_Artists"]);
     }
 
     internal void HoshiButton_Click(object? sender, RoutedEventArgs e) => LoadHoshiView();
@@ -622,7 +625,7 @@ public partial class MainWindow : Window
         }
         catch (Exception ex)
         {
-            MainContentControl.Content = new TextBlock { Text = $"Hoshi — {ex.Message}", FontSize = 14, Foreground = Brush.Parse("#9CA3AF"), VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center, TextWrapping = global::Avalonia.Media.TextWrapping.Wrap, Margin = new global::Avalonia.Thickness(20) };
+            MainContentControl.Content = new TextBlock { Text = string.Format(Loc["Main_ErrorSuffix"], "Hoshi", ex.Message), FontSize = 14, Foreground = Brush.Parse("#9CA3AF"), VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center, TextWrapping = global::Avalonia.Media.TextWrapping.Wrap, Margin = new global::Avalonia.Thickness(20) };
         }
     }
 
@@ -844,17 +847,17 @@ public partial class MainWindow : Window
     {
         try
         {
-            var openItem = new NativeMenuItem("Open Pikura");
+            var openItem = new NativeMenuItem(Loc["Tray_Open"]);
             openItem.Click += (_, _) => ShowFromTray();
 
-            var pauseItem = new NativeMenuItem("Pause schedules");
+            var pauseItem = new NativeMenuItem(Loc["Tray_PauseSchedules"]);
             pauseItem.Click += (_, _) =>
             {
                 try { AppServices.Get<Pikura.Core.Services.ScheduleExecutorService>().Stop(); }
                 catch { }
             };
 
-            var exitItem = new NativeMenuItem("Exit");
+            var exitItem = new NativeMenuItem(Loc["Tray_Exit"]);
             exitItem.Click += (_, _) =>
             {
                 // Unsubscribing OnClosing bypasses the hide-to-tray branch so Exit always
@@ -883,6 +886,14 @@ public partial class MainWindow : Window
                 IsVisible   = true,
             };
             _trayIcon.Clicked += (_, _) => ShowFromTray();
+
+            Loc.PropertyChanged += (_, e2) =>
+            {
+                if (e2.PropertyName != "Item[]") return;
+                openItem.Header = Loc["Tray_Open"];
+                pauseItem.Header = Loc["Tray_PauseSchedules"];
+                exitItem.Header = Loc["Tray_Exit"];
+            };
 
             // Register so Avalonia lifecycle knows about it
             TrayIcon.SetIcons(global::Avalonia.Application.Current!, new TrayIcons { _trayIcon });

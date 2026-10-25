@@ -112,4 +112,955 @@
   <data name="CollagePicker_Summary" xml:space="preserve">
     <value>{0} 件の作品 → {1} 個のコラージュ</value>
   </data>
+  <data name="Main_Menu" xml:space="preserve">
+    <value>メニュー</value>
+  </data>
+  <data name="Nav_Gallery" xml:space="preserve">
+    <value>ギャラリー</value>
+  </data>
+  <data name="Nav_Rankings" xml:space="preserve">
+    <value>ランキング</value>
+  </data>
+  <data name="Nav_Discover" xml:space="preserve">
+    <value>発見</value>
+  </data>
+  <data name="Nav_Collections" xml:space="preserve">
+    <value>コレクション</value>
+  </data>
+  <data name="Nav_Search" xml:space="preserve">
+    <value>検索</value>
+  </data>
+  <data name="Nav_Bookmarks" xml:space="preserve">
+    <value>ブックマーク</value>
+  </data>
+  <data name="Nav_History" xml:space="preserve">
+    <value>履歴</value>
+  </data>
+  <data name="Nav_Batch" xml:space="preserve">
+    <value>一括</value>
+  </data>
+  <data name="Nav_Jobs" xml:space="preserve">
+    <value>ジョブ</value>
+  </data>
+  <data name="Main_System" xml:space="preserve">
+    <value>システム</value>
+  </data>
+  <data name="Nav_Analytics" xml:space="preserve">
+    <value>分析</value>
+  </data>
+  <data name="Nav_Settings" xml:space="preserve">
+    <value>設定</value>
+  </data>
+  <data name="Main_Accounts" xml:space="preserve">
+    <value>アカウント</value>
+  </data>
+  <data name="Main_AddAccount" xml:space="preserve">
+    <value>アカウントを追加</value>
+  </data>
+  <data name="Main_UpdateAvailable" xml:space="preserve">
+    <value> が利用可能です</value>
+  </data>
+  <data name="Main_UpdateDownloaded" xml:space="preserve">
+    <value> をダウンロードしました — インストール可能</value>
+  </data>
+  <data name="Common_Download" xml:space="preserve">
+    <value>ダウンロード</value>
+  </data>
+  <data name="Main_ReleaseNotes" xml:space="preserve">
+    <value>リリースノート</value>
+  </data>
+  <data name="Main_InstallRestart" xml:space="preserve">
+    <value>インストールして再起動</value>
+  </data>
+  <data name="Common_Later" xml:space="preserve">
+    <value>後で</value>
+  </data>
+  <data name="Main_Incognito" xml:space="preserve">
+    <value>シークレット</value>
+  </data>
+  <data name="Common_Fullscreen" xml:space="preserve">
+    <value>全画面</value>
+  </data>
+  <data name="Common_Minimize" xml:space="preserve">
+    <value>最小化</value>
+  </data>
+  <data name="Common_Maximize" xml:space="preserve">
+    <value>最大化</value>
+  </data>
+  <data name="Main_ToggleSidebar" xml:space="preserve">
+    <value>サイドバーの切り替え</value>
+  </data>
+  <data name="Settings_Appearance" xml:space="preserve">
+    <value>外観</value>
+  </data>
+  <data name="Settings_Theme" xml:space="preserve">
+    <value>テーマ</value>
+  </data>
+  <data name="Settings_ThemeLight" xml:space="preserve">
+    <value>ライト</value>
+  </data>
+  <data name="Settings_ThemeDark" xml:space="preserve">
+    <value>ダーク</value>
+  </data>
+  <data name="Settings_ThemeSystem" xml:space="preserve">
+    <value>システム</value>
+  </data>
+  <data name="Settings_ThemeScheduled" xml:space="preserve">
+    <value>スケジュール</value>
+  </data>
+  <data name="Settings_DarkFrom" xml:space="preserve">
+    <value>ダーク開始</value>
+  </data>
+  <data name="Settings_DarkUntil" xml:space="preserve">
+    <value>ダーク終了</value>
+  </data>
+  <data name="Settings_Accessibility" xml:space="preserve">
+    <value>アクセシビリティ</value>
+  </data>
+  <data name="Settings_HighContrast" xml:space="preserve">
+    <value>高コントラストモード</value>
+  </data>
+  <data name="Settings_LargeFonts" xml:space="preserve">
+    <value>大きなフォント</value>
+  </data>
+  <data name="Settings_IncreaseSpacing" xml:space="preserve">
+    <value>間隔を広げる</value>
+  </data>
+  <data name="Settings_ReduceMotion" xml:space="preserve">
+    <value>アニメーションを減らす</value>
+  </data>
+  <data name="Settings_FontSizeScale" xml:space="preserve">
+    <value>フォントサイズ倍率</value>
+  </data>
+  <data name="Settings_BgOverlay" xml:space="preserve">
+    <value>背景アートワークオーバーレイ</value>
+  </data>
+  <data name="Settings_EnableBgOverlay" xml:space="preserve">
+    <value>アートワークの背景オーバーレイを有効化</value>
+  </data>
+  <data name="Common_Edit" xml:space="preserve">
+    <value>編集</value>
+  </data>
+  <data name="Settings_ClearAll" xml:space="preserve">
+    <value>すべてクリア</value>
+  </data>
+  <data name="Settings_OverlayPlaceholder" xml:space="preserve">
+    <value>1つ以上のエントリ — 作品ID (40594)、pixiv.netリンク、画像URLまたはローカルパス。改行またはカンマで区切ります。</value>
+  </data>
+  <data name="Settings_OverlayTip" xml:space="preserve">
+    <value>Pixiv作品ID、pixiv.net/artworks/…リンク、画像直リンク、ローカル画像パスを混在できます。エントリは改行・カンマ・セミコロンで区切ります。エントリ一覧を含む .txt/.csv ファイルのパスを貼ることもできます。</value>
+  </data>
+  <data name="Settings_BrowseImages" xml:space="preserve">
+    <value>画像 / リストを参照…</value>
+  </data>
+  <data name="Settings_BrowseImagesTip" xml:space="preserve">
+    <value>画像ファイル、または作品IDとリンクを含む .txt/.csv/.list ファイルを選択 — リストが読み込まれ、各エントリが追加されます。</value>
+  </data>
+  <data name="Settings_ImageAdjustments" xml:space="preserve">
+    <value>画像調整</value>
+  </data>
+  <data name="Settings_ImageAdjustmentsHint" xml:space="preserve">
+    <value>各画像の「編集」ボタンで、画像ごとの不透明度・明るく・暗く・ズーム・位置を調整できます。下のグローバル上書きを有効にすると、同じ値がすべての画像に適用されます。</value>
+  </data>
+  <data name="Settings_GlobalOverrides" xml:space="preserve">
+    <value>グローバル上書きを使用（すべての画像に適用）</value>
+  </data>
+  <data name="Settings_Opacity" xml:space="preserve">
+    <value>不透明度</value>
+  </data>
+  <data name="Settings_Lighten" xml:space="preserve">
+    <value>明るく</value>
+  </data>
+  <data name="Settings_Darken" xml:space="preserve">
+    <value>暗く</value>
+  </data>
+  <data name="Settings_Cycling" xml:space="preserve">
+    <value>切り替え</value>
+  </data>
+  <data name="Settings_StorageNaming" xml:space="preserve">
+    <value>保存先と命名</value>
+  </data>
+  <data name="Settings_DownloadFolder" xml:space="preserve">
+    <value>ダウンロードフォルダー</value>
+  </data>
+  <data name="Common_Browse" xml:space="preserve">
+    <value>参照…</value>
+  </data>
+  <data name="Settings_NamingTemplates" xml:space="preserve">
+    <value>命名テンプレート</value>
+  </data>
+  <data name="Settings_FolderTemplate" xml:space="preserve">
+    <value>フォルダーテンプレート</value>
+  </data>
+  <data name="Settings_Token" xml:space="preserve">
+    <value>トークン…</value>
+  </data>
+  <data name="Settings_FilenameTemplate" xml:space="preserve">
+    <value>ファイル名テンプレート</value>
+  </data>
+  <data name="Settings_MangaFilename" xml:space="preserve">
+    <value>漫画ファイル名（複数ページ）</value>
+  </data>
+  <data name="Settings_InfoFilename" xml:space="preserve">
+    <value>情報テキストファイル名</value>
+  </data>
+  <data name="Settings_TagsSeparator" xml:space="preserve">
+    <value>タグ区切り文字</value>
+  </data>
+  <data name="Settings_DateFormat" xml:space="preserve">
+    <value>日付形式</value>
+  </data>
+  <data name="Settings_SubfolderPerWork" xml:space="preserve">
+    <value>複数ページ作品ごとにサブフォルダー</value>
+  </data>
+  <data name="Settings_R18SeparateFolder" xml:space="preserve">
+    <value>R-18作品を別フォルダーに</value>
+  </data>
+  <data name="Settings_FfmpegUgoira" xml:space="preserve">
+    <value>FFmpeg とアニメーション（うごイラ）</value>
+  </data>
+  <data name="Settings_Status" xml:space="preserve">
+    <value>ステータス: </value>
+  </data>
+  <data name="Settings_InstallFfmpeg" xml:space="preserve">
+    <value>FFmpeg をインストール</value>
+  </data>
+  <data name="Settings_CheckAgain" xml:space="preserve">
+    <value>再確認</value>
+  </data>
+  <data name="Settings_UgoiraAlsoCreate" xml:space="preserve">
+    <value>うごイラ（アニメーションイラスト）のダウンロード時に、以下も作成:</value>
+  </data>
+  <data name="Settings_Mp4Recommended" xml:space="preserve">
+    <value>MP4 (H.264) — 推奨</value>
+  </data>
+  <data name="Settings_WebmVp9" xml:space="preserve">
+    <value>WebM (VP9)</value>
+  </data>
+  <data name="Settings_KeepFrameZip" xml:space="preserve">
+    <value>変換後も元のフレームZIPを保持</value>
+  </data>
+  <data name="Settings_SaveFramesPng" xml:space="preserve">
+    <value>各フレームをPNG画像として保存</value>
+  </data>
+  <data name="Settings_FramesOnly" xml:space="preserve">
+    <value>フレームのみ（動画/GIF生成をスキップ）</value>
+  </data>
+  <data name="Settings_PerAccount" xml:space="preserve">
+    <value>アカウント別ダウンロード設定</value>
+  </data>
+  <data name="Settings_OverridesFor" xml:space="preserve">
+    <value>上書き対象: </value>
+  </data>
+  <data name="Settings_OverridesBlank" xml:space="preserve">
+    <value> — 空白でグローバル設定を使用</value>
+  </data>
+  <data name="Settings_DownloadRoot" xml:space="preserve">
+    <value>ダウンロード先</value>
+  </data>
+  <data name="Settings_BlankGlobalRoot" xml:space="preserve">
+    <value>空白でグローバルの保存先を使用</value>
+  </data>
+  <data name="Settings_FolderTemplate2" xml:space="preserve">
+    <value>フォルダーテンプレート</value>
+  </data>
+  <data name="Settings_FilenameTemplate2" xml:space="preserve">
+    <value>ファイル名テンプレート</value>
+  </data>
+  <data name="Settings_MaxConcurrent" xml:space="preserve">
+    <value>最大同時ダウンロード数</value>
+  </data>
+  <data name="Settings_ContentFilters" xml:space="preserve">
+    <value>コンテンツフィルター</value>
+  </data>
+  <data name="Settings_FilterAi" xml:space="preserve">
+    <value>AI生成作品を除外</value>
+  </data>
+  <data name="Settings_SkipR18" xml:space="preserve">
+    <value>R-18コンテンツをスキップ</value>
+  </data>
+  <data name="Settings_SkipR18G" xml:space="preserve">
+    <value>R-18Gコンテンツをスキップ</value>
+  </data>
+  <data name="Settings_R18Subfolder" xml:space="preserve">
+    <value>R-18を別サブフォルダーに</value>
+  </data>
+  <data name="Settings_AllowRedownload" xml:space="preserve">
+    <value>再ダウンロードを許可（既存ファイルを上書き）</value>
+  </data>
+  <data name="Settings_SaveAccount" xml:space="preserve">
+    <value>アカウント設定を保存</value>
+  </data>
+  <data name="Settings_MetadataExport" xml:space="preserve">
+    <value>メタデータ出力</value>
+  </data>
+  <data name="Settings_JsonMetadata" xml:space="preserve">
+    <value>JSONメタデータ</value>
+  </data>
+  <data name="Settings_InfoTextFile" xml:space="preserve">
+    <value>情報テキストファイル</value>
+  </data>
+  <data name="Settings_RawJson" xml:space="preserve">
+    <value>生API JSON</value>
+  </data>
+  <data name="Settings_SeriesMetadata" xml:space="preserve">
+    <value>シリーズメタデータ</value>
+  </data>
+  <data name="Settings_EmbedXmp" xml:space="preserve">
+    <value>XMPを埋め込む</value>
+  </data>
+  <data name="Settings_XmpPerPage" xml:space="preserve">
+    <value>ページごとのXMP</value>
+  </data>
+  <data name="Settings_VerifyImages" xml:space="preserve">
+    <value>画像を検証</value>
+  </data>
+  <data name="Settings_PreserveTimestamps" xml:space="preserve">
+    <value>タイムスタンプを保持</value>
+  </data>
+  <data name="Settings_LocalTimezone" xml:space="preserve">
+    <value>ローカルタイムゾーン</value>
+  </data>
+  <data name="Settings_ImageProcessing" xml:space="preserve">
+    <value>画像処理</value>
+  </data>
+  <data name="Settings_EnableProcessing" xml:space="preserve">
+    <value>ダウンロード時に自動で画像処理を行う</value>
+  </data>
+  <data name="Settings_ProcessingHint" xml:space="preserve">
+    <value>有効にすると、ダウンロードされたすべての画像が下の有効なプリセットに従って処理されます。</value>
+  </data>
+  <data name="Settings_ExportMetadata" xml:space="preserve">
+    <value>ダウンロード時に作品メタデータも出力</value>
+  </data>
+  <data name="Settings_ExportMetadataHint" xml:space="preserve">
+    <value>各ジョブの画像の隣に、id・タイトル・作者・リンク・サイズ・投稿日・閲覧数・ブックマーク数・タグを記載したメタデータファイルを書き出します。ダウンロードせずにメタデータだけを出力するには、作品を右クリックして「メタデータを出力…」を選択してください。</value>
+  </data>
+  <data name="Settings_FileFormat" xml:space="preserve">
+    <value>ファイル形式</value>
+  </data>
+  <data name="Settings_ResizePreset" xml:space="preserve">
+    <value>有効なリサイズプリセット</value>
+  </data>
+  <data name="Settings_PresetNone" xml:space="preserve">
+    <value>なし（元の画質）</value>
+  </data>
+  <data name="Settings_PresetCustom" xml:space="preserve">
+    <value>カスタム解像度...</value>
+  </data>
+  <data name="Settings_Width" xml:space="preserve">
+    <value>幅:</value>
+  </data>
+  <data name="Settings_Height" xml:space="preserve">
+    <value>高さ:</value>
+  </data>
+  <data name="Settings_MaintainAspect" xml:space="preserve">
+    <value>縦横比を維持</value>
+  </data>
+  <data name="Settings_ResizeMode" xml:space="preserve">
+    <value>リサイズモード</value>
+  </data>
+  <data name="Settings_Fit" xml:space="preserve">
+    <value>収める（縦横比を維持）</value>
+  </data>
+  <data name="Settings_Fill" xml:space="preserve">
+    <value>埋める（切り抜き）</value>
+  </data>
+  <data name="Settings_Stretch" xml:space="preserve">
+    <value>引き伸ばす（歪む）</value>
+  </data>
+  <data name="Settings_OutputFormat" xml:space="preserve">
+    <value>出力形式</value>
+  </data>
+  <data name="Settings_KeepFormat" xml:space="preserve">
+    <value>元の形式を保持</value>
+  </data>
+  <data name="Settings_JpegHigh" xml:space="preserve">
+    <value>JPEG（高画質）</value>
+  </data>
+  <data name="Settings_JpegMedium" xml:space="preserve">
+    <value>JPEG（標準画質）</value>
+  </data>
+  <data name="Settings_PngLossless" xml:space="preserve">
+    <value>PNG（ロスレス）</value>
+  </data>
+  <data name="Settings_WebpModern" xml:space="preserve">
+    <value>WebP（新しい形式）</value>
+  </data>
+  <data name="Settings_JpegQuality" xml:space="preserve">
+    <value>JPEG画質</value>
+  </data>
+  <data name="Settings_CustomOutput" xml:space="preserve">
+    <value>カスタム出力フォルダー</value>
+  </data>
+  <data name="Settings_SaveToCustom" xml:space="preserve">
+    <value>処理済み画像をカスタムフォルダーに保存</value>
+  </data>
+  <data name="Settings_SelectFolder" xml:space="preserve">
+    <value>フォルダーを選択...</value>
+  </data>
+  <data name="Settings_CustomOutputHint" xml:space="preserve">
+    <value>未設定の場合、処理済み画像は元画像と同じ場所に保存されます。</value>
+  </data>
+  <data name="Settings_CustomPresets" xml:space="preserve">
+    <value>カスタムプリセット</value>
+  </data>
+  <data name="Settings_OpenImageEditor" xml:space="preserve">
+    <value>画像エディターを開く</value>
+  </data>
+  <data name="Settings_CustomPresetsHint" xml:space="preserve">
+    <value>詳細な調整を含むカスタムプリセットを作成・保存できます。上のボタンをクリックして画像エディターを開いてください。</value>
+  </data>
+  <data name="Settings_ContentFiltering" xml:space="preserve">
+    <value>コンテンツフィルタリング</value>
+  </data>
+  <data name="Settings_Blocklist" xml:space="preserve">
+    <value>ブロックリスト</value>
+  </data>
+  <data name="Settings_BlocklistHint" xml:space="preserve">
+    <value>タグ・作者・タイトルで作品を非表示またはブロックします。ルールを特定のタブか全タブに適用するか、ダウンロードも阻止するかを選択できます。</value>
+  </data>
+  <data name="Settings_BlocklistPlaceholder" xml:space="preserve">
+    <value>タグ、作者名、作者ID、またはタイトル…</value>
+  </data>
+  <data name="Settings_Regex" xml:space="preserve">
+    <value>正規表現</value>
+  </data>
+  <data name="Settings_BlockDownloads" xml:space="preserve">
+    <value>ダウンロードをブロック</value>
+  </data>
+  <data name="Settings_R18Content" xml:space="preserve">
+    <value>R-18コンテンツ</value>
+  </data>
+  <data name="Settings_ContentMode" xml:space="preserve">
+    <value>表示モード</value>
+  </data>
+  <data name="Settings_ModeOff" xml:space="preserve">
+    <value>オフ</value>
+  </data>
+  <data name="Settings_ModeShow" xml:space="preserve">
+    <value>表示</value>
+  </data>
+  <data name="Settings_ModeOnly" xml:space="preserve">
+    <value>のみ</value>
+  </data>
+  <data name="Settings_TypeFilter" xml:space="preserve">
+    <value>タイプフィルター</value>
+  </data>
+  <data name="Settings_Both" xml:space="preserve">
+    <value>両方</value>
+  </data>
+  <data name="Settings_GalleryDisplay" xml:space="preserve">
+    <value>ギャラリー表示</value>
+  </data>
+  <data name="Settings_BlurR18" xml:space="preserve">
+    <value>ギャラリーでR-18コンテンツをぼかす</value>
+  </data>
+  <data name="Settings_FilterAiContent" xml:space="preserve">
+    <value>AI生成コンテンツを除外</value>
+  </data>
+  <data name="Settings_SkipAiTip" xml:space="preserve">
+    <value>AI生成作品（aiType==2）のダウンロードをスキップ</value>
+  </data>
+  <data name="Settings_Advanced" xml:space="preserve">
+    <value>詳細設定</value>
+  </data>
+  <data name="Settings_Network" xml:space="preserve">
+    <value>ネットワーク / プロキシ</value>
+  </data>
+  <data name="Settings_UseProxy" xml:space="preserve">
+    <value>プロキシを使用</value>
+  </data>
+  <data name="Settings_VerifySsl" xml:space="preserve">
+    <value>SSL証明書を検証</value>
+  </data>
+  <data name="Settings_RespectRobots" xml:space="preserve">
+    <value>robots.txtを尊重</value>
+  </data>
+  <data name="Settings_FanboxCover" xml:space="preserve">
+    <value>限定公開投稿のカバーをダウンロード</value>
+  </data>
+  <data name="Settings_FanboxHtml" xml:space="preserve">
+    <value>記事投稿のHTMLを生成</value>
+  </data>
+  <data name="Settings_ViewedHistory" xml:space="preserve">
+    <value>閲覧履歴</value>
+  </data>
+  <data name="Settings_IncognitoMode" xml:space="preserve">
+    <value>🕶 シークレットモード</value>
+  </data>
+  <data name="Settings_IncognitoTip" xml:space="preserve">
+    <value>有効な間、アプリ内で開いた作品は「閲覧」タブに追加されません。既存の履歴はそのままです。「閲覧」タブのツールバーからも切り替えできます。</value>
+  </data>
+  <data name="Settings_AutoClearStart" xml:space="preserve">
+    <value>起動 / 再起動時に自動クリア</value>
+  </data>
+  <data name="Settings_AutoClearStartTip" xml:space="preserve">
+    <value>アプリ起動のたびに、保持期間を過ぎた「閲覧」タブのエントリを削除します。</value>
+  </data>
+  <data name="Settings_AutoClearRunning" xml:space="preserve">
+    <value>実行中に自動クリア</value>
+  </data>
+  <data name="Settings_AutoClearRunningTip" xml:space="preserve">
+    <value>数分ごとに確認し、保持期間を過ぎた「閲覧」タブのエントリを削除します。</value>
+  </data>
+  <data name="Settings_KeepHistoryFor" xml:space="preserve">
+    <value>履歴の保持期間</value>
+  </data>
+  <data name="Settings_KeepHistoryHint" xml:space="preserve">
+    <value>この期間を過ぎたエントリは「閲覧」タブから自動的に削除されます。</value>
+  </data>
+  <data name="Settings_UgoiraSection" xml:space="preserve">
+    <value>うごイラ（アニメーション画像）</value>
+  </data>
+  <data name="Settings_UgoiraFfmpeg" xml:space="preserve">
+    <value>アニメーションZIPフレームの変換にはFFmpegが必要です。</value>
+  </data>
+  <data name="Settings_KeepZip" xml:space="preserve">
+    <value>変換後も元のZIPを保持</value>
+  </data>
+  <data name="Settings_Codec" xml:space="preserve">
+    <value>コーデック:</value>
+  </data>
+  <data name="Settings_DownloadBehavior" xml:space="preserve">
+    <value>ダウンロード動作</value>
+  </data>
+  <data name="Settings_SafeMode" xml:space="preserve">
+    <value>セーフモード — Pixivアカウントの凍結から保護（推奨）</value>
+  </data>
+  <data name="Settings_SafeModeHint" xml:space="preserve">
+    <value>Pixivは大量ダウンロードによる「不正アクセスの試行」を検出し、アカウントを一時停止します（通常24〜72時間）。セーフモードONの場合、Pikuraは: ① 順次ダウンロードを強制（同時実行数1）、② 遅延が0でも作品間に2〜4秒のジッター付き遅延を挿入、③ HTTP 429/503のRetry-Afterヘッダーを指数バックオフ（5→10→20→60秒、±25%ジッター）で尊重し、リトライ回数を消費しません。小規模で時折のジョブ以外では無効にしないでください。</value>
+  </data>
+  <data name="Settings_ArtistAvatar" xml:space="preserve">
+    <value>作者ギャラリーのダウンロード時にアバターとバナーもダウンロード</value>
+  </data>
+  <data name="Settings_MaxConcurrentDl" xml:space="preserve">
+    <value>最大同時ダウンロード数</value>
+  </data>
+  <data name="Settings_MaxConcurrentDlHint" xml:space="preserve">
+    <value>1ジョブ内での並列ファイルダウンロード数</value>
+  </data>
+  <data name="Settings_SafeModeOverride" xml:space="preserve">
+    <value>セーフモードにより上書き（1に固定）</value>
+  </data>
+  <data name="Settings_MaxConcurrentJobs" xml:space="preserve">
+    <value>最大同時ジョブ数</value>
+  </data>
+  <data name="Settings_MaxJobsHint" xml:space="preserve">
+    <value>同時実行ジョブ数 — 超過分は保留としてキュー</value>
+  </data>
+  <data name="Settings_OverwriteBehavior" xml:space="preserve">
+    <value>上書き動作</value>
+  </data>
+  <data name="Settings_Skip" xml:space="preserve">
+    <value>スキップ</value>
+  </data>
+  <data name="Settings_Overwrite" xml:space="preserve">
+    <value>上書き</value>
+  </data>
+  <data name="Settings_Backup" xml:space="preserve">
+    <value>バックアップ</value>
+  </data>
+  <data name="Settings_MinFileSize" xml:space="preserve">
+    <value>最小ファイルサイズ (KB)</value>
+  </data>
+  <data name="Settings_MaxFileSize" xml:space="preserve">
+    <value>最大ファイルサイズ (KB)</value>
+  </data>
+  <data name="Settings_NoLimit" xml:space="preserve">
+    <value>0 = 制限なし</value>
+  </data>
+  <data name="Settings_Timeout" xml:space="preserve">
+    <value>タイムアウト (秒)</value>
+  </data>
+  <data name="Settings_RetryCount" xml:space="preserve">
+    <value>リトライ回数</value>
+  </data>
+  <data name="Settings_RetryDelay" xml:space="preserve">
+    <value>リトライ間隔 (秒)</value>
+  </data>
+  <data name="Settings_DownloadDelay" xml:space="preserve">
+    <value>ダウンロード間隔 (秒)</value>
+  </data>
+  <data name="Settings_Diagnostics" xml:space="preserve">
+    <value>診断とログ</value>
+  </data>
+  <data name="Settings_VerboseLogging" xml:space="preserve">
+    <value>詳細ログを有効化（デバッグレベル）</value>
+  </data>
+  <data name="Settings_VerboseHint" xml:space="preserve">
+    <value>詳細モードはデバッグ出力を詳細に記録します。再起動後に有効になります。</value>
+  </data>
+  <data name="Settings_AppLog" xml:space="preserve">
+    <value>アプリケーションログ</value>
+  </data>
+  <data name="Common_Copy" xml:space="preserve">
+    <value>コピー</value>
+  </data>
+  <data name="Settings_OpenFolder" xml:space="preserve">
+    <value>フォルダーを開く</value>
+  </data>
+  <data name="Settings_CrashLog" xml:space="preserve">
+    <value>クラッシュログ（デスクトップ）</value>
+  </data>
+  <data name="Settings_HoshiAI" xml:space="preserve">
+    <value>Hoshi AI</value>
+  </data>
+  <data name="Settings_ActiveModels" xml:space="preserve">
+    <value>有効なモデル</value>
+  </data>
+  <data name="Settings_ActiveModelsHint" xml:space="preserve">
+    <value>Hoshiがチャット・画像理解・アニメタグ予測に使用するモデルを選択します。</value>
+  </data>
+  <data name="Settings_OllamaModelsHint" xml:space="preserve">
+    <value>Hoshiがチャットと画像理解に使用する、インストール済みのOllamaモデルを選択します。追加は「モデル管理」からインストールできます。</value>
+  </data>
+  <data name="Settings_LoadingOllama" xml:space="preserve">
+    <value>インストール済みのOllamaモデルを読み込み中…</value>
+  </data>
+  <data name="Settings_TextModel" xml:space="preserve">
+    <value>テキストモデル</value>
+  </data>
+  <data name="Settings_VisionModel" xml:space="preserve">
+    <value>ビジョンモデル</value>
+  </data>
+  <data name="Settings_AnimeTagger" xml:space="preserve">
+    <value>アニメ画像タガー (ONNX)</value>
+  </data>
+  <data name="Settings_AnimeTaggerHint" xml:space="preserve">
+    <value>正確なアニメ / Pixivタグ予測のため、ローカルのDanbooru式タガーを実行します。ONNXモデルは必要時にダウンロードされます。</value>
+  </data>
+  <data name="Settings_EnableTagger" xml:space="preserve">
+    <value>アニメタガーを有効化</value>
+  </data>
+  <data name="Settings_Model" xml:space="preserve">
+    <value>モデル</value>
+  </data>
+  <data name="Settings_AvailableTaggers" xml:space="preserve">
+    <value>利用可能なタガー</value>
+  </data>
+  <data name="Settings_Installed" xml:space="preserve">
+    <value>インストール済み</value>
+  </data>
+  <data name="Common_Install" xml:space="preserve">
+    <value>インストール</value>
+  </data>
+  <data name="Settings_ModelNotInstalled" xml:space="preserve">
+    <value>選択したモデルはまだインストールされていません。上でクリックしてインストールしてください。</value>
+  </data>
+  <data name="Settings_ConfidenceThreshold" xml:space="preserve">
+    <value>信頼度しきい値</value>
+  </data>
+  <data name="Settings_MaxTags" xml:space="preserve">
+    <value>最大タグ数</value>
+  </data>
+  <data name="Settings_AutoTag" xml:space="preserve">
+    <value>ダウンロード画像に自動タグ付け</value>
+  </data>
+  <data name="Settings_AutoTagTip" xml:space="preserve">
+    <value>ダウンロードされた各画像にタガーを実行し、画像の隣のサイドカーファイルにタグを書き込みます。</value>
+  </data>
+  <data name="Settings_ModelManagement" xml:space="preserve">
+    <value>モデル管理</value>
+  </data>
+  <data name="Settings_ModelManagementHint" xml:space="preserve">
+    <value>OllamaおよびONNXモデルのインストール・更新・管理を行います。OllamaモデルはOllama経由で取得され、ONNXタガーはHugging Faceからダウンロードされます。</value>
+  </data>
+  <data name="Settings_InstallModel" xml:space="preserve">
+    <value>モデルをインストール</value>
+  </data>
+  <data name="Settings_InstallModelHint" xml:space="preserve">
+    <value>下にOllamaモデル名を入力するか、推奨チップをクリックしてインストールします。チップにカーソルを合わせるとカテゴリ・説明・推定サイズが表示されます。</value>
+  </data>
+  <data name="Settings_OllamaModelName" xml:space="preserve">
+    <value>Ollamaモデル名（例: llama3.2）</value>
+  </data>
+  <data name="Settings_Recommended" xml:space="preserve">
+    <value>推奨:</value>
+  </data>
+  <data name="Settings_TextChat" xml:space="preserve">
+    <value>テキスト / チャット</value>
+  </data>
+  <data name="Settings_Vision" xml:space="preserve">
+    <value>ビジョン</value>
+  </data>
+  <data name="Settings_InstalledOllama" xml:space="preserve">
+    <value>インストール済みOllamaモデル</value>
+  </data>
+  <data name="Common_Refresh" xml:space="preserve">
+    <value>更新</value>
+  </data>
+  <data name="Common_Loading" xml:space="preserve">
+    <value>読み込み中…</value>
+  </data>
+  <data name="Settings_NoOllamaModels" xml:space="preserve">
+    <value>Ollamaモデルはまだインストールされていません。上のインストーラーでダウンロードしてください。</value>
+  </data>
+  <data name="Settings_UseForChat" xml:space="preserve">
+    <value>チャットに使用</value>
+  </data>
+  <data name="Settings_UseForVision" xml:space="preserve">
+    <value>ビジョンに使用</value>
+  </data>
+  <data name="Common_Uninstall" xml:space="preserve">
+    <value>アンインストール</value>
+  </data>
+  <data name="Settings_InstalledTaggers" xml:space="preserve">
+    <value>インストール済みアニメタガー</value>
+  </data>
+  <data name="Settings_NoTaggers" xml:space="preserve">
+    <value>アニメタガーモデルはまだインストールされていません。上のHoshi AIタブからインストールしてください。</value>
+  </data>
+  <data name="Settings_UseForTagger" xml:space="preserve">
+    <value>タガーに使用</value>
+  </data>
+  <data name="Settings_OllamaLibraryTip" xml:space="preserve">
+    <value>ヒント: https://ollama.com/library でモデルを探せます。正確な名前を入力してください（小型版は例: 'llama3.2:3b'）。</value>
+  </data>
+  <data name="Settings_Config" xml:space="preserve">
+    <value>設定</value>
+  </data>
+  <data name="Settings_Startup" xml:space="preserve">
+    <value>起動</value>
+  </data>
+  <data name="Settings_WindowState" xml:space="preserve">
+    <value>ウィンドウ状態</value>
+  </data>
+  <data name="Settings_SystemTray" xml:space="preserve">
+    <value>システムトレイ</value>
+  </data>
+  <data name="Settings_StartupTab" xml:space="preserve">
+    <value>起動時のタブ</value>
+  </data>
+  <data name="Settings_Splash" xml:space="preserve">
+    <value>起動時にスプラッシュ画面を表示</value>
+  </data>
+  <data name="Settings_SplashTip" xml:space="preserve">
+    <value>アプリ起動時にPikuraのスプラッシュ画面を表示します</value>
+  </data>
+  <data name="Settings_WhatsNew" xml:space="preserve">
+    <value>更新後に新機能ハイライトを表示</value>
+  </data>
+  <data name="Settings_WhatsNewTip" xml:space="preserve">
+    <value>新しいメジャーバージョンを初めて開いたときに「新機能」ダイアログを表示します</value>
+  </data>
+  <data name="Settings_StartWithWindows" xml:space="preserve">
+    <value>Windows起動時に開始</value>
+  </data>
+  <data name="Settings_GalleryViewer" xml:space="preserve">
+    <value>ギャラリービューア</value>
+  </data>
+  <data name="Settings_GalleryViewerHint" xml:space="preserve">
+    <value>ビューアを開いているとき、矢印キーで作品間を移動できます。</value>
+  </data>
+  <data name="Settings_KeyNavGallery" xml:space="preserve">
+    <value>ギャラリーでキーボードナビゲーションを有効化（左右矢印キー）</value>
+  </data>
+  <data name="Settings_KeyNavGalleryTip" xml:space="preserve">
+    <value>インラインビューアパネル表示中、左右矢印キーで前 / 次の作品へ移動します</value>
+  </data>
+  <data name="Settings_KeyNavFullscreen" xml:space="preserve">
+    <value>全画面ビューアでキーボードナビゲーションを有効化</value>
+  </data>
+  <data name="Settings_KeyNavFullscreenTip" xml:space="preserve">
+    <value>全画面ビューアウィンドウで左右矢印キーで作品間を移動します</value>
+  </data>
+  <data name="Settings_DownloadNotifications" xml:space="preserve">
+    <value>ダウンロード通知</value>
+  </data>
+  <data name="Settings_NotificationsHint" xml:space="preserve">
+    <value>ダウンロード時にWindowsのトースト通知を表示します。通知本文に作者のサムネイルが表示されます。</value>
+  </data>
+  <data name="Settings_NotifyStarted" xml:space="preserve">
+    <value>ダウンロード開始</value>
+  </data>
+  <data name="Settings_NotifyStartedHint" xml:space="preserve">
+    <value>ジョブ開始時に通知します。</value>
+  </data>
+  <data name="Settings_NotifyCompleted" xml:space="preserve">
+    <value>ダウンロード完了</value>
+  </data>
+  <data name="Settings_NotifyCompletedHint" xml:space="preserve">
+    <value>ジョブが正常終了したときに通知します。</value>
+  </data>
+  <data name="Settings_NotifyFailed" xml:space="preserve">
+    <value>ダウンロード失敗</value>
+  </data>
+  <data name="Settings_NotifyFailedHint" xml:space="preserve">
+    <value>ジョブが失敗またはエラーありで完了したときに通知します。</value>
+  </data>
+  <data name="Settings_NotifyPaused" xml:space="preserve">
+    <value>ダウンロード一時停止 / 再開</value>
+  </data>
+  <data name="Settings_NotifyPausedHint" xml:space="preserve">
+    <value>ジョブが一時停止または再開されたときに、進捗とともに通知します。</value>
+  </data>
+  <data name="Settings_ResetDefaults" xml:space="preserve">
+    <value>デフォルトに戻す</value>
+  </data>
+  <data name="Settings_Accounts" xml:space="preserve">
+    <value>アカウント</value>
+  </data>
+  <data name="Settings_AccountsHint" xml:space="preserve">
+    <value>ログイン中のPixivアカウントを管理</value>
+  </data>
+  <data name="Settings_SignOutAll" xml:space="preserve">
+    <value>すべてのアカウントからサインアウト</value>
+  </data>
+  <data name="Settings_AddAccount" xml:space="preserve">
+    <value>+ アカウントを追加</value>
+  </data>
+  <data name="Settings_PixivPremium" xml:space="preserve">
+    <value>Pixivプレミアム</value>
+  </data>
+  <data name="Settings_Id" xml:space="preserve">
+    <value>ID: </value>
+  </data>
+  <data name="Settings_Active" xml:space="preserve">
+    <value>有効</value>
+  </data>
+  <data name="Settings_Switch" xml:space="preserve">
+    <value>切り替え</value>
+  </data>
+  <data name="Settings_SignOut" xml:space="preserve">
+    <value>サインアウト</value>
+  </data>
+  <data name="Settings_NoAccounts" xml:space="preserve">
+    <value>ログイン中のアカウントがありません。「+ アカウントを追加」をクリックして始めましょう。</value>
+  </data>
+  <data name="Settings_Updates" xml:space="preserve">
+    <value>更新</value>
+  </data>
+  <data name="Settings_CurrentVersion" xml:space="preserve">
+    <value>現在のバージョン: </value>
+  </data>
+  <data name="Settings_CheckNow" xml:space="preserve">
+    <value>今すぐ確認</value>
+  </data>
+  <data name="Settings_UpdatePrefs" xml:space="preserve">
+    <value>更新設定</value>
+  </data>
+  <data name="Settings_CheckUpdates" xml:space="preserve">
+    <value>更新を確認</value>
+  </data>
+  <data name="Settings_CheckUpdatesHint" xml:space="preserve">
+    <value>起動時にPikuraが新バージョンを確認する頻度</value>
+  </data>
+  <data name="Settings_ReleaseChannel" xml:space="preserve">
+    <value>リリースチャンネル</value>
+  </data>
+  <data name="Settings_ReleaseChannelHint" xml:space="preserve">
+    <value>Stable = タグ付きリリースのみ。Pre-release = ベータを含む</value>
+  </data>
+  <data name="Settings_NotifyUpdate" xml:space="preserve">
+    <value>更新があるときに通知</value>
+  </data>
+  <data name="Settings_NotifyUpdateHint" xml:space="preserve">
+    <value>ウィンドウ上部にバナーを表示します</value>
+  </data>
+  <data name="Settings_AutoDownload" xml:space="preserve">
+    <value>更新を自動ダウンロード</value>
+  </data>
+  <data name="Settings_AutoDownloadHint" xml:space="preserve">
+    <value>バックグラウンドで自動ダウンロード。インストールは確認してから</value>
+  </data>
+  <data name="Settings_SaveUpdates" xml:space="preserve">
+    <value>更新設定を保存</value>
+  </data>
+  <data name="Settings_UpdateBannerHint" xml:space="preserve">
+    <value>更新がある場合、ウィンドウ上部にバナーが表示され、そこからダウンロード・インストールできます。</value>
+  </data>
+  <data name="Settings_About" xml:space="preserve">
+    <value>情報</value>
+  </data>
+  <data name="Settings_Tagline" xml:space="preserve">
+    <value>Pixiv作品マネージャー</value>
+  </data>
+  <data name="Settings_Version" xml:space="preserve">
+    <value>バージョン</value>
+  </data>
+  <data name="Settings_Developer" xml:space="preserve">
+    <value>開発者</value>
+  </data>
+  <data name="Settings_Year" xml:space="preserve">
+    <value>年</value>
+  </data>
+  <data name="Settings_GitHubPage" xml:space="preserve">
+    <value>GitHubページ</value>
+  </data>
+  <data name="Settings_ViewChangelog" xml:space="preserve">
+    <value>変更履歴を見る</value>
+  </data>
+  <data name="Settings_License" xml:space="preserve">
+    <value>ライセンス</value>
+  </data>
+  <data name="Settings_LicenseText" xml:space="preserve">
+    <value>PikuraはGPL v3.0でライセンスされるフリーのオープンソースソフトウェアです。クローズドソースでの利用には作者からの商用ライセンスがあります。コントリビューション歓迎。</value>
+  </data>
+  <data name="Settings_BuiltWith" xml:space="preserve">
+    <value>使用技術</value>
+  </data>
+  <data name="Tray_Open" xml:space="preserve">
+    <value>Pikuraを開く</value>
+  </data>
+  <data name="Tray_Quit" xml:space="preserve">
+    <value>終了</value>
+  </data>
+  <data name="Main_SignInFirst" xml:space="preserve">
+    <value>{0} — まずログインしてください</value>
+  </data>
+  <data name="Main_ErrorFormat" xml:space="preserve">
+    <value>{0} — エラー: {1}</value>
+  </data>
+  <data name="Main_ErrorSuffix" xml:space="preserve">
+    <value>{0} — {1}</value>
+  </data>
+  <data name="Main_ComingSoon" xml:space="preserve">
+    <value>{0} — 近日公開</value>
+  </data>
+  <data name="Tray_PauseSchedules" xml:space="preserve">
+    <value>スケジュールを一時停止</value>
+  </data>
+  <data name="Tray_Exit" xml:space="preserve">
+    <value>終了</value>
+  </data>
+  <data name="Settings_ChooseOverlayFiles" xml:space="preserve">
+    <value>オーバーレイ画像またはリストファイルを選択</value>
+  </data>
+  <data name="Settings_FileTypeImagesLists" xml:space="preserve">
+    <value>画像とリスト</value>
+  </data>
+  <data name="Settings_FileTypeImages" xml:space="preserve">
+    <value>画像ファイル</value>
+  </data>
+  <data name="Settings_FileTypeLists" xml:space="preserve">
+    <value>リンクリスト</value>
+  </data>
+  <data name="Settings_OverlayAdded" xml:space="preserve">
+    <value>{0}件追加</value>
+  </data>
+  <data name="Settings_OverlayFailed" xml:space="preserve">
+    <value>{0}件失敗</value>
+  </data>
+  <data name="Settings_OverlaySkipped" xml:space="preserve">
+    <value>{0}件スキップ（上限 {1}）</value>
+  </data>
+  <data name="Hoshi_InstallOllamaTitle" xml:space="preserve">
+    <value>Ollamaをインストールしますか？</value>
+  </data>
+  <data name="Hoshi_InstallOllamaPrompt" xml:space="preserve">
+    <value>Hoshiは無料のローカルAIランタイムOllama上で動作しますが、まだインストールされていません。今すぐollama.comからOllamaインストーラーをダウンロードして実行しますか？</value>
+  </data>
+  <data name="Hoshi_OllamaNotInstalled" xml:space="preserve">
+    <value>Ollamaがインストールされていません。HoshiにはOllamaが必要です — https://ollama.com からインストールしてください</value>
+  </data>
+  <data name="Nav_Viewed" xml:space="preserve">
+    <value>閲覧</value>
+  </data>
+  <data name="Nav_Artists" xml:space="preserve">
+    <value>作者</value>
+  </data>
+  <data name="Nav_BatchDownload" xml:space="preserve">
+    <value>一括ダウンロード</value>
+  </data>
 </root>

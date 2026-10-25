@@ -112,4 +112,955 @@
   <data name="CollagePicker_Summary" xml:space="preserve">
     <value>{0}개 작품 → {1}개 콜라주</value>
   </data>
+  <data name="Main_Menu" xml:space="preserve">
+    <value>메뉴</value>
+  </data>
+  <data name="Nav_Gallery" xml:space="preserve">
+    <value>갤러리</value>
+  </data>
+  <data name="Nav_Rankings" xml:space="preserve">
+    <value>랭킹</value>
+  </data>
+  <data name="Nav_Discover" xml:space="preserve">
+    <value>발견</value>
+  </data>
+  <data name="Nav_Collections" xml:space="preserve">
+    <value>컬렉션</value>
+  </data>
+  <data name="Nav_Search" xml:space="preserve">
+    <value>검색</value>
+  </data>
+  <data name="Nav_Bookmarks" xml:space="preserve">
+    <value>북마크</value>
+  </data>
+  <data name="Nav_History" xml:space="preserve">
+    <value>기록</value>
+  </data>
+  <data name="Nav_Batch" xml:space="preserve">
+    <value>일괄</value>
+  </data>
+  <data name="Nav_Jobs" xml:space="preserve">
+    <value>작업</value>
+  </data>
+  <data name="Main_System" xml:space="preserve">
+    <value>시스템</value>
+  </data>
+  <data name="Nav_Analytics" xml:space="preserve">
+    <value>분석</value>
+  </data>
+  <data name="Nav_Settings" xml:space="preserve">
+    <value>설정</value>
+  </data>
+  <data name="Main_Accounts" xml:space="preserve">
+    <value>계정</value>
+  </data>
+  <data name="Main_AddAccount" xml:space="preserve">
+    <value>계정 추가</value>
+  </data>
+  <data name="Main_UpdateAvailable" xml:space="preserve">
+    <value> 을 사용할 수 있습니다</value>
+  </data>
+  <data name="Main_UpdateDownloaded" xml:space="preserve">
+    <value> 다운로드 완료 — 설치 준비됨</value>
+  </data>
+  <data name="Common_Download" xml:space="preserve">
+    <value>다운로드</value>
+  </data>
+  <data name="Main_ReleaseNotes" xml:space="preserve">
+    <value>릴리스 노트</value>
+  </data>
+  <data name="Main_InstallRestart" xml:space="preserve">
+    <value>설치 후 다시 시작</value>
+  </data>
+  <data name="Common_Later" xml:space="preserve">
+    <value>나중에</value>
+  </data>
+  <data name="Main_Incognito" xml:space="preserve">
+    <value>시크릿</value>
+  </data>
+  <data name="Common_Fullscreen" xml:space="preserve">
+    <value>전체 화면</value>
+  </data>
+  <data name="Common_Minimize" xml:space="preserve">
+    <value>최소화</value>
+  </data>
+  <data name="Common_Maximize" xml:space="preserve">
+    <value>최대화</value>
+  </data>
+  <data name="Main_ToggleSidebar" xml:space="preserve">
+    <value>사이드바 전환</value>
+  </data>
+  <data name="Settings_Appearance" xml:space="preserve">
+    <value>모양</value>
+  </data>
+  <data name="Settings_Theme" xml:space="preserve">
+    <value>테마</value>
+  </data>
+  <data name="Settings_ThemeLight" xml:space="preserve">
+    <value>라이트</value>
+  </data>
+  <data name="Settings_ThemeDark" xml:space="preserve">
+    <value>다크</value>
+  </data>
+  <data name="Settings_ThemeSystem" xml:space="preserve">
+    <value>시스템</value>
+  </data>
+  <data name="Settings_ThemeScheduled" xml:space="preserve">
+    <value>예약</value>
+  </data>
+  <data name="Settings_DarkFrom" xml:space="preserve">
+    <value>다크 시작</value>
+  </data>
+  <data name="Settings_DarkUntil" xml:space="preserve">
+    <value>다크 종료</value>
+  </data>
+  <data name="Settings_Accessibility" xml:space="preserve">
+    <value>접근성</value>
+  </data>
+  <data name="Settings_HighContrast" xml:space="preserve">
+    <value>고대비 모드</value>
+  </data>
+  <data name="Settings_LargeFonts" xml:space="preserve">
+    <value>큰 글꼴</value>
+  </data>
+  <data name="Settings_IncreaseSpacing" xml:space="preserve">
+    <value>간격 넓히기</value>
+  </data>
+  <data name="Settings_ReduceMotion" xml:space="preserve">
+    <value>모션 줄이기</value>
+  </data>
+  <data name="Settings_FontSizeScale" xml:space="preserve">
+    <value>글꼴 크기 배율</value>
+  </data>
+  <data name="Settings_BgOverlay" xml:space="preserve">
+    <value>배경 아트워크 오버레이</value>
+  </data>
+  <data name="Settings_EnableBgOverlay" xml:space="preserve">
+    <value>아트워크 배경 오버레이 사용</value>
+  </data>
+  <data name="Common_Edit" xml:space="preserve">
+    <value>편집</value>
+  </data>
+  <data name="Settings_ClearAll" xml:space="preserve">
+    <value>모두 지우기</value>
+  </data>
+  <data name="Settings_OverlayPlaceholder" xml:space="preserve">
+    <value>하나 이상의 항목 — 작품 ID (40594), pixiv.net 링크, 이미지 URL 또는 로컬 경로. 줄바꿈이나 쉼표로 구분하세요.</value>
+  </data>
+  <data name="Settings_OverlayTip" xml:space="preserve">
+    <value>Pixiv 작품 ID, pixiv.net/artworks/… 링크, 이미지 직접 URL, 로컬 이미지 경로를 혼합할 수 있습니다. 항목은 줄바꿈, 쉼표 또는 세미콜론으로 구분합니다. 항목 목록이 담긴 .txt/.csv 파일 경로를 붙여넣을 수도 있습니다.</value>
+  </data>
+  <data name="Settings_BrowseImages" xml:space="preserve">
+    <value>이미지 / 목록 찾아보기…</value>
+  </data>
+  <data name="Settings_BrowseImagesTip" xml:space="preserve">
+    <value>이미지 파일 또는 작품 ID와 링크가 포함된 .txt/.csv/.list 파일을 선택하세요 — 목록을 읽어 각 항목을 추가합니다.</value>
+  </data>
+  <data name="Settings_ImageAdjustments" xml:space="preserve">
+    <value>이미지 조정</value>
+  </data>
+  <data name="Settings_ImageAdjustmentsHint" xml:space="preserve">
+    <value>각 이미지의 편집 버튼으로 이미지별 불투명도, 밝게, 어둡게, 확대, 위치를 조정할 수 있습니다. 아래 전역 재정의를 켜면 같은 값이 모든 이미지에 적용됩니다.</value>
+  </data>
+  <data name="Settings_GlobalOverrides" xml:space="preserve">
+    <value>전역 재정의 사용(모든 이미지에 적용)</value>
+  </data>
+  <data name="Settings_Opacity" xml:space="preserve">
+    <value>불투명도</value>
+  </data>
+  <data name="Settings_Lighten" xml:space="preserve">
+    <value>밝게</value>
+  </data>
+  <data name="Settings_Darken" xml:space="preserve">
+    <value>어둡게</value>
+  </data>
+  <data name="Settings_Cycling" xml:space="preserve">
+    <value>순환</value>
+  </data>
+  <data name="Settings_StorageNaming" xml:space="preserve">
+    <value>저장 및 이름 지정</value>
+  </data>
+  <data name="Settings_DownloadFolder" xml:space="preserve">
+    <value>다운로드 폴더</value>
+  </data>
+  <data name="Common_Browse" xml:space="preserve">
+    <value>찾아보기…</value>
+  </data>
+  <data name="Settings_NamingTemplates" xml:space="preserve">
+    <value>이름 지정 템플릿</value>
+  </data>
+  <data name="Settings_FolderTemplate" xml:space="preserve">
+    <value>폴더 템플릿</value>
+  </data>
+  <data name="Settings_Token" xml:space="preserve">
+    <value>토큰…</value>
+  </data>
+  <data name="Settings_FilenameTemplate" xml:space="preserve">
+    <value>파일명 템플릿</value>
+  </data>
+  <data name="Settings_MangaFilename" xml:space="preserve">
+    <value>만화 파일명(여러 페이지)</value>
+  </data>
+  <data name="Settings_InfoFilename" xml:space="preserve">
+    <value>정보 텍스트 파일명</value>
+  </data>
+  <data name="Settings_TagsSeparator" xml:space="preserve">
+    <value>태그 구분자</value>
+  </data>
+  <data name="Settings_DateFormat" xml:space="preserve">
+    <value>날짜 형식</value>
+  </data>
+  <data name="Settings_SubfolderPerWork" xml:space="preserve">
+    <value>여러 페이지 작품별 하위 폴더</value>
+  </data>
+  <data name="Settings_R18SeparateFolder" xml:space="preserve">
+    <value>R-18 작품을 별도 폴더에</value>
+  </data>
+  <data name="Settings_FfmpegUgoira" xml:space="preserve">
+    <value>FFmpeg 및 애니메이션(우고이라)</value>
+  </data>
+  <data name="Settings_Status" xml:space="preserve">
+    <value>상태: </value>
+  </data>
+  <data name="Settings_InstallFfmpeg" xml:space="preserve">
+    <value>FFmpeg 설치</value>
+  </data>
+  <data name="Settings_CheckAgain" xml:space="preserve">
+    <value>다시 확인</value>
+  </data>
+  <data name="Settings_UgoiraAlsoCreate" xml:space="preserve">
+    <value>우고이라(움직이는 일러스트) 다운로드 시 다음도 생성:</value>
+  </data>
+  <data name="Settings_Mp4Recommended" xml:space="preserve">
+    <value>MP4 (H.264) — 권장</value>
+  </data>
+  <data name="Settings_WebmVp9" xml:space="preserve">
+    <value>WebM (VP9)</value>
+  </data>
+  <data name="Settings_KeepFrameZip" xml:space="preserve">
+    <value>변환 후 원본 프레임 ZIP 유지</value>
+  </data>
+  <data name="Settings_SaveFramesPng" xml:space="preserve">
+    <value>개별 프레임을 PNG 이미지로 저장</value>
+  </data>
+  <data name="Settings_FramesOnly" xml:space="preserve">
+    <value>프레임만(동영상/GIF 생성 건너뛰기)</value>
+  </data>
+  <data name="Settings_PerAccount" xml:space="preserve">
+    <value>계정별 다운로드 설정</value>
+  </data>
+  <data name="Settings_OverridesFor" xml:space="preserve">
+    <value>재정의 대상: </value>
+  </data>
+  <data name="Settings_OverridesBlank" xml:space="preserve">
+    <value> — 비워 두면 전역 설정 사용</value>
+  </data>
+  <data name="Settings_DownloadRoot" xml:space="preserve">
+    <value>다운로드 루트</value>
+  </data>
+  <data name="Settings_BlankGlobalRoot" xml:space="preserve">
+    <value>비워 두면 전역 루트 사용</value>
+  </data>
+  <data name="Settings_FolderTemplate2" xml:space="preserve">
+    <value>폴더 템플릿</value>
+  </data>
+  <data name="Settings_FilenameTemplate2" xml:space="preserve">
+    <value>파일명 템플릿</value>
+  </data>
+  <data name="Settings_MaxConcurrent" xml:space="preserve">
+    <value>최대 동시 다운로드</value>
+  </data>
+  <data name="Settings_ContentFilters" xml:space="preserve">
+    <value>콘텐츠 필터</value>
+  </data>
+  <data name="Settings_FilterAi" xml:space="preserve">
+    <value>AI 생성 작품 필터링</value>
+  </data>
+  <data name="Settings_SkipR18" xml:space="preserve">
+    <value>R-18 콘텐츠 건너뛰기</value>
+  </data>
+  <data name="Settings_SkipR18G" xml:space="preserve">
+    <value>R-18G 콘텐츠 건너뛰기</value>
+  </data>
+  <data name="Settings_R18Subfolder" xml:space="preserve">
+    <value>R-18을 별도 하위 폴더에</value>
+  </data>
+  <data name="Settings_AllowRedownload" xml:space="preserve">
+    <value>재다운로드 허용(기존 파일 덮어쓰기)</value>
+  </data>
+  <data name="Settings_SaveAccount" xml:space="preserve">
+    <value>계정 설정 저장</value>
+  </data>
+  <data name="Settings_MetadataExport" xml:space="preserve">
+    <value>메타데이터 내보내기</value>
+  </data>
+  <data name="Settings_JsonMetadata" xml:space="preserve">
+    <value>JSON 메타데이터</value>
+  </data>
+  <data name="Settings_InfoTextFile" xml:space="preserve">
+    <value>정보 텍스트 파일</value>
+  </data>
+  <data name="Settings_RawJson" xml:space="preserve">
+    <value>원본 API JSON</value>
+  </data>
+  <data name="Settings_SeriesMetadata" xml:space="preserve">
+    <value>시리즈 메타데이터</value>
+  </data>
+  <data name="Settings_EmbedXmp" xml:space="preserve">
+    <value>XMP 포함</value>
+  </data>
+  <data name="Settings_XmpPerPage" xml:space="preserve">
+    <value>페이지별 XMP</value>
+  </data>
+  <data name="Settings_VerifyImages" xml:space="preserve">
+    <value>이미지 검증</value>
+  </data>
+  <data name="Settings_PreserveTimestamps" xml:space="preserve">
+    <value>타임스탬프 유지</value>
+  </data>
+  <data name="Settings_LocalTimezone" xml:space="preserve">
+    <value>로컬 시간대</value>
+  </data>
+  <data name="Settings_ImageProcessing" xml:space="preserve">
+    <value>이미지 처리</value>
+  </data>
+  <data name="Settings_EnableProcessing" xml:space="preserve">
+    <value>다운로드 시 자동 이미지 처리 사용</value>
+  </data>
+  <data name="Settings_ProcessingHint" xml:space="preserve">
+    <value>사용하면 다운로드된 모든 이미지가 아래의 활성 프리셋에 따라 처리됩니다.</value>
+  </data>
+  <data name="Settings_ExportMetadata" xml:space="preserve">
+    <value>다운로드 시 작품 메타데이터도 내보내기</value>
+  </data>
+  <data name="Settings_ExportMetadataHint" xml:space="preserve">
+    <value>각 작업의 이미지 옆에 id, 제목, 작가, 링크, 크기, 업로드 날짜, 조회수, 북마크 수, 태그를 담은 메타데이터 파일을 작성합니다. 다운로드 없이 메타데이터만 내보내려면 작품을 우클릭하여 “메타데이터 내보내기…”를 선택하세요.</value>
+  </data>
+  <data name="Settings_FileFormat" xml:space="preserve">
+    <value>파일 형식</value>
+  </data>
+  <data name="Settings_ResizePreset" xml:space="preserve">
+    <value>활성 크기 조정 프리셋</value>
+  </data>
+  <data name="Settings_PresetNone" xml:space="preserve">
+    <value>없음(원본 화질)</value>
+  </data>
+  <data name="Settings_PresetCustom" xml:space="preserve">
+    <value>사용자 지정 해상도...</value>
+  </data>
+  <data name="Settings_Width" xml:space="preserve">
+    <value>너비:</value>
+  </data>
+  <data name="Settings_Height" xml:space="preserve">
+    <value>높이:</value>
+  </data>
+  <data name="Settings_MaintainAspect" xml:space="preserve">
+    <value>종횡비 유지</value>
+  </data>
+  <data name="Settings_ResizeMode" xml:space="preserve">
+    <value>크기 조정 모드</value>
+  </data>
+  <data name="Settings_Fit" xml:space="preserve">
+    <value>맞춤(종횡비 유지)</value>
+  </data>
+  <data name="Settings_Fill" xml:space="preserve">
+    <value>채우기(잘라내기)</value>
+  </data>
+  <data name="Settings_Stretch" xml:space="preserve">
+    <value>늘리기(왜곡)</value>
+  </data>
+  <data name="Settings_OutputFormat" xml:space="preserve">
+    <value>출력 형식</value>
+  </data>
+  <data name="Settings_KeepFormat" xml:space="preserve">
+    <value>원본 형식 유지</value>
+  </data>
+  <data name="Settings_JpegHigh" xml:space="preserve">
+    <value>JPEG(고화질)</value>
+  </data>
+  <data name="Settings_JpegMedium" xml:space="preserve">
+    <value>JPEG(중간 화질)</value>
+  </data>
+  <data name="Settings_PngLossless" xml:space="preserve">
+    <value>PNG(무손실)</value>
+  </data>
+  <data name="Settings_WebpModern" xml:space="preserve">
+    <value>WebP(최신 형식)</value>
+  </data>
+  <data name="Settings_JpegQuality" xml:space="preserve">
+    <value>JPEG 품질</value>
+  </data>
+  <data name="Settings_CustomOutput" xml:space="preserve">
+    <value>사용자 지정 출력 폴더</value>
+  </data>
+  <data name="Settings_SaveToCustom" xml:space="preserve">
+    <value>처리된 이미지를 사용자 지정 폴더에 저장</value>
+  </data>
+  <data name="Settings_SelectFolder" xml:space="preserve">
+    <value>폴더 선택...</value>
+  </data>
+  <data name="Settings_CustomOutputHint" xml:space="preserve">
+    <value>설정하지 않으면 처리된 이미지가 원본과 함께 저장됩니다.</value>
+  </data>
+  <data name="Settings_CustomPresets" xml:space="preserve">
+    <value>사용자 지정 프리셋</value>
+  </data>
+  <data name="Settings_OpenImageEditor" xml:space="preserve">
+    <value>이미지 편집기 열기</value>
+  </data>
+  <data name="Settings_CustomPresetsHint" xml:space="preserve">
+    <value>고급 조정이 가능한 사용자 지정 프리셋을 만들고 저장할 수 있습니다. 위 버튼을 클릭해 이미지 편집기를 여세요.</value>
+  </data>
+  <data name="Settings_ContentFiltering" xml:space="preserve">
+    <value>콘텐츠 필터링</value>
+  </data>
+  <data name="Settings_Blocklist" xml:space="preserve">
+    <value>차단 목록</value>
+  </data>
+  <data name="Settings_BlocklistHint" xml:space="preserve">
+    <value>태그, 작가 또는 제목으로 작품을 숨기거나 차단합니다. 규칙을 특정 탭 또는 모든 탭에 적용할지, 다운로드도 차단할지 선택할 수 있습니다.</value>
+  </data>
+  <data name="Settings_BlocklistPlaceholder" xml:space="preserve">
+    <value>태그, 작가명, 작가 ID 또는 제목…</value>
+  </data>
+  <data name="Settings_Regex" xml:space="preserve">
+    <value>정규식</value>
+  </data>
+  <data name="Settings_BlockDownloads" xml:space="preserve">
+    <value>다운로드 차단</value>
+  </data>
+  <data name="Settings_R18Content" xml:space="preserve">
+    <value>R-18 콘텐츠</value>
+  </data>
+  <data name="Settings_ContentMode" xml:space="preserve">
+    <value>콘텐츠 모드</value>
+  </data>
+  <data name="Settings_ModeOff" xml:space="preserve">
+    <value>끄기</value>
+  </data>
+  <data name="Settings_ModeShow" xml:space="preserve">
+    <value>표시</value>
+  </data>
+  <data name="Settings_ModeOnly" xml:space="preserve">
+    <value>만</value>
+  </data>
+  <data name="Settings_TypeFilter" xml:space="preserve">
+    <value>유형 필터</value>
+  </data>
+  <data name="Settings_Both" xml:space="preserve">
+    <value>모두</value>
+  </data>
+  <data name="Settings_GalleryDisplay" xml:space="preserve">
+    <value>갤러리 표시</value>
+  </data>
+  <data name="Settings_BlurR18" xml:space="preserve">
+    <value>갤러리에서 R-18 콘텐츠 흐리게</value>
+  </data>
+  <data name="Settings_FilterAiContent" xml:space="preserve">
+    <value>AI 생성 콘텐츠 필터링</value>
+  </data>
+  <data name="Settings_SkipAiTip" xml:space="preserve">
+    <value>AI 생성 작품 다운로드 건너뛰기 (aiType==2)</value>
+  </data>
+  <data name="Settings_Advanced" xml:space="preserve">
+    <value>고급</value>
+  </data>
+  <data name="Settings_Network" xml:space="preserve">
+    <value>네트워크 / 프록시</value>
+  </data>
+  <data name="Settings_UseProxy" xml:space="preserve">
+    <value>프록시 사용</value>
+  </data>
+  <data name="Settings_VerifySsl" xml:space="preserve">
+    <value>SSL 인증서 확인</value>
+  </data>
+  <data name="Settings_RespectRobots" xml:space="preserve">
+    <value>robots.txt 준수</value>
+  </data>
+  <data name="Settings_FanboxCover" xml:space="preserve">
+    <value>제한 공개 게시물 표지 다운로드</value>
+  </data>
+  <data name="Settings_FanboxHtml" xml:space="preserve">
+    <value>기사 게시물용 HTML 생성</value>
+  </data>
+  <data name="Settings_ViewedHistory" xml:space="preserve">
+    <value>열람 기록</value>
+  </data>
+  <data name="Settings_IncognitoMode" xml:space="preserve">
+    <value>🕶 시크릿 모드</value>
+  </data>
+  <data name="Settings_IncognitoTip" xml:space="preserve">
+    <value>사용하는 동안 앱에서 연 작품이 '열람' 탭에 추가되지 않습니다. 기존 기록은 그대로 유지됩니다. '열람' 탭 도구 모음에서도 전환할 수 있습니다.</value>
+  </data>
+  <data name="Settings_AutoClearStart" xml:space="preserve">
+    <value>시작 / 재시작 시 자동 삭제</value>
+  </data>
+  <data name="Settings_AutoClearStartTip" xml:space="preserve">
+    <value>앱이 시작될 때마다 보관 기간이 지난 '열람' 탭 항목을 삭제합니다.</value>
+  </data>
+  <data name="Settings_AutoClearRunning" xml:space="preserve">
+    <value>앱 실행 중 자동 삭제</value>
+  </data>
+  <data name="Settings_AutoClearRunningTip" xml:space="preserve">
+    <value>몇 분마다 확인하여 보관 기간이 지난 '열람' 탭 항목을 삭제합니다.</value>
+  </data>
+  <data name="Settings_KeepHistoryFor" xml:space="preserve">
+    <value>기록 보관 기간</value>
+  </data>
+  <data name="Settings_KeepHistoryHint" xml:space="preserve">
+    <value>이 기간이 지난 항목은 '열람' 탭에서 자동으로 삭제됩니다.</value>
+  </data>
+  <data name="Settings_UgoiraSection" xml:space="preserve">
+    <value>우고이라(움직이는 이미지)</value>
+  </data>
+  <data name="Settings_UgoiraFfmpeg" xml:space="preserve">
+    <value>애니메이션 ZIP 프레임 변환에는 FFmpeg이 필요합니다.</value>
+  </data>
+  <data name="Settings_KeepZip" xml:space="preserve">
+    <value>변환 후 원본 ZIP 유지</value>
+  </data>
+  <data name="Settings_Codec" xml:space="preserve">
+    <value>코덱:</value>
+  </data>
+  <data name="Settings_DownloadBehavior" xml:space="preserve">
+    <value>다운로드 동작</value>
+  </data>
+  <data name="Settings_SafeMode" xml:space="preserve">
+    <value>세이프 모드 — Pixiv 계정 정지 방지(권장)</value>
+  </data>
+  <data name="Settings_SafeModeHint" xml:space="preserve">
+    <value>Pixiv는 대량 다운로드로 인한 "승인되지 않은 접근 시도"를 감지해 계정을 일시 정지합니다(보통 24–72시간). 세이프 모드가 켜져 있으면 Pikura는: ① 순차 다운로드 강제(동시 실행 1), ② 지연이 0이어도 작품 사이에 2–4초의 무작위 지연 적용, ③ HTTP 429/503의 Retry-After 헤더를 지수 백오프(5→10→20→60초, ±25% 지터)로 준수하며 재시도 횟수를 소모하지 않습니다. 소규모의 간헐적 작업에만 끄세요.</value>
+  </data>
+  <data name="Settings_ArtistAvatar" xml:space="preserve">
+    <value>작가 갤러리 다운로드 시 아바타와 배너도 다운로드</value>
+  </data>
+  <data name="Settings_MaxConcurrentDl" xml:space="preserve">
+    <value>최대 동시 다운로드</value>
+  </data>
+  <data name="Settings_MaxConcurrentDlHint" xml:space="preserve">
+    <value>단일 작업 내 병렬 파일 다운로드</value>
+  </data>
+  <data name="Settings_SafeModeOverride" xml:space="preserve">
+    <value>세이프 모드로 재정의됨(1로 고정)</value>
+  </data>
+  <data name="Settings_MaxConcurrentJobs" xml:space="preserve">
+    <value>최대 동시 작업</value>
+  </data>
+  <data name="Settings_MaxJobsHint" xml:space="preserve">
+    <value>동시에 실행되는 작업 수 — 초과분은 대기열에</value>
+  </data>
+  <data name="Settings_OverwriteBehavior" xml:space="preserve">
+    <value>덮어쓰기 동작</value>
+  </data>
+  <data name="Settings_Skip" xml:space="preserve">
+    <value>건너뛰기</value>
+  </data>
+  <data name="Settings_Overwrite" xml:space="preserve">
+    <value>덮어쓰기</value>
+  </data>
+  <data name="Settings_Backup" xml:space="preserve">
+    <value>백업</value>
+  </data>
+  <data name="Settings_MinFileSize" xml:space="preserve">
+    <value>최소 파일 크기(KB)</value>
+  </data>
+  <data name="Settings_MaxFileSize" xml:space="preserve">
+    <value>최대 파일 크기(KB)</value>
+  </data>
+  <data name="Settings_NoLimit" xml:space="preserve">
+    <value>0 = 제한 없음</value>
+  </data>
+  <data name="Settings_Timeout" xml:space="preserve">
+    <value>제한 시간(초)</value>
+  </data>
+  <data name="Settings_RetryCount" xml:space="preserve">
+    <value>재시도 횟수</value>
+  </data>
+  <data name="Settings_RetryDelay" xml:space="preserve">
+    <value>재시도 지연(초)</value>
+  </data>
+  <data name="Settings_DownloadDelay" xml:space="preserve">
+    <value>다운로드 간 지연(초)</value>
+  </data>
+  <data name="Settings_Diagnostics" xml:space="preserve">
+    <value>진단 및 로깅</value>
+  </data>
+  <data name="Settings_VerboseLogging" xml:space="preserve">
+    <value>자세한 로깅 사용(디버그 수준)</value>
+  </data>
+  <data name="Settings_VerboseHint" xml:space="preserve">
+    <value>자세한 모드는 상세한 디버그 출력을 기록합니다. 재시작 후 적용됩니다.</value>
+  </data>
+  <data name="Settings_AppLog" xml:space="preserve">
+    <value>애플리케이션 로그</value>
+  </data>
+  <data name="Common_Copy" xml:space="preserve">
+    <value>복사</value>
+  </data>
+  <data name="Settings_OpenFolder" xml:space="preserve">
+    <value>폴더 열기</value>
+  </data>
+  <data name="Settings_CrashLog" xml:space="preserve">
+    <value>크래시 로그(바탕 화면)</value>
+  </data>
+  <data name="Settings_HoshiAI" xml:space="preserve">
+    <value>Hoshi AI</value>
+  </data>
+  <data name="Settings_ActiveModels" xml:space="preserve">
+    <value>활성 모델</value>
+  </data>
+  <data name="Settings_ActiveModelsHint" xml:space="preserve">
+    <value>Hoshi가 채팅, 이미지 이해, 애니메이션 태그 예측에 사용하는 모델을 선택하세요.</value>
+  </data>
+  <data name="Settings_OllamaModelsHint" xml:space="preserve">
+    <value>Hoshi가 채팅과 이미지 이해에 사용하는 설치된 Ollama 모델을 선택하세요. 모델 관리에서 더 설치할 수 있습니다.</value>
+  </data>
+  <data name="Settings_LoadingOllama" xml:space="preserve">
+    <value>설치된 Ollama 모델을 불러오는 중…</value>
+  </data>
+  <data name="Settings_TextModel" xml:space="preserve">
+    <value>텍스트 모델</value>
+  </data>
+  <data name="Settings_VisionModel" xml:space="preserve">
+    <value>비전 모델</value>
+  </data>
+  <data name="Settings_AnimeTagger" xml:space="preserve">
+    <value>애니메이션 이미지 태거(ONNX)</value>
+  </data>
+  <data name="Settings_AnimeTaggerHint" xml:space="preserve">
+    <value>정확한 애니메이션 / Pixiv 태그 예측을 위해 로컬 Danbooru식 태거를 실행합니다. ONNX 모델은 필요 시 다운로드됩니다.</value>
+  </data>
+  <data name="Settings_EnableTagger" xml:space="preserve">
+    <value>애니메이션 태거 사용</value>
+  </data>
+  <data name="Settings_Model" xml:space="preserve">
+    <value>모델</value>
+  </data>
+  <data name="Settings_AvailableTaggers" xml:space="preserve">
+    <value>사용 가능한 태거</value>
+  </data>
+  <data name="Settings_Installed" xml:space="preserve">
+    <value>설치됨</value>
+  </data>
+  <data name="Common_Install" xml:space="preserve">
+    <value>설치</value>
+  </data>
+  <data name="Settings_ModelNotInstalled" xml:space="preserve">
+    <value>선택한 모델이 아직 설치되지 않았습니다. 위에서 클릭하여 설치하세요.</value>
+  </data>
+  <data name="Settings_ConfidenceThreshold" xml:space="preserve">
+    <value>신뢰도 임계값</value>
+  </data>
+  <data name="Settings_MaxTags" xml:space="preserve">
+    <value>최대 태그 수</value>
+  </data>
+  <data name="Settings_AutoTag" xml:space="preserve">
+    <value>다운로드한 이미지 자동 태그</value>
+  </data>
+  <data name="Settings_AutoTagTip" xml:space="preserve">
+    <value>다운로드된 각 이미지에 태거를 실행하고 태그를 이미지 옆의 사이드카 파일에 기록합니다.</value>
+  </data>
+  <data name="Settings_ModelManagement" xml:space="preserve">
+    <value>모델 관리</value>
+  </data>
+  <data name="Settings_ModelManagementHint" xml:space="preserve">
+    <value>Ollama 및 ONNX 모델을 설치, 새로 고침, 관리합니다. Ollama 모델은 Ollama를 통해 가져오고, ONNX 태거는 Hugging Face에서 다운로드합니다.</value>
+  </data>
+  <data name="Settings_InstallModel" xml:space="preserve">
+    <value>모델 설치</value>
+  </data>
+  <data name="Settings_InstallModelHint" xml:space="preserve">
+    <value>아래에 Ollama 모델 이름을 입력하거나 추천 칩을 클릭해 설치하세요. 칩에 마우스를 올리면 범주, 설명, 예상 크기가 표시됩니다.</value>
+  </data>
+  <data name="Settings_OllamaModelName" xml:space="preserve">
+    <value>Ollama 모델 이름(예: llama3.2)</value>
+  </data>
+  <data name="Settings_Recommended" xml:space="preserve">
+    <value>추천:</value>
+  </data>
+  <data name="Settings_TextChat" xml:space="preserve">
+    <value>텍스트 / 채팅</value>
+  </data>
+  <data name="Settings_Vision" xml:space="preserve">
+    <value>비전</value>
+  </data>
+  <data name="Settings_InstalledOllama" xml:space="preserve">
+    <value>설치된 Ollama 모델</value>
+  </data>
+  <data name="Common_Refresh" xml:space="preserve">
+    <value>새로 고침</value>
+  </data>
+  <data name="Common_Loading" xml:space="preserve">
+    <value>로드 중…</value>
+  </data>
+  <data name="Settings_NoOllamaModels" xml:space="preserve">
+    <value>아직 설치된 Ollama 모델이 없습니다. 위의 설치 도구로 다운로드하세요.</value>
+  </data>
+  <data name="Settings_UseForChat" xml:space="preserve">
+    <value>채팅에 사용</value>
+  </data>
+  <data name="Settings_UseForVision" xml:space="preserve">
+    <value>비전에 사용</value>
+  </data>
+  <data name="Common_Uninstall" xml:space="preserve">
+    <value>제거</value>
+  </data>
+  <data name="Settings_InstalledTaggers" xml:space="preserve">
+    <value>설치된 애니메이션 태거</value>
+  </data>
+  <data name="Settings_NoTaggers" xml:space="preserve">
+    <value>아직 설치된 애니메이션 태거 모델이 없습니다. 위의 Hoshi AI 탭에서 설치하세요.</value>
+  </data>
+  <data name="Settings_UseForTagger" xml:space="preserve">
+    <value>태거에 사용</value>
+  </data>
+  <data name="Settings_OllamaLibraryTip" xml:space="preserve">
+    <value>팁: https://ollama.com/library 에서 모델을 찾아보세요. 정확한 이름을 입력하세요(더 작은 변형 예: 'llama3.2:3b').</value>
+  </data>
+  <data name="Settings_Config" xml:space="preserve">
+    <value>구성</value>
+  </data>
+  <data name="Settings_Startup" xml:space="preserve">
+    <value>시작</value>
+  </data>
+  <data name="Settings_WindowState" xml:space="preserve">
+    <value>창 상태</value>
+  </data>
+  <data name="Settings_SystemTray" xml:space="preserve">
+    <value>시스템 트레이</value>
+  </data>
+  <data name="Settings_StartupTab" xml:space="preserve">
+    <value>시작 탭</value>
+  </data>
+  <data name="Settings_Splash" xml:space="preserve">
+    <value>시작 시 스플래시 화면 표시</value>
+  </data>
+  <data name="Settings_SplashTip" xml:space="preserve">
+    <value>앱 실행 시 Pikura 스플래시 화면을 표시합니다</value>
+  </data>
+  <data name="Settings_WhatsNew" xml:space="preserve">
+    <value>업데이트 후 새 기능 소개 표시</value>
+  </data>
+  <data name="Settings_WhatsNewTip" xml:space="preserve">
+    <value>새 주 버전을 처음 열 때 '새 기능' 대화 상자를 표시합니다</value>
+  </data>
+  <data name="Settings_StartWithWindows" xml:space="preserve">
+    <value>Windows 시작 시 실행</value>
+  </data>
+  <data name="Settings_GalleryViewer" xml:space="preserve">
+    <value>갤러리 뷰어</value>
+  </data>
+  <data name="Settings_GalleryViewerHint" xml:space="preserve">
+    <value>뷰어가 열려 있을 때 화살표 키로 작품을 탐색할 수 있습니다.</value>
+  </data>
+  <data name="Settings_KeyNavGallery" xml:space="preserve">
+    <value>갤러리에서 키보드 탐색 사용(좌/우 화살표 키)</value>
+  </data>
+  <data name="Settings_KeyNavGalleryTip" xml:space="preserve">
+    <value>인라인 뷰어 패널이 열린 동안 좌/우 화살표 키로 이전/다음 작품으로 이동합니다</value>
+  </data>
+  <data name="Settings_KeyNavFullscreen" xml:space="preserve">
+    <value>전체 화면 뷰어에서 키보드 탐색 사용</value>
+  </data>
+  <data name="Settings_KeyNavFullscreenTip" xml:space="preserve">
+    <value>전체 화면 뷰어 창에서 좌/우 화살표 키로 작품을 탐색합니다</value>
+  </data>
+  <data name="Settings_DownloadNotifications" xml:space="preserve">
+    <value>다운로드 알림</value>
+  </data>
+  <data name="Settings_NotificationsHint" xml:space="preserve">
+    <value>다운로드 시 Windows 토스트 알림을 표시합니다. 알림 본문에 작가 섬네일이 표시됩니다.</value>
+  </data>
+  <data name="Settings_NotifyStarted" xml:space="preserve">
+    <value>다운로드 시작</value>
+  </data>
+  <data name="Settings_NotifyStartedHint" xml:space="preserve">
+    <value>작업이 시작될 때 알림.</value>
+  </data>
+  <data name="Settings_NotifyCompleted" xml:space="preserve">
+    <value>다운로드 완료</value>
+  </data>
+  <data name="Settings_NotifyCompletedHint" xml:space="preserve">
+    <value>작업이 성공적으로 끝날 때 알림.</value>
+  </data>
+  <data name="Settings_NotifyFailed" xml:space="preserve">
+    <value>다운로드 실패</value>
+  </data>
+  <data name="Settings_NotifyFailedHint" xml:space="preserve">
+    <value>작업이 실패하거나 오류와 함께 완료될 때 알림.</value>
+  </data>
+  <data name="Settings_NotifyPaused" xml:space="preserve">
+    <value>다운로드 일시 중지 / 재개</value>
+  </data>
+  <data name="Settings_NotifyPausedHint" xml:space="preserve">
+    <value>작업이 일시 중지되거나 재개될 때 진행 상황과 함께 알림.</value>
+  </data>
+  <data name="Settings_ResetDefaults" xml:space="preserve">
+    <value>기본값으로 재설정</value>
+  </data>
+  <data name="Settings_Accounts" xml:space="preserve">
+    <value>계정</value>
+  </data>
+  <data name="Settings_AccountsHint" xml:space="preserve">
+    <value>로그인된 Pixiv 계정 관리</value>
+  </data>
+  <data name="Settings_SignOutAll" xml:space="preserve">
+    <value>모든 계정 로그아웃</value>
+  </data>
+  <data name="Settings_AddAccount" xml:space="preserve">
+    <value>+ 계정 추가</value>
+  </data>
+  <data name="Settings_PixivPremium" xml:space="preserve">
+    <value>Pixiv 프리미엄</value>
+  </data>
+  <data name="Settings_Id" xml:space="preserve">
+    <value>ID: </value>
+  </data>
+  <data name="Settings_Active" xml:space="preserve">
+    <value>활성</value>
+  </data>
+  <data name="Settings_Switch" xml:space="preserve">
+    <value>전환</value>
+  </data>
+  <data name="Settings_SignOut" xml:space="preserve">
+    <value>로그아웃</value>
+  </data>
+  <data name="Settings_NoAccounts" xml:space="preserve">
+    <value>로그인된 계정이 없습니다. '+ 계정 추가'를 클릭하여 시작하세요.</value>
+  </data>
+  <data name="Settings_Updates" xml:space="preserve">
+    <value>업데이트</value>
+  </data>
+  <data name="Settings_CurrentVersion" xml:space="preserve">
+    <value>현재 버전: </value>
+  </data>
+  <data name="Settings_CheckNow" xml:space="preserve">
+    <value>지금 확인</value>
+  </data>
+  <data name="Settings_UpdatePrefs" xml:space="preserve">
+    <value>업데이트 설정</value>
+  </data>
+  <data name="Settings_CheckUpdates" xml:space="preserve">
+    <value>업데이트 확인</value>
+  </data>
+  <data name="Settings_CheckUpdatesHint" xml:space="preserve">
+    <value>시작 시 Pikura가 새 버전을 확인하는 빈도</value>
+  </data>
+  <data name="Settings_ReleaseChannel" xml:space="preserve">
+    <value>릴리스 채널</value>
+  </data>
+  <data name="Settings_ReleaseChannelHint" xml:space="preserve">
+    <value>Stable = 태그된 릴리스만; Pre-release = 베타 포함</value>
+  </data>
+  <data name="Settings_NotifyUpdate" xml:space="preserve">
+    <value>업데이트 가능 시 알림</value>
+  </data>
+  <data name="Settings_NotifyUpdateHint" xml:space="preserve">
+    <value>창 상단에 배너를 표시합니다</value>
+  </data>
+  <data name="Settings_AutoDownload" xml:space="preserve">
+    <value>업데이트 자동 다운로드</value>
+  </data>
+  <data name="Settings_AutoDownloadHint" xml:space="preserve">
+    <value>백그라운드에서 자동 다운로드; 설치는 확인 후 진행</value>
+  </data>
+  <data name="Settings_SaveUpdates" xml:space="preserve">
+    <value>업데이트 설정 저장</value>
+  </data>
+  <data name="Settings_UpdateBannerHint" xml:space="preserve">
+    <value>업데이트가 있으면 창 상단에 배너가 표시되며, 거기서 다운로드하고 설치할 수 있습니다.</value>
+  </data>
+  <data name="Settings_About" xml:space="preserve">
+    <value>정보</value>
+  </data>
+  <data name="Settings_Tagline" xml:space="preserve">
+    <value>Pixiv 작품 관리자</value>
+  </data>
+  <data name="Settings_Version" xml:space="preserve">
+    <value>버전</value>
+  </data>
+  <data name="Settings_Developer" xml:space="preserve">
+    <value>개발자</value>
+  </data>
+  <data name="Settings_Year" xml:space="preserve">
+    <value>연도</value>
+  </data>
+  <data name="Settings_GitHubPage" xml:space="preserve">
+    <value>GitHub 페이지</value>
+  </data>
+  <data name="Settings_ViewChangelog" xml:space="preserve">
+    <value>변경 로그 보기</value>
+  </data>
+  <data name="Settings_License" xml:space="preserve">
+    <value>라이선스</value>
+  </data>
+  <data name="Settings_LicenseText" xml:space="preserve">
+    <value>Pikura는 GNU GPL v3.0으로 라이선스된 자유 오픈소스 소프트웨어입니다. 클로즈드 소스 사용을 위한 상용 라이선스는 작성자로부터 받을 수 있습니다. 기여를 환영합니다.</value>
+  </data>
+  <data name="Settings_BuiltWith" xml:space="preserve">
+    <value>사용 기술</value>
+  </data>
+  <data name="Tray_Open" xml:space="preserve">
+    <value>Pikura 열기</value>
+  </data>
+  <data name="Tray_Quit" xml:space="preserve">
+    <value>종료</value>
+  </data>
+  <data name="Main_SignInFirst" xml:space="preserve">
+    <value>{0} — 먼저 로그인하세요</value>
+  </data>
+  <data name="Main_ErrorFormat" xml:space="preserve">
+    <value>{0} — 오류: {1}</value>
+  </data>
+  <data name="Main_ErrorSuffix" xml:space="preserve">
+    <value>{0} — {1}</value>
+  </data>
+  <data name="Main_ComingSoon" xml:space="preserve">
+    <value>{0} — 곧 제공 예정</value>
+  </data>
+  <data name="Tray_PauseSchedules" xml:space="preserve">
+    <value>스케줄 일시 중지</value>
+  </data>
+  <data name="Tray_Exit" xml:space="preserve">
+    <value>종료</value>
+  </data>
+  <data name="Settings_ChooseOverlayFiles" xml:space="preserve">
+    <value>오버레이 이미지 또는 목록 파일 선택</value>
+  </data>
+  <data name="Settings_FileTypeImagesLists" xml:space="preserve">
+    <value>이미지 및 목록</value>
+  </data>
+  <data name="Settings_FileTypeImages" xml:space="preserve">
+    <value>이미지 파일</value>
+  </data>
+  <data name="Settings_FileTypeLists" xml:space="preserve">
+    <value>링크 목록</value>
+  </data>
+  <data name="Settings_OverlayAdded" xml:space="preserve">
+    <value>{0}개 추가됨</value>
+  </data>
+  <data name="Settings_OverlayFailed" xml:space="preserve">
+    <value>{0}개 실패</value>
+  </data>
+  <data name="Settings_OverlaySkipped" xml:space="preserve">
+    <value>{0}개 건너뜀(제한 {1})</value>
+  </data>
+  <data name="Hoshi_InstallOllamaTitle" xml:space="preserve">
+    <value>Ollama를 설치할까요?</value>
+  </data>
+  <data name="Hoshi_InstallOllamaPrompt" xml:space="preserve">
+    <value>Hoshi는 무료 로컬 AI 런타임인 Ollama에서 실행되지만 아직 설치되어 있지 않습니다. 지금 ollama.com에서 Ollama 설치 프로그램을 다운로드하여 실행할까요?</value>
+  </data>
+  <data name="Hoshi_OllamaNotInstalled" xml:space="preserve">
+    <value>Ollama가 설치되어 있지 않습니다. Hoshi에는 Ollama가 필요합니다 — https://ollama.com 에서 설치하세요</value>
+  </data>
+  <data name="Nav_Viewed" xml:space="preserve">
+    <value>열람</value>
+  </data>
+  <data name="Nav_Artists" xml:space="preserve">
+    <value>작가</value>
+  </data>
+  <data name="Nav_BatchDownload" xml:space="preserve">
+    <value>일괄 다운로드</value>
+  </data>
 </root>

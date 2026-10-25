@@ -112,4 +112,955 @@
   <data name="CollagePicker_Summary" xml:space="preserve">
     <value>{0} 个作品 → {1} 个拼贴</value>
   </data>
+  <data name="Main_Menu" xml:space="preserve">
+    <value>菜单</value>
+  </data>
+  <data name="Nav_Gallery" xml:space="preserve">
+    <value>画廊</value>
+  </data>
+  <data name="Nav_Rankings" xml:space="preserve">
+    <value>排行榜</value>
+  </data>
+  <data name="Nav_Discover" xml:space="preserve">
+    <value>发现</value>
+  </data>
+  <data name="Nav_Collections" xml:space="preserve">
+    <value>收藏集</value>
+  </data>
+  <data name="Nav_Search" xml:space="preserve">
+    <value>搜索</value>
+  </data>
+  <data name="Nav_Bookmarks" xml:space="preserve">
+    <value>书签</value>
+  </data>
+  <data name="Nav_History" xml:space="preserve">
+    <value>历史</value>
+  </data>
+  <data name="Nav_Batch" xml:space="preserve">
+    <value>批量</value>
+  </data>
+  <data name="Nav_Jobs" xml:space="preserve">
+    <value>任务</value>
+  </data>
+  <data name="Main_System" xml:space="preserve">
+    <value>系统</value>
+  </data>
+  <data name="Nav_Analytics" xml:space="preserve">
+    <value>统计</value>
+  </data>
+  <data name="Nav_Settings" xml:space="preserve">
+    <value>设置</value>
+  </data>
+  <data name="Main_Accounts" xml:space="preserve">
+    <value>账户</value>
+  </data>
+  <data name="Main_AddAccount" xml:space="preserve">
+    <value>添加账户</value>
+  </data>
+  <data name="Main_UpdateAvailable" xml:space="preserve">
+    <value> 可用</value>
+  </data>
+  <data name="Main_UpdateDownloaded" xml:space="preserve">
+    <value> 已下载 — 可以安装</value>
+  </data>
+  <data name="Common_Download" xml:space="preserve">
+    <value>下载</value>
+  </data>
+  <data name="Main_ReleaseNotes" xml:space="preserve">
+    <value>发行说明</value>
+  </data>
+  <data name="Main_InstallRestart" xml:space="preserve">
+    <value>安装并重启</value>
+  </data>
+  <data name="Common_Later" xml:space="preserve">
+    <value>稍后</value>
+  </data>
+  <data name="Main_Incognito" xml:space="preserve">
+    <value>隐身</value>
+  </data>
+  <data name="Common_Fullscreen" xml:space="preserve">
+    <value>全屏</value>
+  </data>
+  <data name="Common_Minimize" xml:space="preserve">
+    <value>最小化</value>
+  </data>
+  <data name="Common_Maximize" xml:space="preserve">
+    <value>最大化</value>
+  </data>
+  <data name="Main_ToggleSidebar" xml:space="preserve">
+    <value>切换侧边栏</value>
+  </data>
+  <data name="Settings_Appearance" xml:space="preserve">
+    <value>外观</value>
+  </data>
+  <data name="Settings_Theme" xml:space="preserve">
+    <value>主题</value>
+  </data>
+  <data name="Settings_ThemeLight" xml:space="preserve">
+    <value>浅色</value>
+  </data>
+  <data name="Settings_ThemeDark" xml:space="preserve">
+    <value>深色</value>
+  </data>
+  <data name="Settings_ThemeSystem" xml:space="preserve">
+    <value>跟随系统</value>
+  </data>
+  <data name="Settings_ThemeScheduled" xml:space="preserve">
+    <value>定时</value>
+  </data>
+  <data name="Settings_DarkFrom" xml:space="preserve">
+    <value>深色开始于</value>
+  </data>
+  <data name="Settings_DarkUntil" xml:space="preserve">
+    <value>深色结束于</value>
+  </data>
+  <data name="Settings_Accessibility" xml:space="preserve">
+    <value>辅助功能</value>
+  </data>
+  <data name="Settings_HighContrast" xml:space="preserve">
+    <value>高对比度模式</value>
+  </data>
+  <data name="Settings_LargeFonts" xml:space="preserve">
+    <value>大字体</value>
+  </data>
+  <data name="Settings_IncreaseSpacing" xml:space="preserve">
+    <value>增大间距</value>
+  </data>
+  <data name="Settings_ReduceMotion" xml:space="preserve">
+    <value>减少动画</value>
+  </data>
+  <data name="Settings_FontSizeScale" xml:space="preserve">
+    <value>字体大小比例</value>
+  </data>
+  <data name="Settings_BgOverlay" xml:space="preserve">
+    <value>背景画作叠加</value>
+  </data>
+  <data name="Settings_EnableBgOverlay" xml:space="preserve">
+    <value>启用画作背景叠加</value>
+  </data>
+  <data name="Common_Edit" xml:space="preserve">
+    <value>编辑</value>
+  </data>
+  <data name="Settings_ClearAll" xml:space="preserve">
+    <value>全部清除</value>
+  </data>
+  <data name="Settings_OverlayPlaceholder" xml:space="preserve">
+    <value>一条或多条内容 — 作品 ID (40594)、pixiv.net 链接、图片 URL 或本地路径。用换行或逗号分隔。</value>
+  </data>
+  <data name="Settings_OverlayTip" xml:space="preserve">
+    <value>可混合使用 Pixiv 作品 ID、pixiv.net/artworks/… 链接、图片直链和本地图片路径。条目之间用换行、逗号或分号分隔。也可以粘贴包含条目列表的 .txt/.csv 文件路径。</value>
+  </data>
+  <data name="Settings_BrowseImages" xml:space="preserve">
+    <value>浏览图片 / 列表…</value>
+  </data>
+  <data name="Settings_BrowseImagesTip" xml:space="preserve">
+    <value>选择图片文件，或包含作品 ID 和链接的 .txt/.csv/.list 文件 — 列表将被读取并逐条添加。</value>
+  </data>
+  <data name="Settings_ImageAdjustments" xml:space="preserve">
+    <value>图像调整</value>
+  </data>
+  <data name="Settings_ImageAdjustmentsHint" xml:space="preserve">
+    <value>使用每张图片上的“编辑”按钮可分别调整不透明度、提亮、压暗、缩放和位置。启用下方的全局覆盖可将相同数值应用到所有图片。</value>
+  </data>
+  <data name="Settings_GlobalOverrides" xml:space="preserve">
+    <value>使用全局覆盖（应用于所有图片）</value>
+  </data>
+  <data name="Settings_Opacity" xml:space="preserve">
+    <value>不透明度</value>
+  </data>
+  <data name="Settings_Lighten" xml:space="preserve">
+    <value>提亮</value>
+  </data>
+  <data name="Settings_Darken" xml:space="preserve">
+    <value>压暗</value>
+  </data>
+  <data name="Settings_Cycling" xml:space="preserve">
+    <value>循环</value>
+  </data>
+  <data name="Settings_StorageNaming" xml:space="preserve">
+    <value>存储与命名</value>
+  </data>
+  <data name="Settings_DownloadFolder" xml:space="preserve">
+    <value>下载文件夹</value>
+  </data>
+  <data name="Common_Browse" xml:space="preserve">
+    <value>浏览…</value>
+  </data>
+  <data name="Settings_NamingTemplates" xml:space="preserve">
+    <value>命名模板</value>
+  </data>
+  <data name="Settings_FolderTemplate" xml:space="preserve">
+    <value>文件夹模板</value>
+  </data>
+  <data name="Settings_Token" xml:space="preserve">
+    <value>标记…</value>
+  </data>
+  <data name="Settings_FilenameTemplate" xml:space="preserve">
+    <value>文件名模板</value>
+  </data>
+  <data name="Settings_MangaFilename" xml:space="preserve">
+    <value>漫画文件名（多页）</value>
+  </data>
+  <data name="Settings_InfoFilename" xml:space="preserve">
+    <value>信息文本文件名</value>
+  </data>
+  <data name="Settings_TagsSeparator" xml:space="preserve">
+    <value>标签分隔符</value>
+  </data>
+  <data name="Settings_DateFormat" xml:space="preserve">
+    <value>日期格式</value>
+  </data>
+  <data name="Settings_SubfolderPerWork" xml:space="preserve">
+    <value>每个多页作品一个子文件夹</value>
+  </data>
+  <data name="Settings_R18SeparateFolder" xml:space="preserve">
+    <value>R-18 作品放入单独文件夹</value>
+  </data>
+  <data name="Settings_FfmpegUgoira" xml:space="preserve">
+    <value>FFmpeg 与动图 (Ugoira)</value>
+  </data>
+  <data name="Settings_Status" xml:space="preserve">
+    <value>状态: </value>
+  </data>
+  <data name="Settings_InstallFfmpeg" xml:space="preserve">
+    <value>安装 FFmpeg</value>
+  </data>
+  <data name="Settings_CheckAgain" xml:space="preserve">
+    <value>重新检查</value>
+  </data>
+  <data name="Settings_UgoiraAlsoCreate" xml:space="preserve">
+    <value>下载 ugoira（动态插画）时，同时创建：</value>
+  </data>
+  <data name="Settings_Mp4Recommended" xml:space="preserve">
+    <value>MP4 (H.264) — 推荐</value>
+  </data>
+  <data name="Settings_WebmVp9" xml:space="preserve">
+    <value>WebM (VP9)</value>
+  </data>
+  <data name="Settings_KeepFrameZip" xml:space="preserve">
+    <value>转换后保留原始帧 ZIP</value>
+  </data>
+  <data name="Settings_SaveFramesPng" xml:space="preserve">
+    <value>将各帧保存为 PNG 图片</value>
+  </data>
+  <data name="Settings_FramesOnly" xml:space="preserve">
+    <value>仅帧（跳过视频/GIF 生成）</value>
+  </data>
+  <data name="Settings_PerAccount" xml:space="preserve">
+    <value>按账户的下载设置</value>
+  </data>
+  <data name="Settings_OverridesFor" xml:space="preserve">
+    <value>覆盖对象: </value>
+  </data>
+  <data name="Settings_OverridesBlank" xml:space="preserve">
+    <value> — 留空则使用全局设置</value>
+  </data>
+  <data name="Settings_DownloadRoot" xml:space="preserve">
+    <value>下载根目录</value>
+  </data>
+  <data name="Settings_BlankGlobalRoot" xml:space="preserve">
+    <value>留空则使用全局根目录</value>
+  </data>
+  <data name="Settings_FolderTemplate2" xml:space="preserve">
+    <value>文件夹模板</value>
+  </data>
+  <data name="Settings_FilenameTemplate2" xml:space="preserve">
+    <value>文件名模板</value>
+  </data>
+  <data name="Settings_MaxConcurrent" xml:space="preserve">
+    <value>最大并发下载数</value>
+  </data>
+  <data name="Settings_ContentFilters" xml:space="preserve">
+    <value>内容过滤</value>
+  </data>
+  <data name="Settings_FilterAi" xml:space="preserve">
+    <value>过滤 AI 生成作品</value>
+  </data>
+  <data name="Settings_SkipR18" xml:space="preserve">
+    <value>跳过 R-18 内容</value>
+  </data>
+  <data name="Settings_SkipR18G" xml:space="preserve">
+    <value>跳过 R-18G 内容</value>
+  </data>
+  <data name="Settings_R18Subfolder" xml:space="preserve">
+    <value>将 R-18 放入单独子文件夹</value>
+  </data>
+  <data name="Settings_AllowRedownload" xml:space="preserve">
+    <value>允许重新下载（覆盖已有文件）</value>
+  </data>
+  <data name="Settings_SaveAccount" xml:space="preserve">
+    <value>保存账户设置</value>
+  </data>
+  <data name="Settings_MetadataExport" xml:space="preserve">
+    <value>元数据导出</value>
+  </data>
+  <data name="Settings_JsonMetadata" xml:space="preserve">
+    <value>JSON 元数据</value>
+  </data>
+  <data name="Settings_InfoTextFile" xml:space="preserve">
+    <value>信息文本文件</value>
+  </data>
+  <data name="Settings_RawJson" xml:space="preserve">
+    <value>原始 API JSON</value>
+  </data>
+  <data name="Settings_SeriesMetadata" xml:space="preserve">
+    <value>系列元数据</value>
+  </data>
+  <data name="Settings_EmbedXmp" xml:space="preserve">
+    <value>嵌入 XMP</value>
+  </data>
+  <data name="Settings_XmpPerPage" xml:space="preserve">
+    <value>每页 XMP</value>
+  </data>
+  <data name="Settings_VerifyImages" xml:space="preserve">
+    <value>校验图片</value>
+  </data>
+  <data name="Settings_PreserveTimestamps" xml:space="preserve">
+    <value>保留时间戳</value>
+  </data>
+  <data name="Settings_LocalTimezone" xml:space="preserve">
+    <value>本地时区</value>
+  </data>
+  <data name="Settings_ImageProcessing" xml:space="preserve">
+    <value>图像处理</value>
+  </data>
+  <data name="Settings_EnableProcessing" xml:space="preserve">
+    <value>下载时自动进行图像处理</value>
+  </data>
+  <data name="Settings_ProcessingHint" xml:space="preserve">
+    <value>启用后，所有下载的图片将按下方当前预设处理。</value>
+  </data>
+  <data name="Settings_ExportMetadata" xml:space="preserve">
+    <value>下载时同时导出作品元数据</value>
+  </data>
+  <data name="Settings_ExportMetadataHint" xml:space="preserve">
+    <value>在每个任务的图片旁写入包含 id、标题、作者、链接、尺寸、上传日期、浏览量、收藏数和标签的元数据文件。若要只导出元数据而不下载，请右键作品并选择“导出元数据…”。</value>
+  </data>
+  <data name="Settings_FileFormat" xml:space="preserve">
+    <value>文件格式</value>
+  </data>
+  <data name="Settings_ResizePreset" xml:space="preserve">
+    <value>当前缩放预设</value>
+  </data>
+  <data name="Settings_PresetNone" xml:space="preserve">
+    <value>无（原始画质）</value>
+  </data>
+  <data name="Settings_PresetCustom" xml:space="preserve">
+    <value>自定义分辨率...</value>
+  </data>
+  <data name="Settings_Width" xml:space="preserve">
+    <value>宽度:</value>
+  </data>
+  <data name="Settings_Height" xml:space="preserve">
+    <value>高度:</value>
+  </data>
+  <data name="Settings_MaintainAspect" xml:space="preserve">
+    <value>保持宽高比</value>
+  </data>
+  <data name="Settings_ResizeMode" xml:space="preserve">
+    <value>缩放模式</value>
+  </data>
+  <data name="Settings_Fit" xml:space="preserve">
+    <value>适应（保持宽高比）</value>
+  </data>
+  <data name="Settings_Fill" xml:space="preserve">
+    <value>填充（裁剪适应）</value>
+  </data>
+  <data name="Settings_Stretch" xml:space="preserve">
+    <value>拉伸（变形）</value>
+  </data>
+  <data name="Settings_OutputFormat" xml:space="preserve">
+    <value>输出格式</value>
+  </data>
+  <data name="Settings_KeepFormat" xml:space="preserve">
+    <value>保持原始格式</value>
+  </data>
+  <data name="Settings_JpegHigh" xml:space="preserve">
+    <value>JPEG（高质量）</value>
+  </data>
+  <data name="Settings_JpegMedium" xml:space="preserve">
+    <value>JPEG（中等质量）</value>
+  </data>
+  <data name="Settings_PngLossless" xml:space="preserve">
+    <value>PNG（无损）</value>
+  </data>
+  <data name="Settings_WebpModern" xml:space="preserve">
+    <value>WebP（现代格式）</value>
+  </data>
+  <data name="Settings_JpegQuality" xml:space="preserve">
+    <value>JPEG 质量</value>
+  </data>
+  <data name="Settings_CustomOutput" xml:space="preserve">
+    <value>自定义输出文件夹</value>
+  </data>
+  <data name="Settings_SaveToCustom" xml:space="preserve">
+    <value>将处理后的图片保存到自定义文件夹</value>
+  </data>
+  <data name="Settings_SelectFolder" xml:space="preserve">
+    <value>选择文件夹...</value>
+  </data>
+  <data name="Settings_CustomOutputHint" xml:space="preserve">
+    <value>未设置时，处理后的图片将与原图保存在一起。</value>
+  </data>
+  <data name="Settings_CustomPresets" xml:space="preserve">
+    <value>自定义预设</value>
+  </data>
+  <data name="Settings_OpenImageEditor" xml:space="preserve">
+    <value>打开图像编辑器</value>
+  </data>
+  <data name="Settings_CustomPresetsHint" xml:space="preserve">
+    <value>创建并保存带高级调整的自定义预设。点击上方按钮打开图像编辑器。</value>
+  </data>
+  <data name="Settings_ContentFiltering" xml:space="preserve">
+    <value>内容过滤</value>
+  </data>
+  <data name="Settings_Blocklist" xml:space="preserve">
+    <value>屏蔽列表</value>
+  </data>
+  <data name="Settings_BlocklistHint" xml:space="preserve">
+    <value>按标签、作者或标题隐藏或屏蔽作品。可选择规则作用于特定标签页或全部标签页，以及是否同时阻止下载。</value>
+  </data>
+  <data name="Settings_BlocklistPlaceholder" xml:space="preserve">
+    <value>标签、作者名、作者 ID 或标题…</value>
+  </data>
+  <data name="Settings_Regex" xml:space="preserve">
+    <value>正则表达式</value>
+  </data>
+  <data name="Settings_BlockDownloads" xml:space="preserve">
+    <value>阻止下载</value>
+  </data>
+  <data name="Settings_R18Content" xml:space="preserve">
+    <value>R-18 内容</value>
+  </data>
+  <data name="Settings_ContentMode" xml:space="preserve">
+    <value>内容模式</value>
+  </data>
+  <data name="Settings_ModeOff" xml:space="preserve">
+    <value>关闭</value>
+  </data>
+  <data name="Settings_ModeShow" xml:space="preserve">
+    <value>显示</value>
+  </data>
+  <data name="Settings_ModeOnly" xml:space="preserve">
+    <value>仅</value>
+  </data>
+  <data name="Settings_TypeFilter" xml:space="preserve">
+    <value>类型过滤</value>
+  </data>
+  <data name="Settings_Both" xml:space="preserve">
+    <value>两者</value>
+  </data>
+  <data name="Settings_GalleryDisplay" xml:space="preserve">
+    <value>画廊显示</value>
+  </data>
+  <data name="Settings_BlurR18" xml:space="preserve">
+    <value>在画廊中模糊 R-18 内容</value>
+  </data>
+  <data name="Settings_FilterAiContent" xml:space="preserve">
+    <value>过滤 AI 生成内容</value>
+  </data>
+  <data name="Settings_SkipAiTip" xml:space="preserve">
+    <value>跳过下载 AI 生成作品 (aiType==2)</value>
+  </data>
+  <data name="Settings_Advanced" xml:space="preserve">
+    <value>高级</value>
+  </data>
+  <data name="Settings_Network" xml:space="preserve">
+    <value>网络 / 代理</value>
+  </data>
+  <data name="Settings_UseProxy" xml:space="preserve">
+    <value>使用代理</value>
+  </data>
+  <data name="Settings_VerifySsl" xml:space="preserve">
+    <value>验证 SSL 证书</value>
+  </data>
+  <data name="Settings_RespectRobots" xml:space="preserve">
+    <value>遵守 robots.txt</value>
+  </data>
+  <data name="Settings_FanboxCover" xml:space="preserve">
+    <value>下载受限投稿的封面</value>
+  </data>
+  <data name="Settings_FanboxHtml" xml:space="preserve">
+    <value>为文章投稿生成 HTML</value>
+  </data>
+  <data name="Settings_ViewedHistory" xml:space="preserve">
+    <value>浏览历史</value>
+  </data>
+  <data name="Settings_IncognitoMode" xml:space="preserve">
+    <value>🕶 隐身模式</value>
+  </data>
+  <data name="Settings_IncognitoTip" xml:space="preserve">
+    <value>启用后，在应用内打开的作品不会加入“浏览”标签页。现有历史保持不变。也可在“浏览”标签页工具栏切换。</value>
+  </data>
+  <data name="Settings_AutoClearStart" xml:space="preserve">
+    <value>启动 / 重启时自动清除</value>
+  </data>
+  <data name="Settings_AutoClearStartTip" xml:space="preserve">
+    <value>每次应用启动时删除超过保留期限的“浏览”标签页记录。</value>
+  </data>
+  <data name="Settings_AutoClearRunning" xml:space="preserve">
+    <value>应用运行时自动清除</value>
+  </data>
+  <data name="Settings_AutoClearRunningTip" xml:space="preserve">
+    <value>每隔几分钟检查并删除超过保留期限的“浏览”标签页记录。</value>
+  </data>
+  <data name="Settings_KeepHistoryFor" xml:space="preserve">
+    <value>历史保留时长</value>
+  </data>
+  <data name="Settings_KeepHistoryHint" xml:space="preserve">
+    <value>超过此时长的记录会自动从“浏览”标签页移除。</value>
+  </data>
+  <data name="Settings_UgoiraSection" xml:space="preserve">
+    <value>Ugoira（动态图片）</value>
+  </data>
+  <data name="Settings_UgoiraFfmpeg" xml:space="preserve">
+    <value>转换动态 ZIP 帧需要 FFmpeg。</value>
+  </data>
+  <data name="Settings_KeepZip" xml:space="preserve">
+    <value>转换后保留原始 ZIP</value>
+  </data>
+  <data name="Settings_Codec" xml:space="preserve">
+    <value>编解码器:</value>
+  </data>
+  <data name="Settings_DownloadBehavior" xml:space="preserve">
+    <value>下载行为</value>
+  </data>
+  <data name="Settings_SafeMode" xml:space="preserve">
+    <value>安全模式 — 防止 Pixiv 账户被暂停（推荐）</value>
+  </data>
+  <data name="Settings_SafeModeHint" xml:space="preserve">
+    <value>Pixiv 会检测批量下载造成的“未经授权的访问尝试”并临时封停账户（通常 24–72 小时）。安全模式开启时，Pikura：① 强制顺序下载（并发数 1），② 即使延迟为 0 也在作品间加入 2–4 秒随机延迟，③ 遵循 HTTP 429/503 的 Retry-After 头并以指数退避（5→10→20→60 秒，±25% 抖动），不消耗重试次数。仅建议小型、偶发任务关闭。</value>
+  </data>
+  <data name="Settings_ArtistAvatar" xml:space="preserve">
+    <value>下载作者画廊时同时下载头像和横幅</value>
+  </data>
+  <data name="Settings_MaxConcurrentDl" xml:space="preserve">
+    <value>最大并发下载数</value>
+  </data>
+  <data name="Settings_MaxConcurrentDlHint" xml:space="preserve">
+    <value>单个任务内的并行文件下载数</value>
+  </data>
+  <data name="Settings_SafeModeOverride" xml:space="preserve">
+    <value>被安全模式覆盖（强制为 1）</value>
+  </data>
+  <data name="Settings_MaxConcurrentJobs" xml:space="preserve">
+    <value>最大并发任务数</value>
+  </data>
+  <data name="Settings_MaxJobsHint" xml:space="preserve">
+    <value>同时运行的任务数 — 超出的排队等待</value>
+  </data>
+  <data name="Settings_OverwriteBehavior" xml:space="preserve">
+    <value>覆盖行为</value>
+  </data>
+  <data name="Settings_Skip" xml:space="preserve">
+    <value>跳过</value>
+  </data>
+  <data name="Settings_Overwrite" xml:space="preserve">
+    <value>覆盖</value>
+  </data>
+  <data name="Settings_Backup" xml:space="preserve">
+    <value>备份</value>
+  </data>
+  <data name="Settings_MinFileSize" xml:space="preserve">
+    <value>最小文件大小 (KB)</value>
+  </data>
+  <data name="Settings_MaxFileSize" xml:space="preserve">
+    <value>最大文件大小 (KB)</value>
+  </data>
+  <data name="Settings_NoLimit" xml:space="preserve">
+    <value>0 = 无限制</value>
+  </data>
+  <data name="Settings_Timeout" xml:space="preserve">
+    <value>超时 (秒)</value>
+  </data>
+  <data name="Settings_RetryCount" xml:space="preserve">
+    <value>重试次数</value>
+  </data>
+  <data name="Settings_RetryDelay" xml:space="preserve">
+    <value>重试间隔 (秒)</value>
+  </data>
+  <data name="Settings_DownloadDelay" xml:space="preserve">
+    <value>下载间隔 (秒)</value>
+  </data>
+  <data name="Settings_Diagnostics" xml:space="preserve">
+    <value>诊断与日志</value>
+  </data>
+  <data name="Settings_VerboseLogging" xml:space="preserve">
+    <value>启用详细日志（调试级别）</value>
+  </data>
+  <data name="Settings_VerboseHint" xml:space="preserve">
+    <value>详细模式会写入详细的调试输出，重启后生效。</value>
+  </data>
+  <data name="Settings_AppLog" xml:space="preserve">
+    <value>应用日志</value>
+  </data>
+  <data name="Common_Copy" xml:space="preserve">
+    <value>复制</value>
+  </data>
+  <data name="Settings_OpenFolder" xml:space="preserve">
+    <value>打开文件夹</value>
+  </data>
+  <data name="Settings_CrashLog" xml:space="preserve">
+    <value>崩溃日志（桌面）</value>
+  </data>
+  <data name="Settings_HoshiAI" xml:space="preserve">
+    <value>Hoshi AI</value>
+  </data>
+  <data name="Settings_ActiveModels" xml:space="preserve">
+    <value>当前模型</value>
+  </data>
+  <data name="Settings_ActiveModelsHint" xml:space="preserve">
+    <value>选择 Hoshi 用于聊天、图像理解和动画标签预测的模型。</value>
+  </data>
+  <data name="Settings_OllamaModelsHint" xml:space="preserve">
+    <value>选择 Hoshi 用于聊天和图像理解的已安装 Ollama 模型。可在“模型管理”中安装更多。</value>
+  </data>
+  <data name="Settings_LoadingOllama" xml:space="preserve">
+    <value>正在加载已安装的 Ollama 模型…</value>
+  </data>
+  <data name="Settings_TextModel" xml:space="preserve">
+    <value>文本模型</value>
+  </data>
+  <data name="Settings_VisionModel" xml:space="preserve">
+    <value>视觉模型</value>
+  </data>
+  <data name="Settings_AnimeTagger" xml:space="preserve">
+    <value>动漫图片打标器 (ONNX)</value>
+  </data>
+  <data name="Settings_AnimeTaggerHint" xml:space="preserve">
+    <value>运行本地 Danbooru 风格打标器以准确预测动漫 / Pixiv 标签。ONNX 模型按需下载。</value>
+  </data>
+  <data name="Settings_EnableTagger" xml:space="preserve">
+    <value>启用动漫打标器</value>
+  </data>
+  <data name="Settings_Model" xml:space="preserve">
+    <value>模型</value>
+  </data>
+  <data name="Settings_AvailableTaggers" xml:space="preserve">
+    <value>可用打标器</value>
+  </data>
+  <data name="Settings_Installed" xml:space="preserve">
+    <value>已安装</value>
+  </data>
+  <data name="Common_Install" xml:space="preserve">
+    <value>安装</value>
+  </data>
+  <data name="Settings_ModelNotInstalled" xml:space="preserve">
+    <value>所选模型尚未安装。点击上方条目进行安装。</value>
+  </data>
+  <data name="Settings_ConfidenceThreshold" xml:space="preserve">
+    <value>置信度阈值</value>
+  </data>
+  <data name="Settings_MaxTags" xml:space="preserve">
+    <value>最大标签数</value>
+  </data>
+  <data name="Settings_AutoTag" xml:space="preserve">
+    <value>自动为下载的图片打标签</value>
+  </data>
+  <data name="Settings_AutoTagTip" xml:space="preserve">
+    <value>对每张下载的图片运行打标器，并将标签写入图片旁的 sidecar 文件。</value>
+  </data>
+  <data name="Settings_ModelManagement" xml:space="preserve">
+    <value>模型管理</value>
+  </data>
+  <data name="Settings_ModelManagementHint" xml:space="preserve">
+    <value>安装、刷新和管理 Ollama 与 ONNX 模型。Ollama 模型通过 Ollama 拉取；ONNX 打标器从 Hugging Face 下载。</value>
+  </data>
+  <data name="Settings_InstallModel" xml:space="preserve">
+    <value>安装模型</value>
+  </data>
+  <data name="Settings_InstallModelHint" xml:space="preserve">
+    <value>在下方输入 Ollama 模型名，或点击推荐标签安装。将鼠标悬停在标签上可查看类别、说明和估计大小。</value>
+  </data>
+  <data name="Settings_OllamaModelName" xml:space="preserve">
+    <value>Ollama 模型名（例如 llama3.2）</value>
+  </data>
+  <data name="Settings_Recommended" xml:space="preserve">
+    <value>推荐:</value>
+  </data>
+  <data name="Settings_TextChat" xml:space="preserve">
+    <value>文本 / 聊天</value>
+  </data>
+  <data name="Settings_Vision" xml:space="preserve">
+    <value>视觉</value>
+  </data>
+  <data name="Settings_InstalledOllama" xml:space="preserve">
+    <value>已安装的 Ollama 模型</value>
+  </data>
+  <data name="Common_Refresh" xml:space="preserve">
+    <value>刷新</value>
+  </data>
+  <data name="Common_Loading" xml:space="preserve">
+    <value>加载中…</value>
+  </data>
+  <data name="Settings_NoOllamaModels" xml:space="preserve">
+    <value>尚未安装任何 Ollama 模型。请使用上方安装器下载。</value>
+  </data>
+  <data name="Settings_UseForChat" xml:space="preserve">
+    <value>用于聊天</value>
+  </data>
+  <data name="Settings_UseForVision" xml:space="preserve">
+    <value>用于视觉</value>
+  </data>
+  <data name="Common_Uninstall" xml:space="preserve">
+    <value>卸载</value>
+  </data>
+  <data name="Settings_InstalledTaggers" xml:space="preserve">
+    <value>已安装的动漫打标器</value>
+  </data>
+  <data name="Settings_NoTaggers" xml:space="preserve">
+    <value>尚未安装任何动漫打标器模型。请从上方 Hoshi AI 标签页安装。</value>
+  </data>
+  <data name="Settings_UseForTagger" xml:space="preserve">
+    <value>用于打标</value>
+  </data>
+  <data name="Settings_OllamaLibraryTip" xml:space="preserve">
+    <value>提示：可在 https://ollama.com/library 浏览模型。请输入准确名称（如较小版本 'llama3.2:3b'）。</value>
+  </data>
+  <data name="Settings_Config" xml:space="preserve">
+    <value>配置</value>
+  </data>
+  <data name="Settings_Startup" xml:space="preserve">
+    <value>启动</value>
+  </data>
+  <data name="Settings_WindowState" xml:space="preserve">
+    <value>窗口状态</value>
+  </data>
+  <data name="Settings_SystemTray" xml:space="preserve">
+    <value>系统托盘</value>
+  </data>
+  <data name="Settings_StartupTab" xml:space="preserve">
+    <value>启动标签页</value>
+  </data>
+  <data name="Settings_Splash" xml:space="preserve">
+    <value>启动时显示启动画面</value>
+  </data>
+  <data name="Settings_SplashTip" xml:space="preserve">
+    <value>应用启动时显示 Pikura 启动画面</value>
+  </data>
+  <data name="Settings_WhatsNew" xml:space="preserve">
+    <value>更新后显示功能亮点</value>
+  </data>
+  <data name="Settings_WhatsNewTip" xml:space="preserve">
+    <value>首次打开新的主版本时显示“新功能”对话框</value>
+  </data>
+  <data name="Settings_StartWithWindows" xml:space="preserve">
+    <value>开机自启</value>
+  </data>
+  <data name="Settings_GalleryViewer" xml:space="preserve">
+    <value>画廊查看器</value>
+  </data>
+  <data name="Settings_GalleryViewerHint" xml:space="preserve">
+    <value>查看器打开时可用方向键在作品间切换。</value>
+  </data>
+  <data name="Settings_KeyNavGallery" xml:space="preserve">
+    <value>在画廊中启用键盘导航（左右方向键）</value>
+  </data>
+  <data name="Settings_KeyNavGalleryTip" xml:space="preserve">
+    <value>内联查看器面板打开时，左右方向键切换到上一个/下一个作品</value>
+  </data>
+  <data name="Settings_KeyNavFullscreen" xml:space="preserve">
+    <value>在全屏查看器中启用键盘导航</value>
+  </data>
+  <data name="Settings_KeyNavFullscreenTip" xml:space="preserve">
+    <value>在全屏查看器窗口中，左右方向键在作品间切换</value>
+  </data>
+  <data name="Settings_DownloadNotifications" xml:space="preserve">
+    <value>下载通知</value>
+  </data>
+  <data name="Settings_NotificationsHint" xml:space="preserve">
+    <value>下载时显示 Windows  toast 通知，通知正文显示作者缩略图。</value>
+  </data>
+  <data name="Settings_NotifyStarted" xml:space="preserve">
+    <value>下载开始</value>
+  </data>
+  <data name="Settings_NotifyStartedHint" xml:space="preserve">
+    <value>任务开始时通知。</value>
+  </data>
+  <data name="Settings_NotifyCompleted" xml:space="preserve">
+    <value>下载完成</value>
+  </data>
+  <data name="Settings_NotifyCompletedHint" xml:space="preserve">
+    <value>任务成功完成时通知。</value>
+  </data>
+  <data name="Settings_NotifyFailed" xml:space="preserve">
+    <value>下载失败</value>
+  </data>
+  <data name="Settings_NotifyFailedHint" xml:space="preserve">
+    <value>任务失败或带错误完成时通知。</value>
+  </data>
+  <data name="Settings_NotifyPaused" xml:space="preserve">
+    <value>下载暂停 / 恢复</value>
+  </data>
+  <data name="Settings_NotifyPausedHint" xml:space="preserve">
+    <value>任务暂停或恢复时通知，并附带当前进度。</value>
+  </data>
+  <data name="Settings_ResetDefaults" xml:space="preserve">
+    <value>恢复默认</value>
+  </data>
+  <data name="Settings_Accounts" xml:space="preserve">
+    <value>账户</value>
+  </data>
+  <data name="Settings_AccountsHint" xml:space="preserve">
+    <value>管理已登录的 Pixiv 账户</value>
+  </data>
+  <data name="Settings_SignOutAll" xml:space="preserve">
+    <value>退出所有账户</value>
+  </data>
+  <data name="Settings_AddAccount" xml:space="preserve">
+    <value>+ 添加账户</value>
+  </data>
+  <data name="Settings_PixivPremium" xml:space="preserve">
+    <value>Pixiv 会员</value>
+  </data>
+  <data name="Settings_Id" xml:space="preserve">
+    <value>ID: </value>
+  </data>
+  <data name="Settings_Active" xml:space="preserve">
+    <value>当前</value>
+  </data>
+  <data name="Settings_Switch" xml:space="preserve">
+    <value>切换</value>
+  </data>
+  <data name="Settings_SignOut" xml:space="preserve">
+    <value>退出登录</value>
+  </data>
+  <data name="Settings_NoAccounts" xml:space="preserve">
+    <value>没有已登录的账户。点击“+ 添加账户”开始。</value>
+  </data>
+  <data name="Settings_Updates" xml:space="preserve">
+    <value>更新</value>
+  </data>
+  <data name="Settings_CurrentVersion" xml:space="preserve">
+    <value>当前版本: </value>
+  </data>
+  <data name="Settings_CheckNow" xml:space="preserve">
+    <value>立即检查</value>
+  </data>
+  <data name="Settings_UpdatePrefs" xml:space="preserve">
+    <value>更新偏好</value>
+  </data>
+  <data name="Settings_CheckUpdates" xml:space="preserve">
+    <value>检查更新</value>
+  </data>
+  <data name="Settings_CheckUpdatesHint" xml:space="preserve">
+    <value>Pikura 启动时检查新版本的频率</value>
+  </data>
+  <data name="Settings_ReleaseChannel" xml:space="preserve">
+    <value>发布渠道</value>
+  </data>
+  <data name="Settings_ReleaseChannelHint" xml:space="preserve">
+    <value>稳定版 = 仅正式标记发布；预发布版包含 beta</value>
+  </data>
+  <data name="Settings_NotifyUpdate" xml:space="preserve">
+    <value>有更新时通知</value>
+  </data>
+  <data name="Settings_NotifyUpdateHint" xml:space="preserve">
+    <value>在窗口顶部显示横幅</value>
+  </data>
+  <data name="Settings_AutoDownload" xml:space="preserve">
+    <value>自动下载更新</value>
+  </data>
+  <data name="Settings_AutoDownloadHint" xml:space="preserve">
+    <value>在后台静默下载；安装仍需确认</value>
+  </data>
+  <data name="Settings_SaveUpdates" xml:space="preserve">
+    <value>保存更新设置</value>
+  </data>
+  <data name="Settings_UpdateBannerHint" xml:space="preserve">
+    <value>有可用更新时，窗口顶部会出现横幅，可从中下载并安装。</value>
+  </data>
+  <data name="Settings_About" xml:space="preserve">
+    <value>关于</value>
+  </data>
+  <data name="Settings_Tagline" xml:space="preserve">
+    <value>Pixiv 作品管理器</value>
+  </data>
+  <data name="Settings_Version" xml:space="preserve">
+    <value>版本</value>
+  </data>
+  <data name="Settings_Developer" xml:space="preserve">
+    <value>开发者</value>
+  </data>
+  <data name="Settings_Year" xml:space="preserve">
+    <value>年份</value>
+  </data>
+  <data name="Settings_GitHubPage" xml:space="preserve">
+    <value>GitHub 页面</value>
+  </data>
+  <data name="Settings_ViewChangelog" xml:space="preserve">
+    <value>查看更新日志</value>
+  </data>
+  <data name="Settings_License" xml:space="preserve">
+    <value>许可证</value>
+  </data>
+  <data name="Settings_LicenseText" xml:space="preserve">
+    <value>Pikura 是基于 GNU GPL v3.0 许可的自由开源软件。闭源商用可从作者处获得商业许可。欢迎贡献。</value>
+  </data>
+  <data name="Settings_BuiltWith" xml:space="preserve">
+    <value>构建于</value>
+  </data>
+  <data name="Tray_Open" xml:space="preserve">
+    <value>打开 Pikura</value>
+  </data>
+  <data name="Tray_Quit" xml:space="preserve">
+    <value>退出</value>
+  </data>
+  <data name="Main_SignInFirst" xml:space="preserve">
+    <value>{0} — 请先登录</value>
+  </data>
+  <data name="Main_ErrorFormat" xml:space="preserve">
+    <value>{0} — 错误: {1}</value>
+  </data>
+  <data name="Main_ErrorSuffix" xml:space="preserve">
+    <value>{0} — {1}</value>
+  </data>
+  <data name="Main_ComingSoon" xml:space="preserve">
+    <value>{0} — 即将推出</value>
+  </data>
+  <data name="Tray_PauseSchedules" xml:space="preserve">
+    <value>暂停计划任务</value>
+  </data>
+  <data name="Tray_Exit" xml:space="preserve">
+    <value>退出</value>
+  </data>
+  <data name="Settings_ChooseOverlayFiles" xml:space="preserve">
+    <value>选择叠加图片或列表文件</value>
+  </data>
+  <data name="Settings_FileTypeImagesLists" xml:space="preserve">
+    <value>图片和列表</value>
+  </data>
+  <data name="Settings_FileTypeImages" xml:space="preserve">
+    <value>图片文件</value>
+  </data>
+  <data name="Settings_FileTypeLists" xml:space="preserve">
+    <value>链接列表</value>
+  </data>
+  <data name="Settings_OverlayAdded" xml:space="preserve">
+    <value>已添加 {0} 项</value>
+  </data>
+  <data name="Settings_OverlayFailed" xml:space="preserve">
+    <value>{0} 项失败</value>
+  </data>
+  <data name="Settings_OverlaySkipped" xml:space="preserve">
+    <value>已跳过 {0} 项（上限 {1}）</value>
+  </data>
+  <data name="Hoshi_InstallOllamaTitle" xml:space="preserve">
+    <value>安装 Ollama？</value>
+  </data>
+  <data name="Hoshi_InstallOllamaPrompt" xml:space="preserve">
+    <value>Hoshi 运行在免费本地 AI 运行时 Ollama 上，但尚未安装。现在从 ollama.com 下载并运行 Ollama 安装程序吗？</value>
+  </data>
+  <data name="Hoshi_OllamaNotInstalled" xml:space="preserve">
+    <value>未安装 Ollama。Hoshi 需要 Ollama — 请从 https://ollama.com 安装</value>
+  </data>
+  <data name="Nav_Viewed" xml:space="preserve">
+    <value>浏览</value>
+  </data>
+  <data name="Nav_Artists" xml:space="preserve">
+    <value>作者</value>
+  </data>
+  <data name="Nav_BatchDownload" xml:space="preserve">
+    <value>批量下载</value>
+  </data>
 </root>

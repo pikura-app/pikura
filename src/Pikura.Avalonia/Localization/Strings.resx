@@ -176,4 +176,955 @@
     <value>{0} artwork(s) → {1} collage(s)</value>
     <comment>{0} = artwork count, {1} = number of target collages</comment>
   </data>
+  <data name="Main_Menu" xml:space="preserve">
+    <value>MENU</value>
+  </data>
+  <data name="Nav_Gallery" xml:space="preserve">
+    <value>Gallery</value>
+  </data>
+  <data name="Nav_Rankings" xml:space="preserve">
+    <value>Rankings</value>
+  </data>
+  <data name="Nav_Discover" xml:space="preserve">
+    <value>Discover</value>
+  </data>
+  <data name="Nav_Collections" xml:space="preserve">
+    <value>Collections</value>
+  </data>
+  <data name="Nav_Search" xml:space="preserve">
+    <value>Search</value>
+  </data>
+  <data name="Nav_Bookmarks" xml:space="preserve">
+    <value>Bookmarks</value>
+  </data>
+  <data name="Nav_History" xml:space="preserve">
+    <value>History</value>
+  </data>
+  <data name="Nav_Batch" xml:space="preserve">
+    <value>Batch</value>
+  </data>
+  <data name="Nav_Jobs" xml:space="preserve">
+    <value>Jobs</value>
+  </data>
+  <data name="Main_System" xml:space="preserve">
+    <value>SYSTEM</value>
+  </data>
+  <data name="Nav_Analytics" xml:space="preserve">
+    <value>Analytics</value>
+  </data>
+  <data name="Nav_Settings" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="Main_Accounts" xml:space="preserve">
+    <value>ACCOUNTS</value>
+  </data>
+  <data name="Main_AddAccount" xml:space="preserve">
+    <value>Add account</value>
+  </data>
+  <data name="Main_UpdateAvailable" xml:space="preserve">
+    <value> is available</value>
+  </data>
+  <data name="Main_UpdateDownloaded" xml:space="preserve">
+    <value> downloaded — ready to install</value>
+  </data>
+  <data name="Common_Download" xml:space="preserve">
+    <value>Download</value>
+  </data>
+  <data name="Main_ReleaseNotes" xml:space="preserve">
+    <value>Release Notes</value>
+  </data>
+  <data name="Main_InstallRestart" xml:space="preserve">
+    <value>Install &amp; Restart</value>
+  </data>
+  <data name="Common_Later" xml:space="preserve">
+    <value>Later</value>
+  </data>
+  <data name="Main_Incognito" xml:space="preserve">
+    <value>INCOGNITO</value>
+  </data>
+  <data name="Common_Fullscreen" xml:space="preserve">
+    <value>Fullscreen</value>
+  </data>
+  <data name="Common_Minimize" xml:space="preserve">
+    <value>Minimize</value>
+  </data>
+  <data name="Common_Maximize" xml:space="preserve">
+    <value>Maximize</value>
+  </data>
+  <data name="Main_ToggleSidebar" xml:space="preserve">
+    <value>Toggle sidebar</value>
+  </data>
+  <data name="Settings_Appearance" xml:space="preserve">
+    <value>Appearance</value>
+  </data>
+  <data name="Settings_Theme" xml:space="preserve">
+    <value>Theme</value>
+  </data>
+  <data name="Settings_ThemeLight" xml:space="preserve">
+    <value>Light</value>
+  </data>
+  <data name="Settings_ThemeDark" xml:space="preserve">
+    <value>Dark</value>
+  </data>
+  <data name="Settings_ThemeSystem" xml:space="preserve">
+    <value>System</value>
+  </data>
+  <data name="Settings_ThemeScheduled" xml:space="preserve">
+    <value>Scheduled</value>
+  </data>
+  <data name="Settings_DarkFrom" xml:space="preserve">
+    <value>Dark from</value>
+  </data>
+  <data name="Settings_DarkUntil" xml:space="preserve">
+    <value>Dark until</value>
+  </data>
+  <data name="Settings_Accessibility" xml:space="preserve">
+    <value>Accessibility</value>
+  </data>
+  <data name="Settings_HighContrast" xml:space="preserve">
+    <value>High Contrast Mode</value>
+  </data>
+  <data name="Settings_LargeFonts" xml:space="preserve">
+    <value>Large Fonts</value>
+  </data>
+  <data name="Settings_IncreaseSpacing" xml:space="preserve">
+    <value>Increase Spacing</value>
+  </data>
+  <data name="Settings_ReduceMotion" xml:space="preserve">
+    <value>Reduce Motion</value>
+  </data>
+  <data name="Settings_FontSizeScale" xml:space="preserve">
+    <value>Font Size Scale</value>
+  </data>
+  <data name="Settings_BgOverlay" xml:space="preserve">
+    <value>Background Artwork Overlay</value>
+  </data>
+  <data name="Settings_EnableBgOverlay" xml:space="preserve">
+    <value>Enable artwork background overlay</value>
+  </data>
+  <data name="Common_Edit" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="Settings_ClearAll" xml:space="preserve">
+    <value>Clear all</value>
+  </data>
+  <data name="Settings_OverlayPlaceholder" xml:space="preserve">
+    <value>One or more entries — artwork IDs (40594), pixiv.net links, image URLs or local paths. Separate with new lines or commas.</value>
+  </data>
+  <data name="Settings_OverlayTip" xml:space="preserve">
+    <value>Mix and match Pixiv artwork IDs, pixiv.net/artworks/… links, direct image URLs and local image paths. Separate entries with new lines, commas or semicolons. You can also paste the path of a .txt/.csv file containing a list of entries.</value>
+  </data>
+  <data name="Settings_BrowseImages" xml:space="preserve">
+    <value>Browse images / list…</value>
+  </data>
+  <data name="Settings_BrowseImagesTip" xml:space="preserve">
+    <value>Pick image files, or a .txt/.csv/.list file containing artwork IDs and links — the list is read and each entry added.</value>
+  </data>
+  <data name="Settings_ImageAdjustments" xml:space="preserve">
+    <value>Image adjustments</value>
+  </data>
+  <data name="Settings_ImageAdjustmentsHint" xml:space="preserve">
+    <value>Use the Edit button on each image for per-image opacity, lighten, darken, zoom, and positioning. Enable global overrides below to apply the same values to all images.</value>
+  </data>
+  <data name="Settings_GlobalOverrides" xml:space="preserve">
+    <value>Use global overrides (apply to all images)</value>
+  </data>
+  <data name="Settings_Opacity" xml:space="preserve">
+    <value>Opacity</value>
+  </data>
+  <data name="Settings_Lighten" xml:space="preserve">
+    <value>Lighten</value>
+  </data>
+  <data name="Settings_Darken" xml:space="preserve">
+    <value>Darken</value>
+  </data>
+  <data name="Settings_Cycling" xml:space="preserve">
+    <value>Cycling</value>
+  </data>
+  <data name="Settings_StorageNaming" xml:space="preserve">
+    <value>Storage &amp; Naming</value>
+  </data>
+  <data name="Settings_DownloadFolder" xml:space="preserve">
+    <value>Download Folder</value>
+  </data>
+  <data name="Common_Browse" xml:space="preserve">
+    <value>Browse...</value>
+  </data>
+  <data name="Settings_NamingTemplates" xml:space="preserve">
+    <value>Naming Templates</value>
+  </data>
+  <data name="Settings_FolderTemplate" xml:space="preserve">
+    <value>Folder template</value>
+  </data>
+  <data name="Settings_Token" xml:space="preserve">
+    <value>Token…</value>
+  </data>
+  <data name="Settings_FilenameTemplate" xml:space="preserve">
+    <value>Filename template</value>
+  </data>
+  <data name="Settings_MangaFilename" xml:space="preserve">
+    <value>Manga filename (multi-page)</value>
+  </data>
+  <data name="Settings_InfoFilename" xml:space="preserve">
+    <value>Info text filename</value>
+  </data>
+  <data name="Settings_TagsSeparator" xml:space="preserve">
+    <value>Tags separator</value>
+  </data>
+  <data name="Settings_DateFormat" xml:space="preserve">
+    <value>Date format</value>
+  </data>
+  <data name="Settings_SubfolderPerWork" xml:space="preserve">
+    <value>Subfolder per multi-page work</value>
+  </data>
+  <data name="Settings_R18SeparateFolder" xml:space="preserve">
+    <value>R-18 works in separate folder</value>
+  </data>
+  <data name="Settings_FfmpegUgoira" xml:space="preserve">
+    <value>FFmpeg &amp; Animated (Ugoira)</value>
+  </data>
+  <data name="Settings_Status" xml:space="preserve">
+    <value>Status: </value>
+  </data>
+  <data name="Settings_InstallFfmpeg" xml:space="preserve">
+    <value>Install FFmpeg</value>
+  </data>
+  <data name="Settings_CheckAgain" xml:space="preserve">
+    <value>Check Again</value>
+  </data>
+  <data name="Settings_UgoiraAlsoCreate" xml:space="preserve">
+    <value>When downloading ugoira (animated illustrations), also create:</value>
+  </data>
+  <data name="Settings_Mp4Recommended" xml:space="preserve">
+    <value>MP4 (H.264) — Recommended</value>
+  </data>
+  <data name="Settings_WebmVp9" xml:space="preserve">
+    <value>WebM (VP9)</value>
+  </data>
+  <data name="Settings_KeepFrameZip" xml:space="preserve">
+    <value>Keep original frame ZIP after conversion</value>
+  </data>
+  <data name="Settings_SaveFramesPng" xml:space="preserve">
+    <value>Save individual frames as PNG images</value>
+  </data>
+  <data name="Settings_FramesOnly" xml:space="preserve">
+    <value>Frames only (skip video/GIF generation)</value>
+  </data>
+  <data name="Settings_PerAccount" xml:space="preserve">
+    <value>Per-Account Download Settings</value>
+  </data>
+  <data name="Settings_OverridesFor" xml:space="preserve">
+    <value>Overrides for </value>
+  </data>
+  <data name="Settings_OverridesBlank" xml:space="preserve">
+    <value> — leave blank to use global settings</value>
+  </data>
+  <data name="Settings_DownloadRoot" xml:space="preserve">
+    <value>Download Root</value>
+  </data>
+  <data name="Settings_BlankGlobalRoot" xml:space="preserve">
+    <value>Leave blank to use global root</value>
+  </data>
+  <data name="Settings_FolderTemplate2" xml:space="preserve">
+    <value>Folder Template</value>
+  </data>
+  <data name="Settings_FilenameTemplate2" xml:space="preserve">
+    <value>Filename Template</value>
+  </data>
+  <data name="Settings_MaxConcurrent" xml:space="preserve">
+    <value>Max Concurrent Downloads</value>
+  </data>
+  <data name="Settings_ContentFilters" xml:space="preserve">
+    <value>Content Filters</value>
+  </data>
+  <data name="Settings_FilterAi" xml:space="preserve">
+    <value>Filter AI-generated artworks</value>
+  </data>
+  <data name="Settings_SkipR18" xml:space="preserve">
+    <value>Skip R-18 content</value>
+  </data>
+  <data name="Settings_SkipR18G" xml:space="preserve">
+    <value>Skip R-18G content</value>
+  </data>
+  <data name="Settings_R18Subfolder" xml:space="preserve">
+    <value>Place R-18 in separate subfolder</value>
+  </data>
+  <data name="Settings_AllowRedownload" xml:space="preserve">
+    <value>Allow re-download (overwrite existing files)</value>
+  </data>
+  <data name="Settings_SaveAccount" xml:space="preserve">
+    <value>Save Account Settings</value>
+  </data>
+  <data name="Settings_MetadataExport" xml:space="preserve">
+    <value>Metadata Export</value>
+  </data>
+  <data name="Settings_JsonMetadata" xml:space="preserve">
+    <value>JSON metadata</value>
+  </data>
+  <data name="Settings_InfoTextFile" xml:space="preserve">
+    <value>Info text file</value>
+  </data>
+  <data name="Settings_RawJson" xml:space="preserve">
+    <value>Raw API JSON</value>
+  </data>
+  <data name="Settings_SeriesMetadata" xml:space="preserve">
+    <value>Series metadata</value>
+  </data>
+  <data name="Settings_EmbedXmp" xml:space="preserve">
+    <value>Embed XMP</value>
+  </data>
+  <data name="Settings_XmpPerPage" xml:space="preserve">
+    <value>XMP per page</value>
+  </data>
+  <data name="Settings_VerifyImages" xml:space="preserve">
+    <value>Verify images</value>
+  </data>
+  <data name="Settings_PreserveTimestamps" xml:space="preserve">
+    <value>Preserve timestamps</value>
+  </data>
+  <data name="Settings_LocalTimezone" xml:space="preserve">
+    <value>Local timezone</value>
+  </data>
+  <data name="Settings_ImageProcessing" xml:space="preserve">
+    <value>Image Processing</value>
+  </data>
+  <data name="Settings_EnableProcessing" xml:space="preserve">
+    <value>Enable automatic image processing on downloads</value>
+  </data>
+  <data name="Settings_ProcessingHint" xml:space="preserve">
+    <value>When enabled, all downloaded images will be processed according to the active preset below.</value>
+  </data>
+  <data name="Settings_ExportMetadata" xml:space="preserve">
+    <value>Also export artwork metadata with downloads</value>
+  </data>
+  <data name="Settings_ExportMetadataHint" xml:space="preserve">
+    <value>Writes a metadata file next to each job's images listing id, title, artist, link, size, upload date, views, bookmarks and tags. To export metadata without downloading anything, right-click an artwork and choose “Export metadata…”.</value>
+  </data>
+  <data name="Settings_FileFormat" xml:space="preserve">
+    <value>File format</value>
+  </data>
+  <data name="Settings_ResizePreset" xml:space="preserve">
+    <value>Active Resize Preset</value>
+  </data>
+  <data name="Settings_PresetNone" xml:space="preserve">
+    <value>None (Original Quality)</value>
+  </data>
+  <data name="Settings_PresetCustom" xml:space="preserve">
+    <value>Custom Resolution...</value>
+  </data>
+  <data name="Settings_Width" xml:space="preserve">
+    <value>Width:</value>
+  </data>
+  <data name="Settings_Height" xml:space="preserve">
+    <value>Height:</value>
+  </data>
+  <data name="Settings_MaintainAspect" xml:space="preserve">
+    <value>Maintain aspect ratio</value>
+  </data>
+  <data name="Settings_ResizeMode" xml:space="preserve">
+    <value>Resize Mode</value>
+  </data>
+  <data name="Settings_Fit" xml:space="preserve">
+    <value>Fit (preserve aspect)</value>
+  </data>
+  <data name="Settings_Fill" xml:space="preserve">
+    <value>Fill (crop to fit)</value>
+  </data>
+  <data name="Settings_Stretch" xml:space="preserve">
+    <value>Stretch (distort)</value>
+  </data>
+  <data name="Settings_OutputFormat" xml:space="preserve">
+    <value>Output Format</value>
+  </data>
+  <data name="Settings_KeepFormat" xml:space="preserve">
+    <value>Keep Original Format</value>
+  </data>
+  <data name="Settings_JpegHigh" xml:space="preserve">
+    <value>JPEG (High Quality)</value>
+  </data>
+  <data name="Settings_JpegMedium" xml:space="preserve">
+    <value>JPEG (Medium Quality)</value>
+  </data>
+  <data name="Settings_PngLossless" xml:space="preserve">
+    <value>PNG (Lossless)</value>
+  </data>
+  <data name="Settings_WebpModern" xml:space="preserve">
+    <value>WebP (Modern Format)</value>
+  </data>
+  <data name="Settings_JpegQuality" xml:space="preserve">
+    <value>JPEG Quality</value>
+  </data>
+  <data name="Settings_CustomOutput" xml:space="preserve">
+    <value>Custom Output Folder</value>
+  </data>
+  <data name="Settings_SaveToCustom" xml:space="preserve">
+    <value>Save processed images to a custom folder</value>
+  </data>
+  <data name="Settings_SelectFolder" xml:space="preserve">
+    <value>Select a folder...</value>
+  </data>
+  <data name="Settings_CustomOutputHint" xml:space="preserve">
+    <value>If not set, processed images will be saved alongside the originals.</value>
+  </data>
+  <data name="Settings_CustomPresets" xml:space="preserve">
+    <value>Custom Presets</value>
+  </data>
+  <data name="Settings_OpenImageEditor" xml:space="preserve">
+    <value>Open Image Editor</value>
+  </data>
+  <data name="Settings_CustomPresetsHint" xml:space="preserve">
+    <value>Create and save custom presets with advanced adjustments. Click the button above to open the image editor.</value>
+  </data>
+  <data name="Settings_ContentFiltering" xml:space="preserve">
+    <value>Content Filtering</value>
+  </data>
+  <data name="Settings_Blocklist" xml:space="preserve">
+    <value>Blocklist</value>
+  </data>
+  <data name="Settings_BlocklistHint" xml:space="preserve">
+    <value>Hide or block artworks by tag, artist, or title. Choose whether a rule applies to a specific tab or all tabs, and whether it also prevents downloads.</value>
+  </data>
+  <data name="Settings_BlocklistPlaceholder" xml:space="preserve">
+    <value>Tag, artist name, artist ID, or title…</value>
+  </data>
+  <data name="Settings_Regex" xml:space="preserve">
+    <value>Regex</value>
+  </data>
+  <data name="Settings_BlockDownloads" xml:space="preserve">
+    <value>Block downloads</value>
+  </data>
+  <data name="Settings_R18Content" xml:space="preserve">
+    <value>R-18 Content</value>
+  </data>
+  <data name="Settings_ContentMode" xml:space="preserve">
+    <value>Content mode</value>
+  </data>
+  <data name="Settings_ModeOff" xml:space="preserve">
+    <value>Off</value>
+  </data>
+  <data name="Settings_ModeShow" xml:space="preserve">
+    <value>Show</value>
+  </data>
+  <data name="Settings_ModeOnly" xml:space="preserve">
+    <value>Only</value>
+  </data>
+  <data name="Settings_TypeFilter" xml:space="preserve">
+    <value>Type filter</value>
+  </data>
+  <data name="Settings_Both" xml:space="preserve">
+    <value>Both</value>
+  </data>
+  <data name="Settings_GalleryDisplay" xml:space="preserve">
+    <value>Gallery Display</value>
+  </data>
+  <data name="Settings_BlurR18" xml:space="preserve">
+    <value>Blur R-18 content in gallery</value>
+  </data>
+  <data name="Settings_FilterAiContent" xml:space="preserve">
+    <value>Filter AI-generated content</value>
+  </data>
+  <data name="Settings_SkipAiTip" xml:space="preserve">
+    <value>Skip downloading AI-generated artworks (aiType==2)</value>
+  </data>
+  <data name="Settings_Advanced" xml:space="preserve">
+    <value>Advanced</value>
+  </data>
+  <data name="Settings_Network" xml:space="preserve">
+    <value>Network / Proxy</value>
+  </data>
+  <data name="Settings_UseProxy" xml:space="preserve">
+    <value>Use proxy</value>
+  </data>
+  <data name="Settings_VerifySsl" xml:space="preserve">
+    <value>Verify SSL certificates</value>
+  </data>
+  <data name="Settings_RespectRobots" xml:space="preserve">
+    <value>Respect robots.txt</value>
+  </data>
+  <data name="Settings_FanboxCover" xml:space="preserve">
+    <value>Download cover for restricted posts</value>
+  </data>
+  <data name="Settings_FanboxHtml" xml:space="preserve">
+    <value>Generate HTML for article posts</value>
+  </data>
+  <data name="Settings_ViewedHistory" xml:space="preserve">
+    <value>Viewed History</value>
+  </data>
+  <data name="Settings_IncognitoMode" xml:space="preserve">
+    <value>🕶 Incognito mode</value>
+  </data>
+  <data name="Settings_IncognitoTip" xml:space="preserve">
+    <value>While enabled, artworks you open anywhere in the app are not added to the Viewed tab. Existing history is left untouched. Can also be toggled from the Viewed tab toolbar.</value>
+  </data>
+  <data name="Settings_AutoClearStart" xml:space="preserve">
+    <value>Auto-clear on start / restart</value>
+  </data>
+  <data name="Settings_AutoClearStartTip" xml:space="preserve">
+    <value>Deletes Viewed-tab entries older than the retention window every time the app starts.</value>
+  </data>
+  <data name="Settings_AutoClearRunning" xml:space="preserve">
+    <value>Auto-clear while the app is running</value>
+  </data>
+  <data name="Settings_AutoClearRunningTip" xml:space="preserve">
+    <value>Checks every few minutes and deletes Viewed-tab entries older than the retention window.</value>
+  </data>
+  <data name="Settings_KeepHistoryFor" xml:space="preserve">
+    <value>Keep history for</value>
+  </data>
+  <data name="Settings_KeepHistoryHint" xml:space="preserve">
+    <value>Entries older than this window are removed from the Viewed tab automatically.</value>
+  </data>
+  <data name="Settings_UgoiraSection" xml:space="preserve">
+    <value>Ugoira (Animated Images)</value>
+  </data>
+  <data name="Settings_UgoiraFfmpeg" xml:space="preserve">
+    <value>Converting animated ZIP frames requires FFmpeg.</value>
+  </data>
+  <data name="Settings_KeepZip" xml:space="preserve">
+    <value>Keep original ZIP after conversion</value>
+  </data>
+  <data name="Settings_Codec" xml:space="preserve">
+    <value>Codec:</value>
+  </data>
+  <data name="Settings_DownloadBehavior" xml:space="preserve">
+    <value>Download Behavior</value>
+  </data>
+  <data name="Settings_SafeMode" xml:space="preserve">
+    <value>Safe Mode — protect against Pixiv account suspension (recommended)</value>
+  </data>
+  <data name="Settings_SafeModeHint" xml:space="preserve">
+    <value>Pixiv detects and temporarily suspends accounts (typically 24–72 hours) for "unauthorized access attempts" caused by mass downloaders. When Safe Mode is ON, Pikura: ① forces sequential downloads (concurrency 1), ② enforces a 2–4 second jittered delay between artworks even if your delay is 0, and ③ honors Retry-After headers on HTTP 429/503 with exponential backoff (5→10→20→60s, ±25% jitter) without consuming your retry budget. Disable only for small, occasional jobs.</value>
+  </data>
+  <data name="Settings_ArtistAvatar" xml:space="preserve">
+    <value>Download artist avatar and banner when downloading an artist's gallery</value>
+  </data>
+  <data name="Settings_MaxConcurrentDl" xml:space="preserve">
+    <value>Max concurrent downloads</value>
+  </data>
+  <data name="Settings_MaxConcurrentDlHint" xml:space="preserve">
+    <value>Parallel file downloads within a single job</value>
+  </data>
+  <data name="Settings_SafeModeOverride" xml:space="preserve">
+    <value>Overridden by Safe Mode (forced to 1)</value>
+  </data>
+  <data name="Settings_MaxConcurrentJobs" xml:space="preserve">
+    <value>Max concurrent jobs</value>
+  </data>
+  <data name="Settings_MaxJobsHint" xml:space="preserve">
+    <value>Jobs running at once — extras queue as pending</value>
+  </data>
+  <data name="Settings_OverwriteBehavior" xml:space="preserve">
+    <value>Overwrite behavior</value>
+  </data>
+  <data name="Settings_Skip" xml:space="preserve">
+    <value>Skip</value>
+  </data>
+  <data name="Settings_Overwrite" xml:space="preserve">
+    <value>Overwrite</value>
+  </data>
+  <data name="Settings_Backup" xml:space="preserve">
+    <value>Backup</value>
+  </data>
+  <data name="Settings_MinFileSize" xml:space="preserve">
+    <value>Min file size (KB)</value>
+  </data>
+  <data name="Settings_MaxFileSize" xml:space="preserve">
+    <value>Max file size (KB)</value>
+  </data>
+  <data name="Settings_NoLimit" xml:space="preserve">
+    <value>0 = no limit</value>
+  </data>
+  <data name="Settings_Timeout" xml:space="preserve">
+    <value>Timeout (s)</value>
+  </data>
+  <data name="Settings_RetryCount" xml:space="preserve">
+    <value>Retry count</value>
+  </data>
+  <data name="Settings_RetryDelay" xml:space="preserve">
+    <value>Retry delay (s)</value>
+  </data>
+  <data name="Settings_DownloadDelay" xml:space="preserve">
+    <value>Delay between downloads (s)</value>
+  </data>
+  <data name="Settings_Diagnostics" xml:space="preserve">
+    <value>Diagnostics &amp; Logging</value>
+  </data>
+  <data name="Settings_VerboseLogging" xml:space="preserve">
+    <value>Enable verbose logging (debug level)</value>
+  </data>
+  <data name="Settings_VerboseHint" xml:space="preserve">
+    <value>Verbose mode writes detailed debug output. Takes effect after restart.</value>
+  </data>
+  <data name="Settings_AppLog" xml:space="preserve">
+    <value>Application log</value>
+  </data>
+  <data name="Common_Copy" xml:space="preserve">
+    <value>Copy</value>
+  </data>
+  <data name="Settings_OpenFolder" xml:space="preserve">
+    <value>Open folder</value>
+  </data>
+  <data name="Settings_CrashLog" xml:space="preserve">
+    <value>Crash log (Desktop)</value>
+  </data>
+  <data name="Settings_HoshiAI" xml:space="preserve">
+    <value>Hoshi AI</value>
+  </data>
+  <data name="Settings_ActiveModels" xml:space="preserve">
+    <value>Active models</value>
+  </data>
+  <data name="Settings_ActiveModelsHint" xml:space="preserve">
+    <value>Choose the models Hoshi uses for chat, image understanding, and anime tag prediction.</value>
+  </data>
+  <data name="Settings_OllamaModelsHint" xml:space="preserve">
+    <value>Select the installed Ollama models Hoshi uses for chat and image understanding. Install more from Model management.</value>
+  </data>
+  <data name="Settings_LoadingOllama" xml:space="preserve">
+    <value>Loading your installed Ollama models…</value>
+  </data>
+  <data name="Settings_TextModel" xml:space="preserve">
+    <value>Text model</value>
+  </data>
+  <data name="Settings_VisionModel" xml:space="preserve">
+    <value>Vision model</value>
+  </data>
+  <data name="Settings_AnimeTagger" xml:space="preserve">
+    <value>Anime image tagger (ONNX)</value>
+  </data>
+  <data name="Settings_AnimeTaggerHint" xml:space="preserve">
+    <value>Run a local Danbooru-style tagger for accurate anime / Pixiv tag prediction. ONNX models are downloaded on demand.</value>
+  </data>
+  <data name="Settings_EnableTagger" xml:space="preserve">
+    <value>Enable anime tagger</value>
+  </data>
+  <data name="Settings_Model" xml:space="preserve">
+    <value>Model</value>
+  </data>
+  <data name="Settings_AvailableTaggers" xml:space="preserve">
+    <value>Available taggers</value>
+  </data>
+  <data name="Settings_Installed" xml:space="preserve">
+    <value>Installed</value>
+  </data>
+  <data name="Common_Install" xml:space="preserve">
+    <value>Install</value>
+  </data>
+  <data name="Settings_ModelNotInstalled" xml:space="preserve">
+    <value>The selected model is not installed yet. Click it above to install.</value>
+  </data>
+  <data name="Settings_ConfidenceThreshold" xml:space="preserve">
+    <value>Confidence threshold</value>
+  </data>
+  <data name="Settings_MaxTags" xml:space="preserve">
+    <value>Max tags</value>
+  </data>
+  <data name="Settings_AutoTag" xml:space="preserve">
+    <value>Auto-tag downloaded images</value>
+  </data>
+  <data name="Settings_AutoTagTip" xml:space="preserve">
+    <value>Runs the tagger on each downloaded image and writes the tags into a sidecar file next to the image.</value>
+  </data>
+  <data name="Settings_ModelManagement" xml:space="preserve">
+    <value>Model management</value>
+  </data>
+  <data name="Settings_ModelManagementHint" xml:space="preserve">
+    <value>Install, refresh, and manage Ollama and ONNX models. Ollama models are pulled through Ollama; ONNX taggers are downloaded from Hugging Face.</value>
+  </data>
+  <data name="Settings_InstallModel" xml:space="preserve">
+    <value>Install a model</value>
+  </data>
+  <data name="Settings_InstallModelHint" xml:space="preserve">
+    <value>Type an Ollama model name below, or click a recommended chip to install it. Hover over a chip for its category, description, and estimated size.</value>
+  </data>
+  <data name="Settings_OllamaModelName" xml:space="preserve">
+    <value>Ollama model name (e.g. llama3.2)</value>
+  </data>
+  <data name="Settings_Recommended" xml:space="preserve">
+    <value>Recommended:</value>
+  </data>
+  <data name="Settings_TextChat" xml:space="preserve">
+    <value>Text / chat</value>
+  </data>
+  <data name="Settings_Vision" xml:space="preserve">
+    <value>Vision</value>
+  </data>
+  <data name="Settings_InstalledOllama" xml:space="preserve">
+    <value>Installed Ollama models</value>
+  </data>
+  <data name="Common_Refresh" xml:space="preserve">
+    <value>Refresh</value>
+  </data>
+  <data name="Common_Loading" xml:space="preserve">
+    <value>Loading…</value>
+  </data>
+  <data name="Settings_NoOllamaModels" xml:space="preserve">
+    <value>No Ollama models installed yet. Use the installer above to download one.</value>
+  </data>
+  <data name="Settings_UseForChat" xml:space="preserve">
+    <value>Use for chat</value>
+  </data>
+  <data name="Settings_UseForVision" xml:space="preserve">
+    <value>Use for vision</value>
+  </data>
+  <data name="Common_Uninstall" xml:space="preserve">
+    <value>Uninstall</value>
+  </data>
+  <data name="Settings_InstalledTaggers" xml:space="preserve">
+    <value>Installed anime taggers</value>
+  </data>
+  <data name="Settings_NoTaggers" xml:space="preserve">
+    <value>No anime tagger models installed yet. Install one from the Hoshi AI tab above.</value>
+  </data>
+  <data name="Settings_UseForTagger" xml:space="preserve">
+    <value>Use for tagger</value>
+  </data>
+  <data name="Settings_OllamaLibraryTip" xml:space="preserve">
+    <value>Tip: Browse models at https://ollama.com/library. Type the exact name (e.g. 'llama3.2:3b' for a smaller variant).</value>
+  </data>
+  <data name="Settings_Config" xml:space="preserve">
+    <value>Config</value>
+  </data>
+  <data name="Settings_Startup" xml:space="preserve">
+    <value>Startup</value>
+  </data>
+  <data name="Settings_WindowState" xml:space="preserve">
+    <value>Window state</value>
+  </data>
+  <data name="Settings_SystemTray" xml:space="preserve">
+    <value>System tray</value>
+  </data>
+  <data name="Settings_StartupTab" xml:space="preserve">
+    <value>Startup tab</value>
+  </data>
+  <data name="Settings_Splash" xml:space="preserve">
+    <value>Show splash screen on startup</value>
+  </data>
+  <data name="Settings_SplashTip" xml:space="preserve">
+    <value>Display the Pikura splash screen when the app launches</value>
+  </data>
+  <data name="Settings_WhatsNew" xml:space="preserve">
+    <value>Show feature highlights after updates</value>
+  </data>
+  <data name="Settings_WhatsNewTip" xml:space="preserve">
+    <value>Show the What's New dialog the first time you open a new major version</value>
+  </data>
+  <data name="Settings_StartWithWindows" xml:space="preserve">
+    <value>Start with Windows</value>
+  </data>
+  <data name="Settings_GalleryViewer" xml:space="preserve">
+    <value>Gallery Viewer</value>
+  </data>
+  <data name="Settings_GalleryViewerHint" xml:space="preserve">
+    <value>Use arrow keys to navigate between artworks when the viewer is open.</value>
+  </data>
+  <data name="Settings_KeyNavGallery" xml:space="preserve">
+    <value>Enable keyboard navigation in gallery (left/right arrow keys)</value>
+  </data>
+  <data name="Settings_KeyNavGalleryTip" xml:space="preserve">
+    <value>Left/Right arrow keys move to the previous/next artwork while the inline viewer panel is open</value>
+  </data>
+  <data name="Settings_KeyNavFullscreen" xml:space="preserve">
+    <value>Enable keyboard navigation in fullscreen viewer</value>
+  </data>
+  <data name="Settings_KeyNavFullscreenTip" xml:space="preserve">
+    <value>Left/Right arrow keys navigate between artworks in the fullscreen viewer window</value>
+  </data>
+  <data name="Settings_DownloadNotifications" xml:space="preserve">
+    <value>Download Notifications</value>
+  </data>
+  <data name="Settings_NotificationsHint" xml:space="preserve">
+    <value>Show a Windows toast notification for downloads. The artist thumbnail appears in the notification body.</value>
+  </data>
+  <data name="Settings_NotifyStarted" xml:space="preserve">
+    <value>Download started</value>
+  </data>
+  <data name="Settings_NotifyStartedHint" xml:space="preserve">
+    <value>Notify when a job begins.</value>
+  </data>
+  <data name="Settings_NotifyCompleted" xml:space="preserve">
+    <value>Download completed</value>
+  </data>
+  <data name="Settings_NotifyCompletedHint" xml:space="preserve">
+    <value>Notify when a job finishes successfully.</value>
+  </data>
+  <data name="Settings_NotifyFailed" xml:space="preserve">
+    <value>Download failed</value>
+  </data>
+  <data name="Settings_NotifyFailedHint" xml:space="preserve">
+    <value>Notify when a job fails or completes with errors.</value>
+  </data>
+  <data name="Settings_NotifyPaused" xml:space="preserve">
+    <value>Download paused / resumed</value>
+  </data>
+  <data name="Settings_NotifyPausedHint" xml:space="preserve">
+    <value>Notify when a job is paused or resumed, with progress so far.</value>
+  </data>
+  <data name="Settings_ResetDefaults" xml:space="preserve">
+    <value>Reset to Defaults</value>
+  </data>
+  <data name="Settings_Accounts" xml:space="preserve">
+    <value>Accounts</value>
+  </data>
+  <data name="Settings_AccountsHint" xml:space="preserve">
+    <value>Manage your signed-in Pixiv accounts</value>
+  </data>
+  <data name="Settings_SignOutAll" xml:space="preserve">
+    <value>Sign out all accounts</value>
+  </data>
+  <data name="Settings_AddAccount" xml:space="preserve">
+    <value>+ Add account</value>
+  </data>
+  <data name="Settings_PixivPremium" xml:space="preserve">
+    <value>Pixiv Premium</value>
+  </data>
+  <data name="Settings_Id" xml:space="preserve">
+    <value>ID: </value>
+  </data>
+  <data name="Settings_Active" xml:space="preserve">
+    <value>Active</value>
+  </data>
+  <data name="Settings_Switch" xml:space="preserve">
+    <value>Switch</value>
+  </data>
+  <data name="Settings_SignOut" xml:space="preserve">
+    <value>Sign out</value>
+  </data>
+  <data name="Settings_NoAccounts" xml:space="preserve">
+    <value>No accounts signed in. Click '+ Add account' to get started.</value>
+  </data>
+  <data name="Settings_Updates" xml:space="preserve">
+    <value>Updates</value>
+  </data>
+  <data name="Settings_CurrentVersion" xml:space="preserve">
+    <value>Current version: </value>
+  </data>
+  <data name="Settings_CheckNow" xml:space="preserve">
+    <value>Check Now</value>
+  </data>
+  <data name="Settings_UpdatePrefs" xml:space="preserve">
+    <value>Update Preferences</value>
+  </data>
+  <data name="Settings_CheckUpdates" xml:space="preserve">
+    <value>Check for updates</value>
+  </data>
+  <data name="Settings_CheckUpdatesHint" xml:space="preserve">
+    <value>How often Pikura checks for new versions on startup</value>
+  </data>
+  <data name="Settings_ReleaseChannel" xml:space="preserve">
+    <value>Release channel</value>
+  </data>
+  <data name="Settings_ReleaseChannelHint" xml:space="preserve">
+    <value>Stable = tagged releases only; Pre-release includes betas</value>
+  </data>
+  <data name="Settings_NotifyUpdate" xml:space="preserve">
+    <value>Notify when update available</value>
+  </data>
+  <data name="Settings_NotifyUpdateHint" xml:space="preserve">
+    <value>Shows a banner at the top of the window</value>
+  </data>
+  <data name="Settings_AutoDownload" xml:space="preserve">
+    <value>Auto-download updates</value>
+  </data>
+  <data name="Settings_AutoDownloadHint" xml:space="preserve">
+    <value>Silently download in background; you still confirm install</value>
+  </data>
+  <data name="Settings_SaveUpdates" xml:space="preserve">
+    <value>Save Update Settings</value>
+  </data>
+  <data name="Settings_UpdateBannerHint" xml:space="preserve">
+    <value>When an update is available, a banner will appear at the top of the window where you can download and install it.</value>
+  </data>
+  <data name="Settings_About" xml:space="preserve">
+    <value>About</value>
+  </data>
+  <data name="Settings_Tagline" xml:space="preserve">
+    <value>Pixiv Artwork Manager</value>
+  </data>
+  <data name="Settings_Version" xml:space="preserve">
+    <value>Version</value>
+  </data>
+  <data name="Settings_Developer" xml:space="preserve">
+    <value>Developer</value>
+  </data>
+  <data name="Settings_Year" xml:space="preserve">
+    <value>Year</value>
+  </data>
+  <data name="Settings_GitHubPage" xml:space="preserve">
+    <value>GitHub Page</value>
+  </data>
+  <data name="Settings_ViewChangelog" xml:space="preserve">
+    <value>View Changelog</value>
+  </data>
+  <data name="Settings_License" xml:space="preserve">
+    <value>License</value>
+  </data>
+  <data name="Settings_LicenseText" xml:space="preserve">
+    <value>Pikura is free and open-source software licensed under the GNU GPL v3.0. Commercial licenses for closed-source use are available from the author. Contributions welcome.</value>
+  </data>
+  <data name="Settings_BuiltWith" xml:space="preserve">
+    <value>Built With</value>
+  </data>
+  <data name="Tray_Open" xml:space="preserve">
+    <value>Open Pikura</value>
+  </data>
+  <data name="Tray_Quit" xml:space="preserve">
+    <value>Quit</value>
+  </data>
+  <data name="Main_SignInFirst" xml:space="preserve">
+    <value>{0} — sign in first</value>
+  </data>
+  <data name="Main_ErrorFormat" xml:space="preserve">
+    <value>{0} — error: {1}</value>
+  </data>
+  <data name="Main_ErrorSuffix" xml:space="preserve">
+    <value>{0} — {1}</value>
+  </data>
+  <data name="Main_ComingSoon" xml:space="preserve">
+    <value>{0} — coming soon</value>
+  </data>
+  <data name="Tray_PauseSchedules" xml:space="preserve">
+    <value>Pause schedules</value>
+  </data>
+  <data name="Tray_Exit" xml:space="preserve">
+    <value>Exit</value>
+  </data>
+  <data name="Settings_ChooseOverlayFiles" xml:space="preserve">
+    <value>Choose overlay images or a list file</value>
+  </data>
+  <data name="Settings_FileTypeImagesLists" xml:space="preserve">
+    <value>Images and lists</value>
+  </data>
+  <data name="Settings_FileTypeImages" xml:space="preserve">
+    <value>Image files</value>
+  </data>
+  <data name="Settings_FileTypeLists" xml:space="preserve">
+    <value>Link lists</value>
+  </data>
+  <data name="Settings_OverlayAdded" xml:space="preserve">
+    <value>added {0}</value>
+  </data>
+  <data name="Settings_OverlayFailed" xml:space="preserve">
+    <value>{0} failed</value>
+  </data>
+  <data name="Settings_OverlaySkipped" xml:space="preserve">
+    <value>{0} skipped (limit {1})</value>
+  </data>
+  <data name="Hoshi_InstallOllamaTitle" xml:space="preserve">
+    <value>Install Ollama?</value>
+  </data>
+  <data name="Hoshi_InstallOllamaPrompt" xml:space="preserve">
+    <value>Hoshi runs on Ollama, a free local AI runtime that isn't installed yet. Download and run the Ollama installer from ollama.com now?</value>
+  </data>
+  <data name="Hoshi_OllamaNotInstalled" xml:space="preserve">
+    <value>Ollama isn't installed. Hoshi needs Ollama — install it from https://ollama.com</value>
+  </data>
+  <data name="Nav_Viewed" xml:space="preserve">
+    <value>Viewed</value>
+  </data>
+  <data name="Nav_Artists" xml:space="preserve">
+    <value>Artists</value>
+  </data>
+  <data name="Nav_BatchDownload" xml:space="preserve">
+    <value>Batch Download</value>
+  </data>
 </root>

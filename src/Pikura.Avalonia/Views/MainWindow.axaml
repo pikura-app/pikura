@@ -2,6 +2,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:actipro="http://schemas.actiprosoftware.com/avaloniaui"
         xmlns:vm="using:Pikura.Avalonia.ViewModels"
+        xmlns:loc="using:Pikura.Avalonia.Localization"
         xmlns:chrome="using:Avalonia.Controls.Chrome"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -109,21 +110,21 @@
 
                         <!-- Nav Items -->
                         <StackPanel Grid.Row="0" Margin="0,40,0,0">
-                            <TextBlock Text="MENU" FontSize="10" FontWeight="SemiBold"
+                            <TextBlock Text="{loc:Tr Main_Menu}" FontSize="10" FontWeight="SemiBold"
                                        Foreground="{DynamicResource DefaultForegroundBrushDisabled}"
                                        Margin="20,4,0,4" LetterSpacing="1.5"/>
                             <Button Classes="nav" Click="GalleryButton_Click">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <Path Data="{StaticResource GalleryIconGeometry}" Width="16" Height="16"
                                           Stretch="Uniform" Fill="{Binding $parent[Button].Foreground}"/>
-                                    <TextBlock Text="Gallery"/>
+                                    <TextBlock Text="{loc:Tr Nav_Gallery}"/>
                                 </StackPanel>
                             </Button>
                             <Button Classes="nav" Click="RankingsButton_Click">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <Path Data="{StaticResource RankingsIconGeometry}" Width="16" Height="16"
                                           Stretch="Uniform" Fill="{Binding $parent[Button].Foreground}"/>
-                                    <TextBlock Text="Rankings"/>
+                                    <TextBlock Text="{loc:Tr Nav_Rankings}"/>
                                 </StackPanel>
                             </Button>
                             <Button Classes="nav" Click="PixivisionButton_Click">
@@ -137,28 +138,28 @@
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <Path Data="{StaticResource DiscoverIconGeometry}" Width="16" Height="16"
                                           Stretch="Uniform" Fill="{Binding $parent[Button].Foreground}"/>
-                                    <TextBlock Text="Discover"/>
+                                    <TextBlock Text="{loc:Tr Nav_Discover}"/>
                                 </StackPanel>
                             </Button>
                             <Button Classes="nav" Click="CollectionsButton_Click">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <Path Data="{StaticResource CollectionsIconGeometry}" Width="16" Height="16"
                                           Stretch="Uniform" Fill="{Binding $parent[Button].Foreground}"/>
-                                    <TextBlock Text="Collections"/>
+                                    <TextBlock Text="{loc:Tr Nav_Collections}"/>
                                 </StackPanel>
                             </Button>
                             <Button Classes="nav" Click="SearchButton_Click">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <Path Data="{StaticResource SearchIconGeometry}" Width="16" Height="16"
                                           Stretch="Uniform" Fill="{Binding $parent[Button].Foreground}"/>
-                                    <TextBlock Text="Search"/>
+                                    <TextBlock Text="{loc:Tr Nav_Search}"/>
                                 </StackPanel>
                             </Button>
                             <Button Classes="nav" Click="BookmarksButton_Click">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <Path Data="{StaticResource BookmarksIconGeometry}" Width="16" Height="16"
                                           Stretch="Uniform" Fill="{Binding $parent[Button].Foreground}"/>
-                                    <TextBlock Text="Bookmarks"/>
+                                    <TextBlock Text="{loc:Tr Nav_Bookmarks}"/>
                                 </StackPanel>
                             </Button>
                             <Button Classes="nav" Click="HoshiButton_Click">
@@ -172,41 +173,41 @@
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <Path Data="{StaticResource ViewedIconGeometry}" Width="16" Height="16"
                                           Stretch="Uniform" Fill="{Binding $parent[Button].Foreground}"/>
-                                    <TextBlock Text="History"/>
+                                    <TextBlock Text="{loc:Tr Nav_History}"/>
                                 </StackPanel>
                             </Button>
                             <Button Classes="nav" Click="BatchDownloadButton_Click">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <Path Data="{StaticResource BatchIconGeometry}" Width="16" Height="16"
                                           Stretch="Uniform" Fill="{Binding $parent[Button].Foreground}"/>
-                                    <TextBlock Text="Batch"/>
+                                    <TextBlock Text="{loc:Tr Nav_Batch}"/>
                                 </StackPanel>
                             </Button>
                             <Button Classes="nav" Click="JobsButton_Click">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <Path Data="{StaticResource JobsIconGeometry}" Width="16" Height="16"
                                           Stretch="Uniform" Fill="{Binding $parent[Button].Foreground}"/>
-                                    <TextBlock Text="Jobs"/>
+                                    <TextBlock Text="{loc:Tr Nav_Jobs}"/>
                                 </StackPanel>
                             </Button>
 
                             <Separator Margin="14,8" Background="{DynamicResource Container1BorderBrush}"/>
 
-                            <TextBlock Text="SYSTEM" FontSize="10" FontWeight="SemiBold"
+                            <TextBlock Text="{loc:Tr Main_System}" FontSize="10" FontWeight="SemiBold"
                                        Foreground="{DynamicResource DefaultForegroundBrushDisabled}"
                                        Margin="20,4,0,4" LetterSpacing="1.5"/>
                             <Button Classes="nav" Click="AnalyticsButton_Click">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <Path Data="{StaticResource AnalyticsIconGeometry}" Width="16" Height="16"
                                           Stretch="Uniform" Fill="{Binding $parent[Button].Foreground}"/>
-                                    <TextBlock Text="Analytics"/>
+                                    <TextBlock Text="{loc:Tr Nav_Analytics}"/>
                                 </StackPanel>
                             </Button>
                             <Button Classes="nav" Click="SettingsButton_Click">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <Path Data="{StaticResource SettingsIconGeometry}" Width="16" Height="16"
                                           Stretch="Uniform" Fill="{Binding $parent[Button].Foreground}"/>
-                                    <TextBlock Text="Settings"/>
+                                    <TextBlock Text="{loc:Tr Nav_Settings}"/>
                                 </StackPanel>
                             </Button>
                         </StackPanel>
@@ -222,7 +223,7 @@
                                 <Flyout Placement="Top">
                                     <Border MinWidth="200" MaxHeight="320" Padding="6">
                                         <StackPanel Spacing="4">
-                                            <TextBlock Text="ACCOUNTS" FontSize="10" FontWeight="SemiBold"
+                                            <TextBlock Text="{loc:Tr Main_Accounts}" FontSize="10" FontWeight="SemiBold"
                                                        Foreground="{DynamicResource DefaultForegroundBrushDisabled}"
                                                        Margin="6,2,0,4" LetterSpacing="1.5"/>
                                             <ItemsControl x:Name="AccountList"/>
@@ -234,7 +235,7 @@
                                                     Click="AddAccountBtn_Click">
                                                 <StackPanel Orientation="Horizontal" Spacing="6">
                                                     <PathIcon Data="{StaticResource PlusIcon}" Width="12" Height="12" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
-                                                    <TextBlock Text="Add account" FontSize="12" VerticalAlignment="Center"/>
+                                                    <TextBlock Text="{loc:Tr Main_AddAccount}" FontSize="12" VerticalAlignment="Center"/>
                                                 </StackPanel>
                                             </Button>
                                         </StackPanel>
@@ -280,17 +281,17 @@
                                 <TextBlock FontSize="13" VerticalAlignment="Center">
                                     <Run Text="Pikura v"/>
                                     <Run Text="{Binding UpdateVersion}"/>
-                                    <Run Text=" is available"/>
+                                    <Run Text="{loc:Tr Main_UpdateAvailable}"/>
                                 </TextBlock>
                             </StackPanel>
                             <Button Grid.Column="1"
-                                    Content="Download"
+                                    Content="{loc:Tr Common_Download}"
                                     Command="{Binding DownloadUpdateCommand}"
                                     IsVisible="{Binding UpdateDownloadUrl, Converter={x:Static ObjectConverters.IsNotNull}}"
                                     Classes="accent"
                                     FontSize="12" Padding="10,4" Margin="6,0"
                                     CornerRadius="4"/>
-                            <Button Grid.Column="2" Content="Release Notes"
+                            <Button Grid.Column="2" Content="{loc:Tr Main_ReleaseNotes}"
                                     Command="{Binding OpenUpdatePageCommand}"
                                     FontSize="12" Padding="10,4" Margin="0,0,6,0"
                                     CornerRadius="4"/>
@@ -337,18 +338,18 @@
                                     <TextBlock FontSize="13" VerticalAlignment="Center">
                                         <Run Text="Pikura v"/>
                                         <Run Text="{Binding UpdateVersion}"/>
-                                        <Run Text=" downloaded — ready to install"/>
+                                        <Run Text="{loc:Tr Main_UpdateDownloaded}"/>
                                     </TextBlock>
                                 </StackPanel>
                                 <TextBlock Text="{Binding UpdateStatusText}" FontSize="11" Opacity="0.75"
                                            IsVisible="{Binding UpdateStatusText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
                             </StackPanel>
-                            <Button Grid.Column="1" Content="Install &amp; Restart"
+                            <Button Grid.Column="1" Content="{loc:Tr Main_InstallRestart}"
                                     Click="InstallAndRestartBtn_Click"
                                     Classes="accent"
                                     FontSize="12" Padding="10,4" Margin="6,0"
                                     CornerRadius="4"/>
-                            <Button Grid.Column="3" Content="Later"
+                            <Button Grid.Column="3" Content="{loc:Tr Common_Later}"
                                     Command="{Binding DismissUpdateCommand}"
                                     Background="Transparent" BorderThickness="0"
                                     FontSize="12" Padding="6,4" CornerRadius="4"
@@ -417,7 +418,7 @@
                 <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
                     <Path Data="{StaticResource IncognitoIconGeometry}" Width="14" Height="6"
                           Stretch="Uniform" Fill="White" VerticalAlignment="Center"/>
-                    <TextBlock Text="INCOGNITO" FontSize="10" FontWeight="Bold" Foreground="White"
+                    <TextBlock Text="{loc:Tr Main_Incognito}" FontSize="10" FontWeight="Bold" Foreground="White"
                                LetterSpacing="0.5" VerticalAlignment="Center"/>
                 </StackPanel>
             </Border>
@@ -434,27 +435,27 @@
                         Orientation="Horizontal" ZIndex="20" Height="32">
                 <!-- Fullscreen toggle (icon toggled in code-behind) -->
                 <Button x:Name="FullscreenBtn" Classes="caption"
-                        ToolTip.Tip="Fullscreen" Click="FullscreenBtn_Click">
+                        ToolTip.Tip="{loc:Tr Common_Fullscreen}" Click="FullscreenBtn_Click">
                     <Path x:Name="FullscreenIcon" Data="{StaticResource FullscreenEnterIcon}" Width="12" Height="12"
                           Stretch="Uniform" Stroke="{Binding $parent[Button].Foreground}" StrokeThickness="2"
                           VerticalAlignment="Center" HorizontalAlignment="Center" UseLayoutRounding="False"/>
                 </Button>
                 <!-- Minimize -->
                 <Button x:Name="MinimizeBtn" Classes="caption"
-                        ToolTip.Tip="Minimize" Click="MinimizeBtn_Click">
+                        ToolTip.Tip="{loc:Tr Common_Minimize}" Click="MinimizeBtn_Click">
                     <Rectangle Width="12" Height="2" Fill="{Binding $parent[Button].Foreground}"
                                VerticalAlignment="Center" HorizontalAlignment="Center"/>
                 </Button>
                 <!-- Maximize/Restore -->
                 <Button x:Name="MaximizeBtn" Classes="caption"
-                        ToolTip.Tip="Maximize" Click="MaximizeBtn_Click">
+                        ToolTip.Tip="{loc:Tr Common_Maximize}" Click="MaximizeBtn_Click">
                     <Path x:Name="MaximizeIcon" Data="{StaticResource MaximizeIcon}" Width="12" Height="12"
                           Stretch="Uniform" Stroke="{Binding $parent[Button].Foreground}" StrokeThickness="2"
                           VerticalAlignment="Center" HorizontalAlignment="Center" UseLayoutRounding="False"/>
                 </Button>
                 <!-- Close -->
                 <Button x:Name="CloseBtn" Classes="caption"
-                        ToolTip.Tip="Close" Click="CloseBtn_Click">
+                        ToolTip.Tip="{loc:Tr Common_Close}" Click="CloseBtn_Click">
                     <Path Data="{StaticResource CloseIcon}" Width="12" Height="12"
                           Stretch="Uniform" Stroke="{Binding $parent[Button].Foreground}" StrokeThickness="2"
                           VerticalAlignment="Center" HorizontalAlignment="Center" UseLayoutRounding="False"/>
@@ -471,7 +472,7 @@
                     FontSize="15" CornerRadius="5"
                     IsHitTestVisible="True"
                     Click="HamburgerBtn_Click"
-                    ToolTip.Tip="Toggle sidebar">
+                    ToolTip.Tip="{loc:Tr Main_ToggleSidebar}">
                 <PathIcon Data="{StaticResource HamburgerIcon}" Width="16" Height="16" Foreground="{Binding $parent[Button].Foreground}" />
             </Button>
     </Grid>
