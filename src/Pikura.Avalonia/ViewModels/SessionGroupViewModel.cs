@@ -16,6 +16,7 @@ public partial class SessionGroupViewModel : ObservableObject
     public DateTime Date { get; }
     public string DisplayDate { get; }
     public List<HoshiSession> Sessions { get; }
+    public bool IsPinnedGroup { get; set; }
     
     public SessionGroupViewModel(DateTime date, IEnumerable<HoshiSession> sessions)
     {
@@ -29,14 +30,15 @@ public partial class SessionGroupViewModel : ObservableObject
         var today = DateTime.Today;
         var yesterday = today.AddDays(-1);
         
+        var loc = Pikura.Avalonia.Localization.LocalizationService.Instance;
         if (date.Date == today.Date)
-            return "Today";
+            return loc["Hoshi_Today"];
         if (date.Date == yesterday.Date)
-            return "Yesterday";
+            return loc["Hoshi_Yesterday"];
         
         // If within the last week, show day name
         if (today - date.Date <= TimeSpan.FromDays(7))
-            return date.ToString("dddd");
+            return date.ToString("dddd", loc.Culture);
         
         // Otherwise show date
         return date.ToString("MMM dd, yyyy");

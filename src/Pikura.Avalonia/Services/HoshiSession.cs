@@ -9,21 +9,33 @@ public sealed class HoshiSession
 {
     public string Id { get; set; } = Guid.NewGuid().ToString("N");
     public string Title { get; set; } = "New chat";
+    /// <summary>Owning pixiv user id (null = legacy shared space).</summary>
+    public string? UserId { get; set; }
     /// <summary>Optional reference (file path, URL, or Pixiv artwork id) describing where the image came from.</summary>
     public string? ImageSource { get; set; }
     /// <summary>Pixiv artwork ID when the session image was loaded from the inline viewer. Used for API lookups.</summary>
     public string? PixivArtworkId { get; set; }
+    /// <summary>Pinned sessions sort into their own group at the top.</summary>
+    public bool Pinned { get; set; }
+    /// <summary>SHA-256 key of the session image in the content-addressed store.</summary>
+    public string? ImageSha { get; set; }
+    /// <summary>Message count from the DB (headers don't carry the messages).</summary>
+    public int MessageCount { get; set; }
     public List<PersistedMessage> Messages { get; set; } = new();
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
-    /// <summary>Image bytes are NOT persisted in the JSON — they live in a sidecar .img file.</summary>
+    /// <summary>Loaded lazily via LoadImageAsync when the session opens.</summary>
     [JsonIgnore]
     public byte[]? ImageBytes { get; set; }
 
     /// <summary>True if this session has an image attached.</summary>
     [JsonIgnore]
-    public bool HasImage => ImageBytes is { Length: > 0 };
+    public bool HasImage => ImageBytes is { Length: > 0 } || ImageSha != null;
+
+    /// <summary>Transient search-hit snippet shown in the results list.</summary>
+    [JsonIgnore]
+    public string? SearchSnippet { get; set; }
 
     /// <summary>True if this session is selected for bulk operations (not persisted).</summary>
     [JsonIgnore]
@@ -35,13 +47,14 @@ public sealed class HoshiSession
     {
         get
         {
+            var loc = Pikura.Avalonia.Localization.LocalizationService.Instance;
             var local = UpdatedAt.ToLocalTime();
             var age = DateTime.Now - local;
-            if (age < TimeSpan.FromMinutes(1)) return "just now";
-            if (age < TimeSpan.FromHours(1))  return $"{(int)age.TotalMinutes}m ago";
-            if (age.TotalDays < 1 && local.Date == DateTime.Today) return $"{(int)age.TotalHours}h ago";
-            if (age < TimeSpan.FromDays(7))   return local.ToString("ddd h:mmtt").ToLower();
-            return local.ToString("MMM d, yyyy");
+            if (age < TimeSpan.FromMinutes(1)) return loc["Hoshi_JustNow"];
+            if (age < TimeSpan.FromHours(1))  return string.Format(loc["Hoshi_MinutesAgo"], (int)age.TotalMinutes);
+            if (age.TotalDays < 1 && local.Date == DateTime.Today) return string.Format(loc["Hoshi_HoursAgo"], (int)age.TotalHours);
+            if (age < TimeSpan.FromDays(7))   return local.ToString("ddd h:mmtt", loc.Culture).ToLower();
+            return local.ToString("MMM d, yyyy", loc.Culture);
         }
     }
 }
@@ -53,7 +66,10 @@ public sealed class PersistedMessage
     public string Content { get; set; } = string.Empty;
     public DateTime At { get; set; } = DateTime.UtcNow;
 
-    /// <summary>Base64-encoded inline thumbnail (e.g. recommended artwork or artist avatar).</summary>
+    /// <summary>SHA-256 key of an inline thumbnail in the image store.</summary>
+    public string? ImageSha { get; set; }
+
+    /// <summary>Legacy-only: base64 inline thumbnail (kept so old JSON still deserializes).</summary>
     public string? ImageBase64 { get; set; }
 
     /// <summary>Pixiv artwork ID for the "Open in viewer" quick action.</summary>

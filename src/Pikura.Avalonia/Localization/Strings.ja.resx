@@ -6064,4 +6064,25 @@ https://www.pixiv.net/en/artworks/12345678
     <value>オフの場合、ビューアーは空で起動します。タブは保存されるため、再度オンにすると復元されます。</value>
   </data>
   <data name="Library_Refingerprinting" xml:space="preserve"><value>{0} 件のファイルのフィンガープリントを再計算中です — 重複結果は不完全です</value></data>
+  <data name="Hoshi_JustNow" xml:space="preserve"><value>たった今</value></data>
+  <data name="Hoshi_MinutesAgo" xml:space="preserve"><value>{0}分前</value></data>
+  <data name="Hoshi_HoursAgo" xml:space="preserve"><value>{0}時間前</value></data>
+  <data name="Hoshi_Today" xml:space="preserve"><value>今日</value></data>
+  <data name="Hoshi_Yesterday" xml:space="preserve"><value>昨日</value></data>
+  <data name="Hoshi_Pinned" xml:space="preserve"><value>ピン留め</value></data>
+  <data name="Hoshi_MigratingChats" xml:space="preserve"><value>チャット履歴を移行中… {0}/{1}</value></data>
+  <data name="Hoshi_SearchChats" xml:space="preserve"><value>チャットを検索</value></data>
+  <data name="Hoshi_Pin" xml:space="preserve"><value>ピン留め</value></data>
+  <data name="Hoshi_Unpin" xml:space="preserve"><value>ピン留めを解除</value></data>
+  <data name="Hoshi_StorageTitle" xml:space="preserve"><value>チャットストレージ</value></data>
+  <data name="Hoshi_StorageStats" xml:space="preserve"><value>{0} 件のチャット · DB {1:F1} MB · 画像 {2:F1} MB（{3} ファイル）</value></data>
+  <data name="Hoshi_StorageLegacy" xml:space="preserve"><value>移行済みの旧データ: {0} MB</value></data>
+  <data name="Hoshi_Retention" xml:space="preserve"><value>次の期間より古いチャットを削除</value></data>
+  <data name="Hoshi_RetentionOff" xml:space="preserve"><value>オフ</value></data>
+  <data name="Hoshi_StorageLimit" xml:space="preserve"><value>チャットストレージの上限</value></data>
+  <data name="Hoshi_CleanUpNow" xml:space="preserve"><value>今すぐクリーンアップ</value></data>
+  <data name="Hoshi_PruneImages" xml:space="preserve"><value>未使用画像を削除</value></data>
+  <data name="Hoshi_DeleteLegacy" xml:space="preserve"><value>古いチャットファイルを削除</value></data>
+  <data name="Hoshi_DeleteLegacyTitle" xml:space="preserve"><value>古いチャットファイルの削除</value></data>
+  <data name="Hoshi_DeleteLegacyConfirm" xml:space="preserve"><value>移行済みの旧チャットファイル（{0} MB）を削除しますか？元に戻せません。</value></data>
 </root>

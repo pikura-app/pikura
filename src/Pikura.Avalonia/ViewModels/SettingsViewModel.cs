@@ -771,6 +771,11 @@ public partial class SettingsViewModel : ViewModelBase
         HoshiUseAnimeTagger = s.HoshiUseAnimeTagger;
         _hoshiAnimeTaggerModel = s.HoshiAnimeTaggerModel;
         OnPropertyChanged(nameof(HoshiAnimeTaggerModel));
+        HoshiChatRetentionDays = s.HoshiChatRetentionDays;
+        OnPropertyChanged(nameof(HoshiRetentionIndex));
+        HoshiMaxImageStoreMb = s.HoshiMaxImageStoreMb;
+        OnPropertyChanged(nameof(HoshiStorageLimitIndex));
+        _ = RefreshHoshiStorageStatsAsync();
         HoshiAnimeTaggerThreshold = s.HoshiAnimeTaggerThreshold;
         HoshiAnimeTaggerMaxTags = s.HoshiAnimeTaggerMaxTags;
         HoshiAnimeTaggerAutoTagDownloads = s.HoshiAnimeTaggerAutoTagDownloads;
@@ -1791,6 +1796,84 @@ public partial class SettingsViewModel : ViewModelBase
 
     partial void OnHoshiAnimeTaggerMaxTagsChanged(int value)
         => _settingsService.Update(s => s.HoshiAnimeTaggerMaxTags = value);
+
+    partial void OnHoshiChatRetentionDaysChanged(int value)
+        => _settingsService.Update(s => s.HoshiChatRetentionDays = value);
+    partial void OnHoshiMaxImageStoreMbChanged(int value)
+        => _settingsService.Update(s => s.HoshiMaxImageStoreMb = value);
+
+    [ObservableProperty] private int _hoshiChatRetentionDays;
+    [ObservableProperty] private int _hoshiMaxImageStoreMb;
+
+    private static readonly int[] RetentionDays = [0, 30, 90, 180, 365];
+    private static readonly int[] StorageMb     = [0, 250, 500, 1024, 2048];
+
+    public int HoshiRetentionIndex
+    {
+        get => Math.Max(0, Array.IndexOf(RetentionDays, HoshiChatRetentionDays));
+        set { if (value >= 0 && value < RetentionDays.Length) HoshiChatRetentionDays = RetentionDays[value]; }
+    }
+    public int HoshiStorageLimitIndex
+    {
+        get => Math.Max(0, Array.IndexOf(StorageMb, HoshiMaxImageStoreMb));
+        set { if (value >= 0 && value < StorageMb.Length) HoshiMaxImageStoreMb = StorageMb[value]; }
+    }
+    [ObservableProperty] private string _hoshiStorageStats = string.Empty;
+    [ObservableProperty] private bool _hoshiLegacyMigratedExists;
+
+    private HoshiSessionService? HoshiSessions
+    {
+        get { try { return AppServices.Get<HoshiSessionService>(); } catch { return null; } }
+    }
+
+    [RelayCommand]
+    public async Task RefreshHoshiStorageStatsAsync()
+    {
+        var svc = HoshiSessions;
+        if (svc == null) { HoshiStorageStats = ""; return; }
+        var stats = await Task.Run(() => svc.Store.GetStorageStatsAsync());
+        var loc = Pikura.Avalonia.Localization.LocalizationService.Instance;
+        var legacy = stats.LegacyBytes > 0
+            ? " · " + string.Format(loc["Hoshi_StorageLegacy"], stats.LegacyBytes / 1024 / 1024)
+            : "";
+        HoshiLegacyMigratedExists = stats.LegacyBytes > 0;
+        HoshiStorageStats = string.Format(loc["Hoshi_StorageStats"],
+            stats.Sessions, stats.DbBytes / 1024 / 1024.0,
+            stats.ImageBytes / 1024 / 1024.0, stats.ImageFiles) + legacy;
+    }
+
+    [RelayCommand]
+    private async Task HoshiCleanUpNowAsync()
+    {
+        var svc = HoshiSessions; if (svc == null) return;
+        var s = _settingsService.Current;
+        await Task.Run(() => svc.Store.CleanupAsync(
+            s.HoshiChatRetentionDays > 0 ? s.HoshiChatRetentionDays : null,
+            s.HoshiMaxImageStoreMb > 0 ? (long)s.HoshiMaxImageStoreMb * 1024 * 1024 : null));
+        await RefreshHoshiStorageStatsAsync();
+    }
+
+    [RelayCommand]
+    private async Task HoshiPruneImagesAsync()
+    {
+        var svc = HoshiSessions; if (svc == null) return;
+        await Task.Run(() => svc.Store.PruneOrphanImagesAsync());
+        await RefreshHoshiStorageStatsAsync();
+    }
+
+    [RelayCommand]
+    private async Task HoshiDeleteLegacyAsync()
+    {
+        var legacy = Pikura.Core.Services.Hoshi.HoshiStore.LegacyDataDir() + ".migrated";
+        if (!Directory.Exists(legacy)) return; // refuse: only the renamed (migrated) folder may be deleted
+        long mb = Directory.EnumerateFiles(legacy, "*", SearchOption.AllDirectories)
+            .Sum(f => new FileInfo(f).Length) / 1024 / 1024;
+        var loc = Pikura.Avalonia.Localization.LocalizationService.Instance;
+        if (!await _dialogService.ShowConfirmationAsync(
+            loc["Hoshi_DeleteLegacyTitle"], string.Format(loc["Hoshi_DeleteLegacyConfirm"], mb))) return;
+        await Task.Run(() => { try { Directory.Delete(legacy, recursive: true); } catch { } });
+        await RefreshHoshiStorageStatsAsync();
+    }
 
     partial void OnHoshiAnimeTaggerAutoTagDownloadsChanged(bool value)
         => _settingsService.Update(s => s.HoshiAnimeTaggerAutoTagDownloads = value);

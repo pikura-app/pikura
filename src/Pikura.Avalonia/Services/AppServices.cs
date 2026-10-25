@@ -132,7 +132,11 @@ public static class AppServices
                 services.AddSingleton<ImageResizeService>();
 
                 // AI assistant (Ollama)
-                services.AddSingleton<HoshiSessionService>();
+                services.AddSingleton(sp => new Pikura.Core.Services.Hoshi.HoshiStore(
+                    null, sp.GetRequiredService<Microsoft.Extensions.Logging.ILogger<Pikura.Core.Services.Hoshi.HoshiStore>>()));
+                services.AddSingleton(sp => new HoshiSessionService(
+                    sp.GetRequiredService<Pikura.Core.Services.Hoshi.HoshiStore>(),
+                    sp.GetRequiredService<Microsoft.Extensions.Logging.ILogger<Pikura.Core.Services.Hoshi.HoshiMigration>>()));
                 services.AddSingleton<OllamaService>();
 
                 // Local ONNX anime image tagger

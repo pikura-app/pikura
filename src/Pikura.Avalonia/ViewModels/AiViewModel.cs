@@ -24,6 +24,8 @@ public partial class AiChatMessage : ObservableObject
     public string Role { get; init; } = "user";      // "user" | "assistant" | "system"
     [ObservableProperty] private string _content = string.Empty;
     public byte[]? ImageBytes { get; init; }         // Optional image to display inline
+    /// <summary>Store-cached thumbnail (decoded at display size, bounded LRU).</summary>
+    public Bitmap? CachedImage { get; set; }
     public Bitmap? ImageSource
     {
         get
@@ -31,9 +33,10 @@ public partial class AiChatMessage : ObservableObject
             // Always create a fresh bitmap from the stored bytes. This avoids the thumbnail
             // disappearing when the chat control is detached and re-attached (Avalonia disposes
             // the previous Bitmap when the visual leaves the tree, so a cached one would stay dead).
+            if (CachedImage != null) return CachedImage;
             if (ImageBytes is { Length: > 0 })
             {
-                try { using var ms = new MemoryStream(ImageBytes); return new Bitmap(ms); }
+                try { using var ms = new MemoryStream(ImageBytes); return Bitmap.DecodeToWidth(ms, 200); }
                 catch { /* best-effort: leave null if bytes are invalid */ }
             }
             return null;
@@ -137,6 +140,54 @@ public partial class AiViewModel : ObservableObject
 
     /// <summary>Sessions grouped by date for the sidebar.</summary>
     public List<SessionGroupViewModel> GroupedSessions => _sessions.GetGroupedSessions();
+
+    /// <summary>Groups flattened into rows (header string + session) for the virtualized ListBox.</summary>
+    public List<object> FlattenedSessions
+    {
+        get
+        {
+            var rows = new List<object>();
+            foreach (var g in GroupedSessions)
+            {
+                rows.Add(new SessionGroupViewModel(g.Date, g.Sessions) { IsPinnedGroup = g.IsPinnedGroup });
+                foreach (var s in g.Sessions) rows.Add(s);
+            }
+            return rows;
+        }
+    }
+
+    [ObservableProperty] private string? _sessionSearchText;
+    [ObservableProperty] private string? _migrationStatusText;
+    public ObservableCollection<HoshiSession> SearchResultSessions { get; } = new();
+    public HoshiSessionService SessionsService => _sessions;
+
+    partial void OnSessionSearchTextChanged(string? value) => DebounceSessionSearch(value);
+
+    private CancellationTokenSource? _searchCts;
+    private void DebounceSessionSearch(string? value)
+    {
+        _searchCts?.Cancel();
+        if (string.IsNullOrWhiteSpace(value)) { SearchResultSessions.Clear(); return; }
+        var t = (_searchCts = new CancellationTokenSource()).Token;
+        var q = value.Trim();
+        Task.Delay(300, t).ContinueWith(async _ =>
+        {
+            if (t.IsCancellationRequested) return;
+            var hits = await _sessions.SearchAsync(q);
+            if (t.IsCancellationRequested) return;
+            await Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                SearchResultSessions.Clear();
+                foreach (var h in hits)
+                {
+                    var s = _sessions.Sessions.FirstOrDefault(x => x.Id == h.SessionId);
+                    if (s == null) continue;
+                    s.SearchSnippet = h.Snippet;
+                    SearchResultSessions.Add(s);
+                }
+            });
+        }, TaskScheduler.Default);
+    }
 
     public ObservableCollection<AiChatMessage> Messages { get; } = [];
 
@@ -246,7 +297,12 @@ public partial class AiViewModel : ObservableObject
         };
         
         // Notify when sessions collection changes to update grouped sessions
-        _sessions.Sessions.CollectionChanged += (_, _) => OnPropertyChanged(nameof(GroupedSessions));
+        _sessions.Sessions.CollectionChanged += (_, _) =>
+        {
+            OnPropertyChanged(nameof(GroupedSessions));
+            OnPropertyChanged(nameof(FlattenedSessions));
+        };
+        _sessions.MigrationStatusChanged += (_, _) => MigrationStatusText = _sessions.MigrationStatus;
 
         // When the sessions directory is swapped (account switch), clear the
         // current session/messages so we don't keep showing the previous account's chat.
@@ -370,9 +426,18 @@ public partial class AiViewModel : ObservableObject
         }
     }
 
-    /// <summary>Switches to an existing session: loads its image and messages into the view.</summary>
-    public void LoadSession(HoshiSession session)
+    /// <summary>Switches to an existing session: loads its image + messages lazily, then seeds model context.</summary>
+    public void LoadSession(HoshiSession session) => _ = LoadSessionAsync(session);
+
+    private async Task LoadSessionAsync(HoshiSession session)
     {
+        // Messages + image load off the UI thread (headers only until now).
+        if (session.Messages.Count == 0 && session.MessageCount > 0)
+            await Task.Run(() => _sessions.LoadMessagesAsync(session));
+        if (session.ImageBytes == null && session.ImageSha != null)
+            session.ImageBytes = await Task.Run(() => _sessions.LoadImageAsync(session.ImageSha));
+        // Message thumbnails resolve from the bounded LRU at display size.
+
         _suppressSave = true;
         try
         {
@@ -380,10 +445,18 @@ public partial class AiViewModel : ObservableObject
             _sessionAutoNamed = session.Messages.Count > 0 || !IsDefaultChatTitle(session.Title);
             Messages.Clear();
             foreach (var m in session.Messages)
-                Messages.Add(ToAiChatMessage(m));
+            {
+                var am = ToAiChatMessage(m);
+                if (m.ImageSha != null)
+                    am.CachedImage = await _sessions.GetThumbnailAsync(m.ImageSha);
+                Messages.Add(am);
+            }
             CurrentImageBytes = session.ImageBytes;
-            // Reset Ollama conversation history so the model starts fresh for this session
-            _ollama.ClearHistory();
+            // Seed model context from persisted turns (budgeted, newest first).
+            var turns = Pikura.Core.Services.Hoshi.HoshiContextBudget.Select(
+                session.Messages.Select(m => (m.Role, m.Content)));
+            byte[]? firstImg = _ollama.SupportsVision ? session.ImageBytes : null;
+            _ollama.ResetHistory(turns, firstImg);
         }
         finally { _suppressSave = false; }
     }

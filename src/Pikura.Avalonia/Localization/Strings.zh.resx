@@ -6064,4 +6064,25 @@ https://www.pixiv.net/en/artworks/12345678
     <value>关闭时查看器以空白启动；标签页仍会保存，重新开启可恢复。</value>
   </data>
   <data name="Library_Refingerprinting" xml:space="preserve"><value>{0} 个文件仍在重新计算指纹 — 重复结果尚不完整</value></data>
+  <data name="Hoshi_JustNow" xml:space="preserve"><value>刚刚</value></data>
+  <data name="Hoshi_MinutesAgo" xml:space="preserve"><value>{0}分钟前</value></data>
+  <data name="Hoshi_HoursAgo" xml:space="preserve"><value>{0}小时前</value></data>
+  <data name="Hoshi_Today" xml:space="preserve"><value>今天</value></data>
+  <data name="Hoshi_Yesterday" xml:space="preserve"><value>昨天</value></data>
+  <data name="Hoshi_Pinned" xml:space="preserve"><value>置顶</value></data>
+  <data name="Hoshi_MigratingChats" xml:space="preserve"><value>正在迁移聊天记录… {0}/{1}</value></data>
+  <data name="Hoshi_SearchChats" xml:space="preserve"><value>搜索聊天</value></data>
+  <data name="Hoshi_Pin" xml:space="preserve"><value>置顶</value></data>
+  <data name="Hoshi_Unpin" xml:space="preserve"><value>取消置顶</value></data>
+  <data name="Hoshi_StorageTitle" xml:space="preserve"><value>聊天存储</value></data>
+  <data name="Hoshi_StorageStats" xml:space="preserve"><value>{0} 个聊天 · 数据库 {1:F1} MB · 图片 {2:F1} MB（{3} 个文件）</value></data>
+  <data name="Hoshi_StorageLegacy" xml:space="preserve"><value>已迁移的旧数据: {0} MB</value></data>
+  <data name="Hoshi_Retention" xml:space="preserve"><value>删除早于以下时间的聊天</value></data>
+  <data name="Hoshi_RetentionOff" xml:space="preserve"><value>关闭</value></data>
+  <data name="Hoshi_StorageLimit" xml:space="preserve"><value>聊天存储上限</value></data>
+  <data name="Hoshi_CleanUpNow" xml:space="preserve"><value>立即清理</value></data>
+  <data name="Hoshi_PruneImages" xml:space="preserve"><value>移除未使用的图片</value></data>
+  <data name="Hoshi_DeleteLegacy" xml:space="preserve"><value>删除旧聊天文件</value></data>
+  <data name="Hoshi_DeleteLegacyTitle" xml:space="preserve"><value>删除旧聊天文件</value></data>
+  <data name="Hoshi_DeleteLegacyConfirm" xml:space="preserve"><value>删除已迁移的旧聊天文件（{0} MB）？此操作无法撤销。</value></data>
 </root>

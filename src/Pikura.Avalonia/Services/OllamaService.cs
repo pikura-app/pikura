@@ -132,6 +132,20 @@ public sealed class OllamaService : IDisposable
         return DefaultTextModel;
     }
 
+    /// <summary>True when a vision-capable model is configured for image chats.</summary>
+    public bool SupportsVision
+    {
+        get
+        {
+            var n = GetVisionModel();
+            return n.Contains("llava", StringComparison.OrdinalIgnoreCase)
+                || n.Contains("moondream", StringComparison.OrdinalIgnoreCase)
+                || n.Contains("vision", StringComparison.OrdinalIgnoreCase)
+                || n.Contains("-vl", StringComparison.OrdinalIgnoreCase)
+                || n.Contains("minicpm", StringComparison.OrdinalIgnoreCase);
+        }
+    }
+
     private string GetVisionModel()
     {
         var settings = _settings.Current;
@@ -216,6 +230,26 @@ public sealed class OllamaService : IDisposable
 
     /// <summary>Clears the in-memory chat history (starts a fresh conversation).</summary>
     public void ClearHistory() => _chat = _client != null ? new Chat(_client) : null;
+
+    /// <summary>Seeds chat history from persisted messages (reopening a session).</summary>
+    public void ResetHistory(IEnumerable<(string Role, string Content)> turns, byte[]? firstUserImage = null)
+    {
+        _chat = _client != null ? new Chat(_client) : null;
+        if (_chat == null) return;
+        var first = true;
+        foreach (var (role, content) in turns)
+        {
+            var msg = role == "assistant"
+                ? new OllamaSharp.Models.Chat.Message(OllamaSharp.Models.Chat.ChatRole.Assistant, [content])
+                : new OllamaSharp.Models.Chat.Message(OllamaSharp.Models.Chat.ChatRole.User, [content]);
+            if (first && firstUserImage != null && role == "user")
+            {
+                msg.Images = [Convert.ToBase64String(firstUserImage)];
+                first = false;
+            }
+            _chat.Messages.Add(msg);
+        }
+    }
 
     // ── Model management (public API for settings UI) ────────────────────────
 

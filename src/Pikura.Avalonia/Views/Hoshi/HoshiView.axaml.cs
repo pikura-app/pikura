@@ -270,6 +270,12 @@ public partial class HoshiView : UserControl
         }
     }
 
+    private async void OnPinSession(object? sender, RoutedEventArgs e)
+    {
+        if ((sender as Control)?.Tag is HoshiSession s && DataContext is AiViewModel vm)
+            await vm.SessionsService.SetPinnedAsync(s, !s.Pinned);
+    }
+
     private async void OnRenameSession(object? sender, RoutedEventArgs e)
     {
         if (sender is not Control c || c.Tag is not HoshiSession s || VM is not { } vm) return;

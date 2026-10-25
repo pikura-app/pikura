@@ -924,6 +924,12 @@ public sealed class AppSettings
     /// <summary>Set when the user declines the Inno→Velopack migration offer.</summary>
     public bool VelopackMigrationDeclined { get; set; } = false;
     /// <summary>Reopen persisted viewer tabs on startup (when off the viewer starts empty).</summary>
+    /// <summary>Hoshi chat retention in days (0/off = keep forever).</summary>
+    public int HoshiChatRetentionDays { get; set; }
+    /// <summary>Hoshi image-store cap in MB (0 = unlimited).</summary>
+    public int HoshiMaxImageStoreMb { get; set; }
+    /// <summary>Last time the hoshi cleanup pass ran (once/day max).</summary>
+    public DateTime? HoshiLastCleanupAt { get; set; }
     public bool RestoreViewerTabsOnStartup { get; set; } = true;
     /// <summary>Global browse-panel visibility for the artwork viewer (hidden when true).</summary>
     public bool ViewerBrowsePanelHidden { get; set; } = false;

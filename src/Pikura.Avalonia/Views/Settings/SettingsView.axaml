@@ -1407,6 +1407,46 @@
                             </StackPanel>
                         </Border>
 
+                        <!-- Chat storage -->
+                        <Border Background="{DynamicResource Container1BackgroundBrush}"
+                                BorderBrush="{DynamicResource Container1BorderBrush}"
+                                BorderThickness="1" CornerRadius="8" Padding="28">
+                            <StackPanel Spacing="14">
+                                <TextBlock Text="{loc:Tr Hoshi_StorageTitle}" FontWeight="SemiBold" FontSize="14"/>
+                                <TextBlock Text="{Binding HoshiStorageStats}" FontSize="12"
+                                           Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
+                                           TextWrapping="Wrap"/>
+                                <Grid ColumnDefinitions="*,*">
+                                    <StackPanel Grid.Column="0" Spacing="6" Margin="0,0,12,0">
+                                        <TextBlock Text="{loc:Tr Hoshi_Retention}" FontSize="12"/>
+                                        <ComboBox SelectedIndex="{Binding HoshiRetentionIndex, Mode=TwoWay}" HorizontalAlignment="Stretch">
+                                            <ComboBoxItem Content="{loc:Tr Hoshi_RetentionOff}"/>
+                                            <ComboBoxItem Content="30"/>
+                                            <ComboBoxItem Content="90"/>
+                                            <ComboBoxItem Content="180"/>
+                                            <ComboBoxItem Content="365"/>
+                                        </ComboBox>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1" Spacing="6">
+                                        <TextBlock Text="{loc:Tr Hoshi_StorageLimit}" FontSize="12"/>
+                                        <ComboBox SelectedIndex="{Binding HoshiStorageLimitIndex, Mode=TwoWay}" HorizontalAlignment="Stretch">
+                                            <ComboBoxItem Content="{loc:Tr Hoshi_RetentionOff}"/>
+                                            <ComboBoxItem Content="250 MB"/>
+                                            <ComboBoxItem Content="500 MB"/>
+                                            <ComboBoxItem Content="1 GB"/>
+                                            <ComboBoxItem Content="2 GB"/>
+                                        </ComboBox>
+                                    </StackPanel>
+                                </Grid>
+                                <WrapPanel>
+                                    <Button Content="{loc:Tr Hoshi_CleanUpNow}" Command="{Binding HoshiCleanUpNowCommand}" Margin="0,0,8,0"/>
+                                    <Button Content="{loc:Tr Hoshi_PruneImages}" Command="{Binding HoshiPruneImagesCommand}" Margin="0,0,8,0"/>
+                                    <Button Content="{loc:Tr Hoshi_DeleteLegacy}" Command="{Binding HoshiDeleteLegacyCommand}"
+                                            IsVisible="{Binding HoshiLegacyMigratedExists}"/>
+                                </WrapPanel>
+                            </StackPanel>
+                        </Border>
+
                         <!-- Model management -->
                         <Border Background="{DynamicResource Container1BackgroundBrush}"
                                 BorderBrush="{DynamicResource Container1BorderBrush}"

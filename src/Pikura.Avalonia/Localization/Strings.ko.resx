@@ -6064,4 +6064,25 @@ https://www.pixiv.net/en/artworks/12345678
     <value>끄면 뷰어가 비어 있는 상태로 시작됩니다. 탭은 계속 저장되므로 다시 켜면 복원됩니다.</value>
   </data>
   <data name="Library_Refingerprinting" xml:space="preserve"><value>{0}개 파일의 지문을 다시 계산하는 중입니다 — 중복 결과가 불완전합니다</value></data>
+  <data name="Hoshi_JustNow" xml:space="preserve"><value>방금</value></data>
+  <data name="Hoshi_MinutesAgo" xml:space="preserve"><value>{0}분 전</value></data>
+  <data name="Hoshi_HoursAgo" xml:space="preserve"><value>{0}시간 전</value></data>
+  <data name="Hoshi_Today" xml:space="preserve"><value>오늘</value></data>
+  <data name="Hoshi_Yesterday" xml:space="preserve"><value>어제</value></data>
+  <data name="Hoshi_Pinned" xml:space="preserve"><value>고정됨</value></data>
+  <data name="Hoshi_MigratingChats" xml:space="preserve"><value>채팅 기록 마이그레이션 중… {0}/{1}</value></data>
+  <data name="Hoshi_SearchChats" xml:space="preserve"><value>채팅 검색</value></data>
+  <data name="Hoshi_Pin" xml:space="preserve"><value>고정</value></data>
+  <data name="Hoshi_Unpin" xml:space="preserve"><value>고정 해제</value></data>
+  <data name="Hoshi_StorageTitle" xml:space="preserve"><value>채팅 저장소</value></data>
+  <data name="Hoshi_StorageStats" xml:space="preserve"><value>채팅 {0}개 · DB {1:F1} MB · 이미지 {2:F1} MB ({3}개 파일)</value></data>
+  <data name="Hoshi_StorageLegacy" xml:space="preserve"><value>마이그레이션된 레거시 데이터: {0} MB</value></data>
+  <data name="Hoshi_Retention" xml:space="preserve"><value>다음 기간보다 오래된 채팅 삭제</value></data>
+  <data name="Hoshi_RetentionOff" xml:space="preserve"><value>끄기</value></data>
+  <data name="Hoshi_StorageLimit" xml:space="preserve"><value>채팅 저장소 제한</value></data>
+  <data name="Hoshi_CleanUpNow" xml:space="preserve"><value>지금 정리</value></data>
+  <data name="Hoshi_PruneImages" xml:space="preserve"><value>사용하지 않는 이미지 제거</value></data>
+  <data name="Hoshi_DeleteLegacy" xml:space="preserve"><value>이전 채팅 파일 삭제</value></data>
+  <data name="Hoshi_DeleteLegacyTitle" xml:space="preserve"><value>이전 채팅 파일 삭제</value></data>
+  <data name="Hoshi_DeleteLegacyConfirm" xml:space="preserve"><value>마이그레이션된 이전 채팅 파일({0} MB)을 삭제하시겠습니까? 되돌릴 수 없습니다.</value></data>
 </root>
