@@ -47,17 +47,33 @@ builder.Services.AddSingleton<FanboxClient>();
 // AccountService (required by DownloadCoordinator)
 builder.Services.AddSingleton<Pikura.Core.Settings.AccountService>();
 
+// Local library index (same database)
+builder.Services.AddSingleton<Pikura.Core.Data.LibraryRepository>(provider =>
+    new Pikura.Core.Data.LibraryRepository(dbPath, provider.GetRequiredService<ILogger<Pikura.Core.Data.LibraryRepository>>()));
+builder.Services.AddSingleton<Pikura.Core.Services.Library.LibraryIndexService>(provider =>
+    new Pikura.Core.Services.Library.LibraryIndexService(
+        provider.GetRequiredService<Pikura.Core.Data.LibraryRepository>(),
+        provider.GetRequiredService<SettingsService>(),
+        provider.GetRequiredService<ILogger<Pikura.Core.Services.Library.LibraryIndexService>>(),
+        provider.GetService<Pikura.Core.Settings.AccountService>(),
+        provider.GetService<PixivClient>(),
+        null));
+
 // DownloadCoordinator
 builder.Services.AddSingleton<DownloadCoordinator>(provider =>
-    new DownloadCoordinator(
+{
+    var dl = provider.GetRequiredService<PixivDownloadService>();
+    dl.Library ??= provider.GetService<Pikura.Core.Services.Library.LibraryIndexService>();
+    return new DownloadCoordinator(
         provider.GetRequiredService<PixivClient>(),
-        provider.GetRequiredService<PixivDownloadService>(),
+        dl,
         provider.GetRequiredService<SettingsService>(),
         provider.GetRequiredService<DownloadJobRepository>(),
         provider.GetRequiredService<FanboxClient>(),
         provider.GetRequiredService<ILogger<DownloadCoordinator>>(),
         resizeService: null,
-        accountService: provider.GetRequiredService<Pikura.Core.Settings.AccountService>()));
+        accountService: provider.GetRequiredService<Pikura.Core.Settings.AccountService>());
+});
 
 // Schedule executor
 builder.Services.AddSingleton<ScheduleExecutorService>();

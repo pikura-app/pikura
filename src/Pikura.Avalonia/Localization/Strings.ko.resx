@@ -5895,4 +5895,139 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="Jobs_ResumingPartial" xml:space="preserve">
     <value>부분 파일 이어 받기({1} 중 {0})</value>
   </data>
+  <data name="Nav_Library" xml:space="preserve">
+    <value>라이브러리</value>
+  </data>
+  <data name="Library_Browse" xml:space="preserve">
+    <value>찾아보기</value>
+  </data>
+  <data name="Library_Duplicates" xml:space="preserve">
+    <value>중복</value>
+  </data>
+  <data name="Library_FilesIndexed" xml:space="preserve">
+    <value>{0}개 파일 인덱싱됨</value>
+  </data>
+  <data name="Library_SearchWatermark" xml:space="preserve">
+    <value>라이브러리 검색…</value>
+  </data>
+  <data name="Library_ArtistFilter" xml:space="preserve">
+    <value>작가 ID…</value>
+  </data>
+  <data name="Library_MediaAll" xml:space="preserve">
+    <value>전체</value>
+  </data>
+  <data name="Library_MediaImage" xml:space="preserve">
+    <value>이미지</value>
+  </data>
+  <data name="Library_MediaVideo" xml:space="preserve">
+    <value>동영상</value>
+  </data>
+  <data name="Library_MediaAnimation" xml:space="preserve">
+    <value>애니메이션</value>
+  </data>
+  <data name="Library_SortAdded" xml:space="preserve">
+    <value>최근 추가순</value>
+  </data>
+  <data name="Library_SortCreated" xml:space="preserve">
+    <value>생성일순</value>
+  </data>
+  <data name="Library_SortTitle" xml:space="preserve">
+    <value>제목순</value>
+  </data>
+  <data name="Library_SortArtist" xml:space="preserve">
+    <value>작가순</value>
+  </data>
+  <data name="Library_IncludeR18" xml:space="preserve">
+    <value>R-18 포함</value>
+  </data>
+  <data name="Library_AiTags" xml:space="preserve">
+    <value>AI 태그:</value>
+  </data>
+  <data name="Library_PixivTags" xml:space="preserve">
+    <value>Pixiv 태그:</value>
+  </data>
+  <data name="Library_ActiveFilters" xml:space="preserve">
+    <value>필터:</value>
+  </data>
+  <data name="Library_OpenFile" xml:space="preserve">
+    <value>파일 열기</value>
+  </data>
+  <data name="Library_ShowInFolder" xml:space="preserve">
+    <value>폴더에서 보기</value>
+  </data>
+  <data name="Library_OpenOnPixiv" xml:space="preserve">
+    <value>pixiv.net에서 열기</value>
+  </data>
+  <data name="Library_CopyPath" xml:space="preserve">
+    <value>경로 복사</value>
+  </data>
+  <data name="Library_TagWithAi" xml:space="preserve">
+    <value>AI로 태그 지정</value>
+  </data>
+  <data name="Library_Delete" xml:space="preserve">
+    <value>삭제</value>
+  </data>
+  <data name="Library_Rescan" xml:space="preserve">
+    <value>다시 스캔</value>
+  </data>
+  <data name="Library_FetchMissing" xml:space="preserve">
+    <value>누락 정보 가져오기</value>
+  </data>
+  <data name="Library_TagUntagged" xml:space="preserve">
+    <value>태그 없는 파일 태그 지정</value>
+  </data>
+  <data name="Library_Scanning" xml:space="preserve">
+    <value>스캔 중</value>
+  </data>
+  <data name="Library_Enriching" xml:space="preserve">
+    <value>정보 가져오는 중</value>
+  </data>
+  <data name="Library_Tagging" xml:space="preserve">
+    <value>태그 지정 중</value>
+  </data>
+  <data name="Library_WorkProgress" xml:space="preserve">
+    <value>{0}: {1}/{2} — {3}</value>
+  </data>
+  <data name="Library_FindDuplicates" xml:space="preserve">
+    <value>중복 찾기</value>
+  </data>
+  <data name="Library_Threshold" xml:space="preserve">
+    <value>임계값</value>
+  </data>
+  <data name="Library_Exact" xml:space="preserve">
+    <value>완전 일치</value>
+  </data>
+  <data name="Library_SimilarDistance" xml:space="preserve">
+    <value>유사(거리 {0})</value>
+  </data>
+  <data name="Library_KeepBest" xml:space="preserve">
+    <value>최적 유지</value>
+  </data>
+  <data name="Library_DeleteMarked" xml:space="preserve">
+    <value>선택 삭제</value>
+  </data>
+  <data name="Library_DeleteTitle" xml:space="preserve">
+    <value>파일 삭제</value>
+  </data>
+  <data name="Library_DeleteConfirm" xml:space="preserve">
+    <value>{0}개 파일을 삭제할까요? 휴지통으로 이동합니다.</value>
+  </data>
+  <data name="Library_DeleteConfirmRecycle" xml:space="preserve">
+    <value>선택한 {0}개 파일을 삭제할까요? 휴지통으로 이동합니다.</value>
+  </data>
+  <data name="Library_ModelRequired" xml:space="preserve">
+    <value>AI 모델 필요</value>
+  </data>
+  <data name="Library_ModelRequiredMessage" xml:space="preserve">
+    <value>애니메이션 태거 모델이 설치되지 않았습니다. 지금 다운로드할까요?</value>
+  </data>
+  <data name="Settings_LibrarySection" xml:space="preserve">
+    <value>라이브러리</value>
+  </data>
+  <data name="Settings_LibraryAutoIndex" xml:space="preserve">
+    <value>다운로드한 파일을 로컬 라이브러리에 인덱싱</value>
+  </data>
+  <data name="Settings_LibraryDupThreshold" xml:space="preserve">
+    <value>중복 임계값(pHash 거리 0-12)</value>
+  </data>
 </root>

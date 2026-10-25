@@ -911,6 +911,14 @@ public sealed class AppSettings
     /// without downloading any images.
     /// </summary>
     public bool ExportMetadataWithDownloads { get; set; } = false;
+    /// <summary>Index downloaded files into the local library (dedupe/search/tags).</summary>
+    public bool LibraryAutoIndexDownloads { get; set; } = true;
+    /// <summary>pHash distance (0-12) below which two files count as near-duplicates.</summary>
+    private int _libraryDuplicateThreshold = 6;
+    /// <summary>pHash distance (0-12 slider; clamped to ≤7 — the 8×8-bit band index can't find pairs beyond 7).</summary>
+    public int LibraryDuplicateThreshold { get => _libraryDuplicateThreshold; set => _libraryDuplicateThreshold = Math.Clamp(value, 0, 7); }
+    /// <summary>Set after the one-time initial library scan finished.</summary>
+    public bool LibraryInitialScanCompleted { get; set; } = false;
 
     /// <summary>Format of the download metadata sidecar: "csv", "tsv", "json" or "txt".</summary>
     public string MetadataExportFormat { get; set; } = "csv";

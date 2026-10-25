@@ -265,6 +265,18 @@ public partial class App : Application
                     mainWindow.Activate();
                 }
 
+                // One-time local-library initial scan (background, resumable).
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        var lib = AppServices.Get<Pikura.Core.Services.Library.LibraryIndexService>();
+                        await lib.EnsureInitialScanAsync(null, System.Threading.CancellationToken.None);
+                        await lib.HashUnhashedAsync(null, System.Threading.CancellationToken.None);
+                    }
+                    catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"Library scan failed: {ex.Message}"); }
+                });
+
                 try
                 {
                     await ShowStartupHighlightsAsync(settings, mainWindow, highlightsPrep);

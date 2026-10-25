@@ -520,6 +520,23 @@ public partial class MainWindow : Window
         }
     }
 
+    private Views.Library.LibraryView? _libraryView;
+    private async void LibraryButton_Click(object? sender, RoutedEventArgs e)
+    {
+        try
+        {
+            var vm = AppServices.Get<Pikura.Avalonia.ViewModels.LibraryViewModel>();
+            _libraryView ??= new Views.Library.LibraryView { DataContext = vm };
+            MainContentControl.Content = _libraryView;
+            SetSectionTitle(Pikura.Avalonia.Localization.LocalizationService.Instance["Nav_Library"]);
+        }
+        catch (Exception ex)
+        {
+            MainContentControl.Content = new TextBlock { Text = string.Format(Pikura.Avalonia.Localization.LocalizationService.Instance["Main_ErrorFormat"], Pikura.Avalonia.Localization.LocalizationService.Instance["Nav_Library"], ex.Message), FontSize = 18, Foreground = Brush.Parse("#9CA3AF"), VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center };
+        }
+        await Task.CompletedTask;
+    }
+
     private void ViewedButton_Click(object? sender, RoutedEventArgs e)
     {
         try

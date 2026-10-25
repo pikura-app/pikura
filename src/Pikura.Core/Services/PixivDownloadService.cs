@@ -538,6 +538,9 @@ public sealed class PixivDownloadService
 
                 // Optional: run the local ONNX anime tagger and write a sidecar tags file.
                 await TryAutoTagImageAsync(finalPath, ct).ConfigureAwait(false);
+
+                // Record into the local library index (background hashing, never blocks).
+                Library?.RecordDownloaded(artwork, finalPath, i);
             }
             catch (Exception ex)
             {
@@ -621,6 +624,9 @@ public sealed class PixivDownloadService
 
     /// <summary>Invoked when a ranged resume begins: (bytesAlreadyOnDisk, expectedTotal).</summary>
     public Action<long, long?>? ResumeSink { get; set; }
+
+    /// <summary>Optional local-library index — set by the host app after construction.</summary>
+    public Pikura.Core.Services.Library.LibraryIndexService? Library { get; set; }
 
     /// <summary>Job currently executing on this async flow (set by the coordinator).</summary>
     public static readonly AsyncLocal<Guid?> CurrentJobId = new();
@@ -1321,6 +1327,9 @@ public sealed class PixivDownloadService
 
             var sidecar = imagePath + ".tags.txt";
             await File.WriteAllTextAsync(sidecar, sb.ToString(), ct).ConfigureAwait(false);
+
+            if (Library != null)
+                await Library.RecordAiTagsAsync(imagePath, result, ct).ConfigureAwait(false);
         }
         catch (Exception ex)
         {

@@ -2159,8 +2159,17 @@
                             </StackPanel>
                         </Border>
 
+                        <StackPanel Spacing="12" Margin="0,24,0,0">
+                                    <TextBlock Text="{loc:Tr Settings_LibrarySection}" FontSize="16" FontWeight="Bold"/>
+                                    <CheckBox Content="{loc:Tr Settings_LibraryAutoIndex}" IsChecked="{Binding LibraryAutoIndexDownloads}"/>
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <TextBlock Text="{loc:Tr Settings_LibraryDupThreshold}" VerticalAlignment="Center"/>
+                                        <Slider Value="{Binding LibraryDuplicateThreshold}" Minimum="0" Maximum="7" Width="160" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding LibraryDuplicateThreshold, StringFormat='{}{0}'}" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </StackPanel>
                     </StackPanel>
-                </ScrollViewer>
+                            </ScrollViewer>
             </TabItem>
 
         </TabControl>

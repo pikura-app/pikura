@@ -5895,4 +5895,139 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="Jobs_ResumingPartial" xml:space="preserve">
     <value>部分ファイルを再開中（{1}中{0}）</value>
   </data>
+  <data name="Nav_Library" xml:space="preserve">
+    <value>ライブラリ</value>
+  </data>
+  <data name="Library_Browse" xml:space="preserve">
+    <value>参照</value>
+  </data>
+  <data name="Library_Duplicates" xml:space="preserve">
+    <value>重複</value>
+  </data>
+  <data name="Library_FilesIndexed" xml:space="preserve">
+    <value>{0}件のファイルを索引済み</value>
+  </data>
+  <data name="Library_SearchWatermark" xml:space="preserve">
+    <value>ライブラリを検索…</value>
+  </data>
+  <data name="Library_ArtistFilter" xml:space="preserve">
+    <value>作者ID…</value>
+  </data>
+  <data name="Library_MediaAll" xml:space="preserve">
+    <value>すべて</value>
+  </data>
+  <data name="Library_MediaImage" xml:space="preserve">
+    <value>画像</value>
+  </data>
+  <data name="Library_MediaVideo" xml:space="preserve">
+    <value>動画</value>
+  </data>
+  <data name="Library_MediaAnimation" xml:space="preserve">
+    <value>アニメーション</value>
+  </data>
+  <data name="Library_SortAdded" xml:space="preserve">
+    <value>追加順</value>
+  </data>
+  <data name="Library_SortCreated" xml:space="preserve">
+    <value>作成日順</value>
+  </data>
+  <data name="Library_SortTitle" xml:space="preserve">
+    <value>タイトル順</value>
+  </data>
+  <data name="Library_SortArtist" xml:space="preserve">
+    <value>作者順</value>
+  </data>
+  <data name="Library_IncludeR18" xml:space="preserve">
+    <value>R-18を含む</value>
+  </data>
+  <data name="Library_AiTags" xml:space="preserve">
+    <value>AIタグ:</value>
+  </data>
+  <data name="Library_PixivTags" xml:space="preserve">
+    <value>Pixivタグ:</value>
+  </data>
+  <data name="Library_ActiveFilters" xml:space="preserve">
+    <value>フィルター:</value>
+  </data>
+  <data name="Library_OpenFile" xml:space="preserve">
+    <value>ファイルを開く</value>
+  </data>
+  <data name="Library_ShowInFolder" xml:space="preserve">
+    <value>フォルダーで表示</value>
+  </data>
+  <data name="Library_OpenOnPixiv" xml:space="preserve">
+    <value>pixiv.netで開く</value>
+  </data>
+  <data name="Library_CopyPath" xml:space="preserve">
+    <value>パスをコピー</value>
+  </data>
+  <data name="Library_TagWithAi" xml:space="preserve">
+    <value>AIでタグ付け</value>
+  </data>
+  <data name="Library_Delete" xml:space="preserve">
+    <value>削除</value>
+  </data>
+  <data name="Library_Rescan" xml:space="preserve">
+    <value>再スキャン</value>
+  </data>
+  <data name="Library_FetchMissing" xml:space="preserve">
+    <value>不足情報を取得</value>
+  </data>
+  <data name="Library_TagUntagged" xml:space="preserve">
+    <value>未タグ付けファイルをタグ付け</value>
+  </data>
+  <data name="Library_Scanning" xml:space="preserve">
+    <value>スキャン中</value>
+  </data>
+  <data name="Library_Enriching" xml:space="preserve">
+    <value>情報取得中</value>
+  </data>
+  <data name="Library_Tagging" xml:space="preserve">
+    <value>タグ付け中</value>
+  </data>
+  <data name="Library_WorkProgress" xml:space="preserve">
+    <value>{0}: {1}/{2} — {3}</value>
+  </data>
+  <data name="Library_FindDuplicates" xml:space="preserve">
+    <value>重複を検索</value>
+  </data>
+  <data name="Library_Threshold" xml:space="preserve">
+    <value>しきい値</value>
+  </data>
+  <data name="Library_Exact" xml:space="preserve">
+    <value>完全一致</value>
+  </data>
+  <data name="Library_SimilarDistance" xml:space="preserve">
+    <value>類似（距離{0}）</value>
+  </data>
+  <data name="Library_KeepBest" xml:space="preserve">
+    <value>最良を残す</value>
+  </data>
+  <data name="Library_DeleteMarked" xml:space="preserve">
+    <value>選択を削除</value>
+  </data>
+  <data name="Library_DeleteTitle" xml:space="preserve">
+    <value>ファイルを削除</value>
+  </data>
+  <data name="Library_DeleteConfirm" xml:space="preserve">
+    <value>{0}件のファイルを削除しますか？ごみ箱に移動します。</value>
+  </data>
+  <data name="Library_DeleteConfirmRecycle" xml:space="preserve">
+    <value>選択した{0}件のファイルを削除しますか？ごみ箱に移動します。</value>
+  </data>
+  <data name="Library_ModelRequired" xml:space="preserve">
+    <value>AIモデルが必要</value>
+  </data>
+  <data name="Library_ModelRequiredMessage" xml:space="preserve">
+    <value>アニメタガーモデルがインストールされていません。今すぐダウンロードしますか？</value>
+  </data>
+  <data name="Settings_LibrarySection" xml:space="preserve">
+    <value>ライブラリ</value>
+  </data>
+  <data name="Settings_LibraryAutoIndex" xml:space="preserve">
+    <value>ダウンロードしたファイルをローカルライブラリに索引</value>
+  </data>
+  <data name="Settings_LibraryDupThreshold" xml:space="preserve">
+    <value>重複しきい値（pHash距離 0-12）</value>
+  </data>
 </root>

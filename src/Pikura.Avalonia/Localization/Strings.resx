@@ -5959,4 +5959,139 @@ Resuming from {1}/{2} artworks</value>
   <data name="Jobs_ResumingPartial" xml:space="preserve">
     <value>Resuming partial file ({0} of {1})</value>
   </data>
+  <data name="Nav_Library" xml:space="preserve">
+    <value>Library</value>
+  </data>
+  <data name="Library_Browse" xml:space="preserve">
+    <value>Browse</value>
+  </data>
+  <data name="Library_Duplicates" xml:space="preserve">
+    <value>Duplicates</value>
+  </data>
+  <data name="Library_FilesIndexed" xml:space="preserve">
+    <value>{0} files indexed</value>
+  </data>
+  <data name="Library_SearchWatermark" xml:space="preserve">
+    <value>Search library…</value>
+  </data>
+  <data name="Library_ArtistFilter" xml:space="preserve">
+    <value>Artist ID…</value>
+  </data>
+  <data name="Library_MediaAll" xml:space="preserve">
+    <value>All media</value>
+  </data>
+  <data name="Library_MediaImage" xml:space="preserve">
+    <value>Images</value>
+  </data>
+  <data name="Library_MediaVideo" xml:space="preserve">
+    <value>Videos</value>
+  </data>
+  <data name="Library_MediaAnimation" xml:space="preserve">
+    <value>Animations</value>
+  </data>
+  <data name="Library_SortAdded" xml:space="preserve">
+    <value>Recently added</value>
+  </data>
+  <data name="Library_SortCreated" xml:space="preserve">
+    <value>Creation date</value>
+  </data>
+  <data name="Library_SortTitle" xml:space="preserve">
+    <value>Title</value>
+  </data>
+  <data name="Library_SortArtist" xml:space="preserve">
+    <value>Artist</value>
+  </data>
+  <data name="Library_IncludeR18" xml:space="preserve">
+    <value>Include R-18</value>
+  </data>
+  <data name="Library_AiTags" xml:space="preserve">
+    <value>AI tags:</value>
+  </data>
+  <data name="Library_PixivTags" xml:space="preserve">
+    <value>Pixiv tags:</value>
+  </data>
+  <data name="Library_ActiveFilters" xml:space="preserve">
+    <value>Filters:</value>
+  </data>
+  <data name="Library_OpenFile" xml:space="preserve">
+    <value>Open file</value>
+  </data>
+  <data name="Library_ShowInFolder" xml:space="preserve">
+    <value>Show in folder</value>
+  </data>
+  <data name="Library_OpenOnPixiv" xml:space="preserve">
+    <value>Open on pixiv.net</value>
+  </data>
+  <data name="Library_CopyPath" xml:space="preserve">
+    <value>Copy path</value>
+  </data>
+  <data name="Library_TagWithAi" xml:space="preserve">
+    <value>Tag with AI</value>
+  </data>
+  <data name="Library_Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Library_Rescan" xml:space="preserve">
+    <value>Rescan</value>
+  </data>
+  <data name="Library_FetchMissing" xml:space="preserve">
+    <value>Fetch missing info</value>
+  </data>
+  <data name="Library_TagUntagged" xml:space="preserve">
+    <value>Tag untagged files</value>
+  </data>
+  <data name="Library_Scanning" xml:space="preserve">
+    <value>Scanning</value>
+  </data>
+  <data name="Library_Enriching" xml:space="preserve">
+    <value>Fetching info</value>
+  </data>
+  <data name="Library_Tagging" xml:space="preserve">
+    <value>Tagging</value>
+  </data>
+  <data name="Library_WorkProgress" xml:space="preserve">
+    <value>{0}: {1}/{2} — {3}</value>
+  </data>
+  <data name="Library_FindDuplicates" xml:space="preserve">
+    <value>Find duplicates</value>
+  </data>
+  <data name="Library_Threshold" xml:space="preserve">
+    <value>Threshold</value>
+  </data>
+  <data name="Library_Exact" xml:space="preserve">
+    <value>Exact</value>
+  </data>
+  <data name="Library_SimilarDistance" xml:space="preserve">
+    <value>Similar (distance {0})</value>
+  </data>
+  <data name="Library_KeepBest" xml:space="preserve">
+    <value>Keep best</value>
+  </data>
+  <data name="Library_DeleteMarked" xml:space="preserve">
+    <value>Delete selected</value>
+  </data>
+  <data name="Library_DeleteTitle" xml:space="preserve">
+    <value>Delete files</value>
+  </data>
+  <data name="Library_DeleteConfirm" xml:space="preserve">
+    <value>Delete {0} file(s)? They will be sent to the Recycle Bin.</value>
+  </data>
+  <data name="Library_DeleteConfirmRecycle" xml:space="preserve">
+    <value>Delete {0} selected file(s)? They will be sent to the Recycle Bin.</value>
+  </data>
+  <data name="Library_ModelRequired" xml:space="preserve">
+    <value>AI model required</value>
+  </data>
+  <data name="Library_ModelRequiredMessage" xml:space="preserve">
+    <value>The anime tagger model is not installed. Download it now?</value>
+  </data>
+  <data name="Settings_LibrarySection" xml:space="preserve">
+    <value>Library</value>
+  </data>
+  <data name="Settings_LibraryAutoIndex" xml:space="preserve">
+    <value>Index downloaded files into the local library</value>
+  </data>
+  <data name="Settings_LibraryDupThreshold" xml:space="preserve">
+    <value>Duplicate threshold (pHash distance 0-12)</value>
+  </data>
 </root>

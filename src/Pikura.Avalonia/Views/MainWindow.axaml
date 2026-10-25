@@ -190,6 +190,13 @@
                                     <TextBlock Text="{loc:Tr Nav_Jobs}"/>
                                 </StackPanel>
                             </Button>
+                            <Button Classes="nav" Click="LibraryButton_Click">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <Path Data="{StaticResource GalleryIconGeometry}" Width="16" Height="16"
+                                          Stretch="Uniform" Fill="{Binding $parent[Button].Foreground}"/>
+                                    <TextBlock Text="{loc:Tr Nav_Library}"/>
+                                </StackPanel>
+                            </Button>
 
                             <Separator Margin="14,8" Background="{DynamicResource Container1BorderBrush}"/>
 
