@@ -6509,4 +6509,9 @@ Resuming from {1}/{2} artworks</value>
   <data name="Library_SourcePixiv" xml:space="preserve"><value>pixiv</value></data>
   <data name="Library_OpenSource" xml:space="preserve"><value>Open source page</value></data>
   <data name="Library_CopyOriginalUrl" xml:space="preserve"><value>Copy original image URL</value></data>
+  <data name="Viewer_NetworkIntercepted" xml:space="preserve">
+    <value>Couldn't reach pixiv securely.
+This network (e.g. airplane, hotel or public Wi-Fi) is blocking or intercepting the connection.
+Open a browser to sign in to the Wi-Fi, or try again on another network.</value>
+  </data>
 </root>

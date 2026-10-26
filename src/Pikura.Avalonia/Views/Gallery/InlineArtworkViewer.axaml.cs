@@ -971,7 +971,11 @@ public partial class InlineArtworkViewer : UserControl
             System.Diagnostics.Debug.WriteLine(
                 $"[InlineArtworkViewer] LoadCardAsync({card.Id}) failed: {ex.GetType().Name}: {ex.Message}\n{ex.StackTrace}");
             if (_currentCard?.Id == card.Id)
-                SetError($"Failed to load image.\n{ex.Message}");
+                SetError(ex is System.Net.Http.HttpRequestException { InnerException: System.Security.Authentication.AuthenticationException }
+                    // Not pixiv's fault: something on the network (captive portal, in-flight or hotel
+                    // Wi-Fi, firewall) answered the secure connection with non-TLS data.
+                    ? LocalizationService.Instance["Viewer_NetworkIntercepted"]
+                    : $"Failed to load image.\n{ex.Message}");
         }
         finally
         {

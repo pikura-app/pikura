@@ -6445,4 +6445,9 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="Library_SourcePixiv" xml:space="preserve"><value>pixiv</value></data>
   <data name="Library_OpenSource" xml:space="preserve"><value>打开来源页面</value></data>
   <data name="Library_CopyOriginalUrl" xml:space="preserve"><value>复制原图 URL</value></data>
+  <data name="Viewer_NetworkIntercepted" xml:space="preserve">
+    <value>无法安全连接到 pixiv。
+当前网络（如飞机、酒店或公共 Wi-Fi）正在阻止或拦截连接。
+请在浏览器中登录 Wi-Fi，或换个网络重试。</value>
+  </data>
 </root>
