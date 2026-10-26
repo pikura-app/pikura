@@ -48,6 +48,10 @@ public sealed class VelopackMigrationService
     public async Task OfferOnceAsync()
     {
         if (!ShouldOffer()) return;
+        // Nothing to migrate to until a release ships the Velopack installer — stay quiet
+        // (and don't burn the one-time offer) until then.
+        try { if (await _updateCheck.GetLatestVelopackSetupAsync() is null) return; }
+        catch { return; }
         _settings.Update(s => s.VelopackMigrationOffered = true);
         var yes = await _dialog.ShowConfirmationAsync(
             LocalizationService.Instance["Update_MigrateTitle"],

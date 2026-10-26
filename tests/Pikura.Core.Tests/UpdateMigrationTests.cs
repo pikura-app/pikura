@@ -48,9 +48,9 @@ public class UpdateMigrationTests
         Directory.CreateDirectory(dir);
         try
         {
-            Assert.False(WindowsInstallInfo.IsInnoInstall(dir, () => false));
+            Assert.False(WindowsInstallInfo.IsInnoInstall(dir));
             File.WriteAllText(Path.Combine(dir, "unins000.exe"), "x");
-            Assert.True(WindowsInstallInfo.IsInnoInstall(dir, () => false));
+            Assert.True(WindowsInstallInfo.IsInnoInstall(dir));
             Assert.NotNull(WindowsInstallInfo.FindInnoUninstaller(dir));
         }
         finally { Directory.Delete(dir, true); }
