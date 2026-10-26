@@ -2,72 +2,207 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:loc="using:Pikura.Avalonia.Localization"
         xmlns:vm="using:Pikura.Avalonia.ViewModels"
+        xmlns:local="using:Pikura.Avalonia.Views.Gallery"
         x:CompileBindings="false"
         x:Class="Pikura.Avalonia.Views.Library.LibraryView">
+    <UserControl.Styles>
+        <!-- One size for every Library button (matches the other tabs' toolbars). -->
+        <Style Selector="Button, ToggleButton, CheckBox">
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+        <Style Selector="Button, ToggleButton">
+            <Setter Property="Padding" Value="10,4"/>
+            <Setter Property="MinHeight" Value="28"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+        <Style Selector="TextBox, ComboBox, CalendarDatePicker">
+            <Setter Property="MinHeight" Value="30"/>
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+    </UserControl.Styles>
     <DockPanel>
-        <!-- Header / tabs -->
-        <StackPanel DockPanel.Dock="Top" Spacing="8" Margin="16,12,16,8">
-            <StackPanel Orientation="Horizontal" Spacing="8">
-                <Button Content="{loc:Tr Library_Browse}" Click="BrowseTab_Click"/>
-                <Button Content="{loc:Tr Library_Duplicates}" Click="DuplicatesTab_Click"/>
-                <TextBlock Text="{Binding StatusLine}" VerticalAlignment="Center" Margin="12,0,0,0"
+        <!-- Header: segmented Browse/Duplicates toggle (active tab highlighted) + stats -->
+        <Grid DockPanel.Dock="Top" Margin="16,44,16,8" ColumnDefinitions="Auto,*">
+            <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="2">
+                <Button Content="{loc:Tr Library_Browse}" Click="BrowseTab_Click"
+                        Classes.accent="{Binding IsBrowseTab}"/>
+                <Button Content="{loc:Tr Library_Duplicates}" Click="DuplicatesTab_Click"
+                        Classes.accent="{Binding IsDuplicatesTab}"/>
+            </StackPanel>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10"
+                        HorizontalAlignment="Right" VerticalAlignment="Center">
+                <TextBlock Text="{Binding StatusLine}" FontSize="11"
+                           Foreground="{DynamicResource DefaultForegroundBrushSecondary}"/>
+                <TextBlock Text="{Binding LastScanText}" FontSize="11"
+                           Foreground="{DynamicResource DefaultForegroundBrushSecondary}"
+                           IsVisible="{Binding LastScanText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                <Button Content="{loc:Tr Gallery_Grid}"
+                        Command="{Binding SetGridViewCommand}" IsEnabled="{Binding !IsGridView}"
+                        ToolTip.Tip="{loc:Tr Gallery_GridView}"/>
+                <Button Content="{loc:Tr Gallery_List}"
+                        Command="{Binding SetListViewCommand}" IsEnabled="{Binding !IsListView}"
+                        ToolTip.Tip="{loc:Tr Gallery_ListView}"/>
+                <Button Content="{loc:Tr Gallery_Fixed}"
+                        Command="{Binding SetFixedHeightCommand}" IsEnabled="{Binding !IsFixedHeight}"
+                        ToolTip.Tip="{loc:Tr Gallery_FixedCardHeight}"/>
+                <Button Content="{loc:Tr Gallery_Natural}"
+                        Command="{Binding SetNaturalHeightCommand}" IsEnabled="{Binding !IsNaturalHeight}"
+                        ToolTip.Tip="{loc:Tr Gallery_NaturalHeightPreservesAspectRatio}"/>
+                <CheckBox Content="{loc:Tr Gallery_Info}" IsChecked="{Binding ShowInfo}" VerticalAlignment="Center"/>
+                <CheckBox Content="{loc:Tr Gallery_Tags}" IsChecked="{Binding ShowTags}" VerticalAlignment="Center"/>
+                <Slider Minimum="100" Maximum="320" Value="{Binding CardSize, Mode=TwoWay}"
+                        Width="90" VerticalAlignment="Center" ToolTip.Tip="{loc:Tr Gallery_Size}"/>
+                <ToggleButton IsChecked="{Binding ShowPreview, Mode=TwoWay}">
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                        <Path Data="{StaticResource ShowPanelIcon}" Width="14" Height="14"
+                              Stretch="Uniform" Stroke="{Binding $parent[ToggleButton].Foreground}" StrokeThickness="1.5"
+                              StrokeLineCap="Round" VerticalAlignment="Center" UseLayoutRounding="False"
+                              IsVisible="{Binding !ShowPreview}"/>
+                        <Path Data="{StaticResource HidePanelIcon}" Width="14" Height="14"
+                              Stretch="Uniform" Stroke="{Binding $parent[ToggleButton].Foreground}" StrokeThickness="1.5"
+                              StrokeLineCap="Round" VerticalAlignment="Center" UseLayoutRounding="False"
+                              IsVisible="{Binding ShowPreview}"/>
+                        <TextBlock Text="{loc:Tr Search_ShowPanel}" IsVisible="{Binding !ShowPreview}"/>
+                        <TextBlock Text="{loc:Tr Search_HidePanel}" IsVisible="{Binding ShowPreview}"/>
+                    </StackPanel>
+                </ToggleButton>
+            </StackPanel>
+        </Grid>
+
+        <!-- Library folders card -->
+        <Border DockPanel.Dock="Top" Margin="16,0,16,8" Padding="10,8"
+                Background="{DynamicResource Container2BackgroundBrush}"
+                CornerRadius="8">
+            <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                <TextBlock Text="{loc:Tr Library_Folders}" FontSize="12" FontWeight="SemiBold"
+                           VerticalAlignment="Center" Margin="0,0,2,0"/>
+                <ItemsControl ItemsSource="{Binding Folders}">
+                    <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate><DataTemplate>
+                        <Border CornerRadius="6" Padding="6,3" Margin="0,2,6,2"
+                                Background="{DynamicResource Container1BackgroundBrush}"
+                                ToolTip.Tip="{Binding Path}">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <TextBlock Text="{Binding Path}" FontSize="11" MaxWidth="280"
+                                           TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
+                                <TextBlock Text="{loc:Tr Library_FolderNotFound}" FontSize="10" Foreground="Orange"
+                                           VerticalAlignment="Center" IsVisible="{Binding !Exists}"/>
+                                <Button Content="&#8599;" Padding="4,1" FontSize="10" VerticalAlignment="Center"
+                                        ToolTip.Tip="{loc:Tr Library_OpenFolderTooltip}"
+                                        Command="{Binding $parent[ItemsControl].DataContext.OpenFolderCommand}"
+                                        CommandParameter="{Binding}"/>
+                                <Button Content="&#10005;" Padding="4,1" FontSize="10" VerticalAlignment="Center"
+                                        ToolTip.Tip="{loc:Tr Library_RemoveFolderTip}"
+                                        Command="{Binding $parent[ItemsControl].DataContext.RemoveFolderCommand}"
+                                        CommandParameter="{Binding}"/>
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate></ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <Button Content="{loc:Tr Library_AddFolder}" Click="AddFolder_Click"/>
+                <Button Content="{loc:Tr Library_ResetToDownloadFolder}"
+                        IsVisible="{Binding IsCustomFolders}"
+                        Command="{Binding ResetFoldersCommand}"/>
+                <TextBlock Text="{loc:Tr Library_SubfoldersIncluded}" FontSize="11" VerticalAlignment="Center"
                            Foreground="{DynamicResource DefaultForegroundBrushSecondary}"/>
             </StackPanel>
-        </StackPanel>
+        </Border>
 
         <!-- Status bar -->
         <Border DockPanel.Dock="Bottom" Margin="16,8" Padding="8"
                 Background="{DynamicResource Container2BackgroundBrush}"
-                CornerRadius="6" IsVisible="{Binding TabIndex, Converter={x:Static ObjectConverters.Equal}, ConverterParameter=0}">
-            <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto">
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="{Binding ProgressLine}" IsVisible="{Binding ProgressLine, Converter={x:Static ObjectConverters.IsNotNull}}"/>
-                    <Button Content="{loc:Tr Common_Cancel}" IsVisible="{Binding ProgressLine, Converter={x:Static ObjectConverters.IsNotNull}}"
-                            Command="{Binding CancelWorkCommand}" Padding="6,2" Margin="8,0,0,0" FontSize="11"/>
+                CornerRadius="6" IsVisible="{Binding IsBrowseTab}">
+            <!-- Row 0: selection actions + main buttons. Row 1: status messages, so they never overlap. -->
+            <Grid ColumnDefinitions="*,Auto,Auto,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="6">
+                <StackPanel Grid.Row="1" Grid.ColumnSpan="4" Spacing="2" Margin="0,4,0,0">
+                    <TextBlock Text="{Binding NoticeLine}" TextWrapping="Wrap" FontSize="11"
+                               Foreground="{DynamicResource DefaultForegroundBrushSecondary}"
+                               IsVisible="{Binding NoticeLine, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+                    <TextBlock Text="{Binding RevSearchStatus}" TextWrapping="Wrap" FontSize="11"
+                               Foreground="{DynamicResource DefaultForegroundBrushSecondary}"
+                               IsVisible="{Binding RevSearchStatus, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+                    <StackPanel Orientation="Horizontal" Spacing="8" IsVisible="{Binding ProgressLine, Converter={x:Static ObjectConverters.IsNotNull}}">
+                        <TextBlock Text="{Binding ProgressLine}" FontSize="11" VerticalAlignment="Center"/>
+                        <Button Content="{loc:Tr Common_Cancel}" Command="{Binding CancelWorkCommand}"/>
+                    </StackPanel>
                 </StackPanel>
-                <Button Grid.Column="1" Content="{loc:Tr Library_Rescan}" Command="{Binding RescanCommand}" Margin="4,0" Padding="10,4"/>
-                <Button Grid.Column="2" Content="{loc:Tr Library_FetchMissing}" Command="{Binding FetchMissingInfoCommand}" Margin="4,0" Padding="10,4"/>
-                <Button Grid.Column="3" Content="{loc:Tr Library_TagUntagged}" Command="{Binding TagUntaggedCommand}" Margin="4,0" Padding="10,4"/>
+                <Button Grid.Column="1" Content="{loc:Tr Library_Rescan}" Command="{Binding RescanCommand}"/>
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center"
+                            IsVisible="{Binding HasMultiSelection}">
+                    <TextBlock Text="{Binding SelectionSummary}" FontSize="11" VerticalAlignment="Center"/>
+                    <Button Content="{loc:Tr Library_OpenFile}" Command="{Binding OpenSelectedCommand}"/>
+                    <Button Content="{loc:Tr Library_OpenFoldersBtn}" Command="{Binding ShowSelectedInFoldersCommand}"/>
+                    <Button Content="{loc:Tr Library_CopyPathsBtn}" Command="{Binding CopySelectedPathsCommand}"/>
+                    <Button Content="{loc:Tr Library_Delete}" Command="{Binding DeleteSelectedCommand}"/>
+                </StackPanel>
+                <Button Grid.Column="2" Content="{loc:Tr Library_FetchMissing}" Command="{Binding FetchMissingInfoCommand}"/>
+                <Button Grid.Column="3" Content="{loc:Tr Library_TagUntagged}" Command="{Binding TagUntaggedCommand}"/>
             </Grid>
         </Border>
 
         <!-- Browse tab -->
-        <Grid IsVisible="{Binding TabIndex, Converter={x:Static ObjectConverters.Equal}, ConverterParameter=0}">
-            <DockPanel Margin="16,0">
+        <Grid IsVisible="{Binding IsBrowseTab}" ColumnDefinitions="*,Auto,Auto" Name="LibraryBodyGrid"
+              PointerMoved="OnSplitterPointerMoved"
+              PointerReleased="OnSplitterPointerReleased">
+            <DockPanel Grid.Column="0" Margin="16,0">
                 <StackPanel DockPanel.Dock="Top" Spacing="6">
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <TextBox Text="{Binding SearchText}" PlaceholderText="{loc:Tr Library_SearchWatermark}" Width="260"/>
-                        <TextBox Text="{Binding ArtistFilter}" PlaceholderText="{loc:Tr Library_ArtistFilter}" Width="160"/>
+                    <WrapPanel>
+                        <WrapPanel.Styles>
+                            <Style Selector="WrapPanel > :is(Control)">
+                                <Setter Property="Margin" Value="0,0,8,6"/>
+                            </Style>
+                        </WrapPanel.Styles>
+                        <TextBox Text="{Binding SearchText}" PlaceholderText="{loc:Tr Library_SearchWatermark}" Width="240"/>
+                        <TextBox Text="{Binding ArtistFilter}" PlaceholderText="{loc:Tr Library_ArtistFilter}" Width="170"/>
+                        <ComboBox SelectedIndex="{Binding YearIndex}" ItemsSource="{Binding YearOptions}" Width="105"/>
+                        <CalendarDatePicker SelectedDate="{Binding DateFrom}" Width="140"
+                                            PlaceholderText="{loc:Tr Library_DateFrom}"/>
+                        <CalendarDatePicker SelectedDate="{Binding DateTo}" Width="140"
+                                            PlaceholderText="{loc:Tr Library_DateTo}"/>
                         <ComboBox SelectedIndex="{Binding MediaTypeIndex}" Width="110">
                             <ComboBoxItem Content="{loc:Tr Library_MediaAll}"/>
                             <ComboBoxItem Content="{loc:Tr Library_MediaImage}"/>
                             <ComboBoxItem Content="{loc:Tr Library_MediaVideo}"/>
                             <ComboBoxItem Content="{loc:Tr Library_MediaAnimation}"/>
                         </ComboBox>
-                        <ComboBox SelectedIndex="{Binding SortIndex}" Width="130">
+                        <ComboBox SelectedIndex="{Binding OrientationIndex}" Width="120">
+                            <ComboBoxItem Content="{loc:Tr Library_OrientationAll}"/>
+                            <ComboBoxItem Content="{loc:Tr Library_OrientationPortrait}"/>
+                            <ComboBoxItem Content="{loc:Tr Library_OrientationLandscape}"/>
+                            <ComboBoxItem Content="{loc:Tr Library_OrientationSquare}"/>
+                        </ComboBox>
+                        <ComboBox SelectedIndex="{Binding SortIndex}" MinWidth="130">
                             <ComboBoxItem Content="{loc:Tr Library_SortAdded}"/>
                             <ComboBoxItem Content="{loc:Tr Library_SortCreated}"/>
                             <ComboBoxItem Content="{loc:Tr Library_SortTitle}"/>
                             <ComboBoxItem Content="{loc:Tr Library_SortArtist}"/>
+                            <ComboBoxItem Content="{loc:Tr Library_SortDateNew}"/>
+                            <ComboBoxItem Content="{loc:Tr Library_SortDateOld}"/>
+                            <ComboBoxItem Content="{loc:Tr Library_SortSize}"/>
+                            <ComboBoxItem Content="{loc:Tr Library_SortName}"/>
                         </ComboBox>
                         <CheckBox Content="{loc:Tr Library_IncludeR18}" IsChecked="{Binding IncludeR18}" VerticalAlignment="Center"/>
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal" Spacing="4">
+                        <Button Content="{loc:Tr Library_ClearFilters}"
+                                Command="{Binding ClearFiltersCommand}"
+                                IsVisible="{Binding HasActiveFilters}"/>
+                    </WrapPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="4" IsVisible="{Binding AiTagChips.Count}">
                         <TextBlock Text="{loc:Tr Library_AiTags}" VerticalAlignment="Center" FontWeight="SemiBold" Margin="0,0,4,0"/>
                         <ItemsControl ItemsSource="{Binding AiTagChips}">
                             <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate><DataTemplate>
-                                <Button Content="{Binding}" Command="{Binding $parent[ItemsControl].((vm:LibraryViewModel)DataContext).ToggleAiTagCommand}"
+                                <Button Content="{Binding}" Command="{Binding $parent[ItemsControl].DataContext.ToggleAiTagCommand}"
                                         CommandParameter="{Binding}" Padding="8,2" Margin="0,0,4,4" FontSize="11"/>
                             </DataTemplate></ItemsControl.ItemTemplate>
                         </ItemsControl>
                     </StackPanel>
-                    <StackPanel Orientation="Horizontal" Spacing="4">
+                    <StackPanel Orientation="Horizontal" Spacing="4" IsVisible="{Binding PixivTagChips.Count}">
                         <TextBlock Text="{loc:Tr Library_PixivTags}" VerticalAlignment="Center" FontWeight="SemiBold" Margin="0,0,4,0"/>
                         <ItemsControl ItemsSource="{Binding PixivTagChips}">
                             <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate><DataTemplate>
-                                <Button Content="{Binding}" Command="{Binding $parent[ItemsControl].((vm:LibraryViewModel)DataContext).TogglePixivTagCommand}"
+                                <Button Content="{Binding}" Command="{Binding $parent[ItemsControl].DataContext.TogglePixivTagCommand}"
                                         CommandParameter="{Binding}" Padding="8,2" Margin="0,0,4,4" FontSize="11"/>
                             </DataTemplate></ItemsControl.ItemTemplate>
                         </ItemsControl>
@@ -78,47 +213,152 @@
                             <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate><DataTemplate>
                                 <Button Content="{Binding StringFormat='{}{0} ✕'}" Classes="accent"
-                                        Command="{Binding $parent[ItemsControl].((vm:LibraryViewModel)DataContext).RemoveFilterCommand}"
+                                        Command="{Binding $parent[ItemsControl].DataContext.RemoveFilterCommand}"
                                         CommandParameter="{Binding}" Padding="8,2" Margin="0,0,4,4" FontSize="11"/>
                             </DataTemplate></ItemsControl.ItemTemplate>
                         </ItemsControl>
                     </StackPanel>
                 </StackPanel>
 
-                <ScrollViewer x:Name="LibraryScroll" ScrollChanged="OnLibraryScrollChanged">
-                    <ItemsControl ItemsSource="{Binding Items}">
-                        <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                <Grid RowDefinitions="Auto,*">
+                <Border Grid.RowSpan="2" IsVisible="{Binding IsEmpty}" HorizontalAlignment="Center" VerticalAlignment="Center"
+                        MaxWidth="520" Padding="24" CornerRadius="10"
+                        Background="{DynamicResource Container2BackgroundBrush}">
+                    <StackPanel Spacing="10">
+                        <TextBlock Text="{loc:Tr Library_EmptyTitle}" FontSize="16" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+                        <TextBlock Text="{loc:Tr Library_EmptyBody}" TextWrapping="Wrap" TextAlignment="Center" FontSize="12"
+                                   Foreground="{DynamicResource DefaultForegroundBrushSecondary}"/>
+                        <TextBlock Text="{loc:Tr Library_NoFoldersExist}" TextWrapping="Wrap" TextAlignment="Center" FontSize="12"
+                                   Foreground="Orange" IsVisible="{Binding !AnyFolderExists}"/>
+                        <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+                            <Button Content="{loc:Tr Library_AddFolder}" Classes="accent" Click="AddFolder_Click"/>
+                            <Button Content="{loc:Tr Library_Rescan}" Command="{Binding RescanCommand}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <WrapPanel Grid.Row="0" ItemSpacing="12" Margin="0,0,0,4" IsVisible="{Binding HasFiles}">
+                    <TextBlock Text="{Binding ResultsText}" FontSize="11" VerticalAlignment="Center"
+                               Foreground="{DynamicResource DefaultForegroundBrushSecondary}"/>
+                    <TextBlock Text="{Binding R18Notice}" FontSize="11" Foreground="Orange" VerticalAlignment="Center"
+                               TextWrapping="Wrap"
+                               IsVisible="{Binding R18Notice, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+                </WrapPanel>
+                <ScrollViewer Grid.Row="1" x:Name="LibraryScroll" Padding="0,0,14,0" ScrollChanged="OnLibraryScrollChanged" IsVisible="{Binding HasFiles}">
+                    <Panel>
+                    <ItemsControl ItemsSource="{Binding Items}" IsVisible="{Binding ShowFixedGrid}">
+                        <ItemsControl.ItemsPanel><ItemsPanelTemplate><local:FillWrapPanel MinItemWidth="{Binding CardSize}" ItemSpacing="6"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate><DataTemplate>
-                            <Border Width="180" Margin="6" CornerRadius="8" Padding="6"
+                            <Border Margin="0" CornerRadius="8" Padding="6"
+                                    x:Name="ItemCard"
+                                    Classes.selected="{Binding IsSelected}"
                                     Background="{DynamicResource Container2BackgroundBrush}"
-                                    ToolTip.Tip="{Binding PathTooltip}">
-                                <Border.ContextMenu><ContextMenu>
-                                    <MenuItem Header="{loc:Tr Library_OpenFile}" Command="{Binding $parent[ItemsControl].((vm:LibraryViewModel)DataContext).OpenFileCommand}" CommandParameter="{Binding}"/>
-                                    <MenuItem Header="{loc:Tr Library_ShowInFolder}" Command="{Binding $parent[ItemsControl].((vm:LibraryViewModel)DataContext).ShowInFolderCommand}" CommandParameter="{Binding}"/>
-                                    <MenuItem Header="{loc:Tr Library_OpenOnPixiv}" Command="{Binding $parent[ItemsControl].((vm:LibraryViewModel)DataContext).OpenOnPixivCommand}" CommandParameter="{Binding}"/>
-                                    <MenuItem Header="{loc:Tr Library_CopyPath}" Command="{Binding $parent[ItemsControl].((vm:LibraryViewModel)DataContext).CopyPathCommand}" CommandParameter="{Binding}"/>
-                                    <MenuItem Header="{loc:Tr Library_TagWithAi}" Command="{Binding $parent[ItemsControl].((vm:LibraryViewModel)DataContext).TagWithAiCommand}" CommandParameter="{Binding}"/>
-                                    <MenuItem Header="{loc:Tr Library_Delete}" Command="{Binding $parent[ItemsControl].((vm:LibraryViewModel)DataContext).DeleteFileCommand}" CommandParameter="{Binding}"/>
-                                </ContextMenu></Border.ContextMenu>
+                                    ToolTip.Tip="{Binding PathTooltip}"
+                                    PointerPressed="OnItemPressed" ContextRequested="OnItemContextRequested" DoubleTapped="OnItemDoubleTapped">
+                                <Border.Styles>
+                                    <Style Selector="Border.selected">
+                                        <Setter Property="BorderBrush" Value="#3B82F6"/>
+                                        <Setter Property="BorderThickness" Value="2"/>
+                                    </Style>
+                                </Border.Styles>
                                 <StackPanel Spacing="4">
-                                    <Image Source="{Binding Thumbnail}" Width="168" Height="168" Stretch="Uniform"/>
-                                    <TextBlock Text="{Binding DisplayName}" FontSize="12" TextTrimming="CharacterEllipsis" MaxLines="1"/>
+                                    <Border CornerRadius="4" ClipToBounds="True" Height="{Binding $parent[ItemsControl].DataContext.CardSize}">
+                                        <Image Source="{Binding Thumbnail}" Stretch="Uniform"/>
+                                    </Border>
+                                    <TextBlock Text="{Binding DisplayName}" FontSize="12" TextTrimming="CharacterEllipsis" MaxLines="1"
+                                               IsVisible="{Binding $parent[ItemsControl].DataContext.ShowInfo}"/>
                                     <TextBlock Text="{Binding SubText}" FontSize="11"
                                                Foreground="{DynamicResource DefaultForegroundBrushSecondary}"
-                                               TextTrimming="CharacterEllipsis" MaxLines="1"/>
+                                               TextTrimming="CharacterEllipsis" MaxLines="1"
+                                               IsVisible="{Binding $parent[ItemsControl].DataContext.ShowInfo}"/>
+                                    <TextBlock Text="{Binding File.Tags}" FontSize="10"
+                                               Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
+                                               TextTrimming="CharacterEllipsis" MaxLines="2" TextWrapping="Wrap"
+                                               IsVisible="{Binding $parent[ItemsControl].DataContext.ShowTags}"/>
                                 </StackPanel>
                             </Border>
                         </DataTemplate></ItemsControl.ItemTemplate>
                     </ItemsControl>
+                    <!-- Natural height: masonry columns, each image at its own aspect ratio -->
+                    <ItemsControl ItemsSource="{Binding Items}" IsVisible="{Binding ShowNaturalGrid}">
+                        <ItemsControl.ItemsPanel><ItemsPanelTemplate><local:MasonryPanel ColumnWidth="{Binding CardSize}" ItemSpacing="6" SqueezeToFill="True"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate><DataTemplate>
+                            <Border CornerRadius="8" Padding="6"
+                                    Classes.selected="{Binding IsSelected}"
+                                    Background="{DynamicResource Container2BackgroundBrush}"
+                                    ToolTip.Tip="{Binding PathTooltip}"
+                                    PointerPressed="OnItemPressed" ContextRequested="OnItemContextRequested" DoubleTapped="OnItemDoubleTapped">
+                                <Border.Styles>
+                                    <Style Selector="Border.selected">
+                                        <Setter Property="BorderBrush" Value="#3B82F6"/>
+                                        <Setter Property="BorderThickness" Value="2"/>
+                                    </Style>
+                                </Border.Styles>
+                                <StackPanel Spacing="4">
+                                    <Border CornerRadius="4" ClipToBounds="True" Height="{Binding ImageHeight}">
+                                        <Image Source="{Binding Thumbnail}" Stretch="UniformToFill"/>
+                                    </Border>
+                                    <TextBlock Text="{Binding DisplayName}" FontSize="12" TextTrimming="CharacterEllipsis" MaxLines="1"
+                                               IsVisible="{Binding $parent[ItemsControl].DataContext.ShowInfo}"/>
+                                    <TextBlock Text="{Binding SubText}" FontSize="11"
+                                               Foreground="{DynamicResource DefaultForegroundBrushSecondary}"
+                                               TextTrimming="CharacterEllipsis" MaxLines="1"
+                                               IsVisible="{Binding $parent[ItemsControl].DataContext.ShowInfo}"/>
+                                    <TextBlock Text="{Binding File.Tags}" FontSize="10"
+                                               Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
+                                               TextTrimming="CharacterEllipsis" MaxLines="2" TextWrapping="Wrap"
+                                               IsVisible="{Binding $parent[ItemsControl].DataContext.ShowTags}"/>
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate></ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <ItemsControl ItemsSource="{Binding Items}" IsVisible="{Binding ShowList}">
+                        <ItemsControl.ItemTemplate><DataTemplate x:DataType="vm:LibraryItemViewModel">
+                            <Border CornerRadius="6" Margin="0,2" Padding="6" Classes.selected="{Binding IsSelected}"
+                                    BorderBrush="Transparent" BorderThickness="0" Background="{DynamicResource Container2BackgroundBrush}"
+                                    PointerPressed="OnItemPressed" ContextRequested="OnItemContextRequested" DoubleTapped="OnItemDoubleTapped">
+                                <Border.Styles><Style Selector="Border.selected"><Setter Property="BorderBrush" Value="#3B82F6"/><Setter Property="BorderThickness" Value="2"/></Style></Border.Styles>
+                                <Grid ColumnDefinitions="Auto,72,*" Height="72">
+                                    <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected}" VerticalAlignment="Center" Margin="6,0,2,0"/>
+                                    <Border Grid.Column="1" CornerRadius="4" ClipToBounds="True"><Image Source="{Binding Thumbnail}" Stretch="UniformToFill"/></Border>
+                                    <StackPanel Grid.Column="2" Margin="10,0" Spacing="3" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding DisplayName}" FontSize="12" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" MaxLines="1"/>
+                                        <TextBlock Text="{Binding SubText}" FontSize="11" Foreground="{DynamicResource DefaultForegroundBrushSecondary}" TextTrimming="CharacterEllipsis" MaxLines="1"/>
+                                        <TextBlock Text="{Binding DetailsLine}" FontSize="11" Foreground="{DynamicResource DefaultForegroundBrushTertiary}" TextTrimming="CharacterEllipsis" MaxLines="1"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </DataTemplate></ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                                    </Panel>
                 </ScrollViewer>
+                </Grid>
             </DockPanel>
+            <!-- Side-panel viewer (shared InlineArtworkViewer, Bookmarks pattern) -->
+            <Border Grid.Column="1" Width="5" Name="LibrarySplitter"
+                    IsVisible="{Binding ShowPreview}"
+                    Cursor="SizeWestEast"
+                    Background="{DynamicResource Container1BorderBrush}"
+                    PointerPressed="OnSplitterPointerPressed"/>
+            <Border Grid.Column="2"
+                    IsVisible="{Binding ShowPreview}"
+                    Width="{Binding BrowsePanelWidth}"
+                    MinWidth="300"
+                    Background="{DynamicResource Container1BackgroundBrush}"
+                    BorderBrush="{DynamicResource Container1BorderBrush}"
+                    BorderThickness="1,0,0,0">
+                <local:InlineArtworkViewer x:Name="LibraryInlineViewer" DataContext="{Binding GalleryVm}"
+                                           IsExpanded="{Binding IsViewerExpanded}"
+                                           IsPanelOpen="{Binding ShowPreview}"
+                                           IsVisible="{Binding HasTabs}"/>
+            </Border>
         </Grid>
 
         <!-- Duplicates tab -->
-        <Grid IsVisible="{Binding TabIndex, Converter={x:Static ObjectConverters.Equal}, ConverterParameter=1}">
+        <Grid IsVisible="{Binding IsDuplicatesTab}">
             <DockPanel Margin="16,0">
                 <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="8" Margin="0,0,0,8">
-                    <Button Content="{loc:Tr Library_FindDuplicates}" Classes="accent" Command="{Binding FindDuplicatesCommand}" Padding="12,5"/>
+                    <Button Content="{loc:Tr Library_FindDuplicates}" Classes="accent" Command="{Binding FindDuplicatesCommand}"/>
                     <TextBlock Text="{loc:Tr Library_Threshold}" VerticalAlignment="Center"/>
                     <Slider Value="{Binding DupThreshold}" Minimum="0" Maximum="7" Width="140" VerticalAlignment="Center"/>
                     <TextBlock Text="{Binding DupThreshold, StringFormat='{}{0:0}'}" VerticalAlignment="Center"/>
@@ -136,7 +376,7 @@
                                     <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,0,0,6">
                                         <TextBlock Text="{Binding Badge}" FontWeight="Bold" Foreground="Orange"/>
                                         <Button Content="{loc:Tr Library_KeepBest}" FontSize="11" Padding="8,2"
-                                                Command="{Binding $parent[ItemsControl].((vm:LibraryViewModel)DataContext).KeepBestCommand}"
+                                                Command="{Binding $parent[ItemsControl].DataContext.KeepBestCommand}"
                                                 CommandParameter="{Binding}"/>
                                     </StackPanel>
                                     <ItemsControl ItemsSource="{Binding Rows}">

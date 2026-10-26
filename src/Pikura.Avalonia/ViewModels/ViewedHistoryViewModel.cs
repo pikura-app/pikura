@@ -624,7 +624,26 @@ public partial class ViewedHistoryViewModel : ViewModelBase
                 : viewedLocal.ToString("MM/dd/yyyy 'at' h:mm tt"),
         };
         Results.Add(card);
-        _ = card.LoadThumbnailAsync(_imageLoader);
+        if (string.IsNullOrEmpty(entry.ThumbnailUrl))
+            _ = LoadLocalThumbnailAsync(card, entry.ArtworkId); // older Library views saved no thumbnail
+        else
+            _ = card.LoadThumbnailAsync(_imageLoader);
+    }
+
+    /// <summary>Entries recorded from the Library before thumbnails were saved: use the downloaded file.</summary>
+    private async Task LoadLocalThumbnailAsync(ArtworkCardViewModel card, string artworkId)
+    {
+        try
+        {
+            var path = await AppServices.Get<Pikura.Core.Services.Library.LibraryIndexService>()
+                .Repository.GetPathForArtworkAsync(artworkId);
+            if (path == null) return;
+            using var sk = await _imageLoader.FetchBitmapAsync(path);
+            if (sk == null) return;
+            var bmp = await Task.Run(() => Pikura.Avalonia.Services.BitmapInterop.SkiaToAvalonia(sk));
+            card.Thumbnail = bmp;
+        }
+        catch { /* non-fatal: card stays without a thumbnail */ }
     }
 
     public void OpenCard(ArtworkCardViewModel card)

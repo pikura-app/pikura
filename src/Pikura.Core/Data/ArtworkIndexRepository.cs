@@ -61,6 +61,9 @@ public sealed class ArtworkIndexRepository : IDisposable
     {
         using var connection = CreateConnection();
         connection.Open();
+        // downloads.db is shared by several repositories with parallel writers (artist indexing,
+        // library hashing). WAL lets readers proceed during writes; it persists in the file.
+        using (var wal = new SqliteCommand("PRAGMA journal_mode=WAL;", connection)) wal.ExecuteNonQuery();
 
         var createTable = @"
             CREATE TABLE IF NOT EXISTS artwork_index (

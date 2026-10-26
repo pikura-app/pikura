@@ -239,9 +239,36 @@ public sealed class PixivImageLoader : IDisposable
     /// <param name="url">Image URL to fetch.</param>
     /// <param name="size">Thumbnail size hint (modifies Pixiv URLs to request smaller/larger versions).</param>
     /// <param name="ct">Cancellation token.</param>
+    /// <summary>Scaled decode of a local image so its long edge is about <paramref name="longEdge"/>.</summary>
+    private static SKBitmap? DecodeLocalThumbnail(string path, int longEdge)
+    {
+        try
+        {
+            if (!File.Exists(path)) return null;
+            using var codec = SKCodec.Create(path);
+            if (codec == null) return null;
+            var info = codec.Info;
+            var scale = Math.Min(1f, (float)longEdge / Math.Max(info.Width, info.Height));
+            var dims = codec.GetScaledDimensions(scale);
+            var decoded = new SKBitmap(new SKImageInfo(dims.Width, dims.Height, SKColorType.Bgra8888, SKAlphaType.Premul));
+            if (codec.GetPixels(decoded.Info, decoded.GetPixels()) is not (SKCodecResult.Success or SKCodecResult.IncompleteInput))
+            {
+                decoded.Dispose();
+                return null;
+            }
+            return decoded;
+        }
+        catch { return null; }
+    }
+
     public async Task<SKBitmap?> FetchBitmapAsync(string url, ThumbnailSize size = ThumbnailSize.Medium, CancellationToken ct = default)
     {
         if (string.IsNullOrWhiteSpace(url)) return null;
+
+        // Local files (Library cards, History entries for downloaded art): decode from disk.
+        if (Path.IsPathRooted(url) && !url.StartsWith("http", StringComparison.OrdinalIgnoreCase))
+            return await Task.Run(() => DecodeLocalThumbnail(url, size == ThumbnailSize.Small ? 250 : 540), ct)
+                .ConfigureAwait(false);
 
         // Apply thumbnail size transformation
         var sizedUrl = ConvertUrlForThumbnailSize(url, size);

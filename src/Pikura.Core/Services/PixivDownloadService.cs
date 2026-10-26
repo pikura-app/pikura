@@ -540,7 +540,7 @@ public sealed class PixivDownloadService
                 await TryAutoTagImageAsync(finalPath, ct).ConfigureAwait(false);
 
                 // Record into the local library index (background hashing, never blocks).
-                Library?.RecordDownloaded(artwork, finalPath, i);
+                Library?.RecordDownloaded(artwork, finalPath, i, pageUrl);
             }
             catch (Exception ex)
             {

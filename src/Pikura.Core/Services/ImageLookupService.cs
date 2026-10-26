@@ -137,6 +137,10 @@ public class ImageLookupService
         }
     }
 
+    /// <summary>Why the last <see cref="LookupByImageBytesAsync"/> returned null because of an error
+    /// (null when it simply found no confident match).</summary>
+    public string? LastError { get; private set; }
+
     /// <summary>
     /// Performs a reverse image search via SauceNAO using raw image bytes.
     /// Works best with Pixiv-sourced images.
@@ -156,10 +160,18 @@ public class ImageLookupService
             if (!string.IsNullOrEmpty(apiKey))
                 form.Add(new StringContent(apiKey), "api_key");
 
+            LastError = null;
             var response = await _http.PostAsync(SauceNaoUrl, form, ct);
-            if (!response.IsSuccessStatusCode) return null;
-
             var json = await response.Content.ReadAsStringAsync(ct);
+            if (!response.IsSuccessStatusCode)
+            {
+                // SauceNAO explains refusals (no key, quota) in header.message — keep it for the UI.
+                string? msg = null;
+                try { msg = JsonDocument.Parse(json).RootElement.GetProperty("header").GetProperty("message").GetString(); } catch { }
+                LastError = $"SauceNAO {(int)response.StatusCode}: {msg ?? response.ReasonPhrase}";
+                return null;
+            }
+
             var doc  = JsonDocument.Parse(json);
             var results = doc.RootElement.GetProperty("results");
 
@@ -205,6 +217,7 @@ public class ImageLookupService
         catch (Exception ex)
         {
             _logger.LogWarning(ex, "SauceNAO lookup failed");
+            LastError = ex.Message;
             return null;
         }
     }

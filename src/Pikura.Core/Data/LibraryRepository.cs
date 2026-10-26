@@ -36,6 +36,16 @@ public sealed class LibraryFile
     /// <summary>'download' | 'filename' | 'pixiv' | null</summary>
     public string? MetadataSource { get; set; }
     public string? AiTaggedAt { get; set; }
+    /// <summary>Page the file came from (e.g. https://www.pixiv.net/artworks/123).</summary>
+    public string? SourceUrl { get; set; }
+    /// <summary>Exact image URL that was downloaded.</summary>
+    public string? OriginalUrl { get; set; }
+    /// <summary>Where the file came from: "pixiv" | "reverse-search" | null.</summary>
+    public string? SourceSite { get; set; }
+    /// <summary>ISO "O" — set only when Pikura downloaded the file itself.</summary>
+    public string? DownloadedAt { get; set; }
+    public bool HasSource => SourceUrl != null || ArtworkId != null;
+    public bool HasOriginalUrl => OriginalUrl != null;
     /// <summary>phash algorithm version (0/1 = legacy full-decode, 2 = scaled decode).</summary>
     public int PhashVersion { get; set; }
 
@@ -50,12 +60,20 @@ public sealed class LibraryAiTag
     public double Score { get; set; }
 }
 
-public enum LibrarySort { AddedDesc, CreatedDesc, Title, Artist }
+public enum LibrarySort { AddedDesc, CreatedDesc, Title, Artist, DateDesc, DateAsc, SizeDesc, NameAsc }
+
+public enum LibraryOrientation { Any, Portrait, Landscape, Square }
 
 public sealed class LibraryQuery
 {
     public string? Text { get; set; }
     public string? ArtistId { get; set; }
+    /// <summary>Broader artist match: id, name, or folder-segment in the file path.</summary>
+    public string? Artist { get; set; }
+    public int? Year { get; set; }
+    public DateOnly? DateFrom { get; set; }
+    public DateOnly? DateTo { get; set; }
+    public LibraryOrientation Orientation { get; set; } = LibraryOrientation.Any;
     /// <summary>All must match (space-separated token inside tags column).</summary>
     public List<string> PixivTags { get; set; } = [];
     /// <summary>All must match against library_ai_tags.</summary>
@@ -114,6 +132,8 @@ public sealed class LibraryRepository : IDisposable
     {
         using var connection = CreateConnection();
         connection.Open();
+        // Shared downloads.db: WAL so library hashing/scans don't lock out UI reads (persists in the file).
+        using (var wal = new SqliteCommand("PRAGMA journal_mode=WAL;", connection)) wal.ExecuteNonQuery();
         var sql = @"
             CREATE TABLE IF NOT EXISTS library_files (
                 id INTEGER PRIMARY KEY,
@@ -140,7 +160,11 @@ public sealed class LibraryRepository : IDisposable
                 added_at TEXT NOT NULL,
                 metadata_source TEXT,
                 ai_tagged_at TEXT,
-                phash_version INTEGER NOT NULL DEFAULT 0
+                phash_version INTEGER NOT NULL DEFAULT 0,
+                source_url TEXT,
+                original_url TEXT,
+                source_site TEXT,
+                downloaded_at TEXT
             );
             CREATE INDEX IF NOT EXISTS idx_library_sha256 ON library_files(sha256);
             CREATE INDEX IF NOT EXISTS idx_library_artwork ON library_files(artwork_id);
@@ -178,11 +202,21 @@ public sealed class LibraryRepository : IDisposable
                 while (r.Read())
                     if (r.GetString(1) == "phash_version") { hasCol = true; break; }
             if (!hasCol)
-            {
-                using var alter = new SqliteCommand(
-                    "ALTER TABLE library_files ADD COLUMN phash_version INTEGER NOT NULL DEFAULT 1", connection);
+            using (var alter = new SqliteCommand(
+                "ALTER TABLE library_files ADD COLUMN phash_version INTEGER NOT NULL DEFAULT 1", connection))
                 alter.ExecuteNonQuery();
+            var needed = new[] { "source_url", "original_url", "source_site", "downloaded_at" };
+            var existing = new System.Collections.Generic.HashSet<string>();
+            using (var info2 = new SqliteCommand("PRAGMA table_info(library_files)", connection))
+            {
+                using var r2 = info2.ExecuteReader();
+                while (r2.Read()) existing.Add(r2.GetString(1));
             }
+            foreach (var col in needed)
+                if (!existing.Contains(col))
+                    using (var alter = new SqliteCommand(
+                        $"ALTER TABLE library_files ADD COLUMN {col} TEXT", connection))
+                        alter.ExecuteNonQuery();
         }
     }
 
@@ -242,13 +276,18 @@ public sealed class LibraryRepository : IDisposable
             MetadataSource = S(22),
             AiTaggedAt = S(23),
             PhashVersion = r.IsDBNull(24) ? 1 : r.GetInt32(24),
+            SourceUrl = S(25),
+            OriginalUrl = S(26),
+            SourceSite = S(27),
+            DownloadedAt = S(28),
         };
     }
 
     private const string SelectColumns =
         "id, path, root, size, mtime, sha256, phash, width, height, media_type, artwork_id, page_index," +
         " title, artist_id, artist_name, tags, ai_tags_text, description, x_restrict, ai_type, create_date," +
-        " added_at, metadata_source, ai_tagged_at, phash_version";
+        " added_at, metadata_source, ai_tagged_at, phash_version," +
+        " source_url, original_url, source_site, downloaded_at";
 
     private static void BindFile(SqliteCommand cmd, LibraryFile f)
     {
@@ -277,6 +316,10 @@ public sealed class LibraryRepository : IDisposable
         cmd.Parameters.AddWithValue("@metadata_source", N(f.MetadataSource));
         cmd.Parameters.AddWithValue("@ai_tagged_at", N(f.AiTaggedAt));
         cmd.Parameters.AddWithValue("@phash_version", f.PhashVersion);
+        cmd.Parameters.AddWithValue("@source_url", N(f.SourceUrl));
+        cmd.Parameters.AddWithValue("@original_url", N(f.OriginalUrl));
+        cmd.Parameters.AddWithValue("@source_site", N(f.SourceSite));
+        cmd.Parameters.AddWithValue("@downloaded_at", N(f.DownloadedAt));
     }
 
     // ── FTS sync (contentless tables need explicit delete with old values) ────
@@ -359,7 +402,9 @@ public sealed class LibraryRepository : IDisposable
                         page_index=@page_index, title=@title, artist_id=@artist_id, artist_name=@artist_name,
                         tags=@tags, ai_tags_text=@ai_tags_text, description=@description, x_restrict=@x_restrict,
                         ai_type=@ai_type, create_date=@create_date, metadata_source=@metadata_source,
-                        ai_tagged_at=@ai_tagged_at, phash_version=@phash_version
+                        ai_tagged_at=@ai_tagged_at, phash_version=@phash_version,
+                        source_url=COALESCE(@source_url, source_url), original_url=COALESCE(@original_url, original_url),
+                        source_site=COALESCE(@source_site, source_site), downloaded_at=COALESCE(@downloaded_at, downloaded_at)
                     WHERE id=@id", c, tx);
                 cmd.Parameters.AddWithValue("@id", existing.Id);
                 BindFile(cmd, file);
@@ -371,10 +416,12 @@ public sealed class LibraryRepository : IDisposable
                 using var cmd = new SqliteCommand(@"
                     INSERT INTO library_files (path, root, size, mtime, sha256, phash, width, height, media_type,
                         artwork_id, page_index, title, artist_id, artist_name, tags, ai_tags_text, description,
-                        x_restrict, ai_type, create_date, added_at, metadata_source, ai_tagged_at, phash_version)
+                        x_restrict, ai_type, create_date, added_at, metadata_source, ai_tagged_at, phash_version,
+                        source_url, original_url, source_site, downloaded_at)
                     VALUES (@path, @root, @size, @mtime, @sha256, @phash, @width, @height, @media_type,
                         @artwork_id, @page_index, @title, @artist_id, @artist_name, @tags, @ai_tags_text, @description,
-                        @x_restrict, @ai_type, @create_date, @added_at, @metadata_source, @ai_tagged_at, @phash_version);
+                        @x_restrict, @ai_type, @create_date, @added_at, @metadata_source, @ai_tagged_at, @phash_version,
+                        @source_url, @original_url, @source_site, @downloaded_at);
                     SELECT last_insert_rowid();", c, tx);
                 BindFile(cmd, file);
                 id = (long)(await cmd.ExecuteScalarAsync(ct))!;
@@ -409,7 +456,9 @@ public sealed class LibraryRepository : IDisposable
                             page_index=@page_index, title=@title, artist_id=@artist_id, artist_name=@artist_name,
                             tags=@tags, ai_tags_text=@ai_tags_text, description=@description, x_restrict=@x_restrict,
                             ai_type=@ai_type, create_date=@create_date, metadata_source=@metadata_source,
-                            ai_tagged_at=@ai_tagged_at, phash_version=@phash_version
+                            ai_tagged_at=@ai_tagged_at, phash_version=@phash_version,
+                            source_url=COALESCE(@source_url, source_url), original_url=COALESCE(@original_url, original_url),
+                            source_site=COALESCE(@source_site, source_site), downloaded_at=COALESCE(@downloaded_at, downloaded_at)
                         WHERE id=@id", c, tx);
                     cmd.Parameters.AddWithValue("@id", existing.Id);
                     BindFile(cmd, file);
@@ -421,10 +470,12 @@ public sealed class LibraryRepository : IDisposable
                     using var cmd = new SqliteCommand(@"
                         INSERT INTO library_files (path, root, size, mtime, sha256, phash, width, height, media_type,
                             artwork_id, page_index, title, artist_id, artist_name, tags, ai_tags_text, description,
-                            x_restrict, ai_type, create_date, added_at, metadata_source, ai_tagged_at, phash_version)
+                            x_restrict, ai_type, create_date, added_at, metadata_source, ai_tagged_at, phash_version,
+                            source_url, original_url, source_site, downloaded_at)
                         VALUES (@path, @root, @size, @mtime, @sha256, @phash, @width, @height, @media_type,
                             @artwork_id, @page_index, @title, @artist_id, @artist_name, @tags, @ai_tags_text, @description,
-                            @x_restrict, @ai_type, @create_date, @added_at, @metadata_source, @ai_tagged_at, @phash_version);
+                            @x_restrict, @ai_type, @create_date, @added_at, @metadata_source, @ai_tagged_at, @phash_version,
+                            @source_url, @original_url, @source_site, @downloaded_at);
                         SELECT last_insert_rowid();", c, tx);
                     BindFile(cmd, file);
                     id = (long)(await cmd.ExecuteScalarAsync(ct))!;
@@ -461,6 +512,44 @@ public sealed class LibraryRepository : IDisposable
         catch { tx.Rollback(); throw; }
     }
 
+    /// <summary>Deletes every row whose <c>root</c> matches (case-insensitive), keeping
+    /// FTS and phash bands in sync inside one transaction. Used when a library folder
+    /// is removed from the configured list.</summary>
+    public async Task<int> DeleteRowsUnderRootAsync(string root, CancellationToken ct = default)
+    {
+        using var c = CreateConnection();
+        await c.OpenAsync(ct);
+        using var tx = c.BeginTransaction();
+        try
+        {
+            var ids = new List<(long Id, LibraryFile F)>();
+            using (var sel = new SqliteCommand("SELECT id FROM library_files WHERE root = @root COLLATE NOCASE", c, tx))
+            {
+                sel.Parameters.AddWithValue("@root", root);
+                var raw = new List<long>();
+                await using var rd = await sel.ExecuteReaderAsync(ct);
+                while (await rd.ReadAsync(ct)) raw.Add(rd.GetInt64(0));
+                rd.Close();
+                foreach (var id in raw)
+                {
+                    var f = await GetByIdAsync(id, ct);
+                    if (f != null) ids.Add((id, f));
+                }
+            }
+            foreach (var (id, f) in ids)
+            {
+                SyncFts(c, tx, id, f, null);
+                SyncPhashBands(c, tx, id, null);
+            }
+            using var del = new SqliteCommand("DELETE FROM library_files WHERE root = @root COLLATE NOCASE", c, tx);
+            del.Parameters.AddWithValue("@root", root);
+            var n = await del.ExecuteNonQueryAsync(ct);
+            tx.Commit();
+            return n;
+        }
+        catch { tx.Rollback(); throw; }
+    }
+
     public async Task DeleteByIdAsync(long id, CancellationToken ct = default)
     {
         var f = await GetByIdAsync(id, ct);
@@ -475,6 +564,17 @@ public sealed class LibraryRepository : IDisposable
         cmd.Parameters.AddWithValue("@p", path);
         await using var r = await cmd.ExecuteReaderAsync(ct);
         return await r.ReadAsync(ct) ? MapRow(r) : null;
+    }
+
+    /// <summary>Path of a local file for a pixiv artwork (lowest page first), or null.</summary>
+    public async Task<string?> GetPathForArtworkAsync(string artworkId, CancellationToken ct = default)
+    {
+        using var c = CreateConnection();
+        await c.OpenAsync(ct);
+        using var cmd = new SqliteCommand(
+            "SELECT path FROM library_files WHERE artwork_id=@a ORDER BY COALESCE(page_index,0) LIMIT 1", c);
+        cmd.Parameters.AddWithValue("@a", artworkId);
+        return await cmd.ExecuteScalarAsync(ct) as string;
     }
 
     public async Task<LibraryFile?> GetByPathAsync(string path, CancellationToken ct = default)
@@ -515,8 +615,37 @@ public sealed class LibraryRepository : IDisposable
     private void BuildWhere(LibraryQuery q, List<string> clauses, List<SqliteParameter> prms)
     {
         var i = prms.Count;
-        if (!q.IncludeR18) clauses.Add("x_restrict < 1");
+        // Tags catch rows whose pixiv R-18/R-18G tag arrived without x_restrict (older imports).
+        if (!q.IncludeR18) clauses.Add("x_restrict < 1 AND COALESCE(tags,'') NOT LIKE '%R-18%'");
         if (!string.IsNullOrEmpty(q.ArtistId)) { clauses.Add($"artist_id=@p{i}"); prms.Add(new($"@p{i}", q.ArtistId)); i++; }
+        if (!string.IsNullOrEmpty(q.Artist))
+        {
+            // id OR name OR a path folder-segment (files whose metadata is null still
+            // match the artist folder they were downloaded into).
+            // ESCAPE '!' (not the file separator '\') so segment backslashes stay literal.
+            var seg = q.Artist.Replace("!", "").Replace("%", "!%").Replace("_", "!_");
+            clauses.Add($"(artist_id=@p{i} OR artist_name LIKE @p{i + 1} ESCAPE '!' OR " +
+                        $"path LIKE @p{i + 2} ESCAPE '!' OR path LIKE @p{i + 3} ESCAPE '!')");
+            prms.Add(new($"@p{i}", q.Artist));
+            prms.Add(new($"@p{i + 1}", "%" + seg + "%"));
+            prms.Add(new($"@p{i + 2}", "%\\" + seg + "\\%")); // ...\artist\...
+            prms.Add(new($"@p{i + 3}", "%\\" + seg));           // root itself is the artist folder
+            i += 4;
+        }
+        if (q.Year is { } year)
+        {
+            clauses.Add($"strftime('%Y', COALESCE(create_date, mtime))=@p{i}");
+            prms.Add(new($"@p{i}", year.ToString()));
+            i++;
+        }
+        if (q.DateFrom is { } df) { clauses.Add($"date(COALESCE(create_date, mtime)) >= @p{i}"); prms.Add(new($"@p{i}", df.ToString("yyyy-MM-dd"))); i++; }
+        if (q.DateTo is { } dt)   { clauses.Add($"date(COALESCE(create_date, mtime)) <= @p{i}"); prms.Add(new($"@p{i}", dt.ToString("yyyy-MM-dd"))); i++; }
+        switch (q.Orientation)
+        {
+            case LibraryOrientation.Portrait:  clauses.Add("height > width"); break;
+            case LibraryOrientation.Landscape: clauses.Add("width > height"); break;
+            case LibraryOrientation.Square:    clauses.Add("ABS(width - height) <= 0.02 * MAX(width, height)"); break;
+        }
         if (!string.IsNullOrEmpty(q.MediaType)) { clauses.Add($"media_type=@p{i}"); prms.Add(new($"@p{i}", q.MediaType)); i++; }
         foreach (var t in q.PixivTags)
         {
@@ -552,8 +681,10 @@ public sealed class LibraryRepository : IDisposable
             {
                 var words = term.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
                 var match = string.Join(" AND ", words.Select(FtsEscape));
-                clauses.Add($"id IN (SELECT rowid FROM library_fts WHERE library_fts MATCH @p{i})");
+                // FTS OR filename LIKE — partial names ("12345", "_p0", "miku") aren't indexed terms.
+                clauses.Add($"(id IN (SELECT rowid FROM library_fts WHERE library_fts MATCH @p{i}) OR path LIKE @p{i + 1} ESCAPE '\\')");
                 prms.Add(new($"@p{i}", match));
+                prms.Add(new($"@p{i + 1}", "%" + EscapeLike(term) + "%"));
             }
         }
     }
@@ -573,6 +704,10 @@ public sealed class LibraryRepository : IDisposable
             LibrarySort.CreatedDesc => " ORDER BY create_date DESC NULLS LAST, id DESC",
             LibrarySort.Title => " ORDER BY title COLLATE NOCASE ASC, id",
             LibrarySort.Artist => " ORDER BY artist_name COLLATE NOCASE ASC, title COLLATE NOCASE, id",
+            LibrarySort.DateDesc => " ORDER BY COALESCE(create_date, mtime) DESC, id DESC",
+            LibrarySort.DateAsc => " ORDER BY COALESCE(create_date, mtime) ASC, id",
+            LibrarySort.SizeDesc => " ORDER BY size DESC, id DESC",
+            LibrarySort.NameAsc => " ORDER BY path COLLATE NOCASE ASC, id",
             _ => " ORDER BY added_at DESC, id DESC",
         };
 
@@ -596,6 +731,58 @@ public sealed class LibraryRepository : IDisposable
             while (await r.ReadAsync(ct)) items.Add(MapRow(r));
         }
         return (items, total);
+    }
+
+    /// <summary>Rows whose age rating is unknown (no pixiv metadata yet), so the R-18 filter can't judge them.</summary>
+    public async Task<long> CountUnratedAsync(CancellationToken ct = default)
+    {
+        using var c = CreateConnection();
+        await c.OpenAsync(ct);
+        using var cmd = new SqliteCommand(
+            "SELECT COUNT(*) FROM library_files WHERE COALESCE(metadata_source,'') NOT IN ('pixiv','download')", c);
+        return (long)(await cmd.ExecuteScalarAsync(ct))!;
+    }
+
+    /// <summary>Distinct years present in the index (COALESCE(create_date, mtime)), DESC.</summary>
+    public async Task<IReadOnlyList<int>> GetYearsAsync(CancellationToken ct = default)
+    {
+        using var c = CreateConnection();
+        await c.OpenAsync(ct);
+        using var cmd = new SqliteCommand(
+            "SELECT DISTINCT strftime('%Y', COALESCE(create_date, mtime)) y FROM library_files WHERE y IS NOT NULL ORDER BY y DESC", c);
+        var years = new List<int>();
+        await using var r = await cmd.ExecuteReaderAsync(ct);
+        while (await r.ReadAsync(ct))
+            if (int.TryParse(r.GetString(0), out var y)) years.Add(y);
+        return years;
+    }
+
+    /// <summary>Fills in the artwork id (reverse-search hit) — updates the row and re-syncs FTS.</summary>
+    public async Task SetArtworkIdAsync(long fileId, string artworkId, string? title = null,
+        string? sourceUrl = null, CancellationToken ct = default)
+    {
+        using var c = CreateConnection();
+        await c.OpenAsync(ct);
+        using var tx = c.BeginTransaction();
+        try
+        {
+            var f = await GetByIdAsync(fileId, ct);
+            if (f == null) { tx.Rollback(); return; }
+            f.ArtworkId = artworkId;
+            if (title != null && f.Title == null) f.Title = title;
+            using var cmd = new SqliteCommand(
+                "UPDATE library_files SET artwork_id=@a, title=COALESCE(@t, title), " +
+                "source_url=COALESCE(source_url, @src), source_site=COALESCE(source_site, 'reverse-search') " +
+                "WHERE id=@id", c, tx);
+            cmd.Parameters.AddWithValue("@a", artworkId);
+            cmd.Parameters.AddWithValue("@t", (object?)title ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@src", (object?)sourceUrl ?? $"https://www.pixiv.net/artworks/{artworkId}");
+            cmd.Parameters.AddWithValue("@id", fileId);
+            await cmd.ExecuteNonQueryAsync(ct);
+            SyncFts(c, tx, fileId, null, f);
+            tx.Commit();
+        }
+        catch { tx.Rollback(); throw; }
     }
 
     private static SqliteParameter[] Clone(SqliteParameter[] p) =>
@@ -811,7 +998,7 @@ public sealed class LibraryRepository : IDisposable
         var list = new List<LibraryFile>();
         using var c = CreateConnection();
         await c.OpenAsync(ct);
-        using var cmd = new SqliteCommand($"SELECT {SelectColumns} FROM library_files{where}", c);
+        using var cmd = new SqliteCommand($"SELECT {SelectColumns} FROM library_files {where}", c);
         await using var r = await cmd.ExecuteReaderAsync(ct);
         while (await r.ReadAsync(ct)) list.Add(MapRow(r));
         return list;

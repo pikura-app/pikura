@@ -304,6 +304,226 @@ public class LibraryScanTests : IDisposable
     }
 
     [Fact]
+    public void GetRoots_CustomFolders_Existing_And_Not_Nested()
+    {
+        var a = Path.Combine(_dir, "A");
+        var ab = Path.Combine(a, "B");
+        var a2 = Path.Combine(_dir, "A2");
+        var missing = Path.Combine(_dir, "Missing");
+        Directory.CreateDirectory(ab);
+        Directory.CreateDirectory(a2);
+        var s = FakeSettings(Path.Combine(_dir, "unused"));
+        s.Current.LibraryFolders = [a, ab, missing, a2];
+        var repo = new LibraryRepository(_db, NullLogger<LibraryRepository>.Instance);
+        var svc = new LibraryIndexService(repo, s, NullLogger<LibraryIndexService>.Instance);
+        var roots = svc.GetRoots().Select(Path.GetFullPath).ToList();
+        Assert.Equal([Path.GetFullPath(a), Path.GetFullPath(a2)], roots.OrderBy(x => x).ToList());
+        // GetConfiguredFolders keeps missing dirs for the UI.
+        Assert.Equal(4, svc.GetConfiguredFolders().Count);
+    }
+
+    [Fact]
+    public async Task Scan_Recurses_Deep_And_Skips_Hidden()
+    {
+        var root = Path.Combine(_dir, "deep");
+        var d2 = Path.Combine(root, "a", "b");
+        var d4 = Path.Combine(d2, "c", "d");
+        var hidden = Path.Combine(root, ".hidden");
+        Directory.CreateDirectory(d4);
+        Directory.CreateDirectory(hidden);
+        MakeJpg(Path.Combine(root, "1_p0.jpg"));
+        MakeJpg(Path.Combine(d2, "2_p0.jpg"));
+        MakeJpg(Path.Combine(d4, "3_p0.jpg"));
+        MakeJpg(Path.Combine(hidden, "4_p0.jpg"));
+
+        var s = FakeSettings(Path.Combine(_dir, "unused"));
+        s.Current.LibraryFolders = [root];
+        var repo = new LibraryRepository(_db, NullLogger<LibraryRepository>.Instance);
+        var svc = new LibraryIndexService(repo, s, NullLogger<LibraryIndexService>.Instance);
+        await svc.ScanAsync(null, CancellationToken.None);
+
+        Assert.NotNull(await repo.GetByPathAsync(Path.Combine(root, "1_p0.jpg")));
+        Assert.NotNull(await repo.GetByPathAsync(Path.Combine(d2, "2_p0.jpg")));
+        Assert.NotNull(await repo.GetByPathAsync(Path.Combine(d4, "3_p0.jpg")));
+        Assert.Null(await repo.GetByPathAsync(Path.Combine(hidden, "4_p0.jpg")));
+    }
+
+    [Fact]
+    public async Task Provenance_Columns_Persist_And_Survive_Rescan()
+    {
+        var root = Path.Combine(_dir, "prov");
+        Directory.CreateDirectory(root);
+        var f = Path.Combine(root, "111222333_p0.jpg");
+        MakeJpg(f);
+
+        var s = FakeSettings(Path.Combine(_dir, "unused"));
+        s.Current.LibraryFolders = [root];
+        var repo = new LibraryRepository(_db, NullLogger<LibraryRepository>.Instance);
+        var svc = new LibraryIndexService(repo, s, NullLogger<LibraryIndexService>.Instance);
+
+        var file = new LibraryFile
+        {
+            Path = f, Root = root, Size = new FileInfo(f).Length,
+            AddedAt = DateTime.UtcNow.ToString("O"),
+            ArtworkId = "111222333", Title = "t", ArtistId = "5", ArtistName = "a",
+            SourceUrl = "https://www.pixiv.net/artworks/111222333",
+            OriginalUrl = "https://i.pximg.net/img-original/111222333_p0.png",
+            SourceSite = "pixiv", DownloadedAt = DateTime.UtcNow.ToString("O"),
+        };
+        var id = await repo.UpsertFileAsync(file);
+        var row = await repo.GetByIdAsync(id);
+        Assert.Equal("111222333", row!.ArtworkId);
+        Assert.Equal("https://www.pixiv.net/artworks/111222333", row.SourceUrl);
+        Assert.Equal("https://i.pximg.net/img-original/111222333_p0.png", row.OriginalUrl);
+        Assert.Equal("pixiv", row.SourceSite);
+        Assert.NotNull(row.DownloadedAt);
+
+        // rescan a changed file — provenance must survive (COALESCE keeps old values)
+        File.SetLastWriteTimeUtc(f, DateTime.UtcNow.AddMinutes(1));
+        await svc.ScanAsync(null, CancellationToken.None);
+        var row2 = await repo.GetByIdAsync(id);
+        Assert.Equal("https://www.pixiv.net/artworks/111222333", row2!.SourceUrl);
+        Assert.Equal("pixiv", row2.SourceSite);
+        Assert.Equal(row.DownloadedAt, row2.DownloadedAt);
+    }
+
+    [Fact]
+    public async Task Old_Schema_Db_Migrates()
+    {
+        // a DB created before the provenance columns existed
+        var db = Path.Combine(_dir, "old.db");
+        using (var c = new Microsoft.Data.Sqlite.SqliteConnection($"Data Source={db}"))
+        {
+            c.Open();
+            using var cmd = new Microsoft.Data.Sqlite.SqliteCommand("""
+                CREATE TABLE library_files (
+                    id INTEGER PRIMARY KEY, path TEXT UNIQUE NOT NULL, root TEXT NOT NULL,
+                    size INTEGER, mtime TEXT, sha256 TEXT, phash INTEGER, width INTEGER, height INTEGER,
+                    media_type TEXT, artwork_id TEXT, page_index INTEGER, title TEXT, artist_id TEXT,
+                    artist_name TEXT, tags TEXT, ai_tags_text TEXT, description TEXT,
+                    x_restrict INTEGER DEFAULT 0, ai_type INTEGER DEFAULT 0, create_date TEXT,
+                    added_at TEXT NOT NULL, metadata_source TEXT, ai_tagged_at TEXT,
+                    phash_version INTEGER NOT NULL DEFAULT 0);
+                """, c);
+            cmd.ExecuteNonQuery();
+        }
+        var repo = new LibraryRepository(db, NullLogger<LibraryRepository>.Instance);
+        var id = await repo.UpsertFileAsync(new LibraryFile
+        {
+            Path = "C:\\x\\1.png", Root = "C:\\x", AddedAt = DateTime.UtcNow.ToString("O"),
+            SourceUrl = "https://www.pixiv.net/artworks/1", SourceSite = "pixiv",
+        });
+        var row = await repo.GetByIdAsync(id);
+        Assert.Equal("https://www.pixiv.net/artworks/1", row!.SourceUrl);
+        Assert.Equal("pixiv", row.SourceSite);
+    }
+
+    [Fact]
+    public async Task Artist_Matches_Folder_Segment_Only()
+    {
+        var root = Path.Combine(_dir, "seg");
+        var okku = Path.Combine(root, "Okku");
+        Directory.CreateDirectory(okku);
+        MakeJpg(Path.Combine(okku, "1_p0.jpg"));
+
+        var s = FakeSettings(Path.Combine(_dir, "unused"));
+        s.Current.LibraryFolders = [root];
+        var repo = new LibraryRepository(_db, NullLogger<LibraryRepository>.Instance);
+        var svc = new LibraryIndexService(repo, s, NullLogger<LibraryIndexService>.Instance);
+        await svc.ScanAsync(null, CancellationToken.None);
+
+        var (hit, _) = await repo.SearchAsync(new LibraryQuery { Artist = "okku" });
+        Assert.Single(hit);
+        var (miss, _) = await repo.SearchAsync(new LibraryQuery { Artist = "kku" });
+        Assert.Empty(miss); // "kku" is not a full folder segment
+    }
+
+    [Fact]
+    public async Task Text_Search_Matches_Partial_Filename()
+    {
+        var root = Path.Combine(_dir, "names");
+        Directory.CreateDirectory(root);
+        MakeJpg(Path.Combine(root, "99887766_p0.jpg"));
+
+        var s = FakeSettings(Path.Combine(_dir, "unused"));
+        s.Current.LibraryFolders = [root];
+        var repo = new LibraryRepository(_db, NullLogger<LibraryRepository>.Instance);
+        var svc = new LibraryIndexService(repo, s, NullLogger<LibraryIndexService>.Instance);
+        await svc.ScanAsync(null, CancellationToken.None);
+
+        var (hit, _) = await repo.SearchAsync(new LibraryQuery { Text = "8877" });
+        Assert.Single(hit);
+        var (miss, _) = await repo.SearchAsync(new LibraryQuery { Text = "zzzzz" });
+        Assert.Empty(miss);
+    }
+
+    [Fact]
+    public async Task Year_And_Orientation_Filters_Use_Mtime_Fallback()
+    {
+        var root = Path.Combine(_dir, "dates");
+        Directory.CreateDirectory(root);
+        var f = Path.Combine(root, "2_p0.jpg");
+        MakeJpg(f);
+        File.SetLastWriteTimeUtc(f, new DateTime(2021, 3, 5, 12, 0, 0, DateTimeKind.Utc));
+
+        var s = FakeSettings(Path.Combine(_dir, "unused"));
+        s.Current.LibraryFolders = [root];
+        var repo = new LibraryRepository(_db, NullLogger<LibraryRepository>.Instance);
+        var svc = new LibraryIndexService(repo, s, NullLogger<LibraryIndexService>.Instance);
+        await svc.ScanAsync(null, CancellationToken.None);
+
+        Assert.Single((await repo.SearchAsync(new LibraryQuery { Year = 2021 })).Items);
+        Assert.Empty((await repo.SearchAsync(new LibraryQuery { Year = 2022 })).Items);
+        Assert.Equal([2021], await repo.GetYearsAsync());
+        // MakeJpg writes 40x40 → square; portrait must miss.
+        Assert.Single((await repo.SearchAsync(new LibraryQuery { Orientation = LibraryOrientation.Square })).Items);
+        Assert.Empty((await repo.SearchAsync(new LibraryQuery { Orientation = LibraryOrientation.Portrait })).Items);
+    }
+
+    [Fact]
+    public async Task Maintenance_Queries_Run()
+    {
+        // Regression: QueryAllAsync glued WHERE onto the table name, so every maintenance query
+        // (Fetch missing info, Tag untagged, rehash) threw a SQL syntax error.
+        var repo = new LibraryRepository(_db, NullLogger<LibraryRepository>.Instance);
+        await repo.UpsertFileAsync(new LibraryFile
+        {
+            Path = Path.Combine(_dir, "123456_p0.jpg"), Root = _dir, ArtworkId = "123456",
+            MetadataSource = "filename", MediaType = "image", AddedAt = DateTimeOffset.UtcNow.ToString("O"),
+        });
+        Assert.Single(await repo.GetFilesMissingMetadataAsync());
+        Assert.Single(await repo.GetFilesMissingAiTagsAsync());
+        Assert.Single(await repo.GetFilesWithoutHashAsync());
+        Assert.Empty(await repo.GetFilesNeedingRehashAsync());
+        Assert.Single(await repo.GetAllAsync());
+    }
+
+    [Fact]
+    public async Task DeleteRowsUnderRoot_Removes_Only_That_Root()
+    {
+        var rootA = Path.Combine(_dir, "rA");
+        var rootB = Path.Combine(_dir, "rB");
+        Directory.CreateDirectory(rootA);
+        Directory.CreateDirectory(rootB);
+        MakeJpg(Path.Combine(rootA, "10_p0.jpg"));
+        MakeJpg(Path.Combine(rootB, "11_p0.jpg"));
+
+        var s = FakeSettings(Path.Combine(_dir, "unused"));
+        s.Current.LibraryFolders = [rootA, rootB];
+        var repo = new LibraryRepository(_db, NullLogger<LibraryRepository>.Instance);
+        var svc = new LibraryIndexService(repo, s, NullLogger<LibraryIndexService>.Instance);
+        await svc.ScanAsync(null, CancellationToken.None);
+
+        var n = await repo.DeleteRowsUnderRootAsync(Path.GetFullPath(rootA));
+        Assert.Equal(1, n);
+        Assert.Null(await repo.GetByPathAsync(Path.Combine(rootA, "10_p0.jpg")));
+        Assert.NotNull(await repo.GetByPathAsync(Path.Combine(rootB, "11_p0.jpg")));
+        // FTS no longer returns the deleted row.
+        var (hits, _) = await repo.SearchAsync(new LibraryQuery { Text = "10_p0" });
+        Assert.Empty(hits);
+    }
+
+    [Fact]
     public async Task Scan_Parses_Ids_Skips_Part_Imports_Sidecar_Incremental()
     {
         var root = Path.Combine(_dir, "root");

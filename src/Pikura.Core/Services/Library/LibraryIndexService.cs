@@ -57,19 +57,39 @@ public sealed class LibraryIndexService : IDisposable
 
     public LibraryRepository Repository => _repo;
 
-    /// <summary>Distinct existing library roots: global download root + each account override root.</summary>
-    public IReadOnlyList<string> GetRoots()
+    /// <summary>Configured library folders (full paths, distinct, including missing ones):
+    /// <c>LibraryFolders</c> when customised, else the default global + per-account
+    /// download roots.</summary>
+    public IReadOnlyList<string> GetConfiguredFolders()
     {
+        if (_settings.Current.LibraryFolders is { Count: > 0 } custom)
+            return custom.Select(Path.GetFullPath).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
         var roots = new List<string>();
         var global = _settings.Current.DownloadRoot;
         if (!string.IsNullOrWhiteSpace(global)) roots.Add(global);
         if (_accounts != null)
             foreach (var p in _accounts.Profiles)
                 if (!string.IsNullOrWhiteSpace(p.Settings?.DownloadRoot)) roots.Add(p.Settings?.DownloadRoot!);
-        return roots.Where(Directory.Exists)
-            .Select(Path.GetFullPath)
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .ToList();
+        return roots.Select(Path.GetFullPath).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+    }
+
+    /// <summary>True when <paramref name="child"/> is inside <paramref name="root"/>
+    /// (separator-aware, so "C:\Pix" doesn't contain "C:\Pixiv2").</summary>
+    internal static bool IsUnderRoot(string child, string root)
+    {
+        var c = Path.GetFullPath(child);
+        var r = Path.GetFullPath(root);
+        if (!r.EndsWith(Path.DirectorySeparatorChar) && !r.EndsWith(Path.AltDirectorySeparatorChar))
+            r += Path.DirectorySeparatorChar;
+        return c.StartsWith(r, StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>Distinct existing library roots: configured folders filtered to existing dirs,
+    /// with any root nested inside another dropped so files aren't indexed twice.</summary>
+    public IReadOnlyList<string> GetRoots()
+    {
+        var dirs = GetConfiguredFolders().Where(Directory.Exists).ToList();
+        return dirs.Where(d => !dirs.Any(o => o != d && IsUnderRoot(d, o))).ToList();
     }
 
     // ── Record on download ───────────────────────────────────────────────────
@@ -78,7 +98,7 @@ public sealed class LibraryIndexService : IDisposable
     /// Records a freshly downloaded file (called from PixivDownloadService).
     /// Never blocks the download: hashing happens on the background channel.
     /// </summary>
-    public void RecordDownloaded(ArtworkPreview artwork, string filePath, int pageIndex)
+    public void RecordDownloaded(ArtworkPreview artwork, string filePath, int pageIndex, string? originalUrl = null)
     {
         try
         {
@@ -103,6 +123,10 @@ public sealed class LibraryIndexService : IDisposable
                 Tags = artwork.Tags is { Count: > 0 } ? string.Join(' ', artwork.Tags) : null,
                 Description = artwork.Description,
                 XRestrict = artwork.XRestrict,
+                SourceUrl = $"https://www.pixiv.net/artworks/{artwork.Id}",
+                OriginalUrl = originalUrl,
+                SourceSite = "pixiv",
+                DownloadedAt = DateTime.UtcNow.ToString("O"),
                 AiType = artwork.AiType,
                 CreateDate = artwork.CreateDate?.ToString("O"),
                 AddedAt = DateTimeOffset.UtcNow.ToString("O"),
@@ -137,7 +161,7 @@ public sealed class LibraryIndexService : IDisposable
     }
 
     private string? FindRootFor(string path) => GetRoots()
-        .FirstOrDefault(r => Path.GetFullPath(path).StartsWith(r, StringComparison.OrdinalIgnoreCase));
+        .FirstOrDefault(r => IsUnderRoot(path, r));
 
     private static string? MediaTypeOf(string ext) =>
         ext.Equals(".mp4", StringComparison.OrdinalIgnoreCase) || ext.Equals(".webm", StringComparison.OrdinalIgnoreCase)
@@ -303,8 +327,12 @@ public sealed class LibraryIndexService : IDisposable
             foreach (var d in dirs)
             {
                 var name = Path.GetFileName(d);
-                if (name.StartsWith('.') || (File.GetAttributes(d) & (FileAttributes.Hidden | FileAttributes.System)) != 0)
-                    continue;
+                if (name.StartsWith('.')) continue;
+                FileAttributes attrs;
+                // Access-denied/vanished dirs must skip, not abort the whole scan.
+                try { attrs = File.GetAttributes(d); }
+                catch { continue; }
+                if ((attrs & (FileAttributes.Hidden | FileAttributes.System)) != 0) continue;
                 stack.Push(d);
             }
         }
@@ -367,21 +395,34 @@ public sealed class LibraryIndexService : IDisposable
             ct.ThrowIfCancellationRequested();
             done++;
             progress?.Report(new LibraryScanProgress(done, total, f.Path, "enrich"));
-            try
+            try { await EnrichFileAsync(f, ct); }
+            catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
             {
-                var d = await _client.GetArtworkDetailAsync(f.ArtworkId!, ct);
-                if (d != null)
-                {
-                    var tags = d.Tags?.Tags?.Select(t => t.Tag).ToList();
-                    await _repo.UpdateMetadataAsync(f.Id, d.IllustTitle, d.UserId, d.UserName,
-                        tags is { Count: > 0 } ? string.Join(' ', tags) : null,
-                        d.IllustComment, d.XRestrict, d.AiType, d.CreateDate, "pixiv", ct);
-                }
+                // Rate limited: back off for a minute, then retry this file once.
+                _logger.LogInformation("Enrich rate-limited at {Id}; backing off 60s", f.ArtworkId);
+                await Task.Delay(TimeSpan.FromSeconds(60), ct);
+                try { await EnrichFileAsync(f, ct); }
+                catch (Exception retryEx) { _logger.LogWarning(retryEx, "Enrich failed for {Id}", f.ArtworkId); }
             }
             catch (Exception ex) { _logger.LogWarning(ex, "Enrich failed for {Id}", f.ArtworkId); }
             var spacing = Math.Max(1500, _settings.Current.SafeMode ? 2500 : 0);
             await Task.Delay(spacing, ct);
         }
+    }
+
+    /// <summary>Fetches Pixiv metadata for one file (needs ArtworkId), saves it and updates
+    /// <paramref name="f"/> in place. Returns false when nothing could be fetched.</summary>
+    public async Task<bool> EnrichFileAsync(LibraryFile f, CancellationToken ct = default)
+    {
+        if (_client == null || string.IsNullOrEmpty(f.ArtworkId)) return false;
+        var d = await _client.GetArtworkDetailAsync(f.ArtworkId, ct);
+        if (d == null) return false;
+        var tags = d.Tags?.Tags?.Select(t => t.Tag).ToList();
+        var tagText = tags is { Count: > 0 } ? string.Join(' ', tags) : null;
+        await _repo.UpdateMetadataAsync(f.Id, d.IllustTitle, d.UserId, d.UserName, tagText,
+            d.IllustComment, d.XRestrict, d.AiType, d.CreateDate, "pixiv", ct);
+        f.Title = d.IllustTitle; f.ArtistId = d.UserId; f.ArtistName = d.UserName; f.Tags = tagText;
+        return true;
     }
 
     // ── AI tagging ───────────────────────────────────────────────────────────
