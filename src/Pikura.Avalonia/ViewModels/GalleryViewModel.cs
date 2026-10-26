@@ -2688,6 +2688,9 @@ ShowPreview = true;
             active.Source = source;
             active.LocalPath = localPath;
             active.LibraryFileId = libraryFileId;
+            // The tab is reused in place, so SelectedViewerTab doesn't change — refresh the flag
+            // or a Library tab reused by another section keeps showing Library-only buttons.
+            OnPropertyChanged(nameof(IsLibraryTab));
             active.NavigateTo(card);
             InlineViewerCard = card;
         }

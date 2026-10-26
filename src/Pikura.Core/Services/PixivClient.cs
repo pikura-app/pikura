@@ -1415,7 +1415,7 @@ public sealed partial class PixivClient
         // Rate-limit waits are always honored; SafeMode keeps the full backoff
         // schedule and jitter, otherwise cap at 3 attempts without jitter.
         var maxRateLimitAttempts = safeMode ? backoffSeconds.Length : 3;
-        int attempt = 0;
+        int attempt = 0, networkRetries = 0;
 
         while (true)
         {
@@ -1430,6 +1430,15 @@ public sealed partial class PixivClient
             try
             {
                 resp = await client.SendAsync(req, ct).ConfigureAwait(false);
+            }
+            catch (HttpRequestException ex) when (ex.StatusCode == null && networkRetries < 2 && !ct.IsCancellationRequested)
+            {
+                // Connection-level failure (TLS handshake reset, DNS, Wi-Fi waking up): these
+                // usually succeed a moment later, so retry twice before surfacing an error.
+                networkRetries++;
+                _logger.LogWarning(ex, "Pixiv {Url} network request failed; retry {Attempt}/2", url, networkRetries);
+                await Task.Delay(TimeSpan.FromMilliseconds(600 * networkRetries), ct).ConfigureAwait(false);
+                continue;
             }
             catch (Exception ex)
             {
