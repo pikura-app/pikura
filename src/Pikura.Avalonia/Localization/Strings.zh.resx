@@ -6085,4 +6085,364 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="Hoshi_DeleteLegacy" xml:space="preserve"><value>删除旧聊天文件</value></data>
   <data name="Hoshi_DeleteLegacyTitle" xml:space="preserve"><value>删除旧聊天文件</value></data>
   <data name="Hoshi_DeleteLegacyConfirm" xml:space="preserve"><value>删除已迁移的旧聊天文件（{0} MB）？此操作无法撤销。</value></data>
+  <data name="Hoshi_RecommendedModels" xml:space="preserve"><value>推荐模型</value></data>
+  <data name="Hoshi_DownloadAndUse" xml:space="preserve"><value>下载并使用</value></data>
+  <data name="Hoshi_UseModel" xml:space="preserve"><value>使用</value></data>
+  <data name="Hoshi_RecoQwen4b" xml:space="preserve"><value>推荐 — 图像、聊天和操作 (3.3 GB)</value></data>
+  <data name="Hoshi_RecoQwen8b" xml:space="preserve"><value>更高质量，需要更强的电脑 (6.2 GB)</value></data>
+  <data name="Hoshi_RecoQwen2b" xml:space="preserve"><value>适用于低配电脑 (1.9 GB)</value></data>
+  <data name="Pixivision_AllDates" xml:space="preserve">
+    <value>全部日期</value>
+  </data>
+  <data name="Pixivision_SavedCount" xml:space="preserve">
+    <value>🔖 已保存 ({0})</value>
+  </data>
+  <data name="Pixivision_LayoutInline" xml:space="preserve">
+    <value>内嵌</value>
+  </data>
+  <data name="Pixivision_NewestRelated" xml:space="preserve">
+    <value>最新相关文章</value>
+  </data>
+  <data name="Pixivision_NewestTagged" xml:space="preserve">
+    <value>「{0}」的最新文章</value>
+  </data>
+  <data name="Pixivision_MayAlsoLike" xml:space="preserve">
+    <value>你可能也会喜欢…</value>
+  </data>
+  <data name="Pixivision_IfYouLiked" xml:space="preserve">
+    <value>喜欢「{0}」的话，你也会喜欢…</value>
+  </data>
+  <data name="Pixivision_CouldNotLoad" xml:space="preserve">
+    <value>无法加载 pixivision 文章，请检查网络连接。</value>
+  </data>
+  <data name="Pixivision_ArticlesLoaded" xml:space="preserve">
+    <value>已加载 {0} 篇文章</value>
+  </data>
+  <data name="Pixivision_ArticlesPage" xml:space="preserve">
+    <value>{0} 篇文章 — 第 {1} 页</value>
+  </data>
+  <data name="Pixivision_LoadFailed" xml:space="preserve">
+    <value>加载 pixivision 失败：{0}</value>
+  </data>
+  <data name="Pixivision_SearchingOnDate" xml:space="preserve">
+    <value>正在搜索 {0} 的文章…</value>
+  </data>
+  <data name="Pixivision_NoneOnDate" xml:space="preserve">
+    <value>未找到 {0} 的文章（已搜索 {1} 页）。</value>
+  </data>
+  <data name="Pixivision_ArticlesOnDate" xml:space="preserve">
+    <value>{1} 的文章：{0} 篇</value>
+  </data>
+  <data name="Pixivision_DateSearchFailed" xml:space="preserve">
+    <value>日期搜索失败：{0}</value>
+  </data>
+  <data name="Pixivision_SearchingInRange" xml:space="preserve">
+    <value>正在搜索文章（{0}）…</value>
+  </data>
+  <data name="Pixivision_NoneInRange" xml:space="preserve">
+    <value>未找到文章（{0}，已搜索 {1} 页）。</value>
+  </data>
+  <data name="Pixivision_ArticlesInRange" xml:space="preserve">
+    <value>{0} 篇文章 · {1}</value>
+  </data>
+  <data name="Pixivision_FeaturedCount" xml:space="preserve">
+    <value>精选作品 {0} 件</value>
+  </data>
+  <data name="Pixivision_ArticleLoadFailed" xml:space="preserve">
+    <value>加载文章失败：{0}</value>
+  </data>
+  <data name="Common_PageN" xml:space="preserve">
+    <value>第 {0} 页</value>
+  </data>
+  <data name="Pixivision_Cat_All" xml:space="preserve">
+    <value>全部</value>
+  </data>
+  <data name="Pixivision_Cat_Explore" xml:space="preserve">
+    <value>发现</value>
+  </data>
+  <data name="Pixivision_Cat_Illustration" xml:space="preserve">
+    <value>插画</value>
+  </data>
+  <data name="Pixivision_Cat_Manga" xml:space="preserve">
+    <value>漫画</value>
+  </data>
+  <data name="Pixivision_Cat_Novel" xml:space="preserve">
+    <value>小说</value>
+  </data>
+  <data name="Pixivision_Cat_Create" xml:space="preserve">
+    <value>创作</value>
+  </data>
+  <data name="Pixivision_Cat_HowtoDraw" xml:space="preserve">
+    <value>绘画技巧</value>
+  </data>
+  <data name="Pixivision_Cat_Making" xml:space="preserve">
+    <value>绘画过程</value>
+  </data>
+  <data name="Pixivision_Cat_Material" xml:space="preserve">
+    <value>素材</value>
+  </data>
+  <data name="Pixivision_Cat_Discover" xml:space="preserve">
+    <value>了解</value>
+  </data>
+  <data name="Pixivision_Cat_Interview" xml:space="preserve">
+    <value>访谈</value>
+  </data>
+  <data name="Pixivision_Cat_Column" xml:space="preserve">
+    <value>专栏</value>
+  </data>
+  <data name="Pixivision_Cat_News" xml:space="preserve">
+    <value>新闻</value>
+  </data>
+  <data name="Common_TypeIllust" xml:space="preserve">
+    <value>插画</value>
+  </data>
+  <data name="Common_TypeManga" xml:space="preserve">
+    <value>漫画</value>
+  </data>
+  <data name="Common_TypeUgoira" xml:space="preserve">
+    <value>动图</value>
+  </data>
+  <data name="Common_TypeOther" xml:space="preserve">
+    <value>其他</value>
+  </data>
+  <data name="Gallery_FollowedArtistsCount" xml:space="preserve">
+    <value>关注的作者 {0} 位</value>
+  </data>
+  <data name="Gallery_FollowedArtistsLoadingMore" xml:space="preserve">
+    <value>关注的作者 {0} 位（正在加载更多…）</value>
+  </data>
+  <data name="Gallery_FollowedArtistsRefreshed" xml:space="preserve">
+    <value>关注的作者 {0} 位（已刷新）</value>
+  </data>
+  <data name="Gallery_ArtistShown" xml:space="preserve">
+    <value>{0} — 显示 {1} 件（已加载 {2} / 共 {3} 件）</value>
+  </data>
+  <data name="Gallery_ArtistWorks" xml:space="preserve">
+    <value>{0} — {1} / {2} 件作品</value>
+  </data>
+  <data name="Gallery_LoadingArtist" xml:space="preserve">
+    <value>正在加载 {0}…</value>
+  </data>
+  <data name="Gallery_ArtistNoArtworks" xml:space="preserve">
+    <value>{0} — 没有作品</value>
+  </data>
+  <data name="Gallery_RecentWorksLoaded" xml:space="preserve">
+    <value>已加载 {0} 件最近作品</value>
+  </data>
+  <data name="Gallery_SearchingFollowed" xml:space="preserve">
+    <value>正在关注的作者中搜索：{0}…</value>
+  </data>
+  <data name="Gallery_TagFollowedResults" xml:space="preserve">
+    <value>标签：{0}（关注的作者）• {1} 个结果</value>
+  </data>
+  <data name="Gallery_NoFollowedResults" xml:space="preserve">
+    <value>关注的作者中没有结果：{0}</value>
+  </data>
+  <data name="Gallery_FoundFollowedResults" xml:space="preserve">
+    <value>在关注的作者中找到 {0} 件作品：{1}</value>
+  </data>
+  <data name="Gallery_SearchingFor" xml:space="preserve">
+    <value>正在搜索“{0}”…</value>
+  </data>
+  <data name="Gallery_QueryInArtist" xml:space="preserve">
+    <value>当前作者中的“{0}”• {1} 个结果</value>
+  </data>
+  <data name="Gallery_FoundInArtist" xml:space="preserve">
+    <value>在当前作者中找到 {0} 个“{1}”的结果</value>
+  </data>
+  <data name="Gallery_ViewingArtwork" xml:space="preserve">
+    <value>正在查看作品 {0}</value>
+  </data>
+  <data name="Gallery_OpenedInNewTab" xml:space="preserve">
+    <value>已在新标签页中打开作品 {0}</value>
+  </data>
+  <data name="Gallery_ArtworkNotFound" xml:space="preserve">
+    <value>未找到作品 {0}。</value>
+  </data>
+  <data name="Discover_Works" xml:space="preserve">
+    <value>作品</value>
+  </data>
+  <data name="Discover_Users" xml:space="preserve">
+    <value>用户</value>
+  </data>
+  <data name="History_Grouped" xml:space="preserve">
+    <value>分组</value>
+  </data>
+  <data name="Search_Compact" xml:space="preserve">
+    <value>紧凑</value>
+  </data>
+  <data name="Search_Thumbnails" xml:space="preserve">
+    <value>缩略图</value>
+  </data>
+  <data name="Search_BookmarkCount" xml:space="preserve">
+    <value>收藏数</value>
+  </data>
+  <data name="Settings_TrayDisabled" xml:space="preserve">
+    <value>禁用</value>
+  </data>
+  <data name="Settings_TrayMinimize" xml:space="preserve">
+    <value>最小化到托盘</value>
+  </data>
+  <data name="Settings_TrayClose" xml:space="preserve">
+    <value>关闭到托盘</value>
+  </data>
+  <data name="Settings_Wallpaper4K" xml:space="preserve">
+    <value>4K 桌面壁纸 (3840x2160)</value>
+  </data>
+  <data name="Settings_WallpaperQHD" xml:space="preserve">
+    <value>QHD 桌面壁纸 (2560x1440)</value>
+  </data>
+  <data name="Settings_WallpaperFHD" xml:space="preserve">
+    <value>全高清桌面壁纸 (1920x1080)</value>
+  </data>
+  <data name="Settings_WallpaperHD" xml:space="preserve">
+    <value>高清桌面壁纸 (1280x720)</value>
+  </data>
+  <data name="Login_ManualCookie1" xml:space="preserve">
+    <value>Pikura 无法自动打开登录窗口，请临时粘贴会话 Cookie：在常用浏览器中打开 pixiv.net → 开发者工具 → Application → Cookies → </value>
+  </data>
+  <data name="Login_ManualCookie2" xml:space="preserve">
+    <value> → 复制 </value>
+  </data>
+  <data name="Login_ManualCookie3" xml:space="preserve">
+    <value> 的值并粘贴到下方。</value>
+  </data>
+  <data name="Artist_TagsExample" xml:space="preserve">
+    <value>例如：风景, 景色</value>
+  </data>
+  <data name="Artist_ExcludeExample" xml:space="preserve">
+    <value>例如：R-18G, 草图</value>
+  </data>
+  <data name="Preset_PagesExample1" xml:space="preserve">
+    <value>例如：1,3 或 1-4 或 1,2,4</value>
+  </data>
+  <data name="Preset_PagesExample2" xml:space="preserve">
+    <value>例如：1,3,5 或 1-3:1-2,5; 5:1,3（作品 1-3：第 1-2、5 页；作品 5：第 1、3 页）</value>
+  </data>
+  <data name="Preset_PagesExample3" xml:space="preserve">
+    <value>例如：1,3,5 或 1-3,6 或 5-6</value>
+  </data>
+  <data name="Range_Example" xml:space="preserve">
+    <value>例如：1-20 或 1,5-10,50</value>
+  </data>
+  <data name="SavePreset_NameExample" xml:space="preserve">
+    <value>例如：我喜欢的作者</value>
+  </data>
+  <data name="Batch_TagsExample" xml:space="preserve">
+    <value>例如：原创, 奇幻</value>
+  </data>
+  <data name="Batch_ExcludeExample" xml:space="preserve">
+    <value>例如：猎奇, 兽人</value>
+  </data>
+  <data name="Batch_ScheduleNameExample" xml:space="preserve">
+    <value>例如：每日关注作者（留空则自动生成）</value>
+  </data>
+  <data name="Batch_LimitExample" xml:space="preserve">
+    <value>例如：10（留空表示全部）</value>
+  </data>
+  <data name="Search_ToolExample" xml:space="preserve">
+    <value>例如：Photoshop, CLIP STUDIO PAINT</value>
+  </data>
+  <data name="Search_TagExample" xml:space="preserve">
+    <value>例如：猫, 狗</value>
+  </data>
+  <data name="Search_ExcludeExample" xml:space="preserve">
+    <value>例如：3D, AI</value>
+  </data>
+  <data name="Library_EmptyTitle" xml:space="preserve">
+    <value>媒体库还是空的</value>
+  </data>
+  <data name="Library_EmptyBody" xml:space="preserve">
+    <value>库会列出您库文件夹中的图片，您可以按标题、作者或标签搜索，查找重复项，并用 AI 打标签。下载时会自动添加文件。</value>
+  </data>
+
+  <data name="Library_ScanFoundNothing" xml:space="preserve">
+    <value>扫描完成：下载文件夹中未找到图片。</value>
+  </data>
+
+  <data name="Library_Folders" xml:space="preserve"><value>库文件夹</value></data>
+  <data name="Library_FolderNotFound" xml:space="preserve"><value>未找到</value></data>
+  <data name="Library_OpenFolderTooltip" xml:space="preserve"><value>在资源管理器中打开</value></data>
+  <data name="Library_RemoveFolderTip" xml:space="preserve"><value>仅从库中移除；文件保留在磁盘上</value></data>
+  <data name="Library_AddFolder" xml:space="preserve"><value>＋ 添加文件夹…</value></data>
+  <data name="Library_ResetToDownloadFolder" xml:space="preserve"><value>重置为下载文件夹</value></data>
+  <data name="Library_SubfoldersIncluded" xml:space="preserve"><value>包括子文件夹。</value></data>
+  <data name="Library_LastScanFmt" xml:space="preserve"><value>上次扫描: {0}</value></data>
+  <data name="Library_NoFoldersExist" xml:space="preserve"><value>尚无库文件夹存在。请添加文件夹，或下载内容以创建下载文件夹。</value></data>
+  <data name="Library_PickFolderTitle" xml:space="preserve"><value>选择库文件夹</value></data>
+  <data name="Library_AnyYear" xml:space="preserve"><value>全部年份</value></data>
+  <data name="Library_DateFrom" xml:space="preserve"><value>开始日期</value></data>
+  <data name="Library_DateTo" xml:space="preserve"><value>结束日期</value></data>
+  <data name="Library_OrientationAll" xml:space="preserve"><value>方向: 全部</value></data>
+  <data name="Library_OrientationPortrait" xml:space="preserve"><value>纵向</value></data>
+  <data name="Library_OrientationLandscape" xml:space="preserve"><value>横向</value></data>
+  <data name="Library_OrientationSquare" xml:space="preserve"><value>方形</value></data>
+  <data name="Library_SortDateNew" xml:space="preserve"><value>日期（最新）</value></data>
+  <data name="Library_SortDateOld" xml:space="preserve"><value>日期（最早）</value></data>
+  <data name="Library_SortSize" xml:space="preserve"><value>大小（最大）</value></data>
+  <data name="Library_SortName" xml:space="preserve"><value>名称（A–Z）</value></data>
+  <data name="Library_ClearFilters" xml:space="preserve"><value>清除筛选</value></data>
+  <data name="Library_Results" xml:space="preserve"><value>{0} 个结果</value></data>
+  <data name="Library_Details" xml:space="preserve"><value>详情</value></data>
+  <data name="Library_SelectHint" xml:space="preserve"><value>选择文件以查看详情。Ctrl/Shift+单击可多选。</value></data>
+  <data name="Library_SelectedCount" xml:space="preserve"><value>已选择 {0} 个文件</value></data>
+  <data name="Library_OpenFolderItem" xml:space="preserve"><value>打开文件夹</value></data>
+  <data name="Library_OpenFoldersBtn" xml:space="preserve"><value>在资源管理器中打开</value></data>
+  <data name="Library_CopyPathsBtn" xml:space="preserve"><value>复制路径</value></data>
+  <data name="Library_OpenFoldersTitle" xml:space="preserve"><value>打开文件夹</value></data>
+  <data name="Library_OpenFoldersConfirm" xml:space="preserve"><value>要在资源管理器中打开 {0} 个文件夹吗？</value></data>
+  <data name="Library_OpenFilesTitle" xml:space="preserve"><value>打开文件</value></data>
+  <data name="Library_OpenFilesConfirm" xml:space="preserve"><value>要打开 {0} 个文件吗？</value></data>
+  <data name="Library_OpenInViewer" xml:space="preserve"><value>在查看器中打开</value></data>
+  <data name="Library_GoToArtist" xml:space="preserve"><value>查看作者</value></data>
+  <data name="Library_FindOriginal" xml:space="preserve"><value>查找原图（以图搜图）</value></data>
+  <data name="Library_SearchInBrowser" xml:space="preserve"><value>在浏览器中搜索</value></data>
+  <data name="Library_NoMatchSaucenao" xml:space="preserve"><value>未找到匹配 (SauceNAO)</value></data>
+  <data name="Library_ReverseSearchFailed" xml:space="preserve"><value>以图搜图失败: {0}</value></data>
+  <data name="Library_ReverseSearchUnavailable" xml:space="preserve"><value>以图搜图不可用</value></data>
+  <data name="Library_Searching" xml:space="preserve"><value>搜索中…</value></data>
+  <data name="Library_ImageCopiedPaste" xml:space="preserve"><value>已复制图片路径 — 请在页面中粘贴</value></data>
+  <data name="Settings_WinState_Normal" xml:space="preserve">
+    <value>正常</value>
+  </data>
+  <data name="Settings_WinState_Maximized" xml:space="preserve">
+    <value>最大化</value>
+  </data>
+  <data name="Settings_WinState_Minimized" xml:space="preserve">
+    <value>最小化</value>
+  </data>
+  <data name="Settings_WinState_SystemTray" xml:space="preserve">
+    <value>系统托盘</value>
+  </data>
+  <data name="Viewer_ArtistUnknown" xml:space="preserve">
+    <value>找不到该作品的作者。</value>
+  </data>
+  <data name="Library_FetchInfo" xml:space="preserve">
+    <value>从 pixiv 获取信息</value>
+  </data>
+  <data name="Library_FileMissing" xml:space="preserve">
+    <value>该文件已不在磁盘上。</value>
+  </data>
+  <data name="Library_UnratedNotice" xml:space="preserve">
+    <value>{0} 个文件尚未获取 pixiv 信息，因此无法隐藏其中的 R-18。点击“获取缺失信息”进行判定。</value>
+  </data>
+  <data name="Settings_ReverseSearch" xml:space="preserve">
+    <value>以图搜图（高级）</value>
+  </data>
+  <data name="Settings_SauceNaoKeyHint" xml:space="preserve">
+    <value>高级功能：应用内以图搜图使用 SauceNAO 的 API，需要 SauceNAO 付费方案（Account → upgrades）。请将该账户的 API 密钥（Account → api）粘贴到这里。没有密钥时，“查找原图”会复制图片并打开 saucenao.com（免费）。</value>
+  </data>
+  <data name="Settings_SauceNaoKey" xml:space="preserve">
+    <value>SauceNAO API 密钥</value>
+  </data>
+  <data name="Library_NoSauceKey" xml:space="preserve">
+    <value>已复制图片，请在 SauceNAO 上粘贴（Ctrl+V）。在 设置 → 高级 中添加免费的 SauceNAO API 密钥即可在 Pikura 内搜索。</value>
+  </data>
+  <data name="Library_SauceKeyRejected" xml:space="preserve">
+    <value>SauceNAO 拒绝了该 API 密钥（应用内搜索需要 SauceNAO 付费方案）。已复制图片，请在页面上粘贴（Ctrl+V）。</value>
+  </data>
+  <data name="Library_SourceDownloaded" xml:space="preserve"><value>下载于 {0}</value></data>
+  <data name="Library_SourcePixiv" xml:space="preserve"><value>pixiv</value></data>
+  <data name="Library_OpenSource" xml:space="preserve"><value>打开来源页面</value></data>
+  <data name="Library_CopyOriginalUrl" xml:space="preserve"><value>复制原图 URL</value></data>
 </root>

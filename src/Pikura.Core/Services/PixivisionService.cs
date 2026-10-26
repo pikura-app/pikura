@@ -23,12 +23,25 @@ public sealed partial class PixivisionService
 
     private readonly PixivHttpClientFactory _httpFactory;
     private readonly ILogger<PixivisionService> _logger;
+    private readonly Settings.SettingsService? _settings;
 
-    public PixivisionService(PixivHttpClientFactory httpFactory, ILogger<PixivisionService> logger)
+    public PixivisionService(PixivHttpClientFactory httpFactory, ILogger<PixivisionService> logger,
+        Settings.SettingsService? settings = null)
     {
         _httpFactory = httpFactory;
         _logger = logger;
+        _settings = settings;
     }
+
+    /// <summary>pixivision locale matching the app UI language
+    /// (日本語→ja, 中文→zh, 한국어→ko, everything else→en).</summary>
+    public string Language => _settings?.Current.AppLanguage switch
+    {
+        "日本語" => "ja",
+        "中文" => "zh",
+        "한국어" => "ko",
+        _ => "en",
+    };
 
     public const string SlugAll = "";
 
@@ -69,13 +82,24 @@ public sealed partial class PixivisionService
     /// </summary>
     public async Task<PixivisionArticlePage> GetArticlesAsync(string? category = null, int page = 1, CancellationToken ct = default)
     {
-        var basePath = string.IsNullOrEmpty(category) ? $"{BaseUrl}/en/" : $"{BaseUrl}/en/c/{category}/";
+        var lang = Language;
+        var basePath = string.IsNullOrEmpty(category) ? $"{BaseUrl}/{lang}/" : $"{BaseUrl}/{lang}/c/{category}/";
         var url = page <= 1 ? basePath : $"{basePath}?p={page}";
         var html = await GetHtmlAsync(url, ct).ConfigureAwait(false);
         var result = new PixivisionArticlePage { Page = page };
         if (html == null) return result;
 
         var matches = ArticleListItemRegex().Matches(html);
+        // Defensive: a locale whose markup yields 0 articles falls back to English.
+        if (matches.Count == 0 && lang != "en")
+        {
+            _logger.LogWarning("pixivision /{Lang}/ feed yielded 0 items — retrying /en/", lang);
+            basePath = string.IsNullOrEmpty(category) ? $"{BaseUrl}/en/" : $"{BaseUrl}/en/c/{category}/";
+            url = page <= 1 ? basePath : $"{basePath}?p={page}";
+            html = await GetHtmlAsync(url, ct).ConfigureAwait(false);
+            if (html == null) return result;
+            matches = ArticleListItemRegex().Matches(html);
+        }
         var seen = new HashSet<long>();
         for (var i = 0; i < matches.Count; i++)
         {
@@ -144,7 +168,7 @@ public sealed partial class PixivisionService
     /// <summary>Scrapes a single article page for its title, body text and embedded Pixiv artworks.</summary>
     public async Task<PixivisionArticleDetail?> GetArticleAsync(long articleId, CancellationToken ct = default)
     {
-        var url = $"{BaseUrl}/en/a/{articleId}";
+        var url = $"{BaseUrl}/{Language}/a/{articleId}";
         var html = await GetHtmlAsync(url, ct).ConfigureAwait(false);
         if (html == null) return null;
 
@@ -362,9 +386,9 @@ public sealed partial class PixivisionService
     // belong to the same article even though other unrelated links (category badges, etc.) sit
     // between them in the minified markup.
     [GeneratedRegex(
-        """href="/en/a/(?<id>\d+)"data-gtm-action="ClickImage"[^>]*>.*?background-image:\s*url\((?<thumb>[^)]+)\).*?<h2 class="(?:aec|arc)__title"><a href="/en/a/\k<id>"data-gtm-action="ClickTitle"[^>]*>(?<title>[^<]+)</a>""",
+        """href="/(?:en|ja|zh|zh-tw|ko)/a/(?<id>\d+)"data-gtm-action="ClickImage"[^>]*>.*?background-image:\s*url\((?<thumb>[^)]+)\).*?<h2 class="(?:aec|arc)__title"><a href="/(?:en|ja|zh|zh-tw|ko)/a/\k<id>"data-gtm-action="ClickTitle"[^>]*>(?<title>[^<]+)</a>""",
         RegexOptions.Singleline)]
-    private static partial Regex ArticleListItemRegex();
+    internal static partial Regex ArticleListItemRegex();
 
     [GeneratedRegex("""<meta property="og:title" content="(?<title>[^"]+)">""")]
     private static partial Regex OgTitleRegex();
@@ -400,9 +424,9 @@ public sealed partial class PixivisionService
     // main feed cards: the title link/text sits after an unrelated category-badge link, so the
     // \k<id> backreference is needed to keep them paired correctly.
     [GeneratedRegex(
-        """href="/en/a/(?<id>\d+)"data-gtm-action="ClickImage"[^>]*>.*?background-image:\s*url\((?<thumb>[^)]+)\).*?<a href="/en/a/\k<id>"class="asc__title-link"data-gtm-action="ClickTitle"[^>]*><p class="asc__title">(?<title>[^<]+)</p>""",
+        """href="/(?:en|ja|zh|zh-tw|ko)/a/(?<id>\d+)"data-gtm-action="ClickImage"[^>]*>.*?background-image:\s*url\((?<thumb>[^)]+)\).*?<a href="/(?:en|ja|zh|zh-tw|ko)/a/\k<id>"class="asc__title-link"data-gtm-action="ClickTitle"[^>]*><p class="asc__title">(?<title>[^<]+)</p>""",
         RegexOptions.Singleline)]
-    private static partial Regex SidebarCardRegex();
+    internal static partial Regex SidebarCardRegex();
 
     [GeneratedRegex(
         """<div class="fab__paragraph _medium-editor-text">(?<body>.*?)</div>""",
@@ -423,7 +447,7 @@ public sealed partial class PixivisionService
     // Artist's Spotlight interviews!" at the end of interview articles) — visually and
     // structurally distinct from the sidebar-style "Related Article Latest/Popular" widgets.
     [GeneratedRegex(
-        """<div class="article-item _feature-article-body__article_card">.*?<div class="_thumbnail" style="background-image:\s*url\((?<thumb>[^)]+)\)"></div></a>.*?<h2 class="arc__title"><a href="/en/a/(?<id>\d+)"[^>]*>(?<title>.*?)</a></h2>.*?</article></div>""",
+        """<div class="article-item _feature-article-body__article_card">.*?<div class="_thumbnail" style="background-image:\s*url\((?<thumb>[^)]+)\)"></div></a>.*?<h2 class="arc__title"><a href="/(?:en|ja|zh|zh-tw|ko)/a/(?<id>\d+)"[^>]*>(?<title>.*?)</a></h2>.*?</article></div>""",
         RegexOptions.Singleline)]
     private static partial Regex InlineRelatedCardRegex();
 
@@ -494,9 +518,9 @@ public sealed partial class PixivisionService
     private static partial Regex RelatedPopularSectionRegex();
 
     [GeneratedRegex(
-        """<article class="_article-related-card-test"><a href="/en/a/(?<id>\d+)" class="arrct__thumbnail-container"[^>]*>.*?<img class="thm__image" src="(?<thumb>[^"]+)" alt="(?<title>[^"]*)" loading""",
+        """<article class="_article-related-card-test"><a href="/(?:en|ja|zh|zh-tw|ko)/a/(?<id>\d+)" class="arrct__thumbnail-container"[^>]*>.*?<img class="thm__image" src="(?<thumb>[^"]+)" alt="(?<title>[^"]*)" loading""",
         RegexOptions.Singleline)]
-    private static partial Regex RelatedCardRegex();
+    internal static partial Regex RelatedCardRegex();
 
     [GeneratedRegex(
         """<h3 class="rla__heading yellow"><a[^>]*>Newest articles tagged <span class="_article-heading-tag-name">(?<tag>[^<]*)</span>""")]

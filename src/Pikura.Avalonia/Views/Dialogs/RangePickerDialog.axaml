@@ -14,7 +14,7 @@
         <TextBlock x:Name="DescText" FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                    TextWrapping="Wrap"/>
         <TextBox x:Name="RangeInput"
-                 PlaceholderText="e.g. 1-20 or 1,5-10,50"
+                 PlaceholderText="{loc:Tr Range_Example}"
                  CornerRadius="6" FontSize="13"/>
         <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Right">
             <Button Content="{loc:Tr Common_Cancel}" Click="OnCancel"/>

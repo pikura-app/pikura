@@ -6085,4 +6085,364 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="Hoshi_DeleteLegacy" xml:space="preserve"><value>이전 채팅 파일 삭제</value></data>
   <data name="Hoshi_DeleteLegacyTitle" xml:space="preserve"><value>이전 채팅 파일 삭제</value></data>
   <data name="Hoshi_DeleteLegacyConfirm" xml:space="preserve"><value>마이그레이션된 이전 채팅 파일({0} MB)을 삭제하시겠습니까? 되돌릴 수 없습니다.</value></data>
+  <data name="Hoshi_RecommendedModels" xml:space="preserve"><value>추천 모델</value></data>
+  <data name="Hoshi_DownloadAndUse" xml:space="preserve"><value>다운로드 및 사용</value></data>
+  <data name="Hoshi_UseModel" xml:space="preserve"><value>사용</value></data>
+  <data name="Hoshi_RecoQwen4b" xml:space="preserve"><value>추천 — 이미지, 채팅, 작업 (3.3 GB)</value></data>
+  <data name="Hoshi_RecoQwen8b" xml:space="preserve"><value>고품질, 고사양 PC 필요 (6.2 GB)</value></data>
+  <data name="Hoshi_RecoQwen2b" xml:space="preserve"><value>저사양 PC용 (1.9 GB)</value></data>
+  <data name="Pixivision_AllDates" xml:space="preserve">
+    <value>전체 기간</value>
+  </data>
+  <data name="Pixivision_SavedCount" xml:space="preserve">
+    <value>🔖 저장됨 ({0})</value>
+  </data>
+  <data name="Pixivision_LayoutInline" xml:space="preserve">
+    <value>인라인</value>
+  </data>
+  <data name="Pixivision_NewestRelated" xml:space="preserve">
+    <value>관련 최신 기사</value>
+  </data>
+  <data name="Pixivision_NewestTagged" xml:space="preserve">
+    <value>'{0}' 태그의 최신 기사</value>
+  </data>
+  <data name="Pixivision_MayAlsoLike" xml:space="preserve">
+    <value>이런 기사도 좋아할 거예요…</value>
+  </data>
+  <data name="Pixivision_IfYouLiked" xml:space="preserve">
+    <value>'{0}'을(를) 좋아한다면 이것도 마음에 들 거예요…</value>
+  </data>
+  <data name="Pixivision_CouldNotLoad" xml:space="preserve">
+    <value>pixivision 기사를 불러오지 못했습니다. 연결을 확인하세요.</value>
+  </data>
+  <data name="Pixivision_ArticlesLoaded" xml:space="preserve">
+    <value>기사 {0}개를 불러왔습니다</value>
+  </data>
+  <data name="Pixivision_ArticlesPage" xml:space="preserve">
+    <value>기사 {0}개 — {1}페이지</value>
+  </data>
+  <data name="Pixivision_LoadFailed" xml:space="preserve">
+    <value>pixivision 불러오기 실패: {0}</value>
+  </data>
+  <data name="Pixivision_SearchingOnDate" xml:space="preserve">
+    <value>{0} 기사를 검색하는 중…</value>
+  </data>
+  <data name="Pixivision_NoneOnDate" xml:space="preserve">
+    <value>{0} 기사를 찾지 못했습니다({1}페이지 검색).</value>
+  </data>
+  <data name="Pixivision_ArticlesOnDate" xml:space="preserve">
+    <value>{1} 기사 {0}개</value>
+  </data>
+  <data name="Pixivision_DateSearchFailed" xml:space="preserve">
+    <value>날짜 검색 실패: {0}</value>
+  </data>
+  <data name="Pixivision_SearchingInRange" xml:space="preserve">
+    <value>기사를 검색하는 중({0})…</value>
+  </data>
+  <data name="Pixivision_NoneInRange" xml:space="preserve">
+    <value>기사를 찾지 못했습니다({0}, {1}페이지 검색).</value>
+  </data>
+  <data name="Pixivision_ArticlesInRange" xml:space="preserve">
+    <value>기사 {0}개 · {1}</value>
+  </data>
+  <data name="Pixivision_FeaturedCount" xml:space="preserve">
+    <value>추천 작품 {0}개</value>
+  </data>
+  <data name="Pixivision_ArticleLoadFailed" xml:space="preserve">
+    <value>기사 불러오기 실패: {0}</value>
+  </data>
+  <data name="Common_PageN" xml:space="preserve">
+    <value>{0}페이지</value>
+  </data>
+  <data name="Pixivision_Cat_All" xml:space="preserve">
+    <value>전체</value>
+  </data>
+  <data name="Pixivision_Cat_Explore" xml:space="preserve">
+    <value>찾기</value>
+  </data>
+  <data name="Pixivision_Cat_Illustration" xml:space="preserve">
+    <value>일러스트</value>
+  </data>
+  <data name="Pixivision_Cat_Manga" xml:space="preserve">
+    <value>만화</value>
+  </data>
+  <data name="Pixivision_Cat_Novel" xml:space="preserve">
+    <value>소설</value>
+  </data>
+  <data name="Pixivision_Cat_Create" xml:space="preserve">
+    <value>그리기</value>
+  </data>
+  <data name="Pixivision_Cat_HowtoDraw" xml:space="preserve">
+    <value>그리는 법</value>
+  </data>
+  <data name="Pixivision_Cat_Making" xml:space="preserve">
+    <value>메이킹</value>
+  </data>
+  <data name="Pixivision_Cat_Material" xml:space="preserve">
+    <value>소재</value>
+  </data>
+  <data name="Pixivision_Cat_Discover" xml:space="preserve">
+    <value>알아보기</value>
+  </data>
+  <data name="Pixivision_Cat_Interview" xml:space="preserve">
+    <value>인터뷰</value>
+  </data>
+  <data name="Pixivision_Cat_Column" xml:space="preserve">
+    <value>칼럼</value>
+  </data>
+  <data name="Pixivision_Cat_News" xml:space="preserve">
+    <value>뉴스</value>
+  </data>
+  <data name="Common_TypeIllust" xml:space="preserve">
+    <value>일러스트</value>
+  </data>
+  <data name="Common_TypeManga" xml:space="preserve">
+    <value>만화</value>
+  </data>
+  <data name="Common_TypeUgoira" xml:space="preserve">
+    <value>우고이라</value>
+  </data>
+  <data name="Common_TypeOther" xml:space="preserve">
+    <value>기타</value>
+  </data>
+  <data name="Gallery_FollowedArtistsCount" xml:space="preserve">
+    <value>팔로우한 작가 {0}명</value>
+  </data>
+  <data name="Gallery_FollowedArtistsLoadingMore" xml:space="preserve">
+    <value>팔로우한 작가 {0}명 (더 불러오는 중…)</value>
+  </data>
+  <data name="Gallery_FollowedArtistsRefreshed" xml:space="preserve">
+    <value>팔로우한 작가 {0}명 (새로고침됨)</value>
+  </data>
+  <data name="Gallery_ArtistShown" xml:space="preserve">
+    <value>{0} — {1}개 표시 (불러옴 {2} / 전체 {3})</value>
+  </data>
+  <data name="Gallery_ArtistWorks" xml:space="preserve">
+    <value>{0} — 작품 {1} / {2}</value>
+  </data>
+  <data name="Gallery_LoadingArtist" xml:space="preserve">
+    <value>{0} 불러오는 중…</value>
+  </data>
+  <data name="Gallery_ArtistNoArtworks" xml:space="preserve">
+    <value>{0} — 작품 없음</value>
+  </data>
+  <data name="Gallery_RecentWorksLoaded" xml:space="preserve">
+    <value>최근 작품 {0}개를 불러왔습니다</value>
+  </data>
+  <data name="Gallery_SearchingFollowed" xml:space="preserve">
+    <value>팔로우한 작가에서 검색 중: {0}…</value>
+  </data>
+  <data name="Gallery_TagFollowedResults" xml:space="preserve">
+    <value>태그: {0} (팔로우한 작가) • 결과 {1}개</value>
+  </data>
+  <data name="Gallery_NoFollowedResults" xml:space="preserve">
+    <value>팔로우한 작가 중 결과 없음: {0}</value>
+  </data>
+  <data name="Gallery_FoundFollowedResults" xml:space="preserve">
+    <value>팔로우한 작가에서 작품 {0}개를 찾았습니다: {1}</value>
+  </data>
+  <data name="Gallery_SearchingFor" xml:space="preserve">
+    <value>'{0}' 검색 중…</value>
+  </data>
+  <data name="Gallery_QueryInArtist" xml:space="preserve">
+    <value>현재 작가의 '{0}' • 결과 {1}개</value>
+  </data>
+  <data name="Gallery_FoundInArtist" xml:space="preserve">
+    <value>현재 작가에서 '{1}' 결과 {0}개를 찾았습니다</value>
+  </data>
+  <data name="Gallery_ViewingArtwork" xml:space="preserve">
+    <value>작품 {0} 보는 중</value>
+  </data>
+  <data name="Gallery_OpenedInNewTab" xml:space="preserve">
+    <value>작품 {0}을(를) 새 탭에서 열었습니다</value>
+  </data>
+  <data name="Gallery_ArtworkNotFound" xml:space="preserve">
+    <value>작품 {0}을(를) 찾을 수 없습니다.</value>
+  </data>
+  <data name="Discover_Works" xml:space="preserve">
+    <value>작품</value>
+  </data>
+  <data name="Discover_Users" xml:space="preserve">
+    <value>사용자</value>
+  </data>
+  <data name="History_Grouped" xml:space="preserve">
+    <value>그룹</value>
+  </data>
+  <data name="Search_Compact" xml:space="preserve">
+    <value>간단히</value>
+  </data>
+  <data name="Search_Thumbnails" xml:space="preserve">
+    <value>썸네일</value>
+  </data>
+  <data name="Search_BookmarkCount" xml:space="preserve">
+    <value>북마크 수</value>
+  </data>
+  <data name="Settings_TrayDisabled" xml:space="preserve">
+    <value>사용 안 함</value>
+  </data>
+  <data name="Settings_TrayMinimize" xml:space="preserve">
+    <value>트레이로 최소화</value>
+  </data>
+  <data name="Settings_TrayClose" xml:space="preserve">
+    <value>닫으면 트레이로</value>
+  </data>
+  <data name="Settings_Wallpaper4K" xml:space="preserve">
+    <value>4K 데스크톱 배경화면 (3840x2160)</value>
+  </data>
+  <data name="Settings_WallpaperQHD" xml:space="preserve">
+    <value>QHD 데스크톱 배경화면 (2560x1440)</value>
+  </data>
+  <data name="Settings_WallpaperFHD" xml:space="preserve">
+    <value>풀HD 데스크톱 배경화면 (1920x1080)</value>
+  </data>
+  <data name="Settings_WallpaperHD" xml:space="preserve">
+    <value>HD 데스크톱 배경화면 (1280x720)</value>
+  </data>
+  <data name="Login_ManualCookie1" xml:space="preserve">
+    <value>Pikura가 로그인 창을 자동으로 열지 못했습니다. 임시 해결책으로 세션 쿠키를 붙여 넣으세요: 평소 브라우저에서 pixiv.net 열기 → 개발자 도구 → Application → Cookies → </value>
+  </data>
+  <data name="Login_ManualCookie2" xml:space="preserve">
+    <value> → 다음 값을 복사: </value>
+  </data>
+  <data name="Login_ManualCookie3" xml:space="preserve">
+    <value> 아래에 붙여 넣으세요.</value>
+  </data>
+  <data name="Artist_TagsExample" xml:space="preserve">
+    <value>예: 풍경, 경치</value>
+  </data>
+  <data name="Artist_ExcludeExample" xml:space="preserve">
+    <value>예: R-18G, 스케치</value>
+  </data>
+  <data name="Preset_PagesExample1" xml:space="preserve">
+    <value>예: 1,3 또는 1-4 또는 1,2,4</value>
+  </data>
+  <data name="Preset_PagesExample2" xml:space="preserve">
+    <value>예: 1,3,5 또는 1-3:1-2,5; 5:1,3 (작품 1-3: 페이지 1-2,5; 작품 5: 페이지 1,3)</value>
+  </data>
+  <data name="Preset_PagesExample3" xml:space="preserve">
+    <value>예: 1,3,5 또는 1-3,6 또는 5-6</value>
+  </data>
+  <data name="Range_Example" xml:space="preserve">
+    <value>예: 1-20 또는 1,5-10,50</value>
+  </data>
+  <data name="SavePreset_NameExample" xml:space="preserve">
+    <value>예: 좋아하는 작가</value>
+  </data>
+  <data name="Batch_TagsExample" xml:space="preserve">
+    <value>예: 오리지널, 판타지</value>
+  </data>
+  <data name="Batch_ExcludeExample" xml:space="preserve">
+    <value>예: 고어, 퍼리</value>
+  </data>
+  <data name="Batch_ScheduleNameExample" xml:space="preserve">
+    <value>예: 좋아하는 작가 매일 (비워 두면 자동 생성)</value>
+  </data>
+  <data name="Batch_LimitExample" xml:space="preserve">
+    <value>예: 10 (비워 두면 전체)</value>
+  </data>
+  <data name="Search_ToolExample" xml:space="preserve">
+    <value>예: Photoshop, CLIP STUDIO PAINT</value>
+  </data>
+  <data name="Search_TagExample" xml:space="preserve">
+    <value>예: 고양이, 개</value>
+  </data>
+  <data name="Search_ExcludeExample" xml:space="preserve">
+    <value>예: 3D, AI</value>
+  </data>
+  <data name="Library_EmptyTitle" xml:space="preserve">
+    <value>라이브러리가 아직 비어 있습니다</value>
+  </data>
+  <data name="Library_EmptyBody" xml:space="preserve">
+    <value>라이브러리 폴더의 이미지를 나열합니다. 제목, 작가, 태그로 검색하고 중복을 찾으며 AI로 태그를 달 수 있습니다. 다운로드 시 자동으로 추가됩니다.</value>
+  </data>
+
+  <data name="Library_ScanFoundNothing" xml:space="preserve">
+    <value>스캔 완료: 다운로드 폴더에서 이미지를 찾지 못했습니다.</value>
+  </data>
+
+  <data name="Library_Folders" xml:space="preserve"><value>라이브러리 폴더</value></data>
+  <data name="Library_FolderNotFound" xml:space="preserve"><value>찾을 수 없음</value></data>
+  <data name="Library_OpenFolderTooltip" xml:space="preserve"><value>탐색기에서 열기</value></data>
+  <data name="Library_RemoveFolderTip" xml:space="preserve"><value>라이브러리에서만 제거(파일은 유지됩니다)</value></data>
+  <data name="Library_AddFolder" xml:space="preserve"><value>＋ 폴더 추가…</value></data>
+  <data name="Library_ResetToDownloadFolder" xml:space="preserve"><value>다운로드 폴더로 재설정</value></data>
+  <data name="Library_SubfoldersIncluded" xml:space="preserve"><value>하위 폴더도 포함됩니다.</value></data>
+  <data name="Library_LastScanFmt" xml:space="preserve"><value>마지막 스캔: {0}</value></data>
+  <data name="Library_NoFoldersExist" xml:space="preserve"><value>아직 라이브러리 폴더가 존재하지 않습니다. 폴더를 추가하거나, 다운로드를 받아 다운로드 폴더를 만드세요.</value></data>
+  <data name="Library_PickFolderTitle" xml:space="preserve"><value>라이브러리 폴더 선택</value></data>
+  <data name="Library_AnyYear" xml:space="preserve"><value>모든 연도</value></data>
+  <data name="Library_DateFrom" xml:space="preserve"><value>시작일</value></data>
+  <data name="Library_DateTo" xml:space="preserve"><value>종료일</value></data>
+  <data name="Library_OrientationAll" xml:space="preserve"><value>방향: 전체</value></data>
+  <data name="Library_OrientationPortrait" xml:space="preserve"><value>세로</value></data>
+  <data name="Library_OrientationLandscape" xml:space="preserve"><value>가로</value></data>
+  <data name="Library_OrientationSquare" xml:space="preserve"><value>정사각형</value></data>
+  <data name="Library_SortDateNew" xml:space="preserve"><value>날짜(최신순)</value></data>
+  <data name="Library_SortDateOld" xml:space="preserve"><value>날짜(오래된순)</value></data>
+  <data name="Library_SortSize" xml:space="preserve"><value>크기(큰순)</value></data>
+  <data name="Library_SortName" xml:space="preserve"><value>이름(가나다순)</value></data>
+  <data name="Library_ClearFilters" xml:space="preserve"><value>필터 지우기</value></data>
+  <data name="Library_Results" xml:space="preserve"><value>{0}개 결과</value></data>
+  <data name="Library_Details" xml:space="preserve"><value>상세 정보</value></data>
+  <data name="Library_SelectHint" xml:space="preserve"><value>파일을 선택하면 상세 정보가 표시됩니다. Ctrl/Shift+클릭으로 여러 개 선택 가능.</value></data>
+  <data name="Library_SelectedCount" xml:space="preserve"><value>{0}개 파일 선택됨</value></data>
+  <data name="Library_OpenFolderItem" xml:space="preserve"><value>폴더 열기</value></data>
+  <data name="Library_OpenFoldersBtn" xml:space="preserve"><value>탐색기에서 열기</value></data>
+  <data name="Library_CopyPathsBtn" xml:space="preserve"><value>경로 복사</value></data>
+  <data name="Library_OpenFoldersTitle" xml:space="preserve"><value>폴더 열기</value></data>
+  <data name="Library_OpenFoldersConfirm" xml:space="preserve"><value>탐색기에서 {0}개 폴더를 여시겠습니까?</value></data>
+  <data name="Library_OpenFilesTitle" xml:space="preserve"><value>파일 열기</value></data>
+  <data name="Library_OpenFilesConfirm" xml:space="preserve"><value>{0}개 파일을 여시겠습니까?</value></data>
+  <data name="Library_OpenInViewer" xml:space="preserve"><value>뷰어에서 열기</value></data>
+  <data name="Library_GoToArtist" xml:space="preserve"><value>작가 보기</value></data>
+  <data name="Library_FindOriginal" xml:space="preserve"><value>원본 찾기(역검색)</value></data>
+  <data name="Library_SearchInBrowser" xml:space="preserve"><value>브라우저에서 검색</value></data>
+  <data name="Library_NoMatchSaucenao" xml:space="preserve"><value>일치 없음 (SauceNAO)</value></data>
+  <data name="Library_ReverseSearchFailed" xml:space="preserve"><value>역검색 실패: {0}</value></data>
+  <data name="Library_ReverseSearchUnavailable" xml:space="preserve"><value>역검색 사용 불가</value></data>
+  <data name="Library_Searching" xml:space="preserve"><value>검색 중…</value></data>
+  <data name="Library_ImageCopiedPaste" xml:space="preserve"><value>이미지 경로 복사됨 — 페이지에 붙여넣으세요</value></data>
+  <data name="Settings_WinState_Normal" xml:space="preserve">
+    <value>보통</value>
+  </data>
+  <data name="Settings_WinState_Maximized" xml:space="preserve">
+    <value>최대화</value>
+  </data>
+  <data name="Settings_WinState_Minimized" xml:space="preserve">
+    <value>최소화</value>
+  </data>
+  <data name="Settings_WinState_SystemTray" xml:space="preserve">
+    <value>시스템 트레이</value>
+  </data>
+  <data name="Viewer_ArtistUnknown" xml:space="preserve">
+    <value>이 작품의 작가를 찾을 수 없습니다.</value>
+  </data>
+  <data name="Library_FetchInfo" xml:space="preserve">
+    <value>pixiv에서 정보 가져오기</value>
+  </data>
+  <data name="Library_FileMissing" xml:space="preserve">
+    <value>이 파일이 디스크에 없습니다.</value>
+  </data>
+  <data name="Library_UnratedNotice" xml:space="preserve">
+    <value>{0}개 파일은 아직 pixiv 정보가 없어 R-18을 숨길 수 없습니다. "누락 정보 가져오기"를 눌러 판별하세요.</value>
+  </data>
+  <data name="Settings_ReverseSearch" xml:space="preserve">
+    <value>이미지 역검색(프리미엄)</value>
+  </data>
+  <data name="Settings_SauceNaoKeyHint" xml:space="preserve">
+    <value>프리미엄: 앱 내 역검색은 SauceNAO API를 사용하며 SauceNAO 유료 플랜(Account → upgrades)이 필요합니다. 해당 계정의 API 키(Account → api)를 여기에 붙여넣으세요. 키가 없으면 "원본 찾기"가 이미지를 복사하고 saucenao.com을 엽니다(무료).</value>
+  </data>
+  <data name="Settings_SauceNaoKey" xml:space="preserve">
+    <value>SauceNAO API 키</value>
+  </data>
+  <data name="Library_NoSauceKey" xml:space="preserve">
+    <value>이미지를 복사했습니다. SauceNAO에서 붙여넣으세요(Ctrl+V). 설정 → 고급에서 무료 SauceNAO API 키를 추가하면 Pikura 안에서 검색할 수 있습니다.</value>
+  </data>
+  <data name="Library_SauceKeyRejected" xml:space="preserve">
+    <value>SauceNAO가 API 키를 거부했습니다(앱 내 검색은 SauceNAO 유료 플랜이 필요합니다). 이미지를 복사했습니다. 페이지에 붙여넣으세요(Ctrl+V).</value>
+  </data>
+  <data name="Library_SourceDownloaded" xml:space="preserve"><value>다운로드됨 {0}</value></data>
+  <data name="Library_SourcePixiv" xml:space="preserve"><value>pixiv</value></data>
+  <data name="Library_OpenSource" xml:space="preserve"><value>소스 페이지 열기</value></data>
+  <data name="Library_CopyOriginalUrl" xml:space="preserve"><value>원본 이미지 URL 복사</value></data>
 </root>

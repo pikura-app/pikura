@@ -6149,4 +6149,364 @@ Resuming from {1}/{2} artworks</value>
   <data name="Hoshi_DeleteLegacy" xml:space="preserve"><value>Delete old chat files</value></data>
   <data name="Hoshi_DeleteLegacyTitle" xml:space="preserve"><value>Delete old chat files</value></data>
   <data name="Hoshi_DeleteLegacyConfirm" xml:space="preserve"><value>Delete the migrated legacy chat files ({0} MB)? This cannot be undone.</value></data>
+  <data name="Hoshi_RecommendedModels" xml:space="preserve"><value>Recommended models</value></data>
+  <data name="Hoshi_DownloadAndUse" xml:space="preserve"><value>Download &amp; use</value></data>
+  <data name="Hoshi_UseModel" xml:space="preserve"><value>Use</value></data>
+  <data name="Hoshi_RecoQwen4b" xml:space="preserve"><value>Recommended — images, chat and actions (3.3 GB)</value></data>
+  <data name="Hoshi_RecoQwen8b" xml:space="preserve"><value>Higher quality, needs a stronger PC (6.2 GB)</value></data>
+  <data name="Hoshi_RecoQwen2b" xml:space="preserve"><value>For low-end PCs (1.9 GB)</value></data>
+  <data name="Pixivision_AllDates" xml:space="preserve">
+    <value>All dates</value>
+  </data>
+  <data name="Pixivision_SavedCount" xml:space="preserve">
+    <value>🔖 Saved ({0})</value>
+  </data>
+  <data name="Pixivision_LayoutInline" xml:space="preserve">
+    <value>Inline</value>
+  </data>
+  <data name="Pixivision_NewestRelated" xml:space="preserve">
+    <value>Newest related articles</value>
+  </data>
+  <data name="Pixivision_NewestTagged" xml:space="preserve">
+    <value>Newest articles tagged {0}</value>
+  </data>
+  <data name="Pixivision_MayAlsoLike" xml:space="preserve">
+    <value>You may also like…</value>
+  </data>
+  <data name="Pixivision_IfYouLiked" xml:space="preserve">
+    <value>If you liked {0}, you will also love…</value>
+  </data>
+  <data name="Pixivision_CouldNotLoad" xml:space="preserve">
+    <value>Couldn't load pixivision articles — check your connection.</value>
+  </data>
+  <data name="Pixivision_ArticlesLoaded" xml:space="preserve">
+    <value>{0} article(s) loaded</value>
+  </data>
+  <data name="Pixivision_ArticlesPage" xml:space="preserve">
+    <value>{0} article(s) — page {1}</value>
+  </data>
+  <data name="Pixivision_LoadFailed" xml:space="preserve">
+    <value>Failed to load pixivision: {0}</value>
+  </data>
+  <data name="Pixivision_SearchingOnDate" xml:space="preserve">
+    <value>Searching pixivision for articles on {0}…</value>
+  </data>
+  <data name="Pixivision_NoneOnDate" xml:space="preserve">
+    <value>No articles found on {0} (searched {1} page(s)).</value>
+  </data>
+  <data name="Pixivision_ArticlesOnDate" xml:space="preserve">
+    <value>{0} article(s) on {1}</value>
+  </data>
+  <data name="Pixivision_DateSearchFailed" xml:space="preserve">
+    <value>Date search failed: {0}</value>
+  </data>
+  <data name="Pixivision_SearchingInRange" xml:space="preserve">
+    <value>Searching pixivision for articles ({0})…</value>
+  </data>
+  <data name="Pixivision_NoneInRange" xml:space="preserve">
+    <value>No articles found ({0}; searched {1} page(s)).</value>
+  </data>
+  <data name="Pixivision_ArticlesInRange" xml:space="preserve">
+    <value>{0} article(s) · {1}</value>
+  </data>
+  <data name="Pixivision_FeaturedCount" xml:space="preserve">
+    <value>{0} featured artwork(s)</value>
+  </data>
+  <data name="Pixivision_ArticleLoadFailed" xml:space="preserve">
+    <value>Failed to load article: {0}</value>
+  </data>
+  <data name="Common_PageN" xml:space="preserve">
+    <value>Page {0}</value>
+  </data>
+  <data name="Pixivision_Cat_All" xml:space="preserve">
+    <value>All</value>
+  </data>
+  <data name="Pixivision_Cat_Explore" xml:space="preserve">
+    <value>Explore</value>
+  </data>
+  <data name="Pixivision_Cat_Illustration" xml:space="preserve">
+    <value>Illustration</value>
+  </data>
+  <data name="Pixivision_Cat_Manga" xml:space="preserve">
+    <value>Manga</value>
+  </data>
+  <data name="Pixivision_Cat_Novel" xml:space="preserve">
+    <value>Novel</value>
+  </data>
+  <data name="Pixivision_Cat_Create" xml:space="preserve">
+    <value>Create</value>
+  </data>
+  <data name="Pixivision_Cat_HowtoDraw" xml:space="preserve">
+    <value>How to Draw</value>
+  </data>
+  <data name="Pixivision_Cat_Making" xml:space="preserve">
+    <value>Making</value>
+  </data>
+  <data name="Pixivision_Cat_Material" xml:space="preserve">
+    <value>Material</value>
+  </data>
+  <data name="Pixivision_Cat_Discover" xml:space="preserve">
+    <value>Discover</value>
+  </data>
+  <data name="Pixivision_Cat_Interview" xml:space="preserve">
+    <value>Interview</value>
+  </data>
+  <data name="Pixivision_Cat_Column" xml:space="preserve">
+    <value>Column</value>
+  </data>
+  <data name="Pixivision_Cat_News" xml:space="preserve">
+    <value>News</value>
+  </data>
+  <data name="Common_TypeIllust" xml:space="preserve">
+    <value>Illust</value>
+  </data>
+  <data name="Common_TypeManga" xml:space="preserve">
+    <value>Manga</value>
+  </data>
+  <data name="Common_TypeUgoira" xml:space="preserve">
+    <value>Ugoira</value>
+  </data>
+  <data name="Common_TypeOther" xml:space="preserve">
+    <value>Other</value>
+  </data>
+  <data name="Gallery_FollowedArtistsCount" xml:space="preserve">
+    <value>{0} followed artists</value>
+  </data>
+  <data name="Gallery_FollowedArtistsLoadingMore" xml:space="preserve">
+    <value>{0} followed artists (loading more…)</value>
+  </data>
+  <data name="Gallery_FollowedArtistsRefreshed" xml:space="preserve">
+    <value>{0} followed artists (refreshed)</value>
+  </data>
+  <data name="Gallery_ArtistShown" xml:space="preserve">
+    <value>{0} — {1} shown ({2} loaded / {3} total)</value>
+  </data>
+  <data name="Gallery_ArtistWorks" xml:space="preserve">
+    <value>{0} — {1} / {2} works</value>
+  </data>
+  <data name="Gallery_LoadingArtist" xml:space="preserve">
+    <value>Loading {0}…</value>
+  </data>
+  <data name="Gallery_ArtistNoArtworks" xml:space="preserve">
+    <value>{0} — no artworks</value>
+  </data>
+  <data name="Gallery_RecentWorksLoaded" xml:space="preserve">
+    <value>{0} recent works loaded</value>
+  </data>
+  <data name="Gallery_SearchingFollowed" xml:space="preserve">
+    <value>Searching your followed artists for: {0}…</value>
+  </data>
+  <data name="Gallery_TagFollowedResults" xml:space="preserve">
+    <value>Tag: {0} (followed artists) • {1} results</value>
+  </data>
+  <data name="Gallery_NoFollowedResults" xml:space="preserve">
+    <value>No results among your followed artists for: {0}</value>
+  </data>
+  <data name="Gallery_FoundFollowedResults" xml:space="preserve">
+    <value>Found {0} artworks among your followed artists for: {1}</value>
+  </data>
+  <data name="Gallery_SearchingFor" xml:space="preserve">
+    <value>Searching for '{0}'…</value>
+  </data>
+  <data name="Gallery_QueryInArtist" xml:space="preserve">
+    <value>'{0}' in current artist • {1} results</value>
+  </data>
+  <data name="Gallery_FoundInArtist" xml:space="preserve">
+    <value>Found {0} results for '{1}' in current artist</value>
+  </data>
+  <data name="Gallery_ViewingArtwork" xml:space="preserve">
+    <value>Viewing artwork {0}</value>
+  </data>
+  <data name="Gallery_OpenedInNewTab" xml:space="preserve">
+    <value>Opened artwork {0} in a new tab</value>
+  </data>
+  <data name="Gallery_ArtworkNotFound" xml:space="preserve">
+    <value>Artwork {0} not found.</value>
+  </data>
+  <data name="Discover_Works" xml:space="preserve">
+    <value>Works</value>
+  </data>
+  <data name="Discover_Users" xml:space="preserve">
+    <value>Users</value>
+  </data>
+  <data name="History_Grouped" xml:space="preserve">
+    <value>Grouped</value>
+  </data>
+  <data name="Search_Compact" xml:space="preserve">
+    <value>Compact</value>
+  </data>
+  <data name="Search_Thumbnails" xml:space="preserve">
+    <value>Thumbnails</value>
+  </data>
+  <data name="Search_BookmarkCount" xml:space="preserve">
+    <value>Bookmark count</value>
+  </data>
+  <data name="Settings_TrayDisabled" xml:space="preserve">
+    <value>Disabled</value>
+  </data>
+  <data name="Settings_TrayMinimize" xml:space="preserve">
+    <value>Minimize to tray</value>
+  </data>
+  <data name="Settings_TrayClose" xml:space="preserve">
+    <value>Close to tray</value>
+  </data>
+  <data name="Settings_Wallpaper4K" xml:space="preserve">
+    <value>4K Desktop Wallpaper (3840x2160)</value>
+  </data>
+  <data name="Settings_WallpaperQHD" xml:space="preserve">
+    <value>QHD Desktop Wallpaper (2560x1440)</value>
+  </data>
+  <data name="Settings_WallpaperFHD" xml:space="preserve">
+    <value>Full HD Desktop Wallpaper (1920x1080)</value>
+  </data>
+  <data name="Settings_WallpaperHD" xml:space="preserve">
+    <value>HD Desktop Wallpaper (1280x720)</value>
+  </data>
+  <data name="Login_ManualCookie1" xml:space="preserve">
+    <value>Pikura couldn't open a sign-in window automatically, so paste your session cookie as a one-time workaround: open pixiv.net in your regular browser → DevTools → Application → Cookies → </value>
+  </data>
+  <data name="Login_ManualCookie2" xml:space="preserve">
+    <value> → copy the value of </value>
+  </data>
+  <data name="Login_ManualCookie3" xml:space="preserve">
+    <value> and paste it below.</value>
+  </data>
+  <data name="Artist_TagsExample" xml:space="preserve">
+    <value>e.g. landscape, scenery</value>
+  </data>
+  <data name="Artist_ExcludeExample" xml:space="preserve">
+    <value>e.g. R-18G, sketch</value>
+  </data>
+  <data name="Preset_PagesExample1" xml:space="preserve">
+    <value>e.g. 1,3 or 1-4 or 1,2,4</value>
+  </data>
+  <data name="Preset_PagesExample2" xml:space="preserve">
+    <value>e.g. 1,3,5 or 1-3:1-2,5; 5:1,3 or artwork 1-3: page 1-2,5; artwork 5: page 1,3</value>
+  </data>
+  <data name="Preset_PagesExample3" xml:space="preserve">
+    <value>e.g., 1,3,5 or 1-3,6 or 5-6</value>
+  </data>
+  <data name="Range_Example" xml:space="preserve">
+    <value>e.g. 1-20 or 1,5-10,50</value>
+  </data>
+  <data name="SavePreset_NameExample" xml:space="preserve">
+    <value>e.g., My Favorite Artists</value>
+  </data>
+  <data name="Batch_TagsExample" xml:space="preserve">
+    <value>e.g. original, fantasy</value>
+  </data>
+  <data name="Batch_ExcludeExample" xml:space="preserve">
+    <value>e.g. guro, furry</value>
+  </data>
+  <data name="Batch_ScheduleNameExample" xml:space="preserve">
+    <value>e.g. My Fav Artists Daily (auto-generated if blank)</value>
+  </data>
+  <data name="Batch_LimitExample" xml:space="preserve">
+    <value>e.g. 10  (leave blank for all)</value>
+  </data>
+  <data name="Search_ToolExample" xml:space="preserve">
+    <value>e.g. Photoshop, CLIP STUDIO PAINT</value>
+  </data>
+  <data name="Search_TagExample" xml:space="preserve">
+    <value>e.g. cat, dog</value>
+  </data>
+  <data name="Search_ExcludeExample" xml:space="preserve">
+    <value>e.g. 3D, AI</value>
+  </data>
+  <data name="Library_EmptyTitle" xml:space="preserve">
+    <value>Nothing in your library yet</value>
+  </data>
+  <data name="Library_EmptyBody" xml:space="preserve">
+    <value>Library lists the images in your library folders, so you can search them by title, artist or tag, find duplicates, and tag them with AI. Files are added automatically as you download.</value>
+  </data>
+
+  <data name="Library_ScanFoundNothing" xml:space="preserve">
+    <value>Scan finished: no images found in the download folder.</value>
+  </data>
+
+  <data name="Library_Folders" xml:space="preserve"><value>Library folders</value></data>
+  <data name="Library_FolderNotFound" xml:space="preserve"><value>Not found</value></data>
+  <data name="Library_OpenFolderTooltip" xml:space="preserve"><value>Open in Explorer</value></data>
+  <data name="Library_RemoveFolderTip" xml:space="preserve"><value>Remove from library only; files stay on disk</value></data>
+  <data name="Library_AddFolder" xml:space="preserve"><value>+ Add folder…</value></data>
+  <data name="Library_ResetToDownloadFolder" xml:space="preserve"><value>Reset to download folder</value></data>
+  <data name="Library_SubfoldersIncluded" xml:space="preserve"><value>Subfolders are included.</value></data>
+  <data name="Library_LastScanFmt" xml:space="preserve"><value>Last scan: {0}</value></data>
+  <data name="Library_NoFoldersExist" xml:space="preserve"><value>None of your library folders exist yet. Add a folder, or download something to create the download folder.</value></data>
+  <data name="Library_PickFolderTitle" xml:space="preserve"><value>Select a library folder</value></data>
+  <data name="Library_AnyYear" xml:space="preserve"><value>Any year</value></data>
+  <data name="Library_DateFrom" xml:space="preserve"><value>From</value></data>
+  <data name="Library_DateTo" xml:space="preserve"><value>To</value></data>
+  <data name="Library_OrientationAll" xml:space="preserve"><value>Any orientation</value></data>
+  <data name="Library_OrientationPortrait" xml:space="preserve"><value>Portrait</value></data>
+  <data name="Library_OrientationLandscape" xml:space="preserve"><value>Landscape</value></data>
+  <data name="Library_OrientationSquare" xml:space="preserve"><value>Square</value></data>
+  <data name="Library_SortDateNew" xml:space="preserve"><value>Date (newest)</value></data>
+  <data name="Library_SortDateOld" xml:space="preserve"><value>Date (oldest)</value></data>
+  <data name="Library_SortSize" xml:space="preserve"><value>Size (largest)</value></data>
+  <data name="Library_SortName" xml:space="preserve"><value>Name (A–Z)</value></data>
+  <data name="Library_ClearFilters" xml:space="preserve"><value>Clear filters</value></data>
+  <data name="Library_Results" xml:space="preserve"><value>{0} results</value></data>
+  <data name="Library_Details" xml:space="preserve"><value>Details</value></data>
+  <data name="Library_SelectHint" xml:space="preserve"><value>Select a file to see details. Ctrl/Shift-click to select several.</value></data>
+  <data name="Library_SelectedCount" xml:space="preserve"><value>{0} files selected</value></data>
+  <data name="Library_OpenFolderItem" xml:space="preserve"><value>Open folder</value></data>
+  <data name="Library_OpenFoldersBtn" xml:space="preserve"><value>Open in Explorer</value></data>
+  <data name="Library_CopyPathsBtn" xml:space="preserve"><value>Copy paths</value></data>
+  <data name="Library_OpenFoldersTitle" xml:space="preserve"><value>Open folders</value></data>
+  <data name="Library_OpenFoldersConfirm" xml:space="preserve"><value>Open {0} folders in Explorer?</value></data>
+  <data name="Library_OpenFilesTitle" xml:space="preserve"><value>Open files</value></data>
+  <data name="Library_OpenFilesConfirm" xml:space="preserve"><value>Open {0} files?</value></data>
+  <data name="Library_OpenInViewer" xml:space="preserve"><value>Open in viewer</value></data>
+  <data name="Library_GoToArtist" xml:space="preserve"><value>Go to artist</value></data>
+  <data name="Library_FindOriginal" xml:space="preserve"><value>Find original (reverse search)</value></data>
+  <data name="Library_SearchInBrowser" xml:space="preserve"><value>Search in browser</value></data>
+  <data name="Library_NoMatchSaucenao" xml:space="preserve"><value>No match found (SauceNAO)</value></data>
+  <data name="Library_ReverseSearchFailed" xml:space="preserve"><value>Reverse search failed: {0}</value></data>
+  <data name="Library_ReverseSearchUnavailable" xml:space="preserve"><value>Reverse search unavailable</value></data>
+  <data name="Library_Searching" xml:space="preserve"><value>Searching…</value></data>
+  <data name="Library_ImageCopiedPaste" xml:space="preserve"><value>Image path copied — paste it on the page</value></data>
+  <data name="Settings_WinState_Normal" xml:space="preserve">
+    <value>Normal</value>
+  </data>
+  <data name="Settings_WinState_Maximized" xml:space="preserve">
+    <value>Maximized</value>
+  </data>
+  <data name="Settings_WinState_Minimized" xml:space="preserve">
+    <value>Minimized</value>
+  </data>
+  <data name="Settings_WinState_SystemTray" xml:space="preserve">
+    <value>System tray</value>
+  </data>
+  <data name="Viewer_ArtistUnknown" xml:space="preserve">
+    <value>Couldn't find the artist for this artwork.</value>
+  </data>
+  <data name="Library_FetchInfo" xml:space="preserve">
+    <value>Fetch info from pixiv</value>
+  </data>
+  <data name="Library_FileMissing" xml:space="preserve">
+    <value>This file is no longer on disk.</value>
+  </data>
+  <data name="Library_UnratedNotice" xml:space="preserve">
+    <value>{0} files have no pixiv info yet, so R-18 can't be hidden for them. Click "Fetch missing info" to rate them.</value>
+  </data>
+  <data name="Settings_ReverseSearch" xml:space="preserve">
+    <value>Reverse image search (premium)</value>
+  </data>
+  <data name="Settings_SauceNaoKeyHint" xml:space="preserve">
+    <value>Premium: in-app reverse search uses SauceNAO's API, which needs a paid SauceNAO plan (Account → upgrades). Paste that account's API key (Account → api) here. Without one, "Find original" opens saucenao.com with the image copied, which is free.</value>
+  </data>
+  <data name="Settings_SauceNaoKey" xml:space="preserve">
+    <value>SauceNAO API key</value>
+  </data>
+  <data name="Library_NoSauceKey" xml:space="preserve">
+    <value>Image copied — paste it (Ctrl+V) on SauceNAO. Add a free SauceNAO API key in Settings → Advanced to search inside Pikura.</value>
+  </data>
+  <data name="Library_SauceKeyRejected" xml:space="preserve">
+    <value>SauceNAO refused the API key (in-app search needs a premium SauceNAO plan). Image copied — paste it (Ctrl+V) on the page.</value>
+  </data>
+  <data name="Library_SourceDownloaded" xml:space="preserve"><value>Downloaded {0}</value></data>
+  <data name="Library_SourcePixiv" xml:space="preserve"><value>pixiv</value></data>
+  <data name="Library_OpenSource" xml:space="preserve"><value>Open source page</value></data>
+  <data name="Library_CopyOriginalUrl" xml:space="preserve"><value>Copy original image URL</value></data>
 </root>

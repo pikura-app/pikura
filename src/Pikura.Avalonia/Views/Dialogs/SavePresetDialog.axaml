@@ -16,7 +16,7 @@
             <StackPanel Spacing="8">
                 <TextBlock Text="{loc:Tr Preset_PresetName}" FontSize="12"/>
                 <TextBox x:Name="PresetNameTextBox"
-                         PlaceholderText="e.g., My Favorite Artists"
+                         PlaceholderText="{loc:Tr SavePreset_NameExample}"
                          CornerRadius="6"/>
             </StackPanel>
 

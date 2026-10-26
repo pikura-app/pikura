@@ -344,14 +344,14 @@
                                                     <StackPanel Grid.Column="0" Spacing="4">
                                                         <TextBlock Text="{loc:Tr Batch_MustIncludeTagS}" FontSize="11"/>
                                                         <TextBox Text="{Binding ArtistViewModel.CustomSettings.IncludeTags, Mode=TwoWay}"
-                                                                 PlaceholderText="e.g. original, fantasy"
+                                                                 PlaceholderText="{loc:Tr Batch_TagsExample}"
                                                                  CornerRadius="4" FontSize="12"
                                                                  ToolTip.Tip="{loc:Tr Batch_CommaSeparatedArtworkMustMatchAt}"/>
                                                     </StackPanel>
                                                     <StackPanel Grid.Column="1" Spacing="4">
                                                         <TextBlock Text="{loc:Tr Batch_ExcludeTagS}" FontSize="11"/>
                                                         <TextBox Text="{Binding ArtistViewModel.CustomSettings.ExcludeTagsFilter, Mode=TwoWay}"
-                                                                 PlaceholderText="e.g. guro, furry"
+                                                                 PlaceholderText="{loc:Tr Batch_ExcludeExample}"
                                                                  CornerRadius="4" FontSize="12"
                                                                  ToolTip.Tip="{loc:Tr Batch_CommaSeparatedArtworkIsSkippedIf}"/>
                                                     </StackPanel>
@@ -1101,7 +1101,7 @@
                                     <StackPanel Spacing="4">
                                         <TextBlock Text="{loc:Tr Batch_ScheduleName}" FontSize="12" FontWeight="SemiBold"/>
                                         <TextBox Text="{Binding SchedulesViewModel.NewScheduleName, Mode=TwoWay}"
-                                                 PlaceholderText="e.g. My Fav Artists Daily (auto-generated if blank)"
+                                                 PlaceholderText="{loc:Tr Batch_ScheduleNameExample}"
                                                  CornerRadius="6" FontSize="12"/>
                                     </StackPanel>
 
@@ -1271,7 +1271,7 @@
                                                     <TextBlock Text="{loc:Tr Batch_MaxArtworksPerArtist}" FontSize="11"
                                                                Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                                     <TextBox Text="{Binding SchedulesViewModel.FilterMaxArtworks, Mode=TwoWay}"
-                                                             PlaceholderText="e.g. 10  (leave blank for all)"
+                                                             PlaceholderText="{loc:Tr Batch_LimitExample}"
                                                              CornerRadius="4" FontSize="12" HorizontalAlignment="Left" MinWidth="180"
                                                              ToolTip.Tip="{loc:Tr Batch_OnlyFetchTheNMostRecent}"/>
                                                 </StackPanel>
@@ -1279,13 +1279,13 @@
                                                     <StackPanel Grid.Column="0" Spacing="4">
                                                         <TextBlock Text="{loc:Tr Batch_MustIncludeTagS}" FontSize="11"/>
                                                         <TextBox Text="{Binding SchedulesViewModel.FilterIncludeTags, Mode=TwoWay}"
-                                                                 PlaceholderText="e.g. original, fantasy" CornerRadius="4" FontSize="12"
+                                                                 PlaceholderText="{loc:Tr Batch_TagsExample}" CornerRadius="4" FontSize="12"
                                                                  ToolTip.Tip="{loc:Tr Batch_CommaSeparatedArtworkMustMatchAt}"/>
                                                     </StackPanel>
                                                     <StackPanel Grid.Column="1" Spacing="4">
                                                         <TextBlock Text="{loc:Tr Batch_ExcludeTagS}" FontSize="11"/>
                                                         <TextBox Text="{Binding SchedulesViewModel.FilterExcludeTags, Mode=TwoWay}"
-                                                                 PlaceholderText="e.g. guro, furry" CornerRadius="4" FontSize="12"
+                                                                 PlaceholderText="{loc:Tr Batch_ExcludeExample}" CornerRadius="4" FontSize="12"
                                                                  ToolTip.Tip="{loc:Tr Batch_CommaSeparatedArtworkIsSkippedIf}"/>
                                                     </StackPanel>
                                                 </Grid>

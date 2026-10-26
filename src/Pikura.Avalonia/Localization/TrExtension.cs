@@ -21,12 +21,28 @@ public sealed class TrExtension : MarkupExtension
     /// <summary>Resource key to look up in <c>Localization/Strings*.resx</c>.</summary>
     public string Key { get; set; } = string.Empty;
 
+    // Binds to the plain Language property (whose change notification Avalonia reliably honours)
+    // and resolves the key in a converter; Avalonia ignores "Item[]" for indexer bindings, so
+    // binding to [Key] directly never refreshed on a live language switch.
     public override object ProvideValue(IServiceProvider serviceProvider)
-        => new Binding($"[{Key}]")
+        => new Binding(nameof(LocalizationService.Language))
         {
             Mode = BindingMode.OneWay,
             Source = LocalizationService.Instance,
+            Converter = TrConverter.Instance,
+            ConverterParameter = Key,
             // Show the key if lookup somehow yields nothing, so missing strings are visible.
             FallbackValue = Key,
         };
+}
+
+internal sealed class TrConverter : global::Avalonia.Data.Converters.IValueConverter
+{
+    public static readonly TrConverter Instance = new();
+
+    public object? Convert(object? value, Type targetType, object? parameter, System.Globalization.CultureInfo culture)
+        => LocalizationService.Instance[parameter as string ?? string.Empty];
+
+    public object? ConvertBack(object? value, Type targetType, object? parameter, System.Globalization.CultureInfo culture)
+        => throw new NotSupportedException();
 }

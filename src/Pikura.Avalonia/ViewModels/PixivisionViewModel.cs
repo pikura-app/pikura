@@ -40,7 +40,7 @@ public partial class PixivisionViewModel : ViewModelBase
 
     [ObservableProperty] private bool _isLoading;
     [ObservableProperty] private bool _isLoadingArticle;
-    [ObservableProperty] private string _statusMessage = "Loading pixivision articles…";
+    [ObservableProperty] private string _statusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Pixivision_LoadingPixivisionArticles"];
 
     // Page-based pagination is the default; autoload restores the original infinite-scroll behavior.
     [ObservableProperty] private int _articlePage = 1;
@@ -50,6 +50,7 @@ public partial class PixivisionViewModel : ViewModelBase
     public bool HasPrevPage => ArticlePage > 1;
     partial void OnArticlePageChanged(int value)
     {
+        OnPropertyChanged(nameof(PageLabel));
         OnPropertyChanged(nameof(HasPrevPage));
         OnPropertyChanged(nameof(ShowSidebarPanel));
     }
@@ -86,17 +87,18 @@ public partial class PixivisionViewModel : ViewModelBase
     [ObservableProperty] private DateTime? _customRangeStart;
     [ObservableProperty] private DateTime? _customRangeEnd;
 
+    public string PageLabel => Pikura.Avalonia.Localization.LocalizationService.F("Common_PageN", ArticlePage);
     public bool IsFilteredByDate => SelectedDate.HasValue || QuickRange != "all";
     public string DateLabel => SelectedDate?.ToString("yyyy-MM-dd")
         ?? QuickRange switch
         {
-            "day" => "Past day",
-            "week" => "Past week",
-            "month" => "Past month",
-            "year" => "Past year",
+            "day" => Pikura.Avalonia.Localization.LocalizationService.Instance["Pixivision_PastDay"],
+            "week" => Pikura.Avalonia.Localization.LocalizationService.Instance["Pixivision_PastWeek"],
+            "month" => Pikura.Avalonia.Localization.LocalizationService.Instance["Pixivision_PastMonth"],
+            "year" => Pikura.Avalonia.Localization.LocalizationService.Instance["Pixivision_PastYear"],
             "custom" when CustomRangeStart.HasValue && CustomRangeEnd.HasValue
                 => $"{CustomRangeStart:yyyy-MM-dd} – {CustomRangeEnd:yyyy-MM-dd}",
-            _ => "All dates",
+            _ => Pikura.Avalonia.Localization.LocalizationService.Instance["Pixivision_AllDates"],
         };
     private const int MaxDateScanPages = 60;
 
@@ -217,7 +219,7 @@ public partial class PixivisionViewModel : ViewModelBase
     public string SaveArticleButtonLabel => IsCurrentArticleSaved ? "🔖 Saved" : "🔖 Save for later";
     public ObservableCollection<PixivisionArticleCardViewModel> SavedArticles { get; } = [];
     public bool HasSavedArticles => SavedArticles.Count > 0;
-    public string SavedArticlesButtonLabel => $"🔖 Saved ({SavedArticles.Count})";
+    public string SavedArticlesButtonLabel => Pikura.Avalonia.Localization.LocalizationService.F("Pixivision_SavedCount", SavedArticles.Count);
     [ObservableProperty] private bool _isViewingSavedArticles;
 
     // Interview-article ("Artist's Spotlight" etc.) extras — absent (null/empty) on regular articles.
@@ -239,7 +241,7 @@ public partial class PixivisionViewModel : ViewModelBase
     public bool ShowFeaturedWorksGallery => HasFeaturedWorks && !IsInlineArtworkLayout;
     /// <summary>Label reflecting the toggle's current state, so it reads as a mode switch
     /// ("Inline" vs "Gallery") rather than a plain on/off checkbox.</summary>
-    public string InlineArtworkLayoutLabel => IsInlineArtworkLayout ? "Inline" : "Gallery";
+    public string InlineArtworkLayoutLabel => Pikura.Avalonia.Localization.LocalizationService.Instance[IsInlineArtworkLayout ? "Pixivision_LayoutInline" : "Nav_Gallery"];
 
     [ObservableProperty] private int _cardSize = 180;
     // Featured-artwork Fixed/Natural height toggle — mirrors Gallery/Search.
@@ -251,7 +253,7 @@ public partial class PixivisionViewModel : ViewModelBase
     [ObservableProperty] private bool _showPreview;
     [ObservableProperty] private bool _isViewerExpanded;
     [ObservableProperty] private int _selectedCount;
-    public string SidePanelLabel => ShowPreview ? "Hide Panel" : "Side Panel";
+    public string SidePanelLabel => Pikura.Avalonia.Localization.LocalizationService.Instance[ShowPreview ? "Gallery_HidePanel" : "Gallery_ShowPanel"];
     partial void OnShowPreviewChanged(bool value) => OnPropertyChanged(nameof(SidePanelLabel));
 
     public ObservableCollection<PixivisionArticleCardViewModel> Articles { get; } = [];
@@ -266,11 +268,11 @@ public partial class PixivisionViewModel : ViewModelBase
     public bool HasRelatedPopular => RelatedPopular.Count > 0;
     [ObservableProperty] private string? _relatedTagName;
     public string RelatedLatestHeading => string.IsNullOrEmpty(RelatedTagName)
-        ? "Newest related articles"
-        : $"Newest articles tagged {RelatedTagName}";
+        ? Pikura.Avalonia.Localization.LocalizationService.Instance["Pixivision_NewestRelated"]
+        : Pikura.Avalonia.Localization.LocalizationService.F("Pixivision_NewestTagged", RelatedTagName);
     public string RelatedPopularHeading => string.IsNullOrEmpty(RelatedTagName)
-        ? "You may also like…"
-        : $"If you liked {RelatedTagName}, you will also love…";
+        ? Pikura.Avalonia.Localization.LocalizationService.Instance["Pixivision_MayAlsoLike"]
+        : Pikura.Avalonia.Localization.LocalizationService.F("Pixivision_IfYouLiked", RelatedTagName);
     partial void OnRelatedTagNameChanged(string? value) { OnPropertyChanged(nameof(RelatedLatestHeading)); OnPropertyChanged(nameof(RelatedPopularHeading)); }
 
     // pixivision's own sidebar widgets — refreshed on category/page changes (see PopulateSidebarWidgets).
@@ -340,6 +342,17 @@ public partial class PixivisionViewModel : ViewModelBase
         _isAutoloadMode = !_settingsService.Current.PixivisionUsePagination;
         _sidebarWidth = Math.Clamp(_settingsService.Current.PixivisionSidebarWidth, 200, 520);
 
+        Pikura.Avalonia.Localization.LocalizationService.Instance.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName is nameof(Pikura.Avalonia.Localization.LocalizationService.Culture)
+                              or nameof(Pikura.Avalonia.Localization.LocalizationService.Language))
+            {
+                foreach (var n in new[] { nameof(DateLabel), nameof(SavedArticlesButtonLabel), nameof(InlineArtworkLayoutLabel),
+                                          nameof(SidePanelLabel), nameof(RelatedLatestHeading), nameof(RelatedPopularHeading), nameof(PageLabel) })
+                    OnPropertyChanged(n);
+                _ = LoadArticlesAsync();
+            }
+        };
         GalleryVm.PropertyChanged += (_, e) =>
         {
             if (e.PropertyName == nameof(GalleryViewModel.HasTabs) && !GalleryVm.HasTabs)
@@ -420,10 +433,10 @@ public partial class PixivisionViewModel : ViewModelBase
                 _ = card.LoadThumbnailAsync(_imageLoader);
             }
             StatusMessage = Articles.Count == 0
-                ? "Couldn't load pixivision articles — check your connection."
+                ? Pikura.Avalonia.Localization.LocalizationService.Instance["Pixivision_CouldNotLoad"]
                 : IsAutoloadMode
-                    ? $"{Articles.Count} article(s) loaded"
-                    : $"{Articles.Count} article(s) — page {ArticlePage}";
+                    ? Pikura.Avalonia.Localization.LocalizationService.F("Pixivision_ArticlesLoaded", Articles.Count)
+                    : Pikura.Avalonia.Localization.LocalizationService.F("Pixivision_ArticlesPage", Articles.Count, ArticlePage);
             OnPropertyChanged(nameof(HasArticles));
             // The sidebar widgets are category-scoped on pixivision's own site, so refresh them
             // on every fresh page load (category switch, page jump) — but not on autoload's
@@ -432,7 +445,7 @@ public partial class PixivisionViewModel : ViewModelBase
             RefreshCardSavedStates();
         }
         catch (OperationCanceledException) { }
-        catch (Exception ex) { StatusMessage = $"Failed to load pixivision: {ex.Message}"; }
+        catch (Exception ex) { StatusMessage = Pikura.Avalonia.Localization.LocalizationService.F("Pixivision_LoadFailed", ex.Message); }
         finally { if (!cts.IsCancellationRequested) IsLoading = false; }
     }
 
@@ -497,7 +510,7 @@ public partial class PixivisionViewModel : ViewModelBase
         SelectedCount = 0;
         HasNextPage = false;
         IsLoading = true;
-        StatusMessage = $"Searching pixivision for articles on {target:yyyy-MM-dd}…";
+        StatusMessage = Pikura.Avalonia.Localization.LocalizationService.F("Pixivision_SearchingOnDate", target.ToString("yyyy-MM-dd"));
 
         try
         {
@@ -530,12 +543,12 @@ public partial class PixivisionViewModel : ViewModelBase
             }
 
             StatusMessage = Articles.Count == 0
-                ? $"No articles found on {target:yyyy-MM-dd} (searched {scannedPages} page(s))."
-                : $"{Articles.Count} article(s) on {target:yyyy-MM-dd}";
+                ? Pikura.Avalonia.Localization.LocalizationService.F("Pixivision_NoneOnDate", target.ToString("yyyy-MM-dd"), scannedPages)
+                : Pikura.Avalonia.Localization.LocalizationService.F("Pixivision_ArticlesOnDate", Articles.Count, target.ToString("yyyy-MM-dd"));
             OnPropertyChanged(nameof(HasArticles));
             RefreshCardSavedStates();
         }
-        catch (Exception ex) { StatusMessage = $"Date search failed: {ex.Message}"; }
+        catch (Exception ex) { StatusMessage = Pikura.Avalonia.Localization.LocalizationService.F("Pixivision_DateSearchFailed", ex.Message); }
         finally { IsLoading = false; }
     }
 
@@ -600,7 +613,7 @@ public partial class PixivisionViewModel : ViewModelBase
         SelectedCount = 0;
         HasNextPage = false;
         IsLoading = true;
-        StatusMessage = $"Searching pixivision for articles {DateLabel}…";
+        StatusMessage = Pikura.Avalonia.Localization.LocalizationService.F("Pixivision_SearchingInRange", DateLabel);
 
         try
         {
@@ -634,12 +647,12 @@ public partial class PixivisionViewModel : ViewModelBase
             }
 
             StatusMessage = Articles.Count == 0
-                ? $"No articles found {DateLabel} (searched {scannedPages} page(s))."
-                : $"{Articles.Count} article(s) {DateLabel}";
+                ? Pikura.Avalonia.Localization.LocalizationService.F("Pixivision_NoneInRange", DateLabel, scannedPages)
+                : Pikura.Avalonia.Localization.LocalizationService.F("Pixivision_ArticlesInRange", Articles.Count, DateLabel);
             OnPropertyChanged(nameof(HasArticles));
             RefreshCardSavedStates();
         }
-        catch (Exception ex) { StatusMessage = $"Date search failed: {ex.Message}"; }
+        catch (Exception ex) { StatusMessage = Pikura.Avalonia.Localization.LocalizationService.F("Pixivision_DateSearchFailed", ex.Message); }
         finally { IsLoading = false; }
     }
 
@@ -770,7 +783,7 @@ public partial class PixivisionViewModel : ViewModelBase
                 }
                 OnPropertyChanged(nameof(HasFeaturedWorks));
                 OnPropertyChanged(nameof(ShowFeaturedWorksGallery));
-                StatusMessage = $"{FeaturedWorks.Count} featured artwork(s)";
+                StatusMessage = Pikura.Avalonia.Localization.LocalizationService.F("Pixivision_FeaturedCount", FeaturedWorks.Count);
             }
 
             var tasks = detail.Works.Select(async (work, i) =>
@@ -788,7 +801,7 @@ public partial class PixivisionViewModel : ViewModelBase
             if (cts.IsCancellationRequested) return;
         }
         catch (OperationCanceledException) { }
-        catch (Exception ex) { StatusMessage = $"Failed to load article: {ex.Message}"; }
+        catch (Exception ex) { StatusMessage = Pikura.Avalonia.Localization.LocalizationService.F("Pixivision_ArticleLoadFailed", ex.Message); }
         finally { if (!cts.IsCancellationRequested) IsLoadingArticle = false; }
     }
 
@@ -913,9 +926,9 @@ public partial class PixivisionViewModel : ViewModelBase
     [RelayCommand]
     public void OpenArticleCardInBrowser(PixivisionArticleCardViewModel card) => OpenArticleUrlInBrowser(card.Id);
 
-    private static void OpenArticleUrlInBrowser(long articleId)
+    private void OpenArticleUrlInBrowser(long articleId)
     {
-        try { Process.Start(new ProcessStartInfo($"https://www.pixivision.net/en/a/{articleId}") { UseShellExecute = true }); }
+        try { Process.Start(new ProcessStartInfo($"https://www.pixivision.net/{_pixivision.Language}/a/{articleId}") { UseShellExecute = true }); }
         catch { }
     }
 

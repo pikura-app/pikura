@@ -75,6 +75,10 @@ public sealed class LocalizationService : INotifyPropertyChanged
     /// <summary>Non-binding lookup, for strings built in C# (status messages, dialog text).</summary>
     public string Get(string key) => this[key];
 
+    /// <summary>Formatted lookup: <c>LocalizationService.F("Key", a, b)</c> = string.Format(this["Key"], a, b).</summary>
+    public static string F(string key, params object?[] args)
+        => string.Format(CultureInfo.CurrentCulture, Instance[key], args);
+
     /// <summary>Switches the active language by display name (e.g. "日本語"). Unknown names fall
     /// back to English. Raises an indexer change so bound UI strings refresh immediately.</summary>
     public void SetLanguage(string? displayName)
@@ -95,8 +99,24 @@ public sealed class LocalizationService : INotifyPropertyChanged
 
         // "Item[]" is the conventional name for "every indexer value changed" — Avalonia re-evaluates
         // all bindings against the indexer when it sees this.
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Item[]"));
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Culture)));
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Language)));
+        Raise("Item[]");
+        Raise(nameof(Culture));
+        Raise(nameof(Language));
+    }
+
+    // Each subscriber is isolated: one throwing handler must not stop the rest of the UI from
+    // switching language.
+    private void Raise(string name)
+    {
+        if (PropertyChanged is not { } handlers) return;
+        var args = new PropertyChangedEventArgs(name);
+        foreach (PropertyChangedEventHandler h in handlers.GetInvocationList())
+        {
+            try { h(this, args); }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[Localization] {name} handler {h.Method.DeclaringType}.{h.Method.Name} failed: {ex}");
+            }
+        }
     }
 }

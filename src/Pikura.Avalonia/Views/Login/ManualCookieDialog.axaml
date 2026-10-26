@@ -18,13 +18,7 @@
                    IsVisible="False"/>
 
         <TextBlock TextWrapping="Wrap" FontSize="12"
-                   Foreground="{DynamicResource DefaultForegroundBrushSecondary}">
-            Pikura couldn't open a sign-in window automatically, so paste your
-            session cookie as a one-time workaround:
-            open pixiv.net in your regular browser → DevTools → Application → Cookies →
-            <Run FontWeight="SemiBold">www.pixiv.net</Run> → copy the value of
-            <Run FontWeight="SemiBold">PHPSESSID</Run> and paste it below.
-        </TextBlock>
+                   Foreground="{DynamicResource DefaultForegroundBrushSecondary}"><Run Text="{loc:Tr Login_ManualCookie1}"/><Run FontWeight="SemiBold" Text="www.pixiv.net"/><Run Text="{loc:Tr Login_ManualCookie2}"/><Run FontWeight="SemiBold" Text="PHPSESSID"/><Run Text="{loc:Tr Login_ManualCookie3}"/></TextBlock>
 
         <TextBox x:Name="CookieInput"
                  PlaceholderText="{loc:Tr Login_PastePHPSESSIDValueHere}"

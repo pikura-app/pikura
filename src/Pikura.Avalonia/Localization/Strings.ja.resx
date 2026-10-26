@@ -6085,4 +6085,364 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="Hoshi_DeleteLegacy" xml:space="preserve"><value>古いチャットファイルを削除</value></data>
   <data name="Hoshi_DeleteLegacyTitle" xml:space="preserve"><value>古いチャットファイルの削除</value></data>
   <data name="Hoshi_DeleteLegacyConfirm" xml:space="preserve"><value>移行済みの旧チャットファイル（{0} MB）を削除しますか？元に戻せません。</value></data>
+  <data name="Hoshi_RecommendedModels" xml:space="preserve"><value>おすすめモデル</value></data>
+  <data name="Hoshi_DownloadAndUse" xml:space="preserve"><value>ダウンロードして使用</value></data>
+  <data name="Hoshi_UseModel" xml:space="preserve"><value>使用</value></data>
+  <data name="Hoshi_RecoQwen4b" xml:space="preserve"><value>おすすめ — 画像・チャット・アクション (3.3 GB)</value></data>
+  <data name="Hoshi_RecoQwen8b" xml:space="preserve"><value>高品質、高性能PC向け (6.2 GB)</value></data>
+  <data name="Hoshi_RecoQwen2b" xml:space="preserve"><value>低スペックPC向け (1.9 GB)</value></data>
+  <data name="Pixivision_AllDates" xml:space="preserve">
+    <value>すべての期間</value>
+  </data>
+  <data name="Pixivision_SavedCount" xml:space="preserve">
+    <value>🔖 保存済み ({0})</value>
+  </data>
+  <data name="Pixivision_LayoutInline" xml:space="preserve">
+    <value>インライン</value>
+  </data>
+  <data name="Pixivision_NewestRelated" xml:space="preserve">
+    <value>関連する最新記事</value>
+  </data>
+  <data name="Pixivision_NewestTagged" xml:space="preserve">
+    <value>「{0}」の最新記事</value>
+  </data>
+  <data name="Pixivision_MayAlsoLike" xml:space="preserve">
+    <value>こちらもおすすめ…</value>
+  </data>
+  <data name="Pixivision_IfYouLiked" xml:space="preserve">
+    <value>「{0}」が好きならこちらもおすすめ…</value>
+  </data>
+  <data name="Pixivision_CouldNotLoad" xml:space="preserve">
+    <value>pixivisionの記事を読み込めませんでした。接続を確認してください。</value>
+  </data>
+  <data name="Pixivision_ArticlesLoaded" xml:space="preserve">
+    <value>{0} 件の記事を読み込みました</value>
+  </data>
+  <data name="Pixivision_ArticlesPage" xml:space="preserve">
+    <value>{0} 件の記事 — {1} ページ目</value>
+  </data>
+  <data name="Pixivision_LoadFailed" xml:space="preserve">
+    <value>pixivisionの読み込みに失敗しました: {0}</value>
+  </data>
+  <data name="Pixivision_SearchingOnDate" xml:space="preserve">
+    <value>{0} の記事を検索中…</value>
+  </data>
+  <data name="Pixivision_NoneOnDate" xml:space="preserve">
+    <value>{0} の記事は見つかりませんでした（{1} ページを検索）。</value>
+  </data>
+  <data name="Pixivision_ArticlesOnDate" xml:space="preserve">
+    <value>{1} の記事: {0} 件</value>
+  </data>
+  <data name="Pixivision_DateSearchFailed" xml:space="preserve">
+    <value>日付検索に失敗しました: {0}</value>
+  </data>
+  <data name="Pixivision_SearchingInRange" xml:space="preserve">
+    <value>記事を検索中（{0}）…</value>
+  </data>
+  <data name="Pixivision_NoneInRange" xml:space="preserve">
+    <value>記事が見つかりませんでした（{0}、{1} ページを検索）。</value>
+  </data>
+  <data name="Pixivision_ArticlesInRange" xml:space="preserve">
+    <value>{0} 件の記事 · {1}</value>
+  </data>
+  <data name="Pixivision_FeaturedCount" xml:space="preserve">
+    <value>注目作品 {0} 件</value>
+  </data>
+  <data name="Pixivision_ArticleLoadFailed" xml:space="preserve">
+    <value>記事の読み込みに失敗しました: {0}</value>
+  </data>
+  <data name="Common_PageN" xml:space="preserve">
+    <value>{0} ページ</value>
+  </data>
+  <data name="Pixivision_Cat_All" xml:space="preserve">
+    <value>すべて</value>
+  </data>
+  <data name="Pixivision_Cat_Explore" xml:space="preserve">
+    <value>見つける</value>
+  </data>
+  <data name="Pixivision_Cat_Illustration" xml:space="preserve">
+    <value>イラスト</value>
+  </data>
+  <data name="Pixivision_Cat_Manga" xml:space="preserve">
+    <value>マンガ</value>
+  </data>
+  <data name="Pixivision_Cat_Novel" xml:space="preserve">
+    <value>ノベル</value>
+  </data>
+  <data name="Pixivision_Cat_Create" xml:space="preserve">
+    <value>描く</value>
+  </data>
+  <data name="Pixivision_Cat_HowtoDraw" xml:space="preserve">
+    <value>描き方</value>
+  </data>
+  <data name="Pixivision_Cat_Making" xml:space="preserve">
+    <value>メイキング</value>
+  </data>
+  <data name="Pixivision_Cat_Material" xml:space="preserve">
+    <value>素材</value>
+  </data>
+  <data name="Pixivision_Cat_Discover" xml:space="preserve">
+    <value>知る</value>
+  </data>
+  <data name="Pixivision_Cat_Interview" xml:space="preserve">
+    <value>インタビュー</value>
+  </data>
+  <data name="Pixivision_Cat_Column" xml:space="preserve">
+    <value>コラム</value>
+  </data>
+  <data name="Pixivision_Cat_News" xml:space="preserve">
+    <value>ニュース</value>
+  </data>
+  <data name="Common_TypeIllust" xml:space="preserve">
+    <value>イラスト</value>
+  </data>
+  <data name="Common_TypeManga" xml:space="preserve">
+    <value>マンガ</value>
+  </data>
+  <data name="Common_TypeUgoira" xml:space="preserve">
+    <value>うごイラ</value>
+  </data>
+  <data name="Common_TypeOther" xml:space="preserve">
+    <value>その他</value>
+  </data>
+  <data name="Gallery_FollowedArtistsCount" xml:space="preserve">
+    <value>フォロー中の作者 {0} 人</value>
+  </data>
+  <data name="Gallery_FollowedArtistsLoadingMore" xml:space="preserve">
+    <value>フォロー中の作者 {0} 人（さらに読み込み中…）</value>
+  </data>
+  <data name="Gallery_FollowedArtistsRefreshed" xml:space="preserve">
+    <value>フォロー中の作者 {0} 人（更新済み）</value>
+  </data>
+  <data name="Gallery_ArtistShown" xml:space="preserve">
+    <value>{0} — {1} 件表示（読み込み {2} / 全 {3} 件）</value>
+  </data>
+  <data name="Gallery_ArtistWorks" xml:space="preserve">
+    <value>{0} — {1} / {2} 作品</value>
+  </data>
+  <data name="Gallery_LoadingArtist" xml:space="preserve">
+    <value>{0} を読み込み中…</value>
+  </data>
+  <data name="Gallery_ArtistNoArtworks" xml:space="preserve">
+    <value>{0} — 作品なし</value>
+  </data>
+  <data name="Gallery_RecentWorksLoaded" xml:space="preserve">
+    <value>最近の作品を {0} 件読み込みました</value>
+  </data>
+  <data name="Gallery_SearchingFollowed" xml:space="preserve">
+    <value>フォロー中の作者から検索中: {0}…</value>
+  </data>
+  <data name="Gallery_TagFollowedResults" xml:space="preserve">
+    <value>タグ: {0}（フォロー中の作者）• {1} 件</value>
+  </data>
+  <data name="Gallery_NoFollowedResults" xml:space="preserve">
+    <value>フォロー中の作者に該当なし: {0}</value>
+  </data>
+  <data name="Gallery_FoundFollowedResults" xml:space="preserve">
+    <value>フォロー中の作者から {0} 件見つかりました: {1}</value>
+  </data>
+  <data name="Gallery_SearchingFor" xml:space="preserve">
+    <value>「{0}」を検索中…</value>
+  </data>
+  <data name="Gallery_QueryInArtist" xml:space="preserve">
+    <value>現在の作者内の「{0}」• {1} 件</value>
+  </data>
+  <data name="Gallery_FoundInArtist" xml:space="preserve">
+    <value>現在の作者内で「{1}」が {0} 件見つかりました</value>
+  </data>
+  <data name="Gallery_ViewingArtwork" xml:space="preserve">
+    <value>作品 {0} を表示中</value>
+  </data>
+  <data name="Gallery_OpenedInNewTab" xml:space="preserve">
+    <value>作品 {0} を新しいタブで開きました</value>
+  </data>
+  <data name="Gallery_ArtworkNotFound" xml:space="preserve">
+    <value>作品 {0} が見つかりません。</value>
+  </data>
+  <data name="Discover_Works" xml:space="preserve">
+    <value>作品</value>
+  </data>
+  <data name="Discover_Users" xml:space="preserve">
+    <value>ユーザー</value>
+  </data>
+  <data name="History_Grouped" xml:space="preserve">
+    <value>グループ</value>
+  </data>
+  <data name="Search_Compact" xml:space="preserve">
+    <value>コンパクト</value>
+  </data>
+  <data name="Search_Thumbnails" xml:space="preserve">
+    <value>サムネイル</value>
+  </data>
+  <data name="Search_BookmarkCount" xml:space="preserve">
+    <value>ブックマーク数</value>
+  </data>
+  <data name="Settings_TrayDisabled" xml:space="preserve">
+    <value>無効</value>
+  </data>
+  <data name="Settings_TrayMinimize" xml:space="preserve">
+    <value>トレイに最小化</value>
+  </data>
+  <data name="Settings_TrayClose" xml:space="preserve">
+    <value>閉じるとトレイへ</value>
+  </data>
+  <data name="Settings_Wallpaper4K" xml:space="preserve">
+    <value>4K デスクトップ壁紙 (3840x2160)</value>
+  </data>
+  <data name="Settings_WallpaperQHD" xml:space="preserve">
+    <value>QHD デスクトップ壁紙 (2560x1440)</value>
+  </data>
+  <data name="Settings_WallpaperFHD" xml:space="preserve">
+    <value>フルHD デスクトップ壁紙 (1920x1080)</value>
+  </data>
+  <data name="Settings_WallpaperHD" xml:space="preserve">
+    <value>HD デスクトップ壁紙 (1280x720)</value>
+  </data>
+  <data name="Login_ManualCookie1" xml:space="preserve">
+    <value>Pikuraはログイン画面を自動で開けませんでした。一時的な回避策としてセッションCookieを貼り付けてください：普段のブラウザでpixiv.netを開き → 開発者ツール → Application → Cookies → </value>
+  </data>
+  <data name="Login_ManualCookie2" xml:space="preserve">
+    <value> → 次の値をコピー: </value>
+  </data>
+  <data name="Login_ManualCookie3" xml:space="preserve">
+    <value> を下に貼り付けてください。</value>
+  </data>
+  <data name="Artist_TagsExample" xml:space="preserve">
+    <value>例: 風景, 景色</value>
+  </data>
+  <data name="Artist_ExcludeExample" xml:space="preserve">
+    <value>例: R-18G, ラフ</value>
+  </data>
+  <data name="Preset_PagesExample1" xml:space="preserve">
+    <value>例: 1,3 / 1-4 / 1,2,4</value>
+  </data>
+  <data name="Preset_PagesExample2" xml:space="preserve">
+    <value>例: 1,3,5 / 1-3:1-2,5; 5:1,3（作品1〜3: ページ1〜2,5、作品5: ページ1,3）</value>
+  </data>
+  <data name="Preset_PagesExample3" xml:space="preserve">
+    <value>例: 1,3,5 / 1-3,6 / 5-6</value>
+  </data>
+  <data name="Range_Example" xml:space="preserve">
+    <value>例: 1-20 / 1,5-10,50</value>
+  </data>
+  <data name="SavePreset_NameExample" xml:space="preserve">
+    <value>例: お気に入りの作者</value>
+  </data>
+  <data name="Batch_TagsExample" xml:space="preserve">
+    <value>例: オリジナル, ファンタジー</value>
+  </data>
+  <data name="Batch_ExcludeExample" xml:space="preserve">
+    <value>例: グロ, ケモノ</value>
+  </data>
+  <data name="Batch_ScheduleNameExample" xml:space="preserve">
+    <value>例: お気に入り作者・毎日（空欄なら自動生成）</value>
+  </data>
+  <data name="Batch_LimitExample" xml:space="preserve">
+    <value>例: 10（空欄ですべて）</value>
+  </data>
+  <data name="Search_ToolExample" xml:space="preserve">
+    <value>例: Photoshop, CLIP STUDIO PAINT</value>
+  </data>
+  <data name="Search_TagExample" xml:space="preserve">
+    <value>例: 猫, 犬</value>
+  </data>
+  <data name="Search_ExcludeExample" xml:space="preserve">
+    <value>例: 3D, AI</value>
+  </data>
+  <data name="Library_EmptyTitle" xml:space="preserve">
+    <value>ライブラリはまだ空です</value>
+  </data>
+  <data name="Library_EmptyBody" xml:space="preserve">
+    <value>ライブラリフォルダー内の画像を一覧表示します。タイトル・作者・タグで検索し、重複を見つけ、AIでタグ付けできます。ダウンロード時に自動で追加されます。</value>
+  </data>
+
+  <data name="Library_ScanFoundNothing" xml:space="preserve">
+    <value>スキャン完了：ダウンロード先に画像が見つかりませんでした。</value>
+  </data>
+
+  <data name="Library_Folders" xml:space="preserve"><value>ライブラリフォルダー</value></data>
+  <data name="Library_FolderNotFound" xml:space="preserve"><value>見つかりません</value></data>
+  <data name="Library_OpenFolderTooltip" xml:space="preserve"><value>エクスプローラーで開く</value></data>
+  <data name="Library_RemoveFolderTip" xml:space="preserve"><value>ライブラリからのみ削除（ファイルは残ります）</value></data>
+  <data name="Library_AddFolder" xml:space="preserve"><value>＋ フォルダーを追加…</value></data>
+  <data name="Library_ResetToDownloadFolder" xml:space="preserve"><value>ダウンロードフォルダーにリセット</value></data>
+  <data name="Library_SubfoldersIncluded" xml:space="preserve"><value>サブフォルダーも含まれます。</value></data>
+  <data name="Library_LastScanFmt" xml:space="preserve"><value>最終スキャン: {0}</value></data>
+  <data name="Library_NoFoldersExist" xml:space="preserve"><value>ライブラリフォルダーがまだ存在しません。フォルダーを追加するか、何かをダウンロードしてダウンロードフォルダーを作成してください。</value></data>
+  <data name="Library_PickFolderTitle" xml:space="preserve"><value>ライブラリフォルダーを選択</value></data>
+  <data name="Library_AnyYear" xml:space="preserve"><value>すべての年</value></data>
+  <data name="Library_DateFrom" xml:space="preserve"><value>開始日</value></data>
+  <data name="Library_DateTo" xml:space="preserve"><value>終了日</value></data>
+  <data name="Library_OrientationAll" xml:space="preserve"><value>方向: すべて</value></data>
+  <data name="Library_OrientationPortrait" xml:space="preserve"><value>縦</value></data>
+  <data name="Library_OrientationLandscape" xml:space="preserve"><value>横</value></data>
+  <data name="Library_OrientationSquare" xml:space="preserve"><value>正方形</value></data>
+  <data name="Library_SortDateNew" xml:space="preserve"><value>日付（新しい順）</value></data>
+  <data name="Library_SortDateOld" xml:space="preserve"><value>日付（古い順）</value></data>
+  <data name="Library_SortSize" xml:space="preserve"><value>サイズ（大きい順）</value></data>
+  <data name="Library_SortName" xml:space="preserve"><value>名前（昇順）</value></data>
+  <data name="Library_ClearFilters" xml:space="preserve"><value>フィルターをクリア</value></data>
+  <data name="Library_Results" xml:space="preserve"><value>{0} 件</value></data>
+  <data name="Library_Details" xml:space="preserve"><value>詳細</value></data>
+  <data name="Library_SelectHint" xml:space="preserve"><value>ファイルを選択すると詳細が表示されます。Ctrl/Shift+クリックで複数選択できます。</value></data>
+  <data name="Library_SelectedCount" xml:space="preserve"><value>{0} 件選択中</value></data>
+  <data name="Library_OpenFolderItem" xml:space="preserve"><value>フォルダーを開く</value></data>
+  <data name="Library_OpenFoldersBtn" xml:space="preserve"><value>エクスプローラーで開く</value></data>
+  <data name="Library_CopyPathsBtn" xml:space="preserve"><value>パスをコピー</value></data>
+  <data name="Library_OpenFoldersTitle" xml:space="preserve"><value>フォルダーを開く</value></data>
+  <data name="Library_OpenFoldersConfirm" xml:space="preserve"><value>{0} 個のフォルダーをエクスプローラーで開きますか？</value></data>
+  <data name="Library_OpenFilesTitle" xml:space="preserve"><value>ファイルを開く</value></data>
+  <data name="Library_OpenFilesConfirm" xml:space="preserve"><value>{0} 個のファイルを開きますか？</value></data>
+  <data name="Library_OpenInViewer" xml:space="preserve"><value>ビューアーで開く</value></data>
+  <data name="Library_GoToArtist" xml:space="preserve"><value>作者を表示</value></data>
+  <data name="Library_FindOriginal" xml:space="preserve"><value>元画像を検索（リバースサーチ）</value></data>
+  <data name="Library_SearchInBrowser" xml:space="preserve"><value>ブラウザで検索</value></data>
+  <data name="Library_NoMatchSaucenao" xml:space="preserve"><value>一致が見つかりません (SauceNAO)</value></data>
+  <data name="Library_ReverseSearchFailed" xml:space="preserve"><value>リバースサーチに失敗: {0}</value></data>
+  <data name="Library_ReverseSearchUnavailable" xml:space="preserve"><value>リバースサーチは利用できません</value></data>
+  <data name="Library_Searching" xml:space="preserve"><value>検索中…</value></data>
+  <data name="Library_ImageCopiedPaste" xml:space="preserve"><value>画像パスをコピーしました — ページに貼り付けてください</value></data>
+  <data name="Settings_WinState_Normal" xml:space="preserve">
+    <value>通常</value>
+  </data>
+  <data name="Settings_WinState_Maximized" xml:space="preserve">
+    <value>最大化</value>
+  </data>
+  <data name="Settings_WinState_Minimized" xml:space="preserve">
+    <value>最小化</value>
+  </data>
+  <data name="Settings_WinState_SystemTray" xml:space="preserve">
+    <value>システムトレイ</value>
+  </data>
+  <data name="Viewer_ArtistUnknown" xml:space="preserve">
+    <value>この作品の作者が見つかりませんでした。</value>
+  </data>
+  <data name="Library_FetchInfo" xml:space="preserve">
+    <value>pixivから情報を取得</value>
+  </data>
+  <data name="Library_FileMissing" xml:space="preserve">
+    <value>このファイルはディスク上に見つかりません。</value>
+  </data>
+  <data name="Library_UnratedNotice" xml:space="preserve">
+    <value>{0} 件のファイルはpixiv情報が未取得のため、R-18を非表示にできません。「不足情報を取得」で判定できます。</value>
+  </data>
+  <data name="Settings_ReverseSearch" xml:space="preserve">
+    <value>画像の逆引き検索（プレミアム）</value>
+  </data>
+  <data name="Settings_SauceNaoKeyHint" xml:space="preserve">
+    <value>プレミアム：アプリ内の逆引き検索はSauceNAOのAPIを使うため、SauceNAOの有料プラン（Account → upgrades）が必要です。そのアカウントのAPIキー（Account → api）をここに貼り付けてください。キーがない場合、「元画像を検索」は画像をコピーしてsaucenao.comを開きます（無料）。</value>
+  </data>
+  <data name="Settings_SauceNaoKey" xml:space="preserve">
+    <value>SauceNAO APIキー</value>
+  </data>
+  <data name="Library_NoSauceKey" xml:space="preserve">
+    <value>画像をコピーしました。SauceNAOで貼り付け（Ctrl+V）てください。設定 → 詳細設定 で無料のSauceNAO APIキーを追加すると、Pikura内で検索できます。</value>
+  </data>
+  <data name="Library_SauceKeyRejected" xml:space="preserve">
+    <value>SauceNAOがAPIキーを拒否しました（アプリ内検索にはSauceNAOの有料プランが必要です）。画像をコピーしました。ページで貼り付け（Ctrl+V）てください。</value>
+  </data>
+  <data name="Library_SourceDownloaded" xml:space="preserve"><value>ダウンロード日時: {0}</value></data>
+  <data name="Library_SourcePixiv" xml:space="preserve"><value>pixiv</value></data>
+  <data name="Library_OpenSource" xml:space="preserve"><value>ソースページを開く</value></data>
+  <data name="Library_CopyOriginalUrl" xml:space="preserve"><value>元画像URLをコピー</value></data>
 </root>
