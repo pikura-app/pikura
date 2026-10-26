@@ -83,7 +83,47 @@ public class ImageResizeService
     /// Processes a bitmap in memory (for preview).
     /// Returns a downscaled bitmap for preview (max maxPreviewWidth wide, default 800px).
     /// </summary>
-    public async Task<SKBitmap?> ProcessForPreviewAsync(SKBitmap original, ImageEditPreset preset, CancellationToken ct = default, int maxPreviewWidth = 800)
+    public Task<SKBitmap?> ProcessForPreviewAsync(SKBitmap original, ImageEditPreset preset, CancellationToken ct = default, int maxPreviewWidth = 800)
+    {
+        // Snapshot on the caller's thread (the UI keeps mutating the live preset), then run the
+        // pipeline in the background: ProcessBitmapAsync is synchronous CPU work, so without
+        // Task.Run every slider tick and crop-pan step ran it on the UI thread.
+        // The source is copied too: callers dispose their cached preview source on page change
+        // or close, which could otherwise happen while this render is still reading it.
+        var snapshot = PreviewScaledPreset(ClonePreset(preset), maxPreviewWidth);
+        var source = original.Copy();
+        return Task.Run(async () =>
+        {
+            try { return await ProcessForPreviewCoreAsync(source, snapshot, ct, maxPreviewWidth); }
+            finally { source.Dispose(); }
+        });
+    }
+
+    /// <summary>
+    /// Shrinks the preset's output size to preview resolution. Previews were rendered at the
+    /// preset's full target size (e.g. 2160×3840 for a 4K wallpaper) on every change, then
+    /// displayed at ~600px. Pixel-radius effects (blur) are scaled by the same factor so the
+    /// preview still matches the final result.
+    /// </summary>
+    private ImageEditPreset PreviewScaledPreset(ImageEditPreset preset, int maxPreviewWidth)
+    {
+        if (preset.DevicePreset is DevicePreset.Original or DevicePreset.None) return preset;
+        var (w, h) = preset.DevicePreset == DevicePreset.Custom
+            ? (preset.ResizeSettings.TargetWidth, preset.ResizeSettings.TargetHeight)
+            : ResizeSettings.GetPresetDimensions(preset.DevicePreset, preset.ResizeSettings.IsPortrait);
+        if (w <= maxPreviewWidth || w <= 0 || h <= 0) return preset;
+
+        var s = (double)maxPreviewWidth / w;
+        var scaled = preset; // already a private snapshot
+        scaled.DevicePreset = DevicePreset.Custom;
+        scaled.ResizeSettings.TargetWidth = maxPreviewWidth;
+        scaled.ResizeSettings.TargetHeight = Math.Max(1, (int)Math.Round(h * s));
+        if (scaled.Adjustments.BlurRadius > 0)
+            scaled.Adjustments.BlurRadius = Math.Max(1, (int)Math.Round(scaled.Adjustments.BlurRadius * s));
+        return scaled;
+    }
+
+    private async Task<SKBitmap?> ProcessForPreviewCoreAsync(SKBitmap original, ImageEditPreset preset, CancellationToken ct, int maxPreviewWidth)
     {
         try
         {
@@ -802,8 +842,10 @@ public class ImageResizeService
                 VignetteIntensity = original.Adjustments.VignetteIntensity,
                 VignetteRadius = original.Adjustments.VignetteRadius,
                 ColorOverlayHex = original.Adjustments.ColorOverlayHex,
-                ColorOverlayOpacity = original.Adjustments.ColorOverlayOpacity
+                ColorOverlayOpacity = original.Adjustments.ColorOverlayOpacity,
+                Opacity = original.Adjustments.Opacity
             },
+            CropRegion = original.CropRegion,
             SaveAsNew = original.SaveAsNew,
             ApplyToAllPages = original.ApplyToAllPages,
             CustomOutputFolder = original.CustomOutputFolder
