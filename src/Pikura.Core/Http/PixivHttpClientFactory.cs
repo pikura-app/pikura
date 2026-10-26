@@ -33,7 +33,9 @@ public sealed class PixivHttpClientFactory : IDisposable
             EnableMultipleHttp2Connections = true,
         };
         ApplyNetworkSettings();
-        _client = new HttpClient(_handler, disposeHandler: false)
+        // Http3FallbackHandler: retry over HTTP/3 (QUIC) when a network breaks TLS-over-TCP
+        // (e.g. in-flight Wi-Fi) — the same path browsers use to reach pixiv there.
+        _client = new HttpClient(new Http3FallbackHandler(_handler), disposeHandler: false)
         {
             Timeout = TimeSpan.FromSeconds(30),
             DefaultVersionPolicy = HttpVersionPolicy.RequestVersionOrHigher,
