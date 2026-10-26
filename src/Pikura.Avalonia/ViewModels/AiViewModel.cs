@@ -452,10 +452,11 @@ public partial class AiViewModel : ObservableObject
                 Messages.Add(am);
             }
             CurrentImageBytes = session.ImageBytes;
+            _lastTaggerTags = null;
             // Seed model context from persisted turns (budgeted, newest first).
             var turns = Pikura.Core.Services.Hoshi.HoshiContextBudget.Select(
                 session.Messages.Select(m => (m.Role, m.Content)));
-            byte[]? firstImg = _ollama.SupportsVision ? session.ImageBytes : null;
+            byte[]? firstImg = await _ollama.SupportsVisionAsync() ? session.ImageBytes : null;
             _ollama.ResetHistory(turns, firstImg);
         }
         finally { _suppressSave = false; }
@@ -529,6 +530,7 @@ public partial class AiViewModel : ObservableObject
     /// <summary>Updates the current session's image and persists.</summary>
     public void SetSessionImage(byte[]? bytes, string? source = null, string? pixivArtworkId = null)
     {
+        _lastTaggerTags = null;
         CurrentImageBytes = bytes;
         if (CurrentSession is { } s)
         {
@@ -657,6 +659,214 @@ public partial class AiViewModel : ObservableObject
 
     // ── Similar Art / Similar Artists quick actions ──────────────────────────
     // These are wired directly from the Hoshi toolbar buttons rather than routed through
+    // ── Artwork facts (pixiv metadata) for the system prompt ─────────────────
+    private readonly Dictionary<string, Pikura.Core.Services.Hoshi.ArtworkFacts> _factsCache = new();
+
+    /// <summary>Fetches + caches pixiv details for one artwork id; null on any failure.</summary>
+    private async Task<Pikura.Core.Services.Hoshi.ArtworkFacts?> GetFactsAsync(string artworkId, CancellationToken ct)
+    {
+        if (_factsCache.TryGetValue(artworkId, out var cached)) return cached;
+        try
+        {
+            using var timeout = CancellationTokenSource.CreateLinkedTokenSource(ct);
+            timeout.CancelAfter(TimeSpan.FromSeconds(5));
+            var b = await _pixiv.GetArtworkDetailAsync(artworkId, timeout.Token);
+            if (b == null) return null;
+            var facts = MapFacts(b);
+            _factsCache[artworkId] = facts;
+            return facts;
+        }
+        catch { return null; } // omit the facts block silently
+    }
+
+    private static Pikura.Core.Services.Hoshi.ArtworkFacts MapFacts(Pikura.Core.Models.ArtworkDetailBody b)
+    {
+        DateTimeOffset? created = null;
+        if (DateTimeOffset.TryParse(b.CreateDate ?? b.UploadDate, out var dt)) created = dt;
+        var tags = b.Tags?.Tags?
+            .Where(t => t.Tag != null)
+            .Select(t => (t.Tag!, (string?)null))
+            .ToList();
+        return new Pikura.Core.Services.Hoshi.ArtworkFacts(
+            Title: b.IllustTitle,
+            ArtworkId: b.IllustId,
+            UserName: b.UserName,
+            UserId: b.UserId,
+            CreateDate: created,
+            Tags: tags,
+            ViewCount: b.ViewCount,
+            LikeCount: b.LikeCount,
+            BookmarkCount: b.BookmarkCount,
+            PageCount: b.PageCount > 0 ? b.PageCount : null,
+            XRestrict: b.XRestrict,
+            AiType: b.AiType is 1 or 2 ? b.AiType : null,
+            Caption: b.IllustComment);
+    }
+
+    /// <summary>Tags detected by the last local-tagger run on the current image.</summary>
+    private List<string>? _lastTaggerTags;
+
+    // ── Tools for tool-capable models (spec §2) ──────────────────────────────
+    private List<OllamaService.HoshiTool> BuildHoshiTools(CancellationToken ct)
+    {
+        string? CurId() => CurrentCard?.Id ?? CurrentSession?.PixivArtworkId;
+        string? Arg(IReadOnlyDictionary<string, string?> a, string k)
+            => a.TryGetValue(k, out var v) && !string.IsNullOrWhiteSpace(v) ? v : null;
+        async Task<string> NeedCurrent(Func<string, Task<string>> f)
+            => CurId() is { } id ? await f(id) : "Error: no current artwork.";
+        // Tool bodies mutate UI state (CurrentCard, Messages, viewer) — run on the UI thread.
+        Func<Func<IReadOnlyDictionary<string, string?>, CancellationToken, Task<string>>,
+             Func<IReadOnlyDictionary<string, string?>, CancellationToken, Task<string>>> OnUi
+            = f => (a, c) => Dispatcher.UIThread.InvokeAsync(() => f(a, c));
+        async Task<string?> CurArtistId(CancellationToken c)
+            => CurrentCard?.UserId
+               ?? (CurId() is { } aid ? (await GetFactsAsync(aid, c))?.UserId : null);
+
+        var raw = new List<OllamaService.HoshiTool>
+        {
+            new OllamaService.HoshiTool { Name = "get_artwork_info", RequiredParams = ["artwork_id"],
+                Description = "Look up pixiv details (title, artist, upload date, tags, stats) for a specific artwork ID.",
+                Parameters = new() { ["artwork_id"] = "pixiv artwork ID" },
+                InvokeAsync = async (a, c) =>
+                {
+                    var id = Arg(a, "artwork_id");
+                    if (id == null) return "Error: artwork_id required.";
+                    var facts = await GetFactsAsync(id, c);
+                    return facts == null
+                        ? $"Error: could not fetch artwork {id}."
+                        : Pikura.Core.Services.Hoshi.HoshiPrompt.FormatFacts(facts, DateTimeOffset.Now);
+                } },
+            new OllamaService.HoshiTool { Name = "search_pixiv", RequiredParams = ["query"],
+                Description = "Search pixiv for artworks matching keywords or tags and show the results in the chat.",
+                Parameters = new() { ["query"] = "search keywords or tags" },
+                InvokeAsync = async (a, c) =>
+                {
+                    var q = Arg(a, "query");
+                    if (q == null) return "Error: query required.";
+                    var r = await _pixiv.SearchArtworksAsync(q, ct: c);
+                    var works = r?.IllustManga.Data?.Take(6).ToList();
+                    if (works == null || works.Count == 0) return "No results found.";
+                    await PostWorksAsync(works);
+                    return $"Showed {works.Count} search results in the chat.";
+                } },
+            new OllamaService.HoshiTool { Name = "find_similar_artworks",
+                Description = "Show artworks similar to the current artwork in the chat.",
+                InvokeAsync = async (_, c) =>
+                    await NeedCurrent(async _ => { await RunRelatedFetchAsync(false); return "Showed similar artworks in the chat."; }) },
+            new OllamaService.HoshiTool { Name = "find_similar_artists",
+                Description = "Show artists similar to the current artwork's artist in the chat.",
+                InvokeAsync = async (_, c) =>
+                    await NeedCurrent(async _ => { await RunRelatedFetchAsync(true); return "Showed similar artists in the chat."; }) },
+            new OllamaService.HoshiTool { Name = "show_artwork", RequiredParams = ["artwork_id"],
+                Description = "Fetch an artwork by its pixiv ID and show it in the chat, making it the current artwork.",
+                Parameters = new() { ["artwork_id"] = "pixiv artwork ID" },
+                InvokeAsync = async (a, c) =>
+                {
+                    var id = Arg(a, "artwork_id");
+                    var card = id == null ? null : await FetchArtworkByIdAsync(id, c);
+                    if (card == null) return "Error: artwork not found.";
+                    CurrentCard = card;
+                    var bytes = string.IsNullOrEmpty(card.ThumbnailUrl) ? null : await _imageLoader.FetchBytesAsync(card.ThumbnailUrl);
+                    if (bytes != null) SetSessionImageBytes(CurrentSession!, bytes);
+                    AddAssistantMessage($"✓ Found: {card.Title} by {card.UserName}");
+                    return $"Showed '{card.Title}' (ID {card.Id}).";
+                } },
+            new OllamaService.HoshiTool { Name = "open_in_viewer",
+                Description = "Open an artwork in Pikura's viewer. Defaults to the current artwork.",
+                Parameters = new() { ["artwork_id"] = "pixiv artwork ID (optional — defaults to current)" },
+                InvokeAsync = async (a, c) =>
+                {
+                    var id = Arg(a, "artwork_id") ?? CurId();
+                    if (id == null) return "Error: no current artwork.";
+                    await OpenArtworkInViewerAsync(id);
+                    return $"Opened artwork {id} in the viewer.";
+                } },
+            new OllamaService.HoshiTool { Name = "open_artist_gallery",
+                Description = "Open an artist's gallery in Pikura. Defaults to the current artwork's artist.",
+                Parameters = new() { ["artist_id"] = "pixiv user ID (optional — defaults to current artist)" },
+                InvokeAsync = async (a, c) =>
+                {
+                    var id = Arg(a, "artist_id") ?? await CurArtistId(c);
+                    if (id == null) return "Error: no artist in context.";
+                    await GoToArtistGalleryAsync(id);
+                    return $"Opened artist {id}'s gallery.";
+                } },
+            new OllamaService.HoshiTool { Name = "more_by_artist",
+                Description = "Show a random artwork by an artist in the chat. Defaults to the current artwork's artist.",
+                Parameters = new() { ["artist_id"] = "pixiv user ID or name (optional)" },
+                InvokeAsync = async (a, c) =>
+                {
+                    var id = Arg(a, "artist_id") ?? await CurArtistId(c);
+                    if (id == null) return "Error: no artist in context.";
+                    var card = await FetchRandomByArtistAsync(id, useRecent: false);
+                    if (card == null) return "Error: no works found for that artist.";
+                    await PostWorksAsync([card.Artwork]);
+                    return $"Showed '{card.Title}' by {card.UserName}.";
+                } },
+            new OllamaService.HoshiTool { Name = "download_artwork",
+                Description = "Download an artwork to the user's download folder. Only call this when the user explicitly asks to download. Defaults to the current artwork.",
+                Parameters = new() { ["artwork_id"] = "pixiv artwork ID (optional — defaults to current)" },
+                InvokeAsync = async (a, c) =>
+                {
+                    var id = Arg(a, "artwork_id");
+                    var card = id != null ? await FetchArtworkByIdAsync(id, c)
+                                          : await ResolveContextArtworkAsync(c);
+                    if (card == null) return "Error: no current artwork.";
+                    await DownloadArtworkWithJobAsync(card, c);
+                    return $"Downloaded '{card.Title}' (ID {card.Id}).";
+                } },
+            new OllamaService.HoshiTool { Name = "add_favorite",
+                Description = "Add the current artwork to the user's local favorites. Only call this when the user explicitly asks.",
+                InvokeAsync = (a, c) =>
+                {
+                    if (CurrentCard == null) return Task.FromResult("Error: no current artwork.");
+                    if (_favorites.IsFavorite(CurrentCard.Id))
+                        return Task.FromResult($"{CurrentCard.Title} is already in your local favorites.");
+                    _favorites.Add(CurrentCard.Artwork);
+                    AddAssistantMessage($"Added {CurrentCard.Title} to local favorites ★");
+                    return Task.FromResult($"Added '{CurrentCard.Title}' to favorites.");
+                } },
+            new OllamaService.HoshiTool { Name = "remove_favorite",
+                Description = "Remove the current artwork from the user's local favorites. Only call this when the user explicitly asks.",
+                InvokeAsync = (a, c) =>
+                {
+                    if (CurrentCard == null) return Task.FromResult("Error: no current artwork.");
+                    if (!_favorites.IsFavorite(CurrentCard.Id))
+                        return Task.FromResult($"{CurrentCard.Title} is not in your favorites.");
+                    _favorites.Remove(CurrentCard.Id);
+                    AddAssistantMessage($"Removed {CurrentCard.Title} from local favorites.");
+                    return Task.FromResult($"Removed '{CurrentCard.Title}' from favorites.");
+                } },
+            new OllamaService.HoshiTool { Name = "suggest_tags",
+                Description = "Suggest descriptive tags for the current image.",
+                InvokeAsync = async (a, c) =>
+                {
+                    if (CurrentImageBytes == null) return "Error: no image attached.";
+                    await SuggestTagsAsync();
+                    return "Suggested tags for the current image.";
+                } },
+        };
+        // Every tool body mutates UI state — dispatch all of them to the UI thread.
+        var wrapped = new List<OllamaService.HoshiTool>(raw.Count);
+        foreach (var t in raw)
+            wrapped.Add(new OllamaService.HoshiTool
+            {
+                Name = t.Name, Description = t.Description, Parameters = t.Parameters,
+                RequiredParams = t.RequiredParams,
+                InvokeAsync = (a, c) => Dispatcher.UIThread.InvokeAsync(() => t.InvokeAsync(a, c)),
+            });
+        return wrapped;
+    }
+
+    /// <summary>Builds the per-request system prompt (spec §1): base + tools line + facts + tagger tags.</summary>
+    private async Task<string> BuildPromptAsync(bool toolsEnabled, CancellationToken ct)
+    {
+        var id = CurrentCard?.Id ?? CurrentSession?.PixivArtworkId;
+        var facts = id == null ? null : await GetFactsAsync(id, ct);
+        return Pikura.Core.Services.Hoshi.HoshiPrompt.BuildSystemPrompt(
+            facts, _lastTaggerTags, toolsEnabled, DateTimeOffset.Now);
+    }
+
     // SendAsync's free-text intent parser (TryHandleIntentAsync). That parser matches on
     // loose keyword co-occurrence (e.g. "artist" + "similar" anywhere in the message), so
     // the "Similar Art" prompt — which mentions "artists" only as an aside ("titles or
@@ -834,16 +1044,6 @@ public partial class AiViewModel : ObservableObject
 
         try
         {
-            // Check for quick-action intents before sending to model
-            if (await TryHandleIntentAsync(text, ct))
-            {
-                IsThinking = false;
-                return;
-            }
-
-            // Stream response — add bubble only after first token arrives
-            AiChatMessage? assistantMsg = null;
-
             // Attach image when explicitly requested OR when an image is attached and
             // the message sounds like it's about the image (avoids sending it for every chat msg).
             var hasImage = CurrentImageBytes?.Length > 0;
@@ -868,9 +1068,22 @@ public partial class AiViewModel : ObservableObject
             );
             var useImage = (_nextSendWithImage || looksImageRelated) && hasImage;
             _nextSendWithImage = false;
-            var stream = useImage
-                ? _ollama.ChatWithImageAsync(text, CurrentImageBytes!, ct)
-                : _ollama.ChatAsync(text, ct);
+
+            // Tool-capable models get the tool list instead of the keyword intents.
+            // Keyword intents run first for EVERY model — small models sometimes narrate
+            // fake results instead of emitting tool calls, so intents stay the reliable path.
+            if (await TryHandleIntentAsync(text, ct))
+            {
+                IsThinking = false;
+                return;
+            }
+            var toolsEnabled = await _ollama.SupportsToolsAsync(useImage, ct);
+            var tools = toolsEnabled ? BuildHoshiTools(ct) : null;
+            var systemPrompt = await BuildPromptAsync(toolsEnabled, ct);
+
+            // Stream response — add bubble only after first token arrives
+            AiChatMessage? assistantMsg = null;
+            var stream = _ollama.SendAsync(text, useImage ? CurrentImageBytes : null, systemPrompt, tools, ct: ct);
 
             // Coalesce rapid token arrivals instead of round-tripping to the UI thread (and
             // re-triggering LinkTextBlock's markdown/link rebuild) on every single token — a
@@ -1109,6 +1322,8 @@ public partial class AiViewModel : ObservableObject
                 sb.AppendLine($"Artist: {string.Join(", ", result.Artist.Select(t => t.Name))}");
             if (result.General.Count > 0)
                 sb.AppendLine($"General: {string.Join(", ", result.General.Select(t => t.Name))}");
+            _lastTaggerTags = result.General.Concat(result.Character).Concat(result.Copyright)
+                .Concat(result.Artist).Select(t => t.Name).Distinct().Take(30).ToList();
             if (result.Meta.Count > 0)
                 sb.AppendLine($"Meta: {string.Join(", ", result.Meta.Select(t => t.Name))}");
 
@@ -1212,9 +1427,10 @@ public partial class AiViewModel : ObservableObject
                 }
 
                 var sb = new System.Text.StringBuilder();
-                await foreach (var chunk in _ollama.ChatWithImageAsync(
+                var pagePrompt = await BuildPromptAsync(false, ct);
+                await foreach (var chunk in _ollama.SendAsync(
                     "Describe this image in detail. Include the art style, subject, mood, and any notable elements.",
-                    bytes, ct))
+                    bytes, pagePrompt, null, remember: false, ct: ct))
                 {
                     sb.Append(chunk);
                 }
@@ -1865,7 +2081,8 @@ public partial class AiViewModel : ObservableObject
 
                 // Fall back to SauceNAO reverse image search if we have bytes
                 if (result == null && hasImg)
-                    result = await _imageLookup.LookupByImageBytesAsync(CurrentImageBytes!, ct: ct);
+                    result = await _imageLookup.LookupByImageBytesAsync(CurrentImageBytes!,
+                        AppServices.Get<Pikura.Core.Settings.SettingsService>().Current.SauceNaoApiKey, ct);
 
                 var sb = new System.Text.StringBuilder();
 

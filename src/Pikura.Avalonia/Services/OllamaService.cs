@@ -29,14 +29,15 @@ public sealed class OllamaNotInstalledException : Exception
 /// </summary>
 public sealed class OllamaService : IDisposable
 {
-    public const string DefaultVisionModel  = "llava";  // Better vision model
-    public const string DefaultTextModel    = "llama3.2";  // More capable text model
+    public const string DefaultVisionModel  = "qwen3-vl:4b";
+    public const string DefaultTextModel    = "qwen3-vl:4b";
     private const string OllamaHost  = "http://localhost:11434";
 
     private readonly ILogger<OllamaService> _logger;
     private readonly SettingsService _settings;
     private OllamaApiClient? _client;
-    private Chat?            _chat;
+    private readonly List<OllamaSharp.Models.Chat.Message> _history = new();
+    private readonly Dictionary<string, IReadOnlySet<string>> _capCache = new(StringComparer.OrdinalIgnoreCase);
     private Process?         _ollamaProcess;
     private bool             _disposed;
 
@@ -154,55 +155,12 @@ public sealed class OllamaService : IDisposable
         return DefaultVisionModel;
     }
 
-    // ── Chat (text only) ─────────────────────────────────────────────────────
-    public async IAsyncEnumerable<string> ChatAsync(
-        string userMessage,
-        [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken ct = default)
-    {
-        EnsureReady();
-        // Use text model for better responses
-        var textModel = GetTextModel();
-        _client!.SelectedModel = textModel;
-        var textChat = new Chat(_client) { Options = new RequestOptions { NumThread = InferenceThreadCount } };
-        await foreach (var token in textChat.SendAsync(userMessage, ct).ConfigureAwait(false))
-        {
-            if (!string.IsNullOrEmpty(token))
-                yield return token;
-        }
-        // Restore default model
-        _client!.SelectedModel = GetTextModel();
-    }
-
-    // ── Chat with image ──────────────────────────────────────────────────────
-    public async IAsyncEnumerable<string> ChatWithImageAsync(
-        string userMessage,
-        byte[] imageBytes,
-        [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken ct = default)
-    {
-        EnsureReady();
-        var visionModel = GetVisionModel();
-        _client!.SelectedModel = visionModel;
-        var visionChat = new Chat(_client) { Options = new RequestOptions { NumThread = InferenceThreadCount } };
-        // async IAsyncEnumerable methods run synchronously up to the first `await` on whatever
-        // thread calls MoveNextAsync — for a UI-triggered SendAsync that's the UI thread. Decoding
-        // and re-encoding a full-size Pixiv image (up to ~5000x7000px) on that thread could
-        // freeze/hang the window for a moment before the first token streams back, which read as
-        // an "almost crash". Push it to a background thread so the UI never blocks on it.
-        var imageB64 = Convert.ToBase64String(await Task.Run(() => ResizeForVision(imageBytes), ct).ConfigureAwait(false));
-        await foreach (var token in visionChat.SendAsync(userMessage, [imageB64], ct).ConfigureAwait(false))
-        {
-            if (!string.IsNullOrEmpty(token))
-                yield return token;
-        }
-        _client!.SelectedModel = GetTextModel();
-    }
-
     /// <summary>
-    /// Downscales image bytes to a max dimension of 512px so Ollama vision models
+    /// Downscales image bytes to a max dimension of 1024px so Ollama vision models
     /// don't OOM on large Pixiv images (5000×7000px etc.).
     /// Uses SkiaSharp directly — thread-safe, no UI thread required.
     /// </summary>
-    private static byte[] ResizeForVision(byte[] src, int maxDim = 512)
+    private static byte[] ResizeForVision(byte[] src, int maxDim = 1024)
     {
         try
         {
@@ -219,7 +177,7 @@ public sealed class OllamaService : IDisposable
             if (resized == null) return src;
 
             using var image = SKImage.FromBitmap(resized);
-            using var data  = image.Encode(SKEncodedImageFormat.Jpeg, 85);
+            using var data  = image.Encode(SKEncodedImageFormat.Jpeg, 90);
             return data.ToArray();
         }
         catch
@@ -229,26 +187,234 @@ public sealed class OllamaService : IDisposable
     }
 
     /// <summary>Clears the in-memory chat history (starts a fresh conversation).</summary>
-    public void ClearHistory() => _chat = _client != null ? new Chat(_client) : null;
+    public void ClearHistory() => _history.Clear();
 
     /// <summary>Seeds chat history from persisted messages (reopening a session).</summary>
     public void ResetHistory(IEnumerable<(string Role, string Content)> turns, byte[]? firstUserImage = null)
     {
-        _chat = _client != null ? new Chat(_client) : null;
-        if (_chat == null) return;
+        _history.Clear();
         var first = true;
         foreach (var (role, content) in turns)
         {
             var msg = role == "assistant"
-                ? new OllamaSharp.Models.Chat.Message(OllamaSharp.Models.Chat.ChatRole.Assistant, [content])
-                : new OllamaSharp.Models.Chat.Message(OllamaSharp.Models.Chat.ChatRole.User, [content]);
+                ? new OllamaSharp.Models.Chat.Message(OllamaSharp.Models.Chat.ChatRole.Assistant, content, null)
+                : new OllamaSharp.Models.Chat.Message(OllamaSharp.Models.Chat.ChatRole.User, content, null);
             if (first && firstUserImage != null && role == "user")
             {
                 msg.Images = [Convert.ToBase64String(firstUserImage)];
                 first = false;
             }
-            _chat.Messages.Add(msg);
+            _history.Add(msg);
         }
+    }
+
+    /// <summary>A callable chat tool: schema + invoker returning a one-line result.</summary>
+    public sealed class HoshiTool
+    {
+        public required string Name { get; init; }
+        public required string Description { get; init; }
+        public Dictionary<string, string>? Parameters { get; init; }
+        public IReadOnlyList<string>? RequiredParams { get; init; }
+        public required Func<IReadOnlyDictionary<string, string?>, CancellationToken, Task<string>> InvokeAsync { get; init; }
+    }
+
+    /// <summary>Model capabilities via /api/show, cached per model name.</summary>
+    public async Task<IReadOnlySet<string>> GetCapabilitiesAsync(string model, CancellationToken ct = default)
+    {
+        if (_capCache.TryGetValue(model, out var cached)) return cached;
+        var caps = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        try
+        {
+            await EnsureClientAvailableAsync(ct);
+            var info = await _client!.ShowModelAsync(new OllamaSharp.Models.ShowModelRequest { Model = model }, ct);
+            if (info?.Capabilities != null) caps.UnionWith(info.Capabilities);
+        }
+        catch
+        {
+            if (model.Contains("llava", StringComparison.OrdinalIgnoreCase)
+                || model.Contains("moondream", StringComparison.OrdinalIgnoreCase)
+                || model.Contains("vision", StringComparison.OrdinalIgnoreCase)
+                || model.Contains("-vl", StringComparison.OrdinalIgnoreCase)
+                || model.Contains("minicpm", StringComparison.OrdinalIgnoreCase))
+                caps.Add("vision");
+        }
+        _capCache[model] = caps;
+        return caps;
+    }
+
+    /// <summary>True when the configured vision model advertises the "vision" capability.</summary>
+    public async Task<bool> SupportsVisionAsync(CancellationToken ct = default)
+        => (await GetCapabilitiesAsync(GetVisionModel(), ct)).Contains("vision");
+
+    /// <summary>True when the model that would handle a request supports tools.</summary>
+    public async Task<bool> SupportsToolsAsync(bool withImage, CancellationToken ct = default)
+    {
+        var model = withImage ? GetVisionModel() : GetTextModel();
+        return (await GetCapabilitiesAsync(model, ct)).Contains("tools");
+    }
+
+    /// <summary>
+    /// Sends one user turn: [system] + budgeted history + new message, streams visible text,
+    /// executes tool calls (max 4 rounds), then commits the turn to history.
+    /// Replaces ChatAsync/ChatWithImageAsync.
+    /// </summary>
+    public async IAsyncEnumerable<string> SendAsync(
+        string userMessage,
+        byte[]? image,
+        string systemPrompt,
+        IReadOnlyList<HoshiTool>? tools,
+        bool remember = true,
+        [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken ct = default)
+    {
+        EnsureReady();
+        var model = image != null ? GetVisionModel() : GetTextModel();
+        var caps = await GetCapabilitiesAsync(model, ct);
+        var vision = caps.Contains("vision");
+        var useTools = tools is { Count: > 0 } && caps.Contains("tools");
+
+        string? imageB64 = null;
+        if (image != null)
+            imageB64 = Convert.ToBase64String(await Task.Run(() => ResizeForVision(image), ct).ConfigureAwait(false));
+
+        var history = Pikura.Core.Services.Hoshi.HoshiContextBudget.Select(
+            _history.Select(m => (m.Role.ToString() ?? "user", m.Content ?? "")))
+            .Select(t => new OllamaSharp.Models.Chat.Message(
+                t.Item1 == "assistant" ? OllamaSharp.Models.Chat.ChatRole.Assistant : OllamaSharp.Models.Chat.ChatRole.User,
+                t.Item2, null)).ToList();
+        // Images: strip all except the newest image-bearing user message's when vision.
+        if (_history.Count > 0 && history.Count > 0)
+        {
+            var kept = _history.Skip(_history.Count - history.Count).ToList();
+            var lastImg = kept.FindLastIndex(m => m.Images?.Any() == true);
+            for (var i = 0; i < history.Count; i++)
+                history[i].Images = (vision && i == lastImg) ? kept[i].Images : null;
+        }
+
+        var userMsg = new OllamaSharp.Models.Chat.Message(
+            OllamaSharp.Models.Chat.ChatRole.User, userMessage, null);
+        if (imageB64 != null) userMsg.Images = [imageB64];
+
+        var messages = new List<OllamaSharp.Models.Chat.Message>
+        {
+            new(OllamaSharp.Models.Chat.ChatRole.System, systemPrompt, null)
+        };
+        messages.AddRange(history);
+        messages.Add(userMsg);
+
+        var ollamaTools = useTools ? tools!.Select(ToOllamaTool).ToList() : null;
+        var toolByName = useTools ? tools!.ToDictionary(t => t.Name) : null;
+        var allText = new System.Text.StringBuilder();
+        var sb = new System.Text.StringBuilder();
+
+        try
+        {
+            for (var round = 0; round < 4; round++)
+            {
+                var req = new OllamaSharp.Models.Chat.ChatRequest
+                {
+                    Model = model,
+                    Messages = messages,
+                    Stream = true,
+                    Options = new OllamaSharp.Models.RequestOptions
+                    {
+                        NumThread = InferenceThreadCount,
+                        NumCtx = 8192,
+                    },
+                    Tools = ollamaTools,
+                };
+
+                sb.Clear();
+                var visibleLen = 0; // per round — resets each request
+                OllamaSharp.Models.Chat.Message? toolCallMsg = null;
+                await foreach (var chunk in _client!.ChatAsync(req, ct).ConfigureAwait(false))
+                {
+                    if (chunk?.Message?.Content is { } c && c.Length > 0)
+                    {
+                        sb.Append(c);
+                        var visible = StripThink(sb.ToString());
+                        if (visible.Length > visibleLen)
+                        {
+                            var delta = visible[visibleLen..];
+                            visibleLen = visible.Length;
+                            yield return delta;
+                        }
+                    }
+                    if (chunk?.Message?.ToolCalls is { } tc && tc.Any())
+                        toolCallMsg = chunk.Message;
+                }
+                allText.Append(StripThink(sb.ToString()));
+                sb.Clear();
+
+                var calls = toolCallMsg?.ToolCalls?.ToList();
+                if (calls is not { Count: > 0 } || toolCallMsg == null || toolByName == null || round == 3) break;
+
+                messages.Add(toolCallMsg);
+                foreach (var call in calls)
+                {
+                    string result;
+                    try
+                    {
+                        if (!toolByName.TryGetValue(call.Function?.Name ?? "", out var tool))
+                            result = "Error: unknown tool.";
+                        else
+                        {
+                            var args = call.Function?.Arguments?
+                                .ToDictionary(kv => kv.Key, kv => kv.Value?.ToString())
+                                ?? new Dictionary<string, string?>();
+                            result = await tool.InvokeAsync(args, ct);
+                        }
+                    }
+                    catch (Exception ex) { result = $"Error: {ex.Message}"; }
+                    messages.Add(new OllamaSharp.Models.Chat.Message(
+                        OllamaSharp.Models.Chat.ChatRole.Tool, result, null));
+                }
+            }
+        }
+        finally
+        {
+            // Commit user + partial/full assistant text even on cancellation mid-stream —
+            // losing a half-written answer silently corrupts the conversation for the model.
+            if (remember)
+            {
+                _history.Add(userMsg);
+                _history.Add(new OllamaSharp.Models.Chat.Message(
+                    OllamaSharp.Models.Chat.ChatRole.Assistant, allText + StripThink(sb.ToString()), null));
+            }
+        }
+    }
+
+    private static string StripThink(string s)
+    {
+        while (true)
+        {
+            var a = s.IndexOf("<think>", StringComparison.OrdinalIgnoreCase);
+            if (a < 0) return s;
+            var b = s.IndexOf("</think>", a, StringComparison.OrdinalIgnoreCase);
+            s = b < 0 ? s[..a] : s.Remove(a, b + "</think>".Length - a);
+        }
+    }
+
+    private static OllamaSharp.Models.Chat.Tool ToOllamaTool(HoshiTool t)
+    {
+        var props = new Dictionary<string, OllamaSharp.Models.Chat.Property>();
+        if (t.Parameters != null)
+            foreach (var (name, desc) in t.Parameters)
+                props[name] = new OllamaSharp.Models.Chat.Property { Type = "string", Description = desc };
+        return new OllamaSharp.Models.Chat.Tool
+        {
+            Type = "function",
+            Function = new OllamaSharp.Models.Chat.Function
+            {
+                Name = t.Name,
+                Description = t.Description,
+                Parameters = new OllamaSharp.Models.Chat.Parameters
+                {
+                    Type = "object",
+                    Properties = props,
+                    Required = t.RequiredParams?.ToArray(),
+                },
+            },
+        };
     }
 
     // ── Model management (public API for settings UI) ────────────────────────
@@ -355,7 +521,7 @@ public sealed class OllamaService : IDisposable
             }
             catch { /* non-fatal — priority is a best-effort scheduling hint */ }
 
-            _client = new OllamaApiClient(new Uri(OllamaHost)) { SelectedModel = GetTextModel() };
+            _client = new OllamaApiClient(new HttpClient { BaseAddress = new Uri(OllamaHost), Timeout = TimeSpan.FromMinutes(10) }) { SelectedModel = GetTextModel() };
             return;
         }
 
@@ -392,12 +558,27 @@ public sealed class OllamaService : IDisposable
         if (!await PingAsync(ct))
             throw new TimeoutException("Ollama did not start within 45 seconds.");
 
-        _client = new OllamaApiClient(new Uri(OllamaHost)) { SelectedModel = GetTextModel() };
+        _client = new OllamaApiClient(new HttpClient { BaseAddress = new Uri(OllamaHost), Timeout = TimeSpan.FromMinutes(10) }) { SelectedModel = GetTextModel() };
     }
 
     private async Task EnsureModelAsync(IProgress<string>? progress, CancellationToken ct)
     {
         var models = await _client!.ListLocalModelsAsync(ct);
+
+        // Existing users with the old llava+llama3.2 defaults must never get an unexpected
+        // qwen3-vl pull — migrate them to explicit custom-model settings instead.
+        if (Pikura.Core.Services.Hoshi.HoshiPrompt.ShouldMigrateToLegacyModels(
+                _settings.Current.UseCustomHoshiModels, models.Select(m => m.Name)))
+        {
+            _settings.Update(s =>
+            {
+                s.UseCustomHoshiModels = true;
+                s.HoshiTextModel   = "llama3.2";
+                s.HoshiVisionModel = "llava";
+            });
+            _logger.LogInformation("Migrated Hoshi models to legacy llava+llama3.2 (skipping qwen3-vl pull)");
+        }
+
         var textModel = GetTextModel();
         var visionModel = GetVisionModel();
         var hasTextModel = models.Any(m => m.Name.StartsWith(textModel, StringComparison.OrdinalIgnoreCase));
@@ -406,7 +587,6 @@ public sealed class OllamaService : IDisposable
         if (hasTextModel && hasVisionModel)
         {
             IsModelPulled = true;
-            _chat = new Chat(_client);
             return;
         }
 
@@ -439,7 +619,6 @@ public sealed class OllamaService : IDisposable
         }
 
         IsModelPulled = true;
-        _chat = new Chat(_client);
     }
 
     private static async Task<bool> PingAsync(CancellationToken _ = default)
