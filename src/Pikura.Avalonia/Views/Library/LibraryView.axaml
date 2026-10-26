@@ -263,7 +263,7 @@
                                 </Border.Styles>
                                 <StackPanel Spacing="4">
                                     <Border CornerRadius="4" ClipToBounds="True" Height="{Binding $parent[ItemsControl].DataContext.CardSize}">
-                                        <Image Source="{Binding Thumbnail}" Stretch="Uniform"/>
+                                        <Image Source="{Binding Thumbnail}" Stretch="Uniform"><Image.Effect><BlurEffect Radius="{Binding BlurRadius}"/></Image.Effect></Image>
                                     </Border>
                                     <TextBlock Text="{Binding DisplayName}" FontSize="12" TextTrimming="CharacterEllipsis" MaxLines="1"
                                                IsVisible="{Binding $parent[ItemsControl].DataContext.ShowInfo}"/>
@@ -296,7 +296,7 @@
                                 </Border.Styles>
                                 <StackPanel Spacing="4">
                                     <Border CornerRadius="4" ClipToBounds="True" Height="{Binding ImageHeight}">
-                                        <Image Source="{Binding Thumbnail}" Stretch="UniformToFill"/>
+                                        <Image Source="{Binding Thumbnail}" Stretch="UniformToFill"><Image.Effect><BlurEffect Radius="{Binding BlurRadius}"/></Image.Effect></Image>
                                     </Border>
                                     <TextBlock Text="{Binding DisplayName}" FontSize="12" TextTrimming="CharacterEllipsis" MaxLines="1"
                                                IsVisible="{Binding $parent[ItemsControl].DataContext.ShowInfo}"/>
@@ -320,7 +320,7 @@
                                 <Border.Styles><Style Selector="Border.selected"><Setter Property="BorderBrush" Value="#3B82F6"/><Setter Property="BorderThickness" Value="2"/></Style></Border.Styles>
                                 <Grid ColumnDefinitions="Auto,72,*" Height="72">
                                     <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected}" VerticalAlignment="Center" Margin="6,0,2,0"/>
-                                    <Border Grid.Column="1" CornerRadius="4" ClipToBounds="True"><Image Source="{Binding Thumbnail}" Stretch="UniformToFill"/></Border>
+                                    <Border Grid.Column="1" CornerRadius="4" ClipToBounds="True"><Image Source="{Binding Thumbnail}" Stretch="UniformToFill"><Image.Effect><BlurEffect Radius="{Binding BlurRadius}"/></Image.Effect></Image></Border>
                                     <StackPanel Grid.Column="2" Margin="10,0" Spacing="3" VerticalAlignment="Center">
                                         <TextBlock Text="{Binding DisplayName}" FontSize="12" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" MaxLines="1"/>
                                         <TextBlock Text="{Binding SubText}" FontSize="11" Foreground="{DynamicResource DefaultForegroundBrushSecondary}" TextTrimming="CharacterEllipsis" MaxLines="1"/>

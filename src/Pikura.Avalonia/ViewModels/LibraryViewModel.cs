@@ -36,6 +36,14 @@ public partial class LibraryItemViewModel : ObservableObject
             return line;
         }
     }
+    /// <summary>Thumbnail blur (0 = none) — follows Settings → "Blur R-18 content".</summary>
+    [ObservableProperty] private double _blurRadius;
+
+    /// <summary>Same rule as the R-18 filter: rated R-18 on pixiv, or tagged R-18.</summary>
+    public bool IsR18 => File.XRestrict >= 1 || (File.Tags?.Contains("R-18", StringComparison.OrdinalIgnoreCase) ?? false);
+
+    public void ApplyBlur(bool blurR18) => BlurRadius = blurR18 && IsR18 ? 24 : 0;
+
     /// <summary>Call after File's metadata was filled in so the card text refreshes.</summary>
     public void NotifyMetadataChanged()
     {
@@ -166,7 +174,7 @@ public partial class LibraryViewModel : ObservableObject
     // session cache: fileId → pixiv id found via reverse search ("" = miss)
     private readonly Dictionary<long, string> _revSearchCache = new();
     private int ResultsTotal;
-    private bool _autoSearch, _sauceKeyRejected;
+    private bool _autoSearch, _sauceKeyRejected, _lastBlur;
     [ObservableProperty] private string? _r18Notice;
     [ObservableProperty] private string? _revSearchStatus;
     private int _queryGen; // bumped by RefreshAsync; stale page loads are discarded
@@ -227,6 +235,15 @@ public partial class LibraryViewModel : ObservableObject
         _dupThreshold = settings.Current.LibraryDuplicateThreshold;
         _ = RefreshAsync();
         _ = LoadChipsAsync();
+        // Follow Settings → "Blur R-18 content" live (Changed fires on every write, so compare first).
+        _lastBlur = settings.Current.BlurR18Content;
+        settings.Changed += (_, _) =>
+        {
+            var blur = _settings.Current.BlurR18Content;
+            if (blur == _lastBlur) return;
+            _lastBlur = blur;
+            Dispatcher.UIThread.Post(() => { foreach (var i in Items) i.ApplyBlur(blur); });
+        };
     }
 
     private async Task RefreshAsync()
@@ -366,6 +383,7 @@ public partial class LibraryViewModel : ObservableObject
             foreach (var f in items)
             {
                 var vm = new LibraryItemViewModel(f);
+                vm.ApplyBlur(_settings.Current.BlurR18Content);
                 vm.UpdateImageHeight(CardSize, IsNaturalHeight);
                 Items.Add(vm);
                 _ = LoadThumbAsync(vm);
@@ -390,6 +408,7 @@ public partial class LibraryViewModel : ObservableObject
             foreach (var f in items)
             {
                 var vm = new LibraryItemViewModel(f);
+                vm.ApplyBlur(_settings.Current.BlurR18Content);
                 vm.UpdateImageHeight(CardSize, IsNaturalHeight);
                 Items.Add(vm);
                 _ = LoadThumbAsync(vm);
@@ -633,7 +652,7 @@ public partial class LibraryViewModel : ObservableObject
                         target.Title = vm.File.Title ?? target.Title;
                         target.UserName = vm.File.ArtistName ?? "";
                         target.UserId = vm.File.ArtistId ?? "";
-                        vm.NotifyMetadataChanged();
+                        vm.NotifyMetadataChanged(); vm.ApplyBlur(_settings.Current.BlurR18Content);
                     });
                 }
                 catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[Library] enrich failed: {ex.Message}"); }
@@ -750,7 +769,7 @@ public partial class LibraryViewModel : ObservableObject
         try
         {
             NoticeLine = await _library.EnrichFileAsync(item.File) ? null : LocalizationService.Instance["Viewer_ArtistUnknown"];
-            item.NotifyMetadataChanged();
+            item.NotifyMetadataChanged(); item.ApplyBlur(_settings.Current.BlurR18Content);
         }
         catch (Exception ex) { NoticeLine = ex.Message; }
     }
