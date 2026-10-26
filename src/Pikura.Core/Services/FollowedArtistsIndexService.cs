@@ -163,6 +163,13 @@ public sealed class FollowedArtistsIndexService : IDisposable
             _logger.LogInformation("Artwork index build complete");
         }
         catch (OperationCanceledException) { }
+        catch (HttpRequestException ex) when (ex.StatusCode == null)
+        {
+            // Connection-level failure (TLS handshake, DNS, network not ready right after wake/boot):
+            // retry shortly instead of leaving the index stale until the next 6-hour tick.
+            _logger.LogWarning(ex, "Artwork index build hit a network error; retrying in 2 minutes");
+            if (_isTimerRunning) _recrawlTimer.Change(TimeSpan.FromMinutes(2), _recrawlInterval);
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Artwork index build failed");
