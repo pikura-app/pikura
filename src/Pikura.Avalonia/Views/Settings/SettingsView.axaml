@@ -694,10 +694,10 @@
                                 <ComboBox SelectedIndex="{Binding ActiveResizePresetIndex, Mode=TwoWay}"
                                           FontSize="13" CornerRadius="6" HorizontalAlignment="Left" MinWidth="250">
                                     <ComboBoxItem Content="{loc:Tr Settings_PresetNone}"/>
-                                    <ComboBoxItem Content="4K Desktop Wallpaper (3840x2160)"/>
-                                    <ComboBoxItem Content="QHD Desktop Wallpaper (2560x1440)"/>
-                                    <ComboBoxItem Content="Full HD Desktop Wallpaper (1920x1080)"/>
-                                    <ComboBoxItem Content="HD Desktop Wallpaper (1280x720)"/>
+                                    <ComboBoxItem Content="{loc:Tr Settings_Wallpaper4K}"/>
+                                    <ComboBoxItem Content="{loc:Tr Settings_WallpaperQHD}"/>
+                                    <ComboBoxItem Content="{loc:Tr Settings_WallpaperFHD}"/>
+                                    <ComboBoxItem Content="{loc:Tr Settings_WallpaperHD}"/>
                                     <ComboBoxItem Content="iPhone 16 Pro Max (1320x2868)"/>
                                     <ComboBoxItem Content="iPhone 16 / Pro (1179x2556)"/>
                                     <ComboBoxItem Content="iPhone 14/15 Pro Max (1290x2796)"/>
@@ -986,6 +986,17 @@
                                                  PlaceholderText="http://127.0.0.1:8080" IsEnabled="{Binding UseProxy}"/>
                                         <CheckBox Content="{loc:Tr Settings_VerifySsl}" IsChecked="{Binding EnableSSLVerification, Mode=TwoWay}" FontSize="12"/>
                                         <CheckBox Content="{loc:Tr Settings_RespectRobots}" IsChecked="{Binding UseRobots, Mode=TwoWay}" FontSize="12"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Background="{DynamicResource Container1BackgroundBrush}"
+                                        BorderBrush="{DynamicResource Container1BorderBrush}"
+                                        BorderThickness="1" CornerRadius="8" Padding="24">
+                                    <StackPanel Spacing="12">
+                                        <TextBlock Text="{loc:Tr Settings_ReverseSearch}" FontWeight="SemiBold" FontSize="13"/>
+                                        <TextBlock Text="{loc:Tr Settings_SauceNaoKeyHint}" FontSize="11" TextWrapping="Wrap"
+                                                   Foreground="{DynamicResource DefaultForegroundBrushSecondary}"/>
+                                        <TextBox Text="{Binding SauceNaoApiKey, Mode=TwoWay}" CornerRadius="5" FontSize="12"
+                                                 PasswordChar="•" PlaceholderText="{loc:Tr Settings_SauceNaoKey}"/>
                                     </StackPanel>
                                 </Border>
                                 <Border Background="{DynamicResource Container1BackgroundBrush}"
@@ -1303,6 +1314,32 @@
                                                   PlaceholderText="{Binding HoshiVisionModel}"
                                                   CornerRadius="6" FontSize="13" HorizontalAlignment="Stretch"/>
                                     </Grid>
+
+                                    <!-- Recommended models (one-click install + use) -->
+                                    <StackPanel Spacing="6">
+                                        <TextBlock Text="{loc:Tr Hoshi_RecommendedModels}" FontSize="12" FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
+                                        <ItemsControl ItemsSource="{Binding HoshiRecommendedModels}" x:CompileBindings="False">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate x:DataType="vm:SettingsViewModel+RecommendedModel">
+                                                    <Grid ColumnDefinitions="*,Auto" Margin="0,2">
+                                                        <TextBlock Grid.Column="0" VerticalAlignment="Center" FontSize="12">
+                                                            <TextBlock.Text>
+                                                                <MultiBinding StringFormat="{}{0} — {1}">
+                                                                    <Binding Path="Name"/>
+                                                                    <Binding Path="Label"/>
+                                                                </MultiBinding>
+                                                            </TextBlock.Text>
+                                                        </TextBlock>
+                                                        <Button Grid.Column="1" FontSize="11"
+                                                                Content="{loc:Tr Hoshi_DownloadAndUse}"
+                                                                Command="{Binding DataContext.UseRecommendedModelCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                                CommandParameter="{Binding Name}"/>
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </StackPanel>
                                 </StackPanel>
 
                                 <Border Height="1" Background="{DynamicResource Container1BorderBrush}" Margin="0,0"/>
@@ -1727,16 +1764,29 @@
                                         <ComboBox Grid.Row="0" Grid.Column="1"
                                                   SelectedItem="{Binding StartupWindowState, Mode=TwoWay}"
                                                   ItemsSource="{Binding StartupWindowStates}"
-                                                  CornerRadius="5" FontSize="12"/>
+                                                  CornerRadius="5" FontSize="12">
+                                            <ComboBox.ItemTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock FontSize="12">
+                                                        <TextBlock.Text>
+                                                            <MultiBinding Converter="{x:Static loc:LocLabelConverter.Instance}" ConverterParameter="Settings_WinState_">
+                                                                <ReflectionBinding/>
+                                                                <ReflectionBinding Path="Language" Source="{x:Static loc:LocalizationService.Instance}"/>
+                                                            </MultiBinding>
+                                                        </TextBlock.Text>
+                                                    </TextBlock>
+                                                </DataTemplate>
+                                            </ComboBox.ItemTemplate>
+                                        </ComboBox>
                                         <TextBlock Grid.Row="1" Grid.Column="0" Text="{loc:Tr Settings_SystemTray}" FontSize="12"
                                                    Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                                    VerticalAlignment="Center" Margin="0,8,10,0"/>
                                         <ComboBox Grid.Row="1" Grid.Column="1" Margin="0,8,0,0"
                                                   CornerRadius="5" FontSize="12"
                                                   SelectedIndex="{Binding TrayBehavior, Mode=TwoWay}">
-                                            <ComboBoxItem>Disabled</ComboBoxItem>
-                                            <ComboBoxItem>Minimize to tray</ComboBoxItem>
-                                            <ComboBoxItem>Close to tray</ComboBoxItem>
+                                            <ComboBoxItem Content="{loc:Tr Settings_TrayDisabled}"/>
+                                            <ComboBoxItem Content="{loc:Tr Settings_TrayMinimize}"/>
+                                            <ComboBoxItem Content="{loc:Tr Settings_TrayClose}"/>
                                         </ComboBox>
                                         <TextBlock Grid.Row="2" Grid.Column="0" Text="{loc:Tr Settings_StartupTab}" FontSize="12"
                                                    Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
@@ -1747,7 +1797,17 @@
                                                   CornerRadius="5" FontSize="12">
                                             <ComboBox.ItemTemplate>
                                                 <DataTemplate x:DataType="vm:StartupTabOption">
-                                                    <TextBlock Text="{Binding Display}" />
+                                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                                        <TextBlock Text="{Binding Emoji}" FontSize="12"/>
+                                                        <TextBlock FontSize="12">
+                                                            <TextBlock.Text>
+                                                                <MultiBinding Converter="{x:Static loc:LocLabelConverter.Instance}" ConverterParameter="">
+                                                                    <Binding Path="LocKey"/>
+                                                                    <ReflectionBinding Path="Language" Source="{x:Static loc:LocalizationService.Instance}"/>
+                                                                </MultiBinding>
+                                                            </TextBlock.Text>
+                                                        </TextBlock>
+                                                    </StackPanel>
                                                 </DataTemplate>
                                             </ComboBox.ItemTemplate>
                                         </ComboBox>

@@ -556,8 +556,8 @@ public partial class GalleryView : UserControl
 
         foreach (var item in menu.Items)
         {
-            if (item is not MenuItem mi || mi.Header is not string header) continue;
-            if (header.Contains("Ugoira"))
+            if (item is not MenuItem mi) continue;
+            if (mi.Tag as string == "UgoiraOptions")
                 mi.IsVisible = card.IllustType == 2;
         }
     }

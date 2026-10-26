@@ -5,6 +5,7 @@ using Avalonia.Markup.Xaml;
 using Avalonia.Platform;
 using Avalonia.Styling;
 using Avalonia.Threading;
+using Avalonia.VisualTree;
 using Pikura.Avalonia.ViewModels;
 using Pikura.Avalonia.Views;
 using Pikura.Avalonia.Localization;
@@ -54,7 +55,13 @@ public partial class App : Application
             items[^1].Header = loc["Tray_Quit"];
         }
         UpdateTrayMenu();
-        loc.PropertyChanged += (_, e) => { if (e.PropertyName is "Item[]" or "Item") UpdateTrayMenu(); };
+        loc.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName != nameof(LocalizationService.Language)) return;
+            UpdateTrayMenu();
+            // Deferred: the items' own translated bindings must update first.
+            Dispatcher.UIThread.Post(RefreshComboBoxSelections, DispatcherPriority.Background);
+        };
 
         // Sync Windows startup registry with the saved user setting. The app/installer
         // may have left a stale Run key entry under a legacy or canonical name; this
@@ -65,6 +72,20 @@ public partial class App : Application
             try { Services.StartupHelper.SetStartupEnabled(settings.Current.StartWithWindows); }
             catch { /* non-fatal */ }
         }
+    }
+
+    private static readonly MethodInfo? UpdateSelectionBoxItemMethod =
+        typeof(ComboBox).GetMethod("UpdateSelectionBoxItem", BindingFlags.Instance | BindingFlags.NonPublic);
+
+    // A ComboBox snapshots its selected item's content into SelectionBoxItem and only refreshes it on
+    // selection change or re-attach, so translated items in visible combos would keep the old
+    // language until reselected. Avalonia exposes no public refresh, hence the reflection call.
+    private void RefreshComboBoxSelections()
+    {
+        if (UpdateSelectionBoxItemMethod is null || ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime desktop) return;
+        foreach (var window in desktop.Windows)
+            foreach (var combo in window.GetVisualDescendants().OfType<ComboBox>())
+                UpdateSelectionBoxItemMethod.Invoke(combo, [combo.SelectedItem]);
     }
 
     public static void ApplyTheme()

@@ -38,7 +38,7 @@
             <MenuItem Header="{loc:Tr Search_CopyArtistID}" Click="OnContextCopyArtistId"/>
             <MenuItem Header="{loc:Tr Search_CopyImage}" Click="OnContextCopyImage"/>
             <MenuItem Header="{loc:Tr Search_UseAsAppBackground}" Click="OnContextUseAsBackground" IsVisible="{Binding IsEnabled, Source={x:Static services:AppServices.OverlayService}}"/>
-            <MenuItem Header="{loc:Tr Pixivision_UgoiraOptions}" Click="OnContextUgoiraOptions" IsVisible="False"/>
+            <MenuItem Header="{loc:Tr Pixivision_UgoiraOptions}" Click="OnContextUgoiraOptions" IsVisible="False" Tag="UgoiraOptions"/>
         </ContextMenu>
 
         <ContextMenu x:Key="ArticleCardContextMenu" x:DataType="vm:PixivisionArticleCardViewModel">
@@ -190,17 +190,33 @@
                         <DataTemplate x:DataType="models:PixivisionCategoryGroup">
                             <StackPanel Orientation="Horizontal" Spacing="0" VerticalAlignment="Bottom" Margin="0,0,18,0">
                                 <StackPanel Spacing="6" VerticalAlignment="Bottom">
-                                    <TextBlock Text="{Binding Label}" FontSize="13" FontWeight="Bold"
-                                               Foreground="{Binding Color}" IsVisible="{Binding HasLabel}"/>
+                                    <TextBlock FontSize="13" FontWeight="Bold"
+                                               Foreground="{Binding Color}" IsVisible="{Binding HasLabel}">
+                                        <TextBlock.Text>
+                                            <MultiBinding Converter="{x:Static loc:LocLabelConverter.Instance}" ConverterParameter="Pixivision_Cat_">
+                                                <Binding Path="Label"/>
+                                                <ReflectionBinding Path="Language" Source="{x:Static loc:LocalizationService.Instance}"/>
+                                            </MultiBinding>
+                                        </TextBlock.Text>
+                                    </TextBlock>
                                     <ItemsControl ItemsSource="{Binding Items}">
                                         <ItemsControl.ItemsPanel>
                                             <ItemsPanelTemplate><StackPanel Orientation="Horizontal" Spacing="4"/></ItemsPanelTemplate>
                                         </ItemsControl.ItemsPanel>
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate x:DataType="models:PixivisionCategory">
-                                                <ToggleButton CornerRadius="5" Padding="10,5" FontSize="11" Content="{Binding Label}"
+                                                <ToggleButton CornerRadius="5" Padding="10,5" FontSize="11"
                                                               IsChecked="{Binding $parent[UserControl].((vm:PixivisionViewModel)DataContext).SelectedCategory, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={Binding}}"
-                                                              Click="OnCategoryTabClicked" Tag="{Binding}"/>
+                                                              Click="OnCategoryTabClicked" Tag="{Binding}">
+                                                    <TextBlock FontSize="{Binding $parent[ContentControl].FontSize}">
+                                                        <TextBlock.Text>
+                                                            <MultiBinding Converter="{x:Static loc:LocLabelConverter.Instance}" ConverterParameter="Pixivision_Cat_">
+                                                                <Binding Path="Label"/>
+                                                                <ReflectionBinding Path="Language" Source="{x:Static loc:LocalizationService.Instance}"/>
+                                                            </MultiBinding>
+                                                        </TextBlock.Text>
+                                                    </TextBlock>
+                                                </ToggleButton>
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
                                     </ItemsControl>
@@ -224,9 +240,9 @@
                     <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center"
                                 IsVisible="{Binding !IsViewingArticle}">
                         <ToggleButton IsChecked="{Binding IsArticleGridView}" CornerRadius="5" Padding="9,5" FontSize="11"
-                                      Command="{Binding SetArticleGridViewCommand}">⊞ Grid</ToggleButton>
+                                      Command="{Binding SetArticleGridViewCommand}"><TextBlock FontSize="{Binding $parent[ContentControl].FontSize}"><Run Text="⊞ "/><Run Text="{loc:Tr Gallery_Grid}"/></TextBlock></ToggleButton>
                         <ToggleButton IsChecked="{Binding IsArticleListView}" CornerRadius="5" Padding="9,5" FontSize="11"
-                                      Command="{Binding SetArticleListViewCommand}">☰ List</ToggleButton>
+                                      Command="{Binding SetArticleListViewCommand}"><TextBlock FontSize="{Binding $parent[ContentControl].FontSize}"><Run Text="☰ "/><Run Text="{loc:Tr Gallery_List}"/></TextBlock></ToggleButton>
                         <Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}"/>
                         <TextBlock Text="{loc:Tr Rankings_CardSize}" FontSize="11" VerticalAlignment="Center"
                                    Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
@@ -237,9 +253,7 @@
                         <Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}"
                                    IsVisible="{Binding IsArticleGridView}"/>
                         <ToggleButton IsChecked="{Binding ShowSidebarWidgets}" CornerRadius="5" Padding="9,5" FontSize="11"
-                                      ToolTip.Tip="{loc:Tr Pixivision_ShowOrHideTheMonthlyRanking}">
-                            Featured
-                        </ToggleButton>
+                                      ToolTip.Tip="{loc:Tr Pixivision_ShowOrHideTheMonthlyRanking}"><TextBlock Text="{loc:Tr Pixivision_Featured}" FontSize="{Binding $parent[ContentControl].FontSize}"/></ToggleButton>
                         <Slider Value="{Binding SidebarWidth}" Minimum="200" Maximum="520"
                                 Width="90" VerticalAlignment="Center"
                                 IsVisible="{Binding ShowSidebarPanel}"
@@ -261,15 +275,9 @@
                                 Width="90" VerticalAlignment="Center"/>
                         <Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}"/>
                         <ToggleButton IsChecked="{Binding IsFixedHeight}" CornerRadius="5" Padding="9,5" FontSize="11"
-                                      Command="{Binding SetFixedHeightCommand}">
-
-                            Fixed
-                        </ToggleButton>
+                                      Command="{Binding SetFixedHeightCommand}"><TextBlock Text="{loc:Tr Gallery_Fixed}" FontSize="{Binding $parent[ContentControl].FontSize}"/></ToggleButton>
                         <ToggleButton IsChecked="{Binding IsNaturalHeight}" CornerRadius="5" Padding="9,5" FontSize="11"
-                                      Command="{Binding SetNaturalHeightCommand}">
-
-                            Natural
-                        </ToggleButton>
+                                      Command="{Binding SetNaturalHeightCommand}"><TextBlock Text="{loc:Tr Gallery_Natural}" FontSize="{Binding $parent[ContentControl].FontSize}"/></ToggleButton>
                         <Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}"/>
                         <ToggleButton IsChecked="{Binding IsInlineArtworkLayout}" CornerRadius="5" Padding="9,5" FontSize="11"
                                       ToolTip.Tip="{loc:Tr Pixivision_SwitchBetweenShowingEmbeddedArtworksInli}">
@@ -280,8 +288,8 @@
                             </StackPanel>
                         </ToggleButton>
                         <Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}"/>
-                        <ToggleButton IsChecked="{Binding ShowInfo}" CornerRadius="5" Padding="9,5" FontSize="11">Info</ToggleButton>
-                        <ToggleButton IsChecked="{Binding ShowTags}" CornerRadius="5" Padding="9,5" FontSize="11">Tags</ToggleButton>
+                        <ToggleButton IsChecked="{Binding ShowInfo}" CornerRadius="5" Padding="9,5" FontSize="11"><TextBlock Text="{loc:Tr Gallery_Info}" FontSize="{Binding $parent[ContentControl].FontSize}"/></ToggleButton>
+                        <ToggleButton IsChecked="{Binding ShowTags}" CornerRadius="5" Padding="9,5" FontSize="11"><TextBlock Text="{loc:Tr Gallery_Tags}" FontSize="{Binding $parent[ContentControl].FontSize}"/></ToggleButton>
                         <ToggleButton IsChecked="{Binding ShowBadges}" CornerRadius="5" Padding="9,5" FontSize="11"
                                       ToolTip.Tip="{loc:Tr Search_ShowHideLikedBookmarkedFavoriteBadges}">
                             <StackPanel Orientation="Horizontal" Spacing="4">
@@ -402,7 +410,7 @@
                 </Border>
 
                 <!-- ── Article LIST mode ── -->
-                <Grid Grid.Column="0" ColumnDefinitions="*,Auto">
+                <Grid Grid.Column="0" ColumnDefinitions="*,Auto" Name="ArticlesLayoutGrid" SizeChanged="OnArticlesLayoutSizeChanged">
                     <Grid.IsVisible>
                         <MultiBinding Converter="{x:Static BoolConverters.And}">
                             <Binding Path="!IsViewingArticle"/>
@@ -426,12 +434,11 @@
                                   IsVisible="{Binding IsArticleGridView}">
                         <ItemsControl ItemsSource="{Binding Articles}" Margin="14">
                             <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                                <ItemsPanelTemplate><gallery:FillWrapPanel MinItemWidth="{Binding $parent[UserControl].((vm:PixivisionViewModel)DataContext).ArticleCardSize}" ItemSpacing="10"/></ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate x:DataType="vm:PixivisionArticleCardViewModel">
-                                    <Border Width="{Binding $parent[UserControl].((vm:PixivisionViewModel)DataContext).ArticleCardSize}"
-                                            Margin="0,0,10,10"
+                                    <Border Margin="0"
                                             Background="{DynamicResource Container1BackgroundBrush}"
                                             BorderBrush="{DynamicResource Container1BorderBrush}"
                                             BorderThickness="1" CornerRadius="8"
@@ -557,7 +564,7 @@
                 </Panel>
 
                 <!-- pixivision's own "Monthly Ranking" / "Featured" sidebar widgets -->
-                <ScrollViewer Grid.Column="1" Width="{Binding SidebarWidth}" Margin="0,10,10,10"
+                <ScrollViewer Grid.Column="1" Name="SidebarScroll" Margin="0,10,10,10"
                               IsVisible="{Binding ShowSidebarPanel}"
                               VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                     <StackPanel Spacing="14">
@@ -657,7 +664,7 @@
                             </StackPanel>
                             <ItemsControl ItemsSource="{Binding SavedArticles}" Margin="20">
                                 <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                                    <ItemsPanelTemplate><WrapPanel HorizontalAlignment="Center"/></ItemsPanelTemplate>
                                 </ItemsControl.ItemsPanel>
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate x:DataType="vm:PixivisionArticleCardViewModel">
@@ -866,7 +873,7 @@
                                                 <Grid RowDefinitions="*,Auto">
                                                     <Border Grid.Row="0"
                                                             Height="{Binding $parent[UserControl].((vm:PixivisionViewModel)DataContext).FixedCardTotalHeight}"
-                                                            CornerRadius="7,7,0,0" ClipToBounds="True">
+                                                            CornerRadius="7" ClipToBounds="True">
                                                         <Panel>
                                                             <Border Background="{DynamicResource Container2BackgroundBrush}"
                                                                     IsVisible="{Binding Thumbnail, Converter={x:Static ObjectConverters.IsNull}}"/>
@@ -966,7 +973,7 @@
                                                     </Style>
                                                 </Border.Styles>
                                                 <Grid RowDefinitions="*,Auto">
-                                                    <Border Grid.Row="0" CornerRadius="7,7,0,0" ClipToBounds="True">
+                                                    <Border Grid.Row="0" CornerRadius="7" ClipToBounds="True">
                                                         <Panel>
                                                             <Border Background="{DynamicResource Container2BackgroundBrush}"
                                                                     IsVisible="{Binding Thumbnail, Converter={x:Static ObjectConverters.IsNull}}"/>
@@ -1083,7 +1090,7 @@
                         <ItemsControl ItemsSource="{Binding FeaturedWorks}" IsVisible="{Binding ShowFeaturedWorksGallery}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <gallery:MasonryPanel ColumnWidth="{Binding $parent[UserControl].((vm:PixivisionViewModel)DataContext).CardSize}" ItemSpacing="6"/>
+                                    <gallery:MasonryPanel ColumnWidth="{Binding $parent[UserControl].((vm:PixivisionViewModel)DataContext).CardSize}" ItemSpacing="6" SqueezeToFill="True"/>
                                 </ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
@@ -1108,7 +1115,7 @@
                                             <Grid RowDefinitions="*,Auto">
                                                 <Border Grid.Row="0"
                                                         Height="{Binding $parent[UserControl].((vm:PixivisionViewModel)DataContext).FixedCardTotalHeight}"
-                                                        CornerRadius="7,7,0,0" ClipToBounds="True">
+                                                        CornerRadius="7" ClipToBounds="True">
                                                     <Panel>
                                                         <Border Background="{DynamicResource Container2BackgroundBrush}"
                                                                 IsVisible="{Binding Thumbnail, Converter={x:Static ObjectConverters.IsNull}}"/>
@@ -1208,7 +1215,7 @@
                                                 </Style>
                                             </Border.Styles>
                                             <Grid RowDefinitions="*,Auto">
-                                                <Border Grid.Row="0" CornerRadius="7,7,0,0" ClipToBounds="True">
+                                                <Border Grid.Row="0" CornerRadius="7" ClipToBounds="True">
                                                     <Panel>
                                                         <Border Background="{DynamicResource Container2BackgroundBrush}"
                                                                 IsVisible="{Binding Thumbnail, Converter={x:Static ObjectConverters.IsNull}}"/>
@@ -1393,7 +1400,7 @@
                                 IsVisible="{Binding !IsAutoloadMode}">
                         <Button Content="{loc:Tr Search_Prev}" CornerRadius="6" Padding="10,5" FontSize="11"
                                 Command="{Binding PrevPageCommand}" IsEnabled="{Binding HasPrevPage}"/>
-                        <TextBlock Text="{Binding ArticlePage, StringFormat='Page {0}'}" FontSize="11"
+                        <TextBlock Text="{Binding PageLabel}" FontSize="11"
                                    VerticalAlignment="Center" Margin="4,0"/>
                         <TextBox Text="{Binding PageInput}" PlaceholderText="#"
                                  Width="44" BorderThickness="1" CornerRadius="6"

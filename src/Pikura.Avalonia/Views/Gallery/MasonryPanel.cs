@@ -41,6 +41,16 @@ public class MasonryPanel : Panel
     public static readonly StyledProperty<bool> PreserveOrderProperty =
         AvaloniaProperty.Register<MasonryPanel, bool>(nameof(PreserveOrder));
 
+    public static readonly StyledProperty<bool> SqueezeToFillProperty =
+        AvaloniaProperty.Register<MasonryPanel, bool>(nameof(SqueezeToFill));
+
+    /// <summary>Scale cards down (to ≥70%) to fit an extra column instead of leaving a wide gap.</summary>
+    public bool SqueezeToFill
+    {
+        get => GetValue(SqueezeToFillProperty);
+        set => SetValue(SqueezeToFillProperty, value);
+    }
+
     /// <summary>Target width for each column. Panel auto-calculates actual column count.</summary>
     public double ColumnWidth
     {
@@ -72,6 +82,8 @@ public class MasonryPanel : Panel
     private Size[]? _cachedSizes;
     private double _cachedColumnWidth;
     private int _cachedColumnCount;
+    private double _scale = 1.0;
+    private readonly HashSet<Control> _scaledChildren = new();
     private ScrollViewer? _parentScrollViewer;
     private readonly Dictionary<ArtworkCardViewModel, Control> _cardSubscriptions = new();
 
@@ -179,6 +191,22 @@ public class MasonryPanel : Panel
         // equal to CardSize so explicit Width bindings line up with the column slot
         // — extra space falls on the right of the panel as a normal empty gutter.
         var actualColumnWidth = ColumnWidth;
+        // Narrower than a single card: scale cards down uniformly instead of letting the
+        // right edge (and its rounded corners) get clipped. Cards carry explicit
+        // Width=CardSize bindings, so a render scale is the only change that fits them all.
+        _scale = columnCount == 1 && availableWidth < ColumnWidth ? availableWidth / ColumnWidth : 1.0;
+        // SqueezeToFill: fit one more column by scaling every card down (to ≥70%) rather than
+        // leaving most of a column's width empty.
+        if (SqueezeToFill && _scale >= 1 && !double.IsInfinity(availableSize.Width))
+        {
+            var candidate = columnCount + 1;
+            var needed = (availableWidth - ItemSpacing * (candidate - 1)) / (candidate * ColumnWidth);
+            if (needed >= 0.7 && needed < 1)
+            {
+                columnCount = candidate;
+                _scale = needed;
+            }
+        }
 
         // Cache for Arrange pass
         _cachedSizes = new Size[Children.Count];
@@ -220,7 +248,7 @@ public class MasonryPanel : Panel
             _cachedSizes[i] = size;
 
             var col = PreserveOrder ? i % columnCount : FindShortestColumn(columnHeights);
-            columnHeights[col] += size.Height + ItemSpacing;
+            columnHeights[col] += size.Height * _scale + ItemSpacing;
         }
 
         var maxHeight = columnHeights.Length > 0 ? columnHeights.Max() : 0;
@@ -238,30 +266,39 @@ public class MasonryPanel : Panel
 
         // Recalculate column count from the final arrange width so the panel always fits
         // inside the viewport even if Measure used a fallback/wider width.
-        var columnCount = double.IsInfinity(availableWidth) || availableWidth <= 0
+        var columnCount = _scale < 1 || double.IsInfinity(availableWidth) || availableWidth <= 0
             ? _cachedColumnCount
             : Math.Max(1, (int)Math.Floor((availableWidth + ItemSpacing) / (actualColumnWidth + ItemSpacing)));
 
         var columnHeights = new double[columnCount];
 
-        // When horizontal scrolling is disabled, the panel must stay inside the
-        // viewport, so start the first column flush with the left edge. Otherwise
-        // keep a slight left bias so the masonry looks anchored rather than centered.
-        var contentWidth = columnCount * actualColumnWidth + (columnCount - 1) * ItemSpacing;
+        // Center the columns: leftover width that can't fit another column is split evenly
+        // instead of piling up as one big gap on the right (very visible with the side panel open).
+        var contentWidth = columnCount * actualColumnWidth * _scale + (columnCount - 1) * ItemSpacing;
         var leftover = Math.Max(0, availableWidth - contentWidth);
-        var offsetX = _parentScrollViewer?.HorizontalScrollBarVisibility == ScrollBarVisibility.Disabled
-            ? 0
-            : leftover * 0.2;
+        var offsetX = leftover / 2;
 
         for (int i = 0; i < Children.Count && i < _cachedSizes.Length; i++)
         {
             var col = PreserveOrder ? i % columnCount : FindShortestColumn(columnHeights);
-            var x = offsetX + col * (actualColumnWidth + ItemSpacing);
+            // Scaled cards occupy cw × scale, so columns step by that (not the unscaled width).
+            var x = offsetX + col * (actualColumnWidth * _scale + ItemSpacing);
             var y = columnHeights[col];
             var size = _cachedSizes[i];
+            var child = Children[i];
 
-            Children[i].Arrange(new Rect(x, y, actualColumnWidth, size.Height));
-            columnHeights[col] += size.Height + ItemSpacing;
+            child.Arrange(new Rect(x, y, actualColumnWidth, size.Height));
+            if (_scale < 1)
+            {
+                child.RenderTransformOrigin = RelativePoint.TopLeft;
+                child.RenderTransform = new ScaleTransform(_scale, _scale);
+                _scaledChildren.Add(child);
+            }
+            else if (_scaledChildren.Remove(child))
+            {
+                child.RenderTransform = null;
+            }
+            columnHeights[col] += size.Height * _scale + ItemSpacing;
         }
 
         var maxHeight = columnHeights.Length > 0 ? columnHeights.Max() : 0;

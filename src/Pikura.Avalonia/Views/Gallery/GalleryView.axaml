@@ -812,7 +812,7 @@
                                                 <!-- Image area: clipped top corners only — image ONLY inside clip -->
                                                 <Border Grid.Row="0"
                                                         Height="{Binding $parent[UserControl].((vm:GalleryViewModel)DataContext).FixedCardTotalHeight}"
-                                                        CornerRadius="7,7,0,0" ClipToBounds="True">
+                                                        CornerRadius="7" ClipToBounds="True">
                                                     <Panel>
                                                         <!-- Loading placeholder — visible until thumbnail loads -->
                                                         <Panel IsVisible="{Binding Thumbnail, Converter={x:Static ObjectConverters.IsNull}}">
@@ -994,7 +994,7 @@
                                             </Border.Styles>
                                             <Grid RowDefinitions="*,Auto">
                                                 <!-- Image area: natural height, clipped top corners — image ONLY inside clip -->
-                                                <Border Grid.Row="0" CornerRadius="7,7,0,0" ClipToBounds="True">
+                                                <Border Grid.Row="0" CornerRadius="7" ClipToBounds="True">
                                                     <Panel>
                                                         <!-- Loading placeholder — visible until thumbnail loads -->
                                                         <Panel IsVisible="{Binding Thumbnail, Converter={x:Static ObjectConverters.IsNull}}">
@@ -1203,7 +1203,7 @@
                                                 </Style>
                                             </Border.Styles>
                                             <Grid RowDefinitions="*,Auto">
-                                                <Border Grid.Row="0" CornerRadius="7,7,0,0" ClipToBounds="True">
+                                                <Border Grid.Row="0" CornerRadius="7" ClipToBounds="True">
                                                     <Panel>
                                                         <!-- Loading placeholder — visible until thumbnail loads -->
                                                         <Panel IsVisible="{Binding Thumbnail, Converter={x:Static ObjectConverters.IsNull}}">

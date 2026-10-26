@@ -278,6 +278,7 @@ public partial class MainWindow : Window
             case "Viewed": ViewedButton_Click(null, new RoutedEventArgs()); break;
             case "Batch": BatchDownloadButton_Click(null, new RoutedEventArgs()); break;
             case "Jobs": JobsButton_Click(null, new RoutedEventArgs()); break;
+            case "Library": LibraryButton_Click(null, new RoutedEventArgs()); break;
             default: LoadGalleryView(); break;
         }
     }

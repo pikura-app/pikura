@@ -193,10 +193,10 @@
                     <!-- Grid/List -->
                     <ToggleButton IsChecked="{Binding IsGridView}" CornerRadius="5" Padding="9,5" FontSize="11"
                                   Command="{Binding SetGridViewCommand}"
-                                  ToolTip.Tip="{loc:Tr Rankings_GridView}">⊞ Grid</ToggleButton>
+                                  ToolTip.Tip="{loc:Tr Rankings_GridView}"><TextBlock FontSize="{Binding $parent[ContentControl].FontSize}"><Run Text="⊞ "/><Run Text="{loc:Tr Gallery_Grid}"/></TextBlock></ToggleButton>
                     <ToggleButton IsChecked="{Binding IsListView}" CornerRadius="5" Padding="9,5" FontSize="11"
                                   Command="{Binding SetListViewCommand}"
-                                  ToolTip.Tip="{loc:Tr Rankings_ListView}">☰ List</ToggleButton>
+                                  ToolTip.Tip="{loc:Tr Rankings_ListView}"><TextBlock FontSize="{Binding $parent[ContentControl].FontSize}"><Run Text="☰ "/><Run Text="{loc:Tr Gallery_List}"/></TextBlock></ToggleButton>
                     <Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}" Margin="3,0"
                                IsVisible="{Binding IsGridView}"/>
                     <!-- Fixed / Natural height -->
@@ -210,9 +210,7 @@
                                 <Setter Property="Foreground" Value="White"/>
                                 <Setter Property="FontWeight" Value="SemiBold"/>
                             </Style>
-                        </ToggleButton.Styles>
-                        Fixed
-                    </ToggleButton>
+                        </ToggleButton.Styles><TextBlock Text="{loc:Tr Gallery_Fixed}" FontSize="{Binding $parent[ContentControl].FontSize}"/></ToggleButton>
                     <ToggleButton IsChecked="{Binding IsNaturalHeight}" CornerRadius="5" Padding="9,5" FontSize="11"
                                   Command="{Binding SetNaturalHeightCommand}"
                                   IsVisible="{Binding IsGridView}"
@@ -223,9 +221,7 @@
                                 <Setter Property="Foreground" Value="White"/>
                                 <Setter Property="FontWeight" Value="SemiBold"/>
                             </Style>
-                        </ToggleButton.Styles>
-                        Natural
-                    </ToggleButton>
+                        </ToggleButton.Styles><TextBlock Text="{loc:Tr Gallery_Natural}" FontSize="{Binding $parent[ContentControl].FontSize}"/></ToggleButton>
                     <Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}" Margin="3,0"
                                IsVisible="{Binding IsGridView}"/>
                     <!-- Card size slider -->
@@ -247,9 +243,9 @@
                     <Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}" Margin="3,0"/>
                     <!-- Info / Tags -->
                     <ToggleButton IsChecked="{Binding ShowInfo}" CornerRadius="5" Padding="9,5" FontSize="11"
-                                  ToolTip.Tip="{loc:Tr Rankings_ShowHideArtworkInfo}">Info</ToggleButton>
+                                  ToolTip.Tip="{loc:Tr Rankings_ShowHideArtworkInfo}"><TextBlock Text="{loc:Tr Gallery_Info}" FontSize="{Binding $parent[ContentControl].FontSize}"/></ToggleButton>
                     <ToggleButton IsChecked="{Binding ShowTags}" CornerRadius="5" Padding="9,5" FontSize="11"
-                                  ToolTip.Tip="{loc:Tr Rankings_ShowHideTags}">Tags</ToggleButton>
+                                  ToolTip.Tip="{loc:Tr Rankings_ShowHideTags}"><TextBlock Text="{loc:Tr Gallery_Tags}" FontSize="{Binding $parent[ContentControl].FontSize}"/></ToggleButton>
                     <ToggleButton IsChecked="{Binding ShowBadges}" CornerRadius="5" Padding="9,5" FontSize="11"
                                   ToolTip.Tip="{loc:Tr Search_ShowHideLikedBookmarkedFavoriteBadges}">
                         <StackPanel Orientation="Horizontal" Spacing="4">
@@ -498,14 +494,13 @@
                                   IsVisible="{Binding ShowFixedGrid}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
-                                <WrapPanel/>
+                                <gallery:FillWrapPanel MinItemWidth="{Binding $parent[UserControl].((vm:EnhancedRankingsViewModel)DataContext).CardSize}" ItemSpacing="6"/>
                             </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
                             <DataTemplate x:DataType="vm:RankingCardViewModel">
                                     <!-- ── FIXED HEIGHT card ── -->
-                                    <Border Margin="0,0,6,6"
-                                            Width="{Binding $parent[UserControl].((vm:EnhancedRankingsViewModel)DataContext).CardSize}"
+                                    <Border Margin="0"
                                             Background="{DynamicResource Container1BackgroundBrush}"
                                             BorderBrush="{DynamicResource Container1BorderBrush}"
                                             BorderThickness="1" CornerRadius="8"
@@ -521,7 +516,7 @@
                                         <Grid RowDefinitions="*,Auto">
                                             <Border Grid.Row="0"
                                                     Height="{Binding $parent[UserControl].((vm:EnhancedRankingsViewModel)DataContext).FixedCardTotalHeight}"
-                                                    CornerRadius="7,7,0,0" ClipToBounds="True">
+                                                    CornerRadius="7" ClipToBounds="True">
                                                 <Panel>
                                                     <Border Background="{DynamicResource Container2BackgroundBrush}"
                                                             IsVisible="{Binding Thumbnail, Converter={x:Static ObjectConverters.IsNull}}"/>
@@ -662,7 +657,7 @@
                                   IsVisible="{Binding ShowNaturalGrid}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
-                                <gallery:MasonryPanel ColumnWidth="{Binding $parent[UserControl].((vm:EnhancedRankingsViewModel)DataContext).CardSize}" ItemSpacing="6" PreserveOrder="True"/>
+                                <gallery:MasonryPanel ColumnWidth="{Binding $parent[UserControl].((vm:EnhancedRankingsViewModel)DataContext).CardSize}" ItemSpacing="6" SqueezeToFill="True" PreserveOrder="True"/>
                             </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
@@ -683,7 +678,7 @@
                                             </Style>
                                         </Border.Styles>
                                         <Grid RowDefinitions="*,Auto">
-                                            <Border Grid.Row="0" CornerRadius="7,7,0,0" ClipToBounds="True">
+                                            <Border Grid.Row="0" CornerRadius="7" ClipToBounds="True">
                                                 <Panel>
                                                     <Border Background="{DynamicResource Container2BackgroundBrush}"
                                                             IsVisible="{Binding Thumbnail, Converter={x:Static ObjectConverters.IsNull}}"/>

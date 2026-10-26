@@ -33,8 +33,11 @@
                     <SolidColorBrush x:Key="DefaultForegroundBrush" Color="#000000"/>
                     <SolidColorBrush x:Key="DefaultForegroundBrushSecondary" Color="#000000"/>
                     <SolidColorBrush x:Key="DefaultForegroundBrushTertiary" Color="#1A202C"/>
-                    <SolidColorBrush x:Key="DefaultForegroundBrushDisabled" Color="#94A3B8"/>
-                    <SolidColorBrush x:Key="ControlBackgroundBrush" Color="#FFFFFF"/>
+                    <!-- #64748B: disabled text still readable (≈4.7:1 on white; #94A3B8 was ≈2.6:1). -->
+                    <SolidColorBrush x:Key="DefaultForegroundBrushDisabled" Color="#64748B"/>
+                    <!-- Buttons: faint tint + visible outline so they stand out on white AND #F1F5F9 panels. -->
+                    <SolidColorBrush x:Key="ControlBackgroundBrush" Color="#F8FAFC"/>
+                    <SolidColorBrush x:Key="ButtonBorderBrush" Color="#CBD5E1"/>
                     <SolidColorBrush x:Key="ControlForegroundBrush" Color="#000000"/>
                     <SolidColorBrush x:Key="ControlBorderBrush" Color="#CBD5E0"/>
                     <SolidColorBrush x:Key="ControlBackgroundBrushSoftAccent" Color="#E4E4E7"/>
@@ -71,6 +74,7 @@
                     <SolidColorBrush x:Key="DefaultForegroundBrushTertiary" Color="#A1A1AA"/>
                     <SolidColorBrush x:Key="DefaultForegroundBrushDisabled" Color="#52525B"/>
                     <SolidColorBrush x:Key="ControlBackgroundBrush" Color="#252529"/>
+                    <SolidColorBrush x:Key="ButtonBorderBrush" Color="Transparent"/>
                     <SolidColorBrush x:Key="ControlForegroundBrush" Color="#F4F4F5"/>
                     <SolidColorBrush x:Key="ControlBorderBrush" Color="#3F3F46"/>
                     <SolidColorBrush x:Key="ControlBackgroundBrushSoftAccent" Color="#48484F"/>
@@ -95,6 +99,10 @@
 
             <animation:CrossFade x:Key="MainPageTransition"
                                  Duration="0:0:0.125"/>
+
+            <!-- Defaults until AccessibilityService applies the user's scale. -->
+            <x:Double x:Key="AccessibilityFontSize">13</x:Double>
+            <x:Double x:Key="AccessibilityControlFontSize">12</x:Double>
         </ResourceDictionary>
     </Application.Resources>
 
@@ -119,19 +127,32 @@
             <Setter Property="FontSize" Value="{DynamicResource AccessibilityFontSize}"/>
         </Style>
         
-        <Style Selector="Button">
-            <Setter Property="FontSize" Value="{DynamicResource AccessibilityFontSize}"/>
+        <!-- Controls default to one compact size (12px × accessibility scale) so every tab's
+             buttons match unless a view deliberately sets its own size. -->
+        <Style Selector=":is(Button), ComboBox, ComboBoxItem, CheckBox, RadioButton">
+            <Setter Property="FontSize" Value="{DynamicResource AccessibilityControlFontSize}"/>
         </Style>
-        
+
+        <!-- The TextBlock style above would otherwise force 13px onto the text INSIDE controls,
+             which is why setting FontSize on a button often did nothing. Text inside a control
+             now follows that control's size (a TextBlock's own FontSize still wins). -->
+        <Style Selector=":is(Button) TextBlock">
+            <Setter Property="FontSize" Value="{Binding $parent[Button].FontSize}"/>
+        </Style>
+        <Style Selector="ComboBox TextBlock">
+            <Setter Property="FontSize" Value="{Binding $parent[ComboBox].FontSize}"/>
+        </Style>
+        <Style Selector="ComboBoxItem TextBlock">
+            <Setter Property="FontSize" Value="{Binding $parent[ComboBoxItem].FontSize}"/>
+        </Style>
+        <Style Selector="CheckBox TextBlock">
+            <Setter Property="FontSize" Value="{Binding $parent[CheckBox].FontSize}"/>
+        </Style>
+        <Style Selector="RadioButton TextBlock">
+            <Setter Property="FontSize" Value="{Binding $parent[RadioButton].FontSize}"/>
+        </Style>
+
         <Style Selector="TextBox">
-            <Setter Property="FontSize" Value="{DynamicResource AccessibilityFontSize}"/>
-        </Style>
-        
-        <Style Selector="ComboBox">
-            <Setter Property="FontSize" Value="{DynamicResource AccessibilityFontSize}"/>
-        </Style>
-        
-        <Style Selector="CheckBox">
             <Setter Property="FontSize" Value="{DynamicResource AccessibilityFontSize}"/>
         </Style>
         
@@ -202,8 +223,8 @@
         <Style Selector="Button">
             <Setter Property="Background" Value="{DynamicResource ControlBackgroundBrush}"/>
             <Setter Property="Foreground" Value="{DynamicResource DefaultForegroundBrush}"/>
-            <Setter Property="BorderBrush" Value="Transparent"/>
-            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource ButtonBorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="CornerRadius" Value="8"/>
             <Setter Property="Padding" Value="10,6"/>
             <Setter Property="FontWeight" Value="Medium"/>
@@ -238,8 +259,8 @@
         <Style Selector="ToggleButton">
             <Setter Property="Background" Value="{DynamicResource ControlBackgroundBrush}"/>
             <Setter Property="Foreground" Value="{DynamicResource DefaultForegroundBrush}"/>
-            <Setter Property="BorderBrush" Value="Transparent"/>
-            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource ButtonBorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="CornerRadius" Value="8"/>
             <Setter Property="Padding" Value="10,6"/>
             <Setter Property="FontWeight" Value="Medium"/>

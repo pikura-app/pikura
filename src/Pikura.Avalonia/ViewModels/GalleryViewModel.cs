@@ -45,6 +45,12 @@ public partial class ViewerTab : ObservableObject
     /// <summary>Which section opened this tab ("Gallery", "Discover", "Rankings", etc.). Informational only — tabs are global across all sections.</summary>
     public string Source { get; set; } = "Gallery";
 
+    /// <summary>Absolute path of the local library file this tab was opened from (Library source only).</summary>
+    public string? LocalPath { get; set; }
+
+    /// <summary>The library row id this tab was opened from (Library source only; 0 = none).</summary>
+    public long LibraryFileId { get; set; }
+
     /// <summary>True if this is the special collage tab (no single card, displays a grid).</summary>
     public bool IsCollage { get; set; }
 
@@ -179,7 +185,7 @@ public partial class GalleryViewModel : ViewModelBase
     [ObservableProperty] private bool _isLoading;
     [ObservableProperty] private bool _isLoadingArtists;
     [ObservableProperty] private bool _isBulkDownloading;
-    [ObservableProperty] private string _statusMessage = "Ready";
+    [ObservableProperty] private string _statusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Editor_Ready"];
     
     // Download queue system
     // _bulkClaims tracks slots claimed by ANY in-flight bulk operation
@@ -293,8 +299,11 @@ public partial class GalleryViewModel : ViewModelBase
     // can be open at once; each tab owns its own item list and instance state.
     public const int MaxCollageItems = 100;
 
+    private bool _restoringTabs;
+
     private void OnCollageItemsChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
     {
+        if (!_restoringTabs) SaveViewerTabsState();
         OnPropertyChanged(nameof(CollageItems));
         OnPropertyChanged(nameof(HasStoredCollage));
         OnPropertyChanged(nameof(CanReturnToCollage));
@@ -655,6 +664,7 @@ ShowPreview = true;
 
     private void OnViewerTabsChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
     {
+        if (!_restoringTabs) SaveViewerTabsState();
         OnPropertyChanged(nameof(IsInlineViewerOpen));
         OnPropertyChanged(nameof(HasTabs));
         OnPropertyChanged(nameof(HasMultipleTabs));
@@ -973,14 +983,34 @@ ShowPreview = true;
         // Rebuild filters when settings change (excluded tags, R18Mode, blur setting)
         _settingsService.Changed += (_, _) =>
         {
-            OnPropertyChanged(nameof(ShowR18Buttons));
-            // Apply blur setting to existing R-18 cards
-            ApplyBlurSetting(_settingsService.Current.BlurR18Content);
-            RebuildFilteredArtworks();
+            // Only re-filter when a filter-relevant setting changed — this event fires on every
+            // settings write, and rebuilding the whole gallery each time made tab switches slow.
+            var s = _settingsService.Current;
+            var sig = (s.R18Mode, s.R18Type, s.BlurR18Content, s.FilterAiGenerated, BlocklistSignature(s));
+            if (sig != _filterSignature)
+            {
+                _filterSignature = sig;
+                Dispatcher.UIThread.Post(() =>
+                {
+                    OnPropertyChanged(nameof(ShowR18Buttons));
+                    // Apply blur setting to existing R-18 cards
+                    ApplyBlurSetting(_settingsService.Current.BlurR18Content);
+                    RebuildFilteredArtworks();
+                });
+            }
             // Sync shared CardSize from settings (updated by other tabs)
             var shared = _settingsService.Current.CardSize;
             if (CardSize != shared) CardSize = shared;
         };
+    }
+
+    private (R18Mode, R18TypeFilter, bool, bool, int)? _filterSignature;
+
+    private static int BlocklistSignature(AppSettings s)
+    {
+        var h = new HashCode();
+        foreach (var e in s.BlocklistEntries) { h.Add(e.Type); h.Add(e.Value); h.Add(e.Scope); }
+        return h.ToHashCode();
     }
 
     partial void OnViewModeChanged(GalleryViewMode value)
@@ -1002,7 +1032,8 @@ ShowPreview = true;
     partial void OnInlineViewerCardChanged(ArtworkCardViewModel? value)
     {
         OnPropertyChanged(nameof(IsInlineViewerOpen));
-        if (value != null && _historyRepository != null && !_settingsService.ActiveIncognitoEnabled)
+        // Library files without a pixiv id ("local-…") aren't pixiv views, so they stay out of History.
+        if (value != null && value.HasPixivId && _historyRepository != null && !_settingsService.ActiveIncognitoEnabled)
         {
             var entry = new Pikura.Core.Data.ViewedHistoryEntry
             {
@@ -1010,7 +1041,8 @@ ShowPreview = true;
                 Title = value.Title,
                 UserId = value.UserId,
                 UserName = value.UserName,
-                ThumbnailUrl = value.ThumbnailUrl,
+                // Library cards have no pixiv thumbnail URL — their local file serves as the thumbnail.
+                ThumbnailUrl = string.IsNullOrEmpty(value.ThumbnailUrl) ? value.LocalPath : value.ThumbnailUrl,
                 IllustType = value.IllustType,
                 XRestrict = value.IsR18G ? 2 : value.IsR18 ? 1 : 0,
                 PageCount = value.PageCount,
@@ -1021,8 +1053,12 @@ ShowPreview = true;
         }
     }
 
+    public bool IsLibraryTab => SelectedViewerTab?.Source == "Library";
+
     partial void OnSelectedViewerTabChanged(ViewerTab? value)
     {
+        if (!_restoringTabs) SaveViewerTabsState();
+        OnPropertyChanged(nameof(IsLibraryTab));
         InlineViewerCard = value?.Card;
         // Keep InlineViewerCardList in sync so the counter works for non-tab viewers too
         InlineViewerCardList = value?.NavList.Count > 0 ? value.NavList : null;
@@ -1233,7 +1269,7 @@ ShowPreview = true;
 
         // Search is restricted to followed artists via the local index — the
         // dedicated "Search" tab (GlobalSearchViewModel) covers global Pixiv search.
-        StatusMessage = $"Searching your followed artists for: {tag}...";
+        StatusMessage = Pikura.Avalonia.Localization.LocalizationService.F("Gallery_SearchingFollowed", tag);
         IsLoading = true;
         IsRecentFeedActive = false;
 
@@ -1263,8 +1299,8 @@ ShowPreview = true;
             if (rows.Count == 0)
             {
                 ShowSearchInfo = true;
-                SearchInfoText = $"Tag: {tag} (followed artists) • 0 results";
-                StatusMessage = $"No results among your followed artists for: {tag}";
+                SearchInfoText = Pikura.Avalonia.Localization.LocalizationService.F("Gallery_TagFollowedResults", tag, 0);
+                StatusMessage = Pikura.Avalonia.Localization.LocalizationService.F("Gallery_NoFollowedResults", tag);
                 IsSearchActive = true;
                 return;
             }
@@ -1287,14 +1323,14 @@ ShowPreview = true;
 
             // Show info bar with search context
             ShowSearchInfo = true;
-            SearchInfoText = $"Tag: {tag} (followed artists) • {VisibleArtworks.Count} results";
+            SearchInfoText = Pikura.Avalonia.Localization.LocalizationService.F("Gallery_TagFollowedResults", tag, VisibleArtworks.Count);
             IsSearchActive = true;
 
-            StatusMessage = $"Found {VisibleArtworks.Count} artworks among your followed artists for: {tag}";
+            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.F("Gallery_FoundFollowedResults", VisibleArtworks.Count, tag);
         }
         catch (Exception ex)
         {
-            StatusMessage = $"Search failed: {ex.Message}";
+            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Gallery_SearchFailed"] + ex.Message;
         }
         finally
         {
@@ -1331,7 +1367,7 @@ ShowPreview = true;
             return;
         }
 
-        StatusMessage = $"Searching for '{raw}'…";
+        StatusMessage = Pikura.Avalonia.Localization.LocalizationService.F("Gallery_SearchingFor", raw);
         IsLoading = true;
 
         try
@@ -1395,9 +1431,9 @@ ShowPreview = true;
         AddArtworkCardsBatch(filtered);
 
         ShowSearchInfo = true;
-        SearchInfoText = $"'{query}' in current artist • {VisibleArtworks.Count} results";
+        SearchInfoText = Pikura.Avalonia.Localization.LocalizationService.F("Gallery_QueryInArtist", query, VisibleArtworks.Count);
         IsSearchActive = true;
-        StatusMessage = $"Found {VisibleArtworks.Count} results for '{query}' in current artist";
+        StatusMessage = Pikura.Avalonia.Localization.LocalizationService.F("Gallery_FoundInArtist", VisibleArtworks.Count, query);
 
         await Task.CompletedTask;
     }
@@ -1542,7 +1578,7 @@ ShowPreview = true;
         // open (e.g. arriving fresh from Discover/Bookmarks/Rankings).
 ShowPreview = true;
         _settingsService.Update(s => s.ViewerBrowsePanelHidden = false);
-        StatusMessage = $"Viewing artwork {artworkId}";
+        StatusMessage = Pikura.Avalonia.Localization.LocalizationService.F("Gallery_ViewingArtwork", artworkId);
     }
 
     /// <summary>
@@ -1559,13 +1595,13 @@ ShowPreview = true;
         OpenInNewTab(card, list, list.Count, null, "Hoshi");
 ShowPreview = true;
         _settingsService.Update(s => s.ViewerBrowsePanelHidden = false);
-        StatusMessage = $"Opened artwork {artworkId} in a new tab";
+        StatusMessage = Pikura.Avalonia.Localization.LocalizationService.F("Gallery_OpenedInNewTab", artworkId);
     }
 
     private async Task<ArtworkCardViewModel?> BuildCardForArtworkAsync(string artworkId)
     {
         var b = await _pixivClient.GetArtworkDetailAsync(artworkId);
-        if (b == null) { StatusMessage = $"Artwork {artworkId} not found."; return null; }
+        if (b == null) { StatusMessage = Pikura.Avalonia.Localization.LocalizationService.F("Gallery_ArtworkNotFound", artworkId); return null; }
         var preview = new ArtworkPreview
         {
             Id = b.IllustId ?? artworkId,
@@ -1803,7 +1839,7 @@ ShowPreview = true;
             // Step 2: Fetch remaining pages in the background so startup isn't gated on all pages.
             ArtistsLoaded = true;
             if (!IsLoading)
-                StatusMessage = $"{Artists.Count} followed artists (loading more…)";
+                StatusMessage = Pikura.Avalonia.Localization.LocalizationService.F("Gallery_FollowedArtistsLoadingMore", Artists.Count);
             RebuildFilteredArtists();
 
             _ = Task.Run(async () =>
@@ -1817,7 +1853,7 @@ ShowPreview = true;
                         ArtistsTotal = Artists.Count;
                         Logger.LogInformation("[FollowedArtists] Load complete: Artists.Count={Count} PixivTotalEstimate={Estimated}", Artists.Count, realTotal);
                         if (!IsLoading)
-                            StatusMessage = $"{Artists.Count} followed artists";
+                            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.F("Gallery_FollowedArtistsCount", Artists.Count);
                         RebuildFilteredArtists();
                     });
                 }
@@ -1961,7 +1997,7 @@ ShowPreview = true;
             ArtistsTotal = Artists.Count;
             ArtistsLoaded = true;
             if (!IsLoading)
-                StatusMessage = $"{Artists.Count} followed artists (refreshed)";
+                StatusMessage = Pikura.Avalonia.Localization.LocalizationService.F("Gallery_FollowedArtistsRefreshed", Artists.Count);
             RebuildFilteredArtists();
 
             // Restore the previously-selected artist (matched by id to the freshly
@@ -2196,7 +2232,7 @@ ShowPreview = true;
                 AddArtworkCard(vm);
                 _ = vm.LoadThumbnailAsync(_imageLoader);
             }
-            StatusMessage = $"{VisibleArtworks.Count} recent works loaded";
+            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.F("Gallery_RecentWorksLoaded", VisibleArtworks.Count);
         }
         catch (Exception ex)
         {
@@ -2618,7 +2654,7 @@ ShowPreview = true;
     /// </summary>
     public void OpenInViewer(ArtworkCardViewModel card, IReadOnlyList<ArtworkCardViewModel>? navList = null,
         int totalCount = 0, Func<Task<IReadOnlyList<ArtworkCardViewModel>>>? loadMoreAsync = null,
-        string source = "Gallery")
+        string source = "Gallery", string? localPath = null, long libraryFileId = 0)
     {
         if (source == "Gallery" && SelectedArtist != null)
             source = CurrentGalleryViewerSource;
@@ -2650,6 +2686,8 @@ ShowPreview = true;
             active.TotalCount = total;          // refresh counter to match new nav list
             active.LoadMoreAsync = loadMore;    // refresh load-more callback for new context
             active.Source = source;
+            active.LocalPath = localPath;
+            active.LibraryFileId = libraryFileId;
             active.NavigateTo(card);
             InlineViewerCard = card;
         }
@@ -2675,7 +2713,7 @@ ShowPreview = true;
         }
         else
         {
-            var tab = new ViewerTab(card, list, total, loadMore, source);
+            var tab = new ViewerTab(card, list, total, loadMore, source) { LocalPath = localPath, LibraryFileId = libraryFileId };
             ViewerTabs.Add(tab);
             SelectedViewerTab = tab;
             InlineViewerCard = card;
@@ -2795,7 +2833,9 @@ ShowPreview = true;
                         IsCollage = false,
                         Source = tab.Source,
                         Header = tab.Header,
-                        ArtworkId = tab.Card.Id
+                        ArtworkId = tab.Card.Id,
+                        LocalPath = tab.Card.LocalPath,
+                        LibraryFileId = tab.Card.LibraryFileId,
                     });
                 }
             }
@@ -2847,6 +2887,21 @@ ShowPreview = true;
                     else
                     {
                         if (string.IsNullOrEmpty(entry.ArtworkId)) return (entry, (List<ArtworkCardViewModel>?)null);
+                        // Library tabs reopen straight from disk — no pixiv request, works for "local-…" files too.
+                        if (!string.IsNullOrEmpty(entry.LocalPath))
+                        {
+                            if (!System.IO.File.Exists(entry.LocalPath)) return (entry, (List<ArtworkCardViewModel>?)null);
+                            var local = new ArtworkCardViewModel(new ArtworkPreview
+                            {
+                                Id = entry.ArtworkId,
+                                Title = entry.Header ?? System.IO.Path.GetFileName(entry.LocalPath),
+                                PageCount = 1,
+                            })
+                            { LocalPath = entry.LocalPath, LibraryFileId = entry.LibraryFileId };
+                            return (entry, new List<ArtworkCardViewModel> { local });
+                        }
+                        if (entry.ArtworkId.StartsWith("local-", StringComparison.Ordinal))
+                            return (entry, (List<ArtworkCardViewModel>?)null);
                         await gate.WaitAsync();
                         try
                         {
@@ -2860,29 +2915,45 @@ ShowPreview = true;
             }).ToList();
             var results = await Task.WhenAll(fetchTasks);
 
-            foreach (var (entry, cards) in results)
+            _restoringTabs = true;
+            try
             {
-                if (cards is not { Count: > 0 }) continue;
-                if (entry.IsCollage)
+                // Tab creation mutates ObservableCollection bindings — must run on the UI thread.
+                await Dispatcher.UIThread.InvokeAsync(() =>
                 {
-                    var collageTab = CreateCollageTab();
-                    AddToCollage(cards, collageTab);
-                }
-                else
-                {
-                    OpenInNewTab(cards[0], cards, cards.Count, null, entry.Source ?? "Gallery");
-                }
+                    foreach (var (entry, cards) in results)
+                    {
+                        if (cards is not { Count: > 0 }) continue;
+                        if (entry.IsCollage)
+                        {
+                            var collageTab = CreateCollageTab();
+                            AddToCollage(cards, collageTab);
+                        }
+                        else
+                        {
+                            OpenInNewTab(cards[0], cards, cards.Count, null, entry.Source ?? "Gallery");
+                            if (cards[0].LocalPath != null && ViewerTabs.Count > 0)
+                            {
+                                var t = ViewerTabs[^1];
+                                t.LocalPath = cards[0].LocalPath;
+                                t.LibraryFileId = cards[0].LibraryFileId;
+                            }
+                        }
+                    }
+
+                    var selIdx = _settingsService.Current.PersistedSelectedTabIndex;
+                    if (selIdx >= 0 && selIdx < ViewerTabs.Count)
+                        SelectedViewerTab = ViewerTabs[selIdx];
+
+                    // Non-user-initiated reveal: honor the saved hidden state.
+                    if (ViewerTabs.Count > 0)
+                        ShowPreview = !_settingsService.Current.ViewerBrowsePanelHidden;
+                });
             }
-
-            var selIdx = _settingsService.Current.PersistedSelectedTabIndex;
-            if (selIdx >= 0 && selIdx < ViewerTabs.Count)
-                SelectedViewerTab = ViewerTabs[selIdx];
-
-            // Non-user-initiated reveal: honor the saved hidden state.
-            if (ViewerTabs.Count > 0)
-                ShowPreview = !_settingsService.Current.ViewerBrowsePanelHidden;
+            finally { _restoringTabs = false; }
+            SaveViewerTabsState(); // persist the restored set
         }
-        catch { /* non-fatal — worst case some/all tabs fail to restore */ }
+        catch (Exception ex) { Logger.LogWarning(ex, "Viewer tab restore failed"); }
     }
 
     public Task DownloadSingleAsync(ArtworkCardViewModel card)
@@ -2976,11 +3047,11 @@ ShowPreview = true;
         if (filtered < loaded)
         {
             // Filters are hiding some loaded artworks
-            StatusMessage = $"{artist.Name} — {filtered} shown ({loaded} loaded / {total} total)";
+            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.F("Gallery_ArtistShown", artist.Name, filtered, loaded, total);
         }
         else
         {
-            StatusMessage = $"{artist.Name} — {loaded} / {total} works";
+            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.F("Gallery_ArtistWorks", artist.Name, loaded, total);
         }
     }
 
@@ -3017,7 +3088,7 @@ ShowPreview = true;
         _currentArtistLoadedCount = 0;
         CanLoadMore = false;
         ArtworksTotal = 0;
-        StatusMessage = $"Loading {artist.Name}…";
+        StatusMessage = Pikura.Avalonia.Localization.LocalizationService.F("Gallery_LoadingArtist", artist.Name);
 
         try
         {
@@ -3040,7 +3111,7 @@ ShowPreview = true;
 
             if (_currentArtistAllIds.Count == 0)
             {
-                StatusMessage = $"{artist.Name} — no artworks";
+                StatusMessage = Pikura.Avalonia.Localization.LocalizationService.F("Gallery_ArtistNoArtworks", artist.Name);
                 return;
             }
 
@@ -3758,9 +3829,18 @@ public partial class ArtworkCardViewModel : ObservableObject
 
     public ArtworkPreview Artwork { get; }
     public string Id { get; }
-    public string Title { get; }
-    public string UserName { get; }
-    public string UserId { get; }
+    // Settable + observable so the viewer can fill them in from the artwork detail when the card
+    // was built from partial data (e.g. Library files that only know their pixiv id).
+    private string _title = "", _userName = "", _userId = "";
+    public string Title { get => _title; set => SetProperty(ref _title, value); }
+    public string UserName { get => _userName; set => SetProperty(ref _userName, value); }
+    public string UserId { get => _userId; set => SetProperty(ref _userId, value); }
+    /// <summary>Local file shown instead of pixiv's pages (Library cards only).</summary>
+    public string? LocalPath { get; set; }
+    /// <summary>Library row id for Library cards (0 otherwise).</summary>
+    public long LibraryFileId { get; set; }
+    /// <summary>True when the card refers to a real pixiv artwork (Library-only files use "local-{id}").</summary>
+    public bool HasPixivId => !string.IsNullOrEmpty(Id) && Id.All(char.IsAsciiDigit);
     public string? ThumbnailUrl { get; private set; }
     /// <summary>Recompute the high-quality thumbnail URL from a raw artwork URL (used by bookmark backfill).</summary>
     public void RefreshThumbnailUrl(string? artworkThumbnailUrl)
@@ -3773,7 +3853,13 @@ public partial class ArtworkCardViewModel : ObservableObject
     /// <summary>Optional "viewed at" label shown under the card. Only set by the Viewed tab.</summary>
     public string? ViewedAtLabel { get; set; }
     public bool HasViewedAt => !string.IsNullOrWhiteSpace(ViewedAtLabel);
-    public string TypeLabel { get; }
+    public string TypeLabel => Pikura.Avalonia.Localization.LocalizationService.Instance[IllustType switch
+    {
+        0 => "Common_TypeIllust",
+        1 => "Common_TypeManga",
+        2 => "Common_TypeUgoira",
+        _ => "Common_TypeOther",
+    }];
     public int PageCount { get; }
     public int PageIndex { get; }
     public int IllustType { get; }
@@ -3807,7 +3893,6 @@ public partial class ArtworkCardViewModel : ObservableObject
         UserName = artwork.UserName;
         UserId = artwork.UserId;
         ThumbnailUrl = GetHighQualityThumbnailUrl(artwork.ThumbnailUrl, artwork.PageCount);
-        TypeLabel = artwork.TypeLabel;
         PageCount = artwork.PageCount;
         PageIndex = artwork.PageIndex;
         IllustType = artwork.IllustType;

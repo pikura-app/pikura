@@ -139,9 +139,23 @@ public sealed partial class BackgroundOverlayService : ObservableObject
             // Skip reload when we ourselves just wrote to settings — avoids
             // a Persist -> Changed -> ReloadFromSettings -> flicker loop.
             if (_isPersisting) return;
+            // Changed fires on every settings write; reloading re-resolves every overlay image
+            // (possibly over the network), so only reload when overlay settings changed.
+            if (OverlaySignature() == _overlaySignature) return;
             _ = ReloadFromSettingsAsync();
         };
         _ = ReloadFromSettingsAsync();
+    }
+
+    private string? _overlaySignature;
+
+    private string OverlaySignature()
+    {
+        var s = _settingsService.Current;
+        return string.Join("|", s.BackgroundOverlayEnabled, s.BackgroundOverlayImageOpacity, s.BackgroundOverlayBrightness,
+            s.BackgroundOverlayDarkness, s.BackgroundOverlayUseGlobalOverrides, s.BackgroundOverlayCycleInterval,
+            s.BackgroundOverlayCycleMode, string.Join(";", s.BackgroundOverlayImagePaths ?? []),
+            string.Join(";", (s.BackgroundOverlayImageEntries ?? []).Select(e => e.Path)));
     }
 
     partial void OnIsEnabledChanged(bool value) { if (!_isReloading) Persist(); }
@@ -677,6 +691,7 @@ public sealed partial class BackgroundOverlayService : ObservableObject
             });
         }
         finally { _isPersisting = false; }
+        _overlaySignature = OverlaySignature();
         UpdateTimer();
         _ = LoadCurrentImageAsync();
     }
@@ -685,6 +700,7 @@ public sealed partial class BackgroundOverlayService : ObservableObject
     {
         if (_isReloading) return;
         _isReloading = true;
+        _overlaySignature = OverlaySignature();
         try
         {
             var s = _settingsService.Current;

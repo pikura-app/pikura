@@ -16,6 +16,7 @@ public class AccessibilityService
 {
     private readonly SettingsService _settingsService;
     private double _baseFontSize = 13.0;
+    private const double ControlFontSize = 12.0;
     private bool _isHighContrast;
 
     public AccessibilityService(SettingsService settingsService)
@@ -39,10 +40,17 @@ public class AccessibilityService
         };
     }
 
+    private (double, bool, bool, bool)? _applied;
+
     private void ApplyAccessibilitySettings()
     {
         var settings = _settingsService.Current;
-        
+        // Settings.Changed fires on EVERY settings write (tab switches, slider drags…). Re-setting
+        // these resources restyles the whole window, so only do it when they actually changed.
+        var key = (settings.FontSizeScale, settings.UseLargeFonts, settings.UseHighContrast, settings.ReduceMotion);
+        if (_applied == key) return;
+        _applied = key;
+
         ApplyFontScaling(settings.FontSizeScale, settings.UseLargeFonts);
         ApplyHighContrast(settings.UseHighContrast);
         ApplyReducedMotion(settings.ReduceMotion);
@@ -59,6 +67,8 @@ public class AccessibilityService
 
         // Set global font size resource
         Application.Current.Resources["AccessibilityFontSize"] = _baseFontSize * effectiveScale;
+        // Controls (buttons, dropdowns, checkboxes) sit a step below body text so toolbars stay compact.
+        Application.Current.Resources["AccessibilityControlFontSize"] = ControlFontSize * effectiveScale;
     }
 
     /// <summary>

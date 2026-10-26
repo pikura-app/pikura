@@ -161,15 +161,6 @@ public sealed partial class PixivClient
         // /custom-thumb/ crop that 400s or otherwise fails. This parse path handles both an
         // array and an id-keyed object for thumbnails.illust.
         var raw = await GetAjaxRawAsync(url, referer, ct).ConfigureAwait(false);
-
-        // Dump the raw response once per call while we are diagnosing thumbnail issues.
-        try
-        {
-            var diagPath = Path.Combine(Path.GetTempPath(), "pikura_bookmarked_artworks_dump.json");
-            await File.WriteAllTextAsync(diagPath, raw ?? "(null — HTTP error)", ct).ConfigureAwait(false);
-        }
-        catch { /* diagnostic write is best-effort */ }
-
         if (raw is null) return new();
 
         try
@@ -1178,12 +1169,6 @@ public sealed partial class PixivClient
             return [];
         }
 
-        // TEMPORARY: always dump the raw response while the exact thumbnail/field names are
-        // still being confirmed against a live capture (tiles are populating with titles, but
-        // thumbnails are coming back blank) — remove once ParseCollectionSummary's property
-        // guesses are confirmed correct.
-        await DumpRecommendCollectionsJsonAsync(json, ct);
-
         try
         {
             using var doc = JsonDocument.Parse(json);
@@ -1319,8 +1304,6 @@ public sealed partial class PixivClient
                   $"?word={Uri.EscapeDataString(keyword)}&order={Uri.EscapeDataString(order)}" +
                   $"&mode={Uri.EscapeDataString(mode)}&s_mode={Uri.EscapeDataString(sMode)}" +
                   $"&p={page}&lang={_settings.Current.Locale}";
-        var raw = await GetAjaxRawAsync(url, referer: null, ct).ConfigureAwait(false);
-        try { await File.WriteAllTextAsync(System.IO.Path.Combine(Path.GetTempPath(), "pikura_novelsearch_dump.json"), raw ?? "(null)", ct); } catch { }
         return await GetAjaxAsync<NovelSearchResult>(url, ct).ConfigureAwait(false);
     }
 

@@ -261,8 +261,8 @@
                 <WrapPanel Orientation="Horizontal" IsVisible="{Binding HasLoaded}">
                     <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center"
                                 IsVisible="{Binding IsGridView}">
-                        <Button CornerRadius="6" Padding="8,4" FontSize="11" Command="{Binding SetFixedHeightCommand}"   IsEnabled="{Binding !IsFixedHeight}"   ToolTip.Tip="{loc:Tr Gallery_FixedCardHeight}">Fixed</Button>
-                        <Button CornerRadius="6" Padding="8,4" FontSize="11" Command="{Binding SetNaturalHeightCommand}" IsEnabled="{Binding !IsNaturalHeight}" ToolTip.Tip="{loc:Tr Collections_NaturalHeight}">Natural</Button>
+                        <Button CornerRadius="6" Padding="8,4" FontSize="11" Command="{Binding SetFixedHeightCommand}"   IsEnabled="{Binding !IsFixedHeight}"   ToolTip.Tip="{loc:Tr Gallery_FixedCardHeight}"><TextBlock Text="{loc:Tr Gallery_Fixed}" FontSize="{Binding $parent[ContentControl].FontSize}"/></Button>
+                        <Button CornerRadius="6" Padding="8,4" FontSize="11" Command="{Binding SetNaturalHeightCommand}" IsEnabled="{Binding !IsNaturalHeight}" ToolTip.Tip="{loc:Tr Collections_NaturalHeight}"><TextBlock Text="{loc:Tr Gallery_Natural}" FontSize="{Binding $parent[ContentControl].FontSize}"/></Button>
                         <Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}" Margin="2,0"/>
                     </StackPanel>
                     <ToggleButton IsChecked="{Binding ShowTags, Mode=TwoWay}" CornerRadius="6" Padding="8,4" FontSize="11" ToolTip.Tip="{loc:Tr Discover_ShowHideTagChips}">
@@ -289,8 +289,8 @@
                     <Slider Value="{Binding CardSize}" Minimum="120" Maximum="300" Width="90"
                             VerticalAlignment="Center"/>
                     <Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}" Margin="6,0"/>
-                    <Button CornerRadius="6" Padding="8,4" FontSize="11" Command="{Binding SetGridViewCommand}" IsEnabled="{Binding !IsGridView}" ToolTip.Tip="{loc:Tr Rankings_GridView}">⊞ Grid</Button>
-                    <Button CornerRadius="6" Padding="8,4" FontSize="11" Margin="4,0,0,0" Command="{Binding SetListViewCommand}" IsEnabled="{Binding !IsListView}" ToolTip.Tip="{loc:Tr Rankings_ListView}">≡ List</Button>
+                    <Button CornerRadius="6" Padding="8,4" FontSize="11" Command="{Binding SetGridViewCommand}" IsEnabled="{Binding !IsGridView}" ToolTip.Tip="{loc:Tr Rankings_GridView}"><TextBlock FontSize="{Binding $parent[ContentControl].FontSize}"><Run Text="⊞ "/><Run Text="{loc:Tr Gallery_Grid}"/></TextBlock></Button>
+                    <Button CornerRadius="6" Padding="8,4" FontSize="11" Margin="4,0,0,0" Command="{Binding SetListViewCommand}" IsEnabled="{Binding !IsListView}" ToolTip.Tip="{loc:Tr Rankings_ListView}"><TextBlock FontSize="{Binding $parent[ContentControl].FontSize}"><Run Text="≡ "/><Run Text="{loc:Tr Gallery_List}"/></TextBlock></Button>
                 </WrapPanel>
 
                 <TextBlock Text="{Binding StatusMessage}" FontSize="11"
@@ -416,7 +416,7 @@
                         <TextBlock Text="{loc:Tr Collections_Featured}" FontWeight="SemiBold" FontSize="14"/>
                         <ItemsControl ItemsSource="{Binding FeaturedCollections}">
                             <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                                <ItemsPanelTemplate><WrapPanel HorizontalAlignment="Center"/></ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate x:DataType="vm:CollectionTileViewModel">
@@ -536,7 +536,7 @@
                                    IsVisible="{Binding !AllCollections.Count}"/>
                         <ItemsControl ItemsSource="{Binding AllCollections}">
                             <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                                <ItemsPanelTemplate><WrapPanel HorizontalAlignment="Center"/></ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate x:DataType="vm:CollectionTileViewModel">
@@ -711,11 +711,11 @@
                     </StackPanel>
                     <ItemsControl ItemsSource="{Binding Works}" Margin="16" IsVisible="{Binding ShowFixedGrid}">
                         <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                            <ItemsPanelTemplate><gallery:FillWrapPanel MinItemWidth="{Binding $parent[UserControl].((vm:CollectionsViewModel)DataContext).CardSize}" ItemSpacing="8"/></ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
                             <DataTemplate x:DataType="vm:ArtworkCardViewModel">
-                                <Panel Width="{Binding $parent[UserControl].((vm:CollectionsViewModel)DataContext).CardSize}" Margin="8">
+                                <Panel Margin="0">
                                 <Border CornerRadius="8" ClipToBounds="True" Cursor="Hand"
                                         Background="{DynamicResource Container1BackgroundBrush}"
                                         PointerPressed="OnCardClicked">
@@ -864,13 +864,15 @@
                     <ItemsControl ItemsSource="{Binding Works}" Margin="16" IsVisible="{Binding ShowNaturalGrid}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
-                                <gallery:MasonryPanel ColumnWidth="{Binding $parent[UserControl].((vm:CollectionsViewModel)DataContext).CardSize}" ItemSpacing="8"/>
+                                <gallery:MasonryPanel ColumnWidth="{Binding $parent[UserControl].((vm:CollectionsViewModel)DataContext).CardSize}" ItemSpacing="6" SqueezeToFill="True"/>
                             </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
                             <DataTemplate x:DataType="vm:ArtworkCardViewModel">
-                                <Panel Margin="8">
+                                <Panel>
                                     <Border CornerRadius="8" ClipToBounds="True" Cursor="Hand"
+                                            BorderBrush="{DynamicResource Container1BorderBrush}" BorderThickness="1"
+                                            BoxShadow="{DynamicResource CardShadow}"
                                             Background="{DynamicResource Container1BackgroundBrush}"
                                             PointerPressed="OnCardClicked">
                                         <Border.ContextMenu>

@@ -26,6 +26,20 @@ public partial class PixivisionView : UserControl
     private PixivisionViewModel? VM => DataContext as PixivisionViewModel;
     private double _lastSidePanelWidth = 520;
 
+    /// <summary>The Featured/Monthly Ranking sidebar shrinks with the article area (at most 40% of
+    /// it, never above the slider value), so narrowing the page — e.g. opening the side viewer —
+    /// squeezes both instead of crushing the article list into one column.</summary>
+    private void UpdateSidebarWidth()
+    {
+        if (VM is not { } vm || SidebarScroll is null || ArticlesLayoutGrid is null) return;
+        var avail = ArticlesLayoutGrid.Bounds.Width;
+        var target = vm.SidebarWidth;
+        if (avail > 0) target = Math.Min(target, Math.Max(160, avail * 0.4));
+        SidebarScroll.Width = target;
+    }
+
+    private void OnArticlesLayoutSizeChanged(object? sender, SizeChangedEventArgs e) => UpdateSidebarWidth();
+
     public PixivisionView()
     {
         try
@@ -37,6 +51,16 @@ public partial class PixivisionView : UserControl
         catch { }
 
         InitializeComponent();
+
+        DataContextChanged += (_, _) =>
+        {
+            if (VM is { } vm)
+                vm.PropertyChanged += (_, pe) =>
+                {
+                    if (pe.PropertyName == nameof(PixivisionViewModel.SidebarWidth)) UpdateSidebarWidth();
+                };
+            UpdateSidebarWidth();
+        };
 
         AttachedToVisualTree += (_, _) =>
         {
@@ -394,8 +418,8 @@ public partial class PixivisionView : UserControl
 
         foreach (var item in menu.Items)
         {
-            if (item is not MenuItem mi || mi.Header is not string header) continue;
-            if (header.Contains("Ugoira"))
+            if (item is not MenuItem mi) continue;
+            if (mi.Tag as string == "UgoiraOptions")
                 mi.IsVisible = card.IllustType == 2;
         }
     }

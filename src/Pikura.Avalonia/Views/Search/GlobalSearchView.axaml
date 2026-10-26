@@ -180,7 +180,7 @@
 
                                     <StackPanel Spacing="3">
                                         <TextBlock Text="{loc:Tr Search_CreationTool}" FontSize="11" FontWeight="SemiBold"/>
-                                        <TextBox Text="{Binding AdvancedFilterEdit.Tool}" PlaceholderText="e.g. Photoshop, CLIP STUDIO PAINT" FontSize="11"/>
+                                        <TextBox Text="{Binding AdvancedFilterEdit.Tool}" PlaceholderText="{loc:Tr Search_ToolExample}" FontSize="11"/>
                                     </StackPanel>
 
                                     <StackPanel Spacing="3">
@@ -211,9 +211,7 @@
                                     </StackPanel>
 
                                     <StackPanel Spacing="3" IsVisible="{Binding IsPremiumAccount}">
-                                        <TextBlock FontSize="11" FontWeight="SemiBold">
-                                            <TextBlock.Text>Bookmark count</TextBlock.Text>
-                                        </TextBlock>
+                                        <TextBlock FontSize="11" FontWeight="SemiBold" Text="{loc:Tr Search_BookmarkCount}"/>
                                         <Grid ColumnDefinitions="*,Auto,*">
                                             <NumericUpDown Value="{Binding AdvancedFilterEdit.MinBookmarks}" Grid.Column="0" FontSize="10" Minimum="0" FormatString="0"/>
                                             <TextBlock Text="–" Grid.Column="1" VerticalAlignment="Center" Margin="4,0"/>
@@ -249,7 +247,7 @@
                         <TextBlock Text="{loc:Tr Search_IncludeAnyOfTheKeywords}" FontSize="10"
                                    Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                         <TextBox Text="{Binding IncludeAnyKeywords, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                 PlaceholderText="e.g. cat, dog"
+                                 PlaceholderText="{loc:Tr Search_TagExample}"
                                  FontSize="11" CornerRadius="6"
                                  KeyDown="OnSearchBoxKeyDown"/>
                     </StackPanel>
@@ -257,7 +255,7 @@
                         <TextBlock Text="{loc:Tr Search_ExcludeKeywords}" FontSize="10"
                                    Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                         <TextBox Text="{Binding ExcludeKeywords, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                 PlaceholderText="e.g. 3D, AI"
+                                 PlaceholderText="{loc:Tr Search_ExcludeExample}"
                                  FontSize="11" CornerRadius="6"
                                  KeyDown="OnSearchBoxKeyDown"/>
                     </StackPanel>
@@ -342,21 +340,15 @@
                 <!-- View/size controls -->
                 <StackPanel Orientation="Horizontal" Spacing="3" VerticalAlignment="Center">
                     <ToggleButton IsChecked="{Binding IsGridView}" CornerRadius="5" Padding="9,5" FontSize="11"
-                                  Command="{Binding SetGridViewCommand}">⊞ Grid</ToggleButton>
+                                  Command="{Binding SetGridViewCommand}"><TextBlock FontSize="{Binding $parent[ContentControl].FontSize}"><Run Text="⊞ "/><Run Text="{loc:Tr Gallery_Grid}"/></TextBlock></ToggleButton>
                     <ToggleButton IsChecked="{Binding IsListView}" CornerRadius="5" Padding="9,5" FontSize="11"
-                                  Command="{Binding SetListViewCommand}">☰ List</ToggleButton>
+                                  Command="{Binding SetListViewCommand}"><TextBlock FontSize="{Binding $parent[ContentControl].FontSize}"><Run Text="☰ "/><Run Text="{loc:Tr Gallery_List}"/></TextBlock></ToggleButton>
                     <Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}" Margin="3,0"
                                IsVisible="{Binding IsGridView}"/>
                     <ToggleButton IsChecked="{Binding IsFixedHeight}" CornerRadius="5" Padding="9,5" FontSize="11"
-                                  Command="{Binding SetFixedHeightCommand}" IsVisible="{Binding IsGridView}">
-
-                        Fixed
-                    </ToggleButton>
+                                  Command="{Binding SetFixedHeightCommand}" IsVisible="{Binding IsGridView}"><TextBlock Text="{loc:Tr Gallery_Fixed}" FontSize="{Binding $parent[ContentControl].FontSize}"/></ToggleButton>
                     <ToggleButton IsChecked="{Binding IsNaturalHeight}" CornerRadius="5" Padding="9,5" FontSize="11"
-                                  Command="{Binding SetNaturalHeightCommand}" IsVisible="{Binding IsGridView}">
-
-                        Natural
-                    </ToggleButton>
+                                  Command="{Binding SetNaturalHeightCommand}" IsVisible="{Binding IsGridView}"><TextBlock Text="{loc:Tr Gallery_Natural}" FontSize="{Binding $parent[ContentControl].FontSize}"/></ToggleButton>
                     <Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}" Margin="3,0"
                                IsVisible="{Binding IsGridView}"/>
                     <Slider Value="{Binding CardSize}" Minimum="100" Maximum="320"
@@ -365,10 +357,10 @@
                                IsVisible="{Binding IsUsersCategory}"/>
                     <ToggleButton IsChecked="{Binding IsUsersCompactView}" CornerRadius="5" Padding="9,5" FontSize="11"
                                   Command="{Binding SetUsersCompactViewCommand}"
-                                  IsVisible="{Binding IsUsersCategory}">Compact</ToggleButton>
+                                  IsVisible="{Binding IsUsersCategory}"><TextBlock Text="{loc:Tr Search_Compact}" FontSize="{Binding $parent[ContentControl].FontSize}"/></ToggleButton>
                     <ToggleButton IsChecked="{Binding IsUsersThumbnailView}" CornerRadius="5" Padding="9,5" FontSize="11"
                                   Command="{Binding SetUsersThumbnailViewCommand}"
-                                  IsVisible="{Binding IsUsersCategory}">Thumbnails</ToggleButton>
+                                  IsVisible="{Binding IsUsersCategory}"><TextBlock Text="{loc:Tr Search_Thumbnails}" FontSize="{Binding $parent[ContentControl].FontSize}"/></ToggleButton>
                     <Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}" Margin="3,0"/>
                     <ToggleButton IsChecked="{Binding ShowPreview}" CornerRadius="5" Padding="10,5" FontSize="11">
                         <StackPanel Orientation="Horizontal" Spacing="4">
@@ -377,8 +369,8 @@
                             <TextBlock Text="{loc:Tr Search_HidePanel}" FontSize="11" IsVisible="{Binding ShowPreview}"/>
                         </StackPanel>
                     </ToggleButton>
-                    <ToggleButton IsChecked="{Binding ShowInfo}" CornerRadius="5" Padding="9,5" FontSize="11">Info</ToggleButton>
-                    <ToggleButton IsChecked="{Binding ShowTags}" CornerRadius="5" Padding="9,5" FontSize="11">Tags</ToggleButton>
+                    <ToggleButton IsChecked="{Binding ShowInfo}" CornerRadius="5" Padding="9,5" FontSize="11"><TextBlock Text="{loc:Tr Gallery_Info}" FontSize="{Binding $parent[ContentControl].FontSize}"/></ToggleButton>
+                    <ToggleButton IsChecked="{Binding ShowTags}" CornerRadius="5" Padding="9,5" FontSize="11"><TextBlock Text="{loc:Tr Gallery_Tags}" FontSize="{Binding $parent[ContentControl].FontSize}"/></ToggleButton>
                     <ToggleButton IsChecked="{Binding ShowBadges}" CornerRadius="5" Padding="9,5" FontSize="11"
                                   ToolTip.Tip="{loc:Tr Search_ShowHideLikedBookmarkedFavoriteBadges}">
                         <StackPanel Orientation="Horizontal" Spacing="4">
@@ -566,7 +558,7 @@
                         <ItemsControl ItemsSource="{Binding DisplayResults}" Margin="10,10,4,10">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <gallery:MasonryPanel ColumnWidth="{Binding $parent[UserControl].((vm:GlobalSearchViewModel)DataContext).CardSize}" ItemSpacing="6"/>
+                                    <gallery:MasonryPanel ColumnWidth="{Binding $parent[UserControl].((vm:GlobalSearchViewModel)DataContext).CardSize}" ItemSpacing="6" SqueezeToFill="True"/>
                                 </ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
@@ -591,7 +583,7 @@
                                             <Grid RowDefinitions="*,Auto">
                                                 <Border Grid.Row="0"
                                                         Height="{Binding $parent[UserControl].((vm:GlobalSearchViewModel)DataContext).FixedCardTotalHeight}"
-                                                        CornerRadius="7,7,0,0" ClipToBounds="True">
+                                                        CornerRadius="7" ClipToBounds="True">
                                                     <Panel>
                                                         <Border Background="{DynamicResource Container2BackgroundBrush}"
                                                                 IsVisible="{Binding Thumbnail, Converter={x:Static ObjectConverters.IsNull}}"/>
@@ -687,7 +679,7 @@
                                                 </Style>
                                             </Border.Styles>
                                             <Grid RowDefinitions="*,Auto">
-                                                <Border Grid.Row="0" CornerRadius="7,7,0,0" ClipToBounds="True">
+                                                <Border Grid.Row="0" CornerRadius="7" ClipToBounds="True">
                                                     <Panel>
                                                         <Border Background="{DynamicResource Container2BackgroundBrush}"
                                                                 IsVisible="{Binding Thumbnail, Converter={x:Static ObjectConverters.IsNull}}"/>
@@ -819,7 +811,7 @@
                         </StackPanel>
                         <ItemsControl ItemsSource="{Binding NovelResults}" Margin="14">
                             <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                                <ItemsPanelTemplate><WrapPanel HorizontalAlignment="Center"/></ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate x:DataType="vm:NovelCardViewModel">
@@ -881,7 +873,7 @@
                         </StackPanel>
                         <ItemsControl ItemsSource="{Binding UserResults}" Margin="14">
                             <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                                <ItemsPanelTemplate><WrapPanel HorizontalAlignment="Center"/></ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate x:DataType="vm:UserSearchCardViewModel">

@@ -13,6 +13,28 @@
              x:Name="ViewerRoot"
              Background="{DynamicResource Container1BackgroundBrush}">
 
+    <UserControl.Styles>
+        <!-- One size for every viewer toolbar button so the rows line up. -->
+        <Style Selector="Button.tb, ToggleButton.tb, SplitButton.tb">
+            <Setter Property="Height" Value="28"/>
+            <Setter Property="MinHeight" Value="28"/>
+            <Setter Property="Padding" Value="9,0"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+        <!-- Bookmark ▾: keep the dropdown half compact and joined to the main half. -->
+        <Style Selector="SplitButton.tb /template/ Button#PART_PrimaryButton">
+            <Setter Property="CornerRadius" Value="6,0,0,6"/>
+        </Style>
+        <Style Selector="SplitButton.tb /template/ Button#PART_SecondaryButton">
+            <Setter Property="CornerRadius" Value="0,6,6,0"/>
+            <Setter Property="Padding" Value="5,0"/>
+            <Setter Property="MinWidth" Value="0"/>
+            <Setter Property="Margin" Value="0"/>
+        </Style>
+    </UserControl.Styles>
+
     <Grid Name="RootGrid" RowDefinitions="Auto,Auto,Auto,*,Auto,Auto">
 
         <!-- ── Tab strip ── -->
@@ -23,7 +45,7 @@
                 <!-- Browse gallery alongside tabs -->
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="4" Margin="0,0,8,0">
                     <Button x:Name="BrowsePanelButton"
-                            CornerRadius="6" Padding="10,6" FontSize="12"
+                            Classes="tb"
                             Click="OnBrowseButtonClicked"
                             ToolTip.Tip="{loc:Tr Viewer_HideOrShowTheSidePanel}">
                         <StackPanel Orientation="Horizontal" Spacing="5">
@@ -39,7 +61,7 @@
                             <TextBlock x:Name="HidePanelLabel" Text="{loc:Tr Search_HidePanel}" FontSize="12" VerticalAlignment="Center" IsVisible="False"/>
                         </StackPanel>
                     </Button>
-                    <Button CornerRadius="6" Padding="10,6" FontSize="12"
+                    <Button Classes="tb"
                             Click="OnExpandButtonClicked"
                             ToolTip.Tip="{loc:Tr Viewer_ExpandToFullScreenRestoreSide}">
                         <StackPanel Orientation="Horizontal" Spacing="5">
@@ -48,8 +70,7 @@
                             <TextBlock x:Name="RestoreLabel" Text="{loc:Tr Viewer_Restore}" FontSize="12" VerticalAlignment="Center" IsVisible="False"/>
                         </StackPanel>
                     </Button>
-                    <Button CornerRadius="6" Padding="10,6" FontSize="12"
-                            Classes="accent"
+                    <Button Classes="tb accent"
                             Click="OnFullscreen"
                             ToolTip.Tip="{loc:Tr Viewer_OpenInFullscreenWindowF11}">
                         <StackPanel Orientation="Horizontal" Spacing="5">
@@ -57,7 +78,7 @@
                             <TextBlock Text="{loc:Tr Common_Fullscreen}" FontSize="12" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
-                    <Button CornerRadius="6" Padding="10,6" FontSize="12"
+                    <Button Classes="tb"
                             Click="OnCloseAllClicked"
                             ToolTip.Tip="{loc:Tr Viewer_CloseAllTabs}">
                         <StackPanel Orientation="Horizontal" Spacing="5">
@@ -129,7 +150,7 @@
 
                 <!-- Right: tab list picker + zoom label -->
                 <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center" Margin="6,0,4,0">
-                    <Button Name="TabListBtn" Padding="9,5" CornerRadius="6"
+                    <Button Name="TabListBtn" Classes="tb"
                             ToolTip.Tip="{loc:Tr Viewer_AllOpenTabs}"
                             Click="OnTabListClick">
                         <Button.IsVisible>
@@ -153,10 +174,9 @@
                 BorderBrush="{DynamicResource Container1BorderBrush}"
                 BorderThickness="0,0,0,1" Padding="10,6"
                 IsVisible="{Binding !IsCollageGridVisible}">
-            <Grid ColumnDefinitions="*,Auto">
-                <ScrollViewer Grid.Column="0" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" AllowAutoHide="False"
-                              VerticalAlignment="Center" ClipToBounds="True" Margin="0,0,8,0">
-                <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+            <WrapPanel Orientation="Horizontal" ItemSpacing="8" LineSpacing="4">
+                <WrapPanel Orientation="Horizontal" ItemSpacing="10" LineSpacing="4"
+                           VerticalAlignment="Center" Margin="0,0,8,0">
                     <SelectableTextBlock Text="{Binding InlineViewerCard.Title}"
                                          FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center"
                                          TextTrimming="CharacterEllipsis"
@@ -167,7 +187,8 @@
                                          MaxWidth="160"
                                          ToolTip.Tip="{loc:Tr Viewer_ClickToCopyArtistID}"
                                          PointerPressed="OnArtistNamePressed"/>
-                    <Button Name="FollowToggleBtn" CornerRadius="6" Padding="8,3" FontSize="12"
+                    <Panel IsVisible="{Binding !IsLibraryTab}">
+                    <Button Name="FollowToggleBtn" Classes="tb"
                             Click="OnFollowToggleClicked" VerticalAlignment="Center"
                             IsVisible="{Binding InlineViewerCard, Converter={x:Static ObjectConverters.IsNotNull}}"
                             ToolTip.Tip="{loc:Tr Viewer_FollowOrUnfollowThisArtist}">
@@ -176,15 +197,16 @@
                             <TextBlock Name="FollowToggleLabel" Text="{loc:Tr Viewer_Follow}" FontSize="12" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
+                    </Panel>
                     <Border Background="#7F374151" CornerRadius="4" Padding="6,2"
                             IsVisible="{Binding InlineViewerCard.IsR18}">
                         <TextBlock Text="R-18" FontSize="10" Foreground="#FC8181" FontWeight="Bold"/>
                     </Border>
 
-                    <Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}" Margin="4,0"
-                               IsVisible="{Binding InlineViewerCard, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+                    <Panel IsVisible="{Binding !IsLibraryTab}"><Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}" Margin="4,0"
+                               IsVisible="{Binding InlineViewerCard, Converter={x:Static ObjectConverters.IsNotNull}}"/></Panel>
 
-                    <ToggleButton Name="ShowStatsBtn" CornerRadius="6" Padding="6,3" FontSize="12"
+                    <Panel IsVisible="{Binding !IsLibraryTab}"><ToggleButton Name="ShowStatsBtn" Classes="tb"
                                   Click="OnShowStatsToggled" IsChecked="True"
                                   MinHeight="24" MinWidth="28"
                                   VerticalAlignment="Center"
@@ -192,8 +214,8 @@
                                   ToolTip.Tip="{loc:Tr Viewer_ShowHidePixivLikeBookmarkView}"
                                   IsVisible="{Binding InlineViewerCard, Converter={x:Static ObjectConverters.IsNotNull}}">
                         <PathIcon Data="{StaticResource EyeIcon}" Width="14" Height="14" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="{Binding $parent[ToggleButton].Foreground}" />
-                    </ToggleButton>
-                    <StackPanel Name="StatsStackPanel" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center"
+                    </ToggleButton></Panel>
+                    <Panel IsVisible="{Binding !IsLibraryTab}"><StackPanel Name="StatsStackPanel" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center"
                                 IsVisible="{Binding InlineViewerCard, Converter={x:Static ObjectConverters.IsNotNull}}">
                         <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center" ToolTip.Tip="{loc:Tr Viewer_Likes}">
                             <PathIcon Data="{StaticResource HeartIcon}" Width="12" Height="12" VerticalAlignment="Center"
@@ -213,10 +235,16 @@
                             <TextBlock Name="ViewCountLabel" FontSize="12" VerticalAlignment="Center"
                                        Foreground="{DynamicResource DefaultForegroundBrushSecondary}"/>
                         </StackPanel>
-                    </StackPanel>
-                </StackPanel>
-                </ScrollViewer>
-                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                    </StackPanel></Panel>
+                    <TextBlock Name="LibraryInfoLabel" FontSize="12" VerticalAlignment="Center"
+                               Foreground="{DynamicResource DefaultForegroundBrushSecondary}"
+                               IsVisible="{Binding IsLibraryTab}"/>
+                    <Button Name="LibrarySourceLink" Classes="tb" Padding="4,2"
+                            Click="OnLibrarySourceClicked" Cursor="Hand" IsVisible="False">
+                        <TextBlock Name="LibrarySourceLabel" FontSize="12" Foreground="{DynamicResource AccentBrush}"/>
+                    </Button>
+                </WrapPanel>
+                <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
                     <TextBlock Name="ArtworkCounterLabel" FontSize="12"
                                Foreground="{DynamicResource DefaultForegroundBrushSecondary}"
                                VerticalAlignment="Center"/>
@@ -224,22 +252,22 @@
                              FontSize="12" TextAlignment="Center" VerticalContentAlignment="Center"
                              PlaceholderText="#" KeyDown="OnArtworkJumpKeyDown"
                              ToolTip.Tip="{loc:Tr Viewer_EnterAnArtworkPositionAndPress}"/>
-                    <Button Name="FirstArtworkBtn" CornerRadius="6" Padding="9,5" FontSize="12"
+                    <Button Name="FirstArtworkBtn" Classes="tb"
                             Click="OnFirstArtwork" ToolTip.Tip="{loc:Tr Viewer_FirstArtwork}">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Spacing="-2">
                             <PathIcon Data="{StaticResource ChevronLeftIcon}" Width="10" Height="10" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                             <PathIcon Data="{StaticResource ChevronLeftIcon}" Width="10" Height="10" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                         </StackPanel>
                     </Button>
-                    <Button Name="PrevArtworkBtn" CornerRadius="6" Padding="9,5" FontSize="12"
+                    <Button Name="PrevArtworkBtn" Classes="tb"
                             Click="OnPrevArtwork" ToolTip.Tip="{loc:Tr Viewer_PreviousArtwork}">
                         <PathIcon Data="{StaticResource ChevronLeftIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                     </Button>
-                    <Button Name="NextArtworkBtn" CornerRadius="6" Padding="9,5" FontSize="12"
+                    <Button Name="NextArtworkBtn" Classes="tb"
                             Click="OnNextArtwork" ToolTip.Tip="{loc:Tr Viewer_NextArtwork}">
                         <PathIcon Data="{StaticResource ChevronRightIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                     </Button>
-                    <Button Name="LastArtworkBtn" CornerRadius="6" Padding="9,5" FontSize="12"
+                    <Button Name="LastArtworkBtn" Classes="tb"
                             Click="OnLastArtwork" ToolTip.Tip="{loc:Tr Viewer_LastArtwork}">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Spacing="-2">
                             <PathIcon Data="{StaticResource ChevronRightIcon}" Width="10" Height="10" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
@@ -247,7 +275,7 @@
                         </StackPanel>
                     </Button>
                 </StackPanel>
-            </Grid>
+            </WrapPanel>
         </Border>
 
         <!-- ── Action bar (scrollable so it never clips) ── -->
@@ -260,15 +288,15 @@
                               IsVisible="{Binding !IsCollageGridVisible}">
                     <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
                     <!-- Zoom controls -->
-                    <Button CornerRadius="6" Padding="9,5" FontSize="14"
+                    <Button Classes="tb"
                             Name="ZoomOutBtn" Click="OnZoomOut" ToolTip.Tip="{loc:Tr Viewer_ZoomOut}">
                         <PathIcon Data="{StaticResource MinusIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                     </Button>
-                    <Button CornerRadius="6" Padding="9,5" FontSize="12"
+                    <Button Classes="tb"
                             Name="ZoomFitBtn" Click="OnZoomFit" ToolTip.Tip="{loc:Tr Viewer_FitToWindow}">
                         <PathIcon Data="{StaticResource MaximizeIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                     </Button>
-                    <Button CornerRadius="6" Padding="9,5" FontSize="14"
+                    <Button Classes="tb"
                             Name="ZoomInBtn" Click="OnZoomIn" ToolTip.Tip="{loc:Tr Viewer_ZoomIn}">
                         <PathIcon Data="{StaticResource PlusIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                     </Button>
@@ -276,7 +304,7 @@
                     <Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}" Margin="4,0"/>
 
                     <!-- Page navigation (multi-page only) -->
-                    <Button CornerRadius="6" Padding="9,5" FontSize="12"
+                    <Button Classes="tb"
                             Name="PrevPageBtn" Click="OnPrevPage"
                             IsVisible="{Binding InlineViewerCard.IsMultiPage}"
                             ToolTip.Tip="{loc:Tr Viewer_PreviousPage}">
@@ -290,7 +318,7 @@
                             IsVisible="{Binding InlineViewerCard.IsMultiPage}">
                         <TextBlock Name="PageIndicatorText" FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushSecondary}"/>
                     </Border>
-                    <Button CornerRadius="6" Padding="9,5" FontSize="12"
+                    <Button Classes="tb"
                             Name="NextPageBtn" Click="OnNextPage"
                             IsVisible="{Binding InlineViewerCard.IsMultiPage}"
                             ToolTip.Tip="{loc:Tr Viewer_NextPage}">
@@ -300,10 +328,11 @@
                         </StackPanel>
                     </Button>
 
+                    <StackPanel Orientation="Horizontal" Spacing="4" IsVisible="{Binding !IsLibraryTab}">
                     <Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}" Margin="4,0"/>
 
                     <!-- Downloads -->
-                    <Button CornerRadius="6" Padding="9,5" FontSize="12"
+                    <Button Classes="tb"
                             Name="DlPageBtn" Click="OnDownloadCurrentPage"
                             ToolTip.Tip="{loc:Tr Viewer_DownloadCurrentPage}">
                         <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
@@ -311,8 +340,7 @@
                             <TextBlock Text="{loc:Tr Viewer_Page}" FontSize="12" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
-                    <Button CornerRadius="6" Padding="9,5" FontSize="12"
-                            Classes="accent" Name="DlAllBtn" Click="OnDownloadAllPages"
+                    <Button Classes="tb accent" Name="DlAllBtn" Click="OnDownloadAllPages"
                             IsVisible="{Binding InlineViewerCard.IsMultiPage}"
                             ToolTip.Tip="{loc:Tr Viewer_DownloadAllPages}">
                         <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
@@ -320,7 +348,7 @@
                             <TextBlock Text="{loc:Tr Viewer_AllPages}" FontSize="12" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
-                    <Button CornerRadius="6" Padding="9,5" FontSize="12"
+                    <Button Classes="tb"
                             Name="DlRangeBtn" Click="OnDownloadPageRange"
                             IsVisible="{Binding InlineViewerCard.IsMultiPage}"
                             ToolTip.Tip="{loc:Tr Viewer_DownloadPageRange}">
@@ -329,7 +357,7 @@
                             <TextBlock Text="{loc:Tr Viewer_Range}" FontSize="12" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
-                    <Button CornerRadius="6" Padding="9,5" FontSize="12"
+                    <Button Classes="tb"
                             Name="DlPresetBtn" Click="OnDownloadWithPreset"
                             ToolTip.Tip="{loc:Tr Search_DownloadWithImageProcessingPreset}">
                         <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
@@ -337,10 +365,11 @@
                             <TextBlock Text="{loc:Tr Viewer_Preset}" FontSize="12" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
+                    </StackPanel>
 
                     <Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}" Margin="4,0"/>
 
-                    <Button CornerRadius="6" Padding="9,5" FontSize="12"
+                    <Button Classes="tb"
                             Name="OpenPixivBtn" Click="OnOpenInPixiv"
                             ToolTip.Tip="{loc:Tr Viewer_OpenOnPixivNet}">
                         <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
@@ -349,7 +378,7 @@
                         </StackPanel>
                     </Button>
                     <Button x:Name="GoToArtistBtn"
-                            CornerRadius="6" Padding="9,5" FontSize="12"
+                            Classes="tb"
                             Click="OnGoToArtist"
                             ToolTip.Tip="{loc:Tr Hoshi_OpenThisArtistSGallery}">
                         <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
@@ -357,7 +386,7 @@
                             <TextBlock Text="{loc:Tr Viewer_Artist}" FontSize="12" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
-                    <Button CornerRadius="6" Padding="9,5" FontSize="12"
+                    <Button Classes="tb"
                             Click="OnOpenPopup"
                             ToolTip.Tip="{loc:Tr Viewer_OpenInFloatingPopupWindow}">
                         <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
@@ -365,7 +394,7 @@
                             <TextBlock Text="{loc:Tr Viewer_Popup}" FontSize="12" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
-                    <Button CornerRadius="6" Padding="9,5" FontSize="12"
+                    <Button Classes="tb"
                             Click="OnCopyImage"
                             ToolTip.Tip="{loc:Tr Viewer_CopyThisImageToTheClipboard}">
                         <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
@@ -374,10 +403,51 @@
                         </StackPanel>
                     </Button>
 
+                    <!-- Library tab actions -->
+                    <StackPanel Orientation="Horizontal" Spacing="4" IsVisible="{Binding IsLibraryTab}">
+                    <Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}" Margin="4,0"/>
+                    <Button Classes="tb" Click="OnLibraryOpenFile" ToolTip.Tip="{loc:Tr Library_OpenFile}">
+                        <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                            <PathIcon Data="{StaticResource PopupIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}"/>
+                            <TextBlock Text="{loc:Tr Library_OpenFile}" FontSize="12" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Classes="tb" Click="OnLibraryShowInFolder" ToolTip.Tip="{loc:Tr Library_ShowInFolder}">
+                        <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                            <PathIcon Data="{StaticResource FolderIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}"/>
+                            <TextBlock Text="{loc:Tr Library_ShowInFolder}" FontSize="12" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Classes="tb" Click="OnLibraryCopyPath" ToolTip.Tip="{loc:Tr Library_CopyPath}">
+                        <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                            <PathIcon Data="{StaticResource CopyIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}"/>
+                            <TextBlock Text="{loc:Tr Library_CopyPath}" FontSize="12" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Classes="tb" Click="OnLibraryFindOriginal" ToolTip.Tip="{loc:Tr Library_FindOriginal}">
+                        <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                            <PathIcon Data="{StaticResource SearchIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}"/>
+                            <TextBlock Text="{loc:Tr Library_FindOriginal}" FontSize="12" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Classes="tb" Click="OnLibraryTagWithAi" ToolTip.Tip="{loc:Tr Library_TagWithAi}">
+                        <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                            <PathIcon Data="{StaticResource TagIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}"/>
+                            <TextBlock Text="{loc:Tr Library_TagWithAi}" FontSize="12" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Classes="tb" Click="OnLibraryDelete" ToolTip.Tip="{loc:Tr Library_Delete}">
+                        <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                            <PathIcon Data="{StaticResource TrashIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}"/>
+                            <TextBlock Text="{loc:Tr Library_Delete}" FontSize="12" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="4" IsVisible="{Binding !IsLibraryTab}">
                     <Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}" Margin="4,0"/>
 
                     <!-- ★ Local favorite toggle -->
-                    <Button Name="LocalFavBtn" CornerRadius="6" Padding="9,5" FontSize="12"
+                    <Button Name="LocalFavBtn" Classes="tb"
                             Click="OnToggleLocalFavorite"
                             ToolTip.Tip="{loc:Tr Viewer_AddRemoveFromLocalFavorites}">
                         <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
@@ -385,11 +455,13 @@
                             <TextBlock Name="LocalFavLabel" Text="{loc:Tr Viewer_Favorite}" FontSize="12" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
+                    </StackPanel>
 
-                    <Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}" Margin="4,0"/>
+                    <Rectangle IsVisible="{Binding !IsLibraryTab}" Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}" Margin="4,0"/>
 
+                    <StackPanel Orientation="Horizontal" Spacing="4" IsVisible="{Binding !IsLibraryTab}">
                     <!-- Pixiv Like -->
-                    <Button Name="LikeBtn" CornerRadius="6" Padding="9,5" FontSize="12"
+                    <Button Name="LikeBtn" Classes="tb"
                             Click="OnLikeClicked"
                             IsVisible="{Binding InlineViewerCard, Converter={x:Static ObjectConverters.IsNotNull}}"
                             ToolTip.Tip="{loc:Tr Viewer_LikeThisArtworkOnPixiv}">
@@ -400,7 +472,7 @@
                     </Button>
 
                     <!-- Pixiv Bookmark -->
-                    <SplitButton Name="BookmarkSplitBtn" CornerRadius="6" Padding="9,5" FontSize="12"
+                    <SplitButton Name="BookmarkSplitBtn" Classes="tb"
                                  Click="OnBookmarkMainClicked"
                                  IsVisible="{Binding InlineViewerCard, Converter={x:Static ObjectConverters.IsNotNull}}"
                                  ToolTip.Tip="{loc:Tr Viewer_MainClickAddsAPublicPixiv}">
@@ -420,7 +492,7 @@
 
                     <!-- Comments -->
                     <Panel>
-                        <Button Name="CommentsBtn" CornerRadius="6" Padding="9,5" FontSize="12"
+                        <Button Name="CommentsBtn" Classes="tb"
                                 Click="OnCommentsClicked"
                                 IsVisible="{Binding InlineViewerCard, Converter={x:Static ObjectConverters.IsNotNull}}"
                                 ToolTip.Tip="{loc:Tr Viewer_ViewAndPostComments}">
@@ -514,11 +586,12 @@
                             </Border>
                         </Popup>
                     </Panel>
+                    </StackPanel>
 
                     <!-- Collage mode is entered via a "View as Collage" button in each tab's own
                          multi-select toolbar (Gallery/Bookmarks/Collections/etc.) for 2–10
                          selected artworks — once IN it, this button exits back to normal tabs. -->
-                    <Button CornerRadius="6" Padding="9,5" FontSize="12"
+                    <Button Classes="tb"
                             Click="OnExitCollageClicked"
                             IsVisible="{Binding IsCollageGridVisible}"
                             ToolTip.Tip="{loc:Tr Viewer_ExitCollageView}">
@@ -527,7 +600,7 @@
                             <TextBlock Text="{loc:Tr Collage_Exit}" FontSize="12" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
-                    <Button CornerRadius="6" Padding="9,5" FontSize="12"
+                    <Button Classes="tb"
                             Command="{Binding ReturnToCollageCommand}"
                             IsVisible="{Binding CanReturnToCollage}"
                             ToolTip.Tip="{loc:Tr Viewer_ReturnToTheStoredCollageView}">
@@ -536,7 +609,7 @@
                             <TextBlock Text="{loc:Tr Collage_Return}" FontSize="12" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
-                    <Button CornerRadius="6" Padding="9,5" FontSize="12"
+                    <Button Classes="tb"
                             Command="{Binding DownloadCollageCommand}"
                             IsVisible="{Binding IsCollageGridVisible}"
                             ToolTip.Tip="{loc:Tr Viewer_DownloadAllCollageArtworksIntoA}">
@@ -548,7 +621,7 @@
                     <Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}" Margin="4,0"/>
 
                     <!-- Hoshi AI assistant toggle -->
-                    <Button Name="AiToggleBtn" CornerRadius="6" Padding="9,5" FontSize="12"
+                    <Button Name="AiToggleBtn" Classes="tb"
                             Click="OnAiToggleClicked"
                             ToolTip.Tip="{loc:Tr Viewer_ToggleHoshiAIAssistant}">
                         <StackPanel Orientation="Horizontal" Spacing="4">
@@ -562,7 +635,7 @@
             <!-- Collage-only action bar: exit or download the whole collage. -->
             <StackPanel Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal" Spacing="4"
                         VerticalAlignment="Center" IsVisible="{Binding IsCollageGridVisible}">
-                <Button CornerRadius="6" Padding="9,5" FontSize="12"
+                <Button Classes="tb"
                         Click="OnExitCollageClicked"
                         ToolTip.Tip="{loc:Tr Viewer_CloseTheCollageTab}">
                     <StackPanel Orientation="Horizontal" Spacing="4">
@@ -570,7 +643,7 @@
                         <TextBlock Text="{loc:Tr Collage_Exit}" FontSize="12" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
-                <Button CornerRadius="6" Padding="9,5" FontSize="12"
+                <Button Classes="tb"
                         Command="{Binding DownloadCollageCommand}"
                         ToolTip.Tip="{loc:Tr Viewer_DownloadAllCollageArtworksIntoA}">
                     <StackPanel Orientation="Horizontal" Spacing="4">
@@ -687,7 +760,7 @@
                 </anim:AnimatedImage>
 
                 <!-- ── All-pages grid overlay (inline) ── -->
-                <Border HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                <Border Name="PageGridOverlay" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                         Background="#E6000000" Padding="40"
                         IsVisible="{Binding IsInlinePageGridVisible}"
                         ZIndex="10">
@@ -877,31 +950,44 @@
             <Grid RowDefinitions="Auto,*,Auto">
 
                 <!-- Header -->
-                <Grid Grid.Row="0" ColumnDefinitions="Auto,*"
-                      Background="{DynamicResource Container2BackgroundBrush}"
-                      Margin="0,0,0,0">
-                    <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="6"
-                                VerticalAlignment="Center" Margin="10,5,0,5">
-                        <TextBlock Text="{loc:Tr Viewer_Hoshi}" FontSize="12" FontWeight="SemiBold"
-                                   VerticalAlignment="Center"/>
+                <!-- [title · status] [actions, wrap if narrow] [Full View · Clear] -->
+                <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto"
+                      Background="{DynamicResource Container2BackgroundBrush}">
+                    <Grid.Styles>
+                        <Style Selector="Button, SplitButton">
+                            <Setter Property="Height" Value="24"/>
+                            <Setter Property="MinHeight" Value="24"/>
+                            <Setter Property="CornerRadius" Value="6"/>
+                            <Setter Property="Padding" Value="7,0"/>
+                            <Setter Property="FontSize" Value="11"/>
+                            <Setter Property="VerticalContentAlignment" Value="Center"/>
+                            <Setter Property="Margin" Value="0,4,3,4"/>
+                            <Setter Property="Background" Value="{DynamicResource Container1BackgroundBrush}"/>
+                            <Setter Property="BorderBrush" Value="{DynamicResource Container1BorderBrush}"/>
+                            <Setter Property="BorderThickness" Value="1"/>
+                        </Style>
+                    </Grid.Styles>
+                    <StackPanel Grid.Column="0" Orientation="Vertical" Spacing="0"
+                                VerticalAlignment="Center" Margin="10,0,10,0">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <!-- Live status: green = ready, amber = starting/working, grey = off -->
+                            <Ellipse Name="AiStatusDot" Width="8" Height="8" Fill="#6B7280" VerticalAlignment="Center"/>
+                            <TextBlock Text="{loc:Tr Viewer_Hoshi}" FontSize="12" FontWeight="SemiBold"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
                         <TextBlock Name="AiStatusLabel" FontSize="10"
                                    Foreground="{DynamicResource DefaultForegroundBrushSecondary}"
                                    VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Top" Margin="8,0,6,0">
                         <Button Content="{loc:Tr Viewer_FullView}" Name="AiFullViewBtn" Click="OnAiFullViewClicked"
-                                CornerRadius="4" Padding="7,3" FontSize="10"
                                 ToolTip.Tip="{loc:Tr Viewer_ContinueThisChatInTheFull}"/>
+                        <Button Content="{loc:Tr Viewer_Clear}" Name="AiClearBtn" Click="OnAiClearClicked"
+                                ToolTip.Tip="{loc:Tr Viewer_ClearChatHistory}"/>
                     </StackPanel>
                     <!-- Quick action buttons — wraps to a second line rather than clipping
                          when the inline viewer is narrow. -->
-                    <WrapPanel Grid.Column="1" HorizontalAlignment="Right">
-                        <WrapPanel.Styles>
-                            <Style Selector="Button, SplitButton">
-                                <Setter Property="CornerRadius" Value="4"/>
-                                <Setter Property="Padding" Value="7,3"/>
-                                <Setter Property="FontSize" Value="10"/>
-                                <Setter Property="Margin" Value="0,4,4,4"/>
-                            </Style>
-                        </WrapPanel.Styles>
+                    <WrapPanel Grid.Column="1" HorizontalAlignment="Left">
                         <!-- Single-page submissions get a plain button; the "all pages" dropdown
                              only appears once a multi-page submission is actually detected
                              (toggled in code-behind — this control's DataContext is
@@ -925,12 +1011,10 @@
                                 ToolTip.Tip="{loc:Tr Hoshi_RecommendArtworksSimilarToThisImage}"/>
                         <Button Content="{loc:Tr Hoshi_SimilarArtists}" Name="AiSimilarArtistsBtn" Click="OnAiSimilarArtistsClicked"
                                 ToolTip.Tip="{loc:Tr Hoshi_RecommendArtistsWithASimilarStyle}"/>
-                        <Button Content="{loc:Tr Hoshi_Fav}" Name="AiFavBtn" Click="OnAiFavClicked"
+                        <Button Content="{loc:Tr Hoshi_Fav}" Name="AiFavBtn" Click="OnAiFavClicked" IsVisible="{Binding !IsLibraryTab}"
                                 ToolTip.Tip="{loc:Tr Viewer_AddToLocalFavorites}"/>
-                        <Button Content="{loc:Tr Hoshi_DL}" Name="AiDlBtn" Click="OnAiDlClicked"
+                        <Button Content="{loc:Tr Hoshi_DL}" Name="AiDlBtn" Click="OnAiDlClicked" IsVisible="{Binding !IsLibraryTab}"
                                 ToolTip.Tip="{loc:Tr Viewer_DownloadThisArtwork}"/>
-                        <Button Content="{loc:Tr Viewer_Clear}" Name="AiClearBtn" Click="OnAiClearClicked" Margin="0,4,8,4"
-                                ToolTip.Tip="{loc:Tr Viewer_ClearChatHistory}"/>
                     </WrapPanel>
                 </Grid>
 

@@ -322,12 +322,11 @@ public partial class DiscoverView : UserControl
 
     private async void NavigateToArtistGallery(string userId)
     {
-        if (TopLevel.GetTopLevel(this) is not MainWindow main) return;
+        if (string.IsNullOrWhiteSpace(userId) || TopLevel.GetTopLevel(this) is not MainWindow main) return;
         main.LoadGalleryView();
-        if (VM?.GalleryVm != null)
-        {
-            await VM.GalleryVm.LoadArtistByIdAsync(userId);
-        }
+        if (VM?.GalleryVm == null) return;
+        try { await VM.GalleryVm.LoadArtistByIdAsync(userId); }
+        catch (Exception ex) { VM.GalleryVm.StatusMessage = ex.Message; }
     }
 
     // ── Artwork context menu helpers ────────────────────────────────────────

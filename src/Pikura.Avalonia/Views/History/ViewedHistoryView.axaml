@@ -137,32 +137,28 @@
                 <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="3" VerticalAlignment="Center">
                     <ToggleButton IsChecked="{Binding IsDefaultMode}"   FontSize="11"
                                   Command="{Binding SetViewModeCommand}" CommandParameter="default"
-                                  ToolTip.Tip="{loc:Tr Viewed_DefaultFlatChronologicalFeed}">🕒 Default</ToggleButton>
+                                  ToolTip.Tip="{loc:Tr Viewed_DefaultFlatChronologicalFeed}"><TextBlock FontSize="{Binding $parent[ContentControl].FontSize}"><Run Text="🕒 "/><Run Text="{loc:Tr Gallery_Default}"/></TextBlock></ToggleButton>
                     <ToggleButton IsChecked="{Binding IsGroupedMode}"   FontSize="11"
                                   Command="{Binding SetViewModeCommand}" CommandParameter="grouped"
-                                  ToolTip.Tip="{loc:Tr Viewed_GroupedCollageThumbnailPerDay}">▦ Grouped</ToggleButton>
+                                  ToolTip.Tip="{loc:Tr Viewed_GroupedCollageThumbnailPerDay}"><TextBlock FontSize="{Binding $parent[ContentControl].FontSize}"><Run Text="▦ "/><Run Text="{loc:Tr History_Grouped}"/></TextBlock></ToggleButton>
                     <ToggleButton IsChecked="{Binding IsListMode}"   FontSize="11"
                                   Command="{Binding SetViewModeCommand}" CommandParameter="list"
-                                  ToolTip.Tip="{loc:Tr Viewed_ListDayByDayList}">📋 List</ToggleButton>
+                                  ToolTip.Tip="{loc:Tr Viewed_ListDayByDayList}"><TextBlock FontSize="{Binding $parent[ContentControl].FontSize}"><Run Text="📋 "/><Run Text="{loc:Tr Gallery_List}"/></TextBlock></ToggleButton>
                     <Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}" Margin="3,0"/>
                     <ToggleButton IsChecked="{Binding IsGridView}"   FontSize="11"
-                                  Command="{Binding SetGridViewCommand}" IsVisible="{Binding IsDefaultMode}">⊞ Grid</ToggleButton>
+                                  Command="{Binding SetGridViewCommand}" IsVisible="{Binding IsDefaultMode}"><TextBlock FontSize="{Binding $parent[ContentControl].FontSize}"><Run Text="⊞ "/><Run Text="{loc:Tr Gallery_Grid}"/></TextBlock></ToggleButton>
                     <ToggleButton IsChecked="{Binding IsListView}"   FontSize="11"
-                                  Command="{Binding SetListViewCommand}" IsVisible="{Binding IsDefaultMode}">☰ List</ToggleButton>
+                                  Command="{Binding SetListViewCommand}" IsVisible="{Binding IsDefaultMode}"><TextBlock FontSize="{Binding $parent[ContentControl].FontSize}"><Run Text="☰ "/><Run Text="{loc:Tr Gallery_List}"/></TextBlock></ToggleButton>
                     <Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}" Margin="3,0"
                                IsVisible="{Binding IsDefaultMode}"/>
                     <ToggleButton IsChecked="{Binding IsFixedHeight}"   FontSize="11"
-                                  Command="{Binding SetFixedHeightCommand}" IsVisible="{Binding ShowResultsGrid}">
-                        Fixed
-                    </ToggleButton>
+                                  Command="{Binding SetFixedHeightCommand}" IsVisible="{Binding ShowResultsGrid}"><TextBlock Text="{loc:Tr Gallery_Fixed}" FontSize="{Binding $parent[ContentControl].FontSize}"/></ToggleButton>
                     <ToggleButton IsChecked="{Binding IsNaturalHeight}"   FontSize="11"
-                                  Command="{Binding SetNaturalHeightCommand}" IsVisible="{Binding ShowResultsGrid}">
-                        Natural
-                    </ToggleButton>
+                                  Command="{Binding SetNaturalHeightCommand}" IsVisible="{Binding ShowResultsGrid}"><TextBlock Text="{loc:Tr Gallery_Natural}" FontSize="{Binding $parent[ContentControl].FontSize}"/></ToggleButton>
                     <Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}" Margin="3,0"/>
                     <Slider Value="{Binding CardSize}" Minimum="100" Maximum="320" Width="80" IsVisible="{Binding ShowResultsGrid}"/>
-                    <ToggleButton IsChecked="{Binding ShowInfo}"   FontSize="11">Info</ToggleButton>
-                    <ToggleButton IsChecked="{Binding ShowTags}"   FontSize="11">Tags</ToggleButton>
+                    <ToggleButton IsChecked="{Binding ShowInfo}"   FontSize="11"><TextBlock Text="{loc:Tr Gallery_Info}" FontSize="{Binding $parent[ContentControl].FontSize}"/></ToggleButton>
+                    <ToggleButton IsChecked="{Binding ShowTags}"   FontSize="11"><TextBlock Text="{loc:Tr Gallery_Tags}" FontSize="{Binding $parent[ContentControl].FontSize}"/></ToggleButton>
                     <Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}" Margin="3,0"/>
                     <ToggleButton IsChecked="{Binding ShowPreview}"  Padding="10,5" FontSize="11">
                         <StackPanel Orientation="Horizontal" Spacing="4">
@@ -393,16 +389,13 @@
                                       ScrollChanged="OnScrollChanged">
                         <Panel>
                         <ItemsControl ItemsSource="{Binding DisplayedResults}" Margin="10,10,4,10"
-                                      IsVisible="{Binding ShowResultsGrid}">
+                                      IsVisible="{Binding ShowFixedGrid}">
                             <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <gallery:MasonryPanel ColumnWidth="{Binding $parent[UserControl].((vm:ViewedHistoryViewModel)DataContext).CardSize}" ItemSpacing="6"/>
-                                </ItemsPanelTemplate>
+                                <ItemsPanelTemplate><gallery:FillWrapPanel MinItemWidth="{Binding $parent[UserControl].((vm:ViewedHistoryViewModel)DataContext).CardSize}" ItemSpacing="6"/></ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
-                            <ItemsControl.ItemTemplate>
+<ItemsControl.ItemTemplate>
                                 <DataTemplate x:DataType="vm:ArtworkCardViewModel">
-                                    <Border Margin="0,0,6,6"
-                                            Width="{Binding $parent[UserControl].((vm:ViewedHistoryViewModel)DataContext).CardSize}"
+                                    <Border Margin="0"
                                             Background="{DynamicResource Container1BackgroundBrush}"
                                             BorderBrush="{DynamicResource Container1BorderBrush}"
                                             BorderThickness="1" CornerRadius="8"
@@ -418,11 +411,89 @@
                                         <Grid RowDefinitions="*,Auto">
                                             <Border Grid.Row="0"
                                                     Height="{Binding $parent[UserControl].((vm:ViewedHistoryViewModel)DataContext).FixedCardTotalHeight}"
-                                                    CornerRadius="7,7,0,0" ClipToBounds="True">
+                                                    CornerRadius="7" ClipToBounds="True">
                                                 <Panel>
                                                     <Border Background="{DynamicResource Container2BackgroundBrush}"
                                                             IsVisible="{Binding Thumbnail, Converter={x:Static ObjectConverters.IsNull}}"/>
                                                     <Image Source="{Binding Thumbnail}" Stretch="UniformToFill" RenderOptions.BitmapInterpolationMode="HighQuality" UseLayoutRounding="True">
+                                                        <Image.Effect>
+                                                            <BlurEffect Radius="{Binding IsBlurred, Converter={StaticResource BoolToBlurRadiusConverter}}"/>
+                                                        </Image.Effect>
+                                                    </Image>
+                                                </Panel>
+                                            </Border>
+                                            <Border Grid.Row="0" VerticalAlignment="Top" HorizontalAlignment="Right"
+                                                    Margin="0,6,6,0" Padding="5,2" CornerRadius="4"
+                                                    Background="#CCDC2626" IsVisible="{Binding IsR18}" IsHitTestVisible="False">
+                                                <TextBlock Text="R-18" FontSize="8" Foreground="White" FontWeight="Bold"/>
+                                            </Border>
+                                            <CheckBox Grid.Row="0" ZIndex="6"
+                                                      IsChecked="{Binding IsSelected}"
+                                                      VerticalAlignment="Top" HorizontalAlignment="Left"
+                                                      Margin="6,6,0,0" MinWidth="0" MinHeight="0"
+                                                      Click="OnCardCheckboxClicked"/>
+                                            <StackPanel Grid.Row="1" Margin="8,5,8,7" Spacing="2"
+                                                        IsVisible="{Binding $parent[UserControl].((vm:ViewedHistoryViewModel)DataContext).ShowInfo}">
+                                                <TextBlock Text="{Binding Title}" FontSize="11" FontWeight="SemiBold"
+                                                           TextTrimming="CharacterEllipsis" MaxLines="1"/>
+                                                <TextBlock Text="{Binding UserName}" FontSize="10"
+                                                           Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
+                                                           TextTrimming="CharacterEllipsis" MaxLines="1"/>
+                                                <TextBlock Text="{Binding ViewedAtLabel}" FontSize="9"
+                                                           Foreground="{DynamicResource DefaultForegroundBrushDisabled}"
+                                                           IsVisible="{Binding HasViewedAt}"
+                                                           TextTrimming="CharacterEllipsis" MaxLines="1"/>
+                                                <ItemsControl ItemsSource="{Binding TopTags}" Margin="0,2,0,0"
+                                                              IsVisible="{Binding $parent[UserControl].((vm:ViewedHistoryViewModel)DataContext).ShowTags}">
+                                                    <ItemsControl.ItemsPanel>
+                                                        <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                                                    </ItemsControl.ItemsPanel>
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate x:DataType="x:String">
+                                                            <Border Background="{DynamicResource Container2BackgroundBrush}"
+                                                                    CornerRadius="3" Padding="4,1" Margin="0,2,3,0">
+                                                                <TextBlock Text="{Binding}" FontSize="8"
+                                                                           Foreground="{DynamicResource DefaultForegroundBrushSecondary}"/>
+                                                            </Border>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <ItemsControl ItemsSource="{Binding DisplayedResults}" Margin="10,10,4,10"
+                                      IsVisible="{Binding ShowNaturalGrid}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <gallery:MasonryPanel ColumnWidth="{Binding $parent[UserControl].((vm:ViewedHistoryViewModel)DataContext).CardSize}" ItemSpacing="6" SqueezeToFill="True"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+<ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:ArtworkCardViewModel">
+                                    <Border Margin="0,0,6,6"
+                                            Width="{Binding $parent[UserControl].((vm:ViewedHistoryViewModel)DataContext).CardSize}"
+                                            Background="{DynamicResource Container1BackgroundBrush}"
+                                            BorderBrush="{DynamicResource Container1BorderBrush}"
+                                            BorderThickness="1" CornerRadius="8"
+                                            BoxShadow="{DynamicResource CardShadow}" Cursor="Hand"
+                                            PointerPressed="OnCardClicked"
+                                            ContextMenu="{StaticResource ViewedCardContextMenu}">
+                                        <Border.Styles>
+                                            <Style Selector="Border:pointerover">
+                                                <Setter Property="BoxShadow" Value="0 6 20 0 #55000000"/>
+                                                <Setter Property="BorderBrush" Value="{DynamicResource ControlBackgroundBrushSolidAccent}"/>
+                                            </Style>
+                                        </Border.Styles>
+                                        <Grid RowDefinitions="Auto,Auto">
+                                            <Border Grid.Row="0"
+                                                    CornerRadius="7" ClipToBounds="True">
+                                                <Panel>
+                                                    <Border Background="{DynamicResource Container2BackgroundBrush}"
+                                                            IsVisible="{Binding Thumbnail, Converter={x:Static ObjectConverters.IsNull}}"/>
+                                                    <Image Source="{Binding Thumbnail}" Stretch="Uniform" RenderOptions.BitmapInterpolationMode="HighQuality" UseLayoutRounding="True">
                                                         <Image.Effect>
                                                             <BlurEffect Radius="{Binding IsBlurred, Converter={StaticResource BoolToBlurRadiusConverter}}"/>
                                                         </Image.Effect>

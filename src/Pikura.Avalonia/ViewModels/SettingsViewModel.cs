@@ -24,7 +24,9 @@ using System;
 
 namespace Pikura.Avalonia.ViewModels;
 
-public record StartupTabOption(string Value, string Display);
+/// <summary>Startup tab choice. <paramref name="LocKey"/> is resolved in XAML so the label follows
+/// the app language; keys that don't exist (e.g. "Hoshi 星") fall back to the key text.</summary>
+public record StartupTabOption(string Value, string Emoji, string LocKey);
 
 public record BlocklistScopeOption(BlocklistScope Scope, string Display);
 
@@ -278,16 +280,17 @@ public partial class SettingsViewModel : ViewModelBase
     public string[] StartupWindowStates { get; } = { "Normal", "Maximized", "Minimized", "System Tray" };
     public StartupTabOption[] AvailableStartupTabs { get; } =
     {
-        new("Gallery", "🏠 Gallery"),
-        new("Rankings", "📈 Rankings"),
-        new("Pixivision", "📰 Pixivision"),
-        new("Discover", "✨ Discover"),
-        new("Search", "🔍 Search"),
-        new("Bookmarks", "🔖 Bookmarks"),
-        new("Hoshi 星", "🤖 Hoshi 星"),
-        new("Viewed", "👀 Viewed"),
-        new("Batch", "🗂️ Batch"),
-        new("Jobs", "📋 Jobs")
+        new("Gallery", "🏠", "Nav_Gallery"),
+        new("Library", "📚", "Nav_Library"),
+        new("Rankings", "📈", "Nav_Rankings"),
+        new("Pixivision", "📰", "Pixivision"),
+        new("Discover", "✨", "Nav_Discover"),
+        new("Search", "🔍", "Nav_Search"),
+        new("Bookmarks", "🔖", "Nav_Bookmarks"),
+        new("Hoshi 星", "🤖", "Hoshi 星"),
+        new("Viewed", "👀", "Nav_History"),
+        new("Batch", "🗂️", "Nav_Batch"),
+        new("Jobs", "📋", "Nav_Jobs")
     };
     public string[] AvailableLocales { get; } = { "en", "ja", "zh", "ko", "es", "fr", "de", "it", "pt", "ru" };
     public string[] AvailableAppLanguages { get; } = { "English", "日本語", "中文", "한국어" };
@@ -584,7 +587,19 @@ public partial class SettingsViewModel : ViewModelBase
         LoadSettings();
         LoadAccountSettings();
         RefreshProfiles();
-        _settingsService.Changed += (_, _) => LoadSettings();
+        // Changed fires on every settings write (often many per second, sometimes off the UI
+        // thread). Coalesce into one reload on the UI thread instead of re-reading ~200 fields
+        // synchronously each time.
+        _settingsService.Changed += (_, _) =>
+        {
+            if (_reloadQueued) return;
+            _reloadQueued = true;
+            global::Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+            {
+                _reloadQueued = false;
+                LoadSettings();
+            }, global::Avalonia.Threading.DispatcherPriority.Background);
+        };
         _accountService.ProfilesChanged      += (_, _) => RefreshProfiles();
         _accountService.ActiveProfileChanged += (_, _) =>
         {
@@ -692,6 +707,7 @@ public partial class SettingsViewModel : ViewModelBase
         // Network
         UseProxy = s.UseProxy;
         ProxyAddress = s.ProxyAddress ?? "";
+        SauceNaoApiKey = s.SauceNaoApiKey ?? "";
         EnableSSLVerification = s.EnableSSLVerification;
         UseRobots = s.UseRobots;
 
@@ -1319,6 +1335,12 @@ public partial class SettingsViewModel : ViewModelBase
     partial void OnProxyAddressChanged(string value)
         => _settingsService.Update(s => s.ProxyAddress = value);
 
+    private volatile bool _reloadQueued;
+
+    [ObservableProperty] private string _sauceNaoApiKey = "";
+    partial void OnSauceNaoApiKeyChanged(string value)
+        => _settingsService.Update(s => s.SauceNaoApiKey = string.IsNullOrWhiteSpace(value) ? null : value.Trim());
+
     partial void OnEnableSSLVerificationChanged(bool value)
         => _settingsService.Update(s => s.EnableSSLVerification = value);
 
@@ -1455,8 +1477,9 @@ public partial class SettingsViewModel : ViewModelBase
     [RelayCommand]
     private void SetAppLanguage(string language)
     {
-        AppLanguage = language;   // OnAppLanguageChanged applies it to LocalizationService
+        // Persist first: language-change listeners (e.g. Pixivision reload) read the setting.
         _settingsService.Update(s => s.AppLanguage = language);
+        AppLanguage = language;   // OnAppLanguageChanged applies it to LocalizationService
     }
 
     [RelayCommand]
@@ -1951,6 +1974,84 @@ public partial class SettingsViewModel : ViewModelBase
         {
             IsLoadingModels = false;
         }
+    }
+
+    /// <summary>Spec §3 recommended models: name + localized label key.</summary>
+    public sealed record RecommendedModel(string Name, string LabelKey)
+    {
+        public string Label => Pikura.Avalonia.Localization.LocalizationService.Instance[LabelKey];
+    }
+    public static IReadOnlyList<RecommendedModel> HoshiRecommendedModels { get; } =
+    [
+        new("qwen3-vl:4b", "Hoshi_RecoQwen4b"),
+        new("qwen3-vl:8b", "Hoshi_RecoQwen8b"),
+        new("qwen3-vl:2b", "Hoshi_RecoQwen2b"),
+    ];
+
+    /// <summary>True when a recommended model is already installed locally.</summary>
+    public bool IsRecommendedInstalled(string name)
+        => InstalledModels.Any(m => m.IsOllama &&
+            (m.Name.Equals(name, StringComparison.OrdinalIgnoreCase)
+             || m.Name.StartsWith(name.Split(':')[0] + ":", StringComparison.OrdinalIgnoreCase)));
+
+    /// <summary>"Use" (installed) or "Download &amp; use" (missing) a recommended model.</summary>
+    [RelayCommand]
+    private async Task UseRecommendedModelAsync(string? name)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return;
+        if (!IsRecommendedInstalled(name))
+        {
+            if (IsPullingModel) return;
+            IsPullingModel = true;
+            ModelPullPercent = 0;
+            ModelPullStatus = $"Starting download of {name}…";
+            ModelManagementError = string.Empty;
+            _modelPullCts?.Cancel();
+            _modelPullCts = new CancellationTokenSource();
+            var ct = _modelPullCts.Token;
+            try
+            {
+                await Task.Run(async () =>
+                {
+                    await foreach (var prog in _ollama.PullManualAsync(name, ct))
+                    {
+                        var statusText = prog.Total > 0
+                            ? $"{prog.Status} — {FormatBytes(prog.Completed)} / {FormatBytes(prog.Total)} ({prog.Percent:0.0}%)"
+                            : prog.Status;
+                        var percent = prog.Percent;
+                        await global::Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
+                        {
+                            ModelPullStatus = statusText;
+                            ModelPullPercent = percent;
+                        });
+                    }
+                }, ct);
+                ModelPullStatus = $"Installed {name}";
+                ModelPullPercent = 100;
+            }
+            catch (OperationCanceledException) { ModelPullStatus = "Download cancelled."; return; }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Failed to pull model {Name}", name);
+                ModelManagementError = $"Download failed: {ex.Message}";
+                ModelPullStatus = string.Empty;
+                return;
+            }
+            finally { IsPullingModel = false; }
+        }
+        // Make it the active text + vision model.
+        UseCustomHoshiModels = true;
+        _settingsService.Update(s =>
+        {
+            s.UseCustomHoshiModels = true;
+            s.HoshiTextModel = name;
+            s.HoshiVisionModel = name;
+        });
+        HoshiTextModel = name;
+        HoshiVisionModel = name;
+        OnPropertyChanged(nameof(HoshiTextModel));
+        OnPropertyChanged(nameof(HoshiVisionModel));
+        await RefreshInstalledModelsAsync();
     }
 
     /// <summary>Downloads a model in the background, updating progress without freezing the UI.</summary>

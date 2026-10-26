@@ -260,6 +260,9 @@ public partial class InlineArtworkViewer : UserControl
         {
             if (e.PropertyName == nameof(AiViewModel.StatusText) && AiStatusLabel != null)
                 Dispatcher.UIThread.Post(() => AiStatusLabel.Text = _aiVm.StatusText);
+            if (e.PropertyName is nameof(AiViewModel.StatusText) or nameof(AiViewModel.IsThinking)
+                               or nameof(AiViewModel.IsModelReady) or nameof(AiViewModel.IsEnabled))
+                Dispatcher.UIThread.Post(UpdateAiStatusDot);
             if (e.PropertyName == nameof(AiViewModel.IsThinking))
             {
                 RefreshAiMessages();
@@ -425,12 +428,14 @@ public partial class InlineArtworkViewer : UserControl
         {
             _ = LoadCardAsync(VM?.InlineViewerCard);
             UpdateArtistButtonVisibility();
+            _ = UpdateLibraryInfoAsync();
         }
         if (e.PropertyName == nameof(GalleryViewModel.SelectedViewerTab))
         {
             _ = LoadCardAsync(VM?.InlineViewerCard);
             UpdateTabHighlight();
             UpdateArtistButtonVisibility();
+            _ = UpdateLibraryInfoAsync();
         }
         if (e.PropertyName == nameof(GalleryViewModel.SelectedArtist))
             UpdateArtistButtonVisibility();
@@ -695,7 +700,9 @@ public partial class InlineArtworkViewer : UserControl
         // Skip if this viewer instance is not actually displayed.
         // Multiple InlineArtworkViewer instances exist across pages (Gallery, Discover, Rankings, etc.)
         // and they all subscribe to the same VM. Only the visible one should load.
-        if (!IsEffectivelyVisible) return;
+        // Detached viewers (pages not currently shown) can still report IsEffectivelyVisible —
+        // without the visual-root check each click loaded the image twice.
+        if (!IsEffectivelyVisible || TopLevel.GetTopLevel(this) == null) return;
 
         if (card == null || card.Id == null) { ClearViewer(); return; }
         // Captured once, non-null — member narrowing of card.Id doesn't survive the awaits
@@ -863,7 +870,9 @@ public partial class InlineArtworkViewer : UserControl
         UpdateFavoriteButton(card);
         _currentOriginalUrl = null;
 
-        _ = LoadArtworkStateAsync(card);
+        // Library cards hide like/bookmark/follow, and the Library fills in title/artist itself —
+        // skipping these 3 requests per click is what keeps browsing the library under pixiv's rate limit.
+        if (card.HasPixivId && card.LocalPath == null) _ = LoadArtworkStateAsync(card);
 
         UpdatePageIndicator();
         UpdateArtworkCounter();
@@ -876,7 +885,43 @@ public partial class InlineArtworkViewer : UserControl
 
         try
         {
-            if (card.IllustType == 2)
+            if (card.LocalPath is { } localPath && File.Exists(localPath))
+            {
+                // Library card: show the exact file on disk (right page, works offline).
+                // Thumbnail first so the click feels instant; the full file replaces it below.
+                if (card.Thumbnail != null && ViewerImage != null) ViewerImage.Source = card.Thumbnail;
+                SetLoading(false);
+                // Decode only at the size the panel shows (a scaled JPEG decode is several times
+                // faster than the full 8+ MP image); the original loads when the user zooms in.
+                var scaling = TopLevel.GetTopLevel(this)?.RenderScaling ?? 1.0;
+                var targetWidth = (int)Math.Clamp((ViewerImage?.Bounds.Width ?? 1000) * scaling * 1.25, 800, 2400);
+                // Dedicated thread, not the shared pool: background thumbnail decodes can fill the
+                // pool and leave the image the user just clicked queued for seconds.
+                var bmp = await Task.Factory.StartNew(() =>
+                {
+                    using var fs = File.OpenRead(localPath);
+                    return Bitmap.DecodeToWidth(fs, targetWidth, BitmapInterpolationMode.HighQuality);
+                }, ct, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+                if (ct.IsCancellationRequested || !ReferenceEquals(_currentCard, card)) return;
+                _pages = [];
+                VM?.InlinePageList.Clear();
+                if (ViewerImage != null) ViewerImage.Source = bmp;
+                _fullResLoaded = false;
+                UpdatePageIndicator();
+                succeeded = true;
+                // Hoshi gets a 1024px copy (what it sends to the model anyway), not the full file.
+                if (session != null)
+                    _ = Task.Run(() => LocalImageForHoshi(localPath), ct).ContinueWith(t =>
+                    {
+                        if (t.IsCompletedSuccessfully && t.Result is { } hb)
+                            Dispatcher.UIThread.Post(() => _aiVm.SetSessionImageBytes(session, hb));
+                    }, TaskScheduler.Default);
+            }
+            else if (!card.HasPixivId)
+            {
+                SetError(LocalizationService.Instance["Library_FileMissing"]);
+            }
+            else if (card.IllustType == 2)
             {
                 succeeded = await LoadUgoiraAsync(cardId, ct);
             }
@@ -1238,7 +1283,81 @@ public partial class InlineArtworkViewer : UserControl
         });
     }
 
-    // ── Zoom/pan ────────────────────────────────────────────────────────────
+    /// <summary>Library tabs show files the user already has, so downloading and comments are hidden.</summary>
+    private bool IsLibraryTab => VM?.SelectedViewerTab?.Source == "Library";
+
+    // ── Library tab actions ─────────────────────────────────────────────────
+    // Per card, not per tab: prev/next inside a Library tab moves between files.
+    private string? LibraryPath => _currentCard?.LocalPath ?? VM?.SelectedViewerTab?.LocalPath;
+    private long LibraryFileId => _currentCard is { LibraryFileId: > 0 } c ? c.LibraryFileId : VM?.SelectedViewerTab?.LibraryFileId ?? 0;
+
+    private async Task UpdateLibraryInfoAsync()
+    {
+        if (LibraryInfoLabel == null) return;
+        var id = LibraryFileId;
+        if (!IsLibraryTab || id == 0) { LibraryInfoLabel.Text = ""; return; }
+        try
+        {
+            var f = await AppServices.Get<LibraryViewModel>().GetFileAsync(id);
+            if (f == null || LibraryFileId != id) return;
+            var date = DateTime.TryParse(f.Mtime, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var dt)
+                ? dt.ToLocalTime().ToString("g") : "";
+            LibraryInfoLabel.Text = $"{f.Width}×{f.Height} · {DuplicateFileRow.FormatSize(f.Size)} · {date}";
+        }
+        catch { LibraryInfoLabel.Text = ""; }
+    }
+
+    private void OnLibrarySourceClicked(object? sender, RoutedEventArgs e)
+    {
+        var tab = VM?.SelectedViewerTab;
+        if (tab?.Source != "Library") return;
+        _ = Task.Run(async () =>
+        {
+            var f = await AppServices.Get<LibraryViewModel>().GetFileAsync(tab.LibraryFileId);
+            var src = f?.SourceUrl ?? (f?.ArtworkId != null ? $"https://www.pixiv.net/artworks/{f.ArtworkId}" : null);
+            if (src != null)
+                await Dispatcher.UIThread.InvokeAsync(() =>
+                    global::System.Diagnostics.Process.Start(new global::System.Diagnostics.ProcessStartInfo(src) { UseShellExecute = true }));
+        });
+    }
+
+    private void OnLibraryOpenFile(object? sender, RoutedEventArgs e)
+    {
+        if (LibraryPath is { } p && File.Exists(p) && OperatingSystem.IsWindows())
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(p) { UseShellExecute = true });
+    }
+
+    private void OnLibraryShowInFolder(object? sender, RoutedEventArgs e)
+    {
+        if (LibraryPath is { } p && File.Exists(p) && OperatingSystem.IsWindows())
+            System.Diagnostics.Process.Start("explorer.exe", $"/select,\"{p}\"");
+    }
+
+    private void OnLibraryCopyPath(object? sender, RoutedEventArgs e)
+    {
+        if (LibraryPath is not { } p || TopLevel.GetTopLevel(this)?.Clipboard is not { } cb) return;
+        var dt = new global::Avalonia.Input.DataTransfer();
+        dt.Add(global::Avalonia.Input.DataTransferItem.CreateText(p));
+        _ = cb.SetDataAsync(dt);
+    }
+
+    private async void OnLibraryFindOriginal(object? sender, RoutedEventArgs e)
+    {
+        try { if (LibraryFileId is > 0 and var id) await AppServices.Get<LibraryViewModel>().ViewerReverseSearchAsync(id); }
+        catch (Exception ex) { if (VM != null) VM.StatusMessage = ex.Message; }
+    }
+
+    private async void OnLibraryTagWithAi(object? sender, RoutedEventArgs e)
+    {
+        try { if (LibraryFileId is > 0 and var id) await AppServices.Get<LibraryViewModel>().ViewerTagWithAiAsync(id); }
+        catch (Exception ex) { if (VM != null) VM.StatusMessage = ex.Message; }
+    }
+
+    private async void OnLibraryDelete(object? sender, RoutedEventArgs e)
+    {
+        try { if (LibraryFileId is > 0 and var id) await AppServices.Get<LibraryViewModel>().ViewerDeleteAsync(id); }
+        catch (Exception ex) { if (VM != null) VM.StatusMessage = ex.Message; }
+    }
 
     private void ApplyTransform()
     {
@@ -1253,8 +1372,39 @@ public partial class InlineArtworkViewer : UserControl
         ApplyTo(ViewerImage);
         ApplyTo(UgoiraImage);
         if (ZoomLabel != null) ZoomLabel.Text = $"{_scale * 100:0}%";
-        if (_scale >= FullResThreshold && !_fullResLoaded && !string.IsNullOrEmpty(_currentOriginalUrl))
+        if (_scale >= FullResThreshold && !_fullResLoaded && _currentCard?.LocalPath is { } local && File.Exists(local))
+            _ = LoadLocalFullResAsync(_currentCard, local);
+        else if (_scale >= FullResThreshold && !_fullResLoaded && !string.IsNullOrEmpty(_currentOriginalUrl))
             _ = LoadFullResAsync(_currentOriginalUrl!, _currentPageIndex);
+    }
+
+    /// <summary>Library zoom: swap in the original-resolution file.</summary>
+    private async Task LoadLocalFullResAsync(ArtworkCardViewModel card, string path)
+    {
+        _fullResLoaded = true; // claim it so repeated zoom steps don't start parallel decodes
+        try
+        {
+            var bmp = await Task.Factory.StartNew(() => { using var fs = File.OpenRead(path); return new Bitmap(fs); },
+                CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+            if (ReferenceEquals(_currentCard, card) && ViewerImage != null) ViewerImage.Source = bmp;
+        }
+        catch { _fullResLoaded = false; }
+    }
+
+    private static byte[]? LocalImageForHoshi(string path)
+    {
+        using var codec = SkiaSharp.SKCodec.Create(path);
+        if (codec == null) return null;
+        using var full = SkiaSharp.SKBitmap.Decode(codec);
+        if (full == null) return null;
+        var scale = Math.Min(1.0, 1024.0 / Math.Max(full.Width, full.Height));
+        using var resized = scale < 1.0
+            ? full.Resize(new SkiaSharp.SKImageInfo((int)(full.Width * scale), (int)(full.Height * scale)),
+                new SkiaSharp.SKSamplingOptions(SkiaSharp.SKFilterMode.Linear, SkiaSharp.SKMipmapMode.None))
+            : null;
+        using var img = SkiaSharp.SKImage.FromBitmap(resized ?? full);
+        using var data = img.Encode(SkiaSharp.SKEncodedImageFormat.Jpeg, 90);
+        return data.ToArray();
     }
 
     private async Task LoadFullResAsync(string originalUrl, int pageIndex)
@@ -1304,8 +1454,18 @@ public partial class InlineArtworkViewer : UserControl
         ApplyTransform();
     }
 
+    /// <summary>True when the event started inside the All-pages grid or the page strip — those
+    /// sit on top of the image canvas, and scrolling/dragging them must not zoom or pan the image.</summary>
+    private bool IsFromPageOverlay(RoutedEventArgs e)
+    {
+        for (var v = e.Source as Visual; v != null && !ReferenceEquals(v, ImageCanvas); v = v.GetVisualParent())
+            if (v is Control { Name: "PageGridOverlay" or "PageStrip" }) return true;
+        return false;
+    }
+
     private void OnImageWheel(object? sender, PointerWheelEventArgs e)
     {
+        if (IsFromPageOverlay(e)) return;
         var delta = e.Delta.Y > 0 ? 1.15 : 1.0 / 1.15;
         ZoomAroundCenter(delta);
         e.Handled = true;
@@ -1332,7 +1492,7 @@ public partial class InlineArtworkViewer : UserControl
     private void OnImagePointerPressed(object? sender, PointerPressedEventArgs e)
     {
         if (!e.GetCurrentPoint(null).Properties.IsLeftButtonPressed) return;
-        if (ImageCanvas is null) return;
+        if (ImageCanvas is null || IsFromPageOverlay(e)) return;
         _isPanning = true;
         _panDragging = false;
         _panStart = e.GetPosition(ImageCanvas);
@@ -1489,6 +1649,36 @@ public partial class InlineArtworkViewer : UserControl
     {
         if (VM is null) return;
         VM.ToggleInlinePageGridCommand.Execute(null);
+        // The strip's ~540px square crops look blurry at grid-tile size; load sharp versions.
+        if (VM.IsInlinePageGridVisible) _ = UpgradeInlinePageThumbnailsAsync(_pages);
+    }
+
+    private IReadOnlyList<ArtworkPage>? _upgradedPages;
+
+    /// <summary>Replaces each page tile with the master1200 image (aspect kept), once per page list.</summary>
+    private async Task UpgradeInlinePageThumbnailsAsync(IReadOnlyList<ArtworkPage> pages)
+    {
+        if (pages.Count == 0 || ReferenceEquals(_upgradedPages, pages)) return;
+        _upgradedPages = pages;
+        for (int i = 0; i < pages.Count; i++)
+        {
+            if (!ReferenceEquals(_pages, pages)) return; // switched artwork meanwhile
+            try
+            {
+                var url = pages[i].Urls.Regular ?? pages[i].Urls.Small;
+                if (string.IsNullOrEmpty(url)) continue;
+                using var sk = await _imageLoader.FetchBitmapAsync(url, ThumbnailSize.Large);
+                if (sk is null) continue;
+                var bmp = await Task.Run(() => (Bitmap?)BitmapInterop.SkiaToAvalonia(sk));
+                var index = i;
+                await Dispatcher.UIThread.InvokeAsync(() =>
+                {
+                    if (ReferenceEquals(_pages, pages) && bmp != null && index < (VM?.InlinePageList.Count ?? 0))
+                        VM!.InlinePageList[index].Thumbnail = bmp;
+                });
+            }
+            catch { /* keep the low-res tile */ }
+        }
     }
 
     private void OnDownloadCurrentPage(object? sender, RoutedEventArgs e)
@@ -1882,16 +2072,47 @@ if (result != null && presetWindow.DownloadClicked)
         NavigateToArtistGallery(_currentCard.UserId);
     }
 
+    private async Task RefreshFollowStateAsync(ArtworkCardViewModel card)
+    {
+        try
+        {
+            var info = await _pixivClient.GetArtistAsync(card.UserId);
+            await Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                if (info == null || _currentCard?.Id != card.Id) return;
+                _isFollowing = info.IsFollowed;
+                card.IsFollowed = info.IsFollowed;
+                UpdateFollowButton();
+            });
+        }
+        catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[InlineArtworkViewer] follow check failed: {ex.Message}"); }
+    }
+
     private async void NavigateToArtistGallery(string userId)
     {
-        // Navigate to Gallery tab and load the artist — keep existing tabs open
-        var mainWindow = TopLevel.GetTopLevel(this) as Pikura.Avalonia.Views.MainWindow;
         var galleryVm = AppServices.Get<GalleryViewModel>();
-        // Close the inline viewer only if no tabs are pinned
-        if (galleryVm.ViewerTabs.Count == 0)
-            galleryVm.CloseInlineViewer();
-        mainWindow?.LoadGalleryView();
-        await galleryVm.LoadArtistByIdCommand.ExecuteAsync(userId);
+        try
+        {
+            // Cards built from partial data have no artist id yet — resolve it from the artwork.
+            if (string.IsNullOrWhiteSpace(userId) && _currentCard?.Id is { } artId)
+                userId = (await _pixivClient.GetArtworkDetailAsync(artId))?.UserId ?? "";
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                galleryVm.StatusMessage = LocalizationService.Instance["Viewer_ArtistUnknown"];
+                return;
+            }
+            // Navigate to Gallery tab and load the artist — keep existing tabs open
+            var mainWindow = TopLevel.GetTopLevel(this) as Pikura.Avalonia.Views.MainWindow;
+            // Close the inline viewer only if no tabs are pinned
+            if (galleryVm.ViewerTabs.Count == 0)
+                galleryVm.CloseInlineViewer();
+            mainWindow?.LoadGalleryView();
+            await galleryVm.LoadArtistByIdCommand.ExecuteAsync(userId);
+        }
+        catch (Exception ex)
+        {
+            galleryVm.StatusMessage = LocalizationService.Instance["Viewer_ArtistUnknown"] + " " + ex.Message;
+        }
     }
 
     private async void OnFollowToggleClicked(object? sender, RoutedEventArgs e)
@@ -1949,6 +2170,16 @@ if (result != null && presetWindow.DownloadClicked)
             await Dispatcher.UIThread.InvokeAsync(() =>
             {
                 if (_currentCard?.Id != card.Id) return;
+
+                // Cards built from partial data (Library files) lack artist/title — fill them in.
+                if (detail != null && string.IsNullOrWhiteSpace(card.UserId) && !string.IsNullOrWhiteSpace(detail.UserId))
+                {
+                    card.UserId = detail.UserId!;
+                    card.UserName = detail.UserName ?? "";
+                    if (!string.IsNullOrWhiteSpace(detail.IllustTitle)) card.Title = detail.IllustTitle!;
+                    UpdateArtistButtonVisibility();
+                    if (followInfo == null) _ = RefreshFollowStateAsync(card);
+                }
 
                 _bookmarkCount = detail?.BookmarkCount ?? card.BookmarkCount;
                 _likeCount = detail?.LikeCount ?? card.LikeCount;
@@ -3269,6 +3500,21 @@ if (result != null && presetWindow.DownloadClicked)
             : "Hoshi";
         if (AiStatusLabel != null)
             AiStatusLabel.Text = _aiVm.StatusText;
+        UpdateAiStatusDot();
+    }
+
+    private static readonly IBrush AiDotReady = new SolidColorBrush(Color.Parse("#22C55E"));
+    private static readonly IBrush AiDotBusy  = new SolidColorBrush(Color.Parse("#F59E0B"));
+    private static readonly IBrush AiDotOff   = new SolidColorBrush(Color.Parse("#6B7280"));
+
+    /// <summary>Green = model ready, amber = starting up or answering, grey = Hoshi off.</summary>
+    private void UpdateAiStatusDot()
+    {
+        if (AiStatusDot == null) return;
+        AiStatusDot.Fill = !_aiVm.IsEnabled ? AiDotOff
+            : _aiVm.IsModelReady && !_aiVm.IsThinking ? AiDotReady
+            : AiDotBusy;
+        ToolTip.SetTip(AiStatusDot, _aiVm.StatusText);
     }
 
     private void RefreshAiMessages()

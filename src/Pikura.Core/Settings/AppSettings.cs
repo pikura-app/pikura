@@ -441,6 +441,10 @@ public sealed class AppSettings
     /// <summary>Proxy server address (e.g., http://127.0.0.1:8080).</summary>
     public string? ProxyAddress { get; set; }
 
+    /// <summary>Optional SauceNAO API key. SauceNAO refuses anonymous API searches, so in-app reverse
+    /// search needs one; without it Pikura opens saucenao.com with the image copied instead.</summary>
+    public string? SauceNaoApiKey { get; set; }
+
     /// <summary>When true, verifies SSL certificates.</summary>
     public bool EnableSSLVerification { get; set; } = true;
 
@@ -913,6 +917,10 @@ public sealed class AppSettings
     public bool ExportMetadataWithDownloads { get; set; } = false;
     /// <summary>Index downloaded files into the local library (dedupe/search/tags).</summary>
     public bool LibraryAutoIndexDownloads { get; set; } = true;
+
+    /// <summary>Folders the library indexes. null = default (global DownloadRoot +
+    /// each account profile's DownloadRoot). Set when the user customises the list.</summary>
+    public List<string>? LibraryFolders { get; set; }
     /// <summary>pHash distance (0-12) below which two files count as near-duplicates.</summary>
     private int _libraryDuplicateThreshold = 6;
     /// <summary>pHash distance (0-12 slider; clamped to ≤7 — the 8×8-bit band index can't find pairs beyond 7).</summary>
@@ -1004,6 +1012,12 @@ public sealed class PersistedViewerTab
 
     /// <summary>Artwork IDs contained in the collage tab, in order.</summary>
     public List<string> CollageArtworkIds { get; set; } = [];
+
+    /// <summary>Library tabs: the local file shown (restored from disk, no pixiv fetch needed).</summary>
+    public string? LocalPath { get; set; }
+
+    /// <summary>Library tabs: the library row id.</summary>
+    public long LibraryFileId { get; set; }
 }
 
 /// <summary>

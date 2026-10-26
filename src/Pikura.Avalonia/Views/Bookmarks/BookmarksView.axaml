@@ -37,9 +37,9 @@
              ══════════════════════════════════════════════════════════════════ -->
         <DataTemplate x:Key="BookmarkFixedCardTemplate" x:DataType="vm:ArtworkCardViewModel">
             <Panel>
-            <Border Width="{Binding $parent[UserControl].((vm:BookmarksViewModel)DataContext).CardSize}"
+            <Border
                     Height="{Binding $parent[UserControl].((vm:BookmarksViewModel)DataContext).FixedCardTotalHeight}"
-                    Margin="0,0,6,6"
+                    Margin="0"
                     Background="{DynamicResource Container1BackgroundBrush}"
                     BorderBrush="{DynamicResource Container1BorderBrush}"
                     BorderThickness="1" CornerRadius="8" BoxShadow="{DynamicResource CardShadow}"
@@ -170,8 +170,7 @@
              ══════════════════════════════════════════════════════════════════ -->
         <DataTemplate x:Key="BookmarkNaturalCardTemplate" x:DataType="vm:ArtworkCardViewModel">
             <Panel>
-            <Border Width="{Binding $parent[UserControl].((vm:BookmarksViewModel)DataContext).CardSize}"
-                    Margin="0,0,6,6"
+            <Border Margin="0"
                     Background="{DynamicResource Container1BackgroundBrush}"
                     BorderBrush="{DynamicResource Container1BorderBrush}"
                     BorderThickness="1" CornerRadius="8" BoxShadow="{DynamicResource CardShadow}"
@@ -235,7 +234,7 @@
                 <Panel>
                 <Grid RowDefinitions="Auto,Auto">
                     <!-- Image section -->
-                    <Border Grid.Row="0" CornerRadius="7,7,0,0" ClipToBounds="True" MinHeight="120">
+                    <Border Grid.Row="0" CornerRadius="7" ClipToBounds="True" MinHeight="120">
                         <Panel>
                             <Border Background="{DynamicResource Container2BackgroundBrush}"
                                     IsVisible="{Binding Thumbnail, Converter={x:Static ObjectConverters.IsNull}}"/>
@@ -401,9 +400,9 @@
              ══════════════════════════════════════════════════════════════════ -->
         <DataTemplate x:Key="FavoriteFixedCardTemplate" x:DataType="vm:ArtworkCardViewModel">
             <Panel>
-            <Border Width="{Binding $parent[UserControl].((vm:BookmarksViewModel)DataContext).CardSize}"
+            <Border
                     Height="{Binding $parent[UserControl].((vm:BookmarksViewModel)DataContext).FixedCardTotalHeight}"
-                    Margin="0,0,6,6"
+                    Margin="0"
                     Background="{DynamicResource Container1BackgroundBrush}"
                     BorderBrush="{DynamicResource Container1BorderBrush}"
                     BorderThickness="1" CornerRadius="8" BoxShadow="{DynamicResource CardShadow}"
@@ -501,8 +500,7 @@
              ══════════════════════════════════════════════════════════════════ -->
         <DataTemplate x:Key="FavoriteNaturalCardTemplate" x:DataType="vm:ArtworkCardViewModel">
             <Panel>
-            <Border Width="{Binding $parent[UserControl].((vm:BookmarksViewModel)DataContext).CardSize}"
-                    Margin="0,0,6,6"
+            <Border Margin="0"
                     Background="{DynamicResource Container1BackgroundBrush}"
                     BorderBrush="{DynamicResource Container1BorderBrush}"
                     BorderThickness="1" CornerRadius="8" BoxShadow="{DynamicResource CardShadow}"
@@ -540,7 +538,7 @@
                 <Panel>
                 <Grid RowDefinitions="*,Auto">
                     <!-- Image area: natural height, clipped top corners — image ONLY inside clip -->
-                    <Border Grid.Row="0" CornerRadius="7,7,0,0" ClipToBounds="True">
+                    <Border Grid.Row="0" CornerRadius="7" ClipToBounds="True">
                         <Panel>
                             <Border Background="{DynamicResource Container2BackgroundBrush}"
                                     IsVisible="{Binding Thumbnail, Converter={x:Static ObjectConverters.IsNull}}"/>
@@ -859,8 +857,8 @@
                 <!-- Center: height mode + toggles + tag filter + size -->
                 <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
                     <StackPanel Orientation="Horizontal" Spacing="4" IsVisible="{Binding IsGridView}">
-                        <Button CornerRadius="6" Padding="8,4" FontSize="11" Command="{Binding SetFixedHeightCommand}"   IsEnabled="{Binding !IsFixedHeight}"   ToolTip.Tip="{loc:Tr Gallery_FixedCardHeight}">Fixed</Button>
-                        <Button CornerRadius="6" Padding="8,4" FontSize="11" Command="{Binding SetNaturalHeightCommand}" IsEnabled="{Binding !IsNaturalHeight}" ToolTip.Tip="{loc:Tr Collections_NaturalHeight}">Natural</Button>
+                        <Button CornerRadius="6" Padding="8,4" FontSize="11" Command="{Binding SetFixedHeightCommand}"   IsEnabled="{Binding !IsFixedHeight}"   ToolTip.Tip="{loc:Tr Gallery_FixedCardHeight}"><TextBlock Text="{loc:Tr Gallery_Fixed}" FontSize="{Binding $parent[ContentControl].FontSize}"/></Button>
+                        <Button CornerRadius="6" Padding="8,4" FontSize="11" Command="{Binding SetNaturalHeightCommand}" IsEnabled="{Binding !IsNaturalHeight}" ToolTip.Tip="{loc:Tr Collections_NaturalHeight}"><TextBlock Text="{loc:Tr Gallery_Natural}" FontSize="{Binding $parent[ContentControl].FontSize}"/></Button>
                         <Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}" Margin="2,0"/>
                     </StackPanel>
                     <ToggleButton IsChecked="{Binding ShowTags,    Mode=TwoWay}" CornerRadius="6" Padding="8,4" FontSize="11" ToolTip.Tip="{loc:Tr Discover_ShowHideTagChips}">
@@ -916,8 +914,8 @@
 
                 <!-- Right: Grid / List -->
                 <StackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Center">
-                    <Button CornerRadius="6" Padding="8,4" FontSize="11" Command="{Binding SetGridViewCommand}" IsEnabled="{Binding !IsGridView}" ToolTip.Tip="{loc:Tr Rankings_GridView}">⊞ Grid</Button>
-                    <Button CornerRadius="6" Padding="8,4" FontSize="11" Command="{Binding SetListViewCommand}" IsEnabled="{Binding !IsListView}" ToolTip.Tip="{loc:Tr Rankings_ListView}">≡ List</Button>
+                    <Button CornerRadius="6" Padding="8,4" FontSize="11" Command="{Binding SetGridViewCommand}" IsEnabled="{Binding !IsGridView}" ToolTip.Tip="{loc:Tr Rankings_GridView}"><TextBlock FontSize="{Binding $parent[ContentControl].FontSize}"><Run Text="⊞ "/><Run Text="{loc:Tr Gallery_Grid}"/></TextBlock></Button>
+                    <Button CornerRadius="6" Padding="8,4" FontSize="11" Command="{Binding SetListViewCommand}" IsEnabled="{Binding !IsListView}" ToolTip.Tip="{loc:Tr Rankings_ListView}"><TextBlock FontSize="{Binding $parent[ContentControl].FontSize}"><Run Text="≡ "/><Run Text="{loc:Tr Gallery_List}"/></TextBlock></Button>
                 </StackPanel>
             </StackPanel>
             </ScrollViewer>
@@ -990,14 +988,14 @@
                         <ItemsControl ItemsSource="{Binding FilteredPublic}" Margin="10,10,4,10"
                                       IsVisible="{Binding ShowFixedGrid}"
                                       ItemTemplate="{StaticResource BookmarkFixedCardTemplate}">
-                            <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel Orientation="Horizontal"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemsPanel><ItemsPanelTemplate><gallery:FillWrapPanel MinItemWidth="{Binding $parent[UserControl].((vm:BookmarksViewModel)DataContext).CardSize}" ItemSpacing="6"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
                         </ItemsControl>
 
                         <!-- Natural grid -->
                         <ItemsControl ItemsSource="{Binding FilteredPublic}" Margin="10,10,4,10"
                                       IsVisible="{Binding ShowNaturalGrid}"
                                       ItemTemplate="{StaticResource BookmarkNaturalCardTemplate}">
-                            <ItemsControl.ItemsPanel><ItemsPanelTemplate><gallery:MasonryPanel ColumnWidth="{Binding $parent[UserControl].((vm:BookmarksViewModel)DataContext).CardSize}" ItemSpacing="6"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemsPanel><ItemsPanelTemplate><gallery:MasonryPanel ColumnWidth="{Binding $parent[UserControl].((vm:BookmarksViewModel)DataContext).CardSize}" ItemSpacing="6" SqueezeToFill="True"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
                         </ItemsControl>
 
                         <!-- List -->
@@ -1049,14 +1047,14 @@
                         <ItemsControl ItemsSource="{Binding FilteredPrivate}" Margin="10,10,4,10"
                                       IsVisible="{Binding ShowFixedGrid}"
                                       ItemTemplate="{StaticResource BookmarkFixedCardTemplate}">
-                            <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel Orientation="Horizontal"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemsPanel><ItemsPanelTemplate><gallery:FillWrapPanel MinItemWidth="{Binding $parent[UserControl].((vm:BookmarksViewModel)DataContext).CardSize}" ItemSpacing="6"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
                         </ItemsControl>
 
                         <!-- Natural grid -->
                         <ItemsControl ItemsSource="{Binding FilteredPrivate}" Margin="10,10,4,10"
                                       IsVisible="{Binding ShowNaturalGrid}"
                                       ItemTemplate="{StaticResource BookmarkNaturalCardTemplate}">
-                            <ItemsControl.ItemsPanel><ItemsPanelTemplate><gallery:MasonryPanel ColumnWidth="{Binding $parent[UserControl].((vm:BookmarksViewModel)DataContext).CardSize}" ItemSpacing="6"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemsPanel><ItemsPanelTemplate><gallery:MasonryPanel ColumnWidth="{Binding $parent[UserControl].((vm:BookmarksViewModel)DataContext).CardSize}" ItemSpacing="6" SqueezeToFill="True"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
                         </ItemsControl>
 
                         <!-- List -->
@@ -1204,14 +1202,14 @@
                             <ItemsControl ItemsSource="{Binding FilteredFavorites}" Margin="10,10,4,10"
                                           IsVisible="{Binding ShowFixedGrid}"
                                           ItemTemplate="{StaticResource FavoriteFixedCardTemplate}">
-                                <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel Orientation="Horizontal"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemsPanel><ItemsPanelTemplate><gallery:FillWrapPanel MinItemWidth="{Binding $parent[UserControl].((vm:BookmarksViewModel)DataContext).CardSize}" ItemSpacing="6"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
                             </ItemsControl>
 
                             <!-- Natural grid -->
                             <ItemsControl ItemsSource="{Binding FilteredFavorites}" Margin="10,10,4,10"
                                           IsVisible="{Binding ShowNaturalGrid}"
                                           ItemTemplate="{StaticResource FavoriteNaturalCardTemplate}">
-                                <ItemsControl.ItemsPanel><ItemsPanelTemplate><gallery:MasonryPanel ColumnWidth="{Binding $parent[UserControl].((vm:BookmarksViewModel)DataContext).CardSize}" ItemSpacing="6"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemsPanel><ItemsPanelTemplate><gallery:MasonryPanel ColumnWidth="{Binding $parent[UserControl].((vm:BookmarksViewModel)DataContext).CardSize}" ItemSpacing="6" SqueezeToFill="True"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
                             </ItemsControl>
 
                             <!-- List -->

@@ -23,6 +23,7 @@
         <StreamGeometry x:Key="RankingsIconGeometry">M10,1.5 L12.6,7.5 L19,8 L14,12.3 L15.5,18.5 L10,15 L4.5,18.5 L6,12.3 L1,8 L7.4,7.5 Z</StreamGeometry>
         <StreamGeometry x:Key="DiscoverIconGeometry">M2,10 L18,3 L11,18 L9,12 Z</StreamGeometry>
         <StreamGeometry x:Key="SearchIconGeometry">M15.5,14 H14.71 L14.43,13.73 C15.41,12.59 16,11.11 16,9.5 C16,5.91 13.09,3 9.5,3 S3,5.91 3,9.5 S5.91,16 9.5,16 C11.11,16 12.59,15.41 13.73,14.43 L14,14.71 V15.5 L19,20.49 L20.49,19 Z M9.5,14 C7.01,14 5,11.99 5,9.5 S7.01,5 9.5,5 S14,7.01 14,9.5 S11.99,14 9.5,14 Z</StreamGeometry>
+        <StreamGeometry x:Key="LibraryIconGeometry">M4,2 H16 V4 H18 V18 H4 V2 M6,4 V16 H16 V6 H6 V4 M12,13 L10,10 L8,13 M11,7.5 A1,1 0 1,0 11,9.5 A1,1 0 1,0 11,7.5 Z</StreamGeometry>
         <StreamGeometry x:Key="BookmarksIconGeometry">M5,2 H15 V19 L10,15 L5,19 Z</StreamGeometry>
         <!-- Stacked-photos "album" glyph — deliberately distinct from Gallery's even 2x2 grid
              and Bookmarks' ribbon, since Collections previously (mistakenly) reused the latter. -->
@@ -120,6 +121,13 @@
                                     <TextBlock Text="{loc:Tr Nav_Gallery}"/>
                                 </StackPanel>
                             </Button>
+                            <Button Classes="nav" Click="LibraryButton_Click">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <Path Data="{StaticResource LibraryIconGeometry}" Width="16" Height="16"
+                                          Stretch="Uniform" Fill="{Binding $parent[Button].Foreground}"/>
+                                    <TextBlock Text="{loc:Tr Nav_Library}"/>
+                                </StackPanel>
+                            </Button>
                             <Button Classes="nav" Click="RankingsButton_Click">
                                 <StackPanel Orientation="Horizontal" Spacing="10">
                                     <Path Data="{StaticResource RankingsIconGeometry}" Width="16" Height="16"
@@ -188,13 +196,6 @@
                                     <Path Data="{StaticResource JobsIconGeometry}" Width="16" Height="16"
                                           Stretch="Uniform" Fill="{Binding $parent[Button].Foreground}"/>
                                     <TextBlock Text="{loc:Tr Nav_Jobs}"/>
-                                </StackPanel>
-                            </Button>
-                            <Button Classes="nav" Click="LibraryButton_Click">
-                                <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <Path Data="{StaticResource GalleryIconGeometry}" Width="16" Height="16"
-                                          Stretch="Uniform" Fill="{Binding $parent[Button].Foreground}"/>
-                                    <TextBlock Text="{loc:Tr Nav_Library}"/>
                                 </StackPanel>
                             </Button>
 
