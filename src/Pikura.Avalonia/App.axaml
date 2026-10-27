@@ -349,6 +349,21 @@
             <Setter Property="Opacity" Value="1"/>
             <Setter Property="Foreground" Value="{DynamicResource DefaultForegroundBrush}"/>
         </Style>
+        <!-- Touch mode (Settings → Accessibility): bigger hit targets for fingers. -->
+        <Style Selector="Window.touch Button, Window.touch ToggleButton, Window.touch SplitButton">
+            <Setter Property="MinHeight" Value="40"/>
+            <Setter Property="Padding" Value="14,8"/>
+        </Style>
+        <Style Selector="Window.touch Button.tb, Window.touch ToggleButton.tb, Window.touch SplitButton.tb">
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="MinHeight" Value="40"/>
+        </Style>
+        <Style Selector="Window.touch ComboBox, Window.touch TextBox, Window.touch CalendarDatePicker">
+            <Setter Property="MinHeight" Value="40"/>
+        </Style>
+        <Style Selector="Window.touch CheckBox, Window.touch RadioButton">
+            <Setter Property="MinHeight" Value="36"/>
+        </Style>
     </Application.Styles>
 
     <TrayIcon.Icons>

@@ -572,7 +572,7 @@
                                                 BorderBrush="{DynamicResource Container1BorderBrush}"
                                                 BorderThickness="1" CornerRadius="8"
                                                 BoxShadow="{DynamicResource CardShadow}" Cursor="Hand"
-                                                PointerPressed="OnCardClicked"
+                                                PointerPressed="OnCardClicked" Tapped="OnCardClickedTapped"
                                                 ContextMenu="{StaticResource SearchCardContextMenu}">
                                             <Border.Styles>
                                                 <Style Selector="Border:pointerover">
@@ -670,7 +670,7 @@
                                                 BorderBrush="{DynamicResource Container1BorderBrush}"
                                                 BorderThickness="1" CornerRadius="8"
                                                 BoxShadow="{DynamicResource CardShadow}" Cursor="Hand"
-                                                PointerPressed="OnCardClicked"
+                                                PointerPressed="OnCardClicked" Tapped="OnCardClickedTapped"
                                                 ContextMenu="{StaticResource SearchCardContextMenu}">
                                             <Border.Styles>
                                                 <Style Selector="Border:pointerover">
@@ -775,7 +775,7 @@
                                             BorderBrush="{DynamicResource Container1BorderBrush}"
                                             BorderThickness="1" CornerRadius="6"
                                             BoxShadow="{DynamicResource CardShadow}" Cursor="Hand"
-                                            PointerPressed="OnCardClicked"
+                                            PointerPressed="OnCardClicked" Tapped="OnCardClickedTapped"
                                             ContextMenu="{StaticResource SearchCardContextMenu}">
                                         <Grid ColumnDefinitions="Auto,*,Auto" Margin="6,4">
                                             <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected}"
@@ -819,7 +819,7 @@
                                             Background="{DynamicResource Container1BackgroundBrush}"
                                             BorderBrush="{DynamicResource Container1BorderBrush}"
                                             BorderThickness="1" CornerRadius="8" ClipToBounds="True" Cursor="Hand"
-                                            PointerPressed="OnNovelCardClicked">
+                                            PointerPressed="OnNovelCardClicked" Tapped="OnNovelCardClickedTapped">
                                         <StackPanel>
                                             <Panel Height="150">
                                                 <Border Background="{DynamicResource Container2BackgroundBrush}"

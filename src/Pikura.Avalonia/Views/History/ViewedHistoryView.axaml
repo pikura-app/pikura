@@ -400,7 +400,7 @@
                                             BorderBrush="{DynamicResource Container1BorderBrush}"
                                             BorderThickness="1" CornerRadius="8"
                                             BoxShadow="{DynamicResource CardShadow}" Cursor="Hand"
-                                            PointerPressed="OnCardClicked"
+                                            PointerPressed="OnCardClicked" Tapped="OnCardClickedTapped"
                                             ContextMenu="{StaticResource ViewedCardContextMenu}">
                                         <Border.Styles>
                                             <Style Selector="Border:pointerover">
@@ -479,7 +479,7 @@
                                             BorderBrush="{DynamicResource Container1BorderBrush}"
                                             BorderThickness="1" CornerRadius="8"
                                             BoxShadow="{DynamicResource CardShadow}" Cursor="Hand"
-                                            PointerPressed="OnCardClicked"
+                                            PointerPressed="OnCardClicked" Tapped="OnCardClickedTapped"
                                             ContextMenu="{StaticResource ViewedCardContextMenu}">
                                         <Border.Styles>
                                             <Style Selector="Border:pointerover">
@@ -552,7 +552,7 @@
                                             Background="{DynamicResource Container1BackgroundBrush}"
                                             BorderBrush="{DynamicResource Container1BorderBrush}"
                                             BorderThickness="1" CornerRadius="8" Cursor="Hand"
-                                            PointerPressed="OnCardClicked"
+                                            PointerPressed="OnCardClicked" Tapped="OnCardClickedTapped"
                                             ContextMenu="{StaticResource ViewedCardContextMenu}">
                                         <Border.Styles>
                                             <Style Selector="Border:pointerover">

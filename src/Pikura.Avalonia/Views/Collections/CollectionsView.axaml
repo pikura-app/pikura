@@ -718,7 +718,7 @@
                                 <Panel Margin="0">
                                 <Border CornerRadius="8" ClipToBounds="True" Cursor="Hand"
                                         Background="{DynamicResource Container1BackgroundBrush}"
-                                        PointerPressed="OnCardClicked">
+                                        PointerPressed="OnCardClicked" Tapped="OnCardClickedTapped">
                                     <Border.ContextMenu>
                                         <ContextMenu>
                                             <MenuItem Header="{loc:Tr Collections_Select}" Click="OnContextToggleSelection" IsVisible="{Binding !IsSelected}">
@@ -874,7 +874,7 @@
                                             BorderBrush="{DynamicResource Container1BorderBrush}" BorderThickness="1"
                                             BoxShadow="{DynamicResource CardShadow}"
                                             Background="{DynamicResource Container1BackgroundBrush}"
-                                            PointerPressed="OnCardClicked">
+                                            PointerPressed="OnCardClicked" Tapped="OnCardClickedTapped">
                                         <Border.ContextMenu>
                                             <ContextMenu>
                                                 <MenuItem Header="{loc:Tr Collections_Select}" Click="OnContextToggleSelection" IsVisible="{Binding !IsSelected}"/>
@@ -924,7 +924,7 @@
                             <DataTemplate x:DataType="vm:ArtworkCardViewModel">
                                 <Border CornerRadius="8" Cursor="Hand" Padding="8"
                                         Background="{DynamicResource Container1BackgroundBrush}"
-                                        PointerPressed="OnCardClicked">
+                                        PointerPressed="OnCardClicked" Tapped="OnCardClickedTapped">
                                     <Grid ColumnDefinitions="Auto,Auto,*,Auto">
                                         <CheckBox Grid.Column="0" VerticalAlignment="Center"
                                                   IsChecked="{Binding IsSelected}" Click="OnWorkCheckboxClicked"/>

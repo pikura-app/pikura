@@ -118,6 +118,16 @@
                                     <CheckBox Content="{loc:Tr Settings_ReduceMotion}" IsChecked="{Binding ReduceMotion, Mode=TwoWay}"
                                               FontSize="13" Margin="0,0,24,8"/>
                                 </WrapPanel>
+                                <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,4,0,0">
+                                    <TextBlock Text="{loc:Tr Settings_TouchMode}" FontSize="13" VerticalAlignment="Center"/>
+                                    <ComboBox SelectedItem="{Binding TouchMode, Mode=TwoWay}" Width="140"
+                                              ItemsSource="{Binding AvailableTouchModes}"
+                                              ToolTip.Tip="{loc:Tr Settings_TouchModeHint}">
+                                        <ComboBox.ItemTemplate><DataTemplate>
+                                            <TextBlock Text="{Binding Converter={x:Static vm:SettingsViewModel+TouchModeLocConverter.Instance}}"/>
+                                        </DataTemplate></ComboBox.ItemTemplate>
+                                    </ComboBox>
+                                </StackPanel>
                                 <StackPanel Spacing="8" Margin="0,8,0,0">
                                     <TextBlock Text="{loc:Tr Settings_FontSizeScale}" FontSize="13"
                                                Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>

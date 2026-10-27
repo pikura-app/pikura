@@ -230,6 +230,7 @@ public partial class InlineArtworkViewer : UserControl
     public InlineArtworkViewer()
     {
         InitializeComponent();
+
         _pixivClient = AppServices.Get<PixivClient>();
         _imageLoader = AppServices.Get<PixivImageLoader>();
         _downloader = AppServices.Get<PixivDownloadService>();
@@ -774,6 +775,9 @@ public partial class InlineArtworkViewer : UserControl
         }
 
         _currentCard = card;
+
+        // A different artwork: close the "All pages" grid left open by the previous one.
+        if (VM != null && VM.IsInlinePageGridVisible) VM.IsInlinePageGridVisible = false;
 
         // Cancel any in-flight load and start fresh
         _loadCts?.Cancel();
@@ -1493,8 +1497,43 @@ public partial class InlineArtworkViewer : UserControl
         ApplyTransform();
     }
 
+    private bool _isPinching;
+    private double _pinchStartScale = 1.0;
+    private double _pinchStartDist = -1;
+    private readonly Dictionary<int, Point> _touchPts = new(); // active non-mouse pointers
+    private DateTime _touchDownAt;
+    private Point _touchStartPos;
+    private int _lastPointerType = -1;
+
     private void OnImagePointerPressed(object? sender, PointerPressedEventArgs e)
     {
+        _lastPointerType = (int)e.Pointer.Type;
+        if (e.Pointer.Type != PointerType.Mouse)
+        {
+            // touch/pen: track for pinch + swipe; only pan when zoomed in
+            _touchPts[e.Pointer.Id] = e.GetPosition(ImageCanvas);
+            if (_touchPts.Count == 1) _touchStartPos = e.GetPosition(ImageCanvas);
+            if (_touchPts.Count == 2)
+            {
+                // second finger down → pinch starts; cancel any pan
+                _isPanning = false; _isPinching = true;
+                _pinchStartScale = _scale;
+                var pts = _touchPts.Values.ToList();
+                _pinchStartDist = Math.Sqrt(Math.Pow(pts[0].X - pts[1].X, 2) + Math.Pow(pts[0].Y - pts[1].Y, 2));
+            }
+            if (ImageCanvas is null || IsFromPageOverlay(e) || _touchPts.Count > 1) return;
+            // One finger always moves the image freely (like the mouse); a quick sideways flick
+            // at normal zoom still changes page — see OnImagePointerReleased.
+            _touchDownAt = DateTime.UtcNow;
+            _isPanning = true;
+            _panDragging = false;
+            _panStart = e.GetPosition(ImageCanvas);
+            _panStartX = _translateX;
+            _panStartY = _translateY;
+            e.Pointer.Capture(ImageCanvas);
+            e.Handled = true;
+            return;
+        }
         if (!e.GetCurrentPoint(null).Properties.IsLeftButtonPressed) return;
         if (ImageCanvas is null || IsFromPageOverlay(e)) return;
         _isPanning = true;
@@ -1508,6 +1547,20 @@ public partial class InlineArtworkViewer : UserControl
 
     private void OnImagePointerMoved(object? sender, PointerEventArgs e)
     {
+        if (e.Pointer.Type != PointerType.Mouse && _touchPts.ContainsKey(e.Pointer.Id))
+        {
+            _touchPts[e.Pointer.Id] = e.GetPosition(ImageCanvas);
+            if (_isPinching && _touchPts.Count == 2 && _pinchStartDist > 0)
+            {
+                var pts = _touchPts.Values.ToList();
+                var dist = Math.Sqrt(Math.Pow(pts[0].X - pts[1].X, 2) + Math.Pow(pts[0].Y - pts[1].Y, 2));
+                _scale = Math.Clamp(_pinchStartScale * (dist / _pinchStartDist), 0.1, 10.0);
+                ApplyTransform();
+                e.Handled = true;
+                return;
+            }
+        }
+        if (_isPinching) return;
         if (!_isPanning) return;
         var pos = e.GetPosition(ImageCanvas);
         var dx = pos.X - _panStart.X;
@@ -1526,6 +1579,25 @@ public partial class InlineArtworkViewer : UserControl
 
     private void OnImagePointerReleased(object? sender, PointerReleasedEventArgs e)
     {
+        _touchPts.Remove(e.Pointer.Id);
+        if (_touchPts.Count < 2) { _isPinching = false; _pinchStartDist = -1; }
+        if (_touchPts.Count == 0) _lastPointerType = -1;
+        // Touch swipe (only when not zoomed): >80px horizontal, >2x vertical → page/artwork nav.
+        if (e.Pointer.Type != PointerType.Mouse && _scale <= 1.05 && ImageCanvas != null)
+        {
+            var pos = e.GetPosition(ImageCanvas);
+            var dx = pos.X - _touchStartPos.X;
+            var dy = pos.Y - _touchStartPos.Y;
+            // Flick = fast (<350 ms), long (>80px) and mostly horizontal; slower drags just move the image.
+            var quick = (DateTime.UtcNow - _touchDownAt).TotalMilliseconds < 350;
+            if (quick && _pages.Count > 1 && Math.Abs(dx) > 80 && Math.Abs(dx) > Math.Abs(dy) * 2)
+            {
+                _translateX = _panStartX; _translateY = _panStartY; // undo the drag before flipping
+                ApplyTransform();
+                if (dx < 0) OnNextPage(sender, new RoutedEventArgs());
+                else OnPrevPage(sender, new RoutedEventArgs());
+            }
+        }
         _isPanning = false;
         _panDragging = false;
         e.Pointer.Capture(null);

@@ -762,7 +762,7 @@
                                                 BorderThickness="1" CornerRadius="8"
                                                 BoxShadow="{DynamicResource CardShadow}"
                                                 Cursor="Hand"
-                                                PointerPressed="OnArtworkCardClicked">
+                                                PointerPressed="OnArtworkCardClicked" Tapped="OnArtworkCardClickedTapped">
                                                 <Border.ContextMenu>
                                                     <ContextMenu Opening="OnCardContextMenuOpening">
                                                         <MenuItem Header="{loc:Tr Search_Select}" Click="OnContextToggleSelection"
@@ -946,7 +946,7 @@
                                                 BorderThickness="1" CornerRadius="8"
                                                 BoxShadow="{DynamicResource CardShadow}"
                                                 Cursor="Hand"
-                                                PointerPressed="OnArtworkCardClicked">
+                                                PointerPressed="OnArtworkCardClicked" Tapped="OnArtworkCardClickedTapped">
                                                 <Border.ContextMenu>
                                                     <ContextMenu Opening="OnListCardContextMenuOpening">
                                                         <MenuItem Header="{loc:Tr Search_Select}" Click="OnContextToggleSelection"
@@ -1160,7 +1160,7 @@
                                                 BorderThickness="1" CornerRadius="8"
                                                 BoxShadow="{DynamicResource CardShadow}"
                                                 Cursor="Hand"
-                                                PointerPressed="OnArtworkCardClicked">
+                                                PointerPressed="OnArtworkCardClicked" Tapped="OnArtworkCardClickedTapped">
                                             <Border.ContextMenu>
                                                 <ContextMenu Opening="OnListCardContextMenuOpening">
                                                     <MenuItem Header="{loc:Tr Search_Select}" Click="OnContextToggleSelection"
@@ -1359,7 +1359,7 @@
                                             BorderBrush="{DynamicResource Container1BorderBrush}"
                                             BorderThickness="1" CornerRadius="8" Padding="6"
                                             Cursor="Hand"
-                                            PointerPressed="OnArtworkCardClicked">
+                                            PointerPressed="OnArtworkCardClicked" Tapped="OnArtworkCardClickedTapped">
                                             <Border.ContextMenu>
                                                 <ContextMenu>
                                                     <MenuItem Header="{loc:Tr Search_Select}" Click="OnContextToggleSelection"

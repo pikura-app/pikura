@@ -254,7 +254,7 @@
                                     Classes.selected="{Binding IsSelected}"
                                     Background="{DynamicResource Container2BackgroundBrush}"
                                     ToolTip.Tip="{Binding PathTooltip}"
-                                    PointerPressed="OnItemPressed" ContextRequested="OnItemContextRequested" DoubleTapped="OnItemDoubleTapped">
+                                    PointerPressed="OnItemPressed" Tapped="OnItemPressedTapped" ContextRequested="OnItemContextRequested" DoubleTapped="OnItemDoubleTapped">
                                 <Border.Styles>
                                     <Style Selector="Border.selected">
                                         <Setter Property="BorderBrush" Value="#3B82F6"/>
@@ -287,7 +287,7 @@
                                     Classes.selected="{Binding IsSelected}"
                                     Background="{DynamicResource Container2BackgroundBrush}"
                                     ToolTip.Tip="{Binding PathTooltip}"
-                                    PointerPressed="OnItemPressed" ContextRequested="OnItemContextRequested" DoubleTapped="OnItemDoubleTapped">
+                                    PointerPressed="OnItemPressed" Tapped="OnItemPressedTapped" ContextRequested="OnItemContextRequested" DoubleTapped="OnItemDoubleTapped">
                                 <Border.Styles>
                                     <Style Selector="Border.selected">
                                         <Setter Property="BorderBrush" Value="#3B82F6"/>
@@ -316,7 +316,7 @@
                         <ItemsControl.ItemTemplate><DataTemplate x:DataType="vm:LibraryItemViewModel">
                             <Border CornerRadius="6" Margin="0,2" Padding="6" Classes.selected="{Binding IsSelected}"
                                     BorderBrush="Transparent" BorderThickness="0" Background="{DynamicResource Container2BackgroundBrush}"
-                                    PointerPressed="OnItemPressed" ContextRequested="OnItemContextRequested" DoubleTapped="OnItemDoubleTapped">
+                                    PointerPressed="OnItemPressed" Tapped="OnItemPressedTapped" ContextRequested="OnItemContextRequested" DoubleTapped="OnItemDoubleTapped">
                                 <Border.Styles><Style Selector="Border.selected"><Setter Property="BorderBrush" Value="#3B82F6"/><Setter Property="BorderThickness" Value="2"/></Style></Border.Styles>
                                 <Grid ColumnDefinitions="Auto,72,*" Height="72">
                                     <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected}" VerticalAlignment="Center" Margin="6,0,2,0"/>

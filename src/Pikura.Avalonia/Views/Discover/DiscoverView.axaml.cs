@@ -526,6 +526,8 @@ public partial class DiscoverView : UserControl
 
     private void OnArtworkCardPressed(object? sender, PointerPressedEventArgs e)
     {
+        if (e.Pointer.Type != PointerType.Mouse) { _tapPtr = e.Pointer.Type; return; }
+
         // Don't select if clicking on the checkbox directly (it handles its own toggle)
         if (e.Source is CheckBox) return;
 
@@ -553,5 +555,15 @@ public partial class DiscoverView : UserControl
     {
         try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(url) { UseShellExecute = true }); }
         catch { }
+    }
+
+    // Last non-mouse pointer type — distinguishes a touch tap from a scroll swipe.
+    private PointerType _tapPtr = PointerType.Mouse;
+    /// <summary>Touch/pen tap (finger lifted without scrolling): same action as the card click.</summary>
+    private void OnArtworkCardPressedTapped(object? sender, TappedEventArgs e)
+    {
+        if (_tapPtr == PointerType.Mouse) return; // mouse already handled via PointerPressed
+        if (sender is not Control c || c.DataContext is not ArtworkCardViewModel card) return;
+        card.IsSelected = !card.IsSelected; VM?.NotifySelectionChanged();
     }
 }

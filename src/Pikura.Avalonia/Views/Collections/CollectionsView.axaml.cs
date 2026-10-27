@@ -259,6 +259,8 @@ public partial class CollectionsView : UserControl
 
     private void OnCardClicked(object? sender, PointerPressedEventArgs e)
     {
+        if (e.Pointer.Type != PointerType.Mouse) { _tapPtr = e.Pointer.Type; return; }
+
         if (!e.GetCurrentPoint(null).Properties.IsLeftButtonPressed) return;
         if ((sender as Control)?.DataContext is not ArtworkCardViewModel card) return;
         if (card.IsBlurred)
@@ -615,5 +617,15 @@ public partial class CollectionsView : UserControl
     {
         try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(url) { UseShellExecute = true }); }
         catch { /* non-fatal */ }
+    }
+
+    // Last non-mouse pointer type — distinguishes a touch tap from a scroll swipe.
+    private PointerType _tapPtr = PointerType.Mouse;
+    /// <summary>Touch/pen tap (finger lifted without scrolling): same action as the card click.</summary>
+    private void OnCardClickedTapped(object? sender, TappedEventArgs e)
+    {
+        if (_tapPtr == PointerType.Mouse) return; // mouse already handled via PointerPressed
+        if (sender is not Control c || c.DataContext is not ArtworkCardViewModel card) return;
+        if (card.IsBlurred) card.IsBlurred = false; else VM?.OpenArtworkCommand.Execute(card);
     }
 }

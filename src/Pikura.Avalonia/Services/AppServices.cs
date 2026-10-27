@@ -20,6 +20,26 @@ namespace Pikura.Avalonia.Services;
 /// </summary>
 public static class AppServices
 {
+    /// <summary>Applies the touch-mode class to the main window ("On" always; "Auto" sticks
+    /// on first touch/pen input; "Off" never). Called from settings + MainWindow.</summary>
+    public static void ApplyTouchMode(string? mode)
+    {
+        var main = global::Avalonia.Application.Current?.ApplicationLifetime is
+            global::Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime d
+            ? d.MainWindow : null;
+        if (main == null) return;
+        var touch = mode == "On" || _autoTouchSeen && mode != "Off";
+        if (touch) main.Classes.Add("touch"); else if (mode != "Auto" || !_autoTouchSeen) main.Classes.Remove("touch");
+    }
+    private static bool _autoTouchSeen;
+    /// <summary>Records that a touch/pen pointer was seen — used by the "Auto" mode.</summary>
+    public static void NoteTouchInput()
+    {
+        if (_autoTouchSeen) return;
+        _autoTouchSeen = true;
+        var mode = Get<Pikura.Core.Settings.SettingsService>().Current.TouchMode;
+        if (mode == "Auto") ApplyTouchMode(mode);
+    }
     private static IServiceProvider? _serviceProvider;
     private static IHost? _host;
 

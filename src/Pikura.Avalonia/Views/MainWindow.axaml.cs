@@ -33,6 +33,13 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        // Touch mode: apply persisted mode, and "Auto" flips on first touch/pen press.
+        AppServices.ApplyTouchMode(AppServices.Get<Pikura.Core.Settings.SettingsService>().Current.TouchMode);
+        AddHandler(PointerPressedEvent, (_, e) =>
+        {
+            if (e.Pointer.Type is PointerType.Touch or PointerType.Pen)
+                AppServices.NoteTouchInput();
+        }, global::Avalonia.Interactivity.RoutingStrategies.Tunnel, handledEventsToo: true);
 
         // Windows needs a system resize frame for Aero Snap (Win+Arrow / drag-to-edge).
         // macOS and Linux keep the current borderless custom chrome.
@@ -63,6 +70,8 @@ public partial class MainWindow : Window
 
     private void OnLoaded(object? sender, RoutedEventArgs e)
     {
+        // Re-apply now: in the constructor the app's MainWindow isn't assigned yet, so it was a no-op.
+        AppServices.ApplyTouchMode(AppServices.Get<Pikura.Core.Settings.SettingsService>().Current.TouchMode);
         // Restore window size, position, and state
         try
         {

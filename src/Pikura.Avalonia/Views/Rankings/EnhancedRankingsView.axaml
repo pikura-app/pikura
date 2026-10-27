@@ -505,7 +505,7 @@
                                             BorderBrush="{DynamicResource Container1BorderBrush}"
                                             BorderThickness="1" CornerRadius="8"
                                             BoxShadow="{DynamicResource CardShadow}" Cursor="Hand"
-                                            PointerPressed="OnCardClicked"
+                                            PointerPressed="OnCardClicked" Tapped="OnCardClickedTapped"
                                             ContextMenu="{StaticResource RankingCardContextMenu}">
                                         <Border.Styles>
                                             <Style Selector="Border:pointerover">
@@ -669,7 +669,7 @@
                                             BorderBrush="{DynamicResource Container1BorderBrush}"
                                             BorderThickness="1" CornerRadius="8"
                                             BoxShadow="{DynamicResource CardShadow}" Cursor="Hand"
-                                            PointerPressed="OnCardClicked"
+                                            PointerPressed="OnCardClicked" Tapped="OnCardClickedTapped"
                                             ContextMenu="{StaticResource RankingCardContextMenu}">
                                         <Border.Styles>
                                             <Style Selector="Border:pointerover">
@@ -838,7 +838,7 @@
                                         BorderBrush="{DynamicResource Container1BorderBrush}"
                                         BorderThickness="1" CornerRadius="6"
                                         BoxShadow="{DynamicResource CardShadow}" Cursor="Hand"
-                                        PointerPressed="OnCardClicked">
+                                        PointerPressed="OnCardClicked" Tapped="OnCardClickedTapped">
                                     <Border.Styles>
                                         <Style Selector="Border:pointerover">
                                             <Setter Property="BorderBrush" Value="{DynamicResource ControlBackgroundBrushSolidAccent}"/>

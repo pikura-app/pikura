@@ -223,6 +223,8 @@ public partial class ViewedHistoryView : UserControl
 
     private void OnCardClicked(object? sender, PointerPressedEventArgs e)
     {
+        if (e.Pointer.Type != PointerType.Mouse) { _tapPtr = e.Pointer.Type; return; }
+
         if (!e.GetCurrentPoint(null).Properties.IsLeftButtonPressed) return;
         if (e.Handled) return;
         if (e.Source is CheckBox or Button) return;
@@ -402,5 +404,15 @@ public partial class ViewedHistoryView : UserControl
         var dt = new DataTransfer();
         dt.Add(DataTransferItem.CreateText(text));
         _ = clipboard.SetDataAsync(dt);
+    }
+
+    // Last non-mouse pointer type — distinguishes a touch tap from a scroll swipe.
+    private PointerType _tapPtr = PointerType.Mouse;
+    /// <summary>Touch/pen tap (finger lifted without scrolling): same action as the card click.</summary>
+    private void OnCardClickedTapped(object? sender, TappedEventArgs e)
+    {
+        if (_tapPtr == PointerType.Mouse) return; // mouse already handled via PointerPressed
+        if (sender is not Control c || c.DataContext is not ArtworkCardViewModel card) return;
+        var blur = VM?.SettingsService?.Current.BlurR18Content == true && card.IsR18 && card.IsBlurred; if (blur) card.IsBlurred = false; else VM?.OpenCard(card);
     }
 }

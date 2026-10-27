@@ -106,6 +106,8 @@ public partial class LibraryView : UserControl
 
     private void OnItemPressed(object? sender, PointerPressedEventArgs e)
     {
+        if (e.Pointer.Type != PointerType.Mouse) { _tapPtr = e.Pointer.Type; return; }
+
         if (sender is not Border { DataContext: LibraryItemViewModel vm }) return;
         if (e.GetCurrentPoint(this).Properties.PointerUpdateKind != PointerUpdateKind.LeftButtonPressed) return;
         var ctrl = e.KeyModifiers.HasFlag(KeyModifiers.Control);
@@ -228,5 +230,14 @@ public partial class LibraryView : UserControl
         if (e.ExtentDelta.Y > 0 && sv.Offset.Y + sv.Viewport.Height >= sv.Extent.Height - 50)
             vm.OnScrolledToEnd();
     }
-}
 
+    // Last non-mouse pointer type — distinguishes a touch tap from a scroll swipe.
+    private PointerType _tapPtr = PointerType.Mouse;
+    /// <summary>Touch/pen tap (finger lifted without scrolling): same action as the card click.</summary>
+    private void OnItemPressedTapped(object? sender, TappedEventArgs e)
+    {
+        if (_tapPtr == PointerType.Mouse) return; // mouse already handled via PointerPressed
+        if (sender is not Control c || c.DataContext is not LibraryItemViewModel item) return;
+        var lvm2 = DataContext as LibraryViewModel; lvm2?.ApplyItemClick(item, false, false); _ = lvm2?.OpenInViewerCommand.ExecuteAsync(item);
+    }
+}

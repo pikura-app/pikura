@@ -6514,4 +6514,9 @@ Resuming from {1}/{2} artworks</value>
 This network (e.g. airplane, hotel or public Wi-Fi) is blocking or intercepting the connection.
 Open a browser to sign in to the Wi-Fi, or try again on another network.</value>
   </data>
+  <data name="Settings_TouchMode" xml:space="preserve"><value>Touch mode</value></data>
+  <data name="Settings_TouchMode_Off" xml:space="preserve"><value>Off</value></data>
+  <data name="Settings_TouchMode_Auto" xml:space="preserve"><value>Auto</value></data>
+  <data name="Settings_TouchMode_On" xml:space="preserve"><value>On</value></data>
+  <data name="Settings_TouchModeHint" xml:space="preserve"><value>Enlarges buttons and fields when a touchscreen or pen is used.</value></data>
 </root>

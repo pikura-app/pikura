@@ -294,6 +294,8 @@ public partial class SettingsViewModel : ViewModelBase
     };
     public string[] AvailableLocales { get; } = { "en", "ja", "zh", "ko", "es", "fr", "de", "it", "pt", "ru" };
     public string[] AvailableAppLanguages { get; } = { "English", "日本語", "中文", "한국어" };
+    [ObservableProperty] private string _touchMode = "Auto";
+    public string[] AvailableTouchModes { get; } = { "Off", "Auto", "On" };
     public string[] AvailableR18Types { get; } = { "Both", "R18", "R18G" };
 
     // Token definitions with descriptions for UI
@@ -740,6 +742,7 @@ public partial class SettingsViewModel : ViewModelBase
         // Localization
         PixivLocale  = s.Locale;
         AppLanguage  = s.AppLanguage;
+        TouchMode    = s.TouchMode ?? "Auto";
 
         // Gallery Viewer Keyboard Navigation
         GalleryKeyboardNavEnabled    = s.GalleryKeyboardNavEnabled;
@@ -1334,6 +1337,28 @@ public partial class SettingsViewModel : ViewModelBase
 
     partial void OnProxyAddressChanged(string value)
         => _settingsService.Update(s => s.ProxyAddress = value);
+    /// <summary>Maps "Off"/"Auto"/"On" to the localized ComboBox label.</summary>
+    public sealed class TouchModeLocConverter : global::Avalonia.Data.Converters.IValueConverter
+    {
+        public static readonly TouchModeLocConverter Instance = new();
+        public object? Convert(object? value, Type t, object? p, System.Globalization.CultureInfo c)
+        {
+            var key = value?.ToString() switch
+            {
+                "Off" => "Settings_TouchMode_Off",
+                "On" => "Settings_TouchMode_On",
+                _ => "Settings_TouchMode_Auto",
+            };
+            return LocalizationService.Instance[key];
+        }
+        public object ConvertBack(object? v, Type t, object? p, System.Globalization.CultureInfo c) => throw new NotSupportedException();
+    }
+
+    partial void OnTouchModeChanged(string value)
+    {
+        _settingsService.Update(s => s.TouchMode = value);
+        AppServices.ApplyTouchMode(value);
+    }
 
     private volatile bool _reloadQueued;
 

@@ -6450,4 +6450,9 @@ https://www.pixiv.net/en/artworks/12345678
 当前网络（如飞机、酒店或公共 Wi-Fi）正在阻止或拦截连接。
 请在浏览器中登录 Wi-Fi，或换个网络重试。</value>
   </data>
+  <data name="Settings_TouchMode" xml:space="preserve"><value>触控模式</value></data>
+  <data name="Settings_TouchMode_Off" xml:space="preserve"><value>关闭</value></data>
+  <data name="Settings_TouchMode_Auto" xml:space="preserve"><value>自动</value></data>
+  <data name="Settings_TouchMode_On" xml:space="preserve"><value>开启</value></data>
+  <data name="Settings_TouchModeHint" xml:space="preserve"><value>使用触摸屏或手写笔时放大按钮和输入框。</value></data>
 </root>

@@ -443,7 +443,7 @@
                                             BorderBrush="{DynamicResource Container1BorderBrush}"
                                             BorderThickness="1" CornerRadius="8"
                                             BoxShadow="{DynamicResource CardShadow}" Cursor="Hand"
-                                            PointerPressed="OnArticleCardClicked"
+                                            PointerPressed="OnArticleCardClicked" Tapped="OnArticleCardClickedTapped"
                                             ContextMenu="{StaticResource ArticleCardContextMenu}">
                                         <Border.Styles>
                                             <Style Selector="Border:pointerover">
@@ -514,7 +514,7 @@
                                             BorderBrush="{DynamicResource Container1BorderBrush}"
                                             BorderThickness="1" CornerRadius="6"
                                             BoxShadow="{DynamicResource CardShadow}" Cursor="Hand"
-                                            PointerPressed="OnArticleCardClicked"
+                                            PointerPressed="OnArticleCardClicked" Tapped="OnArticleCardClickedTapped"
                                             ContextMenu="{StaticResource ArticleCardContextMenu}">
                                         <Grid ColumnDefinitions="Auto,*,Auto,Auto" Margin="8,6">
                                             <Border Grid.Column="0" Width="90" Height="60" CornerRadius="4" ClipToBounds="True" Margin="0,0,10,0">
@@ -579,7 +579,7 @@
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate x:DataType="vm:PixivisionArticleCardViewModel">
                                             <Border Margin="0,0,0,8" Cursor="Hand"
-                                                    PointerPressed="OnArticleCardClicked"
+                                                    PointerPressed="OnArticleCardClicked" Tapped="OnArticleCardClickedTapped"
                                                     ContextMenu="{StaticResource ArticleCardContextMenu}">
                                                 <Grid ColumnDefinitions="Auto,*">
                                                     <Panel Grid.Column="0" Width="{Binding $parent[UserControl].((vm:PixivisionViewModel)DataContext).SidebarThumbSize}" Height="{Binding $parent[UserControl].((vm:PixivisionViewModel)DataContext).SidebarThumbSize}" Margin="0,0,8,0">
@@ -617,7 +617,7 @@
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate x:DataType="vm:PixivisionArticleCardViewModel">
                                             <Border Margin="0,0,0,8" Cursor="Hand"
-                                                    PointerPressed="OnArticleCardClicked"
+                                                    PointerPressed="OnArticleCardClicked" Tapped="OnArticleCardClickedTapped"
                                                     ContextMenu="{StaticResource ArticleCardContextMenu}">
                                                 <Grid ColumnDefinitions="Auto,*">
                                                     <Border Grid.Column="0" Width="{Binding $parent[UserControl].((vm:PixivisionViewModel)DataContext).SidebarThumbSize}" Height="{Binding $parent[UserControl].((vm:PixivisionViewModel)DataContext).SidebarThumbSize}" Margin="0,0,8,0"
@@ -672,7 +672,7 @@
                                                 Background="{DynamicResource Container1BackgroundBrush}"
                                                 BorderBrush="{DynamicResource Container1BorderBrush}"
                                                 BorderThickness="1" CornerRadius="8" ClipToBounds="True" Cursor="Hand"
-                                                PointerPressed="OnArticleCardClicked"
+                                                PointerPressed="OnArticleCardClicked" Tapped="OnArticleCardClickedTapped"
                                                 ContextMenu="{StaticResource ArticleCardContextMenu}">
                                             <StackPanel>
                                                 <Panel Height="185">
@@ -795,7 +795,7 @@
                                                             Background="{DynamicResource Container1BackgroundBrush}"
                                                             BorderBrush="{DynamicResource Container1BorderBrush}"
                                                             BorderThickness="1" CornerRadius="8" ClipToBounds="True" Cursor="Hand"
-                                                            PointerPressed="OnArticleCardClicked"
+                                                            PointerPressed="OnArticleCardClicked" Tapped="OnArticleCardClickedTapped"
                                                             ContextMenu="{StaticResource ArticleCardContextMenu}">
                                                         <StackPanel>
                                                             <Panel Height="185">
@@ -862,7 +862,7 @@
                                                     BorderBrush="{DynamicResource Container1BorderBrush}"
                                                     BorderThickness="1" CornerRadius="8"
                                                     BoxShadow="{DynamicResource CardShadow}" Cursor="Hand"
-                                                    PointerPressed="OnCardClicked"
+                                                    PointerPressed="OnCardClicked" Tapped="OnCardClickedTapped"
                                                     ContextMenu="{StaticResource WorkCardContextMenu}">
                                                 <Border.Styles>
                                                     <Style Selector="Border:pointerover">
@@ -964,7 +964,7 @@
                                                     BorderBrush="{DynamicResource Container1BorderBrush}"
                                                     BorderThickness="1" CornerRadius="8"
                                                     BoxShadow="{DynamicResource CardShadow}" Cursor="Hand"
-                                                    PointerPressed="OnCardClicked"
+                                                    PointerPressed="OnCardClicked" Tapped="OnCardClickedTapped"
                                                     ContextMenu="{StaticResource WorkCardContextMenu}">
                                                 <Border.Styles>
                                                     <Style Selector="Border:pointerover">
@@ -1104,7 +1104,7 @@
                                                 BorderBrush="{DynamicResource Container1BorderBrush}"
                                                 BorderThickness="1" CornerRadius="8"
                                                 BoxShadow="{DynamicResource CardShadow}" Cursor="Hand"
-                                                PointerPressed="OnCardClicked"
+                                                PointerPressed="OnCardClicked" Tapped="OnCardClickedTapped"
                                                 ContextMenu="{StaticResource WorkCardContextMenu}">
                                             <Border.Styles>
                                                 <Style Selector="Border:pointerover">
@@ -1206,7 +1206,7 @@
                                                 BorderBrush="{DynamicResource Container1BorderBrush}"
                                                 BorderThickness="1" CornerRadius="8"
                                                 BoxShadow="{DynamicResource CardShadow}" Cursor="Hand"
-                                                PointerPressed="OnCardClicked"
+                                                PointerPressed="OnCardClicked" Tapped="OnCardClickedTapped"
                                                 ContextMenu="{StaticResource WorkCardContextMenu}">
                                             <Border.Styles>
                                                 <Style Selector="Border:pointerover">
@@ -1323,7 +1323,7 @@
                                                 Background="{DynamicResource Container1BackgroundBrush}"
                                                 BorderBrush="{DynamicResource Container1BorderBrush}"
                                                 BorderThickness="1" CornerRadius="8" ClipToBounds="True" Cursor="Hand"
-                                                PointerPressed="OnArticleCardClicked"
+                                                PointerPressed="OnArticleCardClicked" Tapped="OnArticleCardClickedTapped"
                                                 ContextMenu="{StaticResource ArticleCardContextMenu}">
                                             <StackPanel>
                                                 <Panel Height="185">
@@ -1352,7 +1352,7 @@
                                                 Background="{DynamicResource Container1BackgroundBrush}"
                                                 BorderBrush="{DynamicResource Container1BorderBrush}"
                                                 BorderThickness="1" CornerRadius="8" ClipToBounds="True" Cursor="Hand"
-                                                PointerPressed="OnArticleCardClicked"
+                                                PointerPressed="OnArticleCardClicked" Tapped="OnArticleCardClickedTapped"
                                                 ContextMenu="{StaticResource ArticleCardContextMenu}">
                                             <StackPanel>
                                                 <Panel Height="185">

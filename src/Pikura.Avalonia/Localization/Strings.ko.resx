@@ -6450,4 +6450,9 @@ https://www.pixiv.net/en/artworks/12345678
 이 네트워크(기내, 호텔, 공용 Wi-Fi 등)가 연결을 차단하거나 가로채고 있습니다.
 브라우저에서 Wi-Fi에 로그인하거나 다른 네트워크에서 다시 시도하세요.</value>
   </data>
+  <data name="Settings_TouchMode" xml:space="preserve"><value>터치 모드</value></data>
+  <data name="Settings_TouchMode_Off" xml:space="preserve"><value>끄기</value></data>
+  <data name="Settings_TouchMode_Auto" xml:space="preserve"><value>자동</value></data>
+  <data name="Settings_TouchMode_On" xml:space="preserve"><value>켜기</value></data>
+  <data name="Settings_TouchModeHint" xml:space="preserve"><value>터치스크린 또는 펜 사용 시 버튼과 필드를 크게 표시합니다.</value></data>
 </root>

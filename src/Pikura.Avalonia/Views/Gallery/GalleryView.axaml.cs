@@ -236,6 +236,8 @@ public partial class GalleryView : UserControl
     // If card is blurred (R-18 + blur setting), single click unblurs, double click opens viewer
     private void OnArtworkCardClicked(object? sender, PointerPressedEventArgs e)
     {
+        if (e.Pointer.Type != PointerType.Mouse) { _tapPtr = e.Pointer.Type; return; }
+
         if (!e.GetCurrentPoint(null).Properties.IsLeftButtonPressed) return;
         if (sender is not Control ctrl) return;
         if (ctrl.DataContext is not ArtworkCardViewModel card) return;
@@ -763,5 +765,15 @@ public partial class GalleryView : UserControl
         var vm = VM;
         if (vm == null) return;
         await vm.DownloadSelectedAsync();
+    }
+
+    // Last non-mouse pointer type — distinguishes a touch tap from a scroll swipe.
+    private PointerType _tapPtr = PointerType.Mouse;
+    /// <summary>Touch/pen tap (finger lifted without scrolling): same action as the card click.</summary>
+    private void OnArtworkCardClickedTapped(object? sender, TappedEventArgs e)
+    {
+        if (_tapPtr == PointerType.Mouse) return; // mouse already handled via PointerPressed
+        if (sender is not Control c || c.DataContext is not ArtworkCardViewModel card) return;
+        if (card.IsBlurred) card.IsBlurred = false; else { if (VM != null && !VM.ShowPreview) VM.ShowPreview = true; VM?.OpenInlineViewer(card); }
     }
 }

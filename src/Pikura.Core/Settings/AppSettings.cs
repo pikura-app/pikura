@@ -535,6 +535,8 @@ public sealed class AppSettings
 
     /// <summary>Display language for the Pikura UI: "English", "日本語", "中文", "한국어".</summary>
     public string AppLanguage { get; set; } = "English";
+    /// <summary>"Off" | "Auto" | "On" — enlarges touch targets; Auto flips on first touch/pen input.</summary>
+    public string TouchMode { get; set; } = "Auto";
 
     /// <summary>Width of the Pixivision "Monthly Ranking" / "Featured" sidebar, in pixels.
     /// Sidebar thumbnail and title sizes scale from this.</summary>

@@ -230,6 +230,8 @@ public partial class EnhancedRankingsView : UserControl
     // Single click unblurs, double click opens viewer when blurred
     private void OnCardClicked(object? sender, PointerPressedEventArgs e)
     {
+        if (e.Pointer.Type != PointerType.Mouse) { _tapPtr = e.Pointer.Type; return; }
+
         if (!e.GetCurrentPoint(null).Properties.IsLeftButtonPressed) return;
         if (e.Handled) return;
         if (e.Source is CheckBox or Button) return;
@@ -576,5 +578,15 @@ public partial class EnhancedRankingsView : UserControl
     private void OnCardCheckboxClicked(object? sender, RoutedEventArgs e)
     {
         VM?.NotifySelectionChanged();
+    }
+
+    // Last non-mouse pointer type — distinguishes a touch tap from a scroll swipe.
+    private PointerType _tapPtr = PointerType.Mouse;
+    /// <summary>Touch/pen tap (finger lifted without scrolling): same action as the card click.</summary>
+    private void OnCardClickedTapped(object? sender, TappedEventArgs e)
+    {
+        if (_tapPtr == PointerType.Mouse) return; // mouse already handled via PointerPressed
+        if (sender is not Control c || c.DataContext is not RankingCardViewModel card) return;
+        if (card.IsBlurred) card.IsBlurred = false; else OpenInlineViewer(card);
     }
 }

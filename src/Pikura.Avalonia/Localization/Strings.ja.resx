@@ -6450,4 +6450,9 @@ https://www.pixiv.net/en/artworks/12345678
 このネットワーク（機内・ホテル・公衆Wi-Fiなど）が接続をブロックまたは傍受しています。
 ブラウザでWi-Fiにログインするか、別のネットワークで再試行してください。</value>
   </data>
+  <data name="Settings_TouchMode" xml:space="preserve"><value>タッチモード</value></data>
+  <data name="Settings_TouchMode_Off" xml:space="preserve"><value>オフ</value></data>
+  <data name="Settings_TouchMode_Auto" xml:space="preserve"><value>自動</value></data>
+  <data name="Settings_TouchMode_On" xml:space="preserve"><value>オン</value></data>
+  <data name="Settings_TouchModeHint" xml:space="preserve"><value>タッチスクリーンまたはペンの使用時にボタンやフィールドを大きくします。</value></data>
 </root>
