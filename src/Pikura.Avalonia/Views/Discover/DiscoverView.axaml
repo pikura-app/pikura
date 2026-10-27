@@ -334,8 +334,8 @@
 
                 <!-- Loading spinner -->
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
-                            IsVisible="{Binding IsLoading}" Spacing="8" ZIndex="2">
-                    <ProgressBar IsIndeterminate="True" Width="60"/>
+                            IsVisible="{Binding IsWorksBusy}" Spacing="8" ZIndex="2">
+                    <ProgressBar IsIndeterminate="True" Width="160"/>
                     <TextBlock Text="{loc:Tr Common_Loading_2}" FontSize="13" Opacity="0.7" HorizontalAlignment="Center"/>
                 </StackPanel>
 
@@ -343,12 +343,12 @@
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="6"
                             IsVisible="{Binding !HasRecommendedWorks}">
                     <TextBlock Text="{loc:Tr Discover_NoRecommendedWorks}" FontSize="14" Opacity="0.6" HorizontalAlignment="Center"
-                               IsVisible="{Binding !IsLoading}"/>
+                               IsVisible="{Binding !IsWorksBusy}"/>
                     <TextBlock Text="{Binding StatusMessage}" FontSize="12" Opacity="0.5" HorizontalAlignment="Center"
-                               IsVisible="{Binding !IsLoading}"/>
+                               IsVisible="{Binding !IsWorksBusy}"/>
                     <Button HorizontalAlignment="Center"
                             Command="{Binding LoadRecommendedWorksCommand}"
-                            IsVisible="{Binding !IsLoading}" CornerRadius="6" Padding="12,6">
+                            IsVisible="{Binding !IsWorksBusy}" CornerRadius="6" Padding="12,6">
                         <StackPanel Orientation="Horizontal" Spacing="4">
                             <PathIcon Data="{StaticResource RefreshIcon}" Width="14" Height="14"
                                       VerticalAlignment="Center"
@@ -417,7 +417,7 @@
                                                 BorderThickness="1"
                                                 CornerRadius="8"
                                                 BoxShadow="{DynamicResource CardShadow}" Cursor="Hand"
-                                                PointerPressed="OnArtworkCardPressed"
+                                                PointerPressed="OnArtworkCardPressed" Tapped="OnArtworkCardPressedTapped"
                                                 ContextMenu="{StaticResource ArtworkCardContextMenu}">
                                             <Border.Styles>
                                                 <Style Selector="Border:pointerover">
@@ -545,7 +545,7 @@
                                                 BorderBrush="{DynamicResource Container1BorderBrush}"
                                                 BorderThickness="1" CornerRadius="8"
                                                 BoxShadow="{DynamicResource CardShadow}" Cursor="Hand"
-                                                PointerPressed="OnArtworkCardPressed"
+                                                PointerPressed="OnArtworkCardPressed" Tapped="OnArtworkCardPressedTapped"
                                                 ContextMenu="{StaticResource ArtworkCardContextMenu}">
                                             <Border.Styles>
                                                 <Style Selector="Border:pointerover">
@@ -747,8 +747,8 @@
 
                 <!-- Loading -->
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
-                            IsVisible="{Binding IsLoading}" Spacing="8" ZIndex="2">
-                    <ProgressBar IsIndeterminate="True" Width="60"/>
+                            IsVisible="{Binding IsUsersBusy}" Spacing="8" ZIndex="2">
+                    <ProgressBar IsIndeterminate="True" Width="160"/>
                     <TextBlock Text="{loc:Tr Common_Loading_2}" FontSize="13" Opacity="0.7" HorizontalAlignment="Center"/>
                 </StackPanel>
 
@@ -756,10 +756,10 @@
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="6"
                             IsVisible="{Binding !HasRecommendedUsers}">
                     <TextBlock Text="{loc:Tr Discover_NoRecommendedUsers}" FontSize="14" Opacity="0.6" HorizontalAlignment="Center"
-                               IsVisible="{Binding !IsLoading}"/>
+                               IsVisible="{Binding !IsUsersBusy}"/>
                     <Button HorizontalAlignment="Center" CornerRadius="6" Padding="12,6"
                             Command="{Binding LoadRecommendedUsersCommand}"
-                            IsVisible="{Binding !IsLoading}">
+                            IsVisible="{Binding !IsUsersBusy}">
                         <StackPanel Orientation="Horizontal" Spacing="4">
                             <PathIcon Data="{StaticResource RefreshIcon}" Width="14" Height="14"
                                       VerticalAlignment="Center"

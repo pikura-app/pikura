@@ -27,8 +27,16 @@ public partial class DiscoverViewModel : ViewModelBase
     private CancellationTokenSource? _usersCts;
     private CancellationTokenSource? _artistWorksCts;
     private DateTime _lastLoaded = DateTime.MinValue;
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsWorksBusy))]
     private bool _isLoadingWorks;
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsUsersBusy))]
     private bool _isLoadingUsers;
+    /// <summary>Any works load in flight (initial recommended load OR the shared pagination flag).</summary>
+    public bool IsWorksBusy => IsLoadingWorks || IsLoading;
+    /// <summary>Any users load in flight.</summary>
+    public bool IsUsersBusy => IsLoadingUsers || IsLoading;
     private static readonly TimeSpan StaleThreshold = TimeSpan.FromMinutes(30);
 
     // ── Status ──────────────────────────────────────────────────────────────
@@ -36,6 +44,11 @@ public partial class DiscoverViewModel : ViewModelBase
     [ObservableProperty] private bool _isLoading;
     [ObservableProperty] private bool _isLoadingArtistWorks;
     [ObservableProperty] private bool _isBulkDownloading;
+    partial void OnIsLoadingChanged(bool value)
+    {
+        OnPropertyChanged(nameof(IsWorksBusy));
+        OnPropertyChanged(nameof(IsUsersBusy));
+    }
     partial void OnIsLoadingArtistWorksChanged(bool value)
     {
         OnPropertyChanged(nameof(ShowNoArtistPlaceholder));
@@ -482,7 +495,7 @@ ShowPreview = true;
         var isStale = _lastLoaded == DateTime.MinValue
             || DateTime.UtcNow - _lastLoaded > StaleThreshold
             || DateTime.UtcNow.Date > _lastLoaded.Date;
-        if (!_isLoadingWorks && (RecommendedWorks.Count == 0 || isStale))
+        if (!IsLoadingWorks && (RecommendedWorks.Count == 0 || isStale))
             _ = LoadRecommendedWorksAsync();
     }
 
@@ -493,11 +506,11 @@ ShowPreview = true;
         switch (value)
         {
             case 0:
-                if (RecommendedWorks.Count == 0 && !_isLoadingWorks)
+                if (RecommendedWorks.Count == 0 && !IsLoadingWorks)
                     _ = LoadRecommendedWorksAsync();
                 break;
             case 1:
-                if (RecommendedUsers.Count == 0 && !_isLoadingUsers)
+                if (RecommendedUsers.Count == 0 && !IsLoadingUsers)
                     _ = LoadRecommendedUsersAsync();
                 break;
         }
@@ -515,8 +528,8 @@ ShowPreview = true;
     [RelayCommand]
     public async Task LoadRecommendedWorksAsync()
     {
-        if (_isLoadingWorks) return;
-        _isLoadingWorks = true;
+        if (IsLoadingWorks) return;
+        IsLoadingWorks = true;
         IsLoading = true;
         StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Discover_LoadingRecommendedWorks"];
         _cts?.Cancel();
@@ -565,7 +578,7 @@ ShowPreview = true;
         }
         finally
         {
-            _isLoadingWorks = false;
+            IsLoadingWorks = false;
             IsLoading = false;
         }
     }
@@ -573,8 +586,8 @@ ShowPreview = true;
     [RelayCommand]
     public async Task LoadMoreWorksAsync()
     {
-        if (_isLoadingWorks || !CanLoadMoreRecommended) return;
-        _isLoadingWorks = true;
+        if (IsLoadingWorks || !CanLoadMoreRecommended) return;
+        IsLoadingWorks = true;
         _cts?.Cancel();
         _cts = new CancellationTokenSource();
         var ct = _cts.Token;
@@ -626,7 +639,7 @@ ShowPreview = true;
         }
         catch (OperationCanceledException) { }
         catch (Exception ex) { Logger.LogError(ex, "Failed to load more works"); }
-        finally { _isLoadingWorks = false; }
+        finally { IsLoadingWorks = false; }
     }
 
     // ── Load recommended users ───────────────────────────────────────────────
@@ -634,8 +647,8 @@ ShowPreview = true;
     [RelayCommand]
     public async Task LoadRecommendedUsersAsync()
     {
-        if (_isLoadingUsers) return;
-        _isLoadingUsers = true;
+        if (IsLoadingUsers) return;
+        IsLoadingUsers = true;
         StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Discover_LoadingRecommendedUsers"];
         _usersCts?.Cancel();
         _usersCts = new CancellationTokenSource();
@@ -678,7 +691,7 @@ ShowPreview = true;
             Logger.LogError(ex, "Failed to load recommended users");
             StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Discover_FailedToLoadRecommendedUsers"] + ex.Message;
         }
-        finally { _isLoadingUsers = false; }
+        finally { IsLoadingUsers = false; }
     }
 
     // ── Load artist works (Users tab right panel) ────────────────────────────
