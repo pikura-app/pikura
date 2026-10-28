@@ -119,6 +119,63 @@ public class HoshiStoreTests : IDisposable
         Assert.DoesNotContain(big, m => m.Item1 == "system");
         Assert.Equal(msgs[^1], big[^1]);
     }
+
+    [Fact]
+    public async Task Folders_Crud_And_UnfiledOnDelete()
+    {
+        await _store.SaveSessionAsync(H("a", user: "u"), new[] { new HoshiMessageRow { Role = "user", Content = "x" } });
+        var fid = await _store.CreateFolderAsync("u", "test-folder");
+        var folders = await _store.ListFoldersAsync("u");
+        Assert.Single(folders);
+        Assert.Equal("test-folder", folders[0].Name);
+
+        await _store.SetSessionFolderAsync("a", fid);
+        var h = (await _store.GetSessionHeadersAsync("u")).Single();
+        Assert.Equal(fid, h.FolderId);
+
+        await _store.RenameFolderAsync(fid, "renamed");
+        Assert.Equal("renamed", (await _store.ListFoldersAsync("u"))[0].Name);
+
+        await _store.SetFolderCollapsedAsync(fid, true);
+        Assert.True((await _store.ListFoldersAsync("u"))[0].Collapsed);
+
+        await _store.DeleteFolderAsync(fid);
+        Assert.Empty(await _store.ListFoldersAsync("u"));
+        var h2 = (await _store.GetSessionHeadersAsync("u")).Single();
+        Assert.Null(h2.FolderId);
+    }
+
+    [Fact]
+    public async Task Archived_Exempt_From_Cleanup()
+    {
+        var old = DateTime.UtcNow.AddDays(-60);
+        var keep = H("old-archived"); keep.UpdatedAt = old; keep.Archived = true;
+        var gone = H("old-active");  gone.UpdatedAt = old;
+        var pin  = H("old-pinned");  pin.UpdatedAt = old; pin.Pinned = true;
+        await _store.SaveSessionAsync(keep, new[] { new HoshiMessageRow { Role = "user", Content = "x" } });
+        await _store.SaveSessionAsync(gone, new[] { new HoshiMessageRow { Role = "user", Content = "x" } });
+        await _store.SaveSessionAsync(pin,  new[] { new HoshiMessageRow { Role = "user", Content = "x" } });
+        await _store.SetSessionArchivedAsync("old-archived", true);
+
+        var deleted = await _store.CleanupAsync(maxAgeDays: 30, maxImageBytes: null);
+        Assert.Contains("old-active", deleted);
+        Assert.DoesNotContain("old-archived", deleted);
+        Assert.DoesNotContain("old-pinned", deleted);
+        Assert.Equal(2, (await _store.GetSessionHeadersAsync(null)).Count);
+    }
+
+    [Fact]
+    public async Task Archived_Does_Not_Bump_UpdatedAt()
+    {
+        var h = H("s", user: "u");
+        h.UpdatedAt = DateTime.UtcNow.AddDays(-5);
+        await _store.SaveSessionAsync(h, new[] { new HoshiMessageRow { Role = "user", Content = "x" } });
+        var before = (await _store.GetSessionHeadersAsync("u"))[0].UpdatedAt;
+        await _store.SetSessionArchivedAsync("s", true);
+        var after = (await _store.GetSessionHeadersAsync("u"))[0];
+        Assert.Equal(before, after.UpdatedAt);
+        Assert.True(after.Archived);
+    }
 }
 
 public class HoshiMigrationTests : IDisposable
@@ -200,5 +257,4 @@ public class HoshiMigrationTests : IDisposable
         Assert.Equal(1, r.Failed);
         Assert.False(r.LegacyRenamed);
         Assert.True(Directory.Exists(legacy));
-    }
-}
+    }}

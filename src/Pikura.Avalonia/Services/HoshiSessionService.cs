@@ -25,6 +25,8 @@ public sealed class HoshiSessionService
 
     /// <summary>Session headers, ordered pinned-then-UpdatedAt descending.</summary>
     public ObservableCollection<HoshiSession> Sessions { get; } = new();
+    /// <summary>Folders for the current user (headers only).</summary>
+    public ObservableCollection<HoshiFolderRow> Folders { get; } = new();
 
     /// <summary>Legacy migration progress text for the sidebar (null when idle).</summary>
     public string? MigrationStatus { get; private set; }
@@ -65,18 +67,34 @@ public sealed class HoshiSessionService
     public async Task RefreshHeadersAsync()
     {
         var headers = await _store.GetSessionHeadersAsync(_userId);
+        if (_userId != null)
+        {
+            // Sessions saved while no account was resolved sit under user_id NULL —
+            // adopt them (persist, never delete) so they show under this user.
+            var orphans = await _store.GetSessionHeadersAsync(null);
+            foreach (var o in orphans)
+            {
+                o.UserId = _userId;
+                await _store.AdoptSessionAsync(o.Id, _userId);
+                headers.Add(o);
+            }
+        }
+        var folderRows = await _store.ListFoldersAsync(_userId);
         var mapped = headers.Select(ToSession).ToList();
         // Replace on the UI thread when possible.
         await global::Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
         {
             Sessions.Clear();
             foreach (var s in mapped) Sessions.Add(s);
+            Folders.Clear();
+            foreach (var f in folderRows) Folders.Add(f);
         });
     }
 
     private static HoshiSession ToSession(HoshiSessionHeader h) => new()
     {
         Id = h.Id, Title = h.Title, Pinned = h.Pinned,
+        Archived = h.Archived, FolderId = h.FolderId,
         ImageSha = h.ImageSha, ImageSource = h.ImageSource,
         PixivArtworkId = h.PixivArtworkId,
         CreatedAt = h.CreatedAt, UpdatedAt = h.UpdatedAt,
@@ -162,9 +180,14 @@ public sealed class HoshiSessionService
     {
         try
         {
-            session.UpdatedAt = DateTime.UtcNow;
+            var oldSha = session.ImageSha;
             if (session.ImageBytes is { Length: > 0 } b)
                 session.ImageSha = await _store.PutImageAsync(b);
+            // Only real changes (new messages / new image) count as activity. Saves that happen
+            // just from switching chats must not bump UpdatedAt — that re-sorted the list under
+            // the cursor and opened the wrong chat.
+            if (session.Messages.Count > session.MessageCount || session.ImageSha != oldSha)
+                session.UpdatedAt = DateTime.UtcNow;
             var msgs = new List<HoshiMessageRow>();
             foreach (var m in session.Messages)
             {
@@ -189,6 +212,7 @@ public sealed class HoshiSessionService
     private HoshiSessionHeader ToHeader(HoshiSession s) => new()
     {
         Id = s.Id, UserId = s.UserId ?? _userId, Title = s.Title, Pinned = s.Pinned,
+        Archived = s.Archived, FolderId = s.FolderId,
         ImageSha = s.ImageSha, ImageSource = s.ImageSource, PixivArtworkId = s.PixivArtworkId,
         CreatedAt = s.CreatedAt, UpdatedAt = s.UpdatedAt, MessageCount = s.MessageCount,
     };
@@ -270,6 +294,53 @@ public sealed class HoshiSessionService
         if (pinned.Count > 0)
             groups.Insert(0, new SessionGroupViewModel(DateTime.MinValue, pinned) { IsPinnedGroup = true });
         return groups;
+    }
+
+    // ── Folders + archive ──────────────────────────────────────────────────────
+    public event EventHandler? FoldersChanged;
+
+    public async Task<string> CreateFolderAsync(string name)
+    {
+        var id = await _store.CreateFolderAsync(_userId, name);
+        await RefreshHeadersAsync();
+        FoldersChanged?.Invoke(this, EventArgs.Empty);
+        return id;
+    }
+
+    public async Task RenameFolderAsync(string id, string name)
+    {
+        await _store.RenameFolderAsync(id, name);
+        await RefreshHeadersAsync();
+        FoldersChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    public async Task DeleteFolderAsync(string id)
+    {
+        await _store.DeleteFolderAsync(id);
+        await RefreshHeadersAsync();
+        FoldersChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    public async Task SetFolderCollapsedAsync(string id, bool collapsed)
+    {
+        await _store.SetFolderCollapsedAsync(id, collapsed);
+        var row = Folders.FirstOrDefault(f => f.Id == id);
+        if (row != null) row.Collapsed = collapsed;
+        FoldersChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    public async Task SetSessionArchivedAsync(HoshiSession session, bool archived)
+    {
+        session.Archived = archived;
+        await _store.SetSessionArchivedAsync(session.Id, archived);
+        FoldersChanged?.Invoke(this, EventArgs.Empty); // drives FlattenedSessions rebuild
+    }
+
+    public async Task SetSessionFolderAsync(HoshiSession session, string? folderId)
+    {
+        session.FolderId = folderId;
+        await _store.SetSessionFolderAsync(session.Id, folderId);
+        FoldersChanged?.Invoke(this, EventArgs.Empty);
     }
 
     /// <summary>Retention/size cleanup — runs after migration, at most once a day.</summary>

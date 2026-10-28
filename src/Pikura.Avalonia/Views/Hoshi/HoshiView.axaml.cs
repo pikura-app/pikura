@@ -24,6 +24,9 @@ public partial class HoshiView : UserControl
     public HoshiView()
     {
         InitializeComponent();
+        // Refresh session headers when the page becomes visible — startup load can
+        // race the account resolve and leave the sidebar empty.
+        AttachedToVisualTree += (_, _) => { if (VM != null) _ = VM.SessionsService.RefreshHeadersAsync(); };
         DataContextChanged += (_, _) => RefreshAll();
         Loaded += (_, _) =>
         {
@@ -149,7 +152,7 @@ public partial class HoshiView : UserControl
         {
             if (StatusLabel != null) StatusLabel.Text = vm.StatusText;
             if (ToggleBtn == null) return;
-            ToggleBtn.Content = vm.IsThinking ? Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_Thinking"] :
+            ToggleBtn.Header = vm.IsThinking ? Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_Thinking"] :
                                 vm.IsEnabled  ? "Disable"  : "Enable";
             ToggleBtn.IsEnabled = !vm.IsThinking;
         });
@@ -160,7 +163,7 @@ public partial class HoshiView : UserControl
         if (VM is not { } vm) return;
         if (!vm.IsEnabled)
         {
-            if (ToggleBtn != null) { ToggleBtn.Content = Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_Starting"]; ToggleBtn.IsEnabled = false; }
+            if (ToggleBtn != null) { ToggleBtn.Header = Pikura.Avalonia.Localization.LocalizationService.Instance["Pikura_Starting"]; ToggleBtn.IsEnabled = false; }
             var progress = new Progress<string>(msg =>
                 Dispatcher.UIThread.Post(() => { if (StatusLabel != null) StatusLabel.Text = msg; }));
             await vm.ToggleEnabledAsync(progress);
@@ -257,6 +260,19 @@ public partial class HoshiView : UserControl
         RefreshImageStrip();
         RefreshSessionTitle();
         InputBox?.Focus();
+    }
+
+    /// <summary>Selecting a row (click anywhere on it, keyboard) opens that chat — the row's own
+    /// PointerPressed only fires on its painted parts, so selection alone left the old chat open.</summary>
+    private void OnSessionsListSelectionChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        if (e.AddedItems.Count > 0 && e.AddedItems[0] is HoshiSession s && VM is { } vm && !ReferenceEquals(vm.CurrentSession, s))
+        {
+            vm.LoadSession(s);
+            RefreshImageStrip();
+            RefreshSessionTitle();
+            ScrollToBottomDeferred();
+        }
     }
 
     private void OnSessionClicked(object? sender, PointerPressedEventArgs e)
@@ -416,7 +432,8 @@ public partial class HoshiView : UserControl
         var mainWindow = TopLevel.GetTopLevel(this) as Pikura.Avalonia.Views.MainWindow;
         var galleryVm = AppServices.Get<GalleryViewModel>();
         mainWindow?.LoadGalleryView();
-        await galleryVm.OpenArtworkByIdInNewTabAsync(artworkId);
+        try { await galleryVm.OpenArtworkByIdInNewTabAsync(artworkId); }
+        catch (Exception ex) { galleryVm.StatusMessage = ex.Message; } // network failure: show it, don't crash
     }
 
     /// <summary>
@@ -598,7 +615,8 @@ public partial class HoshiView : UserControl
         // Cancel any in-flight AI generation before saving so the process can shut down cleanly
         if (VM is { } vm)
         {
-            vm.CancelPending();
+            // NOTE: no CancelPending here — an in-flight answer belongs to its origin
+            // chat and must finish streaming (it persists into that session either way).
 
             // Save the current session when navigating away from Hoshi
             try
@@ -611,5 +629,126 @@ public partial class HoshiView : UserControl
                 System.Diagnostics.Debug.WriteLine($"Error saving session on unload: {ex.Message}");
             }
         }
+    }
+
+    // ⋯ sidebar menu: toggles multi-select checkboxes.
+    private void OnToggleSelectionMode(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is AiViewModel vm) vm.IsSelectionMode = !vm.IsSelectionMode;
+    }
+
+    // Empty-chat suggestion chips: put the text in the box and send.
+    private async void OnSuggestionClicked(object? sender, RoutedEventArgs e)
+    {
+        if (sender is Button { Tag: string text } && InputBox != null)
+        {
+            InputBox.Text = text;
+            await SendAsync();
+        }
+    }
+
+    // ── Folders + archive ─────────────────────────────────────────────────────
+    private async void OnNewFolderClicked(object? sender, RoutedEventArgs e)
+    {
+        if (VM is not { } vm) return;
+        var dialog = AppServices.Get<DialogService>();
+        var name = await dialog.ShowInputDialogAsync(
+            Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_NewFolder"],
+            Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_FolderName"]);
+        if (!string.IsNullOrWhiteSpace(name)) await vm.SessionsService.CreateFolderAsync(name.Trim());
+    }
+
+    private async void OnFolderHeaderClicked(object? sender, PointerPressedEventArgs e)
+    {
+        if (sender is not Control c || c.Tag is not AiViewModel.FolderRow row || VM is not { } vm) return;
+        await vm.SessionsService.SetFolderCollapsedAsync(row.Folder.Id, !row.Folder.Collapsed);
+    }
+
+    private async void OnRenameFolderClicked(object? sender, RoutedEventArgs e)
+    {
+        if (sender is not Control c || c.Tag is not AiViewModel.FolderRow row || VM is not { } vm) return;
+        var dialog = AppServices.Get<DialogService>();
+        var name = await dialog.ShowInputDialogAsync(
+            Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_RenameFolder"],
+            Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_FolderName"], row.Folder.Name);
+        if (!string.IsNullOrWhiteSpace(name)) await vm.SessionsService.RenameFolderAsync(row.Folder.Id, name.Trim());
+    }
+
+    private async void OnDeleteFolderClicked(object? sender, RoutedEventArgs e)
+    {
+        if (sender is not Control c || c.Tag is not AiViewModel.FolderRow row || VM is not { } vm) return;
+        var dialog = AppServices.Get<DialogService>();
+        var ok = await dialog.ShowConfirmationAsync(
+            Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_DeleteFolder"],
+            Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_DeleteFolderConfirm"]);
+        if (ok) await vm.SessionsService.DeleteFolderAsync(row.Folder.Id);
+    }
+
+    private async void OnArchiveSessionClicked(object? sender, RoutedEventArgs e)
+    {
+        if (sender is not Control c || c.Tag is not HoshiSession sess || VM is not { } vm) return;
+        await vm.SessionsService.SetSessionArchivedAsync(sess, !sess.Archived);
+    }
+
+    private async void OnArchiveSelectedClicked(object? sender, RoutedEventArgs e)
+    {
+        if (VM is not { } vm) return;
+        foreach (var sess in vm.Sessions.Where(x => x.IsSelected))
+            await vm.SessionsService.SetSessionArchivedAsync(sess, true);
+    }
+
+    private void OnSessionContextMenuOpening(object? sender, RoutedEventArgs e)
+    {
+        if (sender is not ContextMenu cm || cm.Tag is not HoshiSession sess || VM is not { } vm) return;
+        foreach (var item in cm.Items.OfType<MenuItem>())
+        {
+            if (item.Items.Count == 1 && item.Items[0] is MenuItem { Name: "MoveToFolderList" } placeholder)
+            {
+                item.Items.Clear();
+                foreach (var f in vm.SessionsService.Folders)
+                {
+                    var mi = new MenuItem { Header = f.Name, Tag = (sess.Id, f.Id) };
+                    mi.Click += OnMoveSessionToFolderClicked;
+                    item.Items.Add(mi);
+                }
+                var nf = new MenuItem { Header = Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_NewFolder"] };
+                nf.Click += async (_, _) =>
+                {
+                    var dialog = AppServices.Get<DialogService>();
+                    var name = await dialog.ShowInputDialogAsync(
+                        Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_NewFolder"],
+                        Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_FolderName"]);
+                    if (!string.IsNullOrWhiteSpace(name))
+                    {
+                        var id = await vm.SessionsService.CreateFolderAsync(name.Trim());
+                        await vm.SessionsService.SetSessionFolderAsync(sess, id);
+                    }
+                };
+                item.Items.Add(nf);
+                var rm = new MenuItem { Header = Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_RemoveFromFolder"] };
+                rm.Click += async (_, _) => await vm.SessionsService.SetSessionFolderAsync(sess, null);
+                item.Items.Add(rm);
+            }
+        }
+    }
+
+    private async void OnMoveSessionToFolderClicked(object? sender, RoutedEventArgs e)
+    {
+        if (sender is not MenuItem mi || mi.Tag is not (string sessionId, string folderId) || VM is not { } vm) return;
+        var sess = vm.Sessions.FirstOrDefault(x => x.Id == sessionId);
+        if (sess != null) await vm.SessionsService.SetSessionFolderAsync(sess, folderId);
+    }
+
+    private async void OnMoveSelectedClicked(object? sender, RoutedEventArgs e)
+    {
+        if (VM is not { } vm) return;
+        var dialog = AppServices.Get<DialogService>();
+        var name = await dialog.ShowInputDialogAsync(
+            Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_MoveSelectedToFolder"],
+            Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_FolderName"]);
+        if (string.IsNullOrWhiteSpace(name)) return;
+        var id = await vm.SessionsService.CreateFolderAsync(name.Trim());
+        foreach (var sess in vm.Sessions.Where(x => x.IsSelected))
+            await vm.SessionsService.SetSessionFolderAsync(sess, id);
     }
 }

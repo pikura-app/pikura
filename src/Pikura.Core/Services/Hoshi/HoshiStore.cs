@@ -12,12 +12,23 @@ public sealed class HoshiSessionHeader
     public string? UserId { get; set; }
     public string Title { get; set; } = "";
     public bool Pinned { get; set; }
+    public bool Archived { get; set; }
+    public string? FolderId { get; set; }
     public string? ImageSha { get; set; }
     public string? ImageSource { get; set; }
     public string? PixivArtworkId { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
     public int MessageCount { get; set; }
+}
+
+public sealed class HoshiFolderRow
+{
+    public string Id { get; set; } = "";
+    public string? UserId { get; set; }
+    public string Name { get; set; } = "";
+    public int SortOrder { get; set; }
+    public bool Collapsed { get; set; }
 }
 
 public sealed class HoshiMessageRow
@@ -110,6 +121,9 @@ public sealed class HoshiStore : IDisposable
             CREATE INDEX IF NOT EXISTS idx_hoshi_messages ON messages(session_id, seq);
             CREATE TABLE IF NOT EXISTS images(
                 sha TEXT PRIMARY KEY, size INTEGER, ext TEXT, last_used_at TEXT);
+            CREATE TABLE IF NOT EXISTS folders(
+                id TEXT PRIMARY KEY, user_id TEXT, name TEXT NOT NULL,
+                sort_order INTEGER DEFAULT 0, collapsed INTEGER DEFAULT 0);
             CREATE TABLE IF NOT EXISTS migrations(
                 session_id TEXT PRIMARY KEY, migrated_at TEXT);
             CREATE VIRTUAL TABLE IF NOT EXISTS hoshi_fts USING fts5(
@@ -117,6 +131,19 @@ public sealed class HoshiStore : IDisposable
         ";
         using var cmd = new SqliteCommand(sql, c);
         cmd.ExecuteNonQuery();
+
+        // Guarded column migrations for DBs created before archive/folder support.
+        var cols = new HashSet<string>();
+        using (var pragma = new SqliteCommand("PRAGMA table_info(sessions)", c))
+        using (var r = pragma.ExecuteReader())
+            while (r.Read()) cols.Add(r.GetString(1));
+        foreach (var (col, alter) in new[]
+        {
+            ("archived", "ALTER TABLE sessions ADD COLUMN archived INTEGER DEFAULT 0"),
+            ("folder_id", "ALTER TABLE sessions ADD COLUMN folder_id TEXT"),
+        })
+            if (!cols.Contains(col))
+                new SqliteCommand(alter, c).ExecuteNonQuery();
     }
 
     private bool ProbeTrigram()
@@ -210,10 +237,12 @@ public sealed class HoshiStore : IDisposable
         CreatedAt = DateTime.Parse(r.GetString(7)).ToUniversalTime(),
         UpdatedAt = DateTime.Parse(r.GetString(8)).ToUniversalTime(),
         MessageCount = (int)r.GetInt64(9),
+        Archived = r.GetInt64(10) != 0,
+        FolderId = r.IsDBNull(11) ? null : r.GetString(11),
     };
 
     private const string HeaderCols =
-        "id, user_id, title, pinned, image_sha, image_source, pixiv_artwork_id, created_at, updated_at, message_count";
+        "id, user_id, title, pinned, image_sha, image_source, pixiv_artwork_id, created_at, updated_at, message_count, archived, folder_id";
 
     public async Task<List<HoshiSessionHeader>> GetSessionHeadersAsync(string? userId, CancellationToken ct = default)
     {
@@ -227,6 +256,114 @@ public sealed class HoshiStore : IDisposable
         await using var r = await cmd.ExecuteReaderAsync(ct);
         while (await r.ReadAsync(ct)) list.Add(MapHeader(r));
         return list;
+    }
+
+    public async Task<List<HoshiFolderRow>> ListFoldersAsync(string? userId)
+    {
+        var list = new List<HoshiFolderRow>();
+        using var c = Open();
+        using var cmd = new SqliteCommand(
+            "SELECT id,user_id,name,sort_order,collapsed FROM folders WHERE " +
+            (userId == null ? "user_id IS NULL" : "(user_id=@u OR user_id IS NULL)") +
+            " ORDER BY sort_order, name", c);
+        if (userId != null) cmd.Parameters.AddWithValue("@u", userId);
+        await using var r = await cmd.ExecuteReaderAsync();
+        while (await r.ReadAsync())
+            list.Add(new HoshiFolderRow
+            {
+                Id = r.GetString(0), UserId = r.IsDBNull(1) ? null : r.GetString(1),
+                Name = r.GetString(2), SortOrder = (int)r.GetInt64(3), Collapsed = r.GetInt64(4) != 0,
+            });
+        return list;
+    }
+
+    public async Task<string> CreateFolderAsync(string? userId, string name)
+    {
+        var id = Guid.NewGuid().ToString("N");
+        using var c = Open();
+        int order;
+        using (var max = new SqliteCommand("SELECT COALESCE(MAX(sort_order),0)+1 FROM folders WHERE " +
+            (userId == null ? "user_id IS NULL" : "user_id=@u"), c))
+        {
+            if (userId != null) max.Parameters.AddWithValue("@u", userId);
+            order = Convert.ToInt32(await max.ExecuteScalarAsync());
+        }
+        using (var cmd = new SqliteCommand(
+            "INSERT INTO folders(id,user_id,name,sort_order) VALUES(@i,@u,@n,@o)", c))
+        {
+            cmd.Parameters.AddWithValue("@i", id);
+            cmd.Parameters.AddWithValue("@u", (object?)userId ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@n", name);
+            cmd.Parameters.AddWithValue("@o", order);
+            await cmd.ExecuteNonQueryAsync();
+        }
+        return id;
+    }
+
+    public async Task RenameFolderAsync(string id, string name)
+    {
+        using var c = Open();
+        using var cmd = new SqliteCommand("UPDATE folders SET name=@n WHERE id=@i", c);
+        cmd.Parameters.AddWithValue("@n", name);
+        cmd.Parameters.AddWithValue("@i", id);
+        await cmd.ExecuteNonQueryAsync();
+    }
+
+    /// <summary>Deletes the folder; its sessions become unfiled — nothing else is touched.</summary>
+    public async Task DeleteFolderAsync(string id)
+    {
+        using var c = Open();
+        using var tx = c.BeginTransaction();
+        using (var unfile = new SqliteCommand("UPDATE sessions SET folder_id=NULL WHERE folder_id=@i", c, tx))
+        {
+            unfile.Parameters.AddWithValue("@i", id);
+            await unfile.ExecuteNonQueryAsync();
+        }
+        using (var del = new SqliteCommand("DELETE FROM folders WHERE id=@i", c, tx))
+        {
+            del.Parameters.AddWithValue("@i", id);
+            await del.ExecuteNonQueryAsync();
+        }
+        tx.Commit();
+    }
+
+    public async Task SetFolderCollapsedAsync(string id, bool collapsed)
+    {
+        using var c = Open();
+        using var cmd = new SqliteCommand("UPDATE folders SET collapsed=@v WHERE id=@i", c);
+        cmd.Parameters.AddWithValue("@v", collapsed ? 1 : 0);
+        cmd.Parameters.AddWithValue("@i", id);
+        await cmd.ExecuteNonQueryAsync();
+    }
+
+    /// <summary>Archive/unarchive — does NOT touch updated_at (not a content change).</summary>
+    public async Task SetSessionArchivedAsync(string id, bool archived)
+    {
+        using var c = Open();
+        using var cmd = new SqliteCommand("UPDATE sessions SET archived=@v WHERE id=@i", c);
+        cmd.Parameters.AddWithValue("@v", archived ? 1 : 0);
+        cmd.Parameters.AddWithValue("@i", id);
+        await cmd.ExecuteNonQueryAsync();
+    }
+
+    /// <summary>Assign a session to a folder (null = unfiled) — no updated_at bump.</summary>
+    public async Task SetSessionFolderAsync(string id, string? folderId)
+    {
+        using var c = Open();
+        using var cmd = new SqliteCommand("UPDATE sessions SET folder_id=@f WHERE id=@i", c);
+        cmd.Parameters.AddWithValue("@f", (object?)folderId ?? DBNull.Value);
+        cmd.Parameters.AddWithValue("@i", id);
+        await cmd.ExecuteNonQueryAsync();
+    }
+
+    /// <summary>Reassigns an orphaned (NULL-user) session to <paramref name="userId"/>.</summary>
+    public async Task AdoptSessionAsync(string sessionId, string userId)
+    {
+        using var c = Open();
+        using var cmd = new SqliteCommand("UPDATE sessions SET user_id=@u WHERE id=@i AND user_id IS NULL", c);
+        cmd.Parameters.AddWithValue("@u", userId);
+        cmd.Parameters.AddWithValue("@i", sessionId);
+        await cmd.ExecuteNonQueryAsync();
     }
 
     public async Task<List<HoshiMessageRow>> GetSessionMessagesAsync(string id, CancellationToken ct = default)
@@ -260,10 +397,10 @@ public sealed class HoshiStore : IDisposable
             using var c = Open();
             using var tx = c.BeginTransaction();
             using (var cmd = new SqliteCommand(
-                "INSERT INTO sessions(id,user_id,title,pinned,image_sha,image_source,pixiv_artwork_id,created_at,updated_at,message_count)" +
-                " VALUES(@id,@u,@t,@p,@is,@src,@aid,@ca,@ua,@mc)" +
+                "INSERT INTO sessions(id,user_id,title,pinned,image_sha,image_source,pixiv_artwork_id,created_at,updated_at,message_count,archived,folder_id)" +
+                " VALUES(@id,@u,@t,@p,@is,@src,@aid,@ca,@ua,@mc,@arch,@fid)" +
                 " ON CONFLICT(id) DO UPDATE SET title=@t,pinned=@p,image_sha=@is,image_source=@src," +
-                " pixiv_artwork_id=@aid,updated_at=@ua,message_count=@mc", c, tx))
+                " pixiv_artwork_id=@aid,updated_at=@ua,message_count=@mc,archived=@arch,folder_id=@fid", c, tx))
             {
                 cmd.Parameters.AddWithValue("@id", h.Id);
                 cmd.Parameters.AddWithValue("@u", (object?)h.UserId ?? DBNull.Value);
@@ -275,6 +412,8 @@ public sealed class HoshiStore : IDisposable
                 cmd.Parameters.AddWithValue("@ca", h.CreatedAt.ToUniversalTime().ToString("O"));
                 cmd.Parameters.AddWithValue("@ua", h.UpdatedAt.ToUniversalTime().ToString("O"));
                 cmd.Parameters.AddWithValue("@mc", messages.Count);
+                cmd.Parameters.AddWithValue("@arch", h.Archived ? 1 : 0);
+                cmd.Parameters.AddWithValue("@fid", (object?)h.FolderId ?? DBNull.Value);
                 await cmd.ExecuteNonQueryAsync(ct);
             }
             using (var del = new SqliteCommand("DELETE FROM messages WHERE session_id=@s", c, tx))
@@ -430,7 +569,7 @@ public sealed class HoshiStore : IDisposable
             if (userId != null) cmd.Parameters.AddWithValue("@u", userId);
             await using var r = await cmd.ExecuteReaderAsync(ct);
             while (await r.ReadAsync(ct))
-                if (ridSet.Contains(r.GetInt64(10)))
+                if (ridSet.Contains(r.GetInt64(12)))
                     hits.Add(new HoshiSearchHit { SessionId = r.GetString(0) });
         }
         // Snippet: first matching line of message content.
@@ -508,7 +647,7 @@ public sealed class HoshiStore : IDisposable
             var cutoff = DateTime.UtcNow.AddDays(-maxAgeDays.Value).ToString("O");
             var ids = new List<string>();
             using (var c = Open())
-            using (var cmd = new SqliteCommand("SELECT id FROM sessions WHERE pinned=0 AND updated_at < @c", c))
+            using (var cmd = new SqliteCommand("SELECT id FROM sessions WHERE pinned=0 AND archived=0 AND updated_at < @c", c))
             {
                 cmd.Parameters.AddWithValue("@c", cutoff);
                 await using var r = await cmd.ExecuteReaderAsync(ct);
@@ -527,7 +666,7 @@ public sealed class HoshiStore : IDisposable
                 string? oldest = null;
                 using (var c = Open())
                 using (var cmd = new SqliteCommand(
-                    "SELECT id FROM sessions WHERE pinned=0 ORDER BY updated_at ASC LIMIT 1", c))
+                    "SELECT id FROM sessions WHERE pinned=0 AND archived=0 ORDER BY updated_at ASC LIMIT 1", c))
                     oldest = await cmd.ExecuteScalarAsync(ct) as string;
                 if (oldest == null) break;
                 await DeleteSessionsAsync(new[] { oldest }, ct);

@@ -262,6 +262,7 @@ public partial class InlineArtworkViewer : UserControl
             if (e.PropertyName == nameof(AiViewModel.StatusText) && AiStatusLabel != null)
                 Dispatcher.UIThread.Post(() => AiStatusLabel.Text = _aiVm.StatusText);
             if (e.PropertyName is nameof(AiViewModel.StatusText) or nameof(AiViewModel.IsThinking)
+                               or nameof(AiViewModel.IsGenerating)
                                or nameof(AiViewModel.IsModelReady) or nameof(AiViewModel.IsEnabled))
                 Dispatcher.UIThread.Post(UpdateAiStatusDot);
             if (e.PropertyName == nameof(AiViewModel.IsThinking))
@@ -271,6 +272,12 @@ public partial class InlineArtworkViewer : UserControl
             }
             if (e.PropertyName == nameof(AiViewModel.IsCurrentSubmissionMultiPage))
                 Dispatcher.UIThread.Post(UpdateDescribeButtonVisibility);
+            // Any action that creates the chat (Describe, Send, Fav…) replaces the start button.
+            if (e.PropertyName == nameof(AiViewModel.CurrentSession))
+                Dispatcher.UIThread.Post(() =>
+                {
+                    if (AiStartChatBtn != null && _aiVm.CurrentSession != null) AiStartChatBtn.IsVisible = false;
+                });
         };
         UpdateDescribeButtonVisibility();
         UpdateThinkingIndicator();
@@ -806,12 +813,16 @@ public partial class InlineArtworkViewer : UserControl
             ShowStatsBtn.IsChecked = showStats;
             StatsStackPanel.IsVisible = showStats;
         }
-        _aiVm.CurrentImageBytes = null;
         // Capture the resolved session by value — if the user switches to another
         // artwork before the fetches below complete, late-arriving bytes must still
         // land on THIS session (not whatever session happens to be "current" later),
         // otherwise the image silently never gets persisted for this artwork.
-        var session = _aiVm.SwitchToArtworkSession(card);
+        _aiVm.SetViewerContext(card);
+        var session = _aiVm.SessionForArtwork(card.Id);
+        // Re-show the "start chat" button when this artwork has no chat (fixes the
+        // button not reappearing after the first artwork switch).
+        if (AiStartChatBtn != null)
+            AiStartChatBtn.IsVisible = session == null && _aiVm.CurrentCard != null && AiPanel?.IsVisible == true;
 
         // Seed Hoshi's vision bytes with the *thumbnail* immediately so the user
         // can hit "Describe"/"Tags" the moment the card opens — without this seed
@@ -820,7 +831,7 @@ public partial class InlineArtworkViewer : UserControl
         // ability to see the image." The Regular fetch in RenderPageAsync will
         // upgrade these bytes when it lands.
         var thumbUrl = card.ThumbnailUrl;
-        if (!string.IsNullOrEmpty(thumbUrl) && session != null)
+        if (!string.IsNullOrEmpty(thumbUrl) && session != null && AiPanel?.IsVisible == true)
         {
             _ = Task.Run(async () =>
             {
@@ -1399,21 +1410,7 @@ public partial class InlineArtworkViewer : UserControl
         catch { _fullResLoaded = false; }
     }
 
-    private static byte[]? LocalImageForHoshi(string path)
-    {
-        using var codec = SkiaSharp.SKCodec.Create(path);
-        if (codec == null) return null;
-        using var full = SkiaSharp.SKBitmap.Decode(codec);
-        if (full == null) return null;
-        var scale = Math.Min(1.0, 1024.0 / Math.Max(full.Width, full.Height));
-        using var resized = scale < 1.0
-            ? full.Resize(new SkiaSharp.SKImageInfo((int)(full.Width * scale), (int)(full.Height * scale)),
-                new SkiaSharp.SKSamplingOptions(SkiaSharp.SKFilterMode.Linear, SkiaSharp.SKMipmapMode.None))
-            : null;
-        using var img = SkiaSharp.SKImage.FromBitmap(resized ?? full);
-        using var data = img.Encode(SkiaSharp.SKEncodedImageFormat.Jpeg, 90);
-        return data.ToArray();
-    }
+    private static byte[]? LocalImageForHoshi(string path) => AiViewModel.LoadLocalImageForVision(path);
 
     private async Task LoadFullResAsync(string originalUrl, int pageIndex)
     {
@@ -3188,7 +3185,7 @@ if (result != null && presetWindow.DownloadClicked)
         // Visible status bar feedback — same pattern as the gallery card handler,
         // and always reachable even when the AI panel is collapsed.
         if (VM != null)
-            VM.StatusMessage = $"Copied artist ID {userId}" + (string.IsNullOrEmpty(userName) ? "" : $" ({userName})");
+            VM.StatusMessage = string.Format(LocalizationService.Instance["Common_Status_CopiedArtistIdShort"], userId) + (string.IsNullOrEmpty(userName) ? "" : $" ({userName})");
     }
 
     private void OnCopyImage(object? sender, RoutedEventArgs e)
@@ -3551,8 +3548,17 @@ if (result != null && presetWindow.DownloadClicked)
         {
             // Toggle panel open/close
             AiPanel.IsVisible = !AiPanel.IsVisible;
-            if (AiPanel.IsVisible && AiInputBox != null)
-                AiInputBox.Focus();
+            if (AiPanel.IsVisible)
+            {
+                // Open the artwork's existing session, or show the start-chat empty state —
+                // no session is auto-created on navigation anymore.
+                _ = _aiVm.SessionsService.RefreshHeadersAsync();
+                var sess = _aiVm.CurrentCard is { } cc ? _aiVm.SessionForArtwork(cc.Id) : null;
+                if (sess != null) _aiVm.LoadSession(sess);
+                if (AiStartChatBtn != null)
+                    AiStartChatBtn.IsVisible = _aiVm.CurrentSession == null && _aiVm.CurrentCard != null;
+                AiInputBox?.Focus();
+            }
         }
         UpdateAiPanelRowSize();
         UpdateAiToggleButton();
@@ -3603,7 +3609,9 @@ if (result != null && presetWindow.DownloadClicked)
 
             // Show thinking indicator in send button
             if (AiSendBtn != null)
-                AiSendBtn.Content = _aiVm.IsThinking ? "…" : Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_Send"];
+                AiSendBtn.Content = _aiVm.IsGenerating
+                ? Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_Stop"]
+                : Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_Send"];
         });
         ScrollToBottomDeferred();
     }
@@ -3631,8 +3639,11 @@ if (result != null && presetWindow.DownloadClicked)
             global::Avalonia.Threading.DispatcherPriority.Background);
     }
 
+    private void OnAiStopClicked(object? sender, RoutedEventArgs e) => _aiVm.Stop();
+
     private async void OnAiSendClicked(object? sender, RoutedEventArgs e)
     {
+        if (_aiVm.IsGenerating) { _aiVm.Stop(); return; }
         if (AiInputBox == null || string.IsNullOrWhiteSpace(AiInputBox.Text)) return;
         _aiVm.InputText = AiInputBox.Text;
         AiInputBox.Text = string.Empty;
@@ -3706,22 +3717,26 @@ if (result != null && presetWindow.DownloadClicked)
     private async void OnAiSimilarArtistsClicked(object? sender, RoutedEventArgs e)
         => await _aiVm.FindSimilarArtistsCommand.ExecuteAsync(null);
 
-    private void OnAiFavClicked(object? sender, RoutedEventArgs e)
+    private async void OnAiFavClicked(object? sender, RoutedEventArgs e)
     {
-        if (_currentCard == null) return;
-        _favorites.Toggle(_currentCard.Artwork);
-        UpdateFavoriteButton(_currentCard);
-        var msg = _favorites.IsFavorite(_currentCard.Id)
-            ? $"Added \"{_currentCard.Title}\" to local favorites ★"
-            : $"Removed \"{_currentCard.Title}\" from favorites.";
+        if (_currentCard is not { } card) return;
+        await _aiVm.EnsureSessionAsync(); // like every Hoshi action, this starts the chat
+        _favorites.Toggle(card.Artwork);
+        UpdateFavoriteButton(card);
+        var msg = _favorites.IsFavorite(card.Id)
+            ? $"Added \"{card.Title}\" to local favorites ★"
+            : $"Removed \"{card.Title}\" from favorites.";
         _aiVm.Messages.Add(new AiChatMessage { Role = "assistant", Content = msg });
+        await _aiVm.SaveCurrentSessionAsync();
         RefreshAiMessages();
     }
 
     private async void OnAiDlClicked(object? sender, RoutedEventArgs e)
     {
-        if (_currentCard == null) return;
-        await _aiVm.DownloadArtworkWithJobAsync(_currentCard);
+        if (_currentCard is not { } card) return;
+        await _aiVm.EnsureSessionAsync();
+        await _aiVm.DownloadArtworkWithJobAsync(card);
+        await _aiVm.SaveCurrentSessionAsync();
         RefreshAiMessages();
     }
 
@@ -3782,6 +3797,18 @@ if (result != null && presetWindow.DownloadClicked)
         {
             _aiVm.Messages.Add(new AiChatMessage { Role = "system", Content = $"✗ Could not open artist gallery: {ex.Message}" });
             RefreshAiMessages();
+        }
+    }
+
+    /// <summary>"Start chat about this artwork" — the ONLY place a session is created
+    /// near navigation; creates/reuses the artwork's chat explicitly.</summary>
+    private void OnAiStartChat(object? sender, RoutedEventArgs e)
+    {
+        if (_aiVm.CurrentCard is { } card)
+        {
+            _aiVm.StartArtworkChat(card);
+            if (AiStartChatBtn != null) AiStartChatBtn.IsVisible = false;
+            AiInputBox?.Focus();
         }
     }
 }

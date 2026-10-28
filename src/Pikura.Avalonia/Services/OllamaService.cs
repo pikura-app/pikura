@@ -147,6 +147,53 @@ public sealed class OllamaService : IDisposable
         }
     }
 
+    /// <summary>"GPU" when any loaded model reports size_vram > 0, "CPU" when a model is
+    /// loaded without VRAM, "—" when nothing is loaded. Read from /api/ps.</summary>
+    public async Task<string> GetGpuStatusAsync()
+    {
+        try
+        {
+            using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(4) };
+            var json = await http.GetStringAsync($"{OllamaHost}/api/ps");
+            using var doc = System.Text.Json.JsonDocument.Parse(json);
+            var models = doc.RootElement.GetProperty("models");
+            foreach (var m in models.EnumerateArray())
+                if (m.TryGetProperty("size_vram", out var v) && v.GetInt64() > 0) return "GPU";
+            return models.GetArrayLength() > 0 ? "CPU" : "—";
+        }
+        catch { return "—"; }
+    }
+
+    /// <summary>Stops every running Ollama process (server + tray app) and starts the server
+    /// again so environment changes such as OLLAMA_IGPU_ENABLE take effect.</summary>
+    public async Task RestartOllamaAsync(CancellationToken ct = default)
+    {
+        var trayWasRunning = Process.GetProcessesByName("ollama app").Length > 0;
+        foreach (var name in new[] { "ollama app", "ollama" })
+            foreach (var p in Process.GetProcessesByName(name))
+            {
+                try { p.Kill(entireProcessTree: true); await p.WaitForExitAsync(ct); }
+                catch { /* already gone / no permission */ }
+                finally { p.Dispose(); }
+            }
+        _ollamaProcess = null;
+        _client = null;
+
+        // Bring the tray app back if the user runs Ollama that way; it starts the server itself.
+        var tray = trayWasRunning && FindOllamaExecutable() is { } exe
+            ? Path.Combine(Path.GetDirectoryName(exe)!, "ollama app.exe") : null;
+        if (tray != null && File.Exists(tray))
+        {
+            var psi = new ProcessStartInfo(tray) { UseShellExecute = false };
+            if (_settings.Current.HoshiOllamaIgpu) psi.Environment["OLLAMA_IGPU_ENABLE"] = "1";
+            else psi.Environment.Remove("OLLAMA_IGPU_ENABLE");
+            Process.Start(psi)?.Dispose();
+            var deadline = DateTime.UtcNow.AddSeconds(30);
+            while (DateTime.UtcNow < deadline && !await PingAsync(ct)) await Task.Delay(500, ct);
+        }
+        await EnsureOllamaRunningAsync(ct);
+    }
+
     private string GetVisionModel()
     {
         var settings = _settings.Current;
@@ -201,7 +248,8 @@ public sealed class OllamaService : IDisposable
                 : new OllamaSharp.Models.Chat.Message(OllamaSharp.Models.Chat.ChatRole.User, content, null);
             if (first && firstUserImage != null && role == "user")
             {
-                msg.Images = [Convert.ToBase64String(firstUserImage)];
+                // Downscale like live sends — the restored chat image is often the full original.
+                msg.Images = [Convert.ToBase64String(ResizeForVision(firstUserImage))];
                 first = false;
             }
             _history.Add(msg);
@@ -271,6 +319,10 @@ public sealed class OllamaService : IDisposable
         var caps = await GetCapabilitiesAsync(model, ct);
         var vision = caps.Contains("vision");
         var useTools = tools is { Count: > 0 } && caps.Contains("tools");
+        // Thinking models spend most tokens on hidden reasoning before the visible answer — a
+        // 1024 cap left them with nothing to show ("…"). Give them room for both.
+        var thinking = caps.Contains("thinking");
+        var numPredict = thinking ? 4096 : 1024;
 
         string? imageB64 = null;
         if (image != null)
@@ -286,8 +338,10 @@ public sealed class OllamaService : IDisposable
         {
             var kept = _history.Skip(_history.Count - history.Count).ToList();
             var lastImg = kept.FindLastIndex(m => m.Images?.Any() == true);
+            // When this message carries its own image, send no history image: the model would
+            // otherwise encode two pictures per request (the main cost of a vision call).
             for (var i = 0; i < history.Count; i++)
-                history[i].Images = (vision && i == lastImg) ? kept[i].Images : null;
+                history[i].Images = (vision && image == null && i == lastImg) ? kept[i].Images : null;
         }
 
         var userMsg = new OllamaSharp.Models.Chat.Message(
@@ -319,6 +373,7 @@ public sealed class OllamaService : IDisposable
                     {
                         NumThread = InferenceThreadCount,
                         NumCtx = 8192,
+                        NumPredict = numPredict,
                     },
                     Tools = ollamaTools,
                 };
@@ -346,6 +401,15 @@ public sealed class OllamaService : IDisposable
                 sb.Clear();
 
                 var calls = toolCallMsg?.ToolCalls?.ToList();
+                // A thinking model that used its whole budget on reasoning returns no text —
+                // say why instead of an empty "…" bubble.
+                if (thinking && allText.Length == 0 && calls is not { Count: > 0 })
+                {
+                    var notice = Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_ThinkingNoAnswer"];
+                    allText.Append(notice);
+                    yield return notice;
+                    break;
+                }
                 if (calls is not { Count: > 0 } || toolCallMsg == null || toolByName == null || round == 3) break;
 
                 messages.Add(toolCallMsg);
@@ -525,6 +589,25 @@ public sealed class OllamaService : IDisposable
             return;
         }
 
+        // Ollama is already running but slow to answer (e.g. paged out after sleep/idle) — wait
+        // for it instead of launching a second server, which can't bind the port and only makes
+        // the model list fail on the first try.
+        if (Process.GetProcessesByName("ollama").Length > 0)
+        {
+            var wait = DateTime.UtcNow.AddSeconds(30);
+            while (DateTime.UtcNow < wait)
+            {
+                ct.ThrowIfCancellationRequested();
+                if (await PingAsync(ct))
+                {
+                    _client = new OllamaApiClient(new HttpClient { BaseAddress = new Uri(OllamaHost), Timeout = TimeSpan.FromMinutes(10) }) { SelectedModel = GetTextModel() };
+                    return;
+                }
+                await Task.Delay(1000, ct);
+            }
+            _logger.LogWarning("Ollama process is running but not responding after 30 s — starting a new server");
+        }
+
         // Never auto-install — the Inno Setup wizard popping up unprompted was the
         // reported bug (#23). Installing is only done on explicit user consent via
         // InstallOllamaAsync.
@@ -541,6 +624,11 @@ public sealed class OllamaService : IDisposable
             RedirectStandardError  = true,
             CreateNoWindow         = true,
         };
+        // Ollama drops integrated GPUs (e.g. Intel Arc iGPU) unless this is set.
+        if (_settings.Current.HoshiOllamaIgpu)
+            startInfo.Environment["OLLAMA_IGPU_ENABLE"] = "1";
+        else
+            startInfo.Environment.Remove("OLLAMA_IGPU_ENABLE");
         _ollamaProcess = new Process { StartInfo = startInfo };
         _ollamaProcess.Start();
         try { _ollamaProcess.PriorityClass = ProcessPriorityClass.BelowNormal; }
@@ -594,7 +682,7 @@ public sealed class OllamaService : IDisposable
         if (!hasTextModel)
         {
             progress?.Report($"Pulling {textModel} — first-time only…");
-            StatusText = $"Downloading {textModel} for Hoshi…";
+            StatusText = string.Format(LocalizationService.Instance["Ollama_Status_DownloadingForHoshi"], textModel);
             NotifyState();
 
             await foreach (var status in _client!.PullModelAsync(textModel, ct))
@@ -608,7 +696,7 @@ public sealed class OllamaService : IDisposable
         if (!hasVisionModel)
         {
             progress?.Report($"Pulling {visionModel} — first-time only…");
-            StatusText = $"Downloading {visionModel} for Hoshi…";
+            StatusText = string.Format(LocalizationService.Instance["Ollama_Status_DownloadingForHoshi"], visionModel);
             NotifyState();
 
             await foreach (var status in _client!.PullModelAsync(visionModel, ct))
@@ -625,9 +713,11 @@ public sealed class OllamaService : IDisposable
     {
         try
         {
-            using var cts  = new CancellationTokenSource(TimeSpan.FromSeconds(3));
-            using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(3) };
-            var resp = await http.GetAsync($"{OllamaHost}/api/tags", cts.Token);
+            // /api/version is answered without touching the model store, so it stays fast even
+            // when Ollama has just been paged back in; 3 s was too short after sleep.
+            using var cts  = new CancellationTokenSource(TimeSpan.FromSeconds(8));
+            using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(8) };
+            var resp = await http.GetAsync($"{OllamaHost}/api/version", cts.Token);
             return resp.IsSuccessStatusCode;
         }
         catch { return false; }

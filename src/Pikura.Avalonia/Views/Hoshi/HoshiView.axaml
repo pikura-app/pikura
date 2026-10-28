@@ -1,235 +1,281 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:loc="using:Pikura.Avalonia.Localization"
-             xmlns:actipro="http://schemas.actiprosoftware.com/avaloniaui"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:Pikura.Avalonia.ViewModels"
              xmlns:svc="using:Pikura.Avalonia.Services"
-             xmlns:conv="using:Pikura.Avalonia.Converters"
+             xmlns:loc="using:Pikura.Avalonia.Localization"
              xmlns:ctrl="using:Pikura.Avalonia.Views.Controls"
-             x:DataType="vm:AiViewModel"
+             xmlns:conv="using:Pikura.Avalonia.Converters"
              x:Class="Pikura.Avalonia.Views.Hoshi.HoshiView"
-             DragDrop.AllowDrop="True">
+             DragDrop.AllowDrop="True"
+             x:DataType="vm:AiViewModel"
+             x:CompileBindings="false">
 
-    <Grid ColumnDefinitions="260,*" Margin="0,32,0,0">
+    <UserControl.Styles>
+        <!-- Flat sidebar rows: soft hover, accent bar + light fill on selected. -->
+        <Style Selector="Border.hoshiSession:pointerover">
+            <Setter Property="Background" Value="{DynamicResource Container2BackgroundBrush}"/>
+        </Style>
+        <Style Selector="Border.hoshiSession.hoshiSelected">
+            <Setter Property="Background" Value="{DynamicResource Container2BackgroundBrush}"/>
+        </Style>
+        <Style Selector="Border.hoshiSession.hoshiSelected /template/ Border#AccentBar,
+                         Border.hoshiSession.hoshiSelected Border#AccentBar">
+            <Setter Property="IsVisible" Value="True"/>
+        </Style>
+        <!-- Pill chips for the quick actions. -->
+        <Style Selector="Button.hoshiChip, SplitButton.hoshiChip">
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="10,3"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="MinHeight" Value="24"/>
+        </Style>
+        <Style Selector="Button.hoshiIcon">
+            <Setter Property="Padding" Value="6,2"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="MinHeight" Value="24"/>
+        </Style>
+    </UserControl.Styles>
 
-        <!-- ── Left sidebar: sessions list ───────────────────────────────── -->
-        <Border Grid.Column="0"
-                Background="{DynamicResource Container1BackgroundBrush}"
-                BorderBrush="{DynamicResource Container1BorderBrush}"
-                BorderThickness="0,0,1,0">
-            <Grid RowDefinitions="Auto,Auto,*">
-                <!-- Sidebar header -->
-                <Border Grid.Row="0" Padding="12,10"
-                        BorderBrush="{DynamicResource Container1BorderBrush}"
-                        BorderThickness="0,0,0,1">
-                    <Grid ColumnDefinitions="*,Auto,Auto">
-                        <TextBlock Grid.Column="0" Text="{loc:Tr Hoshi_Sessions}" FontSize="13" FontWeight="SemiBold"
-                                   VerticalAlignment="Center"/>
-                        <Button Grid.Column="1" Content="{loc:Tr Hoshi_ClearAll}" Name="ClearAllBtn"
-                                  FontSize="11" Margin="6,0"
-                                Click="OnClearAllSessionsClicked"/>
-                        <Button Grid.Column="2" Content="{loc:Tr Hoshi_New}" Name="NewSessionBtn"
-                                  FontSize="11"
-                                Click="OnNewSessionClicked"/>
-                    </Grid>
-                </Border>
-
-                <!-- Empty state -->
-                <StackPanel Grid.Row="1" Margin="14,18" Spacing="6"
-                            IsVisible="{Binding Sessions.Count, Converter={x:Static svc:CountToBoolConverter.IsZero}}">
-                    <TextBlock Text="{loc:Tr Hoshi_NoSessionsYet}"
-                               Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
-                               FontSize="12" HorizontalAlignment="Center"/>
-                    <TextBlock Text="{loc:Tr Hoshi_ClickNewToStartThenDrop}"
-                               Foreground="{DynamicResource DefaultForegroundBrushDisabled}"
-                               FontSize="10" TextWrapping="Wrap" TextAlignment="Center"/>
+    <Grid ColumnDefinitions="240,*" Margin="0,32,0,0">
+        <!-- ══ Sidebar ══ -->
+        <Border Grid.Column="0" Background="{DynamicResource Container1BackgroundBrush}"
+                BorderBrush="{DynamicResource Container1BorderBrush}" BorderThickness="0,0,1,0">
+            <Grid RowDefinitions="Auto,Auto,Auto,Auto,*">
+                <!-- header row: title + new + overflow -->
+                <Grid Grid.Row="0" ColumnDefinitions="*,Auto,Auto" Margin="10,8,10,4">
+                    <TextBlock Grid.Column="0" Text="{loc:Tr Hoshi_Sessions}" FontSize="13" FontWeight="SemiBold"
+                               Foreground="{DynamicResource DefaultForegroundBrush}" VerticalAlignment="Center"/>
+                    <Button Grid.Column="1" Name="NewSessionBtn" Content="{loc:Tr Hoshi_New}" Click="OnNewSessionClicked"
+                            FontSize="11" Padding="8,2" Margin="0,0,4,0"/>
+                    <Button Grid.Column="2" Name="SidebarOverflowBtn" Content="⋯" FontSize="13" Padding="6,0">
+                        <Button.Flyout>
+                            <MenuFlyout Placement="BottomEdgeAlignedRight">
+                                <MenuItem Header="{loc:Tr Hoshi_Select}" Click="OnToggleSelectionMode"/>
+                                <MenuItem Header="{loc:Tr Hoshi_NewFolder}" Click="OnNewFolderClicked"/>
+                                <MenuItem Header="{loc:Tr Hoshi_ClearAll}" Click="OnClearAllSessionsClicked" Name="ClearAllBtn"/>
+                            </MenuFlyout>
+                        </Button.Flyout>
+                    </Button>
+                </Grid>
+                <!-- search box -->
+                <TextBox Grid.Row="1" PlaceholderText="{loc:Tr Hoshi_SearchChats}" Text="{Binding SessionSearchText}"
+                         Margin="10,0,10,6" FontSize="11"/>
+                <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="4" Margin="10,0,10,4">
+                    <ComboBox SelectedIndex="{Binding SessionFilterIndex}" FontSize="10" Padding="6,2">
+                        <ComboBoxItem Content="{loc:Tr Hoshi_Filter_All}"/>
+                        <ComboBoxItem Content="{loc:Tr Hoshi_Filter_Pinned}"/>
+                        <ComboBoxItem Content="{loc:Tr Hoshi_Filter_Archived}"/>
+                    </ComboBox>
+                    <ComboBox SelectedIndex="{Binding SessionGroupingIndex}" FontSize="10" Padding="6,2">
+                        <ComboBoxItem Content="{loc:Tr Hoshi_Group_Date}"/>
+                        <ComboBoxItem Content="{loc:Tr Hoshi_Group_Kind}"/>
+                    </ComboBox>
                 </StackPanel>
-
-                <!-- Sessions list (grouped by date) -->
-                <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto"
-                              HorizontalScrollBarVisibility="Disabled">
-                    <StackPanel Spacing="8" Margin="6,6">
-                        <TextBox PlaceholderText="{loc:Tr Hoshi_SearchChats}" Text="{Binding SessionSearchText}"
-                                 FontSize="11" Margin="0,0,0,4"/>
-                        <TextBlock Text="{Binding MigrationStatusText}" FontSize="11" IsVisible="{Binding !!MigrationStatusText}"
-                                   Foreground="{DynamicResource DefaultForegroundBrushSecondary}"/>
-                        <!-- Delete selected button -->
-                        <Button Name="DeleteSelectedBtn" Content="{loc:Tr Hoshi_DeleteSelected}" 
-                                  FontSize="11"
-                                Click="OnDeleteSelectedSessionsClicked"
-                                IsVisible="False"/>
-                        <!-- Search results (flat list with snippets) -->
-                        <ItemsControl ItemsSource="{Binding SearchResultSessions}" IsVisible="{Binding !!SessionSearchText}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate x:DataType="svc:HoshiSession">
-                                    <Border Margin="0,2" Padding="10,8" CornerRadius="6"
-                                            Background="{DynamicResource Container3BackgroundBrush}"
-                                            BorderBrush="{DynamicResource Container1BorderBrush}"
-                                            BorderThickness="1" Cursor="Hand" Tag="{Binding}"
-                                            PointerPressed="OnSessionClicked">
-                                        <StackPanel Spacing="2">
-                                            <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="12"
-                                                       Foreground="{DynamicResource DefaultForegroundBrush}"/>
-                                            <TextBlock Text="{Binding SearchSnippet}" FontSize="10" TextWrapping="Wrap" MaxLines="2"
+                <StackPanel Grid.Row="3" Margin="10,0,10,4" Spacing="4">
+                    <TextBlock Text="{Binding MigrationStatusText}" FontSize="11" IsVisible="{Binding !!MigrationStatusText}"
+                               Foreground="{DynamicResource DefaultForegroundBrushTertiary}" TextWrapping="Wrap"/>
+                    <Button Name="DeleteSelectedBtn" Content="{loc:Tr Hoshi_DeleteSelected}" FontSize="11"
+                            Click="OnDeleteSelectedSessionsClicked"
+                            IsVisible="{Binding IsSelectionMode}"/>
+                    <Button Name="ArchiveSelectedBtn" Content="{loc:Tr Hoshi_ArchiveSelected}" FontSize="11"
+                            Click="OnArchiveSelectedClicked"
+                            IsVisible="{Binding IsSelectionMode}"/>
+                    <Button Name="MoveSelectedBtn" Content="{loc:Tr Hoshi_MoveSelectedToFolder}" FontSize="11"
+                            IsVisible="{Binding IsSelectionMode}" Click="OnMoveSelectedClicked"/>
+                </StackPanel>
+                <!-- session list — NO outer ScrollViewer: ListBox virtualizes inside its own -->
+                <Grid Grid.Row="4">
+                    <TextBlock Text="{loc:Tr Hoshi_NoSessionsYet}" FontSize="11" TextWrapping="Wrap" TextAlignment="Center"
+                               Foreground="{DynamicResource DefaultForegroundBrushTertiary}" Margin="10,20"
+                               IsVisible="{Binding Sessions.Count, Converter={x:Static svc:CountToBoolConverter.IsZero}}"/>
+                    <ListBox Name="SessionsList" ItemsSource="{Binding FlattenedSessions}"
+                             IsVisible="{Binding !SessionSearchText}"
+                             Background="Transparent" BorderThickness="0"
+                             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                >
+                        <ListBox.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <VirtualizingStackPanel/>
+                            </ItemsPanelTemplate>
+                        </ListBox.ItemsPanel>
+                        <ListBox.DataTemplates>
+                            <DataTemplate DataType="vm:SessionGroupViewModel">
+                                <TextBlock Text="{Binding DisplayDate}" FontSize="11" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
+                                           Margin="10,10,10,4"/>
+                            </DataTemplate>
+                            <DataTemplate DataType="vm:AiViewModel+FolderRow">
+                                <Border Classes.hoshiSession="True" Padding="4,2" Cursor="Hand" Tag="{Binding}"
+                                        PointerPressed="OnFolderHeaderClicked">
+                                    <Border.ContextMenu>
+                                        <ContextMenu>
+                                            <MenuItem Header="{loc:Tr Hoshi_RenameFolder}" Click="OnRenameFolderClicked" Tag="{Binding}"/>
+                                            <MenuItem Header="{loc:Tr Hoshi_DeleteFolder}" Click="OnDeleteFolderClicked" Tag="{Binding}"/>
+                                        </ContextMenu>
+                                    </Border.ContextMenu>
+                                    <StackPanel Orientation="Horizontal" Spacing="4">
+                                        <TextBlock Text="▾" FontSize="9" VerticalAlignment="Center"
+                                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
+                                        <TextBlock Text="{Binding Folder.Name}" FontSize="11" FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
+                                        <TextBlock Text="{Binding Count}" FontSize="10" VerticalAlignment="Center"
+                                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                            <DataTemplate DataType="vm:AiViewModel+KindRow">
+                                <TextBlock Text="{Binding DisplayName}"
+                                           FontSize="11" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
+                                           Margin="10,10,10,4"/>
+                            </DataTemplate>
+                            <DataTemplate DataType="svc:HoshiSession">
+                                <Border Classes.hoshiSession="True" Classes.hoshiSelected="{Binding IsCurrent}" Background="Transparent"
+                                        Padding="0" Cursor="Hand" Tag="{Binding}"
+                                        PointerPressed="OnSessionClicked">
+                                    <Grid ColumnDefinitions="3,Auto,*,Auto">
+                                        <!-- 3px accent bar -->
+                                        <Border Grid.Column="0" Name="AccentBar" Width="3" IsVisible="False"
+                                                Background="{DynamicResource ControlBackgroundBrushSolidAccent}"/>
+                                        <CheckBox Grid.Column="1" Name="SessionCheckbox"
+                                                  IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                                                  IsVisible="{Binding $parent[ListBox].DataContext.IsSelectionMode}"
+                                                  VerticalAlignment="Center" Margin="6,0,6,0"
+                                                  Click="OnSessionCheckboxClicked" Tag="{Binding}"/>
+                                        <StackPanel Grid.Column="2" Spacing="2" Margin="6,6" >
+                                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                                <TextBlock Text="📌" FontSize="10" IsVisible="{Binding Pinned}" VerticalAlignment="Center"/>
+                                                <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="12"
+                                                           Foreground="{DynamicResource DefaultForegroundBrush}"/>
+                                            </StackPanel>
+                                            <TextBlock Text="{Binding Subtitle}" FontSize="10"
                                                        Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                         </StackPanel>
-                                    </Border>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                        <ListBox Name="SessionsList" ItemsSource="{Binding FlattenedSessions}"
-                                 IsVisible="{Binding !SessionSearchText}"
-                                 Background="Transparent" BorderThickness="0"
-                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                            <ListBox.DataTemplates>
-                                <DataTemplate DataType="vm:SessionGroupViewModel">
-                                    <TextBlock Text="{Binding DisplayDate}" FontSize="11" FontWeight="SemiBold"
-                                               Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
-                                               Margin="0,10,0,4"/>
-                                </DataTemplate>
-                                <DataTemplate DataType="svc:HoshiSession">
-                                    <Border Margin="0,2" Padding="10,8" CornerRadius="6"
-                                            Background="{DynamicResource Container3BackgroundBrush}"
-                                            BorderBrush="{DynamicResource Container1BorderBrush}"
-                                            BorderThickness="1" Cursor="Hand" Tag="{Binding}"
-                                            PointerPressed="OnSessionClicked">
-                                        <Grid ColumnDefinitions="Auto,*,Auto">
-                                            <CheckBox Grid.Column="0" Name="SessionCheckbox"
-                                                      IsChecked="{Binding IsSelected, Mode=TwoWay}"
-                                                      VerticalAlignment="Center" Margin="0,0,8,0"
-                                                      Click="OnSessionCheckboxClicked" Tag="{Binding}"/>
-                                            <StackPanel Grid.Column="1" Spacing="2">
-                                                <StackPanel Orientation="Horizontal" Spacing="4">
-                                                    <TextBlock Text="📌" FontSize="10" IsVisible="{Binding Pinned}" VerticalAlignment="Center"/>
-                                                    <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="12"
-                                                               Foreground="{DynamicResource DefaultForegroundBrush}"/>
-                                                </StackPanel>
-                                                <TextBlock Text="{Binding Subtitle}" FontSize="10"
-                                                           Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
-                                            </StackPanel>
-                                        </Grid>
-                                        <Border.ContextMenu>
-                                            <ContextMenu>
-                                                <ContextMenu.Styles>
-                                                    <Style Selector="ContextMenu">
-                                                        <Setter Property="Background" Value="{DynamicResource Container1BackgroundBrush}"/>
-                                                        <Setter Property="Foreground" Value="{DynamicResource DefaultForegroundBrush}"/>
-                                                    </Style>
-                                                    <Style Selector="MenuItem">
-                                                        <Setter Property="Foreground" Value="{DynamicResource DefaultForegroundBrush}"/>
-                                                        <Setter Property="Background" Value="Transparent"/>
-                                                    </Style>
-                                                    <Style Selector="MenuItem:pointerover">
-                                                        <Setter Property="Background" Value="{DynamicResource ControlBackgroundBrushSoftAccent}"/>
-                                                        <Setter Property="Foreground" Value="{DynamicResource DefaultForegroundBrush}"/>
-                                                    </Style>
-                                                    <Style Selector="Separator">
-                                                        <Setter Property="Background" Value="{DynamicResource Container1BorderBrush}"/>
-                                                    </Style>
-                                                </ContextMenu.Styles>
-                                                <MenuItem Header="{loc:Tr Hoshi_Pin}" Click="OnPinSession" Tag="{Binding}" IsVisible="{Binding !Pinned}"/>
-                                                <MenuItem Header="{loc:Tr Hoshi_Unpin}" Click="OnPinSession" Tag="{Binding}" IsVisible="{Binding Pinned}"/>
-                                                <MenuItem Header="{loc:Tr Common_Rename}" Click="OnRenameSession" Tag="{Binding}"/>
-                                                <MenuItem Header="{loc:Tr Hoshi_Duplicate}" Click="OnDuplicateSession" Tag="{Binding}"/>
-                                                <Separator/>
-                                                <MenuItem Header="{loc:Tr Hoshi_DeleteSession}" Click="OnDeleteSession" Tag="{Binding}"/>
-                                            </ContextMenu>
-                                        </Border.ContextMenu>
-                                    </Border>
-                                </DataTemplate>
-                            </ListBox.DataTemplates>
-                        </ListBox>
-                    </StackPanel>
-                </ScrollViewer>
+                                        <TextBlock Grid.Column="3" Text="{Binding RelativeTime}" FontSize="9"
+                                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
+                                                   VerticalAlignment="Top" Margin="0,6,8,0"/>
+                                    </Grid>
+                                    <Border.ContextMenu>
+                                        <ContextMenu Opened="OnSessionContextMenuOpening" Tag="{Binding}">
+                                            <MenuItem Header="{loc:Tr Hoshi_Pin}" Click="OnPinSession" Tag="{Binding}" IsVisible="{Binding !Pinned}"/>
+                                            <MenuItem Header="{loc:Tr Hoshi_Unpin}" Click="OnPinSession" Tag="{Binding}" IsVisible="{Binding Pinned}"/>
+                                            <MenuItem Header="{loc:Tr Hoshi_Archive}" Click="OnArchiveSessionClicked" Tag="{Binding}" IsVisible="{Binding !Archived}"/>
+                                            <MenuItem Header="{loc:Tr Hoshi_Unarchive}" Click="OnArchiveSessionClicked" Tag="{Binding}" IsVisible="{Binding Archived}"/>
+                                            <MenuItem Header="{loc:Tr Hoshi_MoveToFolder}" Tag="{Binding}" Name="MoveToFolderMenuItem">
+                                                <MenuItem.Items>
+                                                    <MenuItem Name="MoveToFolderList" Header="{loc:Tr Hoshi_MoveToFolderLoading}"/>
+                                                </MenuItem.Items>
+                                            </MenuItem>
+                                            <MenuItem Header="{loc:Tr Hoshi_Rename}" Click="OnRenameSession" Tag="{Binding}"/>
+                                            <MenuItem Header="{loc:Tr Hoshi_Duplicate}" Click="OnDuplicateSession" Tag="{Binding}"/>
+                                            <MenuItem Header="{loc:Tr Hoshi_Delete}" Click="OnDeleteSession" Tag="{Binding}"/>
+                                        </ContextMenu>
+                                    </Border.ContextMenu>
+                                </Border>
+                            </DataTemplate>
+                        </ListBox.DataTemplates>
+                    </ListBox>
+                    <ListBox ItemsSource="{Binding SearchResultSessions}" IsVisible="{Binding !!SessionSearchText}"
+                             Background="Transparent" BorderThickness="0">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate DataType="svc:HoshiSession">
+                                <Border Padding="10,6" Cursor="Hand" Tag="{Binding}" PointerPressed="OnSessionClicked">
+                                    <StackPanel Spacing="2">
+                                        <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="12"
+                                                   Foreground="{DynamicResource DefaultForegroundBrush}"/>
+                                        <TextBlock Text="{loc:Tr Hoshi_ArchivedBadge}" FontSize="9" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
+                                                   IsVisible="{Binding Archived}"/>
+                                        <TextBlock Text="{Binding SearchSnippet}" FontSize="10" TextWrapping="Wrap" MaxLines="2"
+                                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </Grid>
             </Grid>
         </Border>
 
-        <!-- ── Right side: chat area ─────────────────────────────────────── -->
+        <!-- ══ Chat area ══ -->
         <Grid Grid.Column="1" RowDefinitions="Auto,Auto,*,Auto">
-
-            <!-- Header -->
-            <Border Grid.Row="0"
-                    Background="{DynamicResource Container1BackgroundBrush}"
-                    BorderBrush="{DynamicResource Container1BorderBrush}"
-                    BorderThickness="0,0,0,1" Padding="16,12">
-                <Grid ColumnDefinitions="*,Auto">
-                    <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
-                        <TextBlock Text="✦" FontSize="20"/>
-                        <StackPanel Spacing="1">
-                            <TextBlock Name="SessionTitleLabel" Text="Hoshi 星" FontSize="16" FontWeight="SemiBold"/>
-                            <TextBlock Name="StatusLabel" Text="{Binding StatusText}" FontSize="11"
-                                       Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
-                        </StackPanel>
+            <!-- Header: title + status dot + model + overflow menu -->
+            <Border Grid.Row="0" Background="{DynamicResource Container1BackgroundBrush}"
+                    BorderBrush="{DynamicResource Container1BorderBrush}" BorderThickness="0,0,0,1" Padding="12,8">
+                <Grid ColumnDefinitions="Auto,*,Auto">
+                    <Ellipse Name="StatusDot" Width="8" Height="8" VerticalAlignment="Center" Margin="0,0,8,0"
+                             Fill="{DynamicResource SystemAccentColor}"/>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                        <TextBlock Name="SessionTitleLabel" Text="Hoshi 星" FontSize="15" FontWeight="SemiBold"/>
+                        <TextBlock Name="StatusLabel" Text="{Binding StatusText}" FontSize="11"
+                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding ActiveModelName}" FontSize="10"
+                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}" VerticalAlignment="Center"/>
                     </StackPanel>
-                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
-                        <Button Name="ToggleBtn" Content="{loc:Tr Hoshi_Enable}"  
-                                FontSize="11" Click="OnToggleClicked"/>
+                    <Button Grid.Column="2" Content="⋯" FontSize="14" Padding="6,0">
+                        <Button.Flyout>
+                            <MenuFlyout Placement="BottomEdgeAlignedRight">
+                                <MenuItem Name="ToggleBtn" Header="{loc:Tr Hoshi_Enable}" Click="OnToggleClicked"/>
+                                <MenuItem Header="{loc:Tr Hoshi_Rename}" Click="OnRenameSession" Tag="{Binding CurrentSession}"/>
+                            </MenuFlyout>
+                        </Button.Flyout>
+                    </Button>
+                </Grid>
+            </Border>
+
+            <!-- Image strip: 48px thumb + title/artist + small actions -->
+            <Border Grid.Row="1" Background="{DynamicResource Container2BackgroundBrush}"
+                    BorderBrush="{DynamicResource Container2BorderBrush}" BorderThickness="0,0,0,1"
+                    Padding="10,6">
+                <Grid ColumnDefinitions="48,*,Auto">
+                    <Border Grid.Column="0" Name="ImageThumbBorder" Width="48" Height="48" CornerRadius="6" ClipToBounds="True"
+                            Cursor="Hand" PointerPressed="OnImageThumbClicked"
+                            ToolTip.Tip="{loc:Tr Hoshi_ClickToViewLarger}">
+                        <Image Name="ImageThumb" Stretch="UniformToFill"/>
+                        <FlyoutBase.AttachedFlyout>
+                            <Flyout><Border Padding="4"><Image Name="ImageThumbLarge" MaxWidth="600" MaxHeight="600"/></Border></Flyout>
+                        </FlyoutBase.AttachedFlyout>
+                    </Border>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0" Spacing="2">
+                        <TextBlock Name="ImageLabel" Text="{loc:Tr Hoshi_NoImageAttached}" FontSize="12" FontWeight="SemiBold"/>
+                        <TextBlock Name="ImageHint" Text="{loc:Tr Hoshi_DropAnImageHerePasteWith}" FontSize="10"
+                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                        <Button Classes="hoshiIcon" Name="ViewArtworkBtn" Content="{loc:Tr Hoshi_ViewArtwork}"
+                                Click="OnViewArtworkClicked" IsVisible="False"
+                                ToolTip.Tip="{loc:Tr Hoshi_OpenThisArtworkInTheGallery}"/>
+                        <Button Classes="hoshiIcon" Name="OpenImageBtn" Content="{loc:Tr Hoshi_Open}"
+                                Click="OnOpenImageClicked"
+                                ToolTip.Tip="{loc:Tr Hoshi_AttachAnImageFromYourComputer}"/>
+                        <Button Classes="hoshiIcon" Content="{loc:Tr Hoshi_Paste}" Click="OnPasteImageClicked"
+                                ToolTip.Tip="{loc:Tr Hoshi_PasteImageFromClipboardCtrlV}"/>
+                        <Button Classes="hoshiIcon" Content="{loc:Tr Hoshi_URL}" Click="OnUrlImageClicked"
+                                ToolTip.Tip="{loc:Tr Hoshi_PasteAnImageUrl}"/>
+                        <Button Classes="hoshiIcon" Content="{loc:Tr Hoshi_ClearChat}" Click="OnClearClicked"
+                                ToolTip.Tip="{loc:Tr Hoshi_ClearsTheConversationOnlyTheAttached}"/>
                     </StackPanel>
                 </Grid>
             </Border>
 
-            <!-- Image preview strip (visible when an image is attached) -->
-            <Border Grid.Row="1" Name="ImageStrip" Padding="12,10"
-                    BorderBrush="{DynamicResource Container1BorderBrush}"
-                    BorderThickness="0,0,0,1"
-                    Background="{DynamicResource Container2BackgroundBrush}">
-                <DockPanel>
-                    <!-- Thumbnail — click to pop up a much larger preview since 100x100 is
-                         still too small to make out details in a full-screen chat window. -->
-                    <Border DockPanel.Dock="Left" Name="ImageThumbBorder" Width="100" Height="100" CornerRadius="6"
-                            ClipToBounds="True" Cursor="Hand"
-                            Background="{DynamicResource Container3BackgroundBrush}"
-                            PointerPressed="OnImageThumbClicked"
-                            ToolTip.Tip="{loc:Tr Hoshi_ClickToViewLarger}">
-                        <Image Name="ImageThumb" Stretch="UniformToFill"/>
-                        <FlyoutBase.AttachedFlyout>
-                            <Flyout Placement="RightEdgeAlignedTop" ShowMode="Transient">
-                                <Border Padding="6" MaxWidth="640" MaxHeight="640">
-                                    <Image Name="ImageThumbLarge" Stretch="Uniform" MaxWidth="620" MaxHeight="620"/>
-                                </Border>
-                            </Flyout>
-                        </FlyoutBase.AttachedFlyout>
-                    </Border>
-                    <!-- Info -->
-                    <StackPanel DockPanel.Dock="Left" Margin="12,0" VerticalAlignment="Center" Spacing="2">
-                        <TextBlock Name="ImageLabel" Text="{loc:Tr Hoshi_NoImageAttached}" FontSize="12" FontWeight="SemiBold"/>
-                        <TextBlock Name="ImageHint"
-                                   Text="{loc:Tr Hoshi_DropAnImageHerePasteWith}"
-                                   FontSize="10"
-                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
-                    </StackPanel>
-                    <!-- Buttons (last child fills remaining width and wraps) -->
-                    <WrapPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
-                        <WrapPanel.Styles>
-                            <Style Selector="Button">
-                                <Setter Property="Margin" Value="0,0,4,0"/>
-                            </Style>
-                        </WrapPanel.Styles>
-                        <Button Name="ViewArtworkBtn" Content="{loc:Tr Hoshi_ViewArtwork}"   FontSize="11"
-                                Click="OnViewArtworkClicked" IsVisible="False"
-                                ToolTip.Tip="{loc:Tr Hoshi_OpenThisArtworkInTheGallery}"/>
-                        <Button Name="OpenImageBtn" Content="{loc:Tr Hoshi_Open}"   FontSize="11"
-                                Click="OnOpenImageClicked"
-                                ToolTip.Tip="{loc:Tr Hoshi_AttachAnImageFromYourComputer}"/>
-                        <Button Content="{loc:Tr Hoshi_Paste}"   FontSize="11"
-                                Click="OnPasteImageClicked"
-                                ToolTip.Tip="{loc:Tr Hoshi_PasteImageFromClipboardCtrlV}"/>
-                        <Button Content="{loc:Tr Hoshi_URL}"   FontSize="11"
-                                Click="OnUrlImageClicked"/>
-                        <Button Content="{loc:Tr Hoshi_ClearChat}"   FontSize="11"
-                                Click="OnClearClicked"
-                                ToolTip.Tip="{loc:Tr Hoshi_ClearsTheConversationOnlyTheAttached}"/>
-                    </WrapPanel>
-                </DockPanel>
-            </Border>
-
-            <!-- Chat messages -->
-            <ScrollViewer Grid.Row="2" Name="ChatScroll"
-                          VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <!-- Messages -->
+            <ScrollViewer Grid.Row="2" Name="ChatScroll" VerticalScrollBarVisibility="Auto">
                 <StackPanel>
+                    <!-- empty-chat suggestions -->
+                    <StackPanel HorizontalAlignment="Center" Margin="0,40,0,0" Spacing="8"
+                                IsVisible="{Binding Messages.Count, Converter={x:Static svc:CountToBoolConverter.IsZero}}">
+                        <TextBlock Text="{loc:Tr Hoshi_ClickNewToStartThenDrop}" FontSize="12" TextAlignment="Center"
+                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}" TextWrapping="Wrap"/>
+                        <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+                            <Button Classes="hoshiChip" Content="{loc:Tr Hoshi_DescribeThis}" Click="OnSuggestionClicked" Tag="{loc:Tr Hoshi_Describe}"/>
+                            <Button Classes="hoshiChip" Content="{loc:Tr Hoshi_WhenWasItPosted}" Click="OnSuggestionClicked" Tag="{loc:Tr Hoshi_WhenWasItPosted}"/>
+                            <Button Classes="hoshiChip" Content="{loc:Tr Hoshi_FindSimilarArt}" Click="OnSuggestionClicked" Tag="{loc:Tr Hoshi_FindSimilarArt}"/>
+                        </StackPanel>
+                    </StackPanel>
                     <ItemsControl Name="MessagesList" Margin="12,8,12,12" ItemsSource="{Binding Messages}">
                         <ItemsControl.ItemTemplate>
-                            <DataTemplate x:DataType="vm:AiChatMessage">
+                            <DataTemplate x:DataType="vm:AiChatMessage" x:CompileBindings="True">
                                 <Grid ColumnDefinitions="Auto,*" Margin="0,4"
                                       HorizontalAlignment="{Binding BubbleAlignment}"
                                       IsVisible="{Binding Content, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
@@ -283,28 +329,18 @@
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
-                    <StackPanel HorizontalAlignment="Center" Margin="0,8"
-                                IsVisible="{Binding IsThinking}">
-                        <Border Background="{DynamicResource Container2BackgroundBrush}"
-                                CornerRadius="12" Padding="12,6"
-                                BorderBrush="{DynamicResource Container2BorderBrush}"
-                                BorderThickness="1">
+                    <StackPanel HorizontalAlignment="Center" Margin="0,8" IsVisible="{Binding IsThinking}">
+                        <Border Background="{DynamicResource Container2BackgroundBrush}" CornerRadius="12" Padding="12,6"
+                                BorderBrush="{DynamicResource Container2BorderBrush}" BorderThickness="1">
                             <StackPanel Orientation="Horizontal" Spacing="6">
-                                <TextBlock Text="&#10022;" FontSize="10" VerticalAlignment="Center"
-                                           Foreground="#FFD6BAFF">
+                                <TextBlock Text="&#10022;" FontSize="10" VerticalAlignment="Center" Foreground="#FFD6BAFF">
                                     <TextBlock.Styles>
                                         <Style Selector="TextBlock">
                                             <Style.Animations>
                                                 <Animation Duration="0:0:1.2" IterationCount="INFINITE">
-                                                    <KeyFrame Cue="0%">
-                                                        <Setter Property="Opacity" Value="1"/>
-                                                    </KeyFrame>
-                                                    <KeyFrame Cue="50%">
-                                                        <Setter Property="Opacity" Value="0.3"/>
-                                                    </KeyFrame>
-                                                    <KeyFrame Cue="100%">
-                                                        <Setter Property="Opacity" Value="1"/>
-                                                    </KeyFrame>
+                                                    <KeyFrame Cue="0%"><Setter Property="Opacity" Value="1"/></KeyFrame>
+                                                    <KeyFrame Cue="50%"><Setter Property="Opacity" Value="0.3"/></KeyFrame>
+                                                    <KeyFrame Cue="100%"><Setter Property="Opacity" Value="1"/></KeyFrame>
                                                 </Animation>
                                             </Style.Animations>
                                         </Style>
@@ -313,30 +349,25 @@
                                 <TextBlock Text="{loc:Tr Hoshi_HoshiIsThinking}" FontSize="11"
                                            Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                            FontStyle="Italic" VerticalAlignment="Center"/>
+                                <Button Content="{loc:Tr Hoshi_Stop}" FontSize="10" Padding="6,1"
+                                        CornerRadius="4" IsVisible="{Binding IsGenerating}"
+                                        Command="{Binding StopCommand}"/>
                             </StackPanel>
                         </Border>
                     </StackPanel>
                 </StackPanel>
             </ScrollViewer>
 
-            <!-- Quick actions + input -->
-            <Border Grid.Row="3"
-                    Background="{DynamicResource Container1BackgroundBrush}"
-                    BorderBrush="{DynamicResource Container1BorderBrush}"
-                    BorderThickness="0,1,0,0" Padding="10,8">
+            <!-- Quick chips + input -->
+            <Border Grid.Row="3" Background="{DynamicResource Container1BackgroundBrush}"
+                    BorderBrush="{DynamicResource Container1BorderBrush}" BorderThickness="0,1,0,0" Padding="10,8">
                 <StackPanel Spacing="8">
-                    <WrapPanel Orientation="Horizontal">
-                        <!-- Single-page submissions get a plain button; the "all pages" dropdown
-                             only appears once a multi-page submission is actually detected. -->
-                        <Button Content="{loc:Tr Hoshi_Describe}"   FontSize="10"
-                                Margin="0,0,4,4" Name="DescribeBtn" Click="OnDescribeClicked"
-                                IsVisible="{Binding !IsCurrentSubmissionMultiPage}"
-                                IsEnabled="{Binding !IsThinking}"
+                    <WrapPanel Orientation="Horizontal" ItemSpacing="4">
+                        <Button Classes="hoshiChip" Content="{loc:Tr Hoshi_Describe}" Name="DescribeBtn" Click="OnDescribeClicked"
+                                IsVisible="{Binding !IsCurrentSubmissionMultiPage}" IsEnabled="{Binding !IsThinking}"
                                 ToolTip.Tip="{loc:Tr Hoshi_DescribeTheImageItsStyleAnd}"/>
-                        <SplitButton Content="{loc:Tr Hoshi_Describe}" CornerRadius="4" Padding="8,4" FontSize="10"
-                                Margin="0,0,4,4" Name="DescribeSplitBtn" Click="OnDescribeClicked"
-                                IsVisible="{Binding IsCurrentSubmissionMultiPage}"
-                                IsEnabled="{Binding !IsThinking}"
+                        <SplitButton Classes="hoshiChip" Content="{loc:Tr Hoshi_Describe}" Name="DescribeSplitBtn" Click="OnDescribeClicked"
+                                IsVisible="{Binding IsCurrentSubmissionMultiPage}" IsEnabled="{Binding !IsThinking}"
                                 ToolTip.Tip="{loc:Tr Hoshi_DescribeTheImageItsStyleAnd_2}">
                             <SplitButton.Flyout>
                                 <MenuFlyout Placement="BottomEdgeAlignedLeft">
@@ -346,47 +377,38 @@
                                 </MenuFlyout>
                             </SplitButton.Flyout>
                         </SplitButton>
-                        <Button Content="{loc:Tr Hoshi_Tags}"   FontSize="10"
-                                Margin="0,0,4,4" Name="TagsBtn" Click="OnTagsClicked"
+                        <Button Classes="hoshiChip" Content="{loc:Tr Hoshi_Tags}" Name="TagsBtn" Click="OnTagsClicked"
                                 IsEnabled="{Binding !IsThinking}"/>
-                        <Button Content="{loc:Tr Hoshi_SimilarArt}"   FontSize="10"
-                                Margin="0,0,4,4" Name="SimilarArtBtn" Click="OnSimilarArtworksClicked"
+                        <Button Classes="hoshiChip" Content="{loc:Tr Hoshi_SimilarArt}" Name="SimilarArtBtn" Click="OnSimilarArtworksClicked"
                                 IsEnabled="{Binding !IsThinking}"
                                 ToolTip.Tip="{loc:Tr Hoshi_RecommendArtworksSimilarToThisImage}"/>
-                        <Button Content="{loc:Tr Hoshi_SimilarArtists}"   FontSize="10"
-                                Margin="0,0,4,4" Name="SimilarArtistsBtn" Click="OnSimilarArtistsClicked"
+                        <Button Classes="hoshiChip" Content="{loc:Tr Hoshi_SimilarArtists}" Name="SimilarArtistsBtn" Click="OnSimilarArtistsClicked"
                                 IsEnabled="{Binding !IsThinking}"
                                 ToolTip.Tip="{loc:Tr Hoshi_RecommendArtistsWithASimilarStyle}"/>
-                        <Button Content="{loc:Tr Hoshi_Fav}"   FontSize="10"
-                                Margin="0,0,4,4" Name="FavBtn" Click="OnFavClicked"/>
-                        <Button Content="{loc:Tr Hoshi_DL}"   FontSize="10"
-                                Margin="0,0,0,4" Name="DlBtn" Click="OnDlClicked"/>
+                        <Button Classes="hoshiChip" Content="{loc:Tr Hoshi_Fav}" Name="FavBtn" Click="OnFavClicked"/>
+                        <Button Classes="hoshiChip" Content="{loc:Tr Hoshi_DL}" Name="DlBtn" Click="OnDlClicked"/>
                     </WrapPanel>
                     <Grid ColumnDefinitions="*,Auto">
                         <TextBox Grid.Column="0" Name="InputBox"
                                  PlaceholderText="{loc:Tr Hoshi_AskHoshiAnythingDropAnImage}"
-                                 FontSize="12" CornerRadius="6,0,0,6"
+                                 FontSize="12" CornerRadius="12" Padding="10,6"
                                  KeyDown="OnInputKeyDown"/>
-                        <Button Grid.Column="1" Name="SendBtn"
-                                CornerRadius="0,6,6,0" Padding="14,0" FontSize="12"
-                                Click="OnSendClicked" IsEnabled="{Binding !IsThinking}">
+                        <Button Grid.Column="1" Name="HoshiStopBtn" Content="&#9632;" CornerRadius="12" Padding="12,6"
+                                Margin="6,0,0,0" Command="{Binding StopCommand}" ToolTip.Tip="{loc:Tr Hoshi_Stop}"
+                                IsVisible="{Binding IsGenerating}"/>
+                        <Button Grid.Column="1" Name="SendBtn" CornerRadius="12" Padding="12,6" Margin="6,0,0,0"
+                                Click="OnSendClicked" IsEnabled="{Binding !IsThinking}"
+                                IsVisible="{Binding !IsGenerating}">
                             <Button.Content>
-                                <StackPanel Orientation="Horizontal" Spacing="6">
-                                    <TextBlock Text="&#10022;" FontSize="11" VerticalAlignment="Center"
-                                               IsVisible="{Binding IsThinking}">
+                                <StackPanel Orientation="Horizontal" Spacing="4">
+                                    <TextBlock Text="&#10022;" FontSize="11" VerticalAlignment="Center" IsVisible="{Binding IsThinking}">
                                         <TextBlock.Styles>
                                             <Style Selector="TextBlock">
                                                 <Style.Animations>
                                                     <Animation Duration="0:0:1.2" IterationCount="INFINITE">
-                                                        <KeyFrame Cue="0%">
-                                                            <Setter Property="Opacity" Value="1"/>
-                                                        </KeyFrame>
-                                                        <KeyFrame Cue="50%">
-                                                            <Setter Property="Opacity" Value="0.3"/>
-                                                        </KeyFrame>
-                                                        <KeyFrame Cue="100%">
-                                                            <Setter Property="Opacity" Value="1"/>
-                                                        </KeyFrame>
+                                                        <KeyFrame Cue="0%"><Setter Property="Opacity" Value="1"/></KeyFrame>
+                                                        <KeyFrame Cue="50%"><Setter Property="Opacity" Value="0.3"/></KeyFrame>
+                                                        <KeyFrame Cue="100%"><Setter Property="Opacity" Value="1"/></KeyFrame>
                                                     </Animation>
                                                 </Style.Animations>
                                             </Style>

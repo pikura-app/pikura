@@ -1023,6 +1023,10 @@
                               HorizontalScrollBarVisibility="Disabled"
                               VerticalScrollBarVisibility="Auto">
                   <StackPanel>
+                    <Button Name="AiStartChatBtn" IsVisible="False" HorizontalAlignment="Center"
+                            Content="{loc:Tr Hoshi_StartArtworkChat}" Margin="0,10" Padding="12,5"
+                            CornerRadius="12" FontSize="11" Click="OnAiStartChat"
+                            Grid.Row="0"/>
                     <ItemsControl Name="AiMessagesList" Margin="8,6,8,8">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
@@ -1039,9 +1043,13 @@
                                             Padding="10,7" Margin="50,0,0,0"
                                             HorizontalAlignment="Right"
                                             MaxWidth="340">
-                                        <ctrl:LinkTextBlock LinkText="{Binding Content}" FontSize="12"
-                                                   TextWrapping="Wrap"
-                                                   Foreground="{DynamicResource DefaultForegroundBrush}"/>
+                                        <StackPanel Spacing="6">
+                                            <Image Source="{Binding ImageSource}" MaxWidth="220" Stretch="Uniform"
+                                                   IsVisible="{Binding HasVisibleImage}"/>
+                                            <ctrl:LinkTextBlock LinkText="{Binding Content}" FontSize="12"
+                                                       TextWrapping="Wrap"
+                                                       Foreground="{DynamicResource DefaultForegroundBrush}"/>
+                                        </StackPanel>
                                     </Border>
                                     <!-- Assistant bubble -->
                                     <Border IsVisible="{Binding IsAssistant}"
@@ -1051,6 +1059,8 @@
                                             HorizontalAlignment="Left"
                                             MaxWidth="380">
                                         <StackPanel Spacing="6">
+                                            <Image Source="{Binding ImageSource}" MaxWidth="220" Stretch="Uniform"
+                                                   IsVisible="{Binding HasVisibleImage}"/>
                                             <ctrl:LinkTextBlock LinkText="{Binding Content}" FontSize="12"
                                                        TextWrapping="Wrap"
                                                        Foreground="{DynamicResource DefaultForegroundBrush}"/>
@@ -1118,6 +1128,8 @@
                                 <TextBlock Text="{loc:Tr Hoshi_HoshiIsThinking}" FontSize="12"
                                            Foreground="{DynamicResource DefaultForegroundBrushSecondary}"
                                            FontStyle="Italic" VerticalAlignment="Center"/>
+                                <Button Content="{loc:Tr Hoshi_Stop}" FontSize="10" Padding="6,1"
+                                        CornerRadius="4" Click="OnAiStopClicked"/>
                             </StackPanel>
                         </Border>
                     </StackPanel>
