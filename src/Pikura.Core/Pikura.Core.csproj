@@ -19,7 +19,20 @@
     <PackageReference Include="SkiaSharp.NativeAssets.Win32" />
     <PackageReference Include="SkiaSharp.NativeAssets.macOS" />
     <PackageReference Include="SkiaSharp.NativeAssets.Linux" />
-    <PackageReference Include="Microsoft.ML.OnnxRuntime" />
+    <PackageReference Include="Microsoft.ML.OnnxRuntime.DirectML"
+        Condition="$(RuntimeIdentifier.StartsWith('win')) OR ('$(RuntimeIdentifier)' == '' AND '$(OS)' == 'Windows_NT')" />
+    <PackageReference Include="Microsoft.ML.OnnxRuntime"
+        Condition="!($(RuntimeIdentifier.StartsWith('win')) OR ('$(RuntimeIdentifier)' == '' AND '$(OS)' == 'Windows_NT'))" />
+    <!-- Direct reference only to get $(PkgMicrosoft_AI_DirectML): the package's own targets copy
+         DirectML.dll only for PlatformTarget=x64, so AnyCPU builds would fall back to the old
+         system DirectML. -->
+    <PackageReference Include="Microsoft.AI.DirectML" GeneratePathProperty="true"
+        Condition="$(RuntimeIdentifier.StartsWith('win')) OR ('$(RuntimeIdentifier)' == '' AND '$(OS)' == 'Windows_NT')" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(PkgMicrosoft_AI_DirectML)' != ''">
+    <None Include="$(PkgMicrosoft_AI_DirectML)\bin\x64-win\DirectML.dll" Link="DirectML.dll"
+          CopyToOutputDirectory="PreserveNewest" Visible="false" />
   </ItemGroup>
 
   <ItemGroup>

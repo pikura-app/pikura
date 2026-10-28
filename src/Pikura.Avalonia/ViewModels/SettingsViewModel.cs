@@ -868,7 +868,7 @@ public partial class SettingsViewModel : ViewModelBase
         catch (Exception ex)
         {
             await global::Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
-                UpdateStatusMessage = $"Check failed: {ex.Message}");
+                UpdateStatusMessage = string.Format(LocalizationService.Instance["Settings_Status_CheckFailed"], ex.Message));
         }
         finally
         {
@@ -1292,7 +1292,7 @@ public partial class SettingsViewModel : ViewModelBase
         IsMigrating = true;
         try
         {
-            var prog = new Progress<int>(p => UpdateStatusMessage = $"Downloading new updater... {p}%");
+            var prog = new Progress<int>(p => UpdateStatusMessage = string.Format(LocalizationService.Instance["Update_Status_DlUpdater"], p));
             await _velopackMigration.MigrateAsync(prog);
         }
         catch (Exception ex)
@@ -1585,7 +1585,7 @@ public partial class SettingsViewModel : ViewModelBase
         }
         catch (Exception ex)
         {
-            FfmpegStatusText = $"Install failed: {ex.Message}";
+            FfmpegStatusText = string.Format(LocalizationService.Instance["Update_Status_InstallFailed"], ex.Message);
             IsFfmpegInstalled = _ffmpegService.IsAvailable();
         }
     }
@@ -1800,9 +1800,84 @@ public partial class SettingsViewModel : ViewModelBase
             if (_hoshiTextModel == value) return;
             _hoshiTextModel = value;
             OnPropertyChanged();
+            OnPropertyChanged(nameof(ShowThinkingModelWarning));
             UseCustomHoshiModels = true;
             _settingsService.Update(s => s.HoshiTextModel = value);
         }
+    }
+
+    /// <summary>True when either selected Hoshi model is a "thinking" variant — shows the
+    /// slow-without-GPU warning under the pickers.</summary>
+    public bool ShowThinkingModelWarning =>
+        (HoshiTextModel?.Contains("thinking", StringComparison.OrdinalIgnoreCase) == true) ||
+        (HoshiVisionModel?.Contains("thinking", StringComparison.OrdinalIgnoreCase) == true);
+
+    private static readonly string[] AccelerationModes = ["Auto", "Gpu", "Cpu"];
+
+    /// <summary>ONNX (tagger / image search) acceleration: 0 Auto, 1 GPU, 2 CPU.</summary>
+    public int AiAccelerationIndex
+    {
+        get => Math.Max(0, Array.IndexOf(AccelerationModes, _settingsService.Current.AiAcceleration));
+        set
+        {
+            if (value < 0 || value >= AccelerationModes.Length || value == AiAccelerationIndex) return;
+            _settingsService.Update(s => s.AiAcceleration = AccelerationModes[value]);
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(TaggerProviderText));
+        }
+    }
+
+    /// <summary>Which execution provider the tagger actually loaded ("—" before first use).</summary>
+    public string TaggerProviderText => string.Format(
+        Pikura.Avalonia.Localization.LocalizationService.Instance["Settings_TaggerProvider"],
+        string.IsNullOrEmpty(_animeTagger.ProviderName) ? "—" : _animeTagger.ProviderName);
+
+    [ObservableProperty] private string _ollamaGpuStatus = "—";
+    private bool _applyingIgpu;
+
+    /// <summary>Let Ollama use the integrated GPU. Applying restarts Ollama (confirmed first).</summary>
+    public bool HoshiOllamaIgpu
+    {
+        get => _settingsService.Current.HoshiOllamaIgpu;
+        set
+        {
+            if (_applyingIgpu || value == _settingsService.Current.HoshiOllamaIgpu) return;
+            _ = ApplyOllamaIgpuAsync(value);
+        }
+    }
+
+    private async Task ApplyOllamaIgpuAsync(bool enable)
+    {
+        _applyingIgpu = true;
+        try
+        {
+            var L = Pikura.Avalonia.Localization.LocalizationService.Instance;
+            if (!await _dialogService.ShowConfirmationAsync(L["Hoshi_OllamaIgpu"], L["Hoshi_RestartOllamaConfirm"]))
+                return;
+            _settingsService.Update(s => s.HoshiOllamaIgpu = enable);
+            if (OperatingSystem.IsWindows())
+                Environment.SetEnvironmentVariable("OLLAMA_IGPU_ENABLE", enable ? "1" : null, EnvironmentVariableTarget.User);
+            OllamaGpuStatus = L["Hoshi_RestartingOllama"];
+            await _ollama.RestartOllamaAsync();
+            await RefreshOllamaGpuStatusAsync();
+        }
+        catch (Exception ex)
+        {
+            OllamaGpuStatus = ex.Message;
+        }
+        finally
+        {
+            _applyingIgpu = false;
+            OnPropertyChanged(nameof(HoshiOllamaIgpu));
+        }
+    }
+
+    [RelayCommand]
+    private async Task RefreshOllamaGpuStatusAsync()
+    {
+        var status = await _ollama.GetGpuStatusAsync();
+        OllamaGpuStatus = string.Format(Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_OllamaGpuStatus"], status);
+        OnPropertyChanged(nameof(TaggerProviderText));
     }
 
     /// <summary>Custom vision model name. See <see cref="HoshiTextModel"/> for why blanks are ignored.</summary>
@@ -1815,6 +1890,7 @@ public partial class SettingsViewModel : ViewModelBase
             if (_hoshiVisionModel == value) return;
             _hoshiVisionModel = value;
             OnPropertyChanged();
+            OnPropertyChanged(nameof(ShowThinkingModelWarning));
             UseCustomHoshiModels = true;
             _settingsService.Update(s => s.HoshiVisionModel = value);
         }
@@ -2008,16 +2084,17 @@ public partial class SettingsViewModel : ViewModelBase
     }
     public static IReadOnlyList<RecommendedModel> HoshiRecommendedModels { get; } =
     [
-        new("qwen3-vl:4b", "Hoshi_RecoQwen4b"),
-        new("qwen3-vl:8b", "Hoshi_RecoQwen8b"),
-        new("qwen3-vl:2b", "Hoshi_RecoQwen2b"),
+        new("qwen3-vl:4b-instruct", "Hoshi_RecoQwen4b"),
+        new("qwen3-vl:2b-instruct", "Hoshi_RecoQwen2b"),
+        new("qwen3-vl:8b-instruct", "Hoshi_RecoQwen8b"),
     ];
 
     /// <summary>True when a recommended model is already installed locally.</summary>
     public bool IsRecommendedInstalled(string name)
         => InstalledModels.Any(m => m.IsOllama &&
             (m.Name.Equals(name, StringComparison.OrdinalIgnoreCase)
-             || m.Name.StartsWith(name.Split(':')[0] + ":", StringComparison.OrdinalIgnoreCase)));
+             || m.Name.Equals(name.Split(':')[0] + ":latest", StringComparison.OrdinalIgnoreCase)
+             || (m.Name + ":latest").Equals(name, StringComparison.OrdinalIgnoreCase)));
 
     /// <summary>"Use" (installed) or "Download &amp; use" (missing) a recommended model.</summary>
     [RelayCommand]

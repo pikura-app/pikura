@@ -30,9 +30,16 @@ public sealed class AnimeTaggerService : IDisposable
     private TaggerModelInfo? _loadedModel;
     private bool _disposed;
 
-    public AnimeTaggerService(ILogger<AnimeTaggerService> logger, HttpClient? http = null)
+    private readonly Func<string>? _accelSource;
+    private string? _loadedAccel;
+    /// <summary>Provider the current session runs on ("DirectML GPU" / "CPU").</summary>
+    public string ProviderName => Pikura.Core.Services.AI.OnnxSessionFactory.LastProvider;
+
+    public AnimeTaggerService(ILogger<AnimeTaggerService> logger, HttpClient? http = null,
+        Func<string>? accelerationSource = null)
     {
         _logger = logger;
+        _accelSource = accelerationSource;
         _http = http ?? new HttpClient
         {
             Timeout = TimeSpan.FromMinutes(20)
@@ -99,7 +106,9 @@ public sealed class AnimeTaggerService : IDisposable
         try
         {
             if (_disposed) throw new ObjectDisposedException(nameof(AnimeTaggerService));
-            if (_loadedModel?.Key == model.Key && _session != null) return;
+            var accel = _accelSource?.Invoke() ?? "Auto";
+            if (_loadedModel?.Key == model.Key && _loadedAccel == accel && _session != null) return;
+            _loadedAccel = accel;
 
             var dir = GetModelDirectory(model);
             var modelPath = Path.Combine(dir, model.ModelFileName);
@@ -109,7 +118,7 @@ public sealed class AnimeTaggerService : IDisposable
             if (!File.Exists(tagsPath)) throw new FileNotFoundException($"Tags not installed: {tagsPath}");
 
             _session?.Dispose();
-            _session = new InferenceSession(modelPath);
+            _session = Pikura.Core.Services.AI.OnnxSessionFactory.Create(modelPath, accel, _logger);
             _tags = LoadTags(tagsPath, model);
             _loadedModel = model;
 
