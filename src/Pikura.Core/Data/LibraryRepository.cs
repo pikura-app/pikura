@@ -76,6 +76,10 @@ public sealed class LibraryQuery
     public LibraryOrientation Orientation { get; set; } = LibraryOrientation.Any;
     /// <summary>All must match (space-separated token inside tags column).</summary>
     public List<string> PixivTags { get; set; } = [];
+    /// <summary>Filter to files tagged with this exact character name.</summary>
+    public string? CharacterTag { get; set; }
+    /// <summary>Filter to files tagged with this exact series (copyright) name.</summary>
+    public string? SeriesTag { get; set; }
     /// <summary>All must match against library_ai_tags.</summary>
     public List<string> AiTags { get; set; } = [];
     public string? MediaType { get; set; }
@@ -659,6 +663,18 @@ public sealed class LibraryRepository : IDisposable
             prms.Add(new($"@p{i}", t));
             i++;
         }
+        if (!string.IsNullOrEmpty(q.CharacterTag))
+        {
+            clauses.Add($"EXISTS (SELECT 1 FROM library_ai_tags lc WHERE lc.file_id=library_files.id AND lc.tag=@p{i} AND lc.category='character')");
+            prms.Add(new($"@p{i}", q.CharacterTag));
+            i++;
+        }
+        if (!string.IsNullOrEmpty(q.SeriesTag))
+        {
+            clauses.Add($"EXISTS (SELECT 1 FROM library_ai_tags ls WHERE ls.file_id=library_files.id AND ls.tag=@p{i} AND ls.category='copyright')");
+            prms.Add(new($"@p{i}", q.SeriesTag));
+            i++;
+        }
 
         if (!string.IsNullOrWhiteSpace(q.Text))
         {
@@ -691,6 +707,22 @@ public sealed class LibraryRepository : IDisposable
 
     private static string EscapeLike(string s) =>
         s.Replace("\\", "\\\\").Replace("%", "\\%").Replace("_", "\\_");
+
+    /// <summary>Top-N AI tags in a category ("character"/"copyright"/"general") by file count.</summary>
+    public async Task<List<(string Tag, int Count)>> GetTopTagsByCategoryAsync(string category, int limit = 200, CancellationToken ct = default)
+    {
+        var list = new List<(string, int)>();
+        using var c = CreateConnection();
+        await c.OpenAsync(ct);
+        using var cmd = new SqliteCommand(
+            "SELECT tag, COUNT(*) FROM library_ai_tags WHERE category=@c " +
+            "GROUP BY tag ORDER BY COUNT(*) DESC LIMIT @l", c);
+        cmd.Parameters.AddWithValue("@c", category);
+        cmd.Parameters.AddWithValue("@l", limit);
+        await using var r = await cmd.ExecuteReaderAsync(ct);
+        while (await r.ReadAsync(ct)) list.Add((r.GetString(0), (int)r.GetInt64(1)));
+        return list;
+    }
 
     /// <summary>Runs a query; returns (page of items, total count).</summary>
     public async Task<(IReadOnlyList<LibraryFile> Items, long Total)> SearchAsync(LibraryQuery q, CancellationToken ct = default)

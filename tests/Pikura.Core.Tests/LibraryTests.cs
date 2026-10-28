@@ -67,6 +67,33 @@ public class LibraryRepositoryTests : IClassFixture<LibraryFixture>
     }
 
     [Fact]
+    public async Task Tag_Facets_Count_By_Category_And_Filter()
+    {
+        using var fx = new LibraryFixture(); // own DB: counts must not see other tests' rows
+        static LibraryAiTag T(string tag, string cat) => new() { Tag = tag, Category = cat, Score = .9 };
+        var a = await fx.Repo.UpsertFileAsync(F(@"C:\f\a.jpg"));
+        var b = await fx.Repo.UpsertFileAsync(F(@"C:\f\b.jpg"));
+        var c = await fx.Repo.UpsertFileAsync(F(@"C:\f\c.jpg"));
+        await fx.Repo.SetAiTagsAsync(a, [T("hatsune_miku", "character"), T("vocaloid", "copyright")]);
+        await fx.Repo.SetAiTagsAsync(b, [T("hatsune_miku", "character"), T("vocaloid", "copyright")]);
+        await fx.Repo.SetAiTagsAsync(c, [T("kagamine_rin", "character"), T("vocaloid", "general")]);
+
+        var chars = await fx.Repo.GetTopTagsByCategoryAsync("character");
+        Assert.Equal([("hatsune_miku", 2), ("kagamine_rin", 1)], chars);
+        var series = await fx.Repo.GetTopTagsByCategoryAsync("copyright");
+        Assert.Equal([("vocaloid", 2)], series); // c's "vocaloid" is general, not copyright
+        Assert.Single(await fx.Repo.GetTopTagsByCategoryAsync("character", limit: 1));
+
+        var (items, total) = await fx.Repo.SearchAsync(new LibraryQuery { CharacterTag = "hatsune_miku" });
+        Assert.Equal(2, total);
+        Assert.DoesNotContain(items, i => i.Path == @"C:\f\c.jpg");
+        (_, total) = await fx.Repo.SearchAsync(new LibraryQuery { SeriesTag = "vocaloid" });
+        Assert.Equal(2, total);
+        (items, total) = await fx.Repo.SearchAsync(new LibraryQuery { CharacterTag = "kagamine_rin", SeriesTag = "vocaloid" });
+        Assert.Equal(0, total); // category-exact: c has vocaloid only as a general tag
+    }
+
+    [Fact]
     public async Task Cjk_Search_Trigram_Or_Like()
     {
         await _fx.Repo.UpsertFileAsync(F(@"C:\lib\c1.jpg", "桜の花びら", "春 桜"));

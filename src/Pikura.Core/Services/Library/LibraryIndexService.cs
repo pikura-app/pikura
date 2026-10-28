@@ -289,6 +289,7 @@ public sealed class LibraryIndexService : IDisposable
             progress?.Report(new LibraryScanProgress(done, candidates.Count, null, "cleanup"));
             await _repo.DeleteRowsNotInAsync(root, seen, ct);
         }
+        ScanCompleted?.Invoke(this, EventArgs.Empty);
     }
 
     private async Task FlushBatch(List<(LibraryFile File, List<LibraryAiTag>? Tags)> batch, CancellationToken ct)
@@ -442,8 +443,15 @@ public sealed class LibraryIndexService : IDisposable
         return _tagger?.EnsureModelInstalledAsync(model, progress, ct) ?? Task.FromResult(false);
     }
 
-    /// <summary>Tags every untagged image in the index. Cancellable.</summary>
-    public async Task TagUntaggedAsync(IProgress<LibraryScanProgress>? progress, CancellationToken ct)
+    /// <summary>Raised after a library scan finishes (not when it is cancelled).</summary>
+    public event EventHandler? ScanCompleted;
+
+    /// <summary>Tags every untagged image in the index. Cancellable.
+    /// <paramref name="beforeEach"/> runs before every image (background pass: waits while paused);
+    /// <paramref name="writeSidecars"/> = false keeps background passes from writing .tags.txt files
+    /// into the user's folders.</summary>
+    public async Task TagUntaggedAsync(IProgress<LibraryScanProgress>? progress, CancellationToken ct,
+        Func<CancellationToken, Task>? beforeEach = null, bool writeSidecars = true)
     {
         if (_tagger == null) return;
         if (!IsTaggerModelInstalled(out var model)) return;
@@ -453,6 +461,7 @@ public sealed class LibraryIndexService : IDisposable
         foreach (var f in rows)
         {
             ct.ThrowIfCancellationRequested();
+            if (beforeEach != null) await beforeEach(ct);
             done++;
             progress?.Report(new LibraryScanProgress(done, total, f.Path, "enrich"));
             try
@@ -463,7 +472,7 @@ public sealed class LibraryIndexService : IDisposable
                     s.HoshiAnimeTaggerThreshold, s.HoshiAnimeTaggerMaxTags, ct);
                 await _repo.SetAiTagsAsync(f.Id, ToLibraryTags(result), ct);
                 var sidecar = f.Path + ".tags.txt";
-                if (!File.Exists(sidecar))
+                if (writeSidecars && !File.Exists(sidecar))
                     await File.WriteAllTextAsync(sidecar,
                         $"Tags for {Path.GetFileName(f.Path)}\n\nGeneral: {string.Join(", ", result.General.Select(t => t.Name))}\n", ct);
             }

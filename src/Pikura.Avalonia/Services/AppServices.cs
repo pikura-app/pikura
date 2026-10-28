@@ -161,7 +161,8 @@ public static class AppServices
 
                 // Local ONNX anime image tagger
                 services.AddSingleton<AnimeTaggerService>(provider =>
-                    new AnimeTaggerService(provider.GetRequiredService<ILogger<AnimeTaggerService>>()));
+                    new AnimeTaggerService(provider.GetRequiredService<ILogger<AnimeTaggerService>>(),
+                        accelerationSource: () => provider.GetRequiredService<SettingsService>().Current.AiAcceleration));
                 services.AddSingleton<Pikura.Avalonia.ViewModels.AiViewModel>(provider =>
                     new Pikura.Avalonia.ViewModels.AiViewModel(
                         provider.GetRequiredService<OllamaService>(),
@@ -176,6 +177,14 @@ public static class AppServices
                         provider.GetRequiredService<ImageLookupService>(),
                         provider.GetRequiredService<AnimeTaggerService>(),
                         provider.GetRequiredService<DialogService>()));
+
+                // Background library auto-tagger (lazy AiViewModel lookup: it pauses while Hoshi answers)
+                services.AddSingleton<LibraryAutoTagService>(provider =>
+                    new LibraryAutoTagService(
+                        provider.GetRequiredService<Pikura.Core.Services.Library.LibraryIndexService>(),
+                        provider.GetRequiredService<SettingsService>(),
+                        () => provider.GetRequiredService<Pikura.Avalonia.ViewModels.AiViewModel>().IsGenerating,
+                        provider.GetRequiredService<ILogger<LibraryAutoTagService>>()));
 
                 // Library section viewmodel
                 services.AddTransient<Pikura.Avalonia.ViewModels.LibraryViewModel>(provider =>

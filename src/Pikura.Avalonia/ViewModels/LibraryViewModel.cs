@@ -116,7 +116,29 @@ public partial class LibraryViewModel : ObservableObject
     public ObservableCollection<string> YearOptions { get; } = [""]; // index 0 = "Any year" (label set in RefreshFolders)
     public bool HasActiveFilters =>
         !string.IsNullOrWhiteSpace(SearchText) || !string.IsNullOrWhiteSpace(ArtistFilter)
-        || YearIndex > 0 || DateFrom != null || DateTo != null || OrientationIndex > 0;
+        || YearIndex > 0 || DateFrom != null || DateTo != null || OrientationIndex > 0
+        || CharacterIndex > 0 || SeriesIndex > 0;
+    // ── AI tag facets (character / series from the anime tagger) ──
+    [ObservableProperty] private int _characterIndex;
+    [ObservableProperty] private int _seriesIndex;
+    public ObservableCollection<string> CharacterOptions { get; } = [""];
+    public ObservableCollection<string> SeriesOptions { get; } = [""];
+    private List<string> _characterTags = [];
+    private List<string> _seriesTags = [];
+    private bool _updatingFacets;
+    public bool HasCharacterOptions => _characterTags.Count > 0;
+    public bool HasSeriesOptions => _seriesTags.Count > 0;
+    // ── Background auto-tagging ──
+    public LibraryAutoTagService AutoTag { get; }
+    public string AutoTagText => string.Format(LocalizationService.Instance["Library_TaggingProgress"],
+        AutoTag.Done.ToString("N0"), AutoTag.Total.ToString("N0"));
+    public string AutoTagPauseText => LocalizationService.Instance[AutoTag.IsPaused ? "Library_ResumeTagging" : "Library_PauseTagging"];
+    public bool LibraryAutoTag
+    {
+        get => _settings.Current.LibraryAutoTag;
+        set { if (value != _settings.Current.LibraryAutoTag) { _settings.Update(s => s.LibraryAutoTag = value); OnPropertyChanged(); } }
+    }
+    [RelayCommand] private void ToggleAutoTagPause() => AutoTag.TogglePause();
     // ── Multi-select + details panel ──
     public System.Collections.Generic.List<LibraryItemViewModel> SelectedItems =>
         Items.Where(i => i.IsSelected).ToList();
@@ -233,8 +255,18 @@ public partial class LibraryViewModel : ObservableObject
         _showTags = settings.Current.ShowTags;
         _includeR18 = settings.Current.R18Mode == Pikura.Core.Settings.R18Mode.Show;
         _dupThreshold = settings.Current.LibraryDuplicateThreshold;
+        AutoTag = Services.AppServices.Get<LibraryAutoTagService>();
+        AutoTag.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName is nameof(LibraryAutoTagService.Done) or nameof(LibraryAutoTagService.Total))
+                OnPropertyChanged(nameof(AutoTagText));
+            else if (e.PropertyName == nameof(LibraryAutoTagService.IsPaused))
+                OnPropertyChanged(nameof(AutoTagPauseText));
+        };
+        AutoTag.RunCompleted += async (_, _) => { await LoadTagFacetsAsync(); await LoadChipsAsync(); };
         _ = RefreshAsync();
         _ = LoadChipsAsync();
+        _ = LoadTagFacetsAsync();
         // Follow Settings → "Blur R-18 content" live (Changed fires on every write, so compare first).
         _lastBlur = settings.Current.BlurR18Content;
         settings.Changed += (_, _) =>
@@ -355,6 +387,8 @@ public partial class LibraryViewModel : ObservableObject
         DateFrom = DateFrom.HasValue ? DateOnly.FromDateTime(DateFrom.Value.Date) : null,
         DateTo = DateTo.HasValue ? DateOnly.FromDateTime(DateTo.Value.Date) : null,
         Orientation = (LibraryOrientation)OrientationIndex,
+        CharacterTag = CharacterIndex > 0 && CharacterIndex <= _characterTags.Count ? _characterTags[CharacterIndex - 1] : null,
+        SeriesTag = SeriesIndex > 0 && SeriesIndex <= _seriesTags.Count ? _seriesTags[SeriesIndex - 1] : null,
         PixivTags = [.. _reqPixivTags],
         AiTags = [.. _reqAiTags],
         MediaType = MediaTypeIndex switch { 1 => "image", 2 => "video", 3 => "animation", _ => null },
@@ -492,12 +526,57 @@ public partial class LibraryViewModel : ObservableObject
     }
     partial void OnDateFromChanged(DateTimeOffset? value) => _ = RefreshAsync();
     partial void OnDateToChanged(DateTimeOffset? value) => _ = RefreshAsync();
+    partial void OnCharacterIndexChanged(int value)
+    {
+        if (_updatingFacets || value < 0) return;
+        OnPropertyChanged(nameof(HasActiveFilters));
+        _ = RefreshAsync();
+    }
+    partial void OnSeriesIndexChanged(int value)
+    {
+        if (_updatingFacets || value < 0) return;
+        OnPropertyChanged(nameof(HasActiveFilters));
+        _ = RefreshAsync();
+    }
+
+    /// <summary>Rebuilds the Character/Series dropdowns from the AI tags, keeping the current
+    /// selection by tag value (index pushes from a rebuild must not re-query).</summary>
+    private async Task LoadTagFacetsAsync()
+    {
+        try
+        {
+            var chars = await _library.Repository.GetTopTagsByCategoryAsync("character");
+            var series = await _library.Repository.GetTopTagsByCategoryAsync("copyright");
+            static string Label(string tag, int n) => $"{tag.Replace('_', ' ')} ({n:N0})";
+            void Rebuild(ObservableCollection<string> opts, ref List<string> tags, List<(string Tag, int Count)> rows,
+                string anyKey, int selIndex, Action<int> setIndex)
+            {
+                var selected = selIndex > 0 && selIndex <= tags.Count ? tags[selIndex - 1] : null;
+                tags = rows.Select(r => r.Tag).ToList();
+                opts.Clear();
+                opts.Add(LocalizationService.Instance[anyKey]);
+                foreach (var r in rows) opts.Add(Label(r.Tag, r.Count));
+                setIndex(selected != null ? tags.IndexOf(selected) + 1 : 0);
+            }
+            _updatingFacets = true;
+            try
+            {
+                Rebuild(CharacterOptions, ref _characterTags, chars, "Library_AnyCharacter", CharacterIndex, i => CharacterIndex = i);
+                Rebuild(SeriesOptions, ref _seriesTags, series, "Library_AnySeries", SeriesIndex, i => SeriesIndex = i);
+            }
+            finally { _updatingFacets = false; }
+            OnPropertyChanged(nameof(HasCharacterOptions));
+            OnPropertyChanged(nameof(HasSeriesOptions));
+        }
+        catch (Exception ex) { Debug.WriteLine($"Tag facets failed: {ex.Message}"); }
+    }
 
     [RelayCommand]
     private void ClearFilters()
     {
         SearchText = ArtistFilter = "";
         YearIndex = OrientationIndex = 0;
+        CharacterIndex = SeriesIndex = 0;
         DateFrom = DateTo = null;
     }
     partial void OnDupThresholdChanged(double value)
@@ -1045,7 +1124,8 @@ public partial class LibraryViewModel : ObservableObject
             await _library.EnsureTaggerModelAsync(null, CancellationToken.None);
             if (!_library.IsTaggerModelInstalled(out _)) return;
         }
-        await RunWorkAsync(LocalizationService.Instance["Library_Tagging"], (p, ct) => _library.TagUntaggedAsync(p, ct));
+        // Same runner as the background pass, so two tag passes never run at once.
+        AutoTag.RequestRun(manual: true);
     }
 
     [RelayCommand] private void CancelWork() => _workCts?.Cancel();

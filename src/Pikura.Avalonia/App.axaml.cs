@@ -297,6 +297,7 @@ public partial class App : Application
                     }
                     catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"Library scan failed: {ex.Message}"); }
                 });
+                AppServices.Get<LibraryAutoTagService>().Start();
 
                 try
                 {

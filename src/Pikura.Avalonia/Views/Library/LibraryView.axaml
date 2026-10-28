@@ -126,6 +126,12 @@
                         <TextBlock Text="{Binding ProgressLine}" FontSize="11" VerticalAlignment="Center"/>
                         <Button Content="{loc:Tr Common_Cancel}" Command="{Binding CancelWorkCommand}"/>
                     </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="8" IsVisible="{Binding AutoTag.IsRunning}">
+                        <TextBlock Text="{Binding AutoTagText}" FontSize="11" VerticalAlignment="Center"/>
+                        <Button Content="{Binding AutoTagPauseText}" Command="{Binding ToggleAutoTagPauseCommand}" FontSize="11" Padding="8,2"/>
+                    </StackPanel>
+                    <CheckBox Content="{loc:Tr Library_AutoTag}" IsChecked="{Binding LibraryAutoTag}" FontSize="11"
+                              ToolTip.Tip="{loc:Tr Library_AutoTagHint}"/>
                 </StackPanel>
                 <Button Grid.Column="1" Content="{loc:Tr Library_Rescan}" Command="{Binding RescanCommand}"/>
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center"
@@ -172,6 +178,12 @@
                             <ComboBoxItem Content="{loc:Tr Library_OrientationLandscape}"/>
                             <ComboBoxItem Content="{loc:Tr Library_OrientationSquare}"/>
                         </ComboBox>
+                        <ComboBox SelectedIndex="{Binding CharacterIndex}" ItemsSource="{Binding CharacterOptions}"
+                                  Width="170" IsVisible="{Binding HasCharacterOptions}"
+                                  ToolTip.Tip="{loc:Tr Library_FilterCharacter}"/>
+                        <ComboBox SelectedIndex="{Binding SeriesIndex}" ItemsSource="{Binding SeriesOptions}"
+                                  Width="170" IsVisible="{Binding HasSeriesOptions}"
+                                  ToolTip.Tip="{loc:Tr Library_FilterSeries}"/>
                         <ComboBox SelectedIndex="{Binding SortIndex}" MinWidth="130">
                             <ComboBoxItem Content="{loc:Tr Library_SortAdded}"/>
                             <ComboBoxItem Content="{loc:Tr Library_SortCreated}"/>
@@ -281,7 +293,7 @@
                     </ItemsControl>
                     <!-- Natural height: masonry columns, each image at its own aspect ratio -->
                     <ItemsControl ItemsSource="{Binding Items}" IsVisible="{Binding ShowNaturalGrid}">
-                        <ItemsControl.ItemsPanel><ItemsPanelTemplate><local:MasonryPanel ColumnWidth="{Binding CardSize}" ItemSpacing="6" SqueezeToFill="True"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemsPanel><ItemsPanelTemplate><local:MasonryPanel ColumnWidth="{Binding CardSize}" ItemSpacing="6" StretchToFill="True"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate><DataTemplate>
                             <Border CornerRadius="8" Padding="6"
                                     Classes.selected="{Binding IsSelected}"
@@ -295,8 +307,8 @@
                                     </Style>
                                 </Border.Styles>
                                 <StackPanel Spacing="4">
-                                    <Border CornerRadius="4" ClipToBounds="True" Height="{Binding ImageHeight}">
-                                        <Image Source="{Binding Thumbnail}" Stretch="UniformToFill"><Image.Effect><BlurEffect Radius="{Binding BlurRadius}"/></Image.Effect></Image>
+                                    <Border CornerRadius="4" ClipToBounds="True" >
+                                        <Image Source="{Binding Thumbnail}" Stretch="Uniform"><Image.Effect><BlurEffect Radius="{Binding BlurRadius}"/></Image.Effect></Image>
                                     </Border>
                                     <TextBlock Text="{Binding DisplayName}" FontSize="12" TextTrimming="CharacterEllipsis" MaxLines="1"
                                                IsVisible="{Binding $parent[ItemsControl].DataContext.ShowInfo}"/>
