@@ -302,7 +302,7 @@ public partial class DiscoverView : UserControl
 
         CopyToClipboard(user.UserId);
         try { QuickClipboardService.CopyArtist(user.UserId); } catch { }
-        if (VM != null) VM.StatusMessage = $"Copied artist ID {user.UserId} ({user.UserName})";
+        if (VM != null) VM.StatusMessage = string.Format(LocalizationService.Instance["Common_Status_CopiedArtistId"], user.UserId, user.UserName);
 
         // Green flash: detach binding → set "✓ copied" text → reattach after delay
         var originalBrush = tb.Foreground;
@@ -430,7 +430,7 @@ public partial class DiscoverView : UserControl
             {
                 await vm.GalleryVm.DownloadWithPresetAsync(card, result);
             }
-            vm.StatusMessage = $"Queued {picked.Count} artwork(s) for download with preset: {result.Name}";
+            vm.StatusMessage = string.Format(LocalizationService.Instance["Common_Status_QueuedPreset"], picked.Count, result.Name);
         }
     }
 

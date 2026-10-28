@@ -864,7 +864,7 @@
                     <ItemsControl ItemsSource="{Binding Works}" Margin="16" IsVisible="{Binding ShowNaturalGrid}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
-                                <gallery:MasonryPanel ColumnWidth="{Binding $parent[UserControl].((vm:CollectionsViewModel)DataContext).CardSize}" ItemSpacing="6" SqueezeToFill="True"/>
+                                <gallery:MasonryPanel ColumnWidth="{Binding $parent[UserControl].((vm:CollectionsViewModel)DataContext).CardSize}" ItemSpacing="6" StretchToFill="True"/>
                             </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>

@@ -657,7 +657,7 @@
                                   IsVisible="{Binding ShowNaturalGrid}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
-                                <gallery:MasonryPanel ColumnWidth="{Binding $parent[UserControl].((vm:EnhancedRankingsViewModel)DataContext).CardSize}" ItemSpacing="6" SqueezeToFill="True" PreserveOrder="True"/>
+                                <gallery:MasonryPanel ColumnWidth="{Binding $parent[UserControl].((vm:EnhancedRankingsViewModel)DataContext).CardSize}" ItemSpacing="6" StretchToFill="True" PreserveOrder="True"/>
                             </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>

@@ -44,6 +44,17 @@ public class MasonryPanel : Panel
     public static readonly StyledProperty<bool> SqueezeToFillProperty =
         AvaloniaProperty.Register<MasonryPanel, bool>(nameof(SqueezeToFill));
 
+    public static readonly StyledProperty<bool> StretchToFillProperty =
+        AvaloniaProperty.Register<MasonryPanel, bool>(nameof(StretchToFill));
+
+    /// <summary>When true, columns widen to fill the row (real width change — no
+    /// RenderTransform). Use when card templates don't fix their own width.</summary>
+    public bool StretchToFill
+    {
+        get => GetValue(StretchToFillProperty);
+        set => SetValue(StretchToFillProperty, value);
+    }
+
     /// <summary>Scale cards down (to ≥70%) to fit an extra column instead of leaving a wide gap.</summary>
     public bool SqueezeToFill
     {
@@ -187,10 +198,19 @@ public class MasonryPanel : Panel
         }
 
         var columnCount = Math.Max(1, (int)Math.Floor((availableWidth + ItemSpacing) / (ColumnWidth + ItemSpacing)));
-        // Use the exact ColumnWidth (don't stretch to fill). This keeps card width
-        // equal to CardSize so explicit Width bindings line up with the column slot
-        // — extra space falls on the right of the panel as a normal empty gutter.
+        // StretchToFill: widen the columns so they fill the row — children are measured
+        // at the real column width (no RenderTransform), so the card templates get a
+        // properly-sized slot and aspect-driven heights line up.
         var actualColumnWidth = ColumnWidth;
+        if (StretchToFill && !double.IsInfinity(availableSize.Width))
+        {
+            // Prefer one more column only when cards would still be >= 70% of ColumnWidth.
+            var more = columnCount + 1;
+            var wMore = (availableWidth - ItemSpacing * (more - 1)) / more;
+            if (wMore >= ColumnWidth * 0.7 && wMore < ColumnWidth) columnCount = more;
+            actualColumnWidth = (availableWidth - ItemSpacing * (columnCount - 1)) / columnCount;
+            if (actualColumnWidth <= 0) actualColumnWidth = ColumnWidth;
+        }
         // Narrower than a single card: scale cards down uniformly instead of letting the
         // right edge (and its rounded corners) get clipped. Cards carry explicit
         // Width=CardSize bindings, so a render scale is the only change that fits them all.
@@ -330,7 +350,8 @@ public class MasonryPanel : Panel
         base.OnPropertyChanged(change);
 
         // Invalidate cache when sizing properties change
-        if (change.Property == ColumnWidthProperty || change.Property == ItemSpacingProperty)
+        if (change.Property == ColumnWidthProperty || change.Property == ItemSpacingProperty
+            || change.Property == StretchToFillProperty)
         {
             _cachedSizes = null;
             InvalidateMeasure();

@@ -167,7 +167,7 @@ public partial class MainWindowViewModel : ViewModelBase
                 if (UpdateAvailable || UpdateDownloading || UpdateReadyToInstall) return;
                 UpdateVersion        = ver;
                 UpdateReadyToInstall = true;
-                UpdateStatusText     = $"v{ver} ready to install";
+                UpdateStatusText     = string.Format(LocalizationService.Instance["Update_Status_Ready"], ver);
             });
         }
         catch (Exception ex)
@@ -213,7 +213,7 @@ public partial class MainWindowViewModel : ViewModelBase
                 _downloadedPath      = expectedPath;
                 UpdateReadyToInstall = true;
                 UpdateAvailable      = false;
-                UpdateStatusText     = $"v{info.Version} ready to install";
+                UpdateStatusText     = string.Format(LocalizationService.Instance["Update_Status_Ready"], info.Version);
             }
             else if (settings.Current.AutoDownloadUpdates && !string.IsNullOrEmpty(info.DownloadUrl))
                 _ = Task.Run(StartDownloadAsync);
@@ -281,7 +281,7 @@ public partial class MainWindowViewModel : ViewModelBase
         var progress = new Progress<int>(p => Dispatcher.UIThread.Post(() =>
         {
             UpdateDownloadProgress = p;
-            UpdateStatusText       = $"Downloading update... {p}%";
+            UpdateStatusText       = string.Format(LocalizationService.Instance["Update_Status_Downloading"], p);
         }));
 
         await Dispatcher.UIThread.InvokeAsync(() =>
@@ -311,7 +311,7 @@ public partial class MainWindowViewModel : ViewModelBase
                 await Dispatcher.UIThread.InvokeAsync(() =>
                 {
                     UpdateDownloading = false;
-                    UpdateStatusText  = $"Update failed: {ex.Message}";
+                    UpdateStatusText  = string.Format(LocalizationService.Instance["Update_Status_Failed"], ex.Message);
                 });
             }
             return;
@@ -327,7 +327,7 @@ public partial class MainWindowViewModel : ViewModelBase
             {
                 UpdateDownloading    = false;
                 UpdateReadyToInstall = true;
-                UpdateStatusText     = $"v{_pendingUpdate.Version} ready to install";
+                UpdateStatusText     = string.Format(LocalizationService.Instance["Update_Status_Ready"], _pendingUpdate.Version);
             });
         }
         catch (OperationCanceledException)
@@ -343,7 +343,7 @@ public partial class MainWindowViewModel : ViewModelBase
             await Dispatcher.UIThread.InvokeAsync(() =>
             {
                 UpdateDownloading = false;
-                UpdateStatusText  = $"Download failed: {ex.Message}";
+                UpdateStatusText  = string.Format(LocalizationService.Instance["Update_Status_DownloadFailed"], ex.Message);
             });
         }
     }
@@ -390,7 +390,7 @@ public partial class MainWindowViewModel : ViewModelBase
         {
             _logger.LogError(ex, "InstallAndRestartUpdate failed");
             await Dispatcher.UIThread.InvokeAsync(() =>
-                UpdateStatusText = $"Install failed: {ex.Message}");
+                UpdateStatusText = string.Format(LocalizationService.Instance["Update_Status_InstallFailed"], ex.Message));
         }
     }
 

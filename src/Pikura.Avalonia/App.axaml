@@ -171,6 +171,21 @@
 
         <!-- Micro-animations -->
         <Style Selector="Button, ToggleButton">
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+        <Style Selector="ComboBox /template/ ContentPresenter, ComboBox /template/ TextBlock">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        <Style Selector="CalendarDatePicker /template/ ContentPresenter, CalendarDatePicker /template/ TextBlock">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        <Style Selector="TextBox">
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+        <Style Selector="CheckBox /template/ ContentPresenter, RadioButton /template/ ContentPresenter">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        <Style Selector="Button, ToggleButton">
             <Setter Property="Opacity" Value="1"/>
             <Setter Property="RenderTransform">
                 <Setter.Value>

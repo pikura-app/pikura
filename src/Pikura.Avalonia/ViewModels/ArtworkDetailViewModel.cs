@@ -169,7 +169,7 @@ public partial class ArtworkDetailViewModel : ViewModelBase
             var pages = await _pixivClient.GetArtworkPagesAsync(Artwork.Id);
             TotalPages = pages.Count;
             UpdatePageNavigation();
-            StatusMessage = $"Loaded {TotalPages} pages";
+            StatusMessage = string.Format(LocalizationService.Instance["Artwork_Status_LoadedPages"], TotalPages);
         }
         catch (Exception ex)
         {
@@ -329,7 +329,7 @@ public partial class ArtworkDetailViewModel : ViewModelBase
                 if (ok)
                 {
                     IsFollowing = false;
-                    StatusMessage = $"Unfollowed {Artwork.UserName}";
+                    StatusMessage = string.Format(LocalizationService.Instance["Artwork_Status_Unfollowed"], Artwork.UserName);
                 }
             }
             else
@@ -338,7 +338,7 @@ public partial class ArtworkDetailViewModel : ViewModelBase
                 if (ok)
                 {
                     IsFollowing = true;
-                    StatusMessage = $"Following {Artwork.UserName}";
+                    StatusMessage = string.Format(LocalizationService.Instance["Artwork_Status_Following"], Artwork.UserName);
                 }
             }
 

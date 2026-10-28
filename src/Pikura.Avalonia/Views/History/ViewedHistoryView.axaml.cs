@@ -278,7 +278,7 @@ public partial class ViewedHistoryView : UserControl
         {
             foreach (var card in picked)
                 await vm.GalleryVm.DownloadWithPresetAsync(card, preset);
-            vm.StatusMessage = $"Queued {picked.Count} artwork(s) for download with preset: {preset.Name}";
+            vm.StatusMessage = string.Format(LocalizationService.Instance["Common_Status_QueuedPreset"], picked.Count, preset.Name);
         }
     }
 
@@ -374,7 +374,7 @@ public partial class ViewedHistoryView : UserControl
         if (string.IsNullOrWhiteSpace(card.UserId)) return;
         CopyTextToClipboard(card.UserId);
         try { QuickClipboardService.CopyArtist(card.UserId); } catch { }
-        if (VM != null) VM.StatusMessage = $"Copied artist ID {card.UserId} ({card.UserName})";
+        if (VM != null) VM.StatusMessage = string.Format(LocalizationService.Instance["Common_Status_CopiedArtistId"], card.UserId, card.UserName);
     }
 
     private void OnContextCopyImage(object? sender, RoutedEventArgs e)

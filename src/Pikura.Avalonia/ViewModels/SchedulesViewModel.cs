@@ -198,7 +198,7 @@ public partial class SchedulesViewModel : ViewModelBase
         catch (Exception ex)
         {
             Logger.LogError(ex, "Failed to load schedules");
-            StatusMessage = $"Error loading: {ex.Message}";
+            StatusMessage = string.Format(LocalizationService.Instance["Schedules_Status_LoadError"], ex.Message);
         }
         finally { IsBusy = false; }
     }
@@ -223,7 +223,7 @@ public partial class SchedulesViewModel : ViewModelBase
             OnPropertyChanged(nameof(HasStagedArtists));
             NewArtistId   = string.Empty;
             NewArtistName = string.Empty;
-            StatusMessage = $"Added {name} to staging list ({StagedArtists.Count} artists).";
+            StatusMessage = string.Format(LocalizationService.Instance["Schedules_Status_AddedStaged"], name, StagedArtists.Count);
         }
         catch (Exception ex)
         {
@@ -357,14 +357,14 @@ public partial class SchedulesViewModel : ViewModelBase
         if (IsEditing && existingRow != null)
         {
             existingRow.RefreshDisplayProperties();
-            StatusMessage = $"Schedule '{scheduleName}' updated.";
+            StatusMessage = string.Format(LocalizationService.Instance["Schedules_Status_Updated"], scheduleName);
             _editingId = null;
             IsEditing  = false;
         }
         else
         {
             Schedules.Insert(0, new ScheduleRowViewModel(schedule));
-            StatusMessage = $"Schedule '{scheduleName}' added ({StagedArtists.Count} artists).";
+            StatusMessage = string.Format(LocalizationService.Instance["Schedules_Status_Added"], scheduleName, StagedArtists.Count);
         }
 
         StagedArtists.Clear();
@@ -378,7 +378,7 @@ public partial class SchedulesViewModel : ViewModelBase
     {
         row.Model.IsEnabled = row.IsEnabled;
         await _repo.SaveAsync(row.Model);
-        StatusMessage = $"{row.Name} {(row.IsEnabled ? "enabled" : "disabled")}.";
+        StatusMessage = string.Format(LocalizationService.Instance[row.IsEnabled ? "Schedules_Status_EnabledDot" : "Schedules_Status_DisabledDot"], row.Name);
     }
 
     [RelayCommand]
@@ -391,11 +391,11 @@ public partial class SchedulesViewModel : ViewModelBase
             await _executor.ExecuteOneAsync(row.Model);
             row.Model.LastRunAt = DateTime.UtcNow;
             row.RefreshDisplayProperties();
-            StatusMessage = $"'{row.Name}' completed.";
+            StatusMessage = string.Format(LocalizationService.Instance["Schedules_Status_Completed"], row.Name);
         }
         catch (Exception ex)
         {
-            StatusMessage = $"Run failed: {ex.Message}";
+            StatusMessage = string.Format(LocalizationService.Instance["Schedules_Status_RunFailed"], ex.Message);
         }
         finally
         {
@@ -462,7 +462,7 @@ public partial class SchedulesViewModel : ViewModelBase
 
         PageRange = s.PageRange ?? "0";
 
-        StatusMessage = $"Editing '{s.Name}' — make changes then click Save.";
+        StatusMessage = string.Format(LocalizationService.Instance["Schedules_Status_Editing"], s.Name);
     }
 
     [RelayCommand]
@@ -515,7 +515,7 @@ public partial class SchedulesViewModel : ViewModelBase
         if (!ok) return;
         await _repo.DeleteAsync(row.Model.Id);
         Schedules.Remove(row);
-        StatusMessage = $"Removed '{row.Name}'.";
+        StatusMessage = string.Format(LocalizationService.Instance["Schedules_Status_Removed"], row.Name);
     }
 
     public Task ReloadAsync() => LoadAsync();

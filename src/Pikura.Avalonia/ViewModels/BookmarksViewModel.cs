@@ -417,7 +417,7 @@ ShowPreview = true;
         catch (Exception ex)
         {
             Logger.LogError(ex, "Failed to load bookmarked collections");
-            StatusMessage = $"Failed to load bookmarked collections: {ex.Message}";
+            StatusMessage = string.Format(LocalizationService.Instance["Bookmarks_Status_LoadCollFailed"], ex.Message);
         }
         finally
         {
@@ -520,7 +520,7 @@ ShowPreview = true;
         }
 
         IsLoading = true;
-        StatusMessage = $"Loading {(isPrivate ? "private" : "public")} bookmarks…";
+        StatusMessage = string.Format(LocalizationService.Instance["Collections_Status_LoadingTile"], (isPrivate ? "private" : "public"));
 
         var collection = isPrivate ? PrivateBookmarks : PublicBookmarks;
         var filtered   = isPrivate ? FilteredPrivate  : FilteredPublic;
@@ -547,7 +547,7 @@ ShowPreview = true;
         catch (Exception ex)
         {
             Logger.LogError(ex, "Failed to load bookmarks");
-            StatusMessage = $"Failed: {ex.Message}";
+            StatusMessage = string.Format(LocalizationService.Instance["Bookmarks_Status_Failed"], ex.Message);
         }
         finally
         {
@@ -958,10 +958,10 @@ ShowPreview = true;
                     : $"{FilteredPrivate.Count} private bookmarks";
                 break;
             case 2:
-                StatusMessage = $"{FilteredFavorites.Count} local favorites";
+                StatusMessage = string.Format(LocalizationService.Instance["Bookmarks_Status_LocalFavs"], FilteredFavorites.Count);
                 break;
             case 3:
-                StatusMessage = $"{BookmarkedCollections.Count} bookmarked collections";
+                StatusMessage = string.Format(LocalizationService.Instance["Bookmarks_Status_Collections"], BookmarkedCollections.Count);
                 break;
         }
     }
@@ -1190,7 +1190,7 @@ ShowPreview = true;
                 settingsOverride: null,
                 startImmediately: true);
 
-            StatusMessage = $"Queued {cards.Count} artworks — check History for progress.";
+            StatusMessage = string.Format(LocalizationService.Instance["Bookmarks_Status_Queued"], cards.Count);
         }
         catch (Exception ex)
         {

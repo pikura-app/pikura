@@ -388,7 +388,7 @@ public partial class GalleryView : UserControl
         var count = await exporter.ExportAsync(artworks, window, suggestedName);
 
         if (VM != null && count > 0)
-            VM.StatusMessage = $"Exported metadata for {count} artwork(s)";
+            VM.StatusMessage = string.Format(LocalizationService.Instance["Gallery_Status_ExportedMeta"], count);
     }
 
     // "Copy artist ID" on artwork cards — answers the user request to grab an
@@ -401,7 +401,7 @@ public partial class GalleryView : UserControl
         if (string.IsNullOrWhiteSpace(card.UserId)) return;
         CopyToClipboard(card.UserId);
         try { Services.QuickClipboardService.CopyArtist(card.UserId); } catch { /* non-fatal */ }
-        if (VM != null) VM.StatusMessage = $"Copied artist ID {card.UserId} ({card.UserName})";
+        if (VM != null) VM.StatusMessage = string.Format(LocalizationService.Instance["Common_Status_CopiedArtistId"], card.UserId, card.UserName);
     }
 
     private void OnContextCopyImage(object? sender, RoutedEventArgs e)
@@ -532,7 +532,7 @@ public partial class GalleryView : UserControl
             {
                 await Dispatcher.UIThread.InvokeAsync(() =>
                 {
-                    VM.StatusMessage = $"Ugoira options failed: {ex.Message}";
+                    VM.StatusMessage = string.Format(LocalizationService.Instance["Common_Status_UgoiraFailed"], ex.Message);
                 });
             }
         });
@@ -637,7 +637,7 @@ public partial class GalleryView : UserControl
             {
                 await vm.DownloadWithPresetAsync(card, preset);
             }
-            vm.StatusMessage = $"Queued {picked.Count} artwork(s) for download with preset: {preset.Name}";
+            vm.StatusMessage = string.Format(LocalizationService.Instance["Common_Status_QueuedPreset"], picked.Count, preset.Name);
         }
     }
 

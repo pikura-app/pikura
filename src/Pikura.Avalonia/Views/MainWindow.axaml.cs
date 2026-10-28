@@ -747,7 +747,7 @@ public partial class MainWindow : Window
             catch (Exception ex)
             {
                 await Dispatcher.UIThread.InvokeAsync(() =>
-                    vm.UpdateStatusText = $"Install failed: {ex.Message}");
+                    vm.UpdateStatusText = string.Format(LocalizationService.Instance["Update_Status_InstallFailed"], ex.Message));
             }
         });
     }

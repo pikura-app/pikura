@@ -378,19 +378,19 @@ ShowPreview = true;
                 }
                 
                 // Update status to show progress
-                StatusMessage = $"Fetching artwork metadata... {Math.Min(i + batchSize, allIds.Count)}/{allIds.Count}";
+                StatusMessage = string.Format(LocalizationService.Instance["Discover_Status_FetchingMeta"], Math.Min(i + batchSize, allIds.Count), allIds.Count);
             }
 
             // Download all previews
             if (allPreviews.Count > 0)
             {
                 await GalleryVm.DownloadPreviewsAsync(allPreviews);
-                StatusMessage = $"Queued {allPreviews.Count} artworks for download.";
+                StatusMessage = string.Format(LocalizationService.Instance["Discover_Status_QueuedDl"], allPreviews.Count);
             }
         }
         catch (Exception ex)
         {
-            StatusMessage = $"Failed to fetch all artworks: {ex.Message}";
+            StatusMessage = string.Format(LocalizationService.Instance["Discover_Status_FetchFailed"], ex.Message);
         }
         finally
         {
@@ -565,7 +565,7 @@ ShowPreview = true;
             // Endpoint returns fresh randomized recommendations per call regardless of
             // batch size, so always allow load-more.
             CanLoadMoreRecommended = true;
-            StatusMessage = $"{RecommendedWorks.Count} recommended works";
+            StatusMessage = string.Format(LocalizationService.Instance["Discover_Status_RecommendedWorks"], RecommendedWorks.Count);
             _lastLoaded = DateTime.UtcNow;
             OnPropertyChanged(nameof(HasRecommendedWorks));
             UpdateFilteredWorks();
@@ -678,7 +678,7 @@ ShowPreview = true;
 
             UsersOffset += response.Users.Count;
             CanLoadMoreUsers = response.Users.Count >= 48;
-            StatusMessage = $"{RecommendedUsers.Count} recommended users";
+            StatusMessage = string.Format(LocalizationService.Instance["Discover_Status_RecommendedUsers"], RecommendedUsers.Count);
             OnPropertyChanged(nameof(HasRecommendedUsers));
 
             // Auto-select first user to populate right panel
@@ -773,7 +773,7 @@ ShowPreview = true;
             await GalleryVm.DownloadWithPresetAsync(artwork, preset);
         }
 
-        StatusMessage = $"Queued {artworks.Count} artworks for download with preset: {preset.Name}";
+        StatusMessage = string.Format(LocalizationService.Instance["Discover_Status_QueuedPreset"], artworks.Count, preset.Name);
     }
 
     // ── Refresh ──────────────────────────────────────────────────────────────

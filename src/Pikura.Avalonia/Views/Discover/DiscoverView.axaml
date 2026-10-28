@@ -535,7 +535,7 @@
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
                                         <local:MasonryPanel ColumnWidth="{Binding $parent[UserControl].((vm:DiscoverViewModel)DataContext).CardSize}"
-                                                            ItemSpacing="6" SqueezeToFill="True"/>
+                                                            ItemSpacing="6" StretchToFill="True"/>
                                     </ItemsPanelTemplate>
                                 </ItemsControl.ItemsPanel>
                                 <ItemsControl.ItemTemplate>
@@ -1080,7 +1080,7 @@
                                             <ItemsControl.ItemsPanel>
                                                 <ItemsPanelTemplate>
                                                     <local:MasonryPanel ColumnWidth="{Binding $parent[UserControl].((vm:DiscoverViewModel)DataContext).CardSize}"
-                                                                        ItemSpacing="6" SqueezeToFill="True"/>
+                                                                        ItemSpacing="6" StretchToFill="True"/>
                                                 </ItemsPanelTemplate>
                                             </ItemsControl.ItemsPanel>
                                             <ItemsControl.ItemTemplate>

@@ -536,7 +536,7 @@ public partial class PixivisionView : UserControl
             {
                 await Dispatcher.UIThread.InvokeAsync(() =>
                 {
-                    if (VM != null) VM.StatusMessage = $"Ugoira options failed: {ex.Message}";
+                    if (VM != null) VM.StatusMessage = string.Format(LocalizationService.Instance["Common_Status_UgoiraFailed"], ex.Message);
                 });
             }
         });
@@ -553,7 +553,7 @@ public partial class PixivisionView : UserControl
         if (CardFrom(sender) is not { } card) return;
         if (string.IsNullOrWhiteSpace(card.UserId)) return;
         CopyTextToClipboard(card.UserId);
-        if (VM != null) VM.StatusMessage = $"Copied artist ID {card.UserId} ({card.UserName})";
+        if (VM != null) VM.StatusMessage = string.Format(LocalizationService.Instance["Common_Status_CopiedArtistId"], card.UserId, card.UserName);
     }
 
     private void OnContextCopyImage(object? sender, RoutedEventArgs e)
@@ -611,7 +611,7 @@ public partial class PixivisionView : UserControl
         {
             foreach (var card in picked)
                 await vm.GalleryVm.DownloadWithPresetAsync(card, preset);
-            vm.StatusMessage = $"Queued {picked.Count} artwork(s) for download with preset: {preset.Name}";
+            vm.StatusMessage = string.Format(LocalizationService.Instance["Common_Status_QueuedPreset"], picked.Count, preset.Name);
         }
     }
 

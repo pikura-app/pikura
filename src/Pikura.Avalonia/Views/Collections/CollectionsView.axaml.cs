@@ -577,7 +577,7 @@ public partial class CollectionsView : UserControl
         if (GetCard(sender) is not { } card || string.IsNullOrWhiteSpace(card.UserId)) return;
         CopyToClipboard(card.UserId);
         try { QuickClipboardService.CopyArtist(card.UserId); } catch { /* non-fatal */ }
-        if (VM != null) VM.StatusMessage = $"Copied artist ID {card.UserId} ({card.UserName})";
+        if (VM != null) VM.StatusMessage = string.Format(LocalizationService.Instance["Common_Status_CopiedArtistId"], card.UserId, card.UserName);
     }
 
     private void OnContextCopyImage(object? sender, RoutedEventArgs e)

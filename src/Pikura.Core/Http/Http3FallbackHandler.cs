@@ -26,7 +26,15 @@ public sealed class Http3FallbackHandler : DelegatingHandler
     {
         var host = request.RequestUri?.Host ?? "";
         if (Http3Available && Http3Hosts.ContainsKey(host) && request.Content == null)
-            return await base.SendAsync(AsHttp3(request), ct).ConfigureAwait(false);
+        {
+            try { return await base.SendAsync(AsHttp3(request), ct).ConfigureAwait(false); }
+            catch (HttpRequestException) when (!ct.IsCancellationRequested)
+            {
+                // HTTP/3 stopped working (network changed) — forget it and use normal TCP again.
+                Http3Hosts.TryRemove(host, out _);
+                return await base.SendAsync(Copy(request, request.Version, request.VersionPolicy), ct).ConfigureAwait(false);
+            }
+        }
 
         try
         {
@@ -36,7 +44,9 @@ public sealed class Http3FallbackHandler : DelegatingHandler
                                               && request.RequestUri?.Scheme == Uri.UriSchemeHttps
                                               && IsBrokenTls(ex) && !ct.IsCancellationRequested)
         {
-            var response = await base.SendAsync(AsHttp3(request), ct).ConfigureAwait(false);
+            HttpResponseMessage response;
+            try { response = await base.SendAsync(AsHttp3(request), ct).ConfigureAwait(false); }
+            catch (HttpRequestException) { throw ex; } // HTTP/3 unavailable too: surface the original error
             Http3Hosts[host] = true; // HTTP/3 worked where TCP didn't — keep using it for this host
             return response;
         }
@@ -46,12 +56,15 @@ public sealed class Http3FallbackHandler : DelegatingHandler
         ex.StatusCode == null && (ex.InnerException is AuthenticationException or IOException);
 
     /// <summary>Copy of a body-less request pinned to HTTP/3 (a sent request can't be resent).</summary>
-    private static HttpRequestMessage AsHttp3(HttpRequestMessage original)
+    private static HttpRequestMessage AsHttp3(HttpRequestMessage original) =>
+        Copy(original, HttpVersion.Version30, HttpVersionPolicy.RequestVersionExact);
+
+    private static HttpRequestMessage Copy(HttpRequestMessage original, Version version, HttpVersionPolicy policy)
     {
         var copy = new HttpRequestMessage(original.Method, original.RequestUri)
         {
-            Version = HttpVersion.Version30,
-            VersionPolicy = HttpVersionPolicy.RequestVersionExact,
+            Version = version,
+            VersionPolicy = policy,
         };
         foreach (var h in original.Headers) copy.Headers.TryAddWithoutValidation(h.Key, h.Value);
         foreach (var o in original.Options) ((IDictionary<string, object?>)copy.Options)[o.Key] = o.Value;

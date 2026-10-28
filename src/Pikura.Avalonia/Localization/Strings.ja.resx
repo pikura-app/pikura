@@ -6088,9 +6088,9 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="Hoshi_RecommendedModels" xml:space="preserve"><value>おすすめモデル</value></data>
   <data name="Hoshi_DownloadAndUse" xml:space="preserve"><value>ダウンロードして使用</value></data>
   <data name="Hoshi_UseModel" xml:space="preserve"><value>使用</value></data>
-  <data name="Hoshi_RecoQwen4b" xml:space="preserve"><value>おすすめ — 画像・チャット・アクション (3.3 GB)</value></data>
-  <data name="Hoshi_RecoQwen8b" xml:space="preserve"><value>高品質、高性能PC向け (6.2 GB)</value></data>
-  <data name="Hoshi_RecoQwen2b" xml:space="preserve"><value>低スペックPC向け (1.9 GB)</value></data>
+  <data name="Hoshi_RecoQwen4b" xml:space="preserve"><value>おすすめ — 高速、思考ステップなし (3.3 GB)</value></data>
+  <data name="Hoshi_RecoQwen8b" xml:space="preserve"><value>高品質 — 思考ステップなしでも高精度 (6.2 GB)</value></data>
+  <data name="Hoshi_RecoQwen2b" xml:space="preserve"><value>低スペックPC向け — 最小、思考ステップなし (1.9 GB)</value></data>
   <data name="Pixivision_AllDates" xml:space="preserve">
     <value>すべての期間</value>
   </data>
@@ -6455,4 +6455,168 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="Settings_TouchMode_Auto" xml:space="preserve"><value>自動</value></data>
   <data name="Settings_TouchMode_On" xml:space="preserve"><value>オン</value></data>
   <data name="Settings_TouchModeHint" xml:space="preserve"><value>タッチスクリーンまたはペンの使用時にボタンやフィールドを大きくします。</value></data>
+  <data name="Hoshi_Select" xml:space="preserve"><value>選択</value></data>
+  <data name="Hoshi_Rename" xml:space="preserve"><value>名前を変更</value></data>
+  <data name="Hoshi_Delete" xml:space="preserve"><value>削除</value></data>
+  <data name="Hoshi_PasteAnImageUrl" xml:space="preserve"><value>画像URLを貼り付け</value></data>
+  <data name="Hoshi_DescribeThis" xml:space="preserve"><value>これを説明して</value></data>
+  <data name="Hoshi_WhenWasItPosted" xml:space="preserve"><value>いつ投稿された？</value></data>
+  <data name="Hoshi_FindSimilarArt" xml:space="preserve"><value>似た絵を探して</value></data>
+  <data name="Ollama_Status_DownloadingForHoshi" xml:space="preserve"><value>Hoshi用に{0}をダウンロード中…</value></data>
+  <data name="Artwork_Status_LoadedPages" xml:space="preserve"><value>{0}ページ読み込み</value></data>
+  <data name="Artwork_Status_Unfollowed" xml:space="preserve"><value>{0}のフォローを解除</value></data>
+  <data name="Artwork_Status_Following" xml:space="preserve"><value>{0}をフォロー中</value></data>
+  <data name="Bookmarks_Status_LoadCollFailed" xml:space="preserve"><value>ブックマークコレクションの読み込みに失敗: {0}</value></data>
+  <data name="Misc_Status_Loadingisprivate" xml:space="preserve"><value>Loading {(isPrivate ? </value></data>
+  <data name="Bookmarks_Status_Failed" xml:space="preserve"><value>失敗: {0}</value></data>
+  <data name="Misc_Status_Nohidden" xml:space="preserve"><value>No {(hidden ? </value></data>
+  <data name="Bookmarks_Status_LocalFavs" xml:space="preserve"><value>ローカルお気に入り {0} 件</value></data>
+  <data name="Bookmarks_Status_Collections" xml:space="preserve"><value>{0}件のブックマークコレクション</value></data>
+  <data name="Bookmarks_Status_Queued" xml:space="preserve"><value>{0}件の作品をキューに追加 — 進捗は履歴で確認できます。</value></data>
+  <data name="Collections_Status_LoadFeaturedFailed" xml:space="preserve"><value>特集コレクションの読み込みに失敗: {0}</value></data>
+  <data name="Collections_Status_PageRateLimited" xml:space="preserve"><value>{0}ページ目を読み込めません — Pixivのレート制限の可能性。少し待ってから再試行してください。</value></data>
+  <data name="Collections_Status_PageFailed" xml:space="preserve"><value>{0}ページ目を読み込めません: {1}</value></data>
+  <data name="Collections_Status_MoreFailed" xml:space="preserve"><value>続きのコレクションを読み込めません: {0}</value></data>
+  <data name="Collections_Status_LoadingCollage" xml:space="preserve"><value>コラージュ用に{0}個のコレクションを読み込み中…</value></data>
+  <data name="Collections_Status_CollageOpened" xml:space="preserve"><value>{1}個のコレクションから{0}作品をコラージュとして開きました。</value></data>
+  <data name="Collections_Status_CollageFailed" xml:space="preserve"><value>コラージュ失敗: {0}</value></data>
+  <data name="Misc_Status_" xml:space="preserve"><value>\</value></data>
+  <data name="Collections_Status_AddCollageFailed" xml:space="preserve"><value>コラージュへの追加に失敗: {0}</value></data>
+  <data name="Collections_Status_LoadingN" xml:space="preserve"><value>{0}個のコレクションを読み込み中…</value></data>
+  <data name="Collections_Status_DownloadJobs" xml:space="preserve"><value>プリセット'{1}'で{0}個のコレクションダウンロードを開始しました。</value></data>
+  <data name="Collections_Status_DownloadStartFailed" xml:space="preserve"><value>ダウンロードを開始できません: {0}</value></data>
+  <data name="Collections_Status_NoneToDownload" xml:space="preserve"><value>ダウンロードする{0}コレクションがありません。</value></data>
+  <data name="Collections_Status_LoadingTile" xml:space="preserve"><value>{0}を読み込み中…</value></data>
+  <data name="Collections_Status_WorksIn" xml:space="preserve"><value>このコレクションに{0}作品</value></data>
+  <data name="Collections_Status_LoadFailed" xml:space="preserve"><value>コレクションの読み込みに失敗: {0}</value></data>
+  <data name="Collections_Status_DownloadSel" xml:space="preserve"><value>選択した{0}作品のダウンロードを開始 → {1}</value></data>
+  <data name="Collections_Status_DownloadPreset" xml:space="preserve"><value>プリセット'{1}'で{0}作品のダウンロードを開始 → {2}</value></data>
+  <data name="Collections_Status_DownloadN" xml:space="preserve"><value>{0}作品のダウンロードを開始 → {1}</value></data>
+  <data name="Discover_Status_FetchingMeta" xml:space="preserve"><value>作品メタデータ取得中... {0}/{1}</value></data>
+  <data name="Discover_Status_QueuedDl" xml:space="preserve"><value>{0}作品をダウンロードキューに追加</value></data>
+  <data name="Discover_Status_FetchFailed" xml:space="preserve"><value>すべての作品の取得に失敗: {0}</value></data>
+  <data name="Discover_Status_RecommendedWorks" xml:space="preserve"><value>おすすめ作品 {0} 件</value></data>
+  <data name="Discover_Status_RecommendedUsers" xml:space="preserve"><value>おすすめユーザー {0} 人</value></data>
+  <data name="Discover_Status_QueuedPreset" xml:space="preserve"><value>プリセット{1}で{0}作品をキューに追加</value></data>
+  <data name="DlBookmarks_Status_Queueing" xml:space="preserve"><value>{0}件のブックマーク作品をキューに追加中…</value></data>
+  <data name="DlBookmarks_Status_Queued" xml:space="preserve"><value>ジョブをキューに追加 — {0}作品</value></data>
+  <data name="DlBookmarks_Status_CollectingArtists" xml:space="preserve"><value>ブックマーク作家を収集中… {0}/{1}</value></data>
+  <data name="DlBookmarks_Status_QueuedArtists" xml:space="preserve"><value>ジョブをキューに追加 — {0}作家</value></data>
+  <data name="DlBookmarks_Status_Collecting" xml:space="preserve"><value>ブックマークを収集中… {0}/{1}</value></data>
+  <data name="DlBookmarks_Status_QueuedFav" xml:space="preserve"><value>ジョブをキューに追加 — '{1}'の{0}作品</value></data>
+  <data name="DlBookmarks_Status_QueuedFavorites" xml:space="preserve"><value>ジョブをキューに追加 — お気に入り{0}件</value></data>
+  <data name="Hoshi_BusyOtherChat" xml:space="preserve"><value>Hoshiが別のチャットで回答中です…</value></data>
+  <data name="DlArtist_Status_AddedArtists" xml:space="preserve"><value>{0}人の作家をダウンロードリストに追加</value></data>
+  <data name="DlArtist_Status_AddedSkipped" xml:space="preserve"><value>{0}人を追加、重複{1}人をスキップ</value></data>
+  <data name="DlArtist_Status_AddedN" xml:space="preserve"><value>{0}人を追加</value></data>
+  <data name="DlArtist_Status_PastedId" xml:space="preserve"><value>{0}のIDを貼り付け: {1}</value></data>
+  <data name="DlArtist_Status_Imported" xml:space="preserve"><value>ファイルから{0}人をインポート</value></data>
+  <data name="DlArtist_Status_SavedCustom" xml:space="preserve"><value>{0}のカスタム設定を保存</value></data>
+  <data name="DlArtist_Status_PresetSaved" xml:space="preserve"><value>プリセット'{0}'を保存</value></data>
+  <data name="DlArtist_Status_PresetDeleted" xml:space="preserve"><value>プリセット'{0}'を削除</value></data>
+  <data name="DlArtist_Status_PresetLoaded" xml:space="preserve"><value>プリセット'{0}'({1}人)を読み込み</value></data>
+  <data name="DlCollection_Status_Loading" xml:space="preserve"><value>コレクション{0}を読み込み中…</value></data>
+  <data name="Gallery_Status_LoadedArtworks" xml:space="preserve"><value>{0}作品を読み込み</value></data>
+  <data name="Gallery_Status_SearchResults" xml:space="preserve"><value>'{1}'で{0}件見つかりました</value></data>
+  <data name="Gallery_Status_SearchFailed" xml:space="preserve"><value>検索失敗: {0}</value></data>
+  <data name="Gallery_Status_FollowedArtists" xml:space="preserve"><value>フォロー作家{0}人を読み込み</value></data>
+  <data name="Gallery_Status_LoadArtistsFailed" xml:space="preserve"><value>作家の読み込みに失敗: {0}</value></data>
+  <data name="Gallery_Status_FilterApplied" xml:space="preserve"><value>フィルター適用: {0}</value></data>
+  <data name="Gallery_Status_FilterRemoved" xml:space="preserve"><value>フィルター解除: {0}</value></data>
+  <data name="Rankings_Status_LoadingMode" xml:space="preserve"><value>{0}ランキングを読み込み中…</value></data>
+  <data name="Gallery_Status_DlCollage" xml:space="preserve"><value>コラージュ画像{0}枚を{1}にダウンロード中…</value></data>
+  <data name="Gallery_Status_LoadingPages" xml:space="preserve"><value>{0}のページを読み込み中…</value></data>
+  <data name="Gallery_Status_OnePage" xml:space="preserve"><value>{0}は1ページのみです。</value></data>
+  <data name="Gallery_Status_Expanded" xml:space="preserve"><value>{0}を{1}枚のページタイルに展開</value></data>
+  <data name="Gallery_Status_ExpandFailed" xml:space="preserve"><value>{0}の展開に失敗: {1}</value></data>
+  <data name="Gallery_Status_QueuedDlFailed" xml:space="preserve"><value>キュー追加に失敗: {0}</value></data>
+  <data name="Gallery_Status_QueuedWaiting" xml:space="preserve"><value>キュー: {0}(待機{1})</value></data>
+  <data name="Gallery_Status_SearchingArtist" xml:space="preserve"><value>作家を検索中: {0}...</value></data>
+  <data name="Gallery_Status_NoArtists" xml:space="preserve"><value>{0}に該当する作家がいません。</value></data>
+  <data name="Gallery_Status_ArtistsFound" xml:space="preserve"><value>'{1}'に一致する作家{0}人</value></data>
+  <data name="Gallery_Status_ArtistSearchFailed" xml:space="preserve"><value>作家検索に失敗: {0}</value></data>
+  <data name="Gallery_Status_ArtistNotFound" xml:space="preserve"><value>作家{0}が見つかりません。</value></data>
+  <data name="Gallery_Status_WaitingList" xml:space="preserve"><value>{0}の作品リストの読み込みを待機中…</value></data>
+  <data name="Gallery_Status_NoList" xml:space="preserve"><value>{0}の作品リストを読み込めませんでした。</value></data>
+  <data name="Gallery_Status_LoadingMeta" xml:space="preserve"><value>{0}のメタデータ取得中… {1}/{2}</value></data>
+  <data name="Gallery_Status_NoArtworks" xml:space="preserve"><value>{0}の作品を読み込めませんでした。</value></data>
+  <data name="Gallery_Status_DlFrom" xml:space="preserve"><value>{1}の作品{0}件をダウンロード中…</value></data>
+  <data name="Gallery_Status_DlProgress" xml:space="preserve"><value>{0} p{1}/{2}をダウンロード中({3}%) — {4}/{5}</value></data>
+  <data name="Gallery_Status_FetchMeta" xml:space="preserve"><value>{0}件のメタデータ取得中…</value></data>
+  <data name="Search_Status_LoadMoreFailed" xml:space="preserve"><value>さらに読み込みに失敗: {0}</value></data>
+  <data name="Update_Status_Ready" xml:space="preserve"><value>v{0}をインストールできます</value></data>
+  <data name="Update_Status_Downloading" xml:space="preserve"><value>アップデートをダウンロード中... {0}%</value></data>
+  <data name="Gallery_Status_QueuedDlPreset" xml:space="preserve"><value>プリセット{1}で{0}作品をキューに追加</value></data>
+  <data name="Search_Status_NovelsFor" xml:space="preserve"><value>"{1}"の小説 {0} 件</value></data>
+  <data name="Search_Status_UsersFor" xml:space="preserve"><value>"{1}"のユーザー {0} 人</value></data>
+  <data name="Update_Status_Failed" xml:space="preserve"><value>アップデート失敗: {0}</value></data>
+  <data name="Update_Status_DownloadFailed" xml:space="preserve"><value>ダウンロード失敗: {0}</value></data>
+  <data name="Update_Status_InstallFailed" xml:space="preserve"><value>インストール失敗: {0}</value></data>
+  <data name="Schedules_Status_LoadError" xml:space="preserve"><value>読み込みエラー: {0}</value></data>
+  <data name="Schedules_Status_AddedStaged" xml:space="preserve"><value>{0}をステージングリストに追加(作家{1}人)</value></data>
+  <data name="Schedules_Status_Updated" xml:space="preserve"><value>スケジュール'{0}'を更新しました。</value></data>
+  <data name="Schedules_Status_Added" xml:space="preserve"><value>スケジュール'{0}'を追加(作家{1}人)</value></data>
+  <data name="Schedules_Status_Completed" xml:space="preserve"><value>'{0}'が完了しました。</value></data>
+  <data name="Schedules_Status_RunFailed" xml:space="preserve"><value>実行失敗: {0}</value></data>
+  <data name="Schedules_Status_Editing" xml:space="preserve"><value>'{0}'を編集中 — 変更後に保存をクリック。</value></data>
+  <data name="Schedules_Status_Removed" xml:space="preserve"><value>'{0}'を削除しました。</value></data>
+  <data name="Settings_Status_CheckFailed" xml:space="preserve"><value>確認失敗: {0}</value></data>
+  <data name="Update_Status_DlUpdater" xml:space="preserve"><value>新しいアップデータをダウンロード中... {0}%</value></data>
+  <data name="History_Status_LoadFailed" xml:space="preserve"><value>履歴の読み込みに失敗: {0}</value></data>
+  <data name="History_Status_LoadMoreFailed" xml:space="preserve"><value>さらに読み込みに失敗: {0}</value></data>
+  <data name="Common_Status_CopiedArtistId" xml:space="preserve"><value>作家ID {0}({1})をコピー</value></data>
+  <data name="Common_Status_QueuedPreset" xml:space="preserve"><value>プリセット{1}で{0}作品をキューに追加</value></data>
+  <data name="Gallery_Status_ExportedMeta" xml:space="preserve"><value>{0}作品のメタデータをエクスポート</value></data>
+  <data name="Common_Status_UgoiraFailed" xml:space="preserve"><value>うごイラのオプションに失敗: {0}</value></data>
+  <data name="Common_Status_CopiedArtistIdShort" xml:space="preserve"><value>作家ID {0}をコピー</value></data>
+  <data name="History_Status_ViewedCount" xml:space="preserve"><value>閲覧済み {0}/{1:N0} 件</value></data>
+  <data name="Rankings_Status_Range" xml:space="preserve"><value>#{0}–#{1} / {2:N0}  ·  {3}  ·  {4}</value></data>
+  <data name="Schedules_Status_EnabledDot" xml:space="preserve"><value>{0}を有効化しました。</value></data>
+  <data name="Schedules_Status_DisabledDot" xml:space="preserve"><value>{0}を無効化しました。</value></data>
+  <data name="Hoshi_StartArtworkChat" xml:space="preserve"><value>この作品についてチャットを開始</value></data>
+  <data name="Hoshi_Stop" xml:space="preserve"><value>停止</value></data>
+  <data name="Hoshi_Stopped" xml:space="preserve"><value>停止しました。</value></data>
+  <data name="Hoshi_ThinkingModelWarning" xml:space="preserve"><value>これは「シンキング」モデルです — 回答前に静かに推論するため、GPUなしでは非常に遅くなります。より速い回答には -instruct モデルを選んでください。</value></data>
+  <data name="Hoshi_Filter_All" xml:space="preserve"><value>すべて</value></data>
+  <data name="Hoshi_Filter_Pinned" xml:space="preserve"><value>ピン留め</value></data>
+  <data name="Hoshi_Filter_Archived" xml:space="preserve"><value>アーカイブ</value></data>
+  <data name="Hoshi_Group_Date" xml:space="preserve"><value>日付順</value></data>
+  <data name="Hoshi_Group_Kind" xml:space="preserve"><value>種類別</value></data>
+  <data name="Hoshi_ArtworkChats" xml:space="preserve"><value>作品のチャット</value></data>
+  <data name="Hoshi_StandaloneChats" xml:space="preserve"><value>単独のチャット</value></data>
+  <data name="Hoshi_NewFolder" xml:space="preserve"><value>新しいフォルダ…</value></data>
+  <data name="Hoshi_RenameFolder" xml:space="preserve"><value>フォルダ名を変更</value></data>
+  <data name="Hoshi_DeleteFolder" xml:space="preserve"><value>フォルダを削除</value></data>
+  <data name="Hoshi_MoveToFolder" xml:space="preserve"><value>フォルダに移動</value></data>
+  <data name="Hoshi_RemoveFromFolder" xml:space="preserve"><value>フォルダから削除</value></data>
+  <data name="Hoshi_Archive" xml:space="preserve"><value>アーカイブ</value></data>
+  <data name="Hoshi_Unarchive" xml:space="preserve"><value>アーカイブ解除</value></data>
+  <data name="Hoshi_ArchivedBadge" xml:space="preserve"><value>アーカイブ済</value></data>
+  <data name="Hoshi_ArchiveSelected" xml:space="preserve"><value>選択をアーカイブ</value></data>
+  <data name="Hoshi_MoveSelectedToFolder" xml:space="preserve"><value>選択をフォルダへ移動…</value></data>
+  <data name="Hoshi_FolderName" xml:space="preserve"><value>フォルダ名</value></data>
+  <data name="Hoshi_DeleteFolderConfirm" xml:space="preserve"><value>このフォルダを削除しますか？中のチャットはフォルダなしになります。</value></data>
+  <data name="Hoshi_MoveToFolderLoading" xml:space="preserve"><value>(読み込み中…)</value></data>
+  <data name="Hoshi_OllamaIgpu" xml:space="preserve"><value>内蔵GPUをHoshiで使用する</value></data>
+  <data name="Hoshi_OllamaIgpuHint" xml:space="preserve"><value>Ollamaは既定で内蔵グラフィックス（Intel Arcなど）を無視してCPUで動作します。オンにするとOllamaを再起動します。速くなる場合がありますが、システムメモリをGPUと共有します。</value></data>
+  <data name="Hoshi_RestartOllamaConfirm" xml:space="preserve"><value>HoshiがOllamaを再起動します。進行中の回答は停止します。</value></data>
+  <data name="Hoshi_RestartingOllama" xml:space="preserve"><value>Ollamaを再起動中…</value></data>
+  <data name="Hoshi_OllamaGpuStatus" xml:space="preserve"><value>Ollamaの使用デバイス: {0}</value></data>
+  <data name="Hoshi_CheckGpu" xml:space="preserve"><value>確認</value></data>
+  <data name="Settings_AiAcceleration" xml:space="preserve"><value>AIアクセラレーション</value></data>
+  <data name="Settings_AiAccelerationHint" xml:space="preserve"><value>Pikura独自のAIモデル（アニメタガー、画像検索）に使うハードウェア。自動ではGPUが使える場合はGPUを使い、使えなければCPUに切り替えます。</value></data>
+  <data name="Settings_AiAcceleration_Auto" xml:space="preserve"><value>自動</value></data>
+  <data name="Settings_AiAcceleration_Gpu" xml:space="preserve"><value>GPU（DirectML）</value></data>
+  <data name="Settings_AiAcceleration_Cpu" xml:space="preserve"><value>CPUのみ</value></data>
+  <data name="Settings_TaggerProvider" xml:space="preserve"><value>タガーの実行デバイス: {0}</value></data>
+  <data name="Library_AutoTag" xml:space="preserve"><value>ライブラリ画像をバックグラウンドで自動タグ付け</value></data>
+  <data name="Library_AutoTagHint" xml:space="preserve"><value>各スキャン後、アニメタガー（設定 → Hoshi）で未タグの画像にタグを付けます。Hoshiの回答中は一時停止します。タガーモデルのインストールが必要です。</value></data>
+  <data name="Library_TaggingProgress" xml:space="preserve"><value>タグ付け中 {0} / {1}…</value></data>
+  <data name="Library_PauseTagging" xml:space="preserve"><value>一時停止</value></data>
+  <data name="Library_ResumeTagging" xml:space="preserve"><value>再開</value></data>
+  <data name="Library_FilterCharacter" xml:space="preserve"><value>キャラクター（AIタグ）</value></data>
+  <data name="Library_FilterSeries" xml:space="preserve"><value>作品（AIタグ）</value></data>
+  <data name="Library_AnyCharacter" xml:space="preserve"><value>すべてのキャラクター</value></data>
+  <data name="Library_AnySeries" xml:space="preserve"><value>すべての作品</value></data>
+  <data name="Hoshi_ThinkingNoAnswer" xml:space="preserve"><value>⚠ モデルが回答枠をすべて思考に使い、返答がありませんでした。これは「シンキング」モデルで、GPUなしでは非常に遅くなります。設定 → Hoshi で -instruct モデル（例: qwen3-vl:4b-instruct）に切り替えてください。</value></data>
 </root>

@@ -94,7 +94,7 @@ public partial class DownloadBookmarksViewModel : ViewModelBase
                     return;
                 }
 
-                StatusMessage = $"Queueing {artworkIds.Count} bookmarked artworks…";
+                StatusMessage = string.Format(LocalizationService.Instance["DlBookmarks_Status_Queueing"], artworkIds.Count);
                 var targets = artworkIds.Select(id => new DownloadTarget
                 {
                     TargetId = id,
@@ -106,7 +106,7 @@ public partial class DownloadBookmarksViewModel : ViewModelBase
                     $"Bookmarks ({(IsPublicOnly ? "Public" : IsPrivateOnly ? "Private" : "Public+Private")})",
                     targets, settings, startImmediately: true);
 
-                StatusMessage = $"Job queued — {artworkIds.Count} artworks";
+                StatusMessage = string.Format(LocalizationService.Instance["DlBookmarks_Status_Queued"], artworkIds.Count);
             }
             else
             {
@@ -127,7 +127,7 @@ public partial class DownloadBookmarksViewModel : ViewModelBase
                                 artistIds.Add((u.UserId, u.UserName));
 
                         offset += resp.Users.Count;
-                        StatusMessage = $"Collecting bookmarked artists… {offset}/{resp.Total}";
+                        StatusMessage = string.Format(LocalizationService.Instance["DlBookmarks_Status_CollectingArtists"], offset, resp.Total);
                         if (offset >= resp.Total) break;
                     }
                 }
@@ -150,7 +150,7 @@ public partial class DownloadBookmarksViewModel : ViewModelBase
                     $"Bookmarked Artists ({(IsPublicOnly ? "Public" : IsPrivateOnly ? "Private" : "Public+Private")})",
                     targets, settings, startImmediately: true);
 
-                StatusMessage = $"Job queued — {artistIds.Count} artists";
+                StatusMessage = string.Format(LocalizationService.Instance["DlBookmarks_Status_QueuedArtists"], artistIds.Count);
             }
         }
         catch (Exception ex)
@@ -181,7 +181,7 @@ public partial class DownloadBookmarksViewModel : ViewModelBase
                         ids.Add(w.Id);
 
                 offset += resp.Works.Count;
-                StatusMessage = $"Collecting bookmarks… {offset}/{resp.Total}";
+                StatusMessage = string.Format(LocalizationService.Instance["DlBookmarks_Status_Collecting"], offset, resp.Total);
                 if (offset >= resp.Total) break;
             }
         }
@@ -255,7 +255,7 @@ public partial class DownloadBookmarksViewModel : ViewModelBase
                 $"Favorites — {SelectedFolder}",
                 targets, settings, startImmediately: true);
 
-            StatusMessage = $"Job queued — {favorites.Count} artworks from '{SelectedFolder}'";
+            StatusMessage = string.Format(LocalizationService.Instance["DlBookmarks_Status_QueuedFav"], favorites.Count, SelectedFolder);
         }
         catch (Exception ex)
         {
@@ -293,7 +293,7 @@ public partial class DownloadBookmarksViewModel : ViewModelBase
                 "All Local Favorites",
                 targets, settings, startImmediately: true);
 
-            StatusMessage = $"Job queued — {favorites.Count} favorites";
+            StatusMessage = string.Format(LocalizationService.Instance["DlBookmarks_Status_QueuedFavorites"], favorites.Count);
         }
         catch (Exception ex)
         {

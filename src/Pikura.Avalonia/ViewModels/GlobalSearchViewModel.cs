@@ -594,7 +594,7 @@ ShowPreview = true;
             }
         }
         catch (OperationCanceledException) { }
-        catch (Exception ex) { StatusMessage = $"Search failed: {ex.Message}"; }
+        catch (Exception ex) { StatusMessage = string.Format(LocalizationService.Instance["Gallery_Status_SearchFailed"], ex.Message); }
         finally
         {
             IsLoading = false;
@@ -917,7 +917,7 @@ ShowPreview = true;
         // page of 20-23 still lets us try the next page.
         CanLoadMore = data.Count >= 20;
         _currentPage++;
-        StatusMessage = $"{NovelResults.Count} novel(s) for \"{SearchQuery}\"";
+        StatusMessage = string.Format(LocalizationService.Instance["Search_Status_NovelsFor"], NovelResults.Count, SearchQuery);
     }
 
     private async Task SearchUsersInternalAsync(CancellationToken ct)
@@ -936,7 +936,7 @@ ShowPreview = true;
         }
         CanLoadMore = data.Count >= 20;
         _currentPage++;
-        StatusMessage = $"{UserResults.Count} user(s) for \"{SearchQuery}\"";
+        StatusMessage = string.Format(LocalizationService.Instance["Search_Status_UsersFor"], UserResults.Count, SearchQuery);
     }
 
     [RelayCommand]
@@ -969,7 +969,7 @@ ShowPreview = true;
                     break;
             }
         }
-        catch (Exception ex) { StatusMessage = $"Load more failed: {ex.Message}"; }
+        catch (Exception ex) { StatusMessage = string.Format(LocalizationService.Instance["Search_Status_LoadMoreFailed"], ex.Message); }
         finally
         {
             IsLoading = false;

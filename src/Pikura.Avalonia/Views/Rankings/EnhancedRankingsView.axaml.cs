@@ -571,7 +571,7 @@ public partial class EnhancedRankingsView : UserControl
         {
             // Download all selected artworks with the preset
             await VM.GalleryVm.DownloadWithPresetAsync(previews, result);
-            VM.StatusMessage = $"Queued {previews.Count} artwork(s) for download with preset: {result.Name}";
+            VM.StatusMessage = string.Format(LocalizationService.Instance["Common_Status_QueuedPreset"], previews.Count, result.Name);
         }
     }
 

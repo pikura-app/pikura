@@ -349,7 +349,7 @@ public partial class EnhancedRankingsViewModel : ViewModelBase
         CurrentPage = 1;
         CanLoadMore = false;
         IsLoading = true;
-        StatusMessage = $"Loading {SelectedMode} rankings…";
+        StatusMessage = string.Format(LocalizationService.Instance["Rankings_Status_LoadingMode"], SelectedMode);
 
         // Determine effective mode based on R-18 toggle and selected mode
         var effectiveMode = SelectedMode;
@@ -464,7 +464,7 @@ public partial class EnhancedRankingsViewModel : ViewModelBase
             // Sync to FilteredItems for pagination display
             UpdateFilteredItems();
 
-            StatusMessage = $"#{Items[0].Rank}–#{Items[^1].Rank} of {TotalItems:N0}  ·  {effectiveMode}  ·  {RankingDate}";
+            StatusMessage = string.Format(LocalizationService.Instance["Rankings_Status_Range"], Items[0].Rank, Items[^1].Rank, TotalItems, effectiveMode, RankingDate);
         }
         catch (OperationCanceledException) { }
         catch (Exception ex) { StatusMessage = $"Failed: {ex.Message}"; }
@@ -564,7 +564,7 @@ public partial class EnhancedRankingsViewModel : ViewModelBase
                 .ToList();
             GalleryVm.SyncViewerTabs(ViewerSourceKey, viewerCards, UsePagination ? viewerCards.Count : TotalItems);
 
-            StatusMessage = $"#{Items[0].Rank}–#{Items[^1].Rank} of {TotalItems:N0}  ·  {effectiveMode}  ·  {RankingDate}";
+            StatusMessage = string.Format(LocalizationService.Instance["Rankings_Status_Range"], Items[0].Rank, Items[^1].Rank, TotalItems, effectiveMode, RankingDate);
         }
         catch (OperationCanceledException) { }
         catch (Exception ex) { StatusMessage = $"Failed: {ex.Message}"; }

@@ -516,7 +516,7 @@ public partial class ViewedHistoryViewModel : ViewModelBase
             OnPropertyChanged(nameof(HasResults));
             UpdateDisplayedResults();
         }
-        catch (Exception ex) { StatusMessage = $"Failed to load history: {ex.Message}"; }
+        catch (Exception ex) { StatusMessage = string.Format(LocalizationService.Instance["History_Status_LoadFailed"], ex.Message); }
         finally { IsLoading = false; }
     }
 
@@ -533,11 +533,11 @@ public partial class ViewedHistoryViewModel : ViewModelBase
                 AddCard(entry);
 
             CanLoadMore = Results.Count < total;
-            StatusMessage = $"{Results.Count} of {total:N0} viewed" + (IsFilteredByDate ? $" on {DateLabel}" : "");
+            StatusMessage = string.Format(LocalizationService.Instance["History_Status_ViewedCount"], Results.Count, total) + (IsFilteredByDate ? $" on {DateLabel}" : "");
             GalleryVm.SyncViewerTabs(ViewerSourceKey, Results.ToList(), Results.Count);
             if (!UsePagination) UpdateDisplayedResults();
         }
-        catch (Exception ex) { StatusMessage = $"Failed to load more: {ex.Message}"; }
+        catch (Exception ex) { StatusMessage = string.Format(LocalizationService.Instance["History_Status_LoadMoreFailed"], ex.Message); }
         finally { IsLoading = false; }
     }
 
@@ -569,7 +569,7 @@ public partial class ViewedHistoryViewModel : ViewModelBase
                 : $"{DateGroups.Count:N0} day(s), {totalViews:N0} viewed" + (IsFilteredByDate ? $" ({DateLabel})" : "");
             OnPropertyChanged(nameof(HasResults));
         }
-        catch (Exception ex) { StatusMessage = $"Failed to load history: {ex.Message}"; }
+        catch (Exception ex) { StatusMessage = string.Format(LocalizationService.Instance["History_Status_LoadFailed"], ex.Message); }
         finally { IsLoading = false; }
     }
 

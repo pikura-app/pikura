@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Pikura.Avalonia.Localization;
 using CommunityToolkit.Mvvm.Input;
 using Pikura.Avalonia.Services;
 using Pikura.Core.Models;
@@ -103,7 +104,7 @@ public partial class DownloadByCollectionViewModel : ViewModelBase
         {
             foreach (var id in ParsedIds.ToList())
             {
-                StatusMessage = $"Loading collection {id}…";
+                StatusMessage = string.Format(LocalizationService.Instance["DlCollection_Status_Loading"], id);
                 var collection = await _client.GetCollectionAsync(id);
                 if (collection == null || collection.Works.Count == 0)
                 {

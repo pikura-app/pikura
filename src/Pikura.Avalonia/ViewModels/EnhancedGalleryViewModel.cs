@@ -173,7 +173,7 @@ public partial class EnhancedGalleryViewModel : ViewModelBase
             VisibleArtworks.Add(artwork);
         }
 
-        StatusMessage = $"Loaded {VisibleArtworks.Count} artworks";
+        StatusMessage = string.Format(LocalizationService.Instance["Gallery_Status_LoadedArtworks"], VisibleArtworks.Count);
     }
 
     private async Task SearchAsync()
@@ -201,11 +201,11 @@ public partial class EnhancedGalleryViewModel : ViewModelBase
                 VisibleArtworks.Add(artwork);
             }
 
-            StatusMessage = $"Found {VisibleArtworks.Count} results for '{SearchQuery}'";
+            StatusMessage = string.Format(LocalizationService.Instance["Gallery_Status_SearchResults"], VisibleArtworks.Count, SearchQuery);
         }
         catch (Exception ex)
         {
-            StatusMessage = $"Search failed: {ex.Message}";
+            StatusMessage = string.Format(LocalizationService.Instance["Gallery_Status_SearchFailed"], ex.Message);
         }
         finally
         {
@@ -221,11 +221,11 @@ public partial class EnhancedGalleryViewModel : ViewModelBase
         try
         {
             await Task.Delay(800); // Simulate API call
-            StatusMessage = $"Loaded {Artists.Count} followed artists";
+            StatusMessage = string.Format(LocalizationService.Instance["Gallery_Status_FollowedArtists"], Artists.Count);
         }
         catch (Exception ex)
         {
-            StatusMessage = $"Failed to load artists: {ex.Message}";
+            StatusMessage = string.Format(LocalizationService.Instance["Gallery_Status_LoadArtistsFailed"], ex.Message);
         }
         finally
         {
@@ -250,7 +250,7 @@ public partial class EnhancedGalleryViewModel : ViewModelBase
         {
             ActiveFilters.Add(filter);
             // Apply filter logic here
-            StatusMessage = $"Applied filter: {filter}";
+            StatusMessage = string.Format(LocalizationService.Instance["Gallery_Status_FilterApplied"], filter);
         }
     }
 
@@ -259,7 +259,7 @@ public partial class EnhancedGalleryViewModel : ViewModelBase
         if (string.IsNullOrEmpty(filter)) return;
         ActiveFilters.Remove(filter);
         // Remove filter logic here
-        StatusMessage = $"Removed filter: {filter}";
+        StatusMessage = string.Format(LocalizationService.Instance["Gallery_Status_FilterRemoved"], filter);
     }
 }
 

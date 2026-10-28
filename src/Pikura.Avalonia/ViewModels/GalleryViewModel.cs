@@ -450,7 +450,7 @@ ShowPreview = true;
         acctOverride.DownloadRoot = folder;
 
         var folderName = Path.GetFileName(folder);
-        StatusMessage = $"Downloading {items.Count} collage artworks to {folderName}…";
+        StatusMessage = string.Format(LocalizationService.Instance["Gallery_Status_DlCollage"], items.Count, folderName);
         await DownloadCoreAsync(items.ToList(), acctOverride, jobName: folderName);
     }
 
@@ -553,9 +553,9 @@ ShowPreview = true;
 
         try
         {
-            StatusMessage = $"Loading pages for {card.Title}…";
+            StatusMessage = string.Format(LocalizationService.Instance["Gallery_Status_LoadingPages"], card.Title);
             var pages = await _pixivClient.GetArtworkPagesAsync(card.Id);
-            if (pages.Count <= 1) { StatusMessage = $"{card.Title} has only one page."; return; }
+            if (pages.Count <= 1) { StatusMessage = string.Format(LocalizationService.Instance["Gallery_Status_OnePage"], card.Title); return; }
 
             // Remove the consolidated tile first, then insert one card per page at the same spot.
             collage.CollageItems.RemoveAt(idx);
@@ -583,12 +583,12 @@ ShowPreview = true;
                 inserted++;
                 _ = pageCard.LoadThumbnailAsync(_imageLoader);
             }
-            StatusMessage = $"Expanded {card.Title} into {inserted} page tiles.";
+            StatusMessage = string.Format(LocalizationService.Instance["Gallery_Status_Expanded"], card.Title, inserted);
         }
         catch (Exception ex)
         {
             Logger.LogWarning(ex, "ExpandCollageItem {Id} failed", card.Id);
-            StatusMessage = $"Failed to expand {card.Title}: {ex.Message}";
+            StatusMessage = string.Format(LocalizationService.Instance["Gallery_Status_ExpandFailed"], card.Title, ex.Message);
         }
     }
 
@@ -763,7 +763,7 @@ ShowPreview = true;
                 catch (Exception ex)
                 {
                     Logger.LogError(ex, "Queued download failed");
-                    StatusMessage = $"Queued download failed: {ex.Message}";
+                    StatusMessage = string.Format(LocalizationService.Instance["Gallery_Status_QueuedDlFailed"], ex.Message);
                 }
                 finally
                 {
@@ -805,7 +805,7 @@ ShowPreview = true;
             _queueEntries.Enqueue((downloadTask, placeholderId));
             QueuedDownloadCount = _queueEntries.Count;
         }
-        StatusMessage = $"Queued: {description} ({QueuedDownloadCount} waiting)";
+        StatusMessage = string.Format(LocalizationService.Instance["Gallery_Status_QueuedWaiting"], description, QueuedDownloadCount);
         Logger.LogInformation("[Queue] Enqueued: {Desc}. Queue size: {Count}", description, QueuedDownloadCount);
 
         // Create the History placeholder asynchronously (DB write off the UI thread).
@@ -1478,7 +1478,7 @@ ShowPreview = true;
 
     public async Task SearchArtistByNameAsync(string artistName)
     {
-        StatusMessage = $"Searching for artist: {artistName}...";
+        StatusMessage = string.Format(LocalizationService.Instance["Gallery_Status_SearchingArtist"], artistName);
 
         try
         {
@@ -1486,7 +1486,7 @@ ShowPreview = true;
 
             if (users is null || users.Count == 0)
             {
-                StatusMessage = $"No artists found for: {artistName}";
+                StatusMessage = string.Format(LocalizationService.Instance["Gallery_Status_NoArtists"], artistName);
                 return;
             }
 
@@ -1511,11 +1511,11 @@ ShowPreview = true;
                 SearchInfoText = $"Viewing: {transient.Name} (not followed) • {users.Count} matches for '{artistName}'";
             }
 
-            StatusMessage = $"Found {users.Count} artists matching '{artistName}'";
+            StatusMessage = string.Format(LocalizationService.Instance["Gallery_Status_ArtistsFound"], users.Count, artistName);
         }
         catch (Exception ex)
         {
-            StatusMessage = $"Artist search failed: {ex.Message}";
+            StatusMessage = string.Format(LocalizationService.Instance["Gallery_Status_ArtistSearchFailed"], ex.Message);
         }
     }
 
@@ -1546,7 +1546,7 @@ ShowPreview = true;
 
         // Not in followed list: load as transient artist (don't add to Artists list)
         var info = await _pixivClient.GetArtistAsync(userId);
-        if (info == null) { StatusMessage = $"Artist {userId} not found."; return; }
+        if (info == null) { StatusMessage = string.Format(LocalizationService.Instance["Gallery_Status_ArtistNotFound"], userId); return; }
         var transient = new ArtistCardViewModel(new FollowedArtist
         {
             UserId = info.UserId,
@@ -1771,6 +1771,7 @@ ShowPreview = true;
         if (Interlocked.Exchange(ref _loadingArtistsGuard, 1) == 1) return;
 
         var isInitialLoad = Artists.Count == 0;
+        if (isInitialLoad) LoadFollowedArtistsCache();
         IsLoadingArtists = true;
         if (isInitialLoad)
             StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Gallery_LoadingFollowedArtists_2"];
@@ -1855,6 +1856,7 @@ ShowPreview = true;
                         if (!IsLoading)
                             StatusMessage = Pikura.Avalonia.Localization.LocalizationService.F("Gallery_FollowedArtistsCount", Artists.Count);
                         RebuildFilteredArtists();
+                        SaveFollowedArtistsCache();
                     });
                 }
                 catch (Exception ex)
@@ -1943,14 +1945,9 @@ ShowPreview = true;
                 await _pixivClient.ValidateSessionAsync();
             }
 
-            // Clear existing list first so stale entries from a previous
-            // account don't remain visible (especially after sign-out).
-            await Dispatcher.UIThread.InvokeAsync(() =>
-            {
-                Artists.Clear();
-                FilteredArtists.Clear();
-                ArtistsLoaded = false;
-            });
+            // NOTE: keep the existing list during refresh — clearing + refilling
+            // flickered empty and dropped scroll position. The final reconcile pass
+            // adds new, removes unfollowed, and updates changed entries in place.
 
             var userId = _settingsService.Current.UserId;
             if (string.IsNullOrWhiteSpace(userId))
@@ -1961,6 +1958,13 @@ ShowPreview = true;
             
             var seen = new HashSet<string>();
             var seenLock = new object();
+            lock (seenLock)
+            {
+                // Start from the CURRENT list so refresh batches only add artists
+                // that aren't already shown (add/remove handled by the reconcile).
+                foreach (var a in Artists) seen.Add(a.UserId);
+            }
+            var fetchedIds = new HashSet<string>();
             const int limit = 96;
             var realTotal = 0;
 
@@ -1973,6 +1977,7 @@ ShowPreview = true;
             {
                 if (page?.Users == null) continue;
                 if (page.Total > 0) realTotal += page.Total;
+                foreach (var u in page.Users) fetchedIds?.Add(u.UserId);
                 var batch = page.Users
                     .Where(u => { lock (seenLock) return seen.Add(u.UserId); })
                     .Select(u => new ArtistCardViewModel(u))
@@ -1992,7 +1997,16 @@ ShowPreview = true;
             }
 
             // Load remaining pages (uses the same paginate-or-discover helper as initial load).
-            await FetchRemainingFollowedPagesAsync(userId, firstPages, limit, seen, seenLock);
+            await FetchRemainingFollowedPagesAsync(userId, firstPages, limit, seen, seenLock, fetchedIds);
+
+            // Reconcile in place: drop unfollowed, update changed names/avatars.
+            await Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                for (var i = Artists.Count - 1; i >= 0; i--)
+                    if (!fetchedIds!.Contains(Artists[i].UserId)) Artists.RemoveAt(i);
+                ArtistsTotal = Artists.Count;
+            });
+            SaveFollowedArtistsCache();
 
             ArtistsTotal = Artists.Count;
             ArtistsLoaded = true;
@@ -2028,6 +2042,67 @@ ShowPreview = true;
         }
     }
 
+    private static string FollowedArtistsCachePath =>
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                     "Pikura", "followed-artists.json");
+
+    private sealed class FollowedArtistCacheEntry
+    {
+        public string UserId { get; set; } = "";
+        public string UserName { get; set; } = "";
+        public string? ProfileImageUrl { get; set; }
+    }
+
+    /// <summary>Seed Artists from the last-known list so the page opens instantly;
+    /// the network refresh then merges new/unfollowed/changed entries in place.</summary>
+    private void LoadFollowedArtistsCache()
+    {
+        try
+        {
+            var path = FollowedArtistsCachePath;
+            if (!File.Exists(path)) return;
+            var json = File.ReadAllText(path);
+            var entries = System.Text.Json.JsonSerializer.Deserialize<List<FollowedArtistCacheEntry>>(json);
+            if (entries is not { Count: > 0 }) return;
+            foreach (var e in entries)
+            {
+                if (Artists.Any(a => a.UserId == e.UserId)) continue;
+                var vm = new ArtistCardViewModel(new FollowedArtist
+                {
+                    UserId = e.UserId,
+                    UserName = e.UserName,
+                    ProfileImageUrl = e.ProfileImageUrl,
+                    Following = true,
+                });
+                Artists.Add(vm);
+                _ = vm.LoadAvatarAsync(_imageLoader);
+            }
+            ArtistsTotal = Artists.Count;
+            RebuildFilteredArtists();
+        }
+        catch (Exception ex) { Logger.LogWarning(ex, "Failed to load followed-artists cache"); }
+    }
+
+    private void SaveFollowedArtistsCache()
+    {
+        try
+        {
+            var entries = Artists
+                .Select(a => new FollowedArtistCacheEntry
+                {
+                    UserId = a.UserId,
+                    UserName = a.Name,
+                    ProfileImageUrl = a.ProfileImageUrl,
+                }).ToList();
+            var dir = Path.GetDirectoryName(FollowedArtistsCachePath)!;
+            Directory.CreateDirectory(dir);
+            var tmp = FollowedArtistsCachePath + ".tmp";
+            File.WriteAllText(tmp, System.Text.Json.JsonSerializer.Serialize(entries));
+            File.Move(tmp, FollowedArtistsCachePath, overwrite: true);
+        }
+        catch (Exception ex) { Logger.LogWarning(ex, "Failed to save followed-artists cache"); }
+    }
+
     /// <summary>
     /// Fetches pages 2..N of the followed-artists list (one branch per public/private)
     /// and streams each batch onto <see cref="Artists"/> as it arrives.
@@ -2048,12 +2123,17 @@ ShowPreview = true;
         FollowingResponseBody[] firstPages,
         int limit,
         HashSet<string> seen,
-        object seenLock)
+        object seenLock,
+        HashSet<string>? fetchedIds = null)
     {
         async Task AddBatchAsync(IReadOnlyList<FollowedArtist> users)
         {
             var batch = users
-                .Where(u => { lock (seenLock) return seen.Add(u.UserId); })
+                .Where(u =>
+                {
+                    fetchedIds?.Add(u.UserId);
+                    lock (seenLock) return seen.Add(u.UserId);
+                })
                 .Select(u => new ArtistCardViewModel(u))
                 .ToList();
             if (batch.Count == 0) return;
@@ -3261,7 +3341,7 @@ ShowPreview = true;
         // If IDs not yet populated (e.g. just navigated from Rankings), wait a bit
         if (_currentArtistAllIds.Count == 0)
         {
-            StatusMessage = $"Waiting for {artistName}'s artwork list to load…";
+            StatusMessage = string.Format(LocalizationService.Instance["Gallery_Status_WaitingList"], artistName);
             var waitStart = DateTime.UtcNow;
             while (_currentArtistAllIds.Count == 0 && (DateTime.UtcNow - waitStart).TotalSeconds < 15)
             {
@@ -3274,7 +3354,7 @@ ShowPreview = true;
             }
             if (_currentArtistAllIds.Count == 0)
             {
-                StatusMessage = $"Could not load artwork list for {artistName}.";
+                StatusMessage = string.Format(LocalizationService.Instance["Gallery_Status_NoList"], artistName);
                 return;
             }
         }
@@ -3291,7 +3371,7 @@ ShowPreview = true;
             for (int i = 0; i < allIdsSnapshot.Count; i += batchSize)
             {
                 var batch = allIdsSnapshot.Skip(i).Take(batchSize).ToList();
-                StatusMessage = $"Loading {artistName} metadata… {Math.Min(i + batchSize, allIdsSnapshot.Count)}/{allIdsSnapshot.Count}";
+                StatusMessage = string.Format(LocalizationService.Instance["Gallery_Status_LoadingMeta"], artistName, Math.Min(i + batchSize, allIdsSnapshot.Count), allIdsSnapshot.Count);
                 try
                 {
                     var metadata = await _pixivClient.GetArtworksMetadataAsync(artistUserId, batch, isFirstPage: i == 0);
@@ -3310,11 +3390,11 @@ ShowPreview = true;
 
             if (cards.Count == 0)
             {
-                StatusMessage = $"Could not load any artworks for {artistName}.";
+                StatusMessage = string.Format(LocalizationService.Instance["Gallery_Status_NoArtworks"], artistName);
                 return;
             }
 
-            StatusMessage = $"Downloading {cards.Count} artworks from {artistName}…";
+            StatusMessage = string.Format(LocalizationService.Instance["Gallery_Status_DlFrom"], cards.Count, artistName);
             await DownloadCoreAsync(cards);
         };
 
@@ -3496,7 +3576,7 @@ ShowPreview = true;
                 var progress = new Progress<DownloadProgress>(p =>
                 {
                     var pct = p.TotalBytes > 0 ? (int)(100 * p.BytesSoFar / p.TotalBytes.Value) : 0;
-                    StatusMessage = $"Downloading {p.ArtworkId} p{p.PageIndex + 1}/{p.TotalPages} ({pct}%) — {done}/{total}";
+                    StatusMessage = string.Format(LocalizationService.Instance["Gallery_Status_DlProgress"], p.ArtworkId, p.PageIndex + 1, p.TotalPages, pct, done, total);
                     _coordinator.ReportJobProgress(activeJob.Id, new JobProgress(
                         activeJob.Id, JobStatus.Running, done, total,
                         total > 0 ? done * 100.0 / total : 0,
@@ -3576,7 +3656,7 @@ ShowPreview = true;
             .Select(i => _currentArtistAllIds[i - 1])
             .Distinct().ToList();
 
-        StatusMessage = $"Fetching metadata for {selectedIds.Count} artworks…";
+        StatusMessage = string.Format(LocalizationService.Instance["Gallery_Status_FetchMeta"], selectedIds.Count);
         var works = await _pixivClient.GetArtworksMetadataAsync(SelectedArtist.UserId, selectedIds, false);
         var cards = works.Values.Select(p => new ArtworkCardViewModel(p)).ToList();
         await DownloadCoreAsync(cards);
@@ -3662,7 +3742,7 @@ ShowPreview = true;
                 var progress = new Progress<DownloadProgress>(p =>
                 {
                     var pct = p.TotalBytes > 0 ? (int)(100 * p.BytesSoFar / p.TotalBytes.Value) : 0;
-                    StatusMessage = $"Downloading {p.ArtworkId} p{p.PageIndex + 1}/{p.TotalPages} ({pct}%) — {done}/{total}";
+                    StatusMessage = string.Format(LocalizationService.Instance["Gallery_Status_DlProgress"], p.ArtworkId, p.PageIndex + 1, p.TotalPages, pct, done, total);
                     _coordinator.ReportJobProgress(activeJob.Id, new JobProgress(
                         activeJob.Id, JobStatus.Running, done, total,
                         total > 0 ? done * 100.0 / total : 0,
@@ -3765,7 +3845,7 @@ ShowPreview = true;
             }
         }
 
-        StatusMessage = $"Queued {cards.Count} artworks for download with preset: {preset.Name}";
+        StatusMessage = string.Format(LocalizationService.Instance["Gallery_Status_QueuedDlPreset"], cards.Count, preset.Name);
     }
 
     public bool HasArtists => Artists.Count > 0;

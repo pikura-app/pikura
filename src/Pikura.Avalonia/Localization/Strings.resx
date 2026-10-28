@@ -6152,9 +6152,9 @@ Resuming from {1}/{2} artworks</value>
   <data name="Hoshi_RecommendedModels" xml:space="preserve"><value>Recommended models</value></data>
   <data name="Hoshi_DownloadAndUse" xml:space="preserve"><value>Download &amp; use</value></data>
   <data name="Hoshi_UseModel" xml:space="preserve"><value>Use</value></data>
-  <data name="Hoshi_RecoQwen4b" xml:space="preserve"><value>Recommended — images, chat and actions (3.3 GB)</value></data>
-  <data name="Hoshi_RecoQwen8b" xml:space="preserve"><value>Higher quality, needs a stronger PC (6.2 GB)</value></data>
-  <data name="Hoshi_RecoQwen2b" xml:space="preserve"><value>For low-end PCs (1.9 GB)</value></data>
+  <data name="Hoshi_RecoQwen4b" xml:space="preserve"><value>Recommended — fast, no thinking step (3.3 GB)</value></data>
+  <data name="Hoshi_RecoQwen8b" xml:space="preserve"><value>Higher quality, still no thinking step (6.2 GB)</value></data>
+  <data name="Hoshi_RecoQwen2b" xml:space="preserve"><value>Low-end PCs — smallest, no thinking step (1.9 GB)</value></data>
   <data name="Pixivision_AllDates" xml:space="preserve">
     <value>All dates</value>
   </data>
@@ -6519,4 +6519,168 @@ Open a browser to sign in to the Wi-Fi, or try again on another network.</value>
   <data name="Settings_TouchMode_Auto" xml:space="preserve"><value>Auto</value></data>
   <data name="Settings_TouchMode_On" xml:space="preserve"><value>On</value></data>
   <data name="Settings_TouchModeHint" xml:space="preserve"><value>Enlarges buttons and fields when a touchscreen or pen is used.</value></data>
+  <data name="Hoshi_Select" xml:space="preserve"><value>Select</value></data>
+  <data name="Hoshi_Rename" xml:space="preserve"><value>Rename</value></data>
+  <data name="Hoshi_Delete" xml:space="preserve"><value>Delete</value></data>
+  <data name="Hoshi_PasteAnImageUrl" xml:space="preserve"><value>Paste an image URL</value></data>
+  <data name="Hoshi_DescribeThis" xml:space="preserve"><value>Describe this</value></data>
+  <data name="Hoshi_WhenWasItPosted" xml:space="preserve"><value>When was it posted?</value></data>
+  <data name="Hoshi_FindSimilarArt" xml:space="preserve"><value>Find similar art</value></data>
+  <data name="Ollama_Status_DownloadingForHoshi" xml:space="preserve"><value>Downloading {0} for Hoshi…</value></data>
+  <data name="Artwork_Status_LoadedPages" xml:space="preserve"><value>Loaded {0} pages</value></data>
+  <data name="Artwork_Status_Unfollowed" xml:space="preserve"><value>Unfollowed {0}</value></data>
+  <data name="Artwork_Status_Following" xml:space="preserve"><value>Following {0}</value></data>
+  <data name="Bookmarks_Status_LoadCollFailed" xml:space="preserve"><value>Failed to load bookmarked collections: {0}</value></data>
+  <data name="Misc_Status_Loadingisprivate" xml:space="preserve"><value>Loading {(isPrivate ? </value></data>
+  <data name="Bookmarks_Status_Failed" xml:space="preserve"><value>Failed: {0}</value></data>
+  <data name="Misc_Status_Nohidden" xml:space="preserve"><value>No {(hidden ? </value></data>
+  <data name="Bookmarks_Status_LocalFavs" xml:space="preserve"><value>{0} local favorites</value></data>
+  <data name="Bookmarks_Status_Collections" xml:space="preserve"><value>{0} bookmarked collections</value></data>
+  <data name="Bookmarks_Status_Queued" xml:space="preserve"><value>Queued {0} artworks — check History for progress.</value></data>
+  <data name="Collections_Status_LoadFeaturedFailed" xml:space="preserve"><value>Couldn't load featured collections: {0}</value></data>
+  <data name="Collections_Status_PageRateLimited" xml:space="preserve"><value>Couldn't load page {0} — Pixiv may be rate-limiting requests. Try again in a moment.</value></data>
+  <data name="Collections_Status_PageFailed" xml:space="preserve"><value>Couldn't load page {0}: {1}</value></data>
+  <data name="Collections_Status_MoreFailed" xml:space="preserve"><value>Couldn't load more collections: {0}</value></data>
+  <data name="Collections_Status_LoadingCollage" xml:space="preserve"><value>Loading {0} collection(s) for collage…</value></data>
+  <data name="Collections_Status_CollageOpened" xml:space="preserve"><value>Opened {0} artwork(s) from {1} collection(s) as a collage.</value></data>
+  <data name="Collections_Status_CollageFailed" xml:space="preserve"><value>Collage failed: {0}</value></data>
+  <data name="Misc_Status_" xml:space="preserve"><value>\</value></data>
+  <data name="Collections_Status_AddCollageFailed" xml:space="preserve"><value>Add to collage failed: {0}</value></data>
+  <data name="Collections_Status_LoadingN" xml:space="preserve"><value>Loading {0} collection(s)…</value></data>
+  <data name="Collections_Status_DownloadJobs" xml:space="preserve"><value>Started {0} collection download job(s) with preset '{1}'.</value></data>
+  <data name="Collections_Status_DownloadStartFailed" xml:space="preserve"><value>Could not start download: {0}</value></data>
+  <data name="Collections_Status_NoneToDownload" xml:space="preserve"><value>No {0} collections to download.</value></data>
+  <data name="Collections_Status_LoadingTile" xml:space="preserve"><value>Loading {0}…</value></data>
+  <data name="Collections_Status_WorksIn" xml:space="preserve"><value>{0} work(s) in this collection</value></data>
+  <data name="Collections_Status_LoadFailed" xml:space="preserve"><value>Failed to load collection: {0}</value></data>
+  <data name="Collections_Status_DownloadSel" xml:space="preserve"><value>Download started for {0} selected work(s) → {1}</value></data>
+  <data name="Collections_Status_DownloadPreset" xml:space="preserve"><value>Download started for {0} work(s) with preset '{1}' → {2}</value></data>
+  <data name="Collections_Status_DownloadN" xml:space="preserve"><value>Download started for {0} work(s) → {1}</value></data>
+  <data name="Discover_Status_FetchingMeta" xml:space="preserve"><value>Fetching artwork metadata... {0}/{1}</value></data>
+  <data name="Discover_Status_QueuedDl" xml:space="preserve"><value>Queued {0} artworks for download.</value></data>
+  <data name="Discover_Status_FetchFailed" xml:space="preserve"><value>Failed to fetch all artworks: {0}</value></data>
+  <data name="Discover_Status_RecommendedWorks" xml:space="preserve"><value>{0} recommended works</value></data>
+  <data name="Discover_Status_RecommendedUsers" xml:space="preserve"><value>{0} recommended users</value></data>
+  <data name="Discover_Status_QueuedPreset" xml:space="preserve"><value>Queued {0} artworks for download with preset: {1}</value></data>
+  <data name="DlBookmarks_Status_Queueing" xml:space="preserve"><value>Queueing {0} bookmarked artworks…</value></data>
+  <data name="DlBookmarks_Status_Queued" xml:space="preserve"><value>Job queued — {0} artworks</value></data>
+  <data name="DlBookmarks_Status_CollectingArtists" xml:space="preserve"><value>Collecting bookmarked artists… {0}/{1}</value></data>
+  <data name="DlBookmarks_Status_QueuedArtists" xml:space="preserve"><value>Job queued — {0} artists</value></data>
+  <data name="DlBookmarks_Status_Collecting" xml:space="preserve"><value>Collecting bookmarks… {0}/{1}</value></data>
+  <data name="DlBookmarks_Status_QueuedFav" xml:space="preserve"><value>Job queued — {0} artworks from '{1}'</value></data>
+  <data name="DlBookmarks_Status_QueuedFavorites" xml:space="preserve"><value>Job queued — {0} favorites</value></data>
+  <data name="Hoshi_BusyOtherChat" xml:space="preserve"><value>Hoshi is answering in another chat…</value></data>
+  <data name="DlArtist_Status_AddedArtists" xml:space="preserve"><value>Added {0} artists to download list</value></data>
+  <data name="DlArtist_Status_AddedSkipped" xml:space="preserve"><value>Added {0} artists, skipped {1} duplicates</value></data>
+  <data name="DlArtist_Status_AddedN" xml:space="preserve"><value>Added {0} artist(s)</value></data>
+  <data name="DlArtist_Status_PastedId" xml:space="preserve"><value>Pasted {0} ID: {1}</value></data>
+  <data name="DlArtist_Status_Imported" xml:space="preserve"><value>Imported {0} artists from file</value></data>
+  <data name="DlArtist_Status_SavedCustom" xml:space="preserve"><value>Saved custom settings for {0}</value></data>
+  <data name="DlArtist_Status_PresetSaved" xml:space="preserve"><value>Preset '{0}' saved</value></data>
+  <data name="DlArtist_Status_PresetDeleted" xml:space="preserve"><value>Preset '{0}' deleted</value></data>
+  <data name="DlArtist_Status_PresetLoaded" xml:space="preserve"><value>Loaded preset '{0}' with {1} artists</value></data>
+  <data name="DlCollection_Status_Loading" xml:space="preserve"><value>Loading collection {0}…</value></data>
+  <data name="Gallery_Status_LoadedArtworks" xml:space="preserve"><value>Loaded {0} artworks</value></data>
+  <data name="Gallery_Status_SearchResults" xml:space="preserve"><value>Found {0} results for '{1}'</value></data>
+  <data name="Gallery_Status_SearchFailed" xml:space="preserve"><value>Search failed: {0}</value></data>
+  <data name="Gallery_Status_FollowedArtists" xml:space="preserve"><value>Loaded {0} followed artists</value></data>
+  <data name="Gallery_Status_LoadArtistsFailed" xml:space="preserve"><value>Failed to load artists: {0}</value></data>
+  <data name="Gallery_Status_FilterApplied" xml:space="preserve"><value>Applied filter: {0}</value></data>
+  <data name="Gallery_Status_FilterRemoved" xml:space="preserve"><value>Removed filter: {0}</value></data>
+  <data name="Rankings_Status_LoadingMode" xml:space="preserve"><value>Loading {0} rankings…</value></data>
+  <data name="Gallery_Status_DlCollage" xml:space="preserve"><value>Downloading {0} collage artworks to {1}…</value></data>
+  <data name="Gallery_Status_LoadingPages" xml:space="preserve"><value>Loading pages for {0}…</value></data>
+  <data name="Gallery_Status_OnePage" xml:space="preserve"><value>{0} has only one page.</value></data>
+  <data name="Gallery_Status_Expanded" xml:space="preserve"><value>Expanded {0} into {1} page tiles.</value></data>
+  <data name="Gallery_Status_ExpandFailed" xml:space="preserve"><value>Failed to expand {0}: {1}</value></data>
+  <data name="Gallery_Status_QueuedDlFailed" xml:space="preserve"><value>Queued download failed: {0}</value></data>
+  <data name="Gallery_Status_QueuedWaiting" xml:space="preserve"><value>Queued: {0} ({1} waiting)</value></data>
+  <data name="Gallery_Status_SearchingArtist" xml:space="preserve"><value>Searching for artist: {0}...</value></data>
+  <data name="Gallery_Status_NoArtists" xml:space="preserve"><value>No artists found for: {0}</value></data>
+  <data name="Gallery_Status_ArtistsFound" xml:space="preserve"><value>Found {0} artists matching '{1}'</value></data>
+  <data name="Gallery_Status_ArtistSearchFailed" xml:space="preserve"><value>Artist search failed: {0}</value></data>
+  <data name="Gallery_Status_ArtistNotFound" xml:space="preserve"><value>Artist {0} not found.</value></data>
+  <data name="Gallery_Status_WaitingList" xml:space="preserve"><value>Waiting for {0}'s artwork list to load…</value></data>
+  <data name="Gallery_Status_NoList" xml:space="preserve"><value>Could not load artwork list for {0}.</value></data>
+  <data name="Gallery_Status_LoadingMeta" xml:space="preserve"><value>Loading {0} metadata… {1}/{2}</value></data>
+  <data name="Gallery_Status_NoArtworks" xml:space="preserve"><value>Could not load any artworks for {0}.</value></data>
+  <data name="Gallery_Status_DlFrom" xml:space="preserve"><value>Downloading {0} artworks from {1}…</value></data>
+  <data name="Gallery_Status_DlProgress" xml:space="preserve"><value>Downloading {0} p{1}/{2} ({3}%) — {4}/{5}</value></data>
+  <data name="Gallery_Status_FetchMeta" xml:space="preserve"><value>Fetching metadata for {0} artworks…</value></data>
+  <data name="Search_Status_LoadMoreFailed" xml:space="preserve"><value>Load more failed: {0}</value></data>
+  <data name="Update_Status_Ready" xml:space="preserve"><value>v{0} ready to install</value></data>
+  <data name="Update_Status_Downloading" xml:space="preserve"><value>Downloading update... {0}%</value></data>
+  <data name="Gallery_Status_QueuedDlPreset" xml:space="preserve"><value>Queued {0} artworks for download with preset: {1}</value></data>
+  <data name="Search_Status_NovelsFor" xml:space="preserve"><value>{0} novel(s) for "{1}"</value></data>
+  <data name="Search_Status_UsersFor" xml:space="preserve"><value>{0} user(s) for "{1}"</value></data>
+  <data name="Update_Status_Failed" xml:space="preserve"><value>Update failed: {0}</value></data>
+  <data name="Update_Status_DownloadFailed" xml:space="preserve"><value>Download failed: {0}</value></data>
+  <data name="Update_Status_InstallFailed" xml:space="preserve"><value>Install failed: {0}</value></data>
+  <data name="Schedules_Status_LoadError" xml:space="preserve"><value>Error loading: {0}</value></data>
+  <data name="Schedules_Status_AddedStaged" xml:space="preserve"><value>Added {0} to staging list ({1} artists).</value></data>
+  <data name="Schedules_Status_Updated" xml:space="preserve"><value>Schedule '{0}' updated.</value></data>
+  <data name="Schedules_Status_Added" xml:space="preserve"><value>Schedule '{0}' added ({1} artists).</value></data>
+  <data name="Schedules_Status_Completed" xml:space="preserve"><value>'{0}' completed.</value></data>
+  <data name="Schedules_Status_RunFailed" xml:space="preserve"><value>Run failed: {0}</value></data>
+  <data name="Schedules_Status_Editing" xml:space="preserve"><value>Editing '{0}' — make changes then click Save.</value></data>
+  <data name="Schedules_Status_Removed" xml:space="preserve"><value>Removed '{0}'.</value></data>
+  <data name="Settings_Status_CheckFailed" xml:space="preserve"><value>Check failed: {0}</value></data>
+  <data name="Update_Status_DlUpdater" xml:space="preserve"><value>Downloading new updater... {0}%</value></data>
+  <data name="History_Status_LoadFailed" xml:space="preserve"><value>Failed to load history: {0}</value></data>
+  <data name="History_Status_LoadMoreFailed" xml:space="preserve"><value>Failed to load more: {0}</value></data>
+  <data name="Common_Status_CopiedArtistId" xml:space="preserve"><value>Copied artist ID {0} ({1})</value></data>
+  <data name="Common_Status_QueuedPreset" xml:space="preserve"><value>Queued {0} artwork(s) for download with preset: {1}</value></data>
+  <data name="Gallery_Status_ExportedMeta" xml:space="preserve"><value>Exported metadata for {0} artwork(s)</value></data>
+  <data name="Common_Status_UgoiraFailed" xml:space="preserve"><value>Ugoira options failed: {0}</value></data>
+  <data name="Common_Status_CopiedArtistIdShort" xml:space="preserve"><value>Copied artist ID {0}</value></data>
+  <data name="History_Status_ViewedCount" xml:space="preserve"><value>{0} of {1:N0} viewed</value></data>
+  <data name="Rankings_Status_Range" xml:space="preserve"><value>#{0}–#{1} of {2:N0}  ·  {3}  ·  {4}</value></data>
+  <data name="Schedules_Status_EnabledDot" xml:space="preserve"><value>{0} enabled.</value></data>
+  <data name="Schedules_Status_DisabledDot" xml:space="preserve"><value>{0} disabled.</value></data>
+  <data name="Hoshi_StartArtworkChat" xml:space="preserve"><value>Start chat about this artwork</value></data>
+  <data name="Hoshi_Stop" xml:space="preserve"><value>Stop</value></data>
+  <data name="Hoshi_Stopped" xml:space="preserve"><value>Stopped.</value></data>
+  <data name="Hoshi_ThinkingModelWarning" xml:space="preserve"><value>This is a 'thinking' model — it reasons silently before answering and can be very slow without a GPU. Pick an -instruct model for faster answers.</value></data>
+  <data name="Hoshi_Filter_All" xml:space="preserve"><value>All</value></data>
+  <data name="Hoshi_Filter_Pinned" xml:space="preserve"><value>Pinned</value></data>
+  <data name="Hoshi_Filter_Archived" xml:space="preserve"><value>Archived</value></data>
+  <data name="Hoshi_Group_Date" xml:space="preserve"><value>By date</value></data>
+  <data name="Hoshi_Group_Kind" xml:space="preserve"><value>By type</value></data>
+  <data name="Hoshi_ArtworkChats" xml:space="preserve"><value>Artwork chats</value></data>
+  <data name="Hoshi_StandaloneChats" xml:space="preserve"><value>Standalone chats</value></data>
+  <data name="Hoshi_NewFolder" xml:space="preserve"><value>New folder…</value></data>
+  <data name="Hoshi_RenameFolder" xml:space="preserve"><value>Rename folder</value></data>
+  <data name="Hoshi_DeleteFolder" xml:space="preserve"><value>Delete folder</value></data>
+  <data name="Hoshi_MoveToFolder" xml:space="preserve"><value>Move to folder</value></data>
+  <data name="Hoshi_RemoveFromFolder" xml:space="preserve"><value>Remove from folder</value></data>
+  <data name="Hoshi_Archive" xml:space="preserve"><value>Archive</value></data>
+  <data name="Hoshi_Unarchive" xml:space="preserve"><value>Unarchive</value></data>
+  <data name="Hoshi_ArchivedBadge" xml:space="preserve"><value>Archived</value></data>
+  <data name="Hoshi_ArchiveSelected" xml:space="preserve"><value>Archive selected</value></data>
+  <data name="Hoshi_MoveSelectedToFolder" xml:space="preserve"><value>Move selected to folder…</value></data>
+  <data name="Hoshi_FolderName" xml:space="preserve"><value>Folder name</value></data>
+  <data name="Hoshi_DeleteFolderConfirm" xml:space="preserve"><value>Delete this folder? Its chats become unfiled.</value></data>
+  <data name="Hoshi_MoveToFolderLoading" xml:space="preserve"><value>(loading…)</value></data>
+  <data name="Hoshi_OllamaIgpu" xml:space="preserve"><value>Let Hoshi use the integrated GPU</value></data>
+  <data name="Hoshi_OllamaIgpuHint" xml:space="preserve"><value>Ollama ignores integrated graphics (such as Intel Arc) by default and runs on the CPU. Turning this on restarts Ollama. It may be faster, but it shares system memory with the GPU.</value></data>
+  <data name="Hoshi_RestartOllamaConfirm" xml:space="preserve"><value>Hoshi will restart Ollama. Any answer in progress will stop.</value></data>
+  <data name="Hoshi_RestartingOllama" xml:space="preserve"><value>Restarting Ollama…</value></data>
+  <data name="Hoshi_OllamaGpuStatus" xml:space="preserve"><value>Ollama is using: {0}</value></data>
+  <data name="Hoshi_CheckGpu" xml:space="preserve"><value>Check</value></data>
+  <data name="Settings_AiAcceleration" xml:space="preserve"><value>AI acceleration</value></data>
+  <data name="Settings_AiAccelerationHint" xml:space="preserve"><value>Hardware for Pikura's own AI models (anime tagger, image search). Auto uses the GPU when available and falls back to the CPU.</value></data>
+  <data name="Settings_AiAcceleration_Auto" xml:space="preserve"><value>Auto</value></data>
+  <data name="Settings_AiAcceleration_Gpu" xml:space="preserve"><value>GPU (DirectML)</value></data>
+  <data name="Settings_AiAcceleration_Cpu" xml:space="preserve"><value>CPU only</value></data>
+  <data name="Settings_TaggerProvider" xml:space="preserve"><value>Tagger running on: {0}</value></data>
+  <data name="Library_AutoTag" xml:space="preserve"><value>Auto-tag library images in the background</value></data>
+  <data name="Library_AutoTagHint" xml:space="preserve"><value>Uses the anime tagger (Settings → Hoshi) to tag untagged images after each scan. Pauses while Hoshi is answering. Needs the tagger model installed.</value></data>
+  <data name="Library_TaggingProgress" xml:space="preserve"><value>Tagging {0} / {1}…</value></data>
+  <data name="Library_PauseTagging" xml:space="preserve"><value>Pause</value></data>
+  <data name="Library_ResumeTagging" xml:space="preserve"><value>Resume</value></data>
+  <data name="Library_FilterCharacter" xml:space="preserve"><value>Character (from AI tags)</value></data>
+  <data name="Library_FilterSeries" xml:space="preserve"><value>Series (from AI tags)</value></data>
+  <data name="Library_AnyCharacter" xml:space="preserve"><value>Any character</value></data>
+  <data name="Library_AnySeries" xml:space="preserve"><value>Any series</value></data>
+  <data name="Hoshi_ThinkingNoAnswer" xml:space="preserve"><value>⚠ The model spent its whole answer budget thinking and gave no reply. This is a 'thinking' model, which is very slow without a GPU. Switch to an -instruct model in Settings → Hoshi (e.g. qwen3-vl:4b-instruct).</value></data>
 </root>

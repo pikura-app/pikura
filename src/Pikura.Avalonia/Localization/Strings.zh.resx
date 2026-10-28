@@ -6088,9 +6088,9 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="Hoshi_RecommendedModels" xml:space="preserve"><value>推荐模型</value></data>
   <data name="Hoshi_DownloadAndUse" xml:space="preserve"><value>下载并使用</value></data>
   <data name="Hoshi_UseModel" xml:space="preserve"><value>使用</value></data>
-  <data name="Hoshi_RecoQwen4b" xml:space="preserve"><value>推荐 — 图像、聊天和操作 (3.3 GB)</value></data>
-  <data name="Hoshi_RecoQwen8b" xml:space="preserve"><value>更高质量，需要更强的电脑 (6.2 GB)</value></data>
-  <data name="Hoshi_RecoQwen2b" xml:space="preserve"><value>适用于低配电脑 (1.9 GB)</value></data>
+  <data name="Hoshi_RecoQwen4b" xml:space="preserve"><value>推荐 — 快速、无思考步骤 (3.3 GB)</value></data>
+  <data name="Hoshi_RecoQwen8b" xml:space="preserve"><value>更高质量，仍无思考步骤 (6.2 GB)</value></data>
+  <data name="Hoshi_RecoQwen2b" xml:space="preserve"><value>低配电脑 — 最小、无思考步骤 (1.9 GB)</value></data>
   <data name="Pixivision_AllDates" xml:space="preserve">
     <value>全部日期</value>
   </data>
@@ -6455,4 +6455,168 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="Settings_TouchMode_Auto" xml:space="preserve"><value>自动</value></data>
   <data name="Settings_TouchMode_On" xml:space="preserve"><value>开启</value></data>
   <data name="Settings_TouchModeHint" xml:space="preserve"><value>使用触摸屏或手写笔时放大按钮和输入框。</value></data>
+  <data name="Hoshi_Select" xml:space="preserve"><value>选择</value></data>
+  <data name="Hoshi_Rename" xml:space="preserve"><value>重命名</value></data>
+  <data name="Hoshi_Delete" xml:space="preserve"><value>删除</value></data>
+  <data name="Hoshi_PasteAnImageUrl" xml:space="preserve"><value>粘贴图片URL</value></data>
+  <data name="Hoshi_DescribeThis" xml:space="preserve"><value>描述这张图</value></data>
+  <data name="Hoshi_WhenWasItPosted" xml:space="preserve"><value>什么时候发布的？</value></data>
+  <data name="Hoshi_FindSimilarArt" xml:space="preserve"><value>找相似的图</value></data>
+  <data name="Ollama_Status_DownloadingForHoshi" xml:space="preserve"><value>正在为 Hoshi 下载 {0}…</value></data>
+  <data name="Artwork_Status_LoadedPages" xml:space="preserve"><value>已加载 {0} 页</value></data>
+  <data name="Artwork_Status_Unfollowed" xml:space="preserve"><value>已取消关注 {0}</value></data>
+  <data name="Artwork_Status_Following" xml:space="preserve"><value>正在关注 {0}</value></data>
+  <data name="Bookmarks_Status_LoadCollFailed" xml:space="preserve"><value>加载收藏集失败:{0}</value></data>
+  <data name="Misc_Status_Loadingisprivate" xml:space="preserve"><value>Loading {(isPrivate ? </value></data>
+  <data name="Bookmarks_Status_Failed" xml:space="preserve"><value>失败:{0}</value></data>
+  <data name="Misc_Status_Nohidden" xml:space="preserve"><value>No {(hidden ? </value></data>
+  <data name="Bookmarks_Status_LocalFavs" xml:space="preserve"><value>{0} 个本地收藏</value></data>
+  <data name="Bookmarks_Status_Collections" xml:space="preserve"><value>{0} 个收藏集</value></data>
+  <data name="Bookmarks_Status_Queued" xml:space="preserve"><value>已排队 {0} 个作品 — 进度见历史页。</value></data>
+  <data name="Collections_Status_LoadFeaturedFailed" xml:space="preserve"><value>无法加载精选收藏集:{0}</value></data>
+  <data name="Collections_Status_PageRateLimited" xml:space="preserve"><value>无法加载第 {0} 页 — Pixiv 可能在限流,请稍后再试。</value></data>
+  <data name="Collections_Status_PageFailed" xml:space="preserve"><value>无法加载第 {0} 页:{1}</value></data>
+  <data name="Collections_Status_MoreFailed" xml:space="preserve"><value>无法加载更多收藏集:{0}</value></data>
+  <data name="Collections_Status_LoadingCollage" xml:space="preserve"><value>正在为拼贴加载 {0} 个收藏集…</value></data>
+  <data name="Collections_Status_CollageOpened" xml:space="preserve"><value>已从 {1} 个收藏集打开 {0} 个作品为拼贴。</value></data>
+  <data name="Collections_Status_CollageFailed" xml:space="preserve"><value>拼贴失败:{0}</value></data>
+  <data name="Misc_Status_" xml:space="preserve"><value>\</value></data>
+  <data name="Collections_Status_AddCollageFailed" xml:space="preserve"><value>添加到拼贴失败:{0}</value></data>
+  <data name="Collections_Status_LoadingN" xml:space="preserve"><value>正在加载 {0} 个收藏集…</value></data>
+  <data name="Collections_Status_DownloadJobs" xml:space="preserve"><value>已用预设 '{1}' 启动 {0} 个收藏集下载任务。</value></data>
+  <data name="Collections_Status_DownloadStartFailed" xml:space="preserve"><value>无法开始下载:{0}</value></data>
+  <data name="Collections_Status_NoneToDownload" xml:space="preserve"><value>没有可下载的 {0} 收藏集。</value></data>
+  <data name="Collections_Status_LoadingTile" xml:space="preserve"><value>正在加载 {0}…</value></data>
+  <data name="Collections_Status_WorksIn" xml:space="preserve"><value>本收藏集有 {0} 个作品</value></data>
+  <data name="Collections_Status_LoadFailed" xml:space="preserve"><value>加载收藏集失败:{0}</value></data>
+  <data name="Collections_Status_DownloadSel" xml:space="preserve"><value>已开始下载选中的 {0} 个作品 → {1}</value></data>
+  <data name="Collections_Status_DownloadPreset" xml:space="preserve"><value>已用预设 '{1}' 开始下载 {0} 个作品 → {2}</value></data>
+  <data name="Collections_Status_DownloadN" xml:space="preserve"><value>已开始下载 {0} 个作品 → {1}</value></data>
+  <data name="Discover_Status_FetchingMeta" xml:space="preserve"><value>正在获取作品元数据… {0}/{1}</value></data>
+  <data name="Discover_Status_QueuedDl" xml:space="preserve"><value>已排队 {0} 个作品下载。</value></data>
+  <data name="Discover_Status_FetchFailed" xml:space="preserve"><value>获取全部作品失败:{0}</value></data>
+  <data name="Discover_Status_RecommendedWorks" xml:space="preserve"><value>{0} 个推荐作品</value></data>
+  <data name="Discover_Status_RecommendedUsers" xml:space="preserve"><value>{0} 个推荐用户</value></data>
+  <data name="Discover_Status_QueuedPreset" xml:space="preserve"><value>已用预设 {1} 排队 {0} 个作品下载。</value></data>
+  <data name="DlBookmarks_Status_Queueing" xml:space="preserve"><value>正在排队 {0} 个已收藏作品…</value></data>
+  <data name="DlBookmarks_Status_Queued" xml:space="preserve"><value>任务已排队 — {0} 个作品</value></data>
+  <data name="DlBookmarks_Status_CollectingArtists" xml:space="preserve"><value>正在收集收藏的画师… {0}/{1}</value></data>
+  <data name="DlBookmarks_Status_QueuedArtists" xml:space="preserve"><value>任务已排队 — {0} 位画师</value></data>
+  <data name="DlBookmarks_Status_Collecting" xml:space="preserve"><value>正在收集收藏… {0}/{1}</value></data>
+  <data name="DlBookmarks_Status_QueuedFav" xml:space="preserve"><value>任务已排队 — '{1}' 的 {0} 个作品</value></data>
+  <data name="DlBookmarks_Status_QueuedFavorites" xml:space="preserve"><value>任务已排队 — {0} 个收藏</value></data>
+  <data name="Hoshi_BusyOtherChat" xml:space="preserve"><value>Hoshi 正在另一个会话中回答…</value></data>
+  <data name="DlArtist_Status_AddedArtists" xml:space="preserve"><value>已添加 {0} 位画师到下载列表</value></data>
+  <data name="DlArtist_Status_AddedSkipped" xml:space="preserve"><value>已添加 {0} 位，跳过 {1} 个重复</value></data>
+  <data name="DlArtist_Status_AddedN" xml:space="preserve"><value>已添加 {0} 位画师</value></data>
+  <data name="DlArtist_Status_PastedId" xml:space="preserve"><value>已粘贴 {0} ID:{1}</value></data>
+  <data name="DlArtist_Status_Imported" xml:space="preserve"><value>已从文件导入 {0} 位画师</value></data>
+  <data name="DlArtist_Status_SavedCustom" xml:space="preserve"><value>已保存 {0} 的自定义设置</value></data>
+  <data name="DlArtist_Status_PresetSaved" xml:space="preserve"><value>预设 '{0}' 已保存</value></data>
+  <data name="DlArtist_Status_PresetDeleted" xml:space="preserve"><value>预设 '{0}' 已删除</value></data>
+  <data name="DlArtist_Status_PresetLoaded" xml:space="preserve"><value>已加载预设 '{0}'(含 {1} 位画师)</value></data>
+  <data name="DlCollection_Status_Loading" xml:space="preserve"><value>正在加载收藏集 {0}…</value></data>
+  <data name="Gallery_Status_LoadedArtworks" xml:space="preserve"><value>已加载 {0} 个作品</value></data>
+  <data name="Gallery_Status_SearchResults" xml:space="preserve"><value>找到 {0} 个 '{1}' 的结果</value></data>
+  <data name="Gallery_Status_SearchFailed" xml:space="preserve"><value>搜索失败:{0}</value></data>
+  <data name="Gallery_Status_FollowedArtists" xml:space="preserve"><value>已加载 {0} 位已关注画师</value></data>
+  <data name="Gallery_Status_LoadArtistsFailed" xml:space="preserve"><value>加载画师失败:{0}</value></data>
+  <data name="Gallery_Status_FilterApplied" xml:space="preserve"><value>已应用筛选:{0}</value></data>
+  <data name="Gallery_Status_FilterRemoved" xml:space="preserve"><value>已移除筛选:{0}</value></data>
+  <data name="Rankings_Status_LoadingMode" xml:space="preserve"><value>正在加载 {0} 排行榜…</value></data>
+  <data name="Gallery_Status_DlCollage" xml:space="preserve"><value>正在下载 {0} 个拼贴作品到 {1}…</value></data>
+  <data name="Gallery_Status_LoadingPages" xml:space="preserve"><value>正在加载 {0} 的页面…</value></data>
+  <data name="Gallery_Status_OnePage" xml:space="preserve"><value>{0} 只有一页。</value></data>
+  <data name="Gallery_Status_Expanded" xml:space="preserve"><value>已将 {0} 展开为 {1} 个页面卡片</value></data>
+  <data name="Gallery_Status_ExpandFailed" xml:space="preserve"><value>展开 {0} 失败:{1}</value></data>
+  <data name="Gallery_Status_QueuedDlFailed" xml:space="preserve"><value>排队下载失败:{0}</value></data>
+  <data name="Gallery_Status_QueuedWaiting" xml:space="preserve"><value>已排队:{0}(等待 {1})</value></data>
+  <data name="Gallery_Status_SearchingArtist" xml:space="preserve"><value>正在搜索画师:{0}…</value></data>
+  <data name="Gallery_Status_NoArtists" xml:space="preserve"><value>没有找到画师:{0}。</value></data>
+  <data name="Gallery_Status_ArtistsFound" xml:space="preserve"><value>找到 {0} 位匹配 '{1}' 的画师</value></data>
+  <data name="Gallery_Status_ArtistSearchFailed" xml:space="preserve"><value>画师搜索失败:{0}</value></data>
+  <data name="Gallery_Status_ArtistNotFound" xml:space="preserve"><value>未找到画师 {0}。</value></data>
+  <data name="Gallery_Status_WaitingList" xml:space="preserve"><value>正在等待 {0} 的作品列表加载…</value></data>
+  <data name="Gallery_Status_NoList" xml:space="preserve"><value>无法加载 {0} 的作品列表。</value></data>
+  <data name="Gallery_Status_LoadingMeta" xml:space="preserve"><value>正在加载 {0} 的元数据… {1}/{2}</value></data>
+  <data name="Gallery_Status_NoArtworks" xml:space="preserve"><value>无法加载 {0} 的任何作品。</value></data>
+  <data name="Gallery_Status_DlFrom" xml:space="preserve"><value>正在下载 {1} 的 {0} 个作品…</value></data>
+  <data name="Gallery_Status_DlProgress" xml:space="preserve"><value>正在下载 {0} 第{1}/{2}页({3}%) — {4}/{5}</value></data>
+  <data name="Gallery_Status_FetchMeta" xml:space="preserve"><value>正在获取 {0} 个作品的元数据…</value></data>
+  <data name="Search_Status_LoadMoreFailed" xml:space="preserve"><value>加载更多失败:{0}</value></data>
+  <data name="Update_Status_Ready" xml:space="preserve"><value>v{0} 已就绪可安装</value></data>
+  <data name="Update_Status_Downloading" xml:space="preserve"><value>正在下载更新… {0}%</value></data>
+  <data name="Gallery_Status_QueuedDlPreset" xml:space="preserve"><value>已用预设 {1} 排队 {0} 个作品下载</value></data>
+  <data name="Search_Status_NovelsFor" xml:space="preserve"><value>"{1}" 的小说 {0} 个</value></data>
+  <data name="Search_Status_UsersFor" xml:space="preserve"><value>"{1}" 的用户 {0} 个</value></data>
+  <data name="Update_Status_Failed" xml:space="preserve"><value>更新失败:{0}</value></data>
+  <data name="Update_Status_DownloadFailed" xml:space="preserve"><value>下载失败:{0}</value></data>
+  <data name="Update_Status_InstallFailed" xml:space="preserve"><value>安装失败:{0}</value></data>
+  <data name="Schedules_Status_LoadError" xml:space="preserve"><value>加载错误:{0}</value></data>
+  <data name="Schedules_Status_AddedStaged" xml:space="preserve"><value>已将 {0} 加入暂存列表(共 {1} 位画师)</value></data>
+  <data name="Schedules_Status_Updated" xml:space="preserve"><value>计划 '{0}' 已更新。</value></data>
+  <data name="Schedules_Status_Added" xml:space="preserve"><value>已添加计划 '{0}'({1} 位画师)</value></data>
+  <data name="Schedules_Status_Completed" xml:space="preserve"><value>'{0}' 已完成。</value></data>
+  <data name="Schedules_Status_RunFailed" xml:space="preserve"><value>运行失败:{0}</value></data>
+  <data name="Schedules_Status_Editing" xml:space="preserve"><value>正在编辑 '{0}' — 修改后点击保存。</value></data>
+  <data name="Schedules_Status_Removed" xml:space="preserve"><value>已移除 '{0}'。</value></data>
+  <data name="Settings_Status_CheckFailed" xml:space="preserve"><value>检查失败:{0}</value></data>
+  <data name="Update_Status_DlUpdater" xml:space="preserve"><value>正在下载新的更新程序… {0}%</value></data>
+  <data name="History_Status_LoadFailed" xml:space="preserve"><value>加载历史记录失败:{0}</value></data>
+  <data name="History_Status_LoadMoreFailed" xml:space="preserve"><value>加载更多失败:{0}</value></data>
+  <data name="Common_Status_CopiedArtistId" xml:space="preserve"><value>已复制画师 ID {0}({1})</value></data>
+  <data name="Common_Status_QueuedPreset" xml:space="preserve"><value>已用预设 {1} 排队 {0} 个作品下载</value></data>
+  <data name="Gallery_Status_ExportedMeta" xml:space="preserve"><value>已导出 {0} 个作品的元数据</value></data>
+  <data name="Common_Status_UgoiraFailed" xml:space="preserve"><value>动图选项失败:{0}</value></data>
+  <data name="Common_Status_CopiedArtistIdShort" xml:space="preserve"><value>已复制画师 ID {0}</value></data>
+  <data name="History_Status_ViewedCount" xml:space="preserve"><value>已查看 {0}/{1:N0} 条</value></data>
+  <data name="Rankings_Status_Range" xml:space="preserve"><value>第 {0}–{1} 名 / 共 {2:N0}  ·  {3}  ·  {4}</value></data>
+  <data name="Schedules_Status_EnabledDot" xml:space="preserve"><value>已启用 {0}。</value></data>
+  <data name="Schedules_Status_DisabledDot" xml:space="preserve"><value>已禁用 {0}。</value></data>
+  <data name="Hoshi_StartArtworkChat" xml:space="preserve"><value>就这件作品开始聊天</value></data>
+  <data name="Hoshi_Stop" xml:space="preserve"><value>停止</value></data>
+  <data name="Hoshi_Stopped" xml:space="preserve"><value>已停止。</value></data>
+  <data name="Hoshi_ThinkingModelWarning" xml:space="preserve"><value>这是一个“思考”模型——回答前会静默推理，没有GPU时非常慢。想要更快回答请选择 -instruct 模型。</value></data>
+  <data name="Hoshi_Filter_All" xml:space="preserve"><value>全部</value></data>
+  <data name="Hoshi_Filter_Pinned" xml:space="preserve"><value>置顶</value></data>
+  <data name="Hoshi_Filter_Archived" xml:space="preserve"><value>已归档</value></data>
+  <data name="Hoshi_Group_Date" xml:space="preserve"><value>按日期</value></data>
+  <data name="Hoshi_Group_Kind" xml:space="preserve"><value>按类型</value></data>
+  <data name="Hoshi_ArtworkChats" xml:space="preserve"><value>作品聊天</value></data>
+  <data name="Hoshi_StandaloneChats" xml:space="preserve"><value>独立聊天</value></data>
+  <data name="Hoshi_NewFolder" xml:space="preserve"><value>新建文件夹…</value></data>
+  <data name="Hoshi_RenameFolder" xml:space="preserve"><value>重命名文件夹</value></data>
+  <data name="Hoshi_DeleteFolder" xml:space="preserve"><value>删除文件夹</value></data>
+  <data name="Hoshi_MoveToFolder" xml:space="preserve"><value>移动到文件夹</value></data>
+  <data name="Hoshi_RemoveFromFolder" xml:space="preserve"><value>移出文件夹</value></data>
+  <data name="Hoshi_Archive" xml:space="preserve"><value>归档</value></data>
+  <data name="Hoshi_Unarchive" xml:space="preserve"><value>取消归档</value></data>
+  <data name="Hoshi_ArchivedBadge" xml:space="preserve"><value>已归档</value></data>
+  <data name="Hoshi_ArchiveSelected" xml:space="preserve"><value>归档所选</value></data>
+  <data name="Hoshi_MoveSelectedToFolder" xml:space="preserve"><value>移动所选到文件夹…</value></data>
+  <data name="Hoshi_FolderName" xml:space="preserve"><value>文件夹名称</value></data>
+  <data name="Hoshi_DeleteFolderConfirm" xml:space="preserve"><value>删除此文件夹？其中聊天将变为未归类。</value></data>
+  <data name="Hoshi_MoveToFolderLoading" xml:space="preserve"><value>(加载中…)</value></data>
+  <data name="Hoshi_OllamaIgpu" xml:space="preserve"><value>允许Hoshi使用集成显卡</value></data>
+  <data name="Hoshi_OllamaIgpuHint" xml:space="preserve"><value>Ollama 默认会忽略集成显卡（如 Intel Arc）并使用 CPU 运行。开启后会重启 Ollama。可能更快，但会与 GPU 共享系统内存。</value></data>
+  <data name="Hoshi_RestartOllamaConfirm" xml:space="preserve"><value>Hoshi 将重启 Ollama。正在进行的回答会停止。</value></data>
+  <data name="Hoshi_RestartingOllama" xml:space="preserve"><value>正在重启 Ollama…</value></data>
+  <data name="Hoshi_OllamaGpuStatus" xml:space="preserve"><value>Ollama 正在使用：{0}</value></data>
+  <data name="Hoshi_CheckGpu" xml:space="preserve"><value>检查</value></data>
+  <data name="Settings_AiAcceleration" xml:space="preserve"><value>AI 加速</value></data>
+  <data name="Settings_AiAccelerationHint" xml:space="preserve"><value>用于 Pikura 自带 AI 模型（动漫标签器、图片搜索）的硬件。自动模式会在可用时使用 GPU，否则回退到 CPU。</value></data>
+  <data name="Settings_AiAcceleration_Auto" xml:space="preserve"><value>自动</value></data>
+  <data name="Settings_AiAcceleration_Gpu" xml:space="preserve"><value>GPU（DirectML）</value></data>
+  <data name="Settings_AiAcceleration_Cpu" xml:space="preserve"><value>仅 CPU</value></data>
+  <data name="Settings_TaggerProvider" xml:space="preserve"><value>标签器运行于：{0}</value></data>
+  <data name="Library_AutoTag" xml:space="preserve"><value>在后台自动为图库图片添加标签</value></data>
+  <data name="Library_AutoTagHint" xml:space="preserve"><value>每次扫描后使用动漫标签器（设置 → Hoshi）为未加标签的图片添加标签。Hoshi 回答时会暂停。需要安装标签器模型。</value></data>
+  <data name="Library_TaggingProgress" xml:space="preserve"><value>正在添加标签 {0} / {1}…</value></data>
+  <data name="Library_PauseTagging" xml:space="preserve"><value>暂停</value></data>
+  <data name="Library_ResumeTagging" xml:space="preserve"><value>继续</value></data>
+  <data name="Library_FilterCharacter" xml:space="preserve"><value>角色（AI 标签）</value></data>
+  <data name="Library_FilterSeries" xml:space="preserve"><value>作品（AI 标签）</value></data>
+  <data name="Library_AnyCharacter" xml:space="preserve"><value>任意角色</value></data>
+  <data name="Library_AnySeries" xml:space="preserve"><value>任意作品</value></data>
+  <data name="Hoshi_ThinkingNoAnswer" xml:space="preserve"><value>⚠ 模型把全部回答额度都用在思考上，没有给出回复。这是“思考”模型，没有 GPU 时非常慢。请在 设置 → Hoshi 中切换到 -instruct 模型（如 qwen3-vl:4b-instruct）。</value></data>
 </root>

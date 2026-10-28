@@ -1431,7 +1431,10 @@ public sealed partial class PixivClient
             {
                 resp = await client.SendAsync(req, ct).ConfigureAwait(false);
             }
-            catch (HttpRequestException ex) when (ex.StatusCode == null && networkRetries < 2 && !ct.IsCancellationRequested)
+            catch (Exception ex) when (networkRetries < 2 && !ct.IsCancellationRequested
+                                       && (ex is HttpRequestException { StatusCode: null }
+                                           // HttpClient.Timeout elapsed (slow/in-flight Wi-Fi) — not a user cancel
+                                           || ex is TaskCanceledException { InnerException: TimeoutException }))
             {
                 // Connection-level failure (TLS handshake reset, DNS, Wi-Fi waking up): these
                 // usually succeed a moment later, so retry twice before surfacing an error.

@@ -936,6 +936,16 @@ public sealed class AppSettings
     /// <summary>Reopen persisted viewer tabs on startup (when off the viewer starts empty).</summary>
     /// <summary>Hoshi chat retention in days (0/off = keep forever).</summary>
     public int HoshiChatRetentionDays { get; set; }
+    /// <summary>Chat-list filter: "All" | "Pinned" | "Archived".</summary>
+    public string HoshiSessionFilter { get; set; } = "All";
+    /// <summary>Chat-list grouping: "Date" | "Kind".</summary>
+    public string HoshiSessionGrouping { get; set; } = "Date";
+    /// <summary>ONNX inference acceleration: "Auto" | "Gpu" | "Cpu".</summary>
+    public string AiAcceleration { get; set; } = "Auto";
+    /// <summary>Automatically tag new library images in the background.</summary>
+    public bool LibraryAutoTag { get; set; } = true;
+    /// <summary>Let Ollama use the integrated GPU (OLLAMA_IGPU_ENABLE=1; Ollama restart required).</summary>
+    public bool HoshiOllamaIgpu { get; set; }
     /// <summary>Hoshi image-store cap in MB (0 = unlimited).</summary>
     public int HoshiMaxImageStoreMb { get; set; }
     /// <summary>Last time the hoshi cleanup pass ran (once/day max).</summary>

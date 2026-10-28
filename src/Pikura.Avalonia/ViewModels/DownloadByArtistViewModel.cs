@@ -402,7 +402,7 @@ public partial class DownloadByArtistViewModel : ViewModelBase
                 }
             }
 
-            StatusMessage = $"Added {added} artists to download list";
+            StatusMessage = string.Format(LocalizationService.Instance["DlArtist_Status_AddedArtists"], added);
         }
         catch (Exception ex)
         {
@@ -530,9 +530,9 @@ public partial class DownloadByArtistViewModel : ViewModelBase
         ParsedArtistIds.Clear();
 
         if (added > 0 && duplicates > 0)
-            StatusMessage = $"Added {added} artists, skipped {duplicates} duplicates";
+            StatusMessage = string.Format(LocalizationService.Instance["DlArtist_Status_AddedSkipped"], added, duplicates);
         else if (added > 0)
-            StatusMessage = $"Added {added} artist(s)";
+            StatusMessage = string.Format(LocalizationService.Instance["DlArtist_Status_AddedN"], added);
         else
             StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["DlArtist_AllArtistsAlreadyInList"];
 
@@ -550,7 +550,7 @@ public partial class DownloadByArtistViewModel : ViewModelBase
         if (!string.IsNullOrEmpty(clipboardId))
         {
             NewArtistId = clipboardId;
-            StatusMessage = $"Pasted {QuickClipboardService.LastCopiedType} ID: {clipboardId}";
+            StatusMessage = string.Format(LocalizationService.Instance["DlArtist_Status_PastedId"], QuickClipboardService.LastCopiedType, clipboardId);
         }
     }
 
@@ -584,7 +584,7 @@ public partial class DownloadByArtistViewModel : ViewModelBase
                 added++;
             }
 
-            StatusMessage = $"Imported {added} artists from file";
+            StatusMessage = string.Format(LocalizationService.Instance["DlArtist_Status_Imported"], added);
             if (newEntries.Count > 0) _ = ResolveArtistNamesAsync(newEntries);
         }
         catch (Exception ex)
@@ -685,7 +685,7 @@ public partial class DownloadByArtistViewModel : ViewModelBase
         artist.CustomSettings = dialog.Settings;
         await _artistSettingsRepository.SaveAsync(artist.UserId, artist.UserName, artist.CustomSettings);
 
-        StatusMessage = $"Saved custom settings for {artist.UserName}";
+        StatusMessage = string.Format(LocalizationService.Instance["DlArtist_Status_SavedCustom"], artist.UserName);
     }
 
     #endregion
@@ -889,7 +889,7 @@ public partial class DownloadByArtistViewModel : ViewModelBase
         };
 
         await _presetRepository.SaveAsync(preset);
-        StatusMessage = $"Preset '{preset.Name}' saved";
+        StatusMessage = string.Format(LocalizationService.Instance["DlArtist_Status_PresetSaved"], preset.Name);
     }
 
     [RelayCommand]
@@ -918,7 +918,7 @@ public partial class DownloadByArtistViewModel : ViewModelBase
         if (dialog.ShouldDelete)
         {
             await _presetRepository.DeleteAsync(dialog.SelectedPreset.Id);
-            StatusMessage = $"Preset '{dialog.SelectedPreset.Name}' deleted";
+            StatusMessage = string.Format(LocalizationService.Instance["DlArtist_Status_PresetDeleted"], dialog.SelectedPreset.Name);
             return;
         }
 
@@ -945,7 +945,7 @@ public partial class DownloadByArtistViewModel : ViewModelBase
         }
 
         await _presetRepository.RecordUsageAsync(preset.Id);
-        StatusMessage = $"Loaded preset '{preset.Name}' with {preset.Artists.Count} artists";
+        StatusMessage = string.Format(LocalizationService.Instance["DlArtist_Status_PresetLoaded"], preset.Name, preset.Artists.Count);
     }
 
     #endregion

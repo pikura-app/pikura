@@ -340,7 +340,7 @@ public partial class CollectionsViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            StatusMessage = $"Couldn't load featured collections: {ex.Message}";
+            StatusMessage = string.Format(LocalizationService.Instance["Collections_Status_LoadFeaturedFailed"], ex.Message);
         }
         finally { IsBrowseLoading = false; }
     }
@@ -483,7 +483,7 @@ public partial class CollectionsViewModel : ObservableObject
 
             if (items.Count == 0 && total == 0)
             {
-                StatusMessage = $"Couldn't load page {page} — Pixiv may be rate-limiting requests. Try again in a moment.";
+                StatusMessage = string.Format(LocalizationService.Instance["Collections_Status_PageRateLimited"], page);
                 return;
             }
 
@@ -500,7 +500,7 @@ public partial class CollectionsViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            StatusMessage = $"Couldn't load page {page}: {ex.Message}";
+            StatusMessage = string.Format(LocalizationService.Instance["Collections_Status_PageFailed"], page, ex.Message);
         }
         finally { IsLoadingMoreAllCollections = false; }
     }
@@ -532,7 +532,7 @@ public partial class CollectionsViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            StatusMessage = $"Couldn't load more collections: {ex.Message}";
+            StatusMessage = string.Format(LocalizationService.Instance["Collections_Status_MoreFailed"], ex.Message);
         }
         finally { IsLoadingMoreAllCollections = false; }
     }
@@ -684,7 +684,7 @@ public partial class CollectionsViewModel : ObservableObject
         IsLoading = true;
         try
         {
-            StatusMessage = $"Loading {selected.Count} collection(s) for collage…";
+            StatusMessage = string.Format(LocalizationService.Instance["Collections_Status_LoadingCollage"], selected.Count);
             var cards = new List<ArtworkCardViewModel>();
             foreach (var tile in selected)
             {
@@ -707,12 +707,12 @@ public partial class CollectionsViewModel : ObservableObject
             GalleryVm.ShowCollage(cards);
 ShowPreview = true;
             _settingsService.Update(s => s.ViewerBrowsePanelHidden = false);
-            StatusMessage = $"Opened {cards.Count} artwork(s) from {selected.Count} collection(s) as a collage.";
+            StatusMessage = string.Format(LocalizationService.Instance["Collections_Status_CollageOpened"], cards.Count, selected.Count);
         }
         catch (Exception ex)
         {
             Debug.WriteLine($"Failed to view selected collections as collage: {ex}");
-            StatusMessage = $"Collage failed: {ex.Message}";
+            StatusMessage = string.Format(LocalizationService.Instance["Collections_Status_CollageFailed"], ex.Message);
         }
         finally
         {
@@ -738,7 +738,7 @@ ShowPreview = true;
         var cards = new List<ArtworkCardViewModel>();
         if (selected.Count == 0 || cap <= 0) return (cards, 0);
 
-        StatusMessage = $"Loading {selected.Count} collection(s) for collage…";
+        StatusMessage = string.Format(LocalizationService.Instance["Collections_Status_LoadingCollage"], selected.Count);
         foreach (var tile in selected)
         {
             if (cards.Count >= cap) break;
@@ -784,7 +784,7 @@ ShowPreview = true;
         catch (Exception ex)
         {
             Debug.WriteLine($"Failed to add selected collections to collage: {ex}");
-            StatusMessage = $"Add to collage failed: {ex.Message}";
+            StatusMessage = string.Format(LocalizationService.Instance["Collections_Status_AddCollageFailed"], ex.Message);
         }
         finally
         {
@@ -813,7 +813,7 @@ ShowPreview = true;
         catch (Exception ex)
         {
             Debug.WriteLine($"Failed to add selected collections to collage: {ex}");
-            StatusMessage = $"Add to collage failed: {ex.Message}";
+            StatusMessage = string.Format(LocalizationService.Instance["Collections_Status_AddCollageFailed"], ex.Message);
         }
         finally
         {
@@ -841,7 +841,7 @@ ShowPreview = true;
         IsDownloading = true;
         try
         {
-            StatusMessage = $"Loading {selected.Count} collection(s)…";
+            StatusMessage = string.Format(LocalizationService.Instance["Collections_Status_LoadingN"], selected.Count);
             var resolved = new List<PixivCollection>();
             foreach (var tile in selected)
             {
@@ -864,11 +864,11 @@ ShowPreview = true;
                 await _coordinator.CreateJobAsync(DownloadJobType.ImageId, $"Collection: {c.Title}", targets, settingsOverride: null, startImmediately: true);
                 started++;
             }
-            StatusMessage = $"Started {started} collection download job(s) with preset '{preset.Name}'.";
+            StatusMessage = string.Format(LocalizationService.Instance["Collections_Status_DownloadJobs"], started, preset.Name);
         }
         catch (Exception ex)
         {
-            StatusMessage = $"Could not start download: {ex.Message}";
+            StatusMessage = string.Format(LocalizationService.Instance["Collections_Status_DownloadStartFailed"], ex.Message);
         }
         finally { IsDownloading = false; }
     }
@@ -877,7 +877,7 @@ ShowPreview = true;
     {
         if (tiles.Count == 0)
         {
-            StatusMessage = $"No {label} collections to download.";
+            StatusMessage = string.Format(LocalizationService.Instance["Collections_Status_NoneToDownload"], label);
             return;
         }
 
@@ -888,7 +888,7 @@ ShowPreview = true;
         {
             foreach (var tile in tiles)
             {
-                StatusMessage = $"Loading {tile.Title}…";
+                StatusMessage = string.Format(LocalizationService.Instance["Collections_Status_LoadingTile"], tile.Title);
                 var collection = await ResolveCollectionAsync(tile.Id);
                 if (collection == null || collection.Works.Count == 0) { failed.Add(tile.Title); continue; }
 
@@ -1125,14 +1125,14 @@ ShowPreview = true;
             }
 
             HasLoaded = true;
-            StatusMessage = $"{Works.Count} work(s) in this collection";
+            StatusMessage = string.Format(LocalizationService.Instance["Collections_Status_WorksIn"], Works.Count);
 
             _ = LoadCollectionCommentsAsync(id);
             _ = LoadCollectionBookmarkStateAsync(id);
         }
         catch (Exception ex)
         {
-            StatusMessage = $"Failed to load collection: {ex.Message}";
+            StatusMessage = string.Format(LocalizationService.Instance["Collections_Status_LoadFailed"], ex.Message);
             HasLoaded = false;
             _currentCollection = null;
         }
@@ -1342,11 +1342,11 @@ ShowPreview = true;
                 settingsOverride: null,
                 startImmediately: true);
 
-            StatusMessage = $"Download started for {targets.Count} selected work(s) → {folder}";
+            StatusMessage = string.Format(LocalizationService.Instance["Collections_Status_DownloadSel"], targets.Count, folder);
         }
         catch (Exception ex)
         {
-            StatusMessage = $"Could not start download: {ex.Message}";
+            StatusMessage = string.Format(LocalizationService.Instance["Collections_Status_DownloadStartFailed"], ex.Message);
         }
         finally { IsDownloading = false; }
     }
@@ -1381,11 +1381,11 @@ ShowPreview = true;
                 settingsOverride: null,
                 startImmediately: true);
 
-            StatusMessage = $"Download started for {targets.Count} work(s) with preset '{preset.Name}' → {folder}";
+            StatusMessage = string.Format(LocalizationService.Instance["Collections_Status_DownloadPreset"], targets.Count, preset.Name, folder);
         }
         catch (Exception ex)
         {
-            StatusMessage = $"Could not start download: {ex.Message}";
+            StatusMessage = string.Format(LocalizationService.Instance["Collections_Status_DownloadStartFailed"], ex.Message);
         }
         finally { IsDownloading = false; }
     }
@@ -1413,11 +1413,11 @@ ShowPreview = true;
                 settingsOverride: null,
                 startImmediately: true);
 
-            StatusMessage = $"Download started for {targets.Count} work(s) → {folder}";
+            StatusMessage = string.Format(LocalizationService.Instance["Collections_Status_DownloadN"], targets.Count, folder);
         }
         catch (Exception ex)
         {
-            StatusMessage = $"Could not start download: {ex.Message}";
+            StatusMessage = string.Format(LocalizationService.Instance["Collections_Status_DownloadStartFailed"], ex.Message);
         }
         finally { IsDownloading = false; }
     }

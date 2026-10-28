@@ -995,7 +995,7 @@
                         <ItemsControl ItemsSource="{Binding FilteredPublic}" Margin="10,10,4,10"
                                       IsVisible="{Binding ShowNaturalGrid}"
                                       ItemTemplate="{StaticResource BookmarkNaturalCardTemplate}">
-                            <ItemsControl.ItemsPanel><ItemsPanelTemplate><gallery:MasonryPanel ColumnWidth="{Binding $parent[UserControl].((vm:BookmarksViewModel)DataContext).CardSize}" ItemSpacing="6" SqueezeToFill="True"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemsPanel><ItemsPanelTemplate><gallery:MasonryPanel ColumnWidth="{Binding $parent[UserControl].((vm:BookmarksViewModel)DataContext).CardSize}" ItemSpacing="6" StretchToFill="True"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
                         </ItemsControl>
 
                         <!-- List -->
@@ -1054,7 +1054,7 @@
                         <ItemsControl ItemsSource="{Binding FilteredPrivate}" Margin="10,10,4,10"
                                       IsVisible="{Binding ShowNaturalGrid}"
                                       ItemTemplate="{StaticResource BookmarkNaturalCardTemplate}">
-                            <ItemsControl.ItemsPanel><ItemsPanelTemplate><gallery:MasonryPanel ColumnWidth="{Binding $parent[UserControl].((vm:BookmarksViewModel)DataContext).CardSize}" ItemSpacing="6" SqueezeToFill="True"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemsPanel><ItemsPanelTemplate><gallery:MasonryPanel ColumnWidth="{Binding $parent[UserControl].((vm:BookmarksViewModel)DataContext).CardSize}" ItemSpacing="6" StretchToFill="True"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
                         </ItemsControl>
 
                         <!-- List -->
@@ -1209,7 +1209,7 @@
                             <ItemsControl ItemsSource="{Binding FilteredFavorites}" Margin="10,10,4,10"
                                           IsVisible="{Binding ShowNaturalGrid}"
                                           ItemTemplate="{StaticResource FavoriteNaturalCardTemplate}">
-                                <ItemsControl.ItemsPanel><ItemsPanelTemplate><gallery:MasonryPanel ColumnWidth="{Binding $parent[UserControl].((vm:BookmarksViewModel)DataContext).CardSize}" ItemSpacing="6" SqueezeToFill="True"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemsPanel><ItemsPanelTemplate><gallery:MasonryPanel ColumnWidth="{Binding $parent[UserControl].((vm:BookmarksViewModel)DataContext).CardSize}" ItemSpacing="6" StretchToFill="True"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
                             </ItemsControl>
 
                             <!-- List -->
