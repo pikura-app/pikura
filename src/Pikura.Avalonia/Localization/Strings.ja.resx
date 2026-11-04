@@ -5720,8 +5720,8 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="WhatsNew_ChromeStyleTabReordering" xml:space="preserve">
     <value>Chrome風タブ並べ替え</value>
   </data>
-  <data name="WhatsNew_Pikura210" xml:space="preserve">
-    <value>Pikura 2.1.0</value>
+  <data name="WhatsNew_Pikura250" xml:space="preserve">
+    <value>Pikura 2.5.0</value>
   </data>
   <data name="WhatsNew_PixivConnectedActions" xml:space="preserve">
     <value>Pixiv連携アクション</value>
@@ -6619,4 +6619,22 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="Library_AnyCharacter" xml:space="preserve"><value>すべてのキャラクター</value></data>
   <data name="Library_AnySeries" xml:space="preserve"><value>すべての作品</value></data>
   <data name="Hoshi_ThinkingNoAnswer" xml:space="preserve"><value>⚠ モデルが回答枠をすべて思考に使い、返答がありませんでした。これは「シンキング」モデルで、GPUなしでは非常に遅くなります。設定 → Hoshi で -instruct モデル（例: qwen3-vl:4b-instruct）に切り替えてください。</value></data>
+  <data name="WhatsNew_LocalLibrary" xml:space="preserve">
+    <value>ローカルライブラリ</value>
+  </data>
+  <data name="WhatsNew_HoshiOverhaul" xml:space="preserve">
+    <value>さらに賢くなったHoshi</value>
+  </data>
+  <data name="WhatsNew_GpuAcceleration" xml:space="preserve">
+    <value>GPUアクセラレーション</value>
+  </data>
+  <data name="WhatsNew_TouchAndPen" xml:space="preserve">
+    <value>タッチ＆ペン対応</value>
+  </data>
+  <data name="WhatsNew_ReliableDownloads" xml:space="preserve">
+    <value>より確実なダウンロード</value>
+  </data>
+  <data name="WhatsNew_FullyTranslated" xml:space="preserve">
+    <value>完全ローカライズ</value>
+  </data>
 </root>

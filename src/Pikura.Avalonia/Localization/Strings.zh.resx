@@ -5720,8 +5720,8 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="WhatsNew_ChromeStyleTabReordering" xml:space="preserve">
     <value>Chrome 式标签页重排</value>
   </data>
-  <data name="WhatsNew_Pikura210" xml:space="preserve">
-    <value>Pikura 2.1.0</value>
+  <data name="WhatsNew_Pikura250" xml:space="preserve">
+    <value>Pikura 2.5.0</value>
   </data>
   <data name="WhatsNew_PixivConnectedActions" xml:space="preserve">
     <value>Pixiv 关联操作</value>
@@ -6619,4 +6619,22 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="Library_AnyCharacter" xml:space="preserve"><value>任意角色</value></data>
   <data name="Library_AnySeries" xml:space="preserve"><value>任意作品</value></data>
   <data name="Hoshi_ThinkingNoAnswer" xml:space="preserve"><value>⚠ 模型把全部回答额度都用在思考上，没有给出回复。这是“思考”模型，没有 GPU 时非常慢。请在 设置 → Hoshi 中切换到 -instruct 模型（如 qwen3-vl:4b-instruct）。</value></data>
+  <data name="WhatsNew_LocalLibrary" xml:space="preserve">
+    <value>本地图库</value>
+  </data>
+  <data name="WhatsNew_HoshiOverhaul" xml:space="preserve">
+    <value>更聪明的 Hoshi</value>
+  </data>
+  <data name="WhatsNew_GpuAcceleration" xml:space="preserve">
+    <value>GPU 加速</value>
+  </data>
+  <data name="WhatsNew_TouchAndPen" xml:space="preserve">
+    <value>触控与触控笔支持</value>
+  </data>
+  <data name="WhatsNew_ReliableDownloads" xml:space="preserve">
+    <value>更可靠的下载</value>
+  </data>
+  <data name="WhatsNew_FullyTranslated" xml:space="preserve">
+    <value>全面本地化</value>
+  </data>
 </root>

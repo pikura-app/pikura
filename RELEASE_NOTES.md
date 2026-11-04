@@ -1,3 +1,54 @@
+## Pikura 2.5.0
+
+The biggest update since 2.0: a local Library for everything you've downloaded, a rebuilt Hoshi with GPU acceleration, touch and pen support, full Japanese/Chinese/Korean translations, and far more reliable downloads and networking.
+
+### New Features
+
+- **Library** — Pikura now indexes every file you download, plus a one-time scan of your existing download folders. Search titles, artists, pixiv tags and AI tags (Japanese and Chinese included), browse by folder, filter by Character and Series, find exact and visually similar duplicates and move them to the Recycle Bin, fetch missing metadata, and reverse-search any image.
+- **Background AI tagging** — untagged Library images are tagged automatically in the background. It pauses while Hoshi is answering and can be paused or switched off.
+- **Hoshi chat history** — chats now live in a fast local database: instant startup, search, pinning, folders, archive, All / Pinned / Archived filters, grouping by date or type, automatic cleanup and a storage panel. Existing chats migrate automatically.
+- **Hoshi knows and does more** — Hoshi remembers each conversation, knows the details of the artwork you're viewing, and can act for you: search pixiv, find similar art and artists, open artworks and galleries, download, favourite and suggest tags.
+- **Stop button for Hoshi** — cancel a long answer at any time; whatever was written so far is kept.
+- **GPU acceleration** — the anime tagger runs on your GPU through DirectML (about 3× faster in testing) and falls back to the CPU automatically. Hoshi can optionally use integrated GPUs such as Intel Arc through Ollama. New Auto / GPU / CPU setting.
+- **Touch and pen support** — tap vs. scroll, pinch to zoom, free drag, page flicking, and a dedicated touch mode.
+- **Resumable downloads** — interrupted downloads continue where they left off. pixiv rate limits are always waited out, with visible countdowns and a Retry now button.
+- **Metadata export** — export artwork metadata as CSV, TSV, JSON or text from the Gallery or History, or automatically alongside every download (opt-in).
+- **Collage picker** — add artworks to any open collage, several at once, or a new one from the Add to Collage menu.
+- **Fullscreen navigation** — jump between the current submission, collages, open tabs or an artist's gallery from a thumbnail strip.
+- **Fully translated** — the entire interface is available in Japanese, Chinese and Korean, and changing the language applies instantly without a restart.
+- **Faster Windows updates** — a new Velopack installer with small delta updates. Existing installs are offered a one-time migration that keeps all your data.
+
+### Improvements
+
+- **Hoshi** — answers stay in the chat they were asked in, chats only start when you use Hoshi, each chat keeps its own image (downloaded files included), Similar Artists shows thumbnails, streaming is smoother, and Describe sends smaller images for faster answers.
+- Settings recommends fast non-thinking (`-instruct`) vision models and warns when a slow "thinking" model is selected.
+- Optional tab restore on startup; the viewer panel remembers whether it was hidden; the artwork info row scrolls on narrow windows.
+- Background overlays accept pixiv IDs and links, and many entries at once.
+- **Performance** — crash-safe background settings saves, faster Library hashing and thumbnails, image decoding off the UI thread, viewer images load ahead of background thumbnails, and fullscreen opens instantly.
+- Consistent buttons, better light-mode contrast, Natural-height rows that fill the window width, and centred text in touch mode.
+- The followed-artists list is cached for a faster start.
+- The Pixivision Monthly Ranking / Featured sidebar is resizable.
+
+### Fixes
+
+- Pikura no longer launches the Ollama installer without asking (#23).
+- "Restart Now" works, Settings no longer shows a restart banner just from being opened, and a dismissed update banner stays dismissed (#23).
+- Networks that block or intercept pixiv now show a clear explanation instead of a raw SSL error; on in-flight and public Wi-Fi Pikura falls back to HTTP/3, and pixiv requests are retried after connection errors.
+- The followed-artists index retries soon after a network failure at startup.
+- Fixed a crash when opening an artwork from Hoshi on an unreliable connection.
+- Hoshi no longer returns empty "…" replies with thinking models, and the Ollama model list is found on the first try after Ollama was idle.
+- Library thumbnails respect the Blur R-18 setting.
+- Discover shows a loading indicator instead of an empty page while loading.
+- Bookmark thumbnails no longer vanish when the next page loads; portrait pages in the all-pages grid are no longer cropped.
+- Switching back to an open tab no longer reloads the image; History card dates are no longer clipped.
+- No more surprise installer-migration prompt.
+
+### Changes
+
+- The Bookmarks "Liked" tab was removed: pixiv offers no way to list liked artworks, so it couldn't be kept accurate. The Like button still works.
+
+---
+
 ## Pikura 2.1.0
 
 Collections, Collage, and Pixiv-connected actions — likes, bookmarks, follows, and comments now operate on your real Pixiv account, plus a refreshed light/dark theme.

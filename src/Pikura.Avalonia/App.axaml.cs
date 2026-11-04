@@ -382,102 +382,61 @@ public partial class App : Application
 
     private static List<OnboardingPage> BuildOnboardingPages()
     {
+        var loc = Pikura.Avalonia.Localization.LocalizationService.Instance;
         return new List<OnboardingPage>
         {
             new()
             {
-                Title = Pikura.Avalonia.Localization.LocalizationService.Instance["WhatsNew_Pikura210"],
+                Title = loc["WhatsNew_Pikura250"],
                 Subtitle = "What's new in this update",
-                Description = "This release focuses on making Pikura feel more connected to Pixiv and easier to work with. Tabs reorder like a browser, collages behave like first-class tabs, and likes, bookmarks, follows, and comments now talk directly to Pixiv.",
+                Description = "Pikura 2.5 adds a local Library for everything you've downloaded, a rebuilt Hoshi with GPU acceleration, touch and pen support, full Japanese, Chinese and Korean translations, and much more reliable downloads.",
                 IconKey = "RefreshIcon"
             },
             new()
             {
-                Title = Pikura.Avalonia.Localization.LocalizationService.Instance["WhatsNew_RefreshedLightDarkThemes"],
-                Subtitle = "A cleaner look in both modes",
-                Description = "The light and dark themes have been refined with better contrast, smoother button highlights, and improved readability for toggles, caption buttons, and the inline viewer.",
-                IconKey = "PaletteIcon",
-                Screenshots =
-                [
-                    "avares://Pikura/Assets/FeatureHighlights/light-mode.png",
-                    "avares://Pikura/Assets/FeatureHighlights/dark-mode.png",
-                    "avares://Pikura/Assets/FeatureHighlights/light-dark-mode-toggle.gif"
-                ],
-                IsNew = true
-            },
-            new()
-            {
-                Title = Pikura.Avalonia.Localization.LocalizationService.Instance["WhatsNew_ChromeStyleTabReordering"],
-                Subtitle = "Drag tabs to reorder",
-                Description = "Grab any inline viewer tab and drag it left or right. The tab lifts and scales while the other tabs smoothly slide out of the way, just like in a web browser.",
-                IconKey = "NewTabIcon"
-            },
-            new()
-            {
-                Title = Pikura.Avalonia.Localization.LocalizationService.Instance["Search_Collage"],
-                Subtitle = "Unique collage tabs",
-                Description = "Open any selection of artworks as a single collage tab. Add or remove individual images, open each image in its own tab, or download the whole collage in one go.",
-                IconKey = "ImageIcon",
-                Screenshot = "avares://Pikura/Assets/FeatureHighlights/collage.gif",
-                IsNew = true
-            },
-            new()
-            {
-                Title = Pikura.Avalonia.Localization.LocalizationService.Instance["Search_ViewInNewTabs"],
-                Subtitle = "Open selections individually",
-                Description = "From Gallery, Discover, Rankings, Pixivision, Bookmarks, Search, and Collections, open selected artworks as separate inline viewer tabs so you can compare them side by side.",
-                IconKey = "PopupIcon"
-            },
-            new()
-            {
-                Title = Pikura.Avalonia.Localization.LocalizationService.Instance["WhatsNew_PixivConnectedActions"],
-                Subtitle = "Real likes, bookmarks, follows, and comments",
-                Description = "Likes, public/private bookmarks, follows, unfollows, views, comments, replies, stickers, and Pixiv emoji now operate on your real Pixiv account and stay in sync across the app.",
-                IconKey = "HeartFilledIcon",
-                Screenshots =
-                [
-                    "avares://Pikura/Assets/FeatureHighlights/follows-bookmarks-favorites.png",
-                    "avares://Pikura/Assets/FeatureHighlights/comments.gif"
-                ],
-                IsNew = true
-            },
-            new()
-            {
-                Title = Pikura.Avalonia.Localization.LocalizationService.Instance["Nav_Collections"],
-                Subtitle = "A new way Pixiv artists curate their work",
-                Description = "Browse Featured and All Pixiv collections, open collection details, download selected works or an entire collection, bookmark collections, and read and post collection comments.",
+                Title = loc["WhatsNew_LocalLibrary"],
+                Subtitle = "Everything you've downloaded, searchable",
+                Description = "Pikura indexes your downloads and existing download folders. Search titles, artists, pixiv tags and AI tags, browse by folder, filter by Character and Series, find duplicates, and reverse-search any image. Untagged images are tagged automatically in the background.",
                 IconKey = "FolderIcon",
-                Screenshots =
-                [
-                    "avares://Pikura/Assets/FeatureHighlights/collections.png",
-                    "avares://Pikura/Assets/FeatureHighlights/collections-see-view.gif"
-                ],
                 IsNew = true
             },
             new()
             {
-                Title = Pikura.Avalonia.Localization.LocalizationService.Instance["WhatsNew_BookmarksImprovements"],
-                Subtitle = "Liked artworks and collections, all in one place",
-                Description = "The Bookmarks section now includes every artwork you've liked on Pixiv — even ones that aren't bookmarked — alongside your public/private bookmarks and bookmarked collections, all kept in sync as you browse.",
-                IconKey = "BookmarkFilledIcon",
-                Screenshots =
-                [
-                    "avares://Pikura/Assets/FeatureHighlights/bookmarks.png",
-                    "avares://Pikura/Assets/FeatureHighlights/follows-bookmarks-favorites.png"
-                ],
+                Title = loc["WhatsNew_HoshiOverhaul"],
+                Subtitle = "Organised chats that remember",
+                Description = "Hoshi's chats open instantly and can be searched, pinned, archived, filtered and sorted into folders. Each artwork keeps its own chat and image, Hoshi can search, download and find similar art for you, and a Stop button cancels long answers.",
+                IconKey = "StarIcon",
                 IsNew = true
             },
             new()
             {
-                Title = Pikura.Avalonia.Localization.LocalizationService.Instance["WhatsNew_SearchImprovements"],
-                Subtitle = "History and popular tags",
-                Description = "Jump back to a previous search from the History dropdown under the search box — your last 25 queries are remembered along with the filters you used. Popular tags are also shown as clickable chips so you can search by tag with one click. Click anywhere outside the History dropdown to close it.",
-                IconKey = "SearchIcon",
-                Screenshots =
-                [
-                    "avares://Pikura/Assets/FeatureHighlights/search-history.png",
-                    "avares://Pikura/Assets/FeatureHighlights/popular-tags.png"
-                ]
+                Title = loc["WhatsNew_GpuAcceleration"],
+                Subtitle = "Faster AI on your graphics chip",
+                Description = "The anime tagger now runs on your GPU (about 3× faster in testing) and falls back to the CPU automatically. Hoshi can optionally use integrated GPUs such as Intel Arc. Choose Auto, GPU or CPU in Settings.",
+                IconKey = "ImageIcon",
+                IsNew = true
+            },
+            new()
+            {
+                Title = loc["WhatsNew_TouchAndPen"],
+                Subtitle = "Made for touchscreens and tablets",
+                Description = "Tap to open, swipe to scroll, pinch to zoom, drag freely and flick between pages. Touch mode makes the whole interface easier to use with a finger or pen.",
+                IconKey = "PopupIcon",
+                IsNew = true
+            },
+            new()
+            {
+                Title = loc["WhatsNew_ReliableDownloads"],
+                Subtitle = "Resume, retry and export",
+                Description = "Interrupted downloads resume where they left off, pixiv rate limits are waited out with a visible countdown, and unreliable networks are handled gracefully. Artwork metadata can be exported as CSV, TSV, JSON or text.",
+                IconKey = "DownloadIcon"
+            },
+            new()
+            {
+                Title = loc["WhatsNew_FullyTranslated"],
+                Subtitle = "日本語 · 中文 · 한국어",
+                Description = "The entire interface is now available in Japanese, Chinese and Korean, and changing the language in Settings applies instantly without a restart.",
+                IconKey = "GlobeIcon"
             },
         };
     }

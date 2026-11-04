@@ -5784,8 +5784,8 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="WhatsNew_ChromeStyleTabReordering" xml:space="preserve">
     <value>Chrome-Style Tab Reordering</value>
   </data>
-  <data name="WhatsNew_Pikura210" xml:space="preserve">
-    <value>Pikura 2.1.0</value>
+  <data name="WhatsNew_Pikura250" xml:space="preserve">
+    <value>Pikura 2.5.0</value>
   </data>
   <data name="WhatsNew_PixivConnectedActions" xml:space="preserve">
     <value>Pixiv-Connected Actions</value>
@@ -6683,4 +6683,22 @@ Open a browser to sign in to the Wi-Fi, or try again on another network.</value>
   <data name="Library_AnyCharacter" xml:space="preserve"><value>Any character</value></data>
   <data name="Library_AnySeries" xml:space="preserve"><value>Any series</value></data>
   <data name="Hoshi_ThinkingNoAnswer" xml:space="preserve"><value>⚠ The model spent its whole answer budget thinking and gave no reply. This is a 'thinking' model, which is very slow without a GPU. Switch to an -instruct model in Settings → Hoshi (e.g. qwen3-vl:4b-instruct).</value></data>
+  <data name="WhatsNew_LocalLibrary" xml:space="preserve">
+    <value>Local Library</value>
+  </data>
+  <data name="WhatsNew_HoshiOverhaul" xml:space="preserve">
+    <value>A Smarter Hoshi</value>
+  </data>
+  <data name="WhatsNew_GpuAcceleration" xml:space="preserve">
+    <value>GPU Acceleration</value>
+  </data>
+  <data name="WhatsNew_TouchAndPen" xml:space="preserve">
+    <value>Touch &amp; Pen Support</value>
+  </data>
+  <data name="WhatsNew_ReliableDownloads" xml:space="preserve">
+    <value>More Reliable Downloads</value>
+  </data>
+  <data name="WhatsNew_FullyTranslated" xml:space="preserve">
+    <value>Fully Translated</value>
+  </data>
 </root>

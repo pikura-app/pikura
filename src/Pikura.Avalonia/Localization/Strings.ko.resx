@@ -5720,8 +5720,8 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="WhatsNew_ChromeStyleTabReordering" xml:space="preserve">
     <value>Chrome식 탭 재정렬</value>
   </data>
-  <data name="WhatsNew_Pikura210" xml:space="preserve">
-    <value>Pikura 2.1.0</value>
+  <data name="WhatsNew_Pikura250" xml:space="preserve">
+    <value>Pikura 2.5.0</value>
   </data>
   <data name="WhatsNew_PixivConnectedActions" xml:space="preserve">
     <value>Pixiv 연동 작업</value>
@@ -6619,4 +6619,22 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="Library_AnyCharacter" xml:space="preserve"><value>모든 캐릭터</value></data>
   <data name="Library_AnySeries" xml:space="preserve"><value>모든 작품</value></data>
   <data name="Hoshi_ThinkingNoAnswer" xml:space="preserve"><value>⚠ 모델이 답변 한도를 모두 사고에 써서 응답이 없습니다. 이것은 '사고' 모델이라 GPU 없이는 매우 느립니다. 설정 → Hoshi에서 -instruct 모델(예: qwen3-vl:4b-instruct)로 바꾸세요.</value></data>
+  <data name="WhatsNew_LocalLibrary" xml:space="preserve">
+    <value>로컬 라이브러리</value>
+  </data>
+  <data name="WhatsNew_HoshiOverhaul" xml:space="preserve">
+    <value>더 똑똑해진 Hoshi</value>
+  </data>
+  <data name="WhatsNew_GpuAcceleration" xml:space="preserve">
+    <value>GPU 가속</value>
+  </data>
+  <data name="WhatsNew_TouchAndPen" xml:space="preserve">
+    <value>터치 및 펜 지원</value>
+  </data>
+  <data name="WhatsNew_ReliableDownloads" xml:space="preserve">
+    <value>더 안정적인 다운로드</value>
+  </data>
+  <data name="WhatsNew_FullyTranslated" xml:space="preserve">
+    <value>완전한 현지화</value>
+  </data>
 </root>
