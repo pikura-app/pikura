@@ -2,6 +2,14 @@
 
 All notable changes to Pikura are documented in this file.
 
+## [2.5.1]
+
+### Fixed
+
+- Pixivision article list, Monthly Ranking/Featured sidebar and related articles were empty after pixivision.net switched to absolute article links.
+- Returning from an article to an empty Pixivision list reloads it instead of showing the article's status.
+- What's New no longer reappears on patch updates.
+
 ## [2.5.0]
 
 ### New

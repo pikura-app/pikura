@@ -1,3 +1,15 @@
+## Pikura 2.5.1
+
+A quick fix release for the Pixivision tab.
+
+### Fixes
+
+- **Pixivision showed no articles** — pixivision.net changed how its pages link to articles, so Pikura found only one article per page and the Monthly Ranking / Featured sidebar stayed empty. Article lists, the sidebar, related articles and cards inside articles all load again.
+- Returning from an article to an empty Pixivision list now reloads it, instead of showing the last article's "featured artwork(s)" count.
+- The What's New screen no longer reappears after small patch updates such as this one.
+
+---
+
 ## Pikura 2.5.0
 
 The biggest update since 2.0: a local Library for everything you've downloaded, a rebuilt Hoshi with GPU acceleration, touch and pen support, full Japanese/Chinese/Korean translations, and far more reliable downloads and networking.

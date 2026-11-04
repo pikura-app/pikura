@@ -914,6 +914,12 @@ public partial class PixivisionViewModel : ViewModelBase
         OnPropertyChanged(nameof(HasRelatedLatest));
         OnPropertyChanged(nameof(HasRelatedPopular));
         OnPropertyChanged(nameof(HasArticleToc));
+        // The article view overwrote StatusMessage; if the list never loaded, retry rather than
+        // leaving an empty page showing the last article's status.
+        if (Articles.Count == 0 && !IsLoading && !IsFilteredByDate) _ = LoadArticlesPageAsync(ArticlePage, append: false);
+        else if (Articles.Count > 0) StatusMessage = IsAutoloadMode
+            ? Pikura.Avalonia.Localization.LocalizationService.F("Pixivision_ArticlesLoaded", Articles.Count)
+            : Pikura.Avalonia.Localization.LocalizationService.F("Pixivision_ArticlesPage", Articles.Count, ArticlePage);
     }
 
     [RelayCommand]

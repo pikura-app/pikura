@@ -384,9 +384,10 @@ public sealed partial class PixivisionService
     // Matches both the hero card (aec__ classes) and regular feed cards (arc__ classes) in the
     // "Latest" article feed. The \k<id> backreference guarantees the thumbnail and title link
     // belong to the same article even though other unrelated links (category badges, etc.) sit
-    // between them in the minified markup.
+    // between them in the minified markup. Links may be root-relative ("/en/a/1") or absolute
+    // ("https://www.pixivision.net/en/a/1") — the site switched feed cards to absolute in 2026.
     [GeneratedRegex(
-        """href="/(?:en|ja|zh|zh-tw|ko)/a/(?<id>\d+)"data-gtm-action="ClickImage"[^>]*>.*?background-image:\s*url\((?<thumb>[^)]+)\).*?<h2 class="(?:aec|arc)__title"><a href="/(?:en|ja|zh|zh-tw|ko)/a/\k<id>"data-gtm-action="ClickTitle"[^>]*>(?<title>[^<]+)</a>""",
+        """href="(?:https://www\.pixivision\.net)?/(?:en|ja|zh|zh-tw|ko)/a/(?<id>\d+)"data-gtm-action="ClickImage"[^>]*>.*?background-image:\s*url\((?<thumb>[^)]+)\).*?<h2 class="(?:aec|arc)__title"><a href="(?:https://www\.pixivision\.net)?/(?:en|ja|zh|zh-tw|ko)/a/\k<id>"data-gtm-action="ClickTitle"[^>]*>(?<title>[^<]+)</a>""",
         RegexOptions.Singleline)]
     internal static partial Regex ArticleListItemRegex();
 
@@ -424,7 +425,7 @@ public sealed partial class PixivisionService
     // main feed cards: the title link/text sits after an unrelated category-badge link, so the
     // \k<id> backreference is needed to keep them paired correctly.
     [GeneratedRegex(
-        """href="/(?:en|ja|zh|zh-tw|ko)/a/(?<id>\d+)"data-gtm-action="ClickImage"[^>]*>.*?background-image:\s*url\((?<thumb>[^)]+)\).*?<a href="/(?:en|ja|zh|zh-tw|ko)/a/\k<id>"class="asc__title-link"data-gtm-action="ClickTitle"[^>]*><p class="asc__title">(?<title>[^<]+)</p>""",
+        """href="(?:https://www\.pixivision\.net)?/(?:en|ja|zh|zh-tw|ko)/a/(?<id>\d+)"data-gtm-action="ClickImage"[^>]*>.*?background-image:\s*url\((?<thumb>[^)]+)\).*?<a href="(?:https://www\.pixivision\.net)?/(?:en|ja|zh|zh-tw|ko)/a/\k<id>"class="asc__title-link"data-gtm-action="ClickTitle"[^>]*><p class="asc__title">(?<title>[^<]+)</p>""",
         RegexOptions.Singleline)]
     internal static partial Regex SidebarCardRegex();
 
@@ -447,7 +448,7 @@ public sealed partial class PixivisionService
     // Artist's Spotlight interviews!" at the end of interview articles) — visually and
     // structurally distinct from the sidebar-style "Related Article Latest/Popular" widgets.
     [GeneratedRegex(
-        """<div class="article-item _feature-article-body__article_card">.*?<div class="_thumbnail" style="background-image:\s*url\((?<thumb>[^)]+)\)"></div></a>.*?<h2 class="arc__title"><a href="/(?:en|ja|zh|zh-tw|ko)/a/(?<id>\d+)"[^>]*>(?<title>.*?)</a></h2>.*?</article></div>""",
+        """<div class="article-item _feature-article-body__article_card">.*?<div class="_thumbnail" style="background-image:\s*url\((?<thumb>[^)]+)\)"></div></a>.*?<h2 class="arc__title"><a href="(?:https://www\.pixivision\.net)?/(?:en|ja|zh|zh-tw|ko)/a/(?<id>\d+)"[^>]*>(?<title>.*?)</a></h2>.*?</article></div>""",
         RegexOptions.Singleline)]
     private static partial Regex InlineRelatedCardRegex();
 
@@ -518,7 +519,7 @@ public sealed partial class PixivisionService
     private static partial Regex RelatedPopularSectionRegex();
 
     [GeneratedRegex(
-        """<article class="_article-related-card-test"><a href="/(?:en|ja|zh|zh-tw|ko)/a/(?<id>\d+)" class="arrct__thumbnail-container"[^>]*>.*?<img class="thm__image" src="(?<thumb>[^"]+)" alt="(?<title>[^"]*)" loading""",
+        """<article class="_article-related-card-test"><a href="(?:https://www\.pixivision\.net)?/(?:en|ja|zh|zh-tw|ko)/a/(?<id>\d+)" class="arrct__thumbnail-container"[^>]*>.*?<img class="thm__image" src="(?<thumb>[^"]+)" alt="(?<title>[^"]*)" loading""",
         RegexOptions.Singleline)]
     internal static partial Regex RelatedCardRegex();
 

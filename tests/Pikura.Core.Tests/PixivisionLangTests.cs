@@ -28,6 +28,31 @@ public class PixivisionLangTests
     }
 
     [Fact]
+    public void List_Regex_Matches_Absolute_Links()
+    {
+        // Current markup: the hero card keeps relative links, feed cards use absolute URLs and
+        // a double space after "background-image:".
+        var hero = Card("en", 12073, "Hero", "https://i.pximg.net/hero.png");
+        var feed = """<a href="https://www.pixivision.net/en/a/11839"data-gtm-action="ClickImage"data-gtm-label="11839"><div class="_thumbnail" style="background-image:  url(https://i.pximg.net/feed.png)"></div></a><h2 class="arc__title"><a href="https://www.pixivision.net/en/a/11839"data-gtm-action="ClickTitle"data-gtm-label="11839">Feed title</a></h2>""";
+
+        var m = PixivisionService.ArticleListItemRegex().Matches(hero + feed);
+        Assert.Equal(2, m.Count);
+        Assert.Equal("11839", m[1].Groups["id"].Value);
+        Assert.Equal("Feed title", m[1].Groups["title"].Value);
+        Assert.Equal("https://i.pximg.net/feed.png", m[1].Groups["thumb"].Value);
+    }
+
+    [Fact]
+    public void Sidebar_Regex_Matches_Absolute_Links()
+    {
+        var card = """<a href="https://www.pixivision.net/en/a/500"data-gtm-action="ClickImage"><div style="background-image: url(https://x/s.png)"></div></a><a href="https://www.pixivision.net/en/c/illustration">Illustrations</a><a href="https://www.pixivision.net/en/a/500"class="asc__title-link"data-gtm-action="ClickTitle"><p class="asc__title">Side</p>""";
+        var m = PixivisionService.SidebarCardRegex().Match(card);
+        Assert.True(m.Success);
+        Assert.Equal("500", m.Groups["id"].Value);
+        Assert.Equal("Side", m.Groups["title"].Value);
+    }
+
+    [Fact]
     public void List_Regex_Ignores_Other_Locales()
     {
         // /fr/ (unsupported) must not match — keeps foreign links out of results.

@@ -335,6 +335,10 @@ public partial class App : Application
             : $"{currentVersion.Major}.{currentVersion.Minor}.{currentVersion.Build}";
     }
 
+    // Highlights describe a feature release, so patch updates (2.5.0 -> 2.5.1) don't re-show them.
+    private static string? MajorMinor(string? version) =>
+        Version.TryParse(version, out var v) ? $"{v.Major}.{v.Minor}" : version;
+
     /// <summary>
     /// Builds the onboarding pages and starts pre-decoding screenshots/GIFs in the
     /// background. Returns null when the highlights should not be shown.
@@ -342,7 +346,7 @@ public partial class App : Application
     private static Task<List<OnboardingPage>?> PrepareStartupHighlightsAsync(SettingsService settings)
     {
         if (!settings.Current.ShowFeatureHighlights ||
-            settings.Current.LastOnboardingVersionShown == GetCurrentVersionString())
+            MajorMinor(settings.Current.LastOnboardingVersionShown) == MajorMinor(GetCurrentVersionString()))
             return Task.FromResult<List<OnboardingPage>?>(null);
 
         var pages = BuildOnboardingPages();
