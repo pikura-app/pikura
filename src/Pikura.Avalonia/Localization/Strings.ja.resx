@@ -6637,4 +6637,43 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="WhatsNew_FullyTranslated" xml:space="preserve">
     <value>完全ローカライズ</value>
   </data>
+  <data name="WhatsNew_Pikura250_Subtitle" xml:space="preserve">
+    <value>このアップデートの新機能</value>
+  </data>
+  <data name="WhatsNew_Pikura250_Description" xml:space="preserve">
+    <value>Pikura 2.5では、ダウンロードしたすべての作品を管理できるローカルライブラリ、GPUアクセラレーションに対応して生まれ変わったHoshi、タッチ・ペン操作への対応、日本語・中国語・韓国語への完全対応、そしてより確実なダウンロードが加わりました。</value>
+  </data>
+  <data name="WhatsNew_LocalLibrary_Subtitle" xml:space="preserve">
+    <value>ダウンロードした作品をすべて検索可能に</value>
+  </data>
+  <data name="WhatsNew_LocalLibrary_Description" xml:space="preserve">
+    <value>Pikuraはダウンロードした作品と既存のダウンロードフォルダーをインデックス化します。タイトル、作者、pixivタグ、AIタグで検索し、フォルダーごとに閲覧し、キャラクターや作品で絞り込み、重複を見つけ、どの画像でも逆検索できます。タグのない画像はバックグラウンドで自動的にタグ付けされます。</value>
+  </data>
+  <data name="WhatsNew_HoshiOverhaul_Subtitle" xml:space="preserve">
+    <value>会話を覚えている、整理されたチャット</value>
+  </data>
+  <data name="WhatsNew_HoshiOverhaul_Description" xml:space="preserve">
+    <value>Hoshiのチャットはすぐに開き、検索、ピン留め、アーカイブ、絞り込み、フォルダー分けができます。作品ごとに専用のチャットと画像が保持され、Hoshiが検索やダウンロード、似た作品探しを代わりに行います。長い回答は停止ボタンでいつでも中断できます。</value>
+  </data>
+  <data name="WhatsNew_GpuAcceleration_Subtitle" xml:space="preserve">
+    <value>グラフィックスチップでAIをより高速に</value>
+  </data>
+  <data name="WhatsNew_GpuAcceleration_Description" xml:space="preserve">
+    <value>アニメタガーがGPUで動作するようになり（テストでは約3倍高速）、利用できない場合は自動的にCPUに切り替わります。HoshiはIntel Arcなどの内蔵GPUも任意で利用できます。設定で自動・GPU・CPUを選べます。</value>
+  </data>
+  <data name="WhatsNew_TouchAndPen_Subtitle" xml:space="preserve">
+    <value>タッチスクリーンやタブレットに最適</value>
+  </data>
+  <data name="WhatsNew_TouchAndPen_Description" xml:space="preserve">
+    <value>タップで開き、スワイプでスクロール、ピンチでズーム、自由にドラッグ、フリックでページ送り。タッチモードを使えば、指やペンでもインターフェース全体が操作しやすくなります。</value>
+  </data>
+  <data name="WhatsNew_ReliableDownloads_Subtitle" xml:space="preserve">
+    <value>再開・再試行・エクスポート</value>
+  </data>
+  <data name="WhatsNew_ReliableDownloads_Description" xml:space="preserve">
+    <value>中断したダウンロードは途中から再開され、pixivのレート制限はカウントダウンを表示しながら待機し、不安定なネットワークにも適切に対応します。作品のメタデータはCSV、TSV、JSON、テキストで書き出せます。</value>
+  </data>
+  <data name="WhatsNew_FullyTranslated_Description" xml:space="preserve">
+    <value>インターフェース全体が日本語・中国語・韓国語に対応しました。設定で言語を変更すると、再起動せずにすぐ反映されます。</value>
+  </data>
 </root>

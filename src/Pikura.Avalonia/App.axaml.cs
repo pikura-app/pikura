@@ -388,54 +388,54 @@ public partial class App : Application
             new()
             {
                 Title = loc["WhatsNew_Pikura250"],
-                Subtitle = "What's new in this update",
-                Description = "Pikura 2.5 adds a local Library for everything you've downloaded, a rebuilt Hoshi with GPU acceleration, touch and pen support, full Japanese, Chinese and Korean translations, and much more reliable downloads.",
+                Subtitle = loc["WhatsNew_Pikura250_Subtitle"],
+                Description = loc["WhatsNew_Pikura250_Description"],
                 IconKey = "RefreshIcon"
             },
             new()
             {
                 Title = loc["WhatsNew_LocalLibrary"],
-                Subtitle = "Everything you've downloaded, searchable",
-                Description = "Pikura indexes your downloads and existing download folders. Search titles, artists, pixiv tags and AI tags, browse by folder, filter by Character and Series, find duplicates, and reverse-search any image. Untagged images are tagged automatically in the background.",
+                Subtitle = loc["WhatsNew_LocalLibrary_Subtitle"],
+                Description = loc["WhatsNew_LocalLibrary_Description"],
                 IconKey = "FolderIcon",
                 IsNew = true
             },
             new()
             {
                 Title = loc["WhatsNew_HoshiOverhaul"],
-                Subtitle = "Organised chats that remember",
-                Description = "Hoshi's chats open instantly and can be searched, pinned, archived, filtered and sorted into folders. Each artwork keeps its own chat and image, Hoshi can search, download and find similar art for you, and a Stop button cancels long answers.",
+                Subtitle = loc["WhatsNew_HoshiOverhaul_Subtitle"],
+                Description = loc["WhatsNew_HoshiOverhaul_Description"],
                 IconKey = "StarIcon",
                 IsNew = true
             },
             new()
             {
                 Title = loc["WhatsNew_GpuAcceleration"],
-                Subtitle = "Faster AI on your graphics chip",
-                Description = "The anime tagger now runs on your GPU (about 3× faster in testing) and falls back to the CPU automatically. Hoshi can optionally use integrated GPUs such as Intel Arc. Choose Auto, GPU or CPU in Settings.",
+                Subtitle = loc["WhatsNew_GpuAcceleration_Subtitle"],
+                Description = loc["WhatsNew_GpuAcceleration_Description"],
                 IconKey = "ImageIcon",
                 IsNew = true
             },
             new()
             {
                 Title = loc["WhatsNew_TouchAndPen"],
-                Subtitle = "Made for touchscreens and tablets",
-                Description = "Tap to open, swipe to scroll, pinch to zoom, drag freely and flick between pages. Touch mode makes the whole interface easier to use with a finger or pen.",
+                Subtitle = loc["WhatsNew_TouchAndPen_Subtitle"],
+                Description = loc["WhatsNew_TouchAndPen_Description"],
                 IconKey = "PopupIcon",
                 IsNew = true
             },
             new()
             {
                 Title = loc["WhatsNew_ReliableDownloads"],
-                Subtitle = "Resume, retry and export",
-                Description = "Interrupted downloads resume where they left off, pixiv rate limits are waited out with a visible countdown, and unreliable networks are handled gracefully. Artwork metadata can be exported as CSV, TSV, JSON or text.",
+                Subtitle = loc["WhatsNew_ReliableDownloads_Subtitle"],
+                Description = loc["WhatsNew_ReliableDownloads_Description"],
                 IconKey = "DownloadIcon"
             },
             new()
             {
                 Title = loc["WhatsNew_FullyTranslated"],
                 Subtitle = "日本語 · 中文 · 한국어",
-                Description = "The entire interface is now available in Japanese, Chinese and Korean, and changing the language in Settings applies instantly without a restart.",
+                Description = loc["WhatsNew_FullyTranslated_Description"],
                 IconKey = "GlobeIcon"
             },
         };

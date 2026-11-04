@@ -6701,4 +6701,43 @@ Open a browser to sign in to the Wi-Fi, or try again on another network.</value>
   <data name="WhatsNew_FullyTranslated" xml:space="preserve">
     <value>Fully Translated</value>
   </data>
+  <data name="WhatsNew_Pikura250_Subtitle" xml:space="preserve">
+    <value>What&apos;s new in this update</value>
+  </data>
+  <data name="WhatsNew_Pikura250_Description" xml:space="preserve">
+    <value>Pikura 2.5 adds a local Library for everything you&apos;ve downloaded, a rebuilt Hoshi with GPU acceleration, touch and pen support, full Japanese, Chinese and Korean translations, and much more reliable downloads.</value>
+  </data>
+  <data name="WhatsNew_LocalLibrary_Subtitle" xml:space="preserve">
+    <value>Everything you&apos;ve downloaded, searchable</value>
+  </data>
+  <data name="WhatsNew_LocalLibrary_Description" xml:space="preserve">
+    <value>Pikura indexes your downloads and existing download folders. Search titles, artists, pixiv tags and AI tags, browse by folder, filter by Character and Series, find duplicates, and reverse-search any image. Untagged images are tagged automatically in the background.</value>
+  </data>
+  <data name="WhatsNew_HoshiOverhaul_Subtitle" xml:space="preserve">
+    <value>Organised chats that remember</value>
+  </data>
+  <data name="WhatsNew_HoshiOverhaul_Description" xml:space="preserve">
+    <value>Hoshi&apos;s chats open instantly and can be searched, pinned, archived, filtered and sorted into folders. Each artwork keeps its own chat and image, Hoshi can search, download and find similar art for you, and a Stop button cancels long answers.</value>
+  </data>
+  <data name="WhatsNew_GpuAcceleration_Subtitle" xml:space="preserve">
+    <value>Faster AI on your graphics chip</value>
+  </data>
+  <data name="WhatsNew_GpuAcceleration_Description" xml:space="preserve">
+    <value>The anime tagger now runs on your GPU (about 3× faster in testing) and falls back to the CPU automatically. Hoshi can optionally use integrated GPUs such as Intel Arc. Choose Auto, GPU or CPU in Settings.</value>
+  </data>
+  <data name="WhatsNew_TouchAndPen_Subtitle" xml:space="preserve">
+    <value>Made for touchscreens and tablets</value>
+  </data>
+  <data name="WhatsNew_TouchAndPen_Description" xml:space="preserve">
+    <value>Tap to open, swipe to scroll, pinch to zoom, drag freely and flick between pages. Touch mode makes the whole interface easier to use with a finger or pen.</value>
+  </data>
+  <data name="WhatsNew_ReliableDownloads_Subtitle" xml:space="preserve">
+    <value>Resume, retry and export</value>
+  </data>
+  <data name="WhatsNew_ReliableDownloads_Description" xml:space="preserve">
+    <value>Interrupted downloads resume where they left off, pixiv rate limits are waited out with a visible countdown, and unreliable networks are handled gracefully. Artwork metadata can be exported as CSV, TSV, JSON or text.</value>
+  </data>
+  <data name="WhatsNew_FullyTranslated_Description" xml:space="preserve">
+    <value>The entire interface is now available in Japanese, Chinese and Korean, and changing the language in Settings applies instantly without a restart.</value>
+  </data>
 </root>

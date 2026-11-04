@@ -6637,4 +6637,43 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="WhatsNew_FullyTranslated" xml:space="preserve">
     <value>全面本地化</value>
   </data>
+  <data name="WhatsNew_Pikura250_Subtitle" xml:space="preserve">
+    <value>本次更新的新内容</value>
+  </data>
+  <data name="WhatsNew_Pikura250_Description" xml:space="preserve">
+    <value>Pikura 2.5 新增了可管理所有已下载作品的本地图库、支持 GPU 加速的全新 Hoshi、触控与触控笔支持、完整的日语、中文和韩语翻译，以及更可靠的下载。</value>
+  </data>
+  <data name="WhatsNew_LocalLibrary_Subtitle" xml:space="preserve">
+    <value>所有已下载的作品，均可搜索</value>
+  </data>
+  <data name="WhatsNew_LocalLibrary_Description" xml:space="preserve">
+    <value>Pikura 会为你的下载内容和现有下载文件夹建立索引。可按标题、画师、pixiv 标签和 AI 标签搜索，按文件夹浏览，按角色和作品筛选，查找重复图片，并对任意图片进行以图搜图。未加标签的图片会在后台自动打标签。</value>
+  </data>
+  <data name="WhatsNew_HoshiOverhaul_Subtitle" xml:space="preserve">
+    <value>井井有条、记得上下文的对话</value>
+  </data>
+  <data name="WhatsNew_HoshiOverhaul_Description" xml:space="preserve">
+    <value>Hoshi 的对话可瞬间打开，并支持搜索、置顶、归档、筛选和分文件夹整理。每件作品都有自己的对话和图片，Hoshi 可以替你搜索、下载和查找相似作品，“停止”按钮可随时中断较长的回答。</value>
+  </data>
+  <data name="WhatsNew_GpuAcceleration_Subtitle" xml:space="preserve">
+    <value>用显卡让 AI 更快</value>
+  </data>
+  <data name="WhatsNew_GpuAcceleration_Description" xml:space="preserve">
+    <value>动漫标签器现在可在 GPU 上运行（测试中约快 3 倍），不可用时会自动切换回 CPU。Hoshi 还可选择使用 Intel Arc 等集成显卡。可在设置中选择自动、GPU 或 CPU。</value>
+  </data>
+  <data name="WhatsNew_TouchAndPen_Subtitle" xml:space="preserve">
+    <value>为触摸屏和平板而设计</value>
+  </data>
+  <data name="WhatsNew_TouchAndPen_Description" xml:space="preserve">
+    <value>轻点打开、滑动滚动、双指缩放、自由拖动、轻扫翻页。触控模式让手指或触控笔操作整个界面更加轻松。</value>
+  </data>
+  <data name="WhatsNew_ReliableDownloads_Subtitle" xml:space="preserve">
+    <value>续传、重试与导出</value>
+  </data>
+  <data name="WhatsNew_ReliableDownloads_Description" xml:space="preserve">
+    <value>中断的下载会从断点继续，遇到 pixiv 速率限制时会显示倒计时并自动等待，网络不稳定时也能妥善处理。作品元数据可导出为 CSV、TSV、JSON 或文本。</value>
+  </data>
+  <data name="WhatsNew_FullyTranslated_Description" xml:space="preserve">
+    <value>整个界面现已支持日语、中文和韩语，在设置中切换语言后立即生效，无需重启。</value>
+  </data>
 </root>
