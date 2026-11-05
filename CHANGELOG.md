@@ -2,6 +2,12 @@
 
 All notable changes to Pikura are documented in this file.
 
+## [2.5.2]
+
+### Fixed
+
+- Natural-height cards overlapped the next column in Rankings, Viewed history and Discover artist works; cards now take their column's width.
+
 ## [2.5.1]
 
 ### Fixed

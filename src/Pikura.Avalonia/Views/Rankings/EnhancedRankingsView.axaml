@@ -663,8 +663,7 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate x:DataType="vm:RankingCardViewModel">
                                     <!-- ── NATURAL HEIGHT card ── -->
-                                    <Border Margin="0,0,6,6"
-                                            Width="{Binding $parent[UserControl].((vm:EnhancedRankingsViewModel)DataContext).CardSize}"
+                                    <Border Margin="0"
                                             Background="{DynamicResource Container1BackgroundBrush}"
                                             BorderBrush="{DynamicResource Container1BorderBrush}"
                                             BorderThickness="1" CornerRadius="8"

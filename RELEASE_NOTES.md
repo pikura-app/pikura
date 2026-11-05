@@ -1,3 +1,13 @@
+## Pikura 2.5.2
+
+A quick fix release for Natural-height layouts.
+
+### Fixes
+
+- **Overlapping cards in Natural mode** — in Rankings, cards could spill over the neighbouring column when the grid fitted in an extra, slightly narrower column. Cards now size to their column. The same fix applies to Viewed history and to an artist's works in Discover.
+
+---
+
 ## Pikura 2.5.1
 
 A quick fix release for the Pixivision tab.

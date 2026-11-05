@@ -473,8 +473,7 @@
                             </ItemsControl.ItemsPanel>
 <ItemsControl.ItemTemplate>
                                 <DataTemplate x:DataType="vm:ArtworkCardViewModel">
-                                    <Border Margin="0,0,6,6"
-                                            Width="{Binding $parent[UserControl].((vm:ViewedHistoryViewModel)DataContext).CardSize}"
+                                    <Border Margin="0"
                                             Background="{DynamicResource Container1BackgroundBrush}"
                                             BorderBrush="{DynamicResource Container1BorderBrush}"
                                             BorderThickness="1" CornerRadius="8"
