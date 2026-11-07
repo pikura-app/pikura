@@ -20,7 +20,7 @@
 
 ## Screenshots
 
-![Pikura Gallery screenshot](.github/screenshots/gallery.png)
+![Pikura Gallery screenshot](.github/screenshots/new_gallery.png)
 ---
 
 ## Features
