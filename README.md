@@ -29,6 +29,9 @@
 - **Bookmarks** — browse and manage your Pixiv bookmarks (public and private) in one place
 - **Rankings** — browse daily/weekly/AI/male/female Pixiv rankings
 - **Discover** — explore recommended and trending artwork from Pixiv
+- **Library** — search everything you've downloaded by title, artist, pixiv tags and AI tags; filter by character and series; find duplicates; reverse-search images
+- **Collections & Collage** — browse and download Pixiv collections, or combine any artworks into a collage tab
+- **Pixivision, Search & Viewed history** — read Pixivision articles, search artworks/artists/users globally, and revisit everything you've opened
 - **History** — view your previously downloaded artworks with timestamps
 - **Analytics** — charts and stats for your download history and collection
 - **Image editor** — non-destructive adjustments (brightness, contrast, saturation, hue, temperature, tint, highlights, shadows, blur, sharpness), color overlay, opacity slider, and live GPU-accelerated preview; export to PNG with alpha preserved
@@ -39,7 +42,12 @@
 - **FANBOX support** — download FANBOX posts alongside Pixiv artwork
 - **Multi-account** — switch between multiple Pixiv accounts from the sidebar
 - **Per-account settings** — override download root, filename templates, and filters per account
-- **Hoshi AI** — ask questions about artworks using a local Ollama vision model (text + vision)
+- **Hoshi AI** — chat about artworks with a local Ollama vision model; organised chat history with folders and archive; Hoshi can search, download and find similar art for you
+- **AI tagging** — local anime tagger (GPU-accelerated via DirectML) for automatic Danbooru-style tags
+- **Resumable downloads** — interrupted downloads continue where they left off, with automatic rate-limit handling
+- **Metadata export** — CSV, TSV, JSON or text, on demand or alongside every download
+- **Touch & pen** — pinch zoom, flick between pages, and a touch mode
+- **Languages** — English, 日本語, 中文, 한국어
 - **Auto-updater** — checks for updates on startup, downloads silently in the background, and installs with one click
 - **System tray** — runs quietly in the background with tray icon and notifications
 - **Themes** — light, dark, and system-default mode
@@ -56,18 +64,18 @@
 >
 > **Windows note:** the legacy `Pikura-*-Setup.exe` (Inno Setup) still ships only so older versions can auto-update once; new installs should use `Pikura-*-windows.exe` (Velopack — delta updates, per-user install).
 
-## What's New in v2.1.0
+## What's New in v2.5
 
-- **Collections** — full support for Pixiv's collection-curation feature: browse Featured and All collections, open details, download selected or entire collections, bookmark collections, and post/read collection comments.
-- **Collage** — open any selection of artworks as a single unique collage tab, add or remove individual images, and download the whole collage.
-- **Pixiv-connected actions** — likes, bookmarks, follows/unfollows, and comments now operate on your real Pixiv account; public/private bookmark state is supported and kept separate from local favorites.
-- **Chrome-style tab reordering** — drag inline viewer tabs left or right and watch the strip slide around the tab in real time.
-- **View in new tabs** — open selected artworks in their own inline viewer tabs from Gallery, Discover, Rankings, Pixivision, Bookmarks, Search, and Collections.
-- **Bookmarks improvements** — Bookmarks now includes every artwork you've liked on Pixiv (even ones that aren't bookmarked) alongside your public/private bookmarks and bookmarked collections.
-- **Search improvements** — a History dropdown lets you jump back to a previous search (with the filters used at the time), and Popular Tags are shown as clickable chips so you can search by tag with one click.
-- **Smoother sync** — likes, bookmarks, follows, and view counts update immediately across the gallery, Discover, Rankings, Search, Pixivision, and the inline viewer.
-- **Refreshed themes** — light and dark modes have been cleaned up with better contrast, rounded button hover highlights, visible caption-button hover states, and a working system-theme toggle.
-- **Full-removal uninstall option** — the Windows uninstaller can now fully remove Pikura (settings, saved Pixiv login, download history/database, cached images, and downloaded AI tagging models) or keep that data for a future reinstall.
+- **Library** — every file you download (plus your existing download folders) is indexed and searchable by title, artist, pixiv tags and AI tags, with folders, Character/Series filters, a duplicate finder and reverse image search. Untagged images are tagged automatically in the background.
+- **A smarter Hoshi** — chats open instantly and can be searched, pinned, archived, filtered and sorted into folders; each artwork keeps its own chat and image (downloaded files included); Hoshi can search, download and find similar art for you; a Stop button cancels long answers.
+- **GPU acceleration** — the anime tagger runs on your GPU via DirectML (about 3× faster in testing) with automatic CPU fallback, and Hoshi can optionally use integrated GPUs such as Intel Arc.
+- **Touch and pen support** — tap vs. scroll, pinch to zoom, free drag, page flicking, and a dedicated touch mode.
+- **Reliable downloads** — interrupted downloads resume where they left off, pixiv rate limits are waited out with a visible countdown, and unreliable networks are handled gracefully.
+- **Metadata export** — save artwork details as CSV, TSV, JSON or text, with or without downloading.
+- **Fully translated** — the whole interface is available in English, Japanese, Chinese and Korean, and switches language instantly.
+- **Faster Windows updates** — Velopack installer with small delta updates.
+
+**2.5.1** fixed the Pixivision tab after a pixivision.net site change; **2.5.2** fixed overlapping cards in Natural-height layouts. See the [full release notes](RELEASE_NOTES.md).
 
 ## Requirements
 
