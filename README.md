@@ -126,18 +126,6 @@ GitHub Actions builds Windows, macOS, and Linux automatically and attaches them 
 | `Pikura-{ver}-windows-portable.zip` | Portable zip (legacy updater) |
 | `releases.win.json`, `assets.win.json`, `*.nupkg` | Velopack update feed + full/delta packages (GithubSource reads these) |
 
-### Code signing
-
-Windows binaries and installers are signed via [SignPath Foundation](https://signpath.org) (OSS program). Signing is two-phase in `release.yml`: app binaries before `vpk pack`, installers after. It is skipped automatically until configured — set:
-
-- Secret: `SIGNPATH_API_TOKEN`
-- Variables: `SIGNPATH_ORGANIZATION_ID`, `SIGNPATH_PROJECT_SLUG`, `SIGNPATH_POLICY_SLUG`
-- Artifact configuration slugs: `app`, `installers` (see `.signpath/artifact-configurations/`)
-
-### Code signing policy
-
-Free code signing provided by [SignPath.io](https://signpath.io), certificate by SignPath Foundation.
-
 - **Team roles**: committers and approvers — mrplusultra.
 - **Privacy**: Pikura does not transfer information to networked systems unless the user requests it. The only network features are: pixiv/FANBOX API access when you sign in, the automatic GitHub update check (can be changed in Settings), Ollama on localhost, and AI model downloads initiated by the user.
 
