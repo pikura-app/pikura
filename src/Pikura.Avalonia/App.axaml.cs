@@ -2,6 +2,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using Avalonia.Media;
 using Avalonia.Platform;
 using Avalonia.Styling;
 using Avalonia.Threading;
@@ -114,6 +115,7 @@ public partial class App : Application
         }
 
         Current.RequestedThemeVariant = variant;
+        ApplyAccent(settings.Current.AccentColor);
 
         if (theme == "Scheduled" && _themeTimer is null)
         {
@@ -127,6 +129,45 @@ public partial class App : Application
             _themeTimer?.Stop();
             _themeTimer = null;
         }
+    }
+
+    // Accent currently baked into the generated Actipro brushes ("Default" = App.axaml as loaded).
+    private static string _appliedAccent = "Default";
+    private static Color? _defaultBlueMidtone;
+    private static bool _accentEventsSubscribed;
+
+    /// <summary>Recolors Actipro's accent ramp. "System" feeds the Windows accent color into the
+    /// blue ramp; hue names switch ramps. Regenerating brushes is costly, so it's skipped when
+    /// nothing changed.</summary>
+    private static void ApplyAccent(string? accent)
+    {
+        if (string.IsNullOrWhiteSpace(accent) || (accent == "System" && !OperatingSystem.IsWindows()))
+            accent = "Default";
+
+        Color? systemColor = null;
+        if (accent == "System" && GetPlatformSettings() is { } ps)
+        {
+            systemColor = ps.GetColorValues().AccentColor1;
+            if (!_accentEventsSubscribed)
+            {
+                ps.ColorValuesChanged += (_, _) => Dispatcher.UIThread.Post(ApplyTheme);
+                _accentEventsSubscribed = true;
+            }
+        }
+
+        var key = systemColor is { } c ? $"System:{c}" : accent;
+        if (key == _appliedAccent) return;
+        if (!ActiproSoftware.UI.Avalonia.Themes.ModernTheme.TryGetCurrent(out var theme) || theme.Definition is not { } def)
+            return;
+
+        if (def.ColorPaletteFactory is ActiproSoftware.UI.Avalonia.Themes.Generation.DefaultColorPaletteFactory palette)
+        {
+            _defaultBlueMidtone ??= palette.BlueMidtoneColor;
+            palette.BlueMidtoneColor = systemColor ?? _defaultBlueMidtone.Value;
+        }
+        def.AccentColorRampName = accent is "Default" or "System" ? "Blue" : accent;
+        theme.RefreshResources();
+        _appliedAccent = key;
     }
 
     private static ThemeVariant GetSystemThemeVariant()
@@ -215,7 +256,9 @@ public partial class App : Application
             // started before the user opens the History tab would be missed.
             var historyVm = AppServices.Get<HistoryViewModel>();
 
-            // Show splash if enabled; otherwise show the main window right away.
+            // Show splash if enabled. The main window is NOT shown yet in either case:
+            // the first-run Quick Setup wizard must appear first when it hasn't been
+            // completed, and the shared reveal below handles both paths.
             SplashWindow? splash = null;
             if (settings.Current.ShowSplashScreen)
             {
@@ -223,11 +266,10 @@ public partial class App : Application
                 splash.Show();
                 splash.Activate();
             }
-            else
-            {
-                desktop.MainWindow = mainWindow;
-                mainWindow.Show();
-            }
+
+            // Fresh install = never saw a What's New popup; used below to suppress it
+            // after the wizard (the wizard IS the onboarding for new users).
+            var freshInstall = settings.Current.LastOnboardingVersionShown == null;
 
             // Pre-load persisted history data after the window finishes initializing.
             _ = global::Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(async () =>
@@ -275,16 +317,50 @@ public partial class App : Application
 
             // Close the splash after a couple of seconds, then reveal the main window
             // and show any feature highlights / crash dialogs.
+            SetupWizardWindow? wizard = null;
             _ = global::Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(async () =>
             {
                 if (splash is not null)
                 {
                     await Task.Delay(3000);
                     splash.CloseSplash();
-                    desktop.MainWindow = mainWindow;
-                    mainWindow.Show();
-                    mainWindow.Activate();
                 }
+
+                // First-run Quick Setup wizard — once for everyone while the flag is
+                // false. Shown standalone because the main window can't own a dialog
+                // while hidden. Finish → reveal main window; X/Alt+F4 → quit and the
+                // wizard returns next launch.
+                if (!settings.Current.SetupWizardCompleted)
+                {
+                    var wizardVm = new SetupWizardViewModel(
+                        AppServices.Get<PixivLoginService>(),
+                        AppServices.Get<AccountService>(),
+                        AppServices.Get<OllamaService>(),
+                        settings);
+                    wizard = new SetupWizardWindow(wizardVm);
+                    wizard.Show();
+                    wizard.Activate();
+                    if (!await wizard.Completion.Task)
+                    {
+                        desktop.Shutdown();
+                        return;
+                    }
+                    settings.Update(s => s.SetupWizardCompleted = true);
+                    // Fresh installs skip What's New — the wizard covered onboarding.
+                    if (freshInstall)
+                        settings.Update(s => s.LastOnboardingVersionShown = GetCurrentVersionString());
+                }
+
+                // Shared reveal: splash path AND no-splash path converge here. The main
+                // window is shown BEFORE the wizard closes so OnLastWindowClose can't
+                // fire during the hand-off.
+                desktop.MainWindow = mainWindow;
+                mainWindow.Show();
+                mainWindow.Activate();
+                wizard?.Close();
+
+                // Fresh installs that finished the wizard don't get What's New.
+                var showHighlights = !(freshInstall && settings.Current.SetupWizardCompleted);
 
                 // One-time local-library initial scan (background, resumable).
                 _ = Task.Run(async () =>
@@ -301,7 +377,8 @@ public partial class App : Application
 
                 try
                 {
-                    await ShowStartupHighlightsAsync(settings, mainWindow, highlightsPrep);
+                    if (showHighlights)
+                        await ShowStartupHighlightsAsync(settings, mainWindow, highlightsPrep);
                     await ShowCrashDialogIfNeededAsync();
                 }
                 finally
@@ -391,56 +468,48 @@ public partial class App : Application
         {
             new()
             {
-                Title = loc["WhatsNew_Pikura250"],
+                Title = loc["WhatsNew_Pikura260"],
                 Subtitle = loc["WhatsNew_Pikura250_Subtitle"],
-                Description = loc["WhatsNew_Pikura250_Description"],
+                Description = loc["WhatsNew_Pikura260_Description"],
                 IconKey = "RefreshIcon"
             },
             new()
             {
-                Title = loc["WhatsNew_LocalLibrary"],
-                Subtitle = loc["WhatsNew_LocalLibrary_Subtitle"],
-                Description = loc["WhatsNew_LocalLibrary_Description"],
-                IconKey = "FolderIcon",
+                Title = loc["WhatsNew_QuickSetup"],
+                Subtitle = loc["WhatsNew_QuickSetup_Subtitle"],
+                Description = loc["WhatsNew_QuickSetup_Description"],
+                IconKey = "CheckIcon",
                 IsNew = true
             },
             new()
             {
-                Title = loc["WhatsNew_HoshiOverhaul"],
-                Subtitle = loc["WhatsNew_HoshiOverhaul_Subtitle"],
-                Description = loc["WhatsNew_HoshiOverhaul_Description"],
-                IconKey = "StarIcon",
+                Title = loc["WhatsNew_AccentColors"],
+                Subtitle = loc["WhatsNew_AccentColors_Subtitle"],
+                Description = loc["WhatsNew_AccentColors_Description"],
+                IconKey = "PaletteIcon",
                 IsNew = true
             },
             new()
             {
-                Title = loc["WhatsNew_GpuAcceleration"],
-                Subtitle = loc["WhatsNew_GpuAcceleration_Subtitle"],
-                Description = loc["WhatsNew_GpuAcceleration_Description"],
-                IconKey = "ImageIcon",
-                IsNew = true
-            },
-            new()
-            {
-                Title = loc["WhatsNew_TouchAndPen"],
-                Subtitle = loc["WhatsNew_TouchAndPen_Subtitle"],
-                Description = loc["WhatsNew_TouchAndPen_Description"],
+                Title = loc["WhatsNew_PopupPages"],
+                Subtitle = loc["WhatsNew_PopupPages_Subtitle"],
+                Description = loc["WhatsNew_PopupPages_Description"],
                 IconKey = "PopupIcon",
                 IsNew = true
             },
             new()
             {
-                Title = loc["WhatsNew_ReliableDownloads"],
-                Subtitle = loc["WhatsNew_ReliableDownloads_Subtitle"],
-                Description = loc["WhatsNew_ReliableDownloads_Description"],
-                IconKey = "DownloadIcon"
+                Title = loc["WhatsNew_LanguageEverywhere"],
+                Subtitle = loc["WhatsNew_LanguageEverywhere_Subtitle"],
+                Description = loc["WhatsNew_LanguageEverywhere_Description"],
+                IconKey = "GlobeIcon"
             },
             new()
             {
-                Title = loc["WhatsNew_FullyTranslated"],
-                Subtitle = "日本語 · 中文 · 한국어",
-                Description = loc["WhatsNew_FullyTranslated_Description"],
-                IconKey = "GlobeIcon"
+                Title = loc["WhatsNew_Fixes260"],
+                Subtitle = loc["WhatsNew_Fixes260_Subtitle"],
+                Description = loc["WhatsNew_Fixes260_Description"],
+                IconKey = "StarIcon"
             },
         };
     }

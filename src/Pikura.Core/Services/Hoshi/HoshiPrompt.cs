@@ -52,9 +52,16 @@ public static class HoshiPrompt
     private static readonly Regex HtmlTag = new("<[^>]+>", RegexOptions.Compiled);
     private static readonly Regex MultiSpace = new("\\s+", RegexOptions.Compiled);
 
-    public static string BuildSystemPrompt(ArtworkFacts? facts, IReadOnlyList<string>? taggerTags, bool toolsEnabled, DateTimeOffset now)
+    public static string BuildSystemPrompt(ArtworkFacts? facts, IReadOnlyList<string>? taggerTags, bool toolsEnabled, DateTimeOffset now, string? appLanguage = null)
     {
-        var parts = new List<string> { string.Format(BaseTemplate, now.ToString("yyyy-MM-dd")) };
+        var template = BaseTemplate;
+        if (!string.IsNullOrEmpty(appLanguage) && appLanguage != "English")
+        {
+            template = template.Replace(
+                "- Reply in the same language the user writes in.",
+                $"- The user's app language is {appLanguage}. Answer in {appLanguage} unless the user writes to you in a different language; then reply in that language.");
+        }
+        var parts = new List<string> { string.Format(template, now.ToString("yyyy-MM-dd")) };
         parts.Add(toolsEnabled ? ToolsLine : NoToolsLine);
         if (facts != null)
         {

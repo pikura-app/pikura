@@ -344,13 +344,16 @@ public partial class PixivisionViewModel : ViewModelBase
 
         Pikura.Avalonia.Localization.LocalizationService.Instance.PropertyChanged += (_, e) =>
         {
-            if (e.PropertyName is nameof(Pikura.Avalonia.Localization.LocalizationService.Culture)
-                              or nameof(Pikura.Avalonia.Localization.LocalizationService.Language))
+            // SetLanguage raises Culture and then Language — react once, or the second reload
+            // cancels the first and the list blanks twice.
+            if (e.PropertyName is nameof(Pikura.Avalonia.Localization.LocalizationService.Language))
             {
                 foreach (var n in new[] { nameof(DateLabel), nameof(SavedArticlesButtonLabel), nameof(InlineArtworkLayoutLabel),
                                           nameof(SidePanelLabel), nameof(RelatedLatestHeading), nameof(RelatedPopularHeading), nameof(PageLabel) })
                     OnPropertyChanged(n);
-                _ = LoadArticlesAsync();
+                // Stay on the same page, and re-fetch an open article so its text switches too.
+                _ = IsFilteredByDate || IsAutoloadMode ? LoadArticlesAsync() : LoadArticlesPageAsync(Math.Max(1, ArticlePage), append: false);
+                if (IsViewingArticle && _currentArticleSummary is { } open) _ = OpenArticleAsync(open);
             }
         };
         GalleryVm.PropertyChanged += (_, e) =>
@@ -416,7 +419,7 @@ public partial class PixivisionViewModel : ViewModelBase
 
         if (!append) { Articles.Clear(); SelectedCount = 0; }
         IsLoading = true;
-        StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Pixivision_LoadingPixivisionArticles"];
+        SetStatus("Pixivision_LoadingPixivisionArticles");
 
         try
         {
@@ -445,7 +448,7 @@ public partial class PixivisionViewModel : ViewModelBase
             RefreshCardSavedStates();
         }
         catch (OperationCanceledException) { }
-        catch (Exception ex) { StatusMessage = Pikura.Avalonia.Localization.LocalizationService.F("Pixivision_LoadFailed", ex.Message); }
+        catch (Exception ex) { SetStatus("Pixivision_LoadFailed", ex.Message); }
         finally { if (!cts.IsCancellationRequested) IsLoading = false; }
     }
 
@@ -510,7 +513,7 @@ public partial class PixivisionViewModel : ViewModelBase
         SelectedCount = 0;
         HasNextPage = false;
         IsLoading = true;
-        StatusMessage = Pikura.Avalonia.Localization.LocalizationService.F("Pixivision_SearchingOnDate", target.ToString("yyyy-MM-dd"));
+        SetStatus("Pixivision_SearchingOnDate", target.ToString("yyyy-MM-dd"));
 
         try
         {
@@ -548,7 +551,7 @@ public partial class PixivisionViewModel : ViewModelBase
             OnPropertyChanged(nameof(HasArticles));
             RefreshCardSavedStates();
         }
-        catch (Exception ex) { StatusMessage = Pikura.Avalonia.Localization.LocalizationService.F("Pixivision_DateSearchFailed", ex.Message); }
+        catch (Exception ex) { SetStatus("Pixivision_DateSearchFailed", ex.Message); }
         finally { IsLoading = false; }
     }
 
@@ -613,7 +616,7 @@ public partial class PixivisionViewModel : ViewModelBase
         SelectedCount = 0;
         HasNextPage = false;
         IsLoading = true;
-        StatusMessage = Pikura.Avalonia.Localization.LocalizationService.F("Pixivision_SearchingInRange", DateLabel);
+        SetStatus("Pixivision_SearchingInRange", DateLabel);
 
         try
         {
@@ -652,7 +655,7 @@ public partial class PixivisionViewModel : ViewModelBase
             OnPropertyChanged(nameof(HasArticles));
             RefreshCardSavedStates();
         }
-        catch (Exception ex) { StatusMessage = Pikura.Avalonia.Localization.LocalizationService.F("Pixivision_DateSearchFailed", ex.Message); }
+        catch (Exception ex) { SetStatus("Pixivision_DateSearchFailed", ex.Message); }
         finally { IsLoading = false; }
     }
 
@@ -693,7 +696,7 @@ public partial class PixivisionViewModel : ViewModelBase
             if (cts.IsCancellationRequested) return;
             if (detail == null)
             {
-                StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Pixivision_FailedToLoadArticle"];
+                SetStatus("Pixivision_FailedToLoadArticle");
                 return;
             }
 
@@ -783,7 +786,7 @@ public partial class PixivisionViewModel : ViewModelBase
                 }
                 OnPropertyChanged(nameof(HasFeaturedWorks));
                 OnPropertyChanged(nameof(ShowFeaturedWorksGallery));
-                StatusMessage = Pikura.Avalonia.Localization.LocalizationService.F("Pixivision_FeaturedCount", FeaturedWorks.Count);
+                SetStatus("Pixivision_FeaturedCount", FeaturedWorks.Count);
             }
 
             var tasks = detail.Works.Select(async (work, i) =>
@@ -801,7 +804,7 @@ public partial class PixivisionViewModel : ViewModelBase
             if (cts.IsCancellationRequested) return;
         }
         catch (OperationCanceledException) { }
-        catch (Exception ex) { StatusMessage = Pikura.Avalonia.Localization.LocalizationService.F("Pixivision_ArticleLoadFailed", ex.Message); }
+        catch (Exception ex) { SetStatus("Pixivision_ArticleLoadFailed", ex.Message); }
         finally { if (!cts.IsCancellationRequested) IsLoadingArticle = false; }
     }
 

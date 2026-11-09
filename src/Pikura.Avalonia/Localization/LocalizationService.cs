@@ -102,6 +102,34 @@ public sealed class LocalizationService : INotifyPropertyChanged
         Raise("Item[]");
         Raise(nameof(Culture));
         Raise(nameof(Language));
+
+        // Notify registered listeners (view models with computed localized strings, status
+        // messages held in C#). Weak references so nothing is kept alive by this list.
+        List<ILanguageAware>? live;
+        lock (_languageAware)
+        {
+            _languageAware.RemoveAll(w => !w.TryGetTarget(out _));
+            live = new List<ILanguageAware>(_languageAware.Count);
+            foreach (var w in _languageAware)
+                if (w.TryGetTarget(out var l)) live.Add(l);
+        }
+        foreach (var listener in live)
+        {
+            try { listener.OnLanguageChanged(); }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[Localization] OnLanguageChanged {listener.GetType().Name} failed: {ex}");
+            }
+        }
+    }
+
+    private readonly List<WeakReference<ILanguageAware>> _languageAware = new();
+
+    /// <summary>Registers a listener called on every language change (weakly held — callers don't
+    /// need to unregister). Must be called on the UI thread.</summary>
+    public void Register(ILanguageAware listener)
+    {
+        lock (_languageAware) _languageAware.Add(new WeakReference<ILanguageAware>(listener));
     }
 
     // Each subscriber is isolated: one throwing handler must not stop the rest of the UI from

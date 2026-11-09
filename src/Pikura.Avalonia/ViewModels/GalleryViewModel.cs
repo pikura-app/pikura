@@ -450,7 +450,7 @@ ShowPreview = true;
         acctOverride.DownloadRoot = folder;
 
         var folderName = Path.GetFileName(folder);
-        StatusMessage = string.Format(LocalizationService.Instance["Gallery_Status_DlCollage"], items.Count, folderName);
+        SetStatus("Gallery_Status_DlCollage", items.Count, folderName);
         await DownloadCoreAsync(items.ToList(), acctOverride, jobName: folderName);
     }
 
@@ -553,9 +553,9 @@ ShowPreview = true;
 
         try
         {
-            StatusMessage = string.Format(LocalizationService.Instance["Gallery_Status_LoadingPages"], card.Title);
+            SetStatus("Gallery_Status_LoadingPages", card.Title);
             var pages = await _pixivClient.GetArtworkPagesAsync(card.Id);
-            if (pages.Count <= 1) { StatusMessage = string.Format(LocalizationService.Instance["Gallery_Status_OnePage"], card.Title); return; }
+            if (pages.Count <= 1) { SetStatus("Gallery_Status_OnePage", card.Title); return; }
 
             // Remove the consolidated tile first, then insert one card per page at the same spot.
             collage.CollageItems.RemoveAt(idx);
@@ -583,12 +583,12 @@ ShowPreview = true;
                 inserted++;
                 _ = pageCard.LoadThumbnailAsync(_imageLoader);
             }
-            StatusMessage = string.Format(LocalizationService.Instance["Gallery_Status_Expanded"], card.Title, inserted);
+            SetStatus("Gallery_Status_Expanded", card.Title, inserted);
         }
         catch (Exception ex)
         {
             Logger.LogWarning(ex, "ExpandCollageItem {Id} failed", card.Id);
-            StatusMessage = string.Format(LocalizationService.Instance["Gallery_Status_ExpandFailed"], card.Title, ex.Message);
+            SetStatus("Gallery_Status_ExpandFailed", card.Title, ex.Message);
         }
     }
 
@@ -763,7 +763,7 @@ ShowPreview = true;
                 catch (Exception ex)
                 {
                     Logger.LogError(ex, "Queued download failed");
-                    StatusMessage = string.Format(LocalizationService.Instance["Gallery_Status_QueuedDlFailed"], ex.Message);
+                    SetStatus("Gallery_Status_QueuedDlFailed", ex.Message);
                 }
                 finally
                 {
@@ -805,7 +805,7 @@ ShowPreview = true;
             _queueEntries.Enqueue((downloadTask, placeholderId));
             QueuedDownloadCount = _queueEntries.Count;
         }
-        StatusMessage = string.Format(LocalizationService.Instance["Gallery_Status_QueuedWaiting"], description, QueuedDownloadCount);
+        SetStatus("Gallery_Status_QueuedWaiting", description, QueuedDownloadCount);
         Logger.LogInformation("[Queue] Enqueued: {Desc}. Queue size: {Count}", description, QueuedDownloadCount);
 
         // Create the History placeholder asynchronously (DB write off the UI thread).
@@ -1269,7 +1269,7 @@ ShowPreview = true;
 
         // Search is restricted to followed artists via the local index — the
         // dedicated "Search" tab (GlobalSearchViewModel) covers global Pixiv search.
-        StatusMessage = Pikura.Avalonia.Localization.LocalizationService.F("Gallery_SearchingFollowed", tag);
+        SetStatus("Gallery_SearchingFollowed", tag);
         IsLoading = true;
         IsRecentFeedActive = false;
 
@@ -1277,7 +1277,7 @@ ShowPreview = true;
         {
             if (_indexService is null)
             {
-                StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Gallery_SearchIndexUnavailable"];
+                SetStatus("Gallery_SearchIndexUnavailable");
                 return;
             }
 
@@ -1300,7 +1300,7 @@ ShowPreview = true;
             {
                 ShowSearchInfo = true;
                 SearchInfoText = Pikura.Avalonia.Localization.LocalizationService.F("Gallery_TagFollowedResults", tag, 0);
-                StatusMessage = Pikura.Avalonia.Localization.LocalizationService.F("Gallery_NoFollowedResults", tag);
+                SetStatus("Gallery_NoFollowedResults", tag);
                 IsSearchActive = true;
                 return;
             }
@@ -1326,7 +1326,7 @@ ShowPreview = true;
             SearchInfoText = Pikura.Avalonia.Localization.LocalizationService.F("Gallery_TagFollowedResults", tag, VisibleArtworks.Count);
             IsSearchActive = true;
 
-            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.F("Gallery_FoundFollowedResults", VisibleArtworks.Count, tag);
+            SetStatus("Gallery_FoundFollowedResults", VisibleArtworks.Count, tag);
         }
         catch (Exception ex)
         {
@@ -1367,7 +1367,7 @@ ShowPreview = true;
             return;
         }
 
-        StatusMessage = Pikura.Avalonia.Localization.LocalizationService.F("Gallery_SearchingFor", raw);
+        SetStatus("Gallery_SearchingFor", raw);
         IsLoading = true;
 
         try
@@ -1433,7 +1433,7 @@ ShowPreview = true;
         ShowSearchInfo = true;
         SearchInfoText = Pikura.Avalonia.Localization.LocalizationService.F("Gallery_QueryInArtist", query, VisibleArtworks.Count);
         IsSearchActive = true;
-        StatusMessage = Pikura.Avalonia.Localization.LocalizationService.F("Gallery_FoundInArtist", VisibleArtworks.Count, query);
+        SetStatus("Gallery_FoundInArtist", VisibleArtworks.Count, query);
 
         await Task.CompletedTask;
     }
@@ -1473,12 +1473,12 @@ ShowPreview = true;
         IsSearchActive = false;
         ShowSearchInfo = false;
         IdSearchQuery = string.Empty;
-        StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Gallery_SearchCleared"];
+        SetStatus("Gallery_SearchCleared");
     }
 
     public async Task SearchArtistByNameAsync(string artistName)
     {
-        StatusMessage = string.Format(LocalizationService.Instance["Gallery_Status_SearchingArtist"], artistName);
+        SetStatus("Gallery_Status_SearchingArtist", artistName);
 
         try
         {
@@ -1486,7 +1486,7 @@ ShowPreview = true;
 
             if (users is null || users.Count == 0)
             {
-                StatusMessage = string.Format(LocalizationService.Instance["Gallery_Status_NoArtists"], artistName);
+                SetStatus("Gallery_Status_NoArtists", artistName);
                 return;
             }
 
@@ -1511,11 +1511,11 @@ ShowPreview = true;
                 SearchInfoText = $"Viewing: {transient.Name} (not followed) • {users.Count} matches for '{artistName}'";
             }
 
-            StatusMessage = string.Format(LocalizationService.Instance["Gallery_Status_ArtistsFound"], users.Count, artistName);
+            SetStatus("Gallery_Status_ArtistsFound", users.Count, artistName);
         }
         catch (Exception ex)
         {
-            StatusMessage = string.Format(LocalizationService.Instance["Gallery_Status_ArtistSearchFailed"], ex.Message);
+            SetStatus("Gallery_Status_ArtistSearchFailed", ex.Message);
         }
     }
 
@@ -1546,7 +1546,7 @@ ShowPreview = true;
 
         // Not in followed list: load as transient artist (don't add to Artists list)
         var info = await _pixivClient.GetArtistAsync(userId);
-        if (info == null) { StatusMessage = string.Format(LocalizationService.Instance["Gallery_Status_ArtistNotFound"], userId); return; }
+        if (info == null) { SetStatus("Gallery_Status_ArtistNotFound", userId); return; }
         var transient = new ArtistCardViewModel(new FollowedArtist
         {
             UserId = info.UserId,
@@ -1578,7 +1578,7 @@ ShowPreview = true;
         // open (e.g. arriving fresh from Discover/Bookmarks/Rankings).
 ShowPreview = true;
         _settingsService.Update(s => s.ViewerBrowsePanelHidden = false);
-        StatusMessage = Pikura.Avalonia.Localization.LocalizationService.F("Gallery_ViewingArtwork", artworkId);
+        SetStatus("Gallery_ViewingArtwork", artworkId);
     }
 
     /// <summary>
@@ -1595,13 +1595,13 @@ ShowPreview = true;
         OpenInNewTab(card, list, list.Count, null, "Hoshi");
 ShowPreview = true;
         _settingsService.Update(s => s.ViewerBrowsePanelHidden = false);
-        StatusMessage = Pikura.Avalonia.Localization.LocalizationService.F("Gallery_OpenedInNewTab", artworkId);
+        SetStatus("Gallery_OpenedInNewTab", artworkId);
     }
 
     private async Task<ArtworkCardViewModel?> BuildCardForArtworkAsync(string artworkId)
     {
         var b = await _pixivClient.GetArtworkDetailAsync(artworkId);
-        if (b == null) { StatusMessage = Pikura.Avalonia.Localization.LocalizationService.F("Gallery_ArtworkNotFound", artworkId); return null; }
+        if (b == null) { SetStatus("Gallery_ArtworkNotFound", artworkId); return null; }
         var preview = new ArtworkPreview
         {
             Id = b.IllustId ?? artworkId,
@@ -1774,20 +1774,20 @@ ShowPreview = true;
         if (isInitialLoad) LoadFollowedArtistsCache();
         IsLoadingArtists = true;
         if (isInitialLoad)
-            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Gallery_LoadingFollowedArtists_2"];
+            SetStatus("Gallery_LoadingFollowedArtists_2");
 
         try
         {
             if (string.IsNullOrWhiteSpace(_settingsService.Current.UserId))
             {
-                if (isInitialLoad) StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Gallery_ValidatingSession"];
+                if (isInitialLoad) SetStatus("Gallery_ValidatingSession");
                 await _pixivClient.ValidateSessionAsync();
             }
 
             var userId = _settingsService.Current.UserId;
             if (string.IsNullOrWhiteSpace(userId))
             {
-                StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Gallery_SignInToSeeFollowedArtists"];
+                SetStatus("Gallery_SignInToSeeFollowedArtists");
                 return;
             }
 
@@ -1840,7 +1840,7 @@ ShowPreview = true;
             // Step 2: Fetch remaining pages in the background so startup isn't gated on all pages.
             ArtistsLoaded = true;
             if (!IsLoading)
-                StatusMessage = Pikura.Avalonia.Localization.LocalizationService.F("Gallery_FollowedArtistsLoadingMore", Artists.Count);
+                SetStatus("Gallery_FollowedArtistsLoadingMore", Artists.Count);
             RebuildFilteredArtists();
 
             _ = Task.Run(async () =>
@@ -1854,7 +1854,7 @@ ShowPreview = true;
                         ArtistsTotal = Artists.Count;
                         Logger.LogInformation("[FollowedArtists] Load complete: Artists.Count={Count} PixivTotalEstimate={Estimated}", Artists.Count, realTotal);
                         if (!IsLoading)
-                            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.F("Gallery_FollowedArtistsCount", Artists.Count);
+                            SetStatus("Gallery_FollowedArtistsCount", Artists.Count);
                         RebuildFilteredArtists();
                         SaveFollowedArtistsCache();
                     });
@@ -1928,7 +1928,7 @@ ShowPreview = true;
         if (Interlocked.Exchange(ref _loadingArtistsGuard, 1) == 1) return;
 
         IsLoadingArtists = true;
-        StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Gallery_RefreshingFollowedArtists"];
+        SetStatus("Gallery_RefreshingFollowedArtists");
 
         // Preserve the currently-selected artist so clearing the list (which
         // resets the bound ListBox selection to null) doesn't drop it — otherwise
@@ -1941,7 +1941,7 @@ ShowPreview = true;
         {
             if (string.IsNullOrWhiteSpace(_settingsService.Current.UserId))
             {
-                StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Gallery_ValidatingSession"];
+                SetStatus("Gallery_ValidatingSession");
                 await _pixivClient.ValidateSessionAsync();
             }
 
@@ -1952,7 +1952,7 @@ ShowPreview = true;
             var userId = _settingsService.Current.UserId;
             if (string.IsNullOrWhiteSpace(userId))
             {
-                StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Gallery_SignInToSeeFollowedArtists"];
+                SetStatus("Gallery_SignInToSeeFollowedArtists");
                 return;
             }
             
@@ -2011,7 +2011,7 @@ ShowPreview = true;
             ArtistsTotal = Artists.Count;
             ArtistsLoaded = true;
             if (!IsLoading)
-                StatusMessage = Pikura.Avalonia.Localization.LocalizationService.F("Gallery_FollowedArtistsRefreshed", Artists.Count);
+                SetStatus("Gallery_FollowedArtistsRefreshed", Artists.Count);
             RebuildFilteredArtists();
 
             // Restore the previously-selected artist (matched by id to the freshly
@@ -2278,7 +2278,7 @@ ShowPreview = true;
         catch (Exception ex)
         {
             Logger.LogError(ex, "Failed to open Discover page");
-            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Gallery_DiscoverFeatureComingSoon"];
+            SetStatus("Gallery_DiscoverFeatureComingSoon");
         }
     }
 
@@ -2290,7 +2290,7 @@ ShowPreview = true;
         IsRecentFeedActive = true;
         SelectedArtist = null;
         VisibleArtworks.Clear();
-        StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Gallery_LoadingRecentWorksFromFollowedArtists"];
+        SetStatus("Gallery_LoadingRecentWorksFromFollowedArtists");
         try
         {
             var allIds = new List<ArtworkPreview>();
@@ -2312,7 +2312,7 @@ ShowPreview = true;
                 AddArtworkCard(vm);
                 _ = vm.LoadThumbnailAsync(_imageLoader);
             }
-            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.F("Gallery_RecentWorksLoaded", VisibleArtworks.Count);
+            SetStatus("Gallery_RecentWorksLoaded", VisibleArtworks.Count);
         }
         catch (Exception ex)
         {
@@ -2694,14 +2694,14 @@ ShowPreview = true;
         var flushed = QuickClipboardService.FlushArtistIds();
         if (flushed == null)
         {
-            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Gallery_NoArtistIDsQueuedClickIndividual"];
+            SetStatus("Gallery_NoArtistIDsQueuedClickIndividual");
             return;
         }
 
         var count = flushed.Split(',').Length;
         // Raise event so the view can write to the system clipboard
         CopyToClipboardRequested?.Invoke(flushed);
-        StatusMessage = string.Format(Pikura.Avalonia.Localization.LocalizationService.Instance["Gallery_CopiedQueuedArtistIds"], count);
+        SetStatus("Gallery_CopiedQueuedArtistIds", count);
     }
 
     /// <summary>Raised when the ViewModel wants to write text to the system clipboard.</summary>
@@ -3130,11 +3130,11 @@ ShowPreview = true;
         if (filtered < loaded)
         {
             // Filters are hiding some loaded artworks
-            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.F("Gallery_ArtistShown", artist.Name, filtered, loaded, total);
+            SetStatus("Gallery_ArtistShown", artist.Name, filtered, loaded, total);
         }
         else
         {
-            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.F("Gallery_ArtistWorks", artist.Name, loaded, total);
+            SetStatus("Gallery_ArtistWorks", artist.Name, loaded, total);
         }
     }
 
@@ -3171,7 +3171,7 @@ ShowPreview = true;
         _currentArtistLoadedCount = 0;
         CanLoadMore = false;
         ArtworksTotal = 0;
-        StatusMessage = Pikura.Avalonia.Localization.LocalizationService.F("Gallery_LoadingArtist", artist.Name);
+        SetStatus("Gallery_LoadingArtist", artist.Name);
 
         try
         {
@@ -3194,7 +3194,7 @@ ShowPreview = true;
 
             if (_currentArtistAllIds.Count == 0)
             {
-                StatusMessage = Pikura.Avalonia.Localization.LocalizationService.F("Gallery_ArtistNoArtworks", artist.Name);
+                SetStatus("Gallery_ArtistNoArtworks", artist.Name);
                 return;
             }
 
@@ -3288,7 +3288,7 @@ ShowPreview = true;
         var picked = VisibleArtworks.Where(a => a.IsSelected).ToList();
         if (picked.Count == 0)
         {
-            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Gallery_NoArtworksSelected"];
+            SetStatus("Gallery_NoArtworksSelected");
             return;
         }
 
@@ -3309,7 +3309,7 @@ ShowPreview = true;
     public async Task DownloadVisibleAsync()
     {
         var snapshot = VisibleArtworks.ToList();
-        if (snapshot.Count == 0) { StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Gallery_NoArtworksLoaded"]; return; }
+        if (snapshot.Count == 0) { SetStatus("Gallery_NoArtworksLoaded"); return; }
 
         Func<Task> downloadTask = () => DownloadCoreAsync(snapshot);
 
@@ -3329,7 +3329,7 @@ ShowPreview = true;
     {
         if (SelectedArtist == null)
         {
-            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Gallery_SelectAnArtistFirst"];
+            SetStatus("Gallery_SelectAnArtistFirst");
             return;
         }
 
@@ -3341,20 +3341,20 @@ ShowPreview = true;
         // If IDs not yet populated (e.g. just navigated from Rankings), wait a bit
         if (_currentArtistAllIds.Count == 0)
         {
-            StatusMessage = string.Format(LocalizationService.Instance["Gallery_Status_WaitingList"], artistName);
+            SetStatus("Gallery_Status_WaitingList", artistName);
             var waitStart = DateTime.UtcNow;
             while (_currentArtistAllIds.Count == 0 && (DateTime.UtcNow - waitStart).TotalSeconds < 15)
             {
                 await Task.Delay(200);
                 if (SelectedArtist?.UserId != artistUserId)
                 {
-                    StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Gallery_ArtistChangedDownloadCancelled"];
+                    SetStatus("Gallery_ArtistChangedDownloadCancelled");
                     return;
                 }
             }
             if (_currentArtistAllIds.Count == 0)
             {
-                StatusMessage = string.Format(LocalizationService.Instance["Gallery_Status_NoList"], artistName);
+                SetStatus("Gallery_Status_NoList", artistName);
                 return;
             }
         }
@@ -3371,7 +3371,7 @@ ShowPreview = true;
             for (int i = 0; i < allIdsSnapshot.Count; i += batchSize)
             {
                 var batch = allIdsSnapshot.Skip(i).Take(batchSize).ToList();
-                StatusMessage = string.Format(LocalizationService.Instance["Gallery_Status_LoadingMeta"], artistName, Math.Min(i + batchSize, allIdsSnapshot.Count), allIdsSnapshot.Count);
+                SetStatus("Gallery_Status_LoadingMeta", artistName, Math.Min(i + batchSize, allIdsSnapshot.Count), allIdsSnapshot.Count);
                 try
                 {
                     var metadata = await _pixivClient.GetArtworksMetadataAsync(artistUserId, batch, isFirstPage: i == 0);
@@ -3390,11 +3390,11 @@ ShowPreview = true;
 
             if (cards.Count == 0)
             {
-                StatusMessage = string.Format(LocalizationService.Instance["Gallery_Status_NoArtworks"], artistName);
+                SetStatus("Gallery_Status_NoArtworks", artistName);
                 return;
             }
 
-            StatusMessage = string.Format(LocalizationService.Instance["Gallery_Status_DlFrom"], cards.Count, artistName);
+            SetStatus("Gallery_Status_DlFrom", cards.Count, artistName);
             await DownloadCoreAsync(cards);
         };
 
@@ -3427,7 +3427,7 @@ ShowPreview = true;
 
         if (picked.Count == 0)
         {
-            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Gallery_NoArtworksToDownload"];
+            SetStatus("Gallery_NoArtworksToDownload");
             return;
         }
 
@@ -3529,7 +3529,7 @@ ShowPreview = true;
                 .ToList()
             : approved.Select((c, i) => (card: c, originalIdx: i)).ToList();
 
-        if (artworkFilter.Count == 0) { StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Gallery_NoArtworksSelectedForDownload"]; return; }
+        if (artworkFilter.Count == 0) { SetStatus("Gallery_NoArtworksSelectedForDownload"); return; }
 
         var total = artworkFilter.Count;
         var done = 0;
@@ -3576,7 +3576,7 @@ ShowPreview = true;
                 var progress = new Progress<DownloadProgress>(p =>
                 {
                     var pct = p.TotalBytes > 0 ? (int)(100 * p.BytesSoFar / p.TotalBytes.Value) : 0;
-                    StatusMessage = string.Format(LocalizationService.Instance["Gallery_Status_DlProgress"], p.ArtworkId, p.PageIndex + 1, p.TotalPages, pct, done, total);
+                    SetStatus("Gallery_Status_DlProgress", p.ArtworkId, p.PageIndex + 1, p.TotalPages, pct, done, total);
                     _coordinator.ReportJobProgress(activeJob.Id, new JobProgress(
                         activeJob.Id, JobStatus.Running, done, total,
                         total > 0 ? done * 100.0 / total : 0,
@@ -3622,7 +3622,7 @@ ShowPreview = true;
         try { await Task.WhenAll(tasks); } catch (OperationCanceledException) { }
 
         var currentStatus = (await _coordinator.GetJobsAsync()).FirstOrDefault(j => j.Id == activeJob.Id)?.Status;
-        if (currentStatus == JobStatus.Paused) { StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Gallery_DownloadPaused"]; _coordinator.UnregisterExternalJob(activeJob.Id); return; }
+        if (currentStatus == JobStatus.Paused) { SetStatus("Gallery_DownloadPaused"); _coordinator.UnregisterExternalJob(activeJob.Id); return; }
 
         StatusMessage = failed == 0 ? $"Downloaded {done}/{total} artworks with preset." : $"Done: {done} ok, {failed} failed.";
         activeJob.Status      = ct.IsCancellationRequested ? JobStatus.Cancelled : failed == 0 ? JobStatus.Completed : JobStatus.Failed;
@@ -3656,7 +3656,7 @@ ShowPreview = true;
             .Select(i => _currentArtistAllIds[i - 1])
             .Distinct().ToList();
 
-        StatusMessage = string.Format(LocalizationService.Instance["Gallery_Status_FetchMeta"], selectedIds.Count);
+        SetStatus("Gallery_Status_FetchMeta", selectedIds.Count);
         var works = await _pixivClient.GetArtworksMetadataAsync(SelectedArtist.UserId, selectedIds, false);
         var cards = works.Values.Select(p => new ArtworkCardViewModel(p)).ToList();
         await DownloadCoreAsync(cards);
@@ -3692,7 +3692,7 @@ ShowPreview = true;
         // per-card disk scan or confirmation dialog here (that froze the UI on
         // large jobs and bypassed the configured behavior).
         var approved = cards.ToList();
-        if (approved.Count == 0) { StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Gallery_AllArtworksSkipped"]; return; }
+        if (approved.Count == 0) { SetStatus("Gallery_AllArtworksSkipped"); return; }
 
         var total = approved.Count;
         var done = 0;
@@ -3742,7 +3742,7 @@ ShowPreview = true;
                 var progress = new Progress<DownloadProgress>(p =>
                 {
                     var pct = p.TotalBytes > 0 ? (int)(100 * p.BytesSoFar / p.TotalBytes.Value) : 0;
-                    StatusMessage = string.Format(LocalizationService.Instance["Gallery_Status_DlProgress"], p.ArtworkId, p.PageIndex + 1, p.TotalPages, pct, done, total);
+                    SetStatus("Gallery_Status_DlProgress", p.ArtworkId, p.PageIndex + 1, p.TotalPages, pct, done, total);
                     _coordinator.ReportJobProgress(activeJob.Id, new JobProgress(
                         activeJob.Id, JobStatus.Running, done, total,
                         total > 0 ? done * 100.0 / total : 0,
@@ -3791,7 +3791,7 @@ ShowPreview = true;
         var currentStatus = (await _coordinator.GetJobsAsync()).FirstOrDefault(j => j.Id == activeJob.Id)?.Status;
         if (currentStatus == JobStatus.Paused)
         {
-            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Gallery_DownloadPaused"];
+            SetStatus("Gallery_DownloadPaused");
             _coordinator.UnregisterExternalJob(activeJob.Id);
             return;
         }
@@ -3845,14 +3845,15 @@ ShowPreview = true;
             }
         }
 
-        StatusMessage = string.Format(LocalizationService.Instance["Gallery_Status_QueuedDlPreset"], cards.Count, preset.Name);
+        SetStatus("Gallery_Status_QueuedDlPreset", cards.Count, preset.Name);
     }
 
     public bool HasArtists => Artists.Count > 0;
 }
 
-public partial class ArtistCardViewModel : ObservableObject
+public partial class ArtistCardViewModel : ObservableObject, ILanguageAware
 {
+    void ILanguageAware.OnLanguageChanged() => LanguageRefresh.RaiseComputedStrings(this, OnPropertyChanged);
     [ObservableProperty] private bool _isSelected;
     [ObservableProperty] private bool _isFollowed;
     [ObservableProperty] private Bitmap? _avatar;
@@ -3864,6 +3865,7 @@ public partial class ArtistCardViewModel : ObservableObject
 
     public ArtistCardViewModel(FollowedArtist artist)
     {
+        LocalizationService.Instance.Register(this);
         UserId = artist.UserId;
         Name = artist.UserName;
         ProfileImageUrl = artist.ProfileImageUrl;
@@ -3889,8 +3891,9 @@ public partial class ArtistCardViewModel : ObservableObject
     }
 }
 
-public partial class ArtworkCardViewModel : ObservableObject
+public partial class ArtworkCardViewModel : ObservableObject, ILanguageAware
 {
+    void ILanguageAware.OnLanguageChanged() => LanguageRefresh.RaiseComputedStrings(this, OnPropertyChanged);
     [ObservableProperty] private bool _isSelected;
     [ObservableProperty] private bool _isDownloading;
     [ObservableProperty] private Bitmap? _thumbnail;
@@ -3970,6 +3973,7 @@ public partial class ArtworkCardViewModel : ObservableObject
 
     public ArtworkCardViewModel(ArtworkPreview artwork)
     {
+        LocalizationService.Instance.Register(this);
         Artwork = artwork;
         Id = artwork.Id;
         Title = artwork.Title;

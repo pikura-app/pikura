@@ -6740,4 +6740,507 @@ Open a browser to sign in to the Wi-Fi, or try again on another network.</value>
   <data name="WhatsNew_FullyTranslated_Description" xml:space="preserve">
     <value>The entire interface is now available in Japanese, Chinese and Korean, and changing the language in Settings applies instantly without a restart.</value>
   </data>
+  <data name="Blocklist_Scope_AllTabs" xml:space="preserve">
+    <value>All Tabs</value>
+  </data>
+  <data name="Blocklist_Scope_Pixivision" xml:space="preserve">
+    <value>Pixivision</value>
+  </data>
+  <data name="Hoshi_Note_Found" xml:space="preserve">
+    <value>✓ Found: {0} by {1}</value>
+  </data>
+  <data name="Hoshi_Note_FavAdded" xml:space="preserve">
+    <value>Added {0} to local favorites ★</value>
+  </data>
+  <data name="Hoshi_Note_FavRemoved" xml:space="preserve">
+    <value>Removed {0} from local favorites.</value>
+  </data>
+  <data name="Hoshi_Note_FavAlready" xml:space="preserve">
+    <value>{0} is already in your local favorites.</value>
+  </data>
+  <data name="Hoshi_Note_FavNot" xml:space="preserve">
+    <value>{0} is not in your favorites.</value>
+  </data>
+  <data name="Hoshi_Note_MovedToFolder" xml:space="preserve">
+    <value>Moved {0} to folder "{1}".</value>
+  </data>
+  <data name="Hoshi_Msg_SimilarArtworks" xml:space="preserve">
+    <value>Find artworks similar to this image</value>
+  </data>
+  <data name="Hoshi_Msg_SimilarArtists" xml:space="preserve">
+    <value>Find artists with a similar style to this image</value>
+  </data>
+  <data name="Hoshi_Note_OpenArtworkSimilarArtists" xml:space="preserve">
+    <value>⚠ Open an artwork first — I need a starting point to find similar artists.</value>
+  </data>
+  <data name="Hoshi_Note_OpenArtworkSimilarArtworks" xml:space="preserve">
+    <value>⚠ Open an artwork first — I need a starting point to find similar artworks.</value>
+  </data>
+  <data name="Hoshi_Note_FindingArtists" xml:space="preserve">
+    <value>Finding artists with similar work…</value>
+  </data>
+  <data name="Hoshi_Note_FindingArtworks" xml:space="preserve">
+    <value>Finding similar artworks…</value>
+  </data>
+  <data name="Hoshi_Note_NoRelated" xml:space="preserve">
+    <value>⚠ No related results found.</value>
+  </data>
+  <data name="Hoshi_Note_NoOtherArtists" xml:space="preserve">
+    <value>⚠ No other artists found among related works.</value>
+  </data>
+  <data name="Hoshi_Note_FetchRelatedFailed" xml:space="preserve">
+    <value>✗ Failed to fetch related results: {0}</value>
+  </data>
+  <data name="Hoshi_Note_Error" xml:space="preserve">
+    <value>Error: {0}</value>
+  </data>
+  <data name="Hoshi_Note_TaggerFailed" xml:space="preserve">
+    <value>✗ Anime tagger failed: {0}</value>
+  </data>
+  <data name="Hoshi_Note_OpenArtworkPages" xml:space="preserve">
+    <value>⚠ Open an artwork first — I need to know which submission's pages to describe.</value>
+  </data>
+  <data name="Hoshi_Note_PagesLoadFailed" xml:space="preserve">
+    <value>⚠ Could not load this submission's pages.</value>
+  </data>
+  <data name="Hoshi_Note_PageLoadFailed" xml:space="preserve">
+    <value>✗ Page {0}: could not load image.</value>
+  </data>
+  <data name="Hoshi_Note_DescribeFailed" xml:space="preserve">
+    <value>✗ Failed to describe pages: {0}</value>
+  </data>
+  <data name="Hoshi_Note_Downloading" xml:space="preserve">
+    <value>⏳ Downloading {0}…</value>
+  </data>
+  <data name="Hoshi_Note_NoFilesDownloaded" xml:space="preserve">
+    <value>⚠ No files were downloaded for {0}.</value>
+  </data>
+  <data name="Hoshi_Note_Downloaded" xml:space="preserve">
+    <value>✓ Downloaded {0} {1} for {2}
+Saved to: {3}</value>
+  </data>
+  <data name="Hoshi_Note_DownloadFailed" xml:space="preserve">
+    <value>✗ Download failed for {0}: {1}</value>
+  </data>
+  <data name="Hoshi_Note_NoImageToDownload" xml:space="preserve">
+    <value>⚠ No image available to download. Please fetch an image first using commands like 'show image by ID', 'random artwork', or 'random artist [name]'.</value>
+  </data>
+  <data name="Hoshi_Note_FetchingById" xml:space="preserve">
+    <value>Fetching image by ID: {0}…</value>
+  </data>
+  <data name="Hoshi_Note_ImageNotFound" xml:space="preserve">
+    <value>⚠ Could not find image with ID {0}</value>
+  </data>
+  <data name="Hoshi_Note_FetchImageFailed" xml:space="preserve">
+    <value>✗ Failed to fetch image: {0}</value>
+  </data>
+  <data name="Hoshi_Note_FetchingRecentArtistImage" xml:space="preserve">
+    <value>Fetching recent image from artist: {0}…</value>
+  </data>
+  <data name="Hoshi_Note_FetchingRandomArtistImage" xml:space="preserve">
+    <value>Fetching random image from artist: {0}…</value>
+  </data>
+  <data name="Hoshi_Note_ArtistArtworksNotFound" xml:space="preserve">
+    <value>⚠ Could not find artworks for artist: {0}</value>
+  </data>
+  <data name="Hoshi_Note_FetchArtistArtworkFailed" xml:space="preserve">
+    <value>✗ Failed to fetch artist artwork: {0}</value>
+  </data>
+  <data name="Hoshi_Note_LookingUpArtwork" xml:space="preserve">
+    <value>⏳ Looking up artwork info from Pixiv…</value>
+  </data>
+  <data name="Hoshi_Note_ArtistId" xml:space="preserve">
+    <value>🆔 **{0}'s** user ID is **{1}**.
+🔗 pixiv.net/users/{1}</value>
+  </data>
+  <data name="Hoshi_Note_NoArtistContext" xml:space="preserve">
+    <value>⚠ I don't have an artist in context yet — ask about an artwork's artist first, or open one in the viewer.</value>
+  </data>
+  <data name="Hoshi_Note_NoArtworkToLink" xml:space="preserve">
+    <value>⚠ No artwork loaded to link to.</value>
+  </data>
+  <data name="Hoshi_Note_ArtistUnknown" xml:space="preserve">
+    <value>⚠ I don't know which artist you mean yet — ask "who is the artist" first, or open an artwork.</value>
+  </data>
+  <data name="Hoshi_Note_FetchingMoreWorks" xml:space="preserve">
+    <value>Fetching more works by this artist…</value>
+  </data>
+  <data name="Hoshi_Note_NoOtherWorks" xml:space="preserve">
+    <value>⚠ No other works found for this artist.</value>
+  </data>
+  <data name="Hoshi_Note_FetchWorksFailed" xml:space="preserve">
+    <value>✗ Failed to fetch artist's works: {0}</value>
+  </data>
+  <data name="Hoshi_Note_OpenArtworkSimilarAll" xml:space="preserve">
+    <value>⚠ Open an artwork first — I need a starting point to find similar works or artists.</value>
+  </data>
+  <data name="Hoshi_Note_FetchingRandom" xml:space="preserve">
+    <value>Fetching a random artwork…</value>
+  </data>
+  <data name="Hoshi_Note_RandomFailed" xml:space="preserve">
+    <value>⚠ Could not fetch a random artwork</value>
+  </data>
+  <data name="Hoshi_Note_FetchRandomFailed" xml:space="preserve">
+    <value>✗ Failed to fetch random artwork: {0}</value>
+  </data>
+  <data name="Hoshi_Note_NoImageIdentify" xml:space="preserve">
+    <value>⚠ No image or artwork loaded. Open an artwork or attach an image first, then ask me to identify it.</value>
+  </data>
+  <data name="Hoshi_Note_LookingUpCharacter" xml:space="preserve">
+    <value>🔍 Looking up character and source info…</value>
+  </data>
+  <data name="Hoshi_Note_OpenArtworkFailed" xml:space="preserve">
+    <value>✗ Could not open artwork: {0}</value>
+  </data>
+  <data name="Hoshi_Note_OpenArtistFailed" xml:space="preserve">
+    <value>✗ Could not open artist gallery: {0}</value>
+  </data>
+  <data name="Hoshi_Note_OpenUrlFailed" xml:space="preserve">
+    <value>✗ Could not open URL: {0}</value>
+  </data>
+  <data name="Hoshi_Note_DropFailed" xml:space="preserve">
+    <value>✗ Drop failed: {0}</value>
+  </data>
+  <data name="Hoshi_Note_LoadImageFailed" xml:space="preserve">
+    <value>✗ Could not load image: {0}</value>
+  </data>
+  <data name="Hoshi_Note_FetchUrlFailed" xml:space="preserve">
+    <value>✗ Could not fetch image from URL: {0}</value>
+  </data>
+  <data name="Hoshi_Note_NoArtworkSelected" xml:space="preserve">
+    <value>⚠ No artwork selected — open an artwork in the viewer first.</value>
+  </data>
+  <data name="Hoshi_Note_NoArtworkInSession" xml:space="preserve">
+    <value>⚠ No Pixiv artwork is associated with this session.</value>
+  </data>
+  <data name="Hoshi_Note_ClipboardUnavailable" xml:space="preserve">
+    <value>Clipboard paste isn’t available yet — use 📂 Open, drag-and-drop, or 🌐 URL to attach an image.</value>
+  </data>
+  <data name="Hoshi_File" xml:space="preserve">
+    <value>file</value>
+  </data>
+  <data name="Hoshi_Files" xml:space="preserve">
+    <value>files</value>
+  </data>
+  <data name="Hoshi_Artist" xml:space="preserve">
+    <value>Artist</value>
+  </data>
+  <data name="Hoshi_Prompt_Describe" xml:space="preserve">
+    <value>Describe this image in detail. Include the art style, subject, mood, and any notable elements.</value>
+  </data>
+  <data name="Hoshi_Prompt_SuggestTags" xml:space="preserve">
+    <value>Suggest Pixiv-style tags for this image. Include both Japanese and English tags (Pixiv tags are usually Japanese). Example format: アニメ (anime), 女の子 (girl), ポートレート (portrait), 金髪 (blonde hair), 夕日 (sunset).</value>
+  </data>
+  <data name="Hoshi_Prompt_R18" xml:space="preserve">
+    <value>Is this image NSFW or R-18? Answer yes or no and briefly explain why.</value>
+  </data>
+  <data name="Hoshi_Msg_SuggestTags" xml:space="preserve">
+    <value>Suggest tags for this image.</value>
+  </data>
+  <data name="Hoshi_Msg_DescribeAllPages" xml:space="preserve">
+    <value>Describe all {0} pages of this submission</value>
+  </data>
+  <data name="Hoshi_Msg_DescribingFirstN" xml:space="preserve">
+    <value>Describing the first {0} of {1} pages…</value>
+  </data>
+  <data name="Hoshi_Msg_DescribingAll" xml:space="preserve">
+    <value>Describing all {0} pages…</value>
+  </data>
+  <data name="Hoshi_Msg_PageHeader" xml:space="preserve">
+    <value>Page {0}/{1}</value>
+  </data>
+  <data name="Hoshi_Tagger_Heading" xml:space="preserve">
+    <value>Danbooru-style tags</value>
+  </data>
+  <data name="Hoshi_Tagger_Character" xml:space="preserve">
+    <value>Character</value>
+  </data>
+  <data name="Hoshi_Tagger_Copyright" xml:space="preserve">
+    <value>Copyright</value>
+  </data>
+  <data name="Hoshi_Tagger_Artist" xml:space="preserve">
+    <value>Artist</value>
+  </data>
+  <data name="Hoshi_Tagger_General" xml:space="preserve">
+    <value>General</value>
+  </data>
+  <data name="Hoshi_Tagger_Meta" xml:space="preserve">
+    <value>Meta</value>
+  </data>
+  <data name="Setup_Title" xml:space="preserve">
+    <value>Quick Setup</value>
+  </data>
+  <data name="Setup_Welcome" xml:space="preserve">
+    <value>Welcome to Pikura! Let's set up the essentials — it only takes a minute.</value>
+  </data>
+  <data name="Setup_Language" xml:space="preserve">
+    <value>Language</value>
+  </data>
+  <data name="Setup_Account" xml:space="preserve">
+    <value>Sign in to pixiv</value>
+  </data>
+  <data name="Setup_SignIn" xml:space="preserve">
+    <value>Sign in with pixiv</value>
+  </data>
+  <data name="Setup_SignInHint" xml:space="preserve">
+    <value>Pikura needs a pixiv account to browse and download artwork.</value>
+  </data>
+  <data name="Setup_SignInRequired" xml:space="preserve">
+    <value>Sign-in is required to continue.</value>
+  </data>
+  <data name="Setup_LoginFailed" xml:space="preserve">
+    <value>Sign-in failed or was cancelled.</value>
+  </data>
+  <data name="Setup_SignedInAs" xml:space="preserve">
+    <value>Signed in as</value>
+  </data>
+  <data name="Setup_AddAnother" xml:space="preserve">
+    <value>Add another account</value>
+  </data>
+  <data name="Setup_Downloads" xml:space="preserve">
+    <value>Downloads</value>
+  </data>
+  <data name="Setup_Hoshi" xml:space="preserve">
+    <value>Hoshi AI</value>
+  </data>
+  <data name="Setup_HoshiOptional" xml:space="preserve">
+    <value>Optional — you can set this up later in Settings.</value>
+  </data>
+  <data name="Setup_OllamaDetected" xml:space="preserve">
+    <value>Ollama detected</value>
+  </data>
+  <data name="Setup_OllamaNotFound" xml:space="preserve">
+    <value>Ollama not found</value>
+  </data>
+  <data name="Setup_CheckAgain" xml:space="preserve">
+    <value>Check again</value>
+  </data>
+  <data name="Setup_OllamaDownload" xml:space="preserve">
+    <value>Download Ollama</value>
+  </data>
+  <data name="Setup_Done" xml:space="preserve">
+    <value>All set!</value>
+  </data>
+  <data name="Setup_SummaryAccount" xml:space="preserve">
+    <value>Account</value>
+  </data>
+  <data name="Setup_SummaryFolder" xml:space="preserve">
+    <value>Download folder</value>
+  </data>
+  <data name="Setup_SummaryLanguage" xml:space="preserve">
+    <value>Language</value>
+  </data>
+  <data name="Setup_SummaryTheme" xml:space="preserve">
+    <value>Theme</value>
+  </data>
+  <data name="Setup_SummaryR18" xml:space="preserve">
+    <value>R-18 mode</value>
+  </data>
+  <data name="Setup_Back" xml:space="preserve">
+    <value>Back</value>
+  </data>
+  <data name="Setup_Next" xml:space="preserve">
+    <value>Next</value>
+  </data>
+  <data name="Setup_StartUsing" xml:space="preserve">
+    <value>Start using Pikura</value>
+  </data>
+  <data name="Setup_StepOf" xml:space="preserve">
+    <value>Step {0} of {1}</value>
+  </data>
+  <data name="Settings_RunSetupWizard" xml:space="preserve">
+    <value>Run setup again</value>
+  </data>
+  <data name="Setup_PixivLanguage" xml:space="preserve">
+    <value>pixiv content language</value>
+  </data>
+  <data name="Setup_PixivLanguageHint" xml:space="preserve">
+    <value>The language pixiv uses for tag translations and other text it sends. It's separate from the app language above.</value>
+  </data>
+  <data name="Setup_Presets" xml:space="preserve">
+    <value>Presets</value>
+  </data>
+  <data name="Setup_PathExample" xml:space="preserve">
+    <value>Example:</value>
+  </data>
+  <data name="Setup_ExistingFiles" xml:space="preserve">
+    <value>If the file already exists</value>
+  </data>
+  <data name="Setup_ContentFilters" xml:space="preserve">
+    <value>Content filters</value>
+  </data>
+  <data name="Setup_ContentFiltersHint" xml:space="preserve">
+    <value>Choose which artworks Pikura shows in galleries, rankings, search and recommendations.</value>
+  </data>
+  <data name="Setup_R18Content" xml:space="preserve">
+    <value>R-18 content</value>
+  </data>
+  <data name="Setup_R18Explain" xml:space="preserve">
+    <value>Off hides R-18 works everywhere. Show mixes them in with everything else. Only shows just R-18 works.</value>
+  </data>
+  <data name="Setup_R18Type" xml:space="preserve">
+    <value>Include</value>
+  </data>
+  <data name="Setup_R18Type_Both" xml:space="preserve">
+    <value>R-18 and R-18G</value>
+  </data>
+  <data name="Setup_R18Type_R18" xml:space="preserve">
+    <value>R-18 only</value>
+  </data>
+  <data name="Setup_R18Type_R18G" xml:space="preserve">
+    <value>R-18G only</value>
+  </data>
+  <data name="Setup_FilterAiHint" xml:space="preserve">
+    <value>Hides works the artist marked as AI-generated.</value>
+  </data>
+  <data name="Setup_Appearance" xml:space="preserve">
+    <value>Appearance</value>
+  </data>
+  <data name="Setup_StartupUpdates" xml:space="preserve">
+    <value>Startup &amp; updates</value>
+  </data>
+  <data name="Setup_Update_Startup" xml:space="preserve">
+    <value>At startup</value>
+  </data>
+  <data name="Setup_Update_Daily" xml:space="preserve">
+    <value>Daily</value>
+  </data>
+  <data name="Setup_Update_Weekly" xml:space="preserve">
+    <value>Weekly</value>
+  </data>
+  <data name="Setup_Update_Never" xml:space="preserve">
+    <value>Never</value>
+  </data>
+  <data name="Setup_TaggerSection" xml:space="preserve">
+    <value>Anime tagger</value>
+  </data>
+  <data name="Setup_TaggerHint" xml:space="preserve">
+    <value>Runs on your PC without Ollama. Hoshi uses it for Tags, and it powers Library tagging and Character/Series filters.</value>
+  </data>
+  <data name="Setup_InstalledMark" xml:space="preserve">
+    <value>✓ Installed</value>
+  </data>
+  <data name="Setup_Install" xml:space="preserve">
+    <value>Install</value>
+  </data>
+  <data name="Setup_VisionSection" xml:space="preserve">
+    <value>Chat &amp; image understanding (Ollama)</value>
+  </data>
+  <data name="Setup_VisionModel" xml:space="preserve">
+    <value>Vision model</value>
+  </data>
+  <data name="Setup_NoVisionModel" xml:space="preserve">
+    <value>No vision model installed</value>
+  </data>
+  <data name="Setup_InstallVision" xml:space="preserve">
+    <value>Install qwen3-vl:4b-instruct</value>
+  </data>
+  <data name="Setup_InstallVisionHint" xml:space="preserve">
+    <value>Recommended · about 3 GB</value>
+  </data>
+  <data name="Setup_DoneHint" xml:space="preserve">
+    <value>You can change any of this later in Settings, or run this setup again from Settings → About.</value>
+  </data>
+  <data name="Settings_AccentColor" xml:space="preserve">
+    <value>Accent color</value>
+  </data>
+  <data name="Settings_AccentColorHint" xml:space="preserve">
+    <value>Color used for buttons, switches and highlights. "System" follows your Windows accent color.</value>
+  </data>
+  <data name="Settings_AccentDefault" xml:space="preserve">
+    <value>Pikura blue (default)</value>
+  </data>
+  <data name="Settings_AccentSystem" xml:space="preserve">
+    <value>System (Windows accent)</value>
+  </data>
+  <data name="Settings_AccentIndigo" xml:space="preserve">
+    <value>Indigo</value>
+  </data>
+  <data name="Settings_AccentPurple" xml:space="preserve">
+    <value>Purple</value>
+  </data>
+  <data name="Settings_AccentPink" xml:space="preserve">
+    <value>Pink</value>
+  </data>
+  <data name="Settings_AccentRed" xml:space="preserve">
+    <value>Red</value>
+  </data>
+  <data name="Settings_AccentOrange" xml:space="preserve">
+    <value>Orange</value>
+  </data>
+  <data name="Settings_AccentGreen" xml:space="preserve">
+    <value>Green</value>
+  </data>
+  <data name="Settings_AccentTeal" xml:space="preserve">
+    <value>Teal</value>
+  </data>
+  <data name="Setup_ExistingFilesHint" xml:space="preserve">
+    <value>Applies when a page you download is already saved under the same name. Skip keeps your file, Overwrite downloads it again and replaces it, Backup renames the old file to .bak first.</value>
+  </data>
+  <data name="Setup_Notifications" xml:space="preserve">
+    <value>Notifications</value>
+  </data>
+  <data name="Setup_NotificationsHint" xml:space="preserve">
+    <value>Pop-up notifications about download jobs. They don't change which files are saved.</value>
+  </data>
+  <data name="Setup_UsingRecommendedVision" xml:space="preserve">
+    <value>✓ Using the recommended model (qwen3-vl:4b-instruct)</value>
+  </data>
+  <data name="Setup_UseRecommendedVision" xml:space="preserve">
+    <value>Use qwen3-vl:4b-instruct</value>
+  </data>
+  <data name="Setup_UseRecommendedVisionHint" xml:space="preserve">
+    <value>Recommended · already installed</value>
+  </data>
+  <data name="WhatsNew_Pikura260" xml:space="preserve">
+    <value>Pikura 2.6.0</value>
+  </data>
+  <data name="WhatsNew_Pikura260_Description" xml:space="preserve">
+    <value>Pikura 2.6 adds Quick Setup to get you configured in a minute, accent colours including your Windows accent, page controls in the Popup viewer, and an app that switches language everywhere at once, Hoshi included.</value>
+  </data>
+  <data name="WhatsNew_QuickSetup" xml:space="preserve">
+    <value>Quick Setup</value>
+  </data>
+  <data name="WhatsNew_QuickSetup_Subtitle" xml:space="preserve">
+    <value>Everything important in one place</value>
+  </data>
+  <data name="WhatsNew_QuickSetup_Description" xml:space="preserve">
+    <value>A step-by-step setup covers language, your pixiv account, download folder and file names, content filters, appearance, startup, and Hoshi with the anime tagger. Run it again any time from Settings → About.</value>
+  </data>
+  <data name="WhatsNew_AccentColors" xml:space="preserve">
+    <value>Accent Colours</value>
+  </data>
+  <data name="WhatsNew_AccentColors_Subtitle" xml:space="preserve">
+    <value>Make Pikura your colour</value>
+  </data>
+  <data name="WhatsNew_AccentColors_Description" xml:space="preserve">
+    <value>Choose Pikura blue, indigo, purple, pink, red, orange, green or teal for buttons, switches and highlights. On Windows, System follows your Windows accent colour and updates when you change it.</value>
+  </data>
+  <data name="WhatsNew_PopupPages" xml:space="preserve">
+    <value>Pages in the Popup Viewer</value>
+  </data>
+  <data name="WhatsNew_PopupPages_Subtitle" xml:space="preserve">
+    <value>Every page of multi-page works</value>
+  </data>
+  <data name="WhatsNew_PopupPages_Description" xml:space="preserve">
+    <value>The Popup and fullscreen open on the page you were viewing. A page bar lets you step through pages or jump to one, and All shows every page as a grid.</value>
+  </data>
+  <data name="WhatsNew_LanguageEverywhere" xml:space="preserve">
+    <value>Your Language, Everywhere</value>
+  </data>
+  <data name="WhatsNew_LanguageEverywhere_Subtitle" xml:space="preserve">
+    <value>Hoshi included</value>
+  </data>
+  <data name="WhatsNew_LanguageEverywhere_Description" xml:space="preserve">
+    <value>Changing the language now updates every screen immediately, including status messages, History dates and Pixivision articles. Hoshi answers in your app language, and its quick actions and notes are translated too.</value>
+  </data>
+  <data name="WhatsNew_Fixes260" xml:space="preserve">
+    <value>Fixes</value>
+  </data>
+  <data name="WhatsNew_Fixes260_Subtitle" xml:space="preserve">
+    <value>Fewer surprises</value>
+  </data>
+  <data name="WhatsNew_Fixes260_Description" xml:space="preserve">
+    <value>Hiding AI-generated works no longer hides works that artists marked as not AI-generated. Opening an artwork from a Hoshi chat and going back no longer leaves the side panel blank.</value>
+  </data>
 </root>

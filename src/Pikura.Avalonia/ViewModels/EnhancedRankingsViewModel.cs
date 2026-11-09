@@ -349,7 +349,7 @@ public partial class EnhancedRankingsViewModel : ViewModelBase
         CurrentPage = 1;
         CanLoadMore = false;
         IsLoading = true;
-        StatusMessage = string.Format(LocalizationService.Instance["Rankings_Status_LoadingMode"], SelectedMode);
+        SetStatus("Rankings_Status_LoadingMode", SelectedMode);
 
         // Determine effective mode based on R-18 toggle and selected mode
         var effectiveMode = SelectedMode;
@@ -383,7 +383,7 @@ public partial class EnhancedRankingsViewModel : ViewModelBase
                 var novelResp = await _pixivClient.GetNovelRankingsAsync(effectiveMode, dateParam, 1, ct);
                 if (novelResp.Contents.Count == 0)
                 {
-                    StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Rankings_NoResultsCheckYourSessionOr"];
+                    SetStatus("Rankings_NoResultsCheckYourSessionOr");
                     return;
                 }
 
@@ -425,7 +425,7 @@ public partial class EnhancedRankingsViewModel : ViewModelBase
             var resp = await _pixivClient.GetRankingAsync(effectiveMode, SelectedContent, 1, ct, dateParam);
             if (resp is null || resp.Contents.Count == 0)
             {
-                StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Rankings_NoResultsCheckYourSessionOr"];
+                SetStatus("Rankings_NoResultsCheckYourSessionOr");
                 return;
             }
 
@@ -464,7 +464,7 @@ public partial class EnhancedRankingsViewModel : ViewModelBase
             // Sync to FilteredItems for pagination display
             UpdateFilteredItems();
 
-            StatusMessage = string.Format(LocalizationService.Instance["Rankings_Status_Range"], Items[0].Rank, Items[^1].Rank, TotalItems, effectiveMode, RankingDate);
+            SetStatus("Rankings_Status_Range", Items[0].Rank, Items[^1].Rank, TotalItems, effectiveMode, RankingDate);
         }
         catch (OperationCanceledException) { }
         catch (Exception ex) { StatusMessage = $"Failed: {ex.Message}"; }
@@ -564,7 +564,7 @@ public partial class EnhancedRankingsViewModel : ViewModelBase
                 .ToList();
             GalleryVm.SyncViewerTabs(ViewerSourceKey, viewerCards, UsePagination ? viewerCards.Count : TotalItems);
 
-            StatusMessage = string.Format(LocalizationService.Instance["Rankings_Status_Range"], Items[0].Rank, Items[^1].Rank, TotalItems, effectiveMode, RankingDate);
+            SetStatus("Rankings_Status_Range", Items[0].Rank, Items[^1].Rank, TotalItems, effectiveMode, RankingDate);
         }
         catch (OperationCanceledException) { }
         catch (Exception ex) { StatusMessage = $"Failed: {ex.Message}"; }
@@ -668,7 +668,7 @@ ShowPreview = true;
         if (previews.Count == 0)
         {
             if (Items.Any(c => c.IsSelected && c.IsNovel))
-                StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Rankings_NovelsCanTBeDownloadedFrom"];
+                SetStatus("Rankings_NovelsCanTBeDownloadedFrom");
             return Task.CompletedTask;
         }
         return GalleryVm.DownloadPreviewsAsync(previews);
@@ -688,7 +688,7 @@ ShowPreview = true;
         var previews = Items.Where(c => c.IsSelected && !c.IsNovel).Select(c => c.ToPreview()).ToList();
         if (previews.Count == 0)
         {
-            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Rankings_NoArtworksSelected"];
+            SetStatus("Rankings_NoArtworksSelected");
             return;
         }
 

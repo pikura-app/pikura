@@ -28,7 +28,37 @@ namespace Pikura.Avalonia.ViewModels;
 /// the app language; keys that don't exist (e.g. "Hoshi 星") fall back to the key text.</summary>
 public record StartupTabOption(string Value, string Emoji, string LocKey);
 
-public record BlocklistScopeOption(BlocklistScope Scope, string Display);
+public sealed class BlocklistScopeOption
+    : CommunityToolkit.Mvvm.ComponentModel.ObservableObject, Pikura.Avalonia.Localization.ILanguageAware,
+      System.IEquatable<BlocklistScopeOption>
+{
+    public BlocklistScopeOption(BlocklistScope scope, string display) => Scope = scope;
+
+    public BlocklistScope Scope { get; }
+
+    private bool _registered;
+    public string Display
+    {
+        get
+        {
+            if (!_registered)
+            {
+                _registered = true;
+                Pikura.Avalonia.Localization.LocalizationService.Instance.Register(this);
+            }
+            return Pikura.Avalonia.Localization.LocalizationService.Instance[
+                Pikura.Avalonia.Converters.BlocklistScopeToDisplayConverter.KeyFor(Scope)];
+        }
+    }
+
+    void Pikura.Avalonia.Localization.ILanguageAware.OnLanguageChanged() => OnPropertyChanged(nameof(Display));
+
+    // Value equality on Scope so a separately-constructed SelectedItem still matches
+    // the instances in BlocklistScopeOptions (ComboBox compares by Equals).
+    public bool Equals(BlocklistScopeOption? other) => other is not null && other.Scope == Scope;
+    public override bool Equals(object? obj) => obj is BlocklistScopeOption o && Equals(o);
+    public override int GetHashCode() => Scope.GetHashCode();
+}
 
 public partial class SettingsViewModel : ViewModelBase
 {
@@ -37,6 +67,33 @@ public partial class SettingsViewModel : ViewModelBase
     private readonly PixivClient _pixivClient;
     private readonly FilePickerService _filePickerService;
     private readonly AccountService _accountService;
+
+
+    private string? _updKey;
+    private object?[]? _updArgs;
+    private string? _updRendered;
+
+    private void SetUpdateStatus(string key, params object?[] args)
+    {
+        _updKey = key;
+        _updArgs = args;
+        _updRendered = args.Length == 0
+            ? Pikura.Avalonia.Localization.LocalizationService.Instance[key]
+            : Pikura.Avalonia.Localization.LocalizationService.F(key, args);
+        UpdateStatusMessage = _updRendered;
+    }
+
+    /// <summary>Re-renders the persistent update status in the new language, unless a
+    /// different message overwrote it since.</summary>
+    public override void OnLanguageChanged()
+    {
+        base.OnLanguageChanged();
+        if (_updKey is null || UpdateStatusMessage != _updRendered) return;
+        _updRendered = _updArgs is { Length: > 0 } a
+            ? Pikura.Avalonia.Localization.LocalizationService.F(_updKey, a)
+            : Pikura.Avalonia.Localization.LocalizationService.Instance[_updKey];
+        UpdateStatusMessage = _updRendered;
+    }
 
     [ObservableProperty]
     private string _accountStatus = "Not signed in";
@@ -65,6 +122,20 @@ public partial class SettingsViewModel : ViewModelBase
 
     [ObservableProperty]
     private string _selectedTheme = "System";
+
+    [ObservableProperty] private string _accentColor = "Default";
+
+    /// <summary>Accent choices; "System" (the Windows accent color) is Windows-only.</summary>
+    public string[] AvailableAccentColors { get; } = OperatingSystem.IsWindows()
+        ? ["Default", "System", "Indigo", "Purple", "Pink", "Red", "Orange", "Green", "Teal"]
+        : ["Default", "Indigo", "Purple", "Pink", "Red", "Orange", "Green", "Teal"];
+
+    partial void OnAccentColorChanged(string value)
+    {
+        if (string.IsNullOrEmpty(value) || _settingsService.Current.AccentColor == value) return;
+        _settingsService.Update(s => s.AccentColor = value);
+        App.ApplyTheme();
+    }
 
     [ObservableProperty]
     private bool _isThemeLight;
@@ -801,6 +872,7 @@ public partial class SettingsViewModel : ViewModelBase
 
         // Theme
         SelectTheme(s.Theme);
+        AccentColor = s.AccentColor;
         ThemeScheduleDarkStart = s.ThemeScheduleDarkStart;
         ThemeScheduleDarkEnd = s.ThemeScheduleDarkEnd;
 
@@ -841,7 +913,7 @@ public partial class SettingsViewModel : ViewModelBase
     private async Task CheckForUpdatesNowAsync()
     {
         CheckingForUpdates  = true;
-        UpdateStatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Settings_CheckingForUpdates"];
+        SetUpdateStatus("Settings_CheckingForUpdates");
         try
         {
             // Force a check regardless of frequency. Also clear any previous dismissal — asking
@@ -868,7 +940,7 @@ public partial class SettingsViewModel : ViewModelBase
         catch (Exception ex)
         {
             await global::Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
-                UpdateStatusMessage = string.Format(LocalizationService.Instance["Settings_Status_CheckFailed"], ex.Message));
+                SetUpdateStatus("Settings_Status_CheckFailed", ex.Message));
         }
         finally
         {
@@ -1138,6 +1210,10 @@ public partial class SettingsViewModel : ViewModelBase
     {
         // Applies live — every translated string is bound through LocalizationService's indexer, so
         // switching languages re-reads them in place. No restart prompt.
+        // The ComboBox's TwoWay binding sets AppLanguage before SetAppLanguage runs, so persist here
+        // first: language-change listeners (e.g. Pixivision's reload) read the saved setting.
+        if (_settingsService.Current.AppLanguage != value)
+            _settingsService.Update(s => s.AppLanguage = value);
         Localization.LocalizationService.Instance.SetLanguage(value);
     }
 
@@ -1292,13 +1368,12 @@ public partial class SettingsViewModel : ViewModelBase
         IsMigrating = true;
         try
         {
-            var prog = new Progress<int>(p => UpdateStatusMessage = string.Format(LocalizationService.Instance["Update_Status_DlUpdater"], p));
+            var prog = new Progress<int>(p => SetUpdateStatus("Update_Status_DlUpdater", p));
             await _velopackMigration.MigrateAsync(prog);
         }
         catch (Exception ex)
         {
-            UpdateStatusMessage = string.Format(
-                Pikura.Avalonia.Localization.LocalizationService.Instance["Update_MigrateFailed"], ex.Message);
+            SetUpdateStatus("Update_MigrateFailed", ex.Message);
         }
         finally { IsMigrating = false; }
     }
@@ -1338,11 +1413,15 @@ public partial class SettingsViewModel : ViewModelBase
     partial void OnProxyAddressChanged(string value)
         => _settingsService.Update(s => s.ProxyAddress = value);
     /// <summary>Maps "Off"/"Auto"/"On" to the localized ComboBox label.</summary>
-    public sealed class TouchModeLocConverter : global::Avalonia.Data.Converters.IValueConverter
+    /// <summary>Maps "Off"/"Auto"/"On" to the localized ComboBox label. Used in a MultiBinding
+    /// whose second binding targets <see cref="LocalizationService"/>'s indexer purely so the
+    /// text re-evaluates on language change (same pattern as LocLabelConverter).</summary>
+    public sealed class TouchModeLocConverter : global::Avalonia.Data.Converters.IMultiValueConverter
     {
         public static readonly TouchModeLocConverter Instance = new();
-        public object? Convert(object? value, Type t, object? p, System.Globalization.CultureInfo c)
+        public object? Convert(System.Collections.Generic.IList<object?> values, Type t, object? p, System.Globalization.CultureInfo c)
         {
+            var value = values.Count > 0 ? values[0] : null;
             var key = value?.ToString() switch
             {
                 "Off" => "Settings_TouchMode_Off",
@@ -1351,7 +1430,6 @@ public partial class SettingsViewModel : ViewModelBase
             };
             return LocalizationService.Instance[key];
         }
-        public object ConvertBack(object? v, Type t, object? p, System.Globalization.CultureInfo c) => throw new NotSupportedException();
     }
 
     partial void OnTouchModeChanged(string value)
@@ -2078,9 +2156,27 @@ public partial class SettingsViewModel : ViewModelBase
     }
 
     /// <summary>Spec §3 recommended models: name + localized label key.</summary>
-    public sealed record RecommendedModel(string Name, string LabelKey)
+    public sealed class RecommendedModel(string name, string labelKey)
+        : CommunityToolkit.Mvvm.ComponentModel.ObservableObject, Pikura.Avalonia.Localization.ILanguageAware
     {
-        public string Label => Pikura.Avalonia.Localization.LocalizationService.Instance[LabelKey];
+        public string Name { get; } = name;
+        public string LabelKey { get; } = labelKey;
+
+        private bool _registered;
+        public string Label
+        {
+            get
+            {
+                if (!_registered)
+                {
+                    _registered = true;
+                    Pikura.Avalonia.Localization.LocalizationService.Instance.Register(this);
+                }
+                return Pikura.Avalonia.Localization.LocalizationService.Instance[LabelKey];
+            }
+        }
+
+        void Pikura.Avalonia.Localization.ILanguageAware.OnLanguageChanged() => OnPropertyChanged(nameof(Label));
     }
     public static IReadOnlyList<RecommendedModel> HoshiRecommendedModels { get; } =
     [
@@ -2435,6 +2531,24 @@ public partial class SettingsViewModel : ViewModelBase
             IsInstallingTaggerModel = false;
             if (row != null) row.IsInstalling = false;
         }
+    }
+
+    /// <summary>Opens the first-run Quick Setup wizard again, as a dialog over the
+    /// main window. Closing it via X just dismisses it — no quit path.</summary>
+    [RelayCommand]
+    private async Task RunSetupWizard()
+    {
+        var mainWindow = (Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow;
+        var vm = new SetupWizardViewModel(
+            AppServices.Get<PixivLoginService>(),
+            AppServices.Get<AccountService>(),
+            AppServices.Get<OllamaService>(),
+            _settingsService);
+        var wizard = new Views.SetupWizardWindow(vm) { DialogMode = true };
+        if (mainWindow != null)
+            await wizard.ShowDialog(mainWindow);
+        else
+            wizard.Show();
     }
 
     /// <summary>Cancels an in-progress tagger model download.</summary>

@@ -498,7 +498,7 @@ public partial class ViewedHistoryViewModel : ViewModelBase
         SelectedCount = 0;
         CurrentPage = 1;
         IsLoading = true;
-        StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Viewed_LoadingHistory"];
+        SetStatus("Viewed_LoadingHistory");
 
         try
         {
@@ -516,7 +516,7 @@ public partial class ViewedHistoryViewModel : ViewModelBase
             OnPropertyChanged(nameof(HasResults));
             UpdateDisplayedResults();
         }
-        catch (Exception ex) { StatusMessage = string.Format(LocalizationService.Instance["History_Status_LoadFailed"], ex.Message); }
+        catch (Exception ex) { SetStatus("History_Status_LoadFailed", ex.Message); }
         finally { IsLoading = false; }
     }
 
@@ -533,11 +533,11 @@ public partial class ViewedHistoryViewModel : ViewModelBase
                 AddCard(entry);
 
             CanLoadMore = Results.Count < total;
-            StatusMessage = string.Format(LocalizationService.Instance["History_Status_ViewedCount"], Results.Count, total) + (IsFilteredByDate ? $" on {DateLabel}" : "");
+            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.F("History_Status_ViewedCount", Results.Count, total) + (IsFilteredByDate ? $" on {DateLabel}" : "");
             GalleryVm.SyncViewerTabs(ViewerSourceKey, Results.ToList(), Results.Count);
             if (!UsePagination) UpdateDisplayedResults();
         }
-        catch (Exception ex) { StatusMessage = string.Format(LocalizationService.Instance["History_Status_LoadMoreFailed"], ex.Message); }
+        catch (Exception ex) { SetStatus("History_Status_LoadMoreFailed", ex.Message); }
         finally { IsLoading = false; }
     }
 
@@ -548,7 +548,7 @@ public partial class ViewedHistoryViewModel : ViewModelBase
         DateGroups.Clear();
         SelectedCount = 0;
         IsLoading = true;
-        StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Viewed_LoadingHistory"];
+        SetStatus("Viewed_LoadingHistory");
 
         try
         {
@@ -569,7 +569,7 @@ public partial class ViewedHistoryViewModel : ViewModelBase
                 : $"{DateGroups.Count:N0} day(s), {totalViews:N0} viewed" + (IsFilteredByDate ? $" ({DateLabel})" : "");
             OnPropertyChanged(nameof(HasResults));
         }
-        catch (Exception ex) { StatusMessage = string.Format(LocalizationService.Instance["History_Status_LoadFailed"], ex.Message); }
+        catch (Exception ex) { SetStatus("History_Status_LoadFailed", ex.Message); }
         finally { IsLoading = false; }
     }
 
@@ -676,7 +676,7 @@ public partial class ViewedHistoryViewModel : ViewModelBase
         await _repository.ClearAllAsync();
         Results.Clear();
         DateGroups.Clear();
-        StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Viewed_HistoryCleared"];
+        SetStatus("Viewed_HistoryCleared");
         OnPropertyChanged(nameof(HasResults));
     }
 
@@ -707,12 +707,12 @@ public partial class ViewedHistoryViewModel : ViewModelBase
         if (cutoff is { } c)
         {
             var removed = await _repository.ClearSinceAsync(c);
-            StatusMessage = string.Format(Pikura.Avalonia.Localization.LocalizationService.Instance["Viewed_ClearedEntriesPast"], removed, range);
+            SetStatus("Viewed_ClearedEntriesPast", removed, range);
         }
         else
         {
             await _repository.ClearAllAsync();
-            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Viewed_HistoryCleared"];
+            SetStatus("Viewed_HistoryCleared");
         }
 
         await ReloadAsync();

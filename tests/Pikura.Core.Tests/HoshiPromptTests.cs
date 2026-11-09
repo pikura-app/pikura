@@ -96,6 +96,30 @@ public class HoshiPromptTests
     }
 
     [Fact]
+    public void AppLanguage_Null_Keeps_Default_Rule()
+    {
+        var p = HoshiPrompt.BuildSystemPrompt(null, null, toolsEnabled: false, Now);
+        Assert.Contains("Reply in the same language the user writes in.", p);
+        Assert.DoesNotContain("app language", p);
+    }
+
+    [Fact]
+    public void AppLanguage_English_Identical_To_Null()
+    {
+        Assert.Equal(
+            HoshiPrompt.BuildSystemPrompt(null, null, false, Now),
+            HoshiPrompt.BuildSystemPrompt(null, null, false, Now, appLanguage: "English"));
+    }
+
+    [Fact]
+    public void AppLanguage_Japanese_Replaces_Rule()
+    {
+        var p = HoshiPrompt.BuildSystemPrompt(null, null, false, Now, appLanguage: "Japanese");
+        Assert.Contains("- The user's app language is Japanese. Answer in Japanese unless the user writes to you in a different language; then reply in that language.", p);
+        Assert.DoesNotContain("Reply in the same language the user writes in.", p);
+    }
+
+    [Fact]
     public void Legacy_Migration_Decision()
     {
         Assert.False(HoshiPrompt.ShouldMigrateToLegacyModels(true, ["llava", "llama3.2"])); // already custom

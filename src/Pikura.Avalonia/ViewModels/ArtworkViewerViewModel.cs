@@ -178,6 +178,7 @@ public partial class ArtworkViewerViewModel : ObservableObject
         // download left the counter stale while the image loaded.
         CurrentPageIndex = index;
         OnPropertyChanged(nameof(PageIndicator));
+        foreach (var item in PageList) item.IsCurrent = item.Index == index;
 
         var urls = _pages[index].Urls;
         var original = urls.Original;
@@ -319,6 +320,7 @@ public partial class PageThumbnailItem : ObservableObject
 
     [ObservableProperty] private Bitmap? _thumbnail;
     [ObservableProperty] private double _aspectRatio;
+    [ObservableProperty] private bool _isCurrent;
 
     partial void OnThumbnailChanged(Bitmap? value)
     {

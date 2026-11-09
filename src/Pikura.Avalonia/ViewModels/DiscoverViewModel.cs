@@ -230,12 +230,12 @@ public partial class DiscoverViewModel : ViewModelBase
         var flushed = QuickClipboardService.FlushArtistIds();
         if (flushed == null)
         {
-            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Discover_NoArtistIDsQueuedClickIndividual"];
+            SetStatus("Discover_NoArtistIDsQueuedClickIndividual");
             return;
         }
         var count = flushed.Split(',').Length;
         CopyAllArtistIdsRequested?.Invoke(flushed);
-        StatusMessage = string.Format(Pikura.Avalonia.Localization.LocalizationService.Instance["Gallery_CopiedQueuedArtistIds"], count);
+        SetStatus("Gallery_CopiedQueuedArtistIds", count);
     }
 
     public event Action<string>? CopyAllArtistIdsRequested;
@@ -360,7 +360,7 @@ ShowPreview = true;
             var allIds = profile.AllArtworkIds();
             if (allIds.Count == 0)
             {
-                StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Discover_NoArtworksFoundForThisArtist"];
+                SetStatus("Discover_NoArtworksFoundForThisArtist");
                 return;
             }
 
@@ -378,19 +378,19 @@ ShowPreview = true;
                 }
                 
                 // Update status to show progress
-                StatusMessage = string.Format(LocalizationService.Instance["Discover_Status_FetchingMeta"], Math.Min(i + batchSize, allIds.Count), allIds.Count);
+                SetStatus("Discover_Status_FetchingMeta", Math.Min(i + batchSize, allIds.Count), allIds.Count);
             }
 
             // Download all previews
             if (allPreviews.Count > 0)
             {
                 await GalleryVm.DownloadPreviewsAsync(allPreviews);
-                StatusMessage = string.Format(LocalizationService.Instance["Discover_Status_QueuedDl"], allPreviews.Count);
+                SetStatus("Discover_Status_QueuedDl", allPreviews.Count);
             }
         }
         catch (Exception ex)
         {
-            StatusMessage = string.Format(LocalizationService.Instance["Discover_Status_FetchFailed"], ex.Message);
+            SetStatus("Discover_Status_FetchFailed", ex.Message);
         }
         finally
         {
@@ -531,7 +531,7 @@ ShowPreview = true;
         if (IsLoadingWorks) return;
         IsLoadingWorks = true;
         IsLoading = true;
-        StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Discover_LoadingRecommendedWorks"];
+        SetStatus("Discover_LoadingRecommendedWorks");
         _cts?.Cancel();
         _cts = new CancellationTokenSource();
         var ct = _cts.Token;
@@ -545,7 +545,7 @@ ShowPreview = true;
             var response = await _pixivClient.GetDiscoveryArtworksAsync(RecommendedOffset, 48, ct);
             if (response?.Thumbnails?.Illust == null || response.Thumbnails.Illust.Count == 0)
             {
-                StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Discover_NoRecommendedWorksFound"];
+                SetStatus("Discover_NoRecommendedWorksFound");
                 return;
             }
 
@@ -565,7 +565,7 @@ ShowPreview = true;
             // Endpoint returns fresh randomized recommendations per call regardless of
             // batch size, so always allow load-more.
             CanLoadMoreRecommended = true;
-            StatusMessage = string.Format(LocalizationService.Instance["Discover_Status_RecommendedWorks"], RecommendedWorks.Count);
+            SetStatus("Discover_Status_RecommendedWorks", RecommendedWorks.Count);
             _lastLoaded = DateTime.UtcNow;
             OnPropertyChanged(nameof(HasRecommendedWorks));
             UpdateFilteredWorks();
@@ -600,7 +600,7 @@ ShowPreview = true;
                 // Pixiv exhausted this round of recommendations; allow user to retry later
                 // but do not permanently disable load-more — the endpoint produces fresh
                 // recommendations on subsequent visits.
-                StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Discover_NoMoreNewWorksRightNow"];
+                SetStatus("Discover_NoMoreNewWorksRightNow");
                 return;
             }
 
@@ -649,7 +649,7 @@ ShowPreview = true;
     {
         if (IsLoadingUsers) return;
         IsLoadingUsers = true;
-        StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Discover_LoadingRecommendedUsers"];
+        SetStatus("Discover_LoadingRecommendedUsers");
         _usersCts?.Cancel();
         _usersCts = new CancellationTokenSource();
         var ct = _usersCts.Token;
@@ -664,7 +664,7 @@ ShowPreview = true;
             var response = await _pixivClient.GetDiscoveryUsersAsync(UsersOffset, 48, ct);
             if (response?.Users == null || response.Users.Count == 0)
             {
-                StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Discover_NoRecommendedUsersFound"];
+                SetStatus("Discover_NoRecommendedUsersFound");
                 return;
             }
 
@@ -678,7 +678,7 @@ ShowPreview = true;
 
             UsersOffset += response.Users.Count;
             CanLoadMoreUsers = response.Users.Count >= 48;
-            StatusMessage = string.Format(LocalizationService.Instance["Discover_Status_RecommendedUsers"], RecommendedUsers.Count);
+            SetStatus("Discover_Status_RecommendedUsers", RecommendedUsers.Count);
             OnPropertyChanged(nameof(HasRecommendedUsers));
 
             // Auto-select first user to populate right panel
@@ -752,7 +752,7 @@ ShowPreview = true;
         var artworks = ArtistWorks.Where(a => !string.IsNullOrEmpty(a.ThumbnailUrl)).ToList();
         if (artworks.Count == 0)
         {
-            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Discover_NoArtworksAvailableToDownload"];
+            SetStatus("Discover_NoArtworksAvailableToDownload");
             return;
         }
 
@@ -763,7 +763,7 @@ ShowPreview = true;
 
         if (preset == null)
         {
-            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Discover_DownloadWithPresetCancelled"];
+            SetStatus("Discover_DownloadWithPresetCancelled");
             return;
         }
 
@@ -773,7 +773,7 @@ ShowPreview = true;
             await GalleryVm.DownloadWithPresetAsync(artwork, preset);
         }
 
-        StatusMessage = string.Format(LocalizationService.Instance["Discover_Status_QueuedPreset"], artworks.Count, preset.Name);
+        SetStatus("Discover_Status_QueuedPreset", artworks.Count, preset.Name);
     }
 
     // ── Refresh ──────────────────────────────────────────────────────────────

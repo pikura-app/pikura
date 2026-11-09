@@ -303,7 +303,7 @@ public partial class HistoryViewModel : ViewModelBase
                 existing.IsPausable    = true;
                 existing.IsResumable   = false;
                 existing.IsCancellable = true;
-                existing.StatusText    = Pikura.Avalonia.Localization.LocalizationService.Instance["History_Running"];
+                existing.SetJobStatus("History_Running");
                 existing.Job.Status    = JobStatus.Running;
                 existing.RefreshStatusIndicators();
                 // Re-subscribe progress so events flow again after resume
@@ -494,8 +494,27 @@ public partial class HistoryViewModel : ViewModelBase
     }
 }
 
-public partial class DownloadJobViewModel : ObservableObject
+public partial class DownloadJobViewModel : ObservableObject, ILanguageAware
 {
+    void ILanguageAware.OnLanguageChanged()
+    {
+        LanguageRefresh.RaiseComputedStrings(this, OnPropertyChanged);
+        if (_statusKey is not null && StatusText == _statusRendered)
+            SetJobStatus(_statusKey, _statusArgs ?? []);
+    }
+
+    private string? _statusKey;
+    private object?[]? _statusArgs;
+    private string? _statusRendered;
+
+    internal void SetJobStatus(string key, params object?[] args)
+    {
+        _statusKey = key;
+        _statusArgs = args;
+        _statusRendered = args.Length == 0 ? LocalizationService.Instance[key] : LocalizationService.F(key, args);
+        StatusText = _statusRendered;
+    }
+
     public DownloadJob Job { get; }
 
     [ObservableProperty] private double _progressPercent;
@@ -816,6 +835,7 @@ public partial class DownloadJobViewModel : ObservableObject
 
     public DownloadJobViewModel(DownloadJob job, PixivImageLoader imageLoader, DownloadCoordinator? coordinator = null, SettingsService? settingsService = null)
     {
+        LocalizationService.Instance.Register(this);
         Job = job;
         _imageLoader = imageLoader;
         _coordinator = coordinator;
@@ -867,7 +887,7 @@ public partial class DownloadJobViewModel : ObservableObject
         IsPausable    = false;
         IsResumable   = true;
         IsCancellable = true;
-        StatusText    = Pikura.Avalonia.Localization.LocalizationService.Instance["History_Paused"];
+        SetJobStatus("History_Paused");
         Job.Status    = JobStatus.Paused;
         OnPropertyChanged(nameof(IsPreparing));
         OnPropertyChanged(nameof(StatusAccentColor));
@@ -878,7 +898,7 @@ public partial class DownloadJobViewModel : ObservableObject
             IsPausable    = true;
             IsResumable   = false;
             IsCancellable = true;
-            StatusText    = Pikura.Avalonia.Localization.LocalizationService.Instance["History_Running"];
+            SetJobStatus("History_Running");
             Job.Status    = JobStatus.Running;
             OnPropertyChanged(nameof(IsPreparing));
             OnPropertyChanged(nameof(StatusAccentColor));
@@ -893,7 +913,7 @@ public partial class DownloadJobViewModel : ObservableObject
         IsPausable    = true;
         IsResumable   = false;
         IsCancellable = true;
-        StatusText    = Pikura.Avalonia.Localization.LocalizationService.Instance["History_Running"];
+        SetJobStatus("History_Running");
         Job.Status    = JobStatus.Running;
         OnPropertyChanged(nameof(IsPreparing));
         // forceStart=true: user explicitly pressed ▶, bypass the concurrent-slot limit
@@ -904,7 +924,7 @@ public partial class DownloadJobViewModel : ObservableObject
             IsPausable    = false;
             IsResumable   = true;
             IsCancellable = true;
-            StatusText    = Pikura.Avalonia.Localization.LocalizationService.Instance["History_Queued"];
+            SetJobStatus("History_Queued");
             Job.Status    = JobStatus.Pending;
             OnPropertyChanged(nameof(IsPreparing));
             OnPropertyChanged(nameof(StatusAccentColor));

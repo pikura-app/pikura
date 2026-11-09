@@ -580,7 +580,7 @@ ShowPreview = true;
         HasSearched = true;
         IsLoading = true;
         _currentPage = 1;
-        StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Search_Searching"];
+        SetStatus("Search_Searching");
 
         RecordSearchHistory();
 
@@ -594,7 +594,7 @@ ShowPreview = true;
             }
         }
         catch (OperationCanceledException) { }
-        catch (Exception ex) { StatusMessage = string.Format(LocalizationService.Instance["Gallery_Status_SearchFailed"], ex.Message); }
+        catch (Exception ex) { SetStatus("Gallery_Status_SearchFailed", ex.Message); }
         finally
         {
             IsLoading = false;
@@ -623,7 +623,7 @@ ShowPreview = true;
         _currentPage = 1;
         CanLoadMore = false;
         HasSearched = false;
-        StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Search_SearchAllOfPixiv"];
+        SetStatus("Search_SearchAllOfPixiv");
         OnPropertyChanged(nameof(HasResults));
         OnPropertyChanged(nameof(HasNovelResults));
         OnPropertyChanged(nameof(HasUserResults));
@@ -645,7 +645,7 @@ ShowPreview = true;
         }
         var section = result?.IllustManga;
         var data = section?.Data;
-        if (data is null || data.Count == 0) { StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Search_NoResultsFound"]; CanLoadMore = false; return; }
+        if (data is null || data.Count == 0) { SetStatus("Search_NoResultsFound"); CanLoadMore = false; return; }
 
         AddResults(FilterByCategory(data));
         UpdateKnownTotalAndCanLoadMore(section, data.Count);
@@ -905,7 +905,7 @@ ShowPreview = true;
     {
         var result = await _pixivClient.SearchNovelsAsync(BuildSearchWord(), SortOrder, SearchMode, TargetMode, _currentPage, ct);
         var data = result?.Novels;
-        if (data is null || data.Count == 0) { StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Search_NoNovelsFound"]; CanLoadMore = false; return; }
+        if (data is null || data.Count == 0) { SetStatus("Search_NoNovelsFound"); CanLoadMore = false; return; }
 
         foreach (var novel in data)
         {
@@ -917,14 +917,14 @@ ShowPreview = true;
         // page of 20-23 still lets us try the next page.
         CanLoadMore = data.Count >= 20;
         _currentPage++;
-        StatusMessage = string.Format(LocalizationService.Instance["Search_Status_NovelsFor"], NovelResults.Count, SearchQuery);
+        SetStatus("Search_Status_NovelsFor", NovelResults.Count, SearchQuery);
     }
 
     private async Task SearchUsersInternalAsync(CancellationToken ct)
     {
         var result = await _pixivClient.SearchUsersAsync(SearchQuery.Trim(), _currentPage, ct);
         var data = result?.Users;
-        if (data is null || data.Count == 0) { StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Search_NoUsersFound"]; CanLoadMore = false; return; }
+        if (data is null || data.Count == 0) { SetStatus("Search_NoUsersFound"); CanLoadMore = false; return; }
 
         foreach (var user in data)
         {
@@ -936,7 +936,7 @@ ShowPreview = true;
         }
         CanLoadMore = data.Count >= 20;
         _currentPage++;
-        StatusMessage = string.Format(LocalizationService.Instance["Search_Status_UsersFor"], UserResults.Count, SearchQuery);
+        SetStatus("Search_Status_UsersFor", UserResults.Count, SearchQuery);
     }
 
     [RelayCommand]
@@ -969,7 +969,7 @@ ShowPreview = true;
                     break;
             }
         }
-        catch (Exception ex) { StatusMessage = string.Format(LocalizationService.Instance["Search_Status_LoadMoreFailed"], ex.Message); }
+        catch (Exception ex) { SetStatus("Search_Status_LoadMoreFailed", ex.Message); }
         finally
         {
             IsLoading = false;

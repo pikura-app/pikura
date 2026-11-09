@@ -6676,4 +6676,507 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="WhatsNew_FullyTranslated_Description" xml:space="preserve">
     <value>이제 전체 인터페이스를 일본어, 중국어, 한국어로 사용할 수 있으며, 설정에서 언어를 바꾸면 재시작 없이 바로 적용됩니다.</value>
   </data>
+  <data name="Blocklist_Scope_AllTabs" xml:space="preserve">
+    <value>모든 탭</value>
+  </data>
+  <data name="Blocklist_Scope_Pixivision" xml:space="preserve">
+    <value>Pixivision</value>
+  </data>
+  <data name="Hoshi_Note_Found" xml:space="preserve">
+    <value>✓ 찾았습니다: {1}의 '{0}'</value>
+  </data>
+  <data name="Hoshi_Note_FavAdded" xml:space="preserve">
+    <value>{0}을(를) 로컬 즐겨찾기에 추가했습니다 ★</value>
+  </data>
+  <data name="Hoshi_Note_FavRemoved" xml:space="preserve">
+    <value>{0}을(를) 로컬 즐겨찾기에서 삭제했습니다.</value>
+  </data>
+  <data name="Hoshi_Note_FavAlready" xml:space="preserve">
+    <value>{0}은(는) 이미 로컬 즐겨찾기에 있습니다.</value>
+  </data>
+  <data name="Hoshi_Note_FavNot" xml:space="preserve">
+    <value>{0}은(는) 즐겨찾기에 없습니다.</value>
+  </data>
+  <data name="Hoshi_Note_MovedToFolder" xml:space="preserve">
+    <value>{0}을(를) 폴더 '{1}'(으)로 이동했습니다.</value>
+  </data>
+  <data name="Hoshi_Msg_SimilarArtworks" xml:space="preserve">
+    <value>이 이미지와 비슷한 작품을 찾아 줘</value>
+  </data>
+  <data name="Hoshi_Msg_SimilarArtists" xml:space="preserve">
+    <value>이 이미지와 비슷한 화풍의 작가를 찾아 줘</value>
+  </data>
+  <data name="Hoshi_Note_OpenArtworkSimilarArtists" xml:space="preserve">
+    <value>⚠ 먼저 작품을 열어 주세요 — 비슷한 작가를 찾을 기준이 필요합니다.</value>
+  </data>
+  <data name="Hoshi_Note_OpenArtworkSimilarArtworks" xml:space="preserve">
+    <value>⚠ 먼저 작품을 열어 주세요 — 비슷한 작품을 찾을 기준이 필요합니다.</value>
+  </data>
+  <data name="Hoshi_Note_FindingArtists" xml:space="preserve">
+    <value>비슷한 작품의 작가를 찾는 중…</value>
+  </data>
+  <data name="Hoshi_Note_FindingArtworks" xml:space="preserve">
+    <value>비슷한 작품을 찾는 중…</value>
+  </data>
+  <data name="Hoshi_Note_NoRelated" xml:space="preserve">
+    <value>⚠ 관련 결과를 찾지 못했습니다.</value>
+  </data>
+  <data name="Hoshi_Note_NoOtherArtists" xml:space="preserve">
+    <value>⚠ 관련 작품에서 다른 작가를 찾지 못했습니다.</value>
+  </data>
+  <data name="Hoshi_Note_FetchRelatedFailed" xml:space="preserve">
+    <value>✗ 관련 결과를 가져오지 못했습니다: {0}</value>
+  </data>
+  <data name="Hoshi_Note_Error" xml:space="preserve">
+    <value>오류: {0}</value>
+  </data>
+  <data name="Hoshi_Note_TaggerFailed" xml:space="preserve">
+    <value>✗ 애니메 태거 실패: {0}</value>
+  </data>
+  <data name="Hoshi_Note_OpenArtworkPages" xml:space="preserve">
+    <value>⚠ 먼저 작품을 열어 주세요 — 어떤 작품의 페이지를 설명할지 알아야 합니다.</value>
+  </data>
+  <data name="Hoshi_Note_PagesLoadFailed" xml:space="preserve">
+    <value>⚠ 이 작품의 페이지를 불러오지 못했습니다.</value>
+  </data>
+  <data name="Hoshi_Note_PageLoadFailed" xml:space="preserve">
+    <value>✗ {0}페이지: 이미지를 불러오지 못했습니다.</value>
+  </data>
+  <data name="Hoshi_Note_DescribeFailed" xml:space="preserve">
+    <value>✗ 페이지 설명 실패: {0}</value>
+  </data>
+  <data name="Hoshi_Note_Downloading" xml:space="preserve">
+    <value>⏳ {0}을(를) 다운로드하는 중…</value>
+  </data>
+  <data name="Hoshi_Note_NoFilesDownloaded" xml:space="preserve">
+    <value>⚠ {0}에 대해 다운로드된 파일이 없습니다.</value>
+  </data>
+  <data name="Hoshi_Note_Downloaded" xml:space="preserve">
+    <value>✓ {2}의 {1} {0}개를 다운로드했습니다
+저장 위치: {3}</value>
+  </data>
+  <data name="Hoshi_Note_DownloadFailed" xml:space="preserve">
+    <value>✗ {0} 다운로드 실패: {1}</value>
+  </data>
+  <data name="Hoshi_Note_NoImageToDownload" xml:space="preserve">
+    <value>⚠ 다운로드할 이미지가 없습니다. 먼저 'show image by ID', 'random artwork', 'random artist [name]' 같은 명령으로 이미지를 가져오세요.</value>
+  </data>
+  <data name="Hoshi_Note_FetchingById" xml:space="preserve">
+    <value>ID {0}의 이미지를 가져오는 중…</value>
+  </data>
+  <data name="Hoshi_Note_ImageNotFound" xml:space="preserve">
+    <value>⚠ ID {0}의 이미지를 찾지 못했습니다</value>
+  </data>
+  <data name="Hoshi_Note_FetchImageFailed" xml:space="preserve">
+    <value>✗ 이미지를 가져오지 못했습니다: {0}</value>
+  </data>
+  <data name="Hoshi_Note_FetchingRecentArtistImage" xml:space="preserve">
+    <value>작가 {0}의 최근 이미지를 가져오는 중…</value>
+  </data>
+  <data name="Hoshi_Note_FetchingRandomArtistImage" xml:space="preserve">
+    <value>작가 {0}의 이미지를 무작위로 가져오는 중…</value>
+  </data>
+  <data name="Hoshi_Note_ArtistArtworksNotFound" xml:space="preserve">
+    <value>⚠ 작가 {0}의 작품을 찾지 못했습니다</value>
+  </data>
+  <data name="Hoshi_Note_FetchArtistArtworkFailed" xml:space="preserve">
+    <value>✗ 작가의 작품을 가져오지 못했습니다: {0}</value>
+  </data>
+  <data name="Hoshi_Note_LookingUpArtwork" xml:space="preserve">
+    <value>⏳ Pixiv에서 작품 정보를 조회하는 중…</value>
+  </data>
+  <data name="Hoshi_Note_ArtistId" xml:space="preserve">
+    <value>🆔 **{0}**의 사용자 ID는 **{1}**입니다.
+🔗 pixiv.net/users/{1}</value>
+  </data>
+  <data name="Hoshi_Note_NoArtistContext" xml:space="preserve">
+    <value>⚠ 아직 작가 컨텍스트가 없습니다 — 먼저 작품의 작가를 물어보거나 뷰어에서 작품을 여세요.</value>
+  </data>
+  <data name="Hoshi_Note_NoArtworkToLink" xml:space="preserve">
+    <value>⚠ 링크할 작품이 로드되지 않았습니다.</value>
+  </data>
+  <data name="Hoshi_Note_ArtistUnknown" xml:space="preserve">
+    <value>⚠ 아직 어떤 작가를 말하는지 모르겠습니다 — 먼저 "who is the artist"라고 묻거나 작품을 여세요.</value>
+  </data>
+  <data name="Hoshi_Note_FetchingMoreWorks" xml:space="preserve">
+    <value>이 작가의 다른 작품을 가져오는 중…</value>
+  </data>
+  <data name="Hoshi_Note_NoOtherWorks" xml:space="preserve">
+    <value>⚠ 이 작가의 다른 작품을 찾지 못했습니다.</value>
+  </data>
+  <data name="Hoshi_Note_FetchWorksFailed" xml:space="preserve">
+    <value>✗ 작가의 작품을 가져오지 못했습니다: {0}</value>
+  </data>
+  <data name="Hoshi_Note_OpenArtworkSimilarAll" xml:space="preserve">
+    <value>⚠ 먼저 작품을 열어 주세요 — 비슷한 작품이나 작가를 찾을 기준이 필요합니다.</value>
+  </data>
+  <data name="Hoshi_Note_FetchingRandom" xml:space="preserve">
+    <value>무작위 작품을 가져오는 중…</value>
+  </data>
+  <data name="Hoshi_Note_RandomFailed" xml:space="preserve">
+    <value>⚠ 무작위 작품을 가져오지 못했습니다</value>
+  </data>
+  <data name="Hoshi_Note_FetchRandomFailed" xml:space="preserve">
+    <value>✗ 무작위 작품을 가져오지 못했습니다: {0}</value>
+  </data>
+  <data name="Hoshi_Note_NoImageIdentify" xml:space="preserve">
+    <value>⚠ 로드된 이미지나 작품이 없습니다. 먼저 작품을 열거나 이미지를 첨부한 후 식별을 요청하세요.</value>
+  </data>
+  <data name="Hoshi_Note_LookingUpCharacter" xml:space="preserve">
+    <value>🔍 캐릭터와 출처 정보를 조회하는 중…</value>
+  </data>
+  <data name="Hoshi_Note_OpenArtworkFailed" xml:space="preserve">
+    <value>✗ 작품을 열지 못했습니다: {0}</value>
+  </data>
+  <data name="Hoshi_Note_OpenArtistFailed" xml:space="preserve">
+    <value>✗ 작가 갤러리를 열지 못했습니다: {0}</value>
+  </data>
+  <data name="Hoshi_Note_OpenUrlFailed" xml:space="preserve">
+    <value>✗ URL을 열지 못했습니다: {0}</value>
+  </data>
+  <data name="Hoshi_Note_DropFailed" xml:space="preserve">
+    <value>✗ 드롭 실패: {0}</value>
+  </data>
+  <data name="Hoshi_Note_LoadImageFailed" xml:space="preserve">
+    <value>✗ 이미지를 불러오지 못했습니다: {0}</value>
+  </data>
+  <data name="Hoshi_Note_FetchUrlFailed" xml:space="preserve">
+    <value>✗ URL에서 이미지를 가져오지 못했습니다: {0}</value>
+  </data>
+  <data name="Hoshi_Note_NoArtworkSelected" xml:space="preserve">
+    <value>⚠ 선택된 작품이 없습니다 — 먼저 뷰어에서 작품을 여세요.</value>
+  </data>
+  <data name="Hoshi_Note_NoArtworkInSession" xml:space="preserve">
+    <value>⚠ 이 세션에 연결된 Pixiv 작품이 없습니다.</value>
+  </data>
+  <data name="Hoshi_Note_ClipboardUnavailable" xml:space="preserve">
+    <value>아직 클립보드 붙여넣기를 사용할 수 없습니다 — 📂 열기, 드래그 앤 드롭 또는 🌐 URL로 이미지를 첨부하세요.</value>
+  </data>
+  <data name="Hoshi_File" xml:space="preserve">
+    <value>파일</value>
+  </data>
+  <data name="Hoshi_Files" xml:space="preserve">
+    <value>파일</value>
+  </data>
+  <data name="Hoshi_Artist" xml:space="preserve">
+    <value>작가</value>
+  </data>
+  <data name="Hoshi_Prompt_Describe" xml:space="preserve">
+    <value>이 이미지를 자세히 설명해 주세요. 화풍, 주제, 분위기, 눈에 띄는 요소를 포함해 주세요.</value>
+  </data>
+  <data name="Hoshi_Prompt_SuggestTags" xml:space="preserve">
+    <value>이 이미지에 어울리는 pixiv 스타일 태그를 추천해 주세요. pixiv 태그는 보통 일본어이므로 일본어 태그와 한국어 번역을 함께 적어 주세요. 형식 예시: アニメ (애니메이션), 女の子 (여자아이), ポートレート (초상화), 金髪 (금발), 夕日 (석양).</value>
+  </data>
+  <data name="Hoshi_Prompt_R18" xml:space="preserve">
+    <value>이 이미지는 NSFW 또는 R-18인가요? '예' 또는 '아니요'로 답하고 이유를 간단히 설명해 주세요.</value>
+  </data>
+  <data name="Hoshi_Msg_SuggestTags" xml:space="preserve">
+    <value>이 이미지의 태그를 추천해 주세요.</value>
+  </data>
+  <data name="Hoshi_Msg_DescribeAllPages" xml:space="preserve">
+    <value>이 작품의 {0}페이지를 모두 설명해 주세요</value>
+  </data>
+  <data name="Hoshi_Msg_DescribingFirstN" xml:space="preserve">
+    <value>{1}페이지 중 처음 {0}페이지를 설명하는 중…</value>
+  </data>
+  <data name="Hoshi_Msg_DescribingAll" xml:space="preserve">
+    <value>{0}페이지 모두 설명하는 중…</value>
+  </data>
+  <data name="Hoshi_Msg_PageHeader" xml:space="preserve">
+    <value>{0}/{1}페이지</value>
+  </data>
+  <data name="Hoshi_Tagger_Heading" xml:space="preserve">
+    <value>Danbooru 스타일 태그</value>
+  </data>
+  <data name="Hoshi_Tagger_Character" xml:space="preserve">
+    <value>캐릭터</value>
+  </data>
+  <data name="Hoshi_Tagger_Copyright" xml:space="preserve">
+    <value>작품</value>
+  </data>
+  <data name="Hoshi_Tagger_Artist" xml:space="preserve">
+    <value>작가</value>
+  </data>
+  <data name="Hoshi_Tagger_General" xml:space="preserve">
+    <value>일반</value>
+  </data>
+  <data name="Hoshi_Tagger_Meta" xml:space="preserve">
+    <value>메타</value>
+  </data>
+  <data name="Setup_Title" xml:space="preserve">
+    <value>빠른 설정</value>
+  </data>
+  <data name="Setup_Welcome" xml:space="preserve">
+    <value>Pikura에 오신 것을 환영합니다! 기본 설정을 진행합니다 — 1분이면 끝납니다.</value>
+  </data>
+  <data name="Setup_Language" xml:space="preserve">
+    <value>언어</value>
+  </data>
+  <data name="Setup_Account" xml:space="preserve">
+    <value>pixiv 로그인</value>
+  </data>
+  <data name="Setup_SignIn" xml:space="preserve">
+    <value>pixiv로 로그인</value>
+  </data>
+  <data name="Setup_SignInHint" xml:space="preserve">
+    <value>Pikura에서 작품을 보고 다운로드하려면 pixiv 계정이 필요합니다.</value>
+  </data>
+  <data name="Setup_SignInRequired" xml:space="preserve">
+    <value>계속하려면 로그인이 필요합니다.</value>
+  </data>
+  <data name="Setup_LoginFailed" xml:space="preserve">
+    <value>로그인에 실패하거나 취소되었습니다.</value>
+  </data>
+  <data name="Setup_SignedInAs" xml:space="preserve">
+    <value>로그인됨:</value>
+  </data>
+  <data name="Setup_AddAnother" xml:space="preserve">
+    <value>다른 계정 추가</value>
+  </data>
+  <data name="Setup_Downloads" xml:space="preserve">
+    <value>다운로드</value>
+  </data>
+  <data name="Setup_Hoshi" xml:space="preserve">
+    <value>Hoshi AI</value>
+  </data>
+  <data name="Setup_HoshiOptional" xml:space="preserve">
+    <value>선택 사항 — 나중에 설정에서 구성할 수 있습니다.</value>
+  </data>
+  <data name="Setup_OllamaDetected" xml:space="preserve">
+    <value>Ollama 감지됨</value>
+  </data>
+  <data name="Setup_OllamaNotFound" xml:space="preserve">
+    <value>Ollama를 찾을 수 없음</value>
+  </data>
+  <data name="Setup_CheckAgain" xml:space="preserve">
+    <value>다시 확인</value>
+  </data>
+  <data name="Setup_OllamaDownload" xml:space="preserve">
+    <value>Ollama 다운로드</value>
+  </data>
+  <data name="Setup_Done" xml:space="preserve">
+    <value>모두 완료!</value>
+  </data>
+  <data name="Setup_SummaryAccount" xml:space="preserve">
+    <value>계정</value>
+  </data>
+  <data name="Setup_SummaryFolder" xml:space="preserve">
+    <value>다운로드 폴더</value>
+  </data>
+  <data name="Setup_SummaryLanguage" xml:space="preserve">
+    <value>언어</value>
+  </data>
+  <data name="Setup_SummaryTheme" xml:space="preserve">
+    <value>테마</value>
+  </data>
+  <data name="Setup_SummaryR18" xml:space="preserve">
+    <value>R-18 모드</value>
+  </data>
+  <data name="Setup_Back" xml:space="preserve">
+    <value>이전</value>
+  </data>
+  <data name="Setup_Next" xml:space="preserve">
+    <value>다음</value>
+  </data>
+  <data name="Setup_StartUsing" xml:space="preserve">
+    <value>Pikura 시작하기</value>
+  </data>
+  <data name="Setup_StepOf" xml:space="preserve">
+    <value>{1}단계 중 {0}단계</value>
+  </data>
+  <data name="Settings_RunSetupWizard" xml:space="preserve">
+    <value>설정 마법사 다시 실행</value>
+  </data>
+  <data name="Setup_PixivLanguage" xml:space="preserve">
+    <value>pixiv 콘텐츠 언어</value>
+  </data>
+  <data name="Setup_PixivLanguageHint" xml:space="preserve">
+    <value>pixiv가 태그 번역 등에 사용하는 언어입니다. 위의 앱 언어와 별도로 설정됩니다.</value>
+  </data>
+  <data name="Setup_Presets" xml:space="preserve">
+    <value>프리셋</value>
+  </data>
+  <data name="Setup_PathExample" xml:space="preserve">
+    <value>예시:</value>
+  </data>
+  <data name="Setup_ExistingFiles" xml:space="preserve">
+    <value>파일이 이미 있으면</value>
+  </data>
+  <data name="Setup_ContentFilters" xml:space="preserve">
+    <value>콘텐츠 필터</value>
+  </data>
+  <data name="Setup_ContentFiltersHint" xml:space="preserve">
+    <value>갤러리, 랭킹, 검색, 추천에 표시할 작품을 선택합니다.</value>
+  </data>
+  <data name="Setup_R18Content" xml:space="preserve">
+    <value>R-18 콘텐츠</value>
+  </data>
+  <data name="Setup_R18Explain" xml:space="preserve">
+    <value>'끄기'는 R-18 작품을 모두 숨깁니다. '표시'는 다른 작품과 함께 보여 주고, '만'은 R-18 작품만 보여 줍니다.</value>
+  </data>
+  <data name="Setup_R18Type" xml:space="preserve">
+    <value>포함</value>
+  </data>
+  <data name="Setup_R18Type_Both" xml:space="preserve">
+    <value>R-18 및 R-18G</value>
+  </data>
+  <data name="Setup_R18Type_R18" xml:space="preserve">
+    <value>R-18만</value>
+  </data>
+  <data name="Setup_R18Type_R18G" xml:space="preserve">
+    <value>R-18G만</value>
+  </data>
+  <data name="Setup_FilterAiHint" xml:space="preserve">
+    <value>작가가 AI 생성으로 표시한 작품을 숨깁니다.</value>
+  </data>
+  <data name="Setup_Appearance" xml:space="preserve">
+    <value>모양</value>
+  </data>
+  <data name="Setup_StartupUpdates" xml:space="preserve">
+    <value>시작 및 업데이트</value>
+  </data>
+  <data name="Setup_Update_Startup" xml:space="preserve">
+    <value>시작할 때</value>
+  </data>
+  <data name="Setup_Update_Daily" xml:space="preserve">
+    <value>매일</value>
+  </data>
+  <data name="Setup_Update_Weekly" xml:space="preserve">
+    <value>매주</value>
+  </data>
+  <data name="Setup_Update_Never" xml:space="preserve">
+    <value>안 함</value>
+  </data>
+  <data name="Setup_TaggerSection" xml:space="preserve">
+    <value>애니메 태거</value>
+  </data>
+  <data name="Setup_TaggerHint" xml:space="preserve">
+    <value>Ollama 없이 PC에서 실행됩니다. Hoshi의 태그 기능과 라이브러리 태그, 캐릭터/작품 필터에 사용됩니다.</value>
+  </data>
+  <data name="Setup_InstalledMark" xml:space="preserve">
+    <value>✓ 설치됨</value>
+  </data>
+  <data name="Setup_Install" xml:space="preserve">
+    <value>설치</value>
+  </data>
+  <data name="Setup_VisionSection" xml:space="preserve">
+    <value>채팅 및 이미지 이해 (Ollama)</value>
+  </data>
+  <data name="Setup_VisionModel" xml:space="preserve">
+    <value>비전 모델</value>
+  </data>
+  <data name="Setup_NoVisionModel" xml:space="preserve">
+    <value>설치된 비전 모델 없음</value>
+  </data>
+  <data name="Setup_InstallVision" xml:space="preserve">
+    <value>qwen3-vl:4b-instruct 설치</value>
+  </data>
+  <data name="Setup_InstallVisionHint" xml:space="preserve">
+    <value>권장 · 약 3GB</value>
+  </data>
+  <data name="Setup_DoneHint" xml:space="preserve">
+    <value>이 설정은 나중에 설정에서 바꿀 수 있고, 설정 → 정보에서 이 설정을 다시 실행할 수도 있습니다.</value>
+  </data>
+  <data name="Settings_AccentColor" xml:space="preserve">
+    <value>강조 색</value>
+  </data>
+  <data name="Settings_AccentColorHint" xml:space="preserve">
+    <value>버튼, 스위치, 강조 표시에 쓰이는 색입니다. '시스템'은 Windows 강조 색을 따릅니다.</value>
+  </data>
+  <data name="Settings_AccentDefault" xml:space="preserve">
+    <value>Pikura 블루 (기본)</value>
+  </data>
+  <data name="Settings_AccentSystem" xml:space="preserve">
+    <value>시스템 (Windows 강조 색)</value>
+  </data>
+  <data name="Settings_AccentIndigo" xml:space="preserve">
+    <value>인디고</value>
+  </data>
+  <data name="Settings_AccentPurple" xml:space="preserve">
+    <value>보라</value>
+  </data>
+  <data name="Settings_AccentPink" xml:space="preserve">
+    <value>분홍</value>
+  </data>
+  <data name="Settings_AccentRed" xml:space="preserve">
+    <value>빨강</value>
+  </data>
+  <data name="Settings_AccentOrange" xml:space="preserve">
+    <value>주황</value>
+  </data>
+  <data name="Settings_AccentGreen" xml:space="preserve">
+    <value>초록</value>
+  </data>
+  <data name="Settings_AccentTeal" xml:space="preserve">
+    <value>청록</value>
+  </data>
+  <data name="Setup_ExistingFilesHint" xml:space="preserve">
+    <value>같은 이름의 파일이 이미 저장되어 있을 때 적용됩니다. '건너뛰기'는 기존 파일을 유지하고, '덮어쓰기'는 다시 받아 교체하며, '백업'은 기존 파일 이름을 .bak으로 바꾼 뒤 저장합니다.</value>
+  </data>
+  <data name="Setup_Notifications" xml:space="preserve">
+    <value>알림</value>
+  </data>
+  <data name="Setup_NotificationsHint" xml:space="preserve">
+    <value>다운로드 작업에 대한 팝업 알림입니다. 저장되는 파일에는 영향을 주지 않습니다.</value>
+  </data>
+  <data name="Setup_UsingRecommendedVision" xml:space="preserve">
+    <value>✓ 권장 모델 사용 중 (qwen3-vl:4b-instruct)</value>
+  </data>
+  <data name="Setup_UseRecommendedVision" xml:space="preserve">
+    <value>qwen3-vl:4b-instruct 사용</value>
+  </data>
+  <data name="Setup_UseRecommendedVisionHint" xml:space="preserve">
+    <value>권장 · 이미 설치됨</value>
+  </data>
+  <data name="WhatsNew_Pikura260" xml:space="preserve">
+    <value>Pikura 2.6.0</value>
+  </data>
+  <data name="WhatsNew_Pikura260_Description" xml:space="preserve">
+    <value>Pikura 2.6에서는 1분 만에 설정을 마칠 수 있는 빠른 설정, Windows 강조 색을 포함한 강조 색, 팝업 뷰어의 페이지 조작이 추가되었으며, 언어를 바꾸면 Hoshi를 포함한 앱 전체에 즉시 적용됩니다.</value>
+  </data>
+  <data name="WhatsNew_QuickSetup" xml:space="preserve">
+    <value>빠른 설정</value>
+  </data>
+  <data name="WhatsNew_QuickSetup_Subtitle" xml:space="preserve">
+    <value>중요한 설정을 한곳에서</value>
+  </data>
+  <data name="WhatsNew_QuickSetup_Description" xml:space="preserve">
+    <value>언어, pixiv 계정, 다운로드 폴더와 파일 이름, 콘텐츠 필터, 모양, 시작 옵션, Hoshi와 애니메 태거까지 단계별로 설정합니다. 설정 → 정보에서 언제든 다시 실행할 수 있습니다.</value>
+  </data>
+  <data name="WhatsNew_AccentColors" xml:space="preserve">
+    <value>강조 색</value>
+  </data>
+  <data name="WhatsNew_AccentColors_Subtitle" xml:space="preserve">
+    <value>Pikura를 원하는 색으로</value>
+  </data>
+  <data name="WhatsNew_AccentColors_Description" xml:space="preserve">
+    <value>버튼, 스위치, 강조 표시 색을 Pikura 블루, 인디고, 퍼플, 핑크, 레드, 오렌지, 그린, 틸 중에서 고를 수 있습니다. Windows에서 '시스템'을 선택하면 Windows 강조 색을 따르고 바꿀 때 함께 바뀝니다.</value>
+  </data>
+  <data name="WhatsNew_PopupPages" xml:space="preserve">
+    <value>팝업 뷰어의 페이지</value>
+  </data>
+  <data name="WhatsNew_PopupPages_Subtitle" xml:space="preserve">
+    <value>여러 페이지 작품의 모든 페이지</value>
+  </data>
+  <data name="WhatsNew_PopupPages_Description" xml:space="preserve">
+    <value>팝업과 전체 화면은 보고 있던 페이지에서 열립니다. 페이지 막대로 페이지를 넘기거나 바로 이동할 수 있고, '전체'를 누르면 모든 페이지를 격자로 보여 줍니다.</value>
+  </data>
+  <data name="WhatsNew_LanguageEverywhere" xml:space="preserve">
+    <value>어디서나 내 언어로</value>
+  </data>
+  <data name="WhatsNew_LanguageEverywhere_Subtitle" xml:space="preserve">
+    <value>Hoshi 포함</value>
+  </data>
+  <data name="WhatsNew_LanguageEverywhere_Description" xml:space="preserve">
+    <value>언어를 바꾸면 상태 메시지, 기록 날짜, pixivision 기사를 포함한 모든 화면이 즉시 바뀝니다. Hoshi는 앱 언어로 답하며, 빠른 작업과 안내 메시지도 번역되었습니다.</value>
+  </data>
+  <data name="WhatsNew_Fixes260" xml:space="preserve">
+    <value>수정 사항</value>
+  </data>
+  <data name="WhatsNew_Fixes260_Subtitle" xml:space="preserve">
+    <value>더 안정적으로</value>
+  </data>
+  <data name="WhatsNew_Fixes260_Description" xml:space="preserve">
+    <value>AI 생성 작품 숨기기가 더 이상 작가가 AI 생성이 아니라고 표시한 작품을 숨기지 않습니다. Hoshi 채팅에서 작품을 열고 돌아갔을 때 사이드 패널이 비어 있던 문제도 수정했습니다.</value>
+  </data>
 </root>

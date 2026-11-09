@@ -1,0 +1,492 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:loc="using:Pikura.Avalonia.Localization"
+        xmlns:vm="using:Pikura.Avalonia.ViewModels"
+        x:Class="Pikura.Avalonia.Views.SetupWizardWindow"
+        x:Name="WizardWindow"
+        x:DataType="vm:SetupWizardViewModel"
+        Title="{loc:Tr Setup_Title}"
+        Width="860" Height="660"
+        MinWidth="700" MinHeight="560"
+        WindowStartupLocation="CenterScreen"
+        CanResize="False"
+        Background="{DynamicResource ImageCanvasBackgroundBrush}">
+
+    <Window.Styles>
+        <Style Selector="TextBlock.title">
+            <Setter Property="FontSize" Value="22"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+        <Style Selector="TextBlock.hint">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="Foreground" Value="{DynamicResource DefaultForegroundBrushTertiary}"/>
+        </Style>
+        <Style Selector="TextBlock.label">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        <Style Selector="TextBlock.error">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="Foreground" Value="#FC8181"/>
+        </Style>
+    </Window.Styles>
+
+    <Grid RowDefinitions="*,Auto">
+        <Border Grid.Row="0" Padding="36,28">
+            <Grid>
+                <!-- 0 · Welcome + languages -->
+                <StackPanel IsVisible="{Binding Page0}" Spacing="14" VerticalAlignment="Center">
+                    <Image Source="/Assets/pikura-logo.png" Width="72" Height="72" HorizontalAlignment="Left"/>
+                    <TextBlock Text="{loc:Tr Setup_Title}" FontSize="26" FontWeight="SemiBold"/>
+                    <TextBlock Text="{loc:Tr Setup_Welcome}" FontSize="13" TextWrapping="Wrap"
+                               Foreground="{DynamicResource DefaultForegroundBrushSecondary}"/>
+                    <Grid ColumnDefinitions="Auto,Auto" RowDefinitions="Auto,Auto,Auto" Margin="0,14,0,0">
+                        <TextBlock Grid.Row="0" Grid.Column="0" Classes="label" Margin="0,0,16,0"
+                                   Text="{loc:Tr Setup_Language}"/>
+                        <ComboBox Grid.Row="0" Grid.Column="1" Width="180"
+                                  ItemsSource="{Binding Settings.AvailableAppLanguages}"
+                                  SelectedItem="{Binding Settings.AppLanguage, Mode=TwoWay}"/>
+                        <TextBlock Grid.Row="1" Grid.Column="0" Classes="label" Margin="0,10,16,0"
+                                   Text="{loc:Tr Setup_PixivLanguage}"/>
+                        <ComboBox Grid.Row="1" Grid.Column="1" Width="180" Margin="0,10,0,0"
+                                  ItemsSource="{Binding LocaleOptions}"
+                                  SelectedItem="{Binding SelectedLocale, Mode=TwoWay}">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate x:DataType="vm:LocaleOption">
+                                    <TextBlock Text="{Binding Name}"/>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                        <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Classes="hint" Margin="0,6,0,0"
+                                   MaxWidth="520" HorizontalAlignment="Left"
+                                   Text="{loc:Tr Setup_PixivLanguageHint}"/>
+                    </Grid>
+                </StackPanel>
+
+                <!-- 1 · pixiv account (required) -->
+                <StackPanel IsVisible="{Binding Page1}" Spacing="14" VerticalAlignment="Center">
+                    <TextBlock Classes="title" Text="{loc:Tr Setup_Account}"/>
+                    <TextBlock Text="{loc:Tr Setup_SignInHint}" FontSize="12" TextWrapping="Wrap"
+                               Foreground="{DynamicResource DefaultForegroundBrushSecondary}"/>
+                    <StackPanel IsVisible="{Binding !IsSignedIn}" Spacing="10">
+                        <Button Classes="accent" FontSize="14" Padding="18,10" HorizontalAlignment="Left"
+                                Command="{Binding LoginCommand}"
+                                CommandParameter="{Binding $parent[Window]}"
+                                IsEnabled="{Binding !IsLoggingIn}">
+                            <TextBlock Text="{loc:Tr Setup_SignIn}"/>
+                        </Button>
+                        <ProgressBar IsIndeterminate="True" IsVisible="{Binding IsLoggingIn}" Width="200"
+                                     HorizontalAlignment="Left"/>
+                        <TextBlock Classes="hint" Text="{loc:Tr Setup_SignInRequired}"/>
+                    </StackPanel>
+                    <StackPanel IsVisible="{Binding IsSignedIn}" Spacing="10">
+                        <TextBlock FontSize="14">
+                            <Run Text="✓ "/><Run Text="{Binding SignedInText}"/>
+                        </TextBlock>
+                        <Button FontSize="12" Padding="12,6" HorizontalAlignment="Left"
+                                Command="{Binding LoginCommand}"
+                                CommandParameter="{Binding $parent[Window]}"
+                                IsEnabled="{Binding !IsLoggingIn}">
+                            <TextBlock Text="{loc:Tr Setup_AddAnother}"/>
+                        </Button>
+                    </StackPanel>
+                    <TextBlock Classes="error" Text="{Binding LoginError}"
+                               IsVisible="{Binding LoginError, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                </StackPanel>
+
+                <!-- 2 · Downloads -->
+                <ScrollViewer IsVisible="{Binding Page2}" VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel Spacing="10" Margin="0,0,12,0">
+                        <TextBlock Classes="title" Text="{loc:Tr Setup_Downloads}"/>
+                        <TextBlock Classes="label" Text="{loc:Tr Settings_DownloadFolder}"/>
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBox Grid.Column="0" Text="{Binding Settings.DownloadRoot}" IsReadOnly="True"/>
+                            <Button Grid.Column="1" Margin="8,0,0,0" Padding="12,4" FontSize="12"
+                                    Command="{Binding Settings.ChangeDownloadFolderCommand}"
+                                    Content="{loc:Tr Common_Browse}"/>
+                        </Grid>
+
+                        <TextBlock Classes="label" Margin="0,6,0,0" Text="{loc:Tr Settings_FolderTemplate}"/>
+                        <Grid ColumnDefinitions="*,Auto,Auto">
+                            <TextBox Grid.Column="0" Text="{Binding Settings.FolderTemplate}"/>
+                            <ComboBox Grid.Column="1" Width="150" Margin="8,0,0,0" FontSize="12"
+                                      PlaceholderText="{loc:Tr Setup_Presets}"
+                                      ItemsSource="{Binding FolderPresets}"
+                                      SelectedItem="{Binding SelectedFolderPreset, Mode=TwoWay}">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:TemplatePreset">
+                                        <StackPanel Spacing="1">
+                                            <TextBlock Text="{Binding Example}" FontSize="12"/>
+                                            <TextBlock Text="{Binding Template}" FontSize="10"
+                                                       Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                            <ComboBox Grid.Column="2" Width="130" Margin="8,0,0,0" FontSize="12"
+                                      PlaceholderText="{loc:Tr Settings_Token}"
+                                      ItemsSource="{Binding FolderTokens}"
+                                      SelectedItem="{Binding SelectedFolderToken, Mode=TwoWay}"/>
+                        </Grid>
+
+                        <TextBlock Classes="label" Margin="0,6,0,0" Text="{loc:Tr Settings_FilenameTemplate}"/>
+                        <Grid ColumnDefinitions="*,Auto,Auto">
+                            <TextBox Grid.Column="0" Text="{Binding Settings.FilenameTemplate}"/>
+                            <ComboBox Grid.Column="1" Width="150" Margin="8,0,0,0" FontSize="12"
+                                      PlaceholderText="{loc:Tr Setup_Presets}"
+                                      ItemsSource="{Binding FilenamePresets}"
+                                      SelectedItem="{Binding SelectedFilenamePreset, Mode=TwoWay}">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:TemplatePreset">
+                                        <StackPanel Spacing="1">
+                                            <TextBlock Text="{Binding Example}" FontSize="12"/>
+                                            <TextBlock Text="{Binding Template}" FontSize="10"
+                                                       Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                            <ComboBox Grid.Column="2" Width="130" Margin="8,0,0,0" FontSize="12"
+                                      PlaceholderText="{loc:Tr Settings_Token}"
+                                      ItemsSource="{Binding FilenameTokens}"
+                                      SelectedItem="{Binding SelectedFilenameToken, Mode=TwoWay}"/>
+                        </Grid>
+                        <TextBlock Classes="hint" FontSize="11">
+                            <Run Text="{loc:Tr Setup_PathExample}"/><Run Text=" "/><Run Text="{Binding PathExample}"/>
+                        </TextBlock>
+
+                        <Grid ColumnDefinitions="*,Auto" Margin="0,8,0,0">
+                            <TextBlock Grid.Column="0" Classes="label" Text="{loc:Tr Settings_MaxConcurrentDl}"/>
+                            <NumericUpDown Grid.Column="1" Minimum="1" Maximum="10" Width="110"
+                                           Value="{Binding Settings.MaxConcurrentDownloads}"/>
+                        </Grid>
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Grid.Column="0" Classes="label" Text="{loc:Tr Setup_ExistingFiles}"/>
+                            <ComboBox Grid.Column="1" Width="160"
+                                      SelectedIndex="{Binding Settings.OverwriteMode, Mode=TwoWay}">
+                                <ComboBoxItem Content="{loc:Tr Settings_Skip}"/>
+                                <ComboBoxItem Content="{loc:Tr Settings_Overwrite}"/>
+                                <ComboBoxItem Content="{loc:Tr Settings_Backup}"/>
+                            </ComboBox>
+                        </Grid>
+                        <TextBlock Classes="hint" Text="{loc:Tr Setup_ExistingFilesHint}"/>
+                        <CheckBox Content="{loc:Tr Settings_R18SeparateFolder}"
+                                  IsChecked="{Binding Settings.SeparateR18Folder}"/>
+
+                        <TextBlock Text="{loc:Tr Setup_Notifications}" FontSize="14" FontWeight="SemiBold" Margin="0,10,0,0"/>
+                        <TextBlock Classes="hint" Text="{loc:Tr Setup_NotificationsHint}"/>
+                        <CheckBox IsChecked="{Binding Settings.NotifyOnDownloadComplete}">
+                            <StackPanel Spacing="1">
+                                <TextBlock Text="{loc:Tr Settings_NotifyCompleted}" FontSize="12"/>
+                                <TextBlock Classes="hint" Text="{loc:Tr Settings_NotifyCompletedHint}"/>
+                            </StackPanel>
+                        </CheckBox>
+                        <CheckBox IsChecked="{Binding Settings.NotifyOnDownloadFailed}">
+                            <StackPanel Spacing="1">
+                                <TextBlock Text="{loc:Tr Settings_NotifyFailed}" FontSize="12"/>
+                                <TextBlock Classes="hint" Text="{loc:Tr Settings_NotifyFailedHint}"/>
+                            </StackPanel>
+                        </CheckBox>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- 3 · Content filters -->
+                <StackPanel IsVisible="{Binding Page3}" Spacing="12" VerticalAlignment="Center">
+                    <TextBlock Classes="title" Text="{loc:Tr Setup_ContentFilters}"/>
+                    <TextBlock Classes="hint" FontSize="12" Text="{loc:Tr Setup_ContentFiltersHint}"/>
+                    <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,8,0,0">
+                        <TextBlock Classes="label" Text="{loc:Tr Setup_R18Content}"/>
+                        <ComboBox ItemsSource="{Binding R18ModeOptions}"
+                                  SelectedItem="{Binding Settings.R18Mode, Mode=TwoWay}" Width="140">
+                            <ComboBox.ItemTemplate><DataTemplate><TextBlock>
+                                <TextBlock.Text><MultiBinding Converter="{x:Static loc:LocLabelConverter.Instance}" ConverterParameter="Settings_Mode">
+                                    <ReflectionBinding/>
+                                    <ReflectionBinding Path="Language" Source="{x:Static loc:LocalizationService.Instance}"/>
+                                </MultiBinding></TextBlock.Text>
+                            </TextBlock></DataTemplate></ComboBox.ItemTemplate>
+                        </ComboBox>
+                    </StackPanel>
+                    <TextBlock Classes="hint" Text="{loc:Tr Setup_R18Explain}"/>
+                    <StackPanel Orientation="Horizontal" Spacing="10" IsVisible="{Binding ShowR18Type}">
+                        <TextBlock Classes="label" Text="{loc:Tr Setup_R18Type}"/>
+                        <ComboBox ItemsSource="{Binding Settings.AvailableR18Types}"
+                                  SelectedItem="{Binding Settings.R18Type, Mode=TwoWay}" Width="140">
+                            <ComboBox.ItemTemplate><DataTemplate><TextBlock>
+                                <TextBlock.Text><MultiBinding Converter="{x:Static loc:LocLabelConverter.Instance}" ConverterParameter="Setup_R18Type_">
+                                    <ReflectionBinding/>
+                                    <ReflectionBinding Path="Language" Source="{x:Static loc:LocalizationService.Instance}"/>
+                                </MultiBinding></TextBlock.Text>
+                            </TextBlock></DataTemplate></ComboBox.ItemTemplate>
+                        </ComboBox>
+                    </StackPanel>
+                    <CheckBox Margin="0,8,0,0" IsChecked="{Binding Settings.FilterAiGenerated}">
+                        <StackPanel Spacing="1">
+                            <TextBlock Text="{loc:Tr Settings_FilterAiContent}" FontSize="12"/>
+                            <TextBlock Classes="hint" Text="{loc:Tr Setup_FilterAiHint}"/>
+                        </StackPanel>
+                    </CheckBox>
+                </StackPanel>
+
+                <!-- 4 · Appearance -->
+                <StackPanel IsVisible="{Binding Page4}" Spacing="14" VerticalAlignment="Center">
+                    <TextBlock Classes="title" Text="{loc:Tr Setup_Appearance}"/>
+                    <Grid ColumnDefinitions="Auto,Auto" RowDefinitions="Auto,Auto,Auto,Auto">
+                        <TextBlock Grid.Row="0" Classes="label" Margin="0,0,16,0" Text="{loc:Tr Settings_Theme}"/>
+                        <ComboBox Grid.Row="0" Grid.Column="1" Width="180"
+                                  ItemsSource="{Binding ThemeOptions}"
+                                  SelectedItem="{Binding SelectedThemeOption, Mode=TwoWay}">
+                            <ComboBox.ItemTemplate><DataTemplate><TextBlock>
+                                <TextBlock.Text><MultiBinding Converter="{x:Static loc:LocLabelConverter.Instance}" ConverterParameter="Settings_Theme">
+                                    <ReflectionBinding/>
+                                    <ReflectionBinding Path="Language" Source="{x:Static loc:LocalizationService.Instance}"/>
+                                </MultiBinding></TextBlock.Text>
+                            </TextBlock></DataTemplate></ComboBox.ItemTemplate>
+                        </ComboBox>
+
+                        <TextBlock Grid.Row="1" Classes="label" Margin="0,12,16,0" Text="{loc:Tr Settings_AccentColor}"/>
+                        <ComboBox Grid.Row="1" Grid.Column="1" Width="180" Margin="0,12,0,0"
+                                  ItemsSource="{Binding Settings.AvailableAccentColors}"
+                                  SelectedItem="{Binding Settings.AccentColor, Mode=TwoWay}">
+                            <ComboBox.ItemTemplate><DataTemplate><TextBlock>
+                                <TextBlock.Text><MultiBinding Converter="{x:Static loc:LocLabelConverter.Instance}" ConverterParameter="Settings_Accent">
+                                    <ReflectionBinding/>
+                                    <ReflectionBinding Path="Language" Source="{x:Static loc:LocalizationService.Instance}"/>
+                                </MultiBinding></TextBlock.Text>
+                            </TextBlock></DataTemplate></ComboBox.ItemTemplate>
+                        </ComboBox>
+
+                        <TextBlock Grid.Row="2" Classes="label" Margin="0,12,16,0" Text="{loc:Tr Settings_FontSizeScale}"/>
+                        <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal" Spacing="10" Margin="0,12,0,0">
+                            <Slider Width="180" Minimum="0.5" Maximum="2.0" TickFrequency="0.1" IsSnapToTickEnabled="True"
+                                    Value="{Binding Settings.FontSizeScale, Mode=TwoWay}"/>
+                            <TextBlock Classes="label" Text="{Binding Settings.FontSizeScale, StringFormat='{}{0:F1}x'}"/>
+                        </StackPanel>
+
+                        <TextBlock Grid.Row="3" Classes="label" Margin="0,12,16,0" Text="{loc:Tr Settings_TouchMode}"/>
+                        <ComboBox Grid.Row="3" Grid.Column="1" Width="180" Margin="0,12,0,0"
+                                  ItemsSource="{Binding Settings.AvailableTouchModes}"
+                                  SelectedItem="{Binding Settings.TouchMode, Mode=TwoWay}"
+                                  ToolTip.Tip="{loc:Tr Settings_TouchModeHint}">
+                            <ComboBox.ItemTemplate><DataTemplate><TextBlock>
+                                <TextBlock.Text><MultiBinding Converter="{x:Static loc:LocLabelConverter.Instance}" ConverterParameter="Settings_TouchMode_">
+                                    <ReflectionBinding/>
+                                    <ReflectionBinding Path="Language" Source="{x:Static loc:LocalizationService.Instance}"/>
+                                </MultiBinding></TextBlock.Text>
+                            </TextBlock></DataTemplate></ComboBox.ItemTemplate>
+                        </ComboBox>
+                    </Grid>
+                </StackPanel>
+
+                <!-- 5 · Startup & updates -->
+                <StackPanel IsVisible="{Binding Page5}" Spacing="14" VerticalAlignment="Center">
+                    <TextBlock Classes="title" Text="{loc:Tr Setup_StartupUpdates}"/>
+                    <CheckBox Content="{loc:Tr Settings_StartWithWindows}"
+                              IsChecked="{Binding Settings.StartWithWindows}"
+                              IsVisible="{Binding IsWindows}"/>
+                    <CheckBox Content="{loc:Tr Settings_Splash}"
+                              IsChecked="{Binding Settings.ShowSplashScreen}"/>
+                    <Grid ColumnDefinitions="Auto,Auto" RowDefinitions="Auto,Auto,Auto">
+                        <TextBlock Grid.Row="0" Classes="label" Margin="0,0,16,0" Text="{loc:Tr Settings_SystemTray}"/>
+                        <ComboBox Grid.Row="0" Grid.Column="1" Width="240"
+                                  SelectedIndex="{Binding Settings.TrayBehavior, Mode=TwoWay}">
+                            <ComboBoxItem Content="{loc:Tr Settings_TrayDisabled}"/>
+                            <ComboBoxItem Content="{loc:Tr Settings_TrayMinimize}"/>
+                            <ComboBoxItem Content="{loc:Tr Settings_TrayClose}"/>
+                        </ComboBox>
+                        <TextBlock Grid.Row="1" Classes="label" Margin="0,12,16,0" Text="{loc:Tr Settings_StartupTab}"/>
+                        <ComboBox Grid.Row="1" Grid.Column="1" Width="240" Margin="0,12,0,0"
+                                  ItemsSource="{Binding Settings.AvailableStartupTabs}"
+                                  SelectedItem="{Binding Settings.SelectedStartupTab, Mode=TwoWay}">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate x:DataType="vm:StartupTabOption">
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <TextBlock Text="{Binding Emoji}"/>
+                                        <TextBlock>
+                                            <TextBlock.Text><MultiBinding Converter="{x:Static loc:LocLabelConverter.Instance}" ConverterParameter="">
+                                                <Binding Path="LocKey"/>
+                                                <Binding Path="Language" Source="{x:Static loc:LocalizationService.Instance}"/>
+                                            </MultiBinding></TextBlock.Text>
+                                        </TextBlock>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                        <TextBlock Grid.Row="2" Classes="label" Margin="0,12,16,0" Text="{loc:Tr Settings_CheckUpdates}"/>
+                        <ComboBox Grid.Row="2" Grid.Column="1" Width="240" Margin="0,12,0,0"
+                                  ItemsSource="{x:Static vm:SettingsViewModel.UpdateFrequencyOptions}"
+                                  SelectedItem="{Binding UpdateCheckFrequency, Mode=TwoWay}">
+                            <ComboBox.ItemTemplate><DataTemplate><TextBlock>
+                                <TextBlock.Text><MultiBinding Converter="{x:Static loc:LocLabelConverter.Instance}" ConverterParameter="Setup_Update_">
+                                    <ReflectionBinding/>
+                                    <ReflectionBinding Path="Language" Source="{x:Static loc:LocalizationService.Instance}"/>
+                                </MultiBinding></TextBlock.Text>
+                            </TextBlock></DataTemplate></ComboBox.ItemTemplate>
+                        </ComboBox>
+                    </Grid>
+                </StackPanel>
+
+                <!-- 6 · Hoshi AI (optional) -->
+                <ScrollViewer IsVisible="{Binding Page6}" VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel Spacing="10" Margin="0,0,12,0">
+                        <TextBlock Classes="title" Text="{loc:Tr Setup_Hoshi}"/>
+                        <TextBlock Text="{loc:Tr Setup_HoshiOptional}" FontSize="12" TextWrapping="Wrap"
+                                   Foreground="{DynamicResource DefaultForegroundBrushSecondary}"/>
+
+                        <!-- Anime tagger (local, no Ollama needed) -->
+                        <TextBlock Text="{loc:Tr Setup_TaggerSection}" FontSize="14" FontWeight="SemiBold" Margin="0,8,0,0"/>
+                        <TextBlock Classes="hint" Text="{loc:Tr Setup_TaggerHint}"/>
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <ComboBox Width="320" ItemsSource="{Binding TaggerOptions}"
+                                      SelectedItem="{Binding SelectedTagger, Mode=TwoWay}">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:TaggerOption">
+                                        <StackPanel Orientation="Horizontal" Spacing="6">
+                                            <TextBlock Text="{Binding Name}" FontSize="12"/>
+                                            <TextBlock Text="{Binding SizeText}" FontSize="11"
+                                                       Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
+                                            <TextBlock Text="{loc:Tr Setup_InstalledMark}" FontSize="11" Foreground="#68D391"
+                                                       IsVisible="{Binding IsInstalled}"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                            <Button FontSize="12" Padding="12,6" Classes="accent"
+                                    Command="{Binding InstallSelectedTaggerCommand}"
+                                    IsVisible="{Binding !SelectedTaggerInstalled}"
+                                    IsEnabled="{Binding !Settings.IsInstallingTaggerModel}"
+                                    Content="{loc:Tr Setup_Install}"/>
+                        </StackPanel>
+                        <ProgressBar Width="320" HorizontalAlignment="Left" Maximum="100"
+                                     Value="{Binding Settings.TaggerInstallPercent}"
+                                     IsVisible="{Binding Settings.IsInstallingTaggerModel}"/>
+                        <TextBlock Classes="hint" Text="{Binding Settings.TaggerInstallStatus}"
+                                   IsVisible="{Binding Settings.TaggerInstallStatus, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                        <TextBlock Classes="error" Text="{Binding Settings.TaggerInstallError}"
+                                   IsVisible="{Binding Settings.TaggerInstallError, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                        <CheckBox Content="{loc:Tr Settings_EnableTagger}"
+                                  IsChecked="{Binding Settings.HoshiUseAnimeTagger}"
+                                  IsEnabled="{Binding SelectedTaggerInstalled}"/>
+                        <CheckBox Content="{loc:Tr Settings_AutoTag}" ToolTip.Tip="{loc:Tr Settings_AutoTagTip}"
+                                  IsChecked="{Binding Settings.HoshiAnimeTaggerAutoTagDownloads}"
+                                  IsEnabled="{Binding SelectedTaggerInstalled}"/>
+                        <CheckBox Content="{loc:Tr Library_AutoTag}" ToolTip.Tip="{loc:Tr Library_AutoTagHint}"
+                                  IsChecked="{Binding LibraryAutoTag}"
+                                  IsEnabled="{Binding SelectedTaggerInstalled}"/>
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <TextBlock Classes="label" Text="{loc:Tr Settings_AiAcceleration}"/>
+                            <ComboBox Width="200" SelectedIndex="{Binding Settings.AiAccelerationIndex, Mode=TwoWay}"
+                                      ToolTip.Tip="{loc:Tr Settings_AiAccelerationHint}">
+                                <ComboBoxItem Content="{loc:Tr Settings_AiAcceleration_Auto}"/>
+                                <ComboBoxItem Content="{loc:Tr Settings_AiAcceleration_Gpu}"/>
+                                <ComboBoxItem Content="{loc:Tr Settings_AiAcceleration_Cpu}"/>
+                            </ComboBox>
+                        </StackPanel>
+
+                        <!-- Chat & vision (Ollama) -->
+                        <TextBlock Text="{loc:Tr Setup_VisionSection}" FontSize="14" FontWeight="SemiBold" Margin="0,12,0,0"/>
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <TextBlock Classes="label" Text="{Binding OllamaStatus}"/>
+                            <Button FontSize="11" Padding="10,4" Command="{Binding CheckOllamaAgainCommand}"
+                                    Content="{loc:Tr Setup_CheckAgain}" IsEnabled="{Binding !IsCheckingOllama}"/>
+                            <Button FontSize="11" Padding="10,4" Command="{Binding OpenOllamaSiteCommand}"
+                                    Content="{loc:Tr Setup_OllamaDownload}"
+                                    IsVisible="{Binding !OllamaAvailable}"/>
+                        </StackPanel>
+                        <StackPanel IsVisible="{Binding OllamaAvailable}" Spacing="8">
+                            <StackPanel Orientation="Horizontal" Spacing="10">
+                                <TextBlock Classes="label" Text="{loc:Tr Setup_VisionModel}"/>
+                                <ComboBox Width="240" ItemsSource="{Binding Settings.InstalledVisionModelNames}"
+                                          SelectedItem="{Binding Settings.HoshiVisionModel, Mode=TwoWay}"
+                                          PlaceholderText="{loc:Tr Setup_NoVisionModel}"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="10" IsVisible="{Binding !RecommendedVisionInstalled}">
+                                <Button FontSize="12" Padding="12,6" Classes="accent"
+                                        Command="{Binding InstallRecommendedVisionCommand}"
+                                        IsEnabled="{Binding !Settings.IsPullingModel}"
+                                        Content="{loc:Tr Setup_InstallVision}"/>
+                                <TextBlock Classes="hint" VerticalAlignment="Center" Text="{loc:Tr Setup_InstallVisionHint}"/>
+                            </StackPanel>
+                            <TextBlock Classes="label" Foreground="#68D391" IsVisible="{Binding UsingRecommendedVision}"
+                                       Text="{loc:Tr Setup_UsingRecommendedVision}"/>
+                            <StackPanel Orientation="Horizontal" Spacing="10" IsVisible="{Binding CanSwitchToRecommendedVision}">
+                                <Button FontSize="12" Padding="12,6" Classes="accent"
+                                        Command="{Binding UseRecommendedVisionCommand}"
+                                        Content="{loc:Tr Setup_UseRecommendedVision}"/>
+                                <TextBlock Classes="hint" VerticalAlignment="Center" Text="{loc:Tr Setup_UseRecommendedVisionHint}"/>
+                            </StackPanel>
+                            <TextBlock Classes="hint" Foreground="{DynamicResource WarningBrush}"
+                                       Text="{loc:Tr Hoshi_ThinkingModelWarning}"
+                                       IsVisible="{Binding Settings.ShowThinkingModelWarning}"/>
+                            <ProgressBar Width="320" HorizontalAlignment="Left" Maximum="100"
+                                         Value="{Binding Settings.ModelPullPercent}"
+                                         IsVisible="{Binding Settings.IsPullingModel}"/>
+                            <TextBlock Classes="hint" Text="{Binding Settings.ModelPullStatus}"
+                                       IsVisible="{Binding Settings.ModelPullStatus, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                            <TextBlock Classes="error" Text="{Binding Settings.ModelManagementError}"
+                                       IsVisible="{Binding Settings.ModelManagementError, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- 7 · Done -->
+                <StackPanel IsVisible="{Binding Page7}" Spacing="14" VerticalAlignment="Center">
+                    <TextBlock Classes="title" Text="{loc:Tr Setup_Done}"/>
+                    <TextBlock FontSize="13" TextWrapping="Wrap">
+                        <Run Text="{loc:Tr Setup_SummaryAccount}"/><Run Text=": "/><Run Text="{Binding SignedInText}"/>
+                    </TextBlock>
+                    <TextBlock FontSize="13" TextWrapping="Wrap">
+                        <Run Text="{loc:Tr Setup_SummaryFolder}"/><Run Text=": "/><Run Text="{Binding Settings.DownloadRoot}"/>
+                    </TextBlock>
+                    <TextBlock FontSize="13" TextWrapping="Wrap">
+                        <Run Text="{loc:Tr Setup_SummaryLanguage}"/><Run Text=": "/><Run Text="{Binding Settings.AppLanguage}"/>
+                    </TextBlock>
+                    <TextBlock FontSize="13" TextWrapping="Wrap">
+                        <Run Text="{loc:Tr Setup_SummaryTheme}"/><Run Text=": "/>
+                        <Run><Run.Text><MultiBinding Converter="{x:Static loc:LocLabelConverter.Instance}" ConverterParameter="Settings_Theme">
+                            <Binding Path="SelectedThemeOption"/><Binding Path="Language" Source="{x:Static loc:LocalizationService.Instance}"/>
+                        </MultiBinding></Run.Text></Run>
+                        <Run Text=" · "/>
+                        <Run><Run.Text><MultiBinding Converter="{x:Static loc:LocLabelConverter.Instance}" ConverterParameter="Settings_Accent">
+                            <Binding Path="Settings.AccentColor"/><Binding Path="Language" Source="{x:Static loc:LocalizationService.Instance}"/>
+                        </MultiBinding></Run.Text></Run>
+                    </TextBlock>
+                    <TextBlock FontSize="13" TextWrapping="Wrap">
+                        <Run Text="{loc:Tr Setup_SummaryR18}"/><Run Text=": "/>
+                        <Run><Run.Text><MultiBinding Converter="{x:Static loc:LocLabelConverter.Instance}" ConverterParameter="Settings_Mode">
+                            <Binding Path="Settings.R18Mode"/><Binding Path="Language" Source="{x:Static loc:LocalizationService.Instance}"/>
+                        </MultiBinding></Run.Text></Run>
+                    </TextBlock>
+                    <TextBlock Classes="hint" FontSize="12" Text="{loc:Tr Setup_DoneHint}"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Footer: Back · step indicator · Next/Finish -->
+        <Border Grid.Row="1"
+                Background="{DynamicResource Container1BackgroundBrush}"
+                BorderBrush="{DynamicResource Container1BorderBrush}"
+                BorderThickness="0,1,0,0" Padding="20,12">
+            <Grid ColumnDefinitions="Auto,*,Auto">
+                <Button Grid.Column="0" Command="{Binding BackCommand}"
+                        Content="{loc:Tr Setup_Back}" FontSize="12" Padding="14,6"
+                        IsVisible="{Binding CanGoBack}"/>
+                <TextBlock Grid.Column="1" Text="{Binding StepText}" FontSize="11"
+                           HorizontalAlignment="Center" VerticalAlignment="Center"
+                           Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
+                <Button Grid.Column="2" Classes="accent" Padding="16,6" FontSize="12"
+                        Command="{Binding NextCommand}"
+                        Content="{loc:Tr Setup_Next}"
+                        IsEnabled="{Binding CanGoNext}"
+                        IsVisible="{Binding !IsLastPage}"/>
+                <Button Grid.Column="2" Classes="accent" Padding="16,6" FontSize="12"
+                        Command="{Binding FinishCommand}"
+                        Content="{loc:Tr Setup_StartUsing}"
+                        IsVisible="{Binding IsLastPage}"/>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

@@ -339,7 +339,7 @@ public partial class DownloadByArtistViewModel : ViewModelBase
     private async Task AddFollowedArtistsAsync()
     {
         IsLoading = true;
-        StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["DlArtist_LoadingFollowedArtists"];
+        SetStatus("DlArtist_LoadingFollowedArtists");
 
         try
         {
@@ -350,7 +350,7 @@ public partial class DownloadByArtistViewModel : ViewModelBase
             // Gallery view, so the count here matches Gallery's count.
             if (_galleryVm.Artists.Count == 0)
             {
-                StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["DlArtist_LoadingFollowedArtistsFromPixiv"];
+                SetStatus("DlArtist_LoadingFollowedArtistsFromPixiv");
                 await _galleryVm.LoadFollowedArtistsCommand.ExecuteAsync(null);
             }
 
@@ -402,7 +402,7 @@ public partial class DownloadByArtistViewModel : ViewModelBase
                 }
             }
 
-            StatusMessage = string.Format(LocalizationService.Instance["DlArtist_Status_AddedArtists"], added);
+            SetStatus("DlArtist_Status_AddedArtists", added);
         }
         catch (Exception ex)
         {
@@ -530,11 +530,11 @@ public partial class DownloadByArtistViewModel : ViewModelBase
         ParsedArtistIds.Clear();
 
         if (added > 0 && duplicates > 0)
-            StatusMessage = string.Format(LocalizationService.Instance["DlArtist_Status_AddedSkipped"], added, duplicates);
+            SetStatus("DlArtist_Status_AddedSkipped", added, duplicates);
         else if (added > 0)
-            StatusMessage = string.Format(LocalizationService.Instance["DlArtist_Status_AddedN"], added);
+            SetStatus("DlArtist_Status_AddedN", added);
         else
-            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["DlArtist_AllArtistsAlreadyInList"];
+            SetStatus("DlArtist_AllArtistsAlreadyInList");
 
         // Resolve real names for newly-added placeholder entries in the background
         if (added > 0)
@@ -550,7 +550,7 @@ public partial class DownloadByArtistViewModel : ViewModelBase
         if (!string.IsNullOrEmpty(clipboardId))
         {
             NewArtistId = clipboardId;
-            StatusMessage = string.Format(LocalizationService.Instance["DlArtist_Status_PastedId"], QuickClipboardService.LastCopiedType, clipboardId);
+            SetStatus("DlArtist_Status_PastedId", QuickClipboardService.LastCopiedType, clipboardId);
         }
     }
 
@@ -584,7 +584,7 @@ public partial class DownloadByArtistViewModel : ViewModelBase
                 added++;
             }
 
-            StatusMessage = string.Format(LocalizationService.Instance["DlArtist_Status_Imported"], added);
+            SetStatus("DlArtist_Status_Imported", added);
             if (newEntries.Count > 0) _ = ResolveArtistNamesAsync(newEntries);
         }
         catch (Exception ex)
@@ -685,7 +685,7 @@ public partial class DownloadByArtistViewModel : ViewModelBase
         artist.CustomSettings = dialog.Settings;
         await _artistSettingsRepository.SaveAsync(artist.UserId, artist.UserName, artist.CustomSettings);
 
-        StatusMessage = string.Format(LocalizationService.Instance["DlArtist_Status_SavedCustom"], artist.UserName);
+        SetStatus("DlArtist_Status_SavedCustom", artist.UserName);
     }
 
     #endregion
@@ -709,7 +709,7 @@ public partial class DownloadByArtistViewModel : ViewModelBase
         }
 
         IsLoading = true;
-        StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["DlArtist_CreatingDownloadJob"];
+        SetStatus("DlArtist_CreatingDownloadJob");
 
         try
         {
@@ -767,7 +767,7 @@ public partial class DownloadByArtistViewModel : ViewModelBase
 
             _coordinator.SubscribeToProgress(job.Id, progress);
 
-            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["DlArtist_DownloadStarted"];
+            SetStatus("DlArtist_DownloadStarted");
         }
         catch (Exception ex)
         {
@@ -785,7 +785,7 @@ public partial class DownloadByArtistViewModel : ViewModelBase
             await _coordinator.CancelJobAsync(CurrentJobId.Value);
             HasActiveJob = false;
             IsLoading = false;
-            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["DlArtist_DownloadCancelled"];
+            SetStatus("DlArtist_DownloadCancelled");
         }
     }
 
@@ -889,7 +889,7 @@ public partial class DownloadByArtistViewModel : ViewModelBase
         };
 
         await _presetRepository.SaveAsync(preset);
-        StatusMessage = string.Format(LocalizationService.Instance["DlArtist_Status_PresetSaved"], preset.Name);
+        SetStatus("DlArtist_Status_PresetSaved", preset.Name);
     }
 
     [RelayCommand]
@@ -918,7 +918,7 @@ public partial class DownloadByArtistViewModel : ViewModelBase
         if (dialog.ShouldDelete)
         {
             await _presetRepository.DeleteAsync(dialog.SelectedPreset.Id);
-            StatusMessage = string.Format(LocalizationService.Instance["DlArtist_Status_PresetDeleted"], dialog.SelectedPreset.Name);
+            SetStatus("DlArtist_Status_PresetDeleted", dialog.SelectedPreset.Name);
             return;
         }
 
@@ -945,7 +945,7 @@ public partial class DownloadByArtistViewModel : ViewModelBase
         }
 
         await _presetRepository.RecordUsageAsync(preset.Id);
-        StatusMessage = string.Format(LocalizationService.Instance["DlArtist_Status_PresetLoaded"], preset.Name, preset.Artists.Count);
+        SetStatus("DlArtist_Status_PresetLoaded", preset.Name, preset.Artists.Count);
     }
 
     #endregion

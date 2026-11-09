@@ -198,7 +198,7 @@ public partial class SchedulesViewModel : ViewModelBase
         catch (Exception ex)
         {
             Logger.LogError(ex, "Failed to load schedules");
-            StatusMessage = string.Format(LocalizationService.Instance["Schedules_Status_LoadError"], ex.Message);
+            SetStatus("Schedules_Status_LoadError", ex.Message);
         }
         finally { IsBusy = false; }
     }
@@ -223,7 +223,7 @@ public partial class SchedulesViewModel : ViewModelBase
             OnPropertyChanged(nameof(HasStagedArtists));
             NewArtistId   = string.Empty;
             NewArtistName = string.Empty;
-            StatusMessage = string.Format(LocalizationService.Instance["Schedules_Status_AddedStaged"], name, StagedArtists.Count);
+            SetStatus("Schedules_Status_AddedStaged", name, StagedArtists.Count);
         }
         catch (Exception ex)
         {
@@ -357,14 +357,14 @@ public partial class SchedulesViewModel : ViewModelBase
         if (IsEditing && existingRow != null)
         {
             existingRow.RefreshDisplayProperties();
-            StatusMessage = string.Format(LocalizationService.Instance["Schedules_Status_Updated"], scheduleName);
+            SetStatus("Schedules_Status_Updated", scheduleName);
             _editingId = null;
             IsEditing  = false;
         }
         else
         {
             Schedules.Insert(0, new ScheduleRowViewModel(schedule));
-            StatusMessage = string.Format(LocalizationService.Instance["Schedules_Status_Added"], scheduleName, StagedArtists.Count);
+            SetStatus("Schedules_Status_Added", scheduleName, StagedArtists.Count);
         }
 
         StagedArtists.Clear();
@@ -391,11 +391,11 @@ public partial class SchedulesViewModel : ViewModelBase
             await _executor.ExecuteOneAsync(row.Model);
             row.Model.LastRunAt = DateTime.UtcNow;
             row.RefreshDisplayProperties();
-            StatusMessage = string.Format(LocalizationService.Instance["Schedules_Status_Completed"], row.Name);
+            SetStatus("Schedules_Status_Completed", row.Name);
         }
         catch (Exception ex)
         {
-            StatusMessage = string.Format(LocalizationService.Instance["Schedules_Status_RunFailed"], ex.Message);
+            SetStatus("Schedules_Status_RunFailed", ex.Message);
         }
         finally
         {
@@ -462,7 +462,7 @@ public partial class SchedulesViewModel : ViewModelBase
 
         PageRange = s.PageRange ?? "0";
 
-        StatusMessage = string.Format(LocalizationService.Instance["Schedules_Status_Editing"], s.Name);
+        SetStatus("Schedules_Status_Editing", s.Name);
     }
 
     [RelayCommand]
@@ -504,7 +504,7 @@ public partial class SchedulesViewModel : ViewModelBase
         CustomSeparateR18 = false;
         OnPropertyChanged(nameof(HasStagedArtists));
         OnPropertyChanged(nameof(AddButtonLabel));
-        StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Batch_CreateANewScheduleAddArtists"];
+        SetStatus("Batch_CreateANewScheduleAddArtists");
     }
 
     [RelayCommand]
@@ -515,7 +515,7 @@ public partial class SchedulesViewModel : ViewModelBase
         if (!ok) return;
         await _repo.DeleteAsync(row.Model.Id);
         Schedules.Remove(row);
-        StatusMessage = string.Format(LocalizationService.Instance["Schedules_Status_Removed"], row.Name);
+        SetStatus("Schedules_Status_Removed", row.Name);
     }
 
     public Task ReloadAsync() => LoadAsync();

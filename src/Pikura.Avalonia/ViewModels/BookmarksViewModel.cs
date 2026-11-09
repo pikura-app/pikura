@@ -400,7 +400,7 @@ ShowPreview = true;
         try
         {
             var self = await _pixivClient.ResolveSelfAsync();
-            if (self == null) { StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Bookmarks_NotSignedIn"]; return; }
+            if (self == null) { SetStatus("Bookmarks_NotSignedIn"); return; }
 
             var collections = await _pixivClient.GetBookmarkedCollectionsAsync(self.Value.UserId);
             foreach (var c in collections)
@@ -412,12 +412,12 @@ ShowPreview = true;
             OnPropertyChanged(nameof(HasBookmarkedCollections));
             OnPropertyChanged(nameof(ShowEmptyCollectionsMessage));
             if (collections.Count == 0)
-                StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Bookmarks_NoBookmarkedCollectionsFound"];
+                SetStatus("Bookmarks_NoBookmarkedCollectionsFound");
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "Failed to load bookmarked collections");
-            StatusMessage = string.Format(LocalizationService.Instance["Bookmarks_Status_LoadCollFailed"], ex.Message);
+            SetStatus("Bookmarks_Status_LoadCollFailed", ex.Message);
         }
         finally
         {
@@ -520,7 +520,7 @@ ShowPreview = true;
         }
 
         IsLoading = true;
-        StatusMessage = string.Format(LocalizationService.Instance["Collections_Status_LoadingTile"], (isPrivate ? "private" : "public"));
+        SetStatus("Collections_Status_LoadingTile", (isPrivate ? "private" : "public"));
 
         var collection = isPrivate ? PrivateBookmarks : PublicBookmarks;
         var filtered   = isPrivate ? FilteredPrivate  : FilteredPublic;
@@ -536,7 +536,7 @@ ShowPreview = true;
             var self = await _pixivClient.ResolveSelfAsync(ct);
             if (self == null)
             {
-                StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Bookmarks_NotSignedIn"];
+                SetStatus("Bookmarks_NotSignedIn");
                 return;
             }
 
@@ -547,7 +547,7 @@ ShowPreview = true;
         catch (Exception ex)
         {
             Logger.LogError(ex, "Failed to load bookmarks");
-            StatusMessage = string.Format(LocalizationService.Instance["Bookmarks_Status_Failed"], ex.Message);
+            SetStatus("Bookmarks_Status_Failed", ex.Message);
         }
         finally
         {
@@ -958,10 +958,10 @@ ShowPreview = true;
                     : $"{FilteredPrivate.Count} private bookmarks";
                 break;
             case 2:
-                StatusMessage = string.Format(LocalizationService.Instance["Bookmarks_Status_LocalFavs"], FilteredFavorites.Count);
+                SetStatus("Bookmarks_Status_LocalFavs", FilteredFavorites.Count);
                 break;
             case 3:
-                StatusMessage = string.Format(LocalizationService.Instance["Bookmarks_Status_Collections"], BookmarkedCollections.Count);
+                SetStatus("Bookmarks_Status_Collections", BookmarkedCollections.Count);
                 break;
         }
     }
@@ -1190,7 +1190,7 @@ ShowPreview = true;
                 settingsOverride: null,
                 startImmediately: true);
 
-            StatusMessage = string.Format(LocalizationService.Instance["Bookmarks_Status_Queued"], cards.Count);
+            SetStatus("Bookmarks_Status_Queued", cards.Count);
         }
         catch (Exception ex)
         {

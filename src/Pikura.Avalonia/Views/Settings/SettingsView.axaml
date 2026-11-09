@@ -100,6 +100,19 @@
                                         <TimePicker SelectedTime="{Binding ThemeScheduleDarkEnd, Mode=TwoWay}" ClockIdentifier="12HourClock"/>
                                     </StackPanel>
                                 </StackPanel>
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <TextBlock Text="{loc:Tr Settings_AccentColor}" FontSize="13" VerticalAlignment="Center"/>
+                                    <ComboBox ItemsSource="{Binding AvailableAccentColors}"
+                                              SelectedItem="{Binding AccentColor, Mode=TwoWay}" MinWidth="180"
+                                              ToolTip.Tip="{loc:Tr Settings_AccentColorHint}">
+                                        <ComboBox.ItemTemplate><DataTemplate><TextBlock>
+                                            <TextBlock.Text><MultiBinding Converter="{x:Static loc:LocLabelConverter.Instance}" ConverterParameter="Settings_Accent">
+                                                <ReflectionBinding/>
+                                                <ReflectionBinding Path="Language" Source="{x:Static loc:LocalizationService.Instance}"/>
+                                            </MultiBinding></TextBlock.Text>
+                                        </TextBlock></DataTemplate></ComboBox.ItemTemplate>
+                                    </ComboBox>
+                                </StackPanel>
                             </StackPanel>
                         </Border>
 
@@ -124,7 +137,14 @@
                                               ItemsSource="{Binding AvailableTouchModes}"
                                               ToolTip.Tip="{loc:Tr Settings_TouchModeHint}">
                                         <ComboBox.ItemTemplate><DataTemplate>
-                                            <TextBlock Text="{Binding Converter={x:Static vm:SettingsViewModel+TouchModeLocConverter.Instance}}"/>
+                                            <TextBlock>
+                                                <TextBlock.Text>
+                                                    <MultiBinding Converter="{x:Static vm:SettingsViewModel+TouchModeLocConverter.Instance}">
+                                                        <ReflectionBinding/>
+                                                        <ReflectionBinding Path="Language" Source="{x:Static loc:LocalizationService.Instance}"/>
+                                                    </MultiBinding>
+                                                </TextBlock.Text>
+                                            </TextBlock>
                                         </DataTemplate></ComboBox.ItemTemplate>
                                     </ComboBox>
                                 </StackPanel>
@@ -2230,6 +2250,10 @@
                                 <TextBlock Text="{loc:Tr Settings_Tagline}" FontSize="14"
                                            Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                            HorizontalAlignment="Center"/>
+                                <Button FontSize="12" Padding="14,6" Margin="0,8,0,0"
+                                        HorizontalAlignment="Center"
+                                        Command="{Binding RunSetupWizardCommand}"
+                                        Content="{loc:Tr Settings_RunSetupWizard}"/>
                                 <Separator Background="{DynamicResource Container1BorderBrush}" Margin="0,8"/>
                                 <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto" HorizontalAlignment="Center">
                                     <TextBlock Grid.Row="0" Grid.Column="0" Text="{loc:Tr Settings_Version}" FontSize="13"

@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Pikura.Avalonia.Services;
 using System;
 using System.Collections.Generic;
@@ -9,19 +9,21 @@ namespace Pikura.Avalonia.ViewModels;
 /// <summary>
 /// Represents a group of sessions for a specific date.
 /// </summary>
-public partial class SessionGroupViewModel : ObservableObject
+public partial class SessionGroupViewModel : ObservableObject, Pikura.Avalonia.Localization.ILanguageAware
 {
+    void Pikura.Avalonia.Localization.ILanguageAware.OnLanguageChanged()
+        => Pikura.Avalonia.Localization.LanguageRefresh.RaiseComputedStrings(this, OnPropertyChanged);
     [ObservableProperty] private bool _isExpanded = true;
     
     public DateTime Date { get; }
-    public string DisplayDate { get; }
+    public string DisplayDate => GetDisplayDate(Date);
     public List<HoshiSession> Sessions { get; }
     public bool IsPinnedGroup { get; set; }
     
     public SessionGroupViewModel(DateTime date, IEnumerable<HoshiSession> sessions)
     {
+        Pikura.Avalonia.Localization.LocalizationService.Instance.Register(this);
         Date = date.Date;
-        DisplayDate = GetDisplayDate(date);
         Sessions = sessions.OrderByDescending(s => s.UpdatedAt).ToList();
     }
     

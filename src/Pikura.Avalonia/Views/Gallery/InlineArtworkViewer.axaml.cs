@@ -307,6 +307,7 @@ public partial class InlineArtworkViewer : UserControl
     {
         base.OnAttachedToVisualTree(e);
         SubscribeToAncestorVisibility();
+        LocalizationService.Instance.PropertyChanged += OnLanguagePropertyChanged;
         if (IsEffectivelyVisible)
             _ = LoadCardAsync(VM?.InlineViewerCard);
         if (TopLevel.GetTopLevel(this) is { } tl)
@@ -316,10 +317,23 @@ public partial class InlineArtworkViewer : UserControl
     protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
     {
         base.OnDetachedFromVisualTree(e);
+        LocalizationService.Instance.PropertyChanged -= OnLanguagePropertyChanged;
         if (TopLevel.GetTopLevel(this) is { } tl)
             tl.RemoveHandler(KeyDownEvent, OnViewerKeyDown);
         UnsubscribeAncestorVisibility();
         _loadedCardId = null;
+    }
+
+    private void OnLanguagePropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName != nameof(LocalizationService.Language)) return;
+        UpdateFollowButton();
+        UpdateLikeButton();
+        UpdateBookmarkButtons();
+        UpdateFavoriteButton(_currentCard);
+        UpdateAiToggleButton();
+        UpdateStatsLabel();
+        if (_loadedComments != null) RerenderCommentsList();
     }
 
     private void OnViewerKeyDown(object? sender, KeyEventArgs e)
@@ -1882,7 +1896,7 @@ if (result != null && presetWindow.DownloadClicked)
         if (_currentCard == null || VM == null) return;
         var window = TopLevel.GetTopLevel(this) as Window;
         if (window == null) return;
-        var viewer = new ArtworkViewerWindow(_currentCard.Artwork, VM);
+        var viewer = new ArtworkViewerWindow(_currentCard.Artwork with { PageIndex = _currentPageIndex }, VM);
         await viewer.ShowDialog(window);
     }
 
@@ -1915,7 +1929,7 @@ if (result != null && presetWindow.DownloadClicked)
         // staying within the set the user actually opened.
         var navList = CurrentTabNavList();
 
-        var viewer = new FullscreenViewerWindow(_currentCard.Artwork, VM, seed, navList);
+        var viewer = new FullscreenViewerWindow(_currentCard.Artwork with { PageIndex = _currentPageIndex }, VM, seed, navList);
         await viewer.ShowDialog(window);
     }
 
@@ -3755,7 +3769,7 @@ if (result != null && presetWindow.DownloadClicked)
         }
         catch (Exception ex)
         {
-            _aiVm.Messages.Add(new AiChatMessage { Role = "system", Content = $"✗ Could not open artwork: {ex.Message}" });
+            _aiVm.Messages.Add(new AiChatMessage { Role = "system", Content = Pikura.Avalonia.Localization.LocalizationService.F("Hoshi_Note_OpenArtworkFailed", ex.Message) });
             RefreshAiMessages();
         }
     }
@@ -3778,7 +3792,7 @@ if (result != null && presetWindow.DownloadClicked)
         }
         catch (Exception ex)
         {
-            _aiVm.Messages.Add(new AiChatMessage { Role = "system", Content = $"✗ Could not open URL: {ex.Message}" });
+            _aiVm.Messages.Add(new AiChatMessage { Role = "system", Content = Pikura.Avalonia.Localization.LocalizationService.F("Hoshi_Note_OpenUrlFailed", ex.Message) });
             RefreshAiMessages();
         }
     }
@@ -3795,7 +3809,7 @@ if (result != null && presetWindow.DownloadClicked)
         }
         catch (Exception ex)
         {
-            _aiVm.Messages.Add(new AiChatMessage { Role = "system", Content = $"✗ Could not open artist gallery: {ex.Message}" });
+            _aiVm.Messages.Add(new AiChatMessage { Role = "system", Content = Pikura.Avalonia.Localization.LocalizationService.F("Hoshi_Note_OpenArtistFailed", ex.Message) });
             RefreshAiMessages();
         }
     }

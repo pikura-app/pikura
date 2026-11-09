@@ -5,8 +5,12 @@ using System.Text.Json.Serialization;
 namespace Pikura.Avalonia.Services;
 
 /// <summary>A persisted Hoshi conversation: image + messages.</summary>
-public sealed class HoshiSession : CommunityToolkit.Mvvm.ComponentModel.ObservableObject
+public sealed class HoshiSession : CommunityToolkit.Mvvm.ComponentModel.ObservableObject, Pikura.Avalonia.Localization.ILanguageAware
 {
+    public HoshiSession() => Pikura.Avalonia.Localization.LocalizationService.Instance.Register(this);
+
+    void Pikura.Avalonia.Localization.ILanguageAware.OnLanguageChanged()
+        => Pikura.Avalonia.Localization.LanguageRefresh.RaiseComputedStrings(this, OnPropertyChanged);
     public string Id { get; set; } = Guid.NewGuid().ToString("N");
     public string Title { get; set; } = "New chat";
     /// <summary>Owning pixiv user id (null = legacy shared space).</summary>

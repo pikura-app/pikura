@@ -39,6 +39,23 @@ public partial class DownloadQueueView : UserControl
         _ = LoadJobsAsync();
     }
 
+    protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        base.OnAttachedToVisualTree(e);
+        LocalizationService.Instance.PropertyChanged += OnLanguagePropertyChanged;
+    }
+
+    protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        base.OnDetachedFromVisualTree(e);
+        LocalizationService.Instance.PropertyChanged -= OnLanguagePropertyChanged;
+    }
+
+    private void OnLanguagePropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(LocalizationService.Language)) _ = LoadJobsAsync();
+    }
+
     public void SetOwnerWindow(Window window)
     {
         _ownerWindow = window;

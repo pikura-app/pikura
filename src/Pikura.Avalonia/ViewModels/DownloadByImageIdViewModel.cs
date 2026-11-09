@@ -161,7 +161,7 @@ public partial class DownloadByImageIdViewModel : ViewModelBase
         InputText = string.IsNullOrEmpty(InputText)
             ? text
             : InputText + "\n" + text;
-        StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["DlId_PastedFromClipboard"];
+        SetStatus("DlId_PastedFromClipboard");
     }
 
     [RelayCommand]
@@ -177,7 +177,7 @@ public partial class DownloadByImageIdViewModel : ViewModelBase
                 ? content
                 : InputText + "\n" + content;
 
-            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["DlId_ImportedIDsFromFile"];
+            SetStatus("DlId_ImportedIDsFromFile");
         }
         catch (Exception ex)
         {
@@ -204,7 +204,7 @@ public partial class DownloadByImageIdViewModel : ViewModelBase
             return;
         }
 
-        StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["DlId_CreatingDownloadJob"];
+        SetStatus("DlId_CreatingDownloadJob");
 
         try
         {
@@ -251,7 +251,7 @@ public partial class DownloadByImageIdViewModel : ViewModelBase
             });
 
             _coordinator.SubscribeToProgress(job.Id, progress);
-            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["DlId_DownloadStarted"];
+            SetStatus("DlId_DownloadStarted");
         }
         catch (Exception ex)
         {
@@ -267,7 +267,7 @@ public partial class DownloadByImageIdViewModel : ViewModelBase
         {
             await _coordinator.CancelJobAsync(CurrentJobId.Value);
             HasActiveJob = false;
-            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["DlId_DownloadCancelled"];
+            SetStatus("DlId_DownloadCancelled");
         }
     }
 

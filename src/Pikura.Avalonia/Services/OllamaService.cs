@@ -27,8 +27,32 @@ public sealed class OllamaNotInstalledException : Exception
 /// Manages a local Ollama instance: process lifecycle, model availability, and chat/vision inference.
 /// Uses moondream (the smallest vision-capable model, ~1.7 GB).
 /// </summary>
-public sealed class OllamaService : IDisposable
+public sealed class OllamaService : IDisposable, Pikura.Avalonia.Localization.ILanguageAware
 {
+    private string? _statusKey;
+    private object?[]? _statusArgs;
+    private string? _statusRendered;
+
+    private void SetStatusText(string key, params object?[] args)
+    {
+        _statusKey = key;
+        _statusArgs = args;
+        _statusRendered = args.Length == 0
+            ? Pikura.Avalonia.Localization.LocalizationService.Instance[key]
+            : Pikura.Avalonia.Localization.LocalizationService.F(key, args);
+        StatusText = _statusRendered;
+    }
+
+    void Pikura.Avalonia.Localization.ILanguageAware.OnLanguageChanged()
+    {
+        // Re-render only while the visible text is still what we last rendered.
+        if (_statusKey is null || StatusText != _statusRendered) return;
+        _statusRendered = _statusArgs is { Length: > 0 } a
+            ? Pikura.Avalonia.Localization.LocalizationService.F(_statusKey, a)
+            : Pikura.Avalonia.Localization.LocalizationService.Instance[_statusKey];
+        StatusText = _statusRendered;
+        NotifyState();
+    }
     public const string DefaultVisionModel  = "qwen3-vl:4b";
     public const string DefaultTextModel    = "qwen3-vl:4b";
     private const string OllamaHost  = "http://localhost:11434";
@@ -55,6 +79,7 @@ public sealed class OllamaService : IDisposable
     {
         _logger = logger;
         _settings = settings;
+        Pikura.Avalonia.Localization.LocalizationService.Instance.Register(this);
     }
 
     /// <summary>
@@ -86,20 +111,20 @@ public sealed class OllamaService : IDisposable
         var startupCt = startupCts.Token;
 
         IsEnabled = true;
-        StatusText = Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_WakingUpHoshi"];
+        SetStatusText("Hoshi_WakingUpHoshi");
         NotifyState();
 
         try
         {
             await EnsureOllamaRunningAsync(startupCt);
             progress?.Report("Checking model…");
-            StatusText = Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_LoadingHoshiSModel"];
+            SetStatusText("Hoshi_LoadingHoshiSModel");
             NotifyState();
 
             await EnsureModelAsync(progress, startupCt);
 
             IsReady = true;
-            StatusText = Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_HoshiReady"];
+            SetStatusText("Hoshi_HoshiReady");
             NotifyState();
         }
         catch (Exception ex)
@@ -119,7 +144,7 @@ public sealed class OllamaService : IDisposable
     {
         IsEnabled = false;
         IsReady   = false;
-        StatusText = Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_HoshiIsOff"];
+        SetStatusText("Hoshi_HoshiIsOff");
         // We intentionally leave the Ollama process running — it's shared system software.
         NotifyState();
     }
@@ -682,7 +707,7 @@ public sealed class OllamaService : IDisposable
         if (!hasTextModel)
         {
             progress?.Report($"Pulling {textModel} — first-time only…");
-            StatusText = string.Format(LocalizationService.Instance["Ollama_Status_DownloadingForHoshi"], textModel);
+            SetStatusText("Ollama_Status_DownloadingForHoshi", textModel);
             NotifyState();
 
             await foreach (var status in _client!.PullModelAsync(textModel, ct))
@@ -696,7 +721,7 @@ public sealed class OllamaService : IDisposable
         if (!hasVisionModel)
         {
             progress?.Report($"Pulling {visionModel} — first-time only…");
-            StatusText = string.Format(LocalizationService.Instance["Ollama_Status_DownloadingForHoshi"], visionModel);
+            SetStatusText("Ollama_Status_DownloadingForHoshi", visionModel);
             NotifyState();
 
             await foreach (var status in _client!.PullModelAsync(visionModel, ct))
@@ -742,7 +767,7 @@ public sealed class OllamaService : IDisposable
             var bytes = await http.GetByteArrayAsync(installerUrl, ct);
             await File.WriteAllBytesAsync(installerPath, bytes, ct);
 
-            StatusText = Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_InstallingOllama"];
+            SetStatusText("Hoshi_InstallingOllama");
             NotifyState();
 
             // Run the Inno Setup installer interactively so the user sees and controls the

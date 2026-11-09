@@ -12,13 +12,15 @@ namespace Pikura.Avalonia.ViewModels;
 /// A collapsible date-group header used in the History tabs. Holds the jobs
 /// that completed/failed/cancelled on a particular calendar day.
 /// </summary>
-public partial class HistoryGroupViewModel : ObservableObject
+public partial class HistoryGroupViewModel : ObservableObject, Pikura.Avalonia.Localization.ILanguageAware
 {
+    void Pikura.Avalonia.Localization.ILanguageAware.OnLanguageChanged()
+        => Pikura.Avalonia.Localization.LanguageRefresh.RaiseComputedStrings(this, OnPropertyChanged);
     /// <summary>Local calendar date this group represents (time component is midnight).</summary>
     public DateTime Date { get; }
 
     /// <summary>Human-friendly label: "Today", "Yesterday", a weekday, or a full date.</summary>
-    public string Label { get; }
+    public string Label => MakeLabel(Date);
 
     /// <summary>Jobs belonging to this date, in display order (newest first).</summary>
     public ObservableCollection<DownloadJobViewModel> Jobs { get; } = new();
@@ -32,8 +34,8 @@ public partial class HistoryGroupViewModel : ObservableObject
 
     public HistoryGroupViewModel(DateTime date)
     {
+        Pikura.Avalonia.Localization.LocalizationService.Instance.Register(this);
         Date = date.Date;
-        Label = MakeLabel(Date);
     }
 
     public int Count => Jobs.Count;
@@ -59,12 +61,18 @@ public partial class HistoryGroupViewModel : ObservableObject
 
     private static string MakeLabel(DateTime date)
     {
+        var loc = Pikura.Avalonia.Localization.LocalizationService.Instance;
         var today = DateTime.Now.Date;
-        if (date == today) return "Today";
-        if (date == today.AddDays(-1)) return "Yesterday";
-        if (date > today.AddDays(-7)) return date.ToString("dddd, MMMM d"); // e.g. "Tuesday, May 27"
-        if (date.Year == today.Year) return date.ToString("MMMM d");        // e.g. "May 20"
-        return date.ToString("MMMM d, yyyy");
+        if (date == today) return loc["Viewed_Today"];
+        if (date == today.AddDays(-1)) return loc["Hoshi_Yesterday"];
+        var c = loc.Culture;
+        // English keeps its hand-picked patterns; other languages use their culture's own
+        // month-day ("M") and long-date ("D") patterns, e.g. 11月8日 / 2026年11月8日.
+        var en = c.TwoLetterISOLanguageName == "en";
+        if (date > today.AddDays(-7))
+            return en ? date.ToString("dddd, MMMM d", c) : $"{date.ToString("dddd", c)} {date.ToString("M", c)}"; // e.g. "Tuesday, May 27"
+        if (date.Year == today.Year) return en ? date.ToString("MMMM d", c) : date.ToString("M", c);        // e.g. "May 20"
+        return en ? date.ToString("MMMM d, yyyy", c) : date.ToString("D", c);
     }
 }
 
@@ -149,9 +157,19 @@ public sealed class HistoryTabGrouping
 }
 
 /// <summary>A status-group header for the Active tab (Running, Paused, Queued).</summary>
-public partial class ActiveGroupViewModel : ObservableObject
+public partial class ActiveGroupViewModel : ObservableObject, Pikura.Avalonia.Localization.ILanguageAware
 {
-    public string Label { get; }
+    void Pikura.Avalonia.Localization.ILanguageAware.OnLanguageChanged()
+        => Pikura.Avalonia.Localization.LanguageRefresh.RaiseComputedStrings(this, OnPropertyChanged);
+
+    /// <summary>Localized status label derived from <see cref="StatusKey"/> — the ctor's
+    /// label parameter is ignored (kept for the existing call site).</summary>
+    public string Label => StatusKey switch
+    {
+        "running" => "▶ " + Pikura.Avalonia.Localization.LocalizationService.Instance["History_Running"],
+        "paused"  => "⏸ " + Pikura.Avalonia.Localization.LocalizationService.Instance["History_Paused"],
+        _         => "⏳ " + Pikura.Avalonia.Localization.LocalizationService.Instance["History_Queued"],
+    };
     public string StatusKey { get; }
     public ObservableCollection<DownloadJobViewModel> Jobs { get; } = new();
 
@@ -162,7 +180,7 @@ public partial class ActiveGroupViewModel : ObservableObject
 
     public ActiveGroupViewModel(string label, string statusKey)
     {
-        Label = label;
+        Pikura.Avalonia.Localization.LocalizationService.Instance.Register(this);
         StatusKey = statusKey;
     }
 

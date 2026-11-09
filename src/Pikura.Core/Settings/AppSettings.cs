@@ -545,6 +545,10 @@ public sealed class AppSettings
     /// <summary>App theme: "Light", "Dark", "System", "Scheduled".</summary>
     public string Theme { get; set; } = "System";
 
+    /// <summary>Accent color: "Default" (Pikura blue), "System" (Windows accent), or a hue
+    /// name such as "Indigo", "Purple", "Pink", "Red", "Orange", "Green", "Teal".</summary>
+    public string AccentColor { get; set; } = "Default";
+
     /// <summary>When <see cref="Theme"/> is "Scheduled", the local time of day to switch to dark mode.</summary>
     public TimeSpan ThemeScheduleDarkStart { get; set; } = TimeSpan.FromHours(20);
 
@@ -985,6 +989,10 @@ public sealed class AppSettings
 
     /// <summary>When true, show the feature highlights / onboarding popup for new installs or major updates.</summary>
     public bool ShowFeatureHighlights { get; set; } = true;
+
+    /// <summary>Quick Setup wizard has been finished at least once (first-run or via
+    /// Settings → "Run setup again"). While false the wizard shows at every startup.</summary>
+    public bool SetupWizardCompleted { get; set; } = false;
 
     /// <summary>The app version that last displayed the feature highlights. Empty for a fresh install.</summary>
     public string? LastOnboardingVersionShown { get; set; }

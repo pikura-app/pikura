@@ -173,7 +173,7 @@ public partial class EnhancedGalleryViewModel : ViewModelBase
             VisibleArtworks.Add(artwork);
         }
 
-        StatusMessage = string.Format(LocalizationService.Instance["Gallery_Status_LoadedArtworks"], VisibleArtworks.Count);
+        SetStatus("Gallery_Status_LoadedArtworks", VisibleArtworks.Count);
     }
 
     private async Task SearchAsync()
@@ -182,7 +182,7 @@ public partial class EnhancedGalleryViewModel : ViewModelBase
             return;
 
         IsLoading = true;
-        StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Gallery_Searching"];
+        SetStatus("Gallery_Searching");
 
         try
         {
@@ -201,11 +201,11 @@ public partial class EnhancedGalleryViewModel : ViewModelBase
                 VisibleArtworks.Add(artwork);
             }
 
-            StatusMessage = string.Format(LocalizationService.Instance["Gallery_Status_SearchResults"], VisibleArtworks.Count, SearchQuery);
+            SetStatus("Gallery_Status_SearchResults", VisibleArtworks.Count, SearchQuery);
         }
         catch (Exception ex)
         {
-            StatusMessage = string.Format(LocalizationService.Instance["Gallery_Status_SearchFailed"], ex.Message);
+            SetStatus("Gallery_Status_SearchFailed", ex.Message);
         }
         finally
         {
@@ -216,16 +216,16 @@ public partial class EnhancedGalleryViewModel : ViewModelBase
     private async Task LoadFollowedArtistsAsync()
     {
         IsLoading = true;
-        StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Gallery_LoadingFollowedArtists"];
+        SetStatus("Gallery_LoadingFollowedArtists");
 
         try
         {
             await Task.Delay(800); // Simulate API call
-            StatusMessage = string.Format(LocalizationService.Instance["Gallery_Status_FollowedArtists"], Artists.Count);
+            SetStatus("Gallery_Status_FollowedArtists", Artists.Count);
         }
         catch (Exception ex)
         {
-            StatusMessage = string.Format(LocalizationService.Instance["Gallery_Status_LoadArtistsFailed"], ex.Message);
+            SetStatus("Gallery_Status_LoadArtistsFailed", ex.Message);
         }
         finally
         {
@@ -240,7 +240,7 @@ public partial class EnhancedGalleryViewModel : ViewModelBase
             artwork.IsSelected = false;
         }
         SelectedCount = 0;
-        StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Gallery_SelectionCleared"];
+        SetStatus("Gallery_SelectionCleared");
     }
 
     private void ApplyFilter(string? filter)
@@ -250,7 +250,7 @@ public partial class EnhancedGalleryViewModel : ViewModelBase
         {
             ActiveFilters.Add(filter);
             // Apply filter logic here
-            StatusMessage = string.Format(LocalizationService.Instance["Gallery_Status_FilterApplied"], filter);
+            SetStatus("Gallery_Status_FilterApplied", filter);
         }
     }
 
@@ -259,7 +259,7 @@ public partial class EnhancedGalleryViewModel : ViewModelBase
         if (string.IsNullOrEmpty(filter)) return;
         ActiveFilters.Remove(filter);
         // Remove filter logic here
-        StatusMessage = string.Format(LocalizationService.Instance["Gallery_Status_FilterRemoved"], filter);
+        SetStatus("Gallery_Status_FilterRemoved", filter);
     }
 }
 

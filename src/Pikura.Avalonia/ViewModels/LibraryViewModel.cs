@@ -17,12 +17,13 @@ using System.Threading.Tasks;
 
 namespace Pikura.Avalonia.ViewModels;
 
-public partial class LibraryItemViewModel : ObservableObject
+public partial class LibraryItemViewModel : ObservableObject, ILanguageAware
 {
+    void ILanguageAware.OnLanguageChanged() => LanguageRefresh.RaiseComputedStrings(this, OnPropertyChanged);
     public LibraryFile File { get; }
     [ObservableProperty] private Bitmap? _thumbnail;
     [ObservableProperty] private bool _isSelected;
-    public LibraryItemViewModel(LibraryFile f) => File = f;
+    public LibraryItemViewModel(LibraryFile f) { File = f; LocalizationService.Instance.Register(this); }
     public string DisplayName => !string.IsNullOrEmpty(File.Title) ? File.Title! : System.IO.Path.GetFileName(File.Path);
     public string SubText => File.ArtistName ?? "";
     public string PathTooltip => File.Path;
@@ -62,23 +63,26 @@ public partial class LibraryItemViewModel : ObservableObject
     }
 }
 
-public partial class DuplicateFileRow : ObservableObject
+public partial class DuplicateFileRow : ObservableObject, ILanguageAware
 {
+    void ILanguageAware.OnLanguageChanged() => LanguageRefresh.RaiseComputedStrings(this, OnPropertyChanged);
     public LibraryFile File { get; }
     [ObservableProperty] private Bitmap? _thumbnail;
     [ObservableProperty] private bool _isMarked;
-    public DuplicateFileRow(LibraryFile f) => File = f;
+    public DuplicateFileRow(LibraryFile f) { File = f; LocalizationService.Instance.Register(this); }
     public string Info => $"{File.Width}x{File.Height} · {FormatSize(File.Size)}";
     public string DateText => File.Mtime ?? "";
     public static string FormatSize(long b) => b >= 1 << 20 ? $"{b / 1048576.0:F1} MB" : b >= 1024 ? $"{b / 1024} KB" : $"{b} B";
 }
 
-public partial class DuplicateGroupViewModel : ObservableObject
+public partial class DuplicateGroupViewModel : ObservableObject, ILanguageAware
 {
+    void ILanguageAware.OnLanguageChanged() => LanguageRefresh.RaiseComputedStrings(this, OnPropertyChanged);
     public ObservableCollection<DuplicateFileRow> Rows { get; } = [];
     public string Badge { get; }
     public DuplicateGroupViewModel(DuplicateGroup g)
     {
+        LocalizationService.Instance.Register(this);
         Badge = g.IsExact
             ? LocalizationService.Instance["Library_Exact"]
             : string.Format(LocalizationService.Instance["Library_SimilarDistance"], g.MaxDistance);
@@ -92,7 +96,7 @@ public partial class DuplicateGroupViewModel : ObservableObject
     }
 }
 
-public partial class LibraryViewModel : ObservableObject
+public partial class LibraryViewModel : ViewModelBase
 {
     private readonly LibraryIndexService _library;
     private readonly SettingsService _settings;

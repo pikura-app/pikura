@@ -30,17 +30,17 @@ public partial class DownloadsViewModel : ViewModelBase
     private async Task RefreshDownloadsAsync()
     {
         IsLoading = true;
-        StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Jobs_RefreshingDownloads"];
+        SetStatus("Jobs_RefreshingDownloads");
 
         try
         {
             await Task.Delay(500); // Simulate loading
-            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Jobs_DownloadsRefreshed"];
+            SetStatus("Jobs_DownloadsRefreshed");
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "Failed to refresh downloads");
-            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Jobs_FailedToRefreshDownloads"];
+            SetStatus("Jobs_FailedToRefreshDownloads");
             await _dialogService.ShowMessageAsync(Pikura.Avalonia.Localization.LocalizationService.Instance["Jobs_Error"], Pikura.Avalonia.Localization.LocalizationService.Instance["Jobs_FailedToRefreshDownloads_2"]);
         }
         finally

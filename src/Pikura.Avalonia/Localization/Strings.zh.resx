@@ -6676,4 +6676,507 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="WhatsNew_FullyTranslated_Description" xml:space="preserve">
     <value>整个界面现已支持日语、中文和韩语，在设置中切换语言后立即生效，无需重启。</value>
   </data>
+  <data name="Blocklist_Scope_AllTabs" xml:space="preserve">
+    <value>所有标签页</value>
+  </data>
+  <data name="Blocklist_Scope_Pixivision" xml:space="preserve">
+    <value>Pixivision</value>
+  </data>
+  <data name="Hoshi_Note_Found" xml:space="preserve">
+    <value>✓ 找到了：{1}的「{0}」</value>
+  </data>
+  <data name="Hoshi_Note_FavAdded" xml:space="preserve">
+    <value>已将 {0} 加入本地收藏 ★</value>
+  </data>
+  <data name="Hoshi_Note_FavRemoved" xml:space="preserve">
+    <value>已将 {0} 从本地收藏移除。</value>
+  </data>
+  <data name="Hoshi_Note_FavAlready" xml:space="preserve">
+    <value>{0} 已在你的本地收藏中。</value>
+  </data>
+  <data name="Hoshi_Note_FavNot" xml:space="preserve">
+    <value>{0} 不在你的收藏中。</value>
+  </data>
+  <data name="Hoshi_Note_MovedToFolder" xml:space="preserve">
+    <value>已将 {0} 移动到文件夹“{1}”。</value>
+  </data>
+  <data name="Hoshi_Msg_SimilarArtworks" xml:space="preserve">
+    <value>查找与这张图片相似的作品</value>
+  </data>
+  <data name="Hoshi_Msg_SimilarArtists" xml:space="preserve">
+    <value>查找与这张图片画风相似的画师</value>
+  </data>
+  <data name="Hoshi_Note_OpenArtworkSimilarArtists" xml:space="preserve">
+    <value>⚠ 请先打开一件作品——我需要一个起点来寻找相似画师。</value>
+  </data>
+  <data name="Hoshi_Note_OpenArtworkSimilarArtworks" xml:space="preserve">
+    <value>⚠ 请先打开一件作品——我需要一个起点来寻找相似作品。</value>
+  </data>
+  <data name="Hoshi_Note_FindingArtists" xml:space="preserve">
+    <value>正在寻找画风相似的画师…</value>
+  </data>
+  <data name="Hoshi_Note_FindingArtworks" xml:space="preserve">
+    <value>正在寻找相似作品…</value>
+  </data>
+  <data name="Hoshi_Note_NoRelated" xml:space="preserve">
+    <value>⚠ 没有找到相关结果。</value>
+  </data>
+  <data name="Hoshi_Note_NoOtherArtists" xml:space="preserve">
+    <value>⚠ 相关作品中没有找到其他画师。</value>
+  </data>
+  <data name="Hoshi_Note_FetchRelatedFailed" xml:space="preserve">
+    <value>✗ 获取相关结果失败：{0}</value>
+  </data>
+  <data name="Hoshi_Note_Error" xml:space="preserve">
+    <value>错误：{0}</value>
+  </data>
+  <data name="Hoshi_Note_TaggerFailed" xml:space="preserve">
+    <value>✗ 动画打标器失败：{0}</value>
+  </data>
+  <data name="Hoshi_Note_OpenArtworkPages" xml:space="preserve">
+    <value>⚠ 请先打开一件作品——我需要知道要描述哪件作品的页面。</value>
+  </data>
+  <data name="Hoshi_Note_PagesLoadFailed" xml:space="preserve">
+    <value>⚠ 无法加载这件作品的页面。</value>
+  </data>
+  <data name="Hoshi_Note_PageLoadFailed" xml:space="preserve">
+    <value>✗ 第 {0} 页：无法加载图片。</value>
+  </data>
+  <data name="Hoshi_Note_DescribeFailed" xml:space="preserve">
+    <value>✗ 描述页面失败：{0}</value>
+  </data>
+  <data name="Hoshi_Note_Downloading" xml:space="preserve">
+    <value>⏳ 正在下载 {0}…</value>
+  </data>
+  <data name="Hoshi_Note_NoFilesDownloaded" xml:space="preserve">
+    <value>⚠ {0} 没有下载任何文件。</value>
+  </data>
+  <data name="Hoshi_Note_Downloaded" xml:space="preserve">
+    <value>✓ 已为 {2} 下载 {0} {1}
+保存位置：{3}</value>
+  </data>
+  <data name="Hoshi_Note_DownloadFailed" xml:space="preserve">
+    <value>✗ {0} 下载失败：{1}</value>
+  </data>
+  <data name="Hoshi_Note_NoImageToDownload" xml:space="preserve">
+    <value>⚠ 没有可下载的图片。请先用 “show image by ID”、“random artwork” 或 “random artist [name]” 等指令获取图片。</value>
+  </data>
+  <data name="Hoshi_Note_FetchingById" xml:space="preserve">
+    <value>正在获取 ID {0} 的图片…</value>
+  </data>
+  <data name="Hoshi_Note_ImageNotFound" xml:space="preserve">
+    <value>⚠ 找不到 ID {0} 的图片</value>
+  </data>
+  <data name="Hoshi_Note_FetchImageFailed" xml:space="preserve">
+    <value>✗ 获取图片失败：{0}</value>
+  </data>
+  <data name="Hoshi_Note_FetchingRecentArtistImage" xml:space="preserve">
+    <value>正在获取画师 {0} 的最新图片…</value>
+  </data>
+  <data name="Hoshi_Note_FetchingRandomArtistImage" xml:space="preserve">
+    <value>正在随机获取画师 {0} 的图片…</value>
+  </data>
+  <data name="Hoshi_Note_ArtistArtworksNotFound" xml:space="preserve">
+    <value>⚠ 找不到画师 {0} 的作品</value>
+  </data>
+  <data name="Hoshi_Note_FetchArtistArtworkFailed" xml:space="preserve">
+    <value>✗ 获取画师作品失败：{0}</value>
+  </data>
+  <data name="Hoshi_Note_LookingUpArtwork" xml:space="preserve">
+    <value>⏳ 正在从 Pixiv 获取作品信息…</value>
+  </data>
+  <data name="Hoshi_Note_ArtistId" xml:space="preserve">
+    <value>🆔 **{0}** 的用户 ID 是 **{1}**。
+🔗 pixiv.net/users/{1}</value>
+  </data>
+  <data name="Hoshi_Note_NoArtistContext" xml:space="preserve">
+    <value>⚠ 还没有画师上下文——请先询问某件作品的画师，或在查看器中打开一件作品。</value>
+  </data>
+  <data name="Hoshi_Note_NoArtworkToLink" xml:space="preserve">
+    <value>⚠ 没有可链接的已加载作品。</value>
+  </data>
+  <data name="Hoshi_Note_ArtistUnknown" xml:space="preserve">
+    <value>⚠ 我还不知道你指的是哪位画师——请先问 “who is the artist”，或打开一件作品。</value>
+  </data>
+  <data name="Hoshi_Note_FetchingMoreWorks" xml:space="preserve">
+    <value>正在获取这位画师的其他作品…</value>
+  </data>
+  <data name="Hoshi_Note_NoOtherWorks" xml:space="preserve">
+    <value>⚠ 没有找到这位画师的其他作品。</value>
+  </data>
+  <data name="Hoshi_Note_FetchWorksFailed" xml:space="preserve">
+    <value>✗ 获取画师作品失败：{0}</value>
+  </data>
+  <data name="Hoshi_Note_OpenArtworkSimilarAll" xml:space="preserve">
+    <value>⚠ 请先打开一件作品——我需要一个起点来寻找相似作品或画师。</value>
+  </data>
+  <data name="Hoshi_Note_FetchingRandom" xml:space="preserve">
+    <value>正在随机获取一件作品…</value>
+  </data>
+  <data name="Hoshi_Note_RandomFailed" xml:space="preserve">
+    <value>⚠ 无法随机获取作品</value>
+  </data>
+  <data name="Hoshi_Note_FetchRandomFailed" xml:space="preserve">
+    <value>✗ 随机获取作品失败：{0}</value>
+  </data>
+  <data name="Hoshi_Note_NoImageIdentify" xml:space="preserve">
+    <value>⚠ 没有已加载的图片或作品。请先打开作品或附加图片，再让我识别。</value>
+  </data>
+  <data name="Hoshi_Note_LookingUpCharacter" xml:space="preserve">
+    <value>🔍 正在查找角色和出处信息…</value>
+  </data>
+  <data name="Hoshi_Note_OpenArtworkFailed" xml:space="preserve">
+    <value>✗ 无法打开作品：{0}</value>
+  </data>
+  <data name="Hoshi_Note_OpenArtistFailed" xml:space="preserve">
+    <value>✗ 无法打开画师画廊：{0}</value>
+  </data>
+  <data name="Hoshi_Note_OpenUrlFailed" xml:space="preserve">
+    <value>✗ 无法打开 URL：{0}</value>
+  </data>
+  <data name="Hoshi_Note_DropFailed" xml:space="preserve">
+    <value>✗ 拖放失败：{0}</value>
+  </data>
+  <data name="Hoshi_Note_LoadImageFailed" xml:space="preserve">
+    <value>✗ 无法加载图片：{0}</value>
+  </data>
+  <data name="Hoshi_Note_FetchUrlFailed" xml:space="preserve">
+    <value>✗ 无法从 URL 获取图片：{0}</value>
+  </data>
+  <data name="Hoshi_Note_NoArtworkSelected" xml:space="preserve">
+    <value>⚠ 未选择作品——请先在查看器中打开一件作品。</value>
+  </data>
+  <data name="Hoshi_Note_NoArtworkInSession" xml:space="preserve">
+    <value>⚠ 此会话没有关联的 Pixiv 作品。</value>
+  </data>
+  <data name="Hoshi_Note_ClipboardUnavailable" xml:space="preserve">
+    <value>尚不支持剪贴板粘贴——请使用 📂 打开、拖放或 🌐 URL 来附加图片。</value>
+  </data>
+  <data name="Hoshi_File" xml:space="preserve">
+    <value>个文件</value>
+  </data>
+  <data name="Hoshi_Files" xml:space="preserve">
+    <value>个文件</value>
+  </data>
+  <data name="Hoshi_Artist" xml:space="preserve">
+    <value>画师</value>
+  </data>
+  <data name="Hoshi_Prompt_Describe" xml:space="preserve">
+    <value>请详细描述这张图片，包括画风、主体、氛围以及任何值得注意的元素。</value>
+  </data>
+  <data name="Hoshi_Prompt_SuggestTags" xml:space="preserve">
+    <value>请为这张图片推荐 pixiv 风格的标签。pixiv 标签通常是日语，请给出日语标签并附上中文翻译。格式示例：アニメ (动画), 女の子 (女孩), ポートレート (肖像), 金髪 (金发), 夕日 (夕阳)。</value>
+  </data>
+  <data name="Hoshi_Prompt_R18" xml:space="preserve">
+    <value>这张图片是否属于 NSFW 或 R-18？请回答“是”或“否”，并简要说明原因。</value>
+  </data>
+  <data name="Hoshi_Msg_SuggestTags" xml:space="preserve">
+    <value>请为这张图片推荐标签。</value>
+  </data>
+  <data name="Hoshi_Msg_DescribeAllPages" xml:space="preserve">
+    <value>请描述这件作品的全部 {0} 页</value>
+  </data>
+  <data name="Hoshi_Msg_DescribingFirstN" xml:space="preserve">
+    <value>正在描述 {1} 页中的前 {0} 页…</value>
+  </data>
+  <data name="Hoshi_Msg_DescribingAll" xml:space="preserve">
+    <value>正在描述全部 {0} 页…</value>
+  </data>
+  <data name="Hoshi_Msg_PageHeader" xml:space="preserve">
+    <value>第 {0}/{1} 页</value>
+  </data>
+  <data name="Hoshi_Tagger_Heading" xml:space="preserve">
+    <value>Danbooru 风格标签</value>
+  </data>
+  <data name="Hoshi_Tagger_Character" xml:space="preserve">
+    <value>角色</value>
+  </data>
+  <data name="Hoshi_Tagger_Copyright" xml:space="preserve">
+    <value>作品</value>
+  </data>
+  <data name="Hoshi_Tagger_Artist" xml:space="preserve">
+    <value>画师</value>
+  </data>
+  <data name="Hoshi_Tagger_General" xml:space="preserve">
+    <value>通用</value>
+  </data>
+  <data name="Hoshi_Tagger_Meta" xml:space="preserve">
+    <value>元数据</value>
+  </data>
+  <data name="Setup_Title" xml:space="preserve">
+    <value>快速设置</value>
+  </data>
+  <data name="Setup_Welcome" xml:space="preserve">
+    <value>欢迎使用 Pikura！让我们完成基本设置——只需一分钟。</value>
+  </data>
+  <data name="Setup_Language" xml:space="preserve">
+    <value>语言</value>
+  </data>
+  <data name="Setup_Account" xml:space="preserve">
+    <value>登录 pixiv</value>
+  </data>
+  <data name="Setup_SignIn" xml:space="preserve">
+    <value>使用 pixiv 登录</value>
+  </data>
+  <data name="Setup_SignInHint" xml:space="preserve">
+    <value>Pikura 需要 pixiv 账号才能浏览和下载作品。</value>
+  </data>
+  <data name="Setup_SignInRequired" xml:space="preserve">
+    <value>必须登录才能继续。</value>
+  </data>
+  <data name="Setup_LoginFailed" xml:space="preserve">
+    <value>登录失败或已取消。</value>
+  </data>
+  <data name="Setup_SignedInAs" xml:space="preserve">
+    <value>已登录：</value>
+  </data>
+  <data name="Setup_AddAnother" xml:space="preserve">
+    <value>添加其他账号</value>
+  </data>
+  <data name="Setup_Downloads" xml:space="preserve">
+    <value>下载</value>
+  </data>
+  <data name="Setup_Hoshi" xml:space="preserve">
+    <value>Hoshi AI</value>
+  </data>
+  <data name="Setup_HoshiOptional" xml:space="preserve">
+    <value>可选——之后可以在设置中配置。</value>
+  </data>
+  <data name="Setup_OllamaDetected" xml:space="preserve">
+    <value>已检测到 Ollama</value>
+  </data>
+  <data name="Setup_OllamaNotFound" xml:space="preserve">
+    <value>未找到 Ollama</value>
+  </data>
+  <data name="Setup_CheckAgain" xml:space="preserve">
+    <value>重新检查</value>
+  </data>
+  <data name="Setup_OllamaDownload" xml:space="preserve">
+    <value>下载 Ollama</value>
+  </data>
+  <data name="Setup_Done" xml:space="preserve">
+    <value>全部完成！</value>
+  </data>
+  <data name="Setup_SummaryAccount" xml:space="preserve">
+    <value>账号</value>
+  </data>
+  <data name="Setup_SummaryFolder" xml:space="preserve">
+    <value>下载文件夹</value>
+  </data>
+  <data name="Setup_SummaryLanguage" xml:space="preserve">
+    <value>语言</value>
+  </data>
+  <data name="Setup_SummaryTheme" xml:space="preserve">
+    <value>主题</value>
+  </data>
+  <data name="Setup_SummaryR18" xml:space="preserve">
+    <value>R-18 模式</value>
+  </data>
+  <data name="Setup_Back" xml:space="preserve">
+    <value>上一步</value>
+  </data>
+  <data name="Setup_Next" xml:space="preserve">
+    <value>下一步</value>
+  </data>
+  <data name="Setup_StartUsing" xml:space="preserve">
+    <value>开始使用 Pikura</value>
+  </data>
+  <data name="Setup_StepOf" xml:space="preserve">
+    <value>第 {0} 步，共 {1} 步</value>
+  </data>
+  <data name="Settings_RunSetupWizard" xml:space="preserve">
+    <value>重新运行设置向导</value>
+  </data>
+  <data name="Setup_PixivLanguage" xml:space="preserve">
+    <value>pixiv 内容语言</value>
+  </data>
+  <data name="Setup_PixivLanguageHint" xml:space="preserve">
+    <value>pixiv 用于标签翻译等文字的语言，与上方的应用语言分开设置。</value>
+  </data>
+  <data name="Setup_Presets" xml:space="preserve">
+    <value>预设</value>
+  </data>
+  <data name="Setup_PathExample" xml:space="preserve">
+    <value>示例：</value>
+  </data>
+  <data name="Setup_ExistingFiles" xml:space="preserve">
+    <value>文件已存在时</value>
+  </data>
+  <data name="Setup_ContentFilters" xml:space="preserve">
+    <value>内容过滤</value>
+  </data>
+  <data name="Setup_ContentFiltersHint" xml:space="preserve">
+    <value>选择 Pikura 在画廊、排行榜、搜索和推荐中显示哪些作品。</value>
+  </data>
+  <data name="Setup_R18Content" xml:space="preserve">
+    <value>R-18 内容</value>
+  </data>
+  <data name="Setup_R18Explain" xml:space="preserve">
+    <value>“关闭”会在所有地方隐藏 R-18 作品；“显示”会与其他作品混合显示；“仅”只显示 R-18 作品。</value>
+  </data>
+  <data name="Setup_R18Type" xml:space="preserve">
+    <value>包括</value>
+  </data>
+  <data name="Setup_R18Type_Both" xml:space="preserve">
+    <value>R-18 和 R-18G</value>
+  </data>
+  <data name="Setup_R18Type_R18" xml:space="preserve">
+    <value>仅 R-18</value>
+  </data>
+  <data name="Setup_R18Type_R18G" xml:space="preserve">
+    <value>仅 R-18G</value>
+  </data>
+  <data name="Setup_FilterAiHint" xml:space="preserve">
+    <value>隐藏作者标记为 AI 生成的作品。</value>
+  </data>
+  <data name="Setup_Appearance" xml:space="preserve">
+    <value>外观</value>
+  </data>
+  <data name="Setup_StartupUpdates" xml:space="preserve">
+    <value>启动与更新</value>
+  </data>
+  <data name="Setup_Update_Startup" xml:space="preserve">
+    <value>启动时</value>
+  </data>
+  <data name="Setup_Update_Daily" xml:space="preserve">
+    <value>每天</value>
+  </data>
+  <data name="Setup_Update_Weekly" xml:space="preserve">
+    <value>每周</value>
+  </data>
+  <data name="Setup_Update_Never" xml:space="preserve">
+    <value>从不</value>
+  </data>
+  <data name="Setup_TaggerSection" xml:space="preserve">
+    <value>动漫标签器</value>
+  </data>
+  <data name="Setup_TaggerHint" xml:space="preserve">
+    <value>无需 Ollama，直接在你的电脑上运行。Hoshi 用它生成标签，图库的自动标签和角色/作品筛选也依赖它。</value>
+  </data>
+  <data name="Setup_InstalledMark" xml:space="preserve">
+    <value>✓ 已安装</value>
+  </data>
+  <data name="Setup_Install" xml:space="preserve">
+    <value>安装</value>
+  </data>
+  <data name="Setup_VisionSection" xml:space="preserve">
+    <value>聊天与图像理解 (Ollama)</value>
+  </data>
+  <data name="Setup_VisionModel" xml:space="preserve">
+    <value>视觉模型</value>
+  </data>
+  <data name="Setup_NoVisionModel" xml:space="preserve">
+    <value>未安装视觉模型</value>
+  </data>
+  <data name="Setup_InstallVision" xml:space="preserve">
+    <value>安装 qwen3-vl:4b-instruct</value>
+  </data>
+  <data name="Setup_InstallVisionHint" xml:space="preserve">
+    <value>推荐 · 约 3 GB</value>
+  </data>
+  <data name="Setup_DoneHint" xml:space="preserve">
+    <value>以上设置之后都可以在“设置”中更改，也可以在“设置 → 关于”中重新运行此向导。</value>
+  </data>
+  <data name="Settings_AccentColor" xml:space="preserve">
+    <value>强调色</value>
+  </data>
+  <data name="Settings_AccentColorHint" xml:space="preserve">
+    <value>用于按钮、开关和高亮的颜色。“系统”会跟随 Windows 的强调色。</value>
+  </data>
+  <data name="Settings_AccentDefault" xml:space="preserve">
+    <value>Pikura 蓝（默认）</value>
+  </data>
+  <data name="Settings_AccentSystem" xml:space="preserve">
+    <value>系统（Windows 强调色）</value>
+  </data>
+  <data name="Settings_AccentIndigo" xml:space="preserve">
+    <value>靛蓝</value>
+  </data>
+  <data name="Settings_AccentPurple" xml:space="preserve">
+    <value>紫色</value>
+  </data>
+  <data name="Settings_AccentPink" xml:space="preserve">
+    <value>粉色</value>
+  </data>
+  <data name="Settings_AccentRed" xml:space="preserve">
+    <value>红色</value>
+  </data>
+  <data name="Settings_AccentOrange" xml:space="preserve">
+    <value>橙色</value>
+  </data>
+  <data name="Settings_AccentGreen" xml:space="preserve">
+    <value>绿色</value>
+  </data>
+  <data name="Settings_AccentTeal" xml:space="preserve">
+    <value>青色</value>
+  </data>
+  <data name="Setup_ExistingFilesHint" xml:space="preserve">
+    <value>当要下载的页面已以相同名称保存时生效。“跳过”保留现有文件，“覆盖”重新下载并替换，“备份”会先把旧文件重命名为 .bak。</value>
+  </data>
+  <data name="Setup_Notifications" xml:space="preserve">
+    <value>通知</value>
+  </data>
+  <data name="Setup_NotificationsHint" xml:space="preserve">
+    <value>关于下载任务的弹出通知，不会影响保存哪些文件。</value>
+  </data>
+  <data name="Setup_UsingRecommendedVision" xml:space="preserve">
+    <value>✓ 正在使用推荐模型 (qwen3-vl:4b-instruct)</value>
+  </data>
+  <data name="Setup_UseRecommendedVision" xml:space="preserve">
+    <value>使用 qwen3-vl:4b-instruct</value>
+  </data>
+  <data name="Setup_UseRecommendedVisionHint" xml:space="preserve">
+    <value>推荐 · 已安装</value>
+  </data>
+  <data name="WhatsNew_Pikura260" xml:space="preserve">
+    <value>Pikura 2.6.0</value>
+  </data>
+  <data name="WhatsNew_Pikura260_Description" xml:space="preserve">
+    <value>Pikura 2.6 新增快速设置，一分钟即可完成配置；新增强调色（包括 Windows 强调色）、弹出查看器的页面控件；切换语言时整个应用（包括 Hoshi）都会立即更新。</value>
+  </data>
+  <data name="WhatsNew_QuickSetup" xml:space="preserve">
+    <value>快速设置</value>
+  </data>
+  <data name="WhatsNew_QuickSetup_Subtitle" xml:space="preserve">
+    <value>重要设置集中在一处</value>
+  </data>
+  <data name="WhatsNew_QuickSetup_Description" xml:space="preserve">
+    <value>分步设置涵盖语言、pixiv 账号、下载文件夹和文件名、内容过滤、外观、启动选项，以及 Hoshi 和动漫标签器。可随时在“设置 → 关于”中重新运行。</value>
+  </data>
+  <data name="WhatsNew_AccentColors" xml:space="preserve">
+    <value>强调色</value>
+  </data>
+  <data name="WhatsNew_AccentColors_Subtitle" xml:space="preserve">
+    <value>让 Pikura 换上你喜欢的颜色</value>
+  </data>
+  <data name="WhatsNew_AccentColors_Description" xml:space="preserve">
+    <value>可为按钮、开关和高亮选择 Pikura 蓝、靛蓝、紫色、粉色、红色、橙色、绿色或青色。在 Windows 上选择“系统”会跟随 Windows 强调色，并在其更改时自动更新。</value>
+  </data>
+  <data name="WhatsNew_PopupPages" xml:space="preserve">
+    <value>弹出查看器中的页面</value>
+  </data>
+  <data name="WhatsNew_PopupPages_Subtitle" xml:space="preserve">
+    <value>多页作品的每一页</value>
+  </data>
+  <data name="WhatsNew_PopupPages_Description" xml:space="preserve">
+    <value>弹出窗口和全屏会从你正在查看的页面打开。页面栏可逐页翻看或直接跳转，点击“全部”可以网格形式显示所有页面。</value>
+  </data>
+  <data name="WhatsNew_LanguageEverywhere" xml:space="preserve">
+    <value>处处都是你的语言</value>
+  </data>
+  <data name="WhatsNew_LanguageEverywhere_Subtitle" xml:space="preserve">
+    <value>包括 Hoshi</value>
+  </data>
+  <data name="WhatsNew_LanguageEverywhere_Description" xml:space="preserve">
+    <value>更改语言后，所有界面都会立即更新，包括状态消息、历史记录日期和 pixivision 文章。Hoshi 会用应用语言回答，其快捷操作和提示也已翻译。</value>
+  </data>
+  <data name="WhatsNew_Fixes260" xml:space="preserve">
+    <value>修复</value>
+  </data>
+  <data name="WhatsNew_Fixes260_Subtitle" xml:space="preserve">
+    <value>更少意外</value>
+  </data>
+  <data name="WhatsNew_Fixes260_Description" xml:space="preserve">
+    <value>隐藏 AI 生成作品时，不再隐藏作者标记为非 AI 生成的作品。从 Hoshi 聊天中打开作品后返回，侧边栏不再显示为空白。</value>
+  </data>
 </root>

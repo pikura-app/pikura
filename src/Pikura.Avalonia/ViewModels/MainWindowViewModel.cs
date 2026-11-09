@@ -15,6 +15,33 @@ namespace Pikura.Avalonia.ViewModels;
 
 public partial class MainWindowViewModel : ViewModelBase
 {
+
+    private string? _updKey;
+    private object?[]? _updArgs;
+    private string? _updRendered;
+
+    private void SetUpdateStatus(string key, params object?[] args)
+    {
+        _updKey = key;
+        _updArgs = args;
+        _updRendered = args.Length == 0
+            ? Pikura.Avalonia.Localization.LocalizationService.Instance[key]
+            : Pikura.Avalonia.Localization.LocalizationService.F(key, args);
+        UpdateStatusText = _updRendered;
+    }
+
+    /// <summary>Re-renders the persistent update status in the new language, unless a
+    /// different message overwrote it since.</summary>
+    public override void OnLanguageChanged()
+    {
+        base.OnLanguageChanged();
+        if (_updKey is null || UpdateStatusText != _updRendered) return;
+        _updRendered = _updArgs is { Length: > 0 } a
+            ? Pikura.Avalonia.Localization.LocalizationService.F(_updKey, a)
+            : Pikura.Avalonia.Localization.LocalizationService.Instance[_updKey];
+        UpdateStatusText = _updRendered;
+    }
+
     private readonly NavigationService _navigationService;
     private readonly SettingsService _settingsService;
     private readonly UpdateCheckService _updateCheck;
@@ -167,7 +194,7 @@ public partial class MainWindowViewModel : ViewModelBase
                 if (UpdateAvailable || UpdateDownloading || UpdateReadyToInstall) return;
                 UpdateVersion        = ver;
                 UpdateReadyToInstall = true;
-                UpdateStatusText     = string.Format(LocalizationService.Instance["Update_Status_Ready"], ver);
+                SetUpdateStatus("Update_Status_Ready", ver);
             });
         }
         catch (Exception ex)
@@ -213,7 +240,7 @@ public partial class MainWindowViewModel : ViewModelBase
                 _downloadedPath      = expectedPath;
                 UpdateReadyToInstall = true;
                 UpdateAvailable      = false;
-                UpdateStatusText     = string.Format(LocalizationService.Instance["Update_Status_Ready"], info.Version);
+                SetUpdateStatus("Update_Status_Ready", info.Version);
             }
             else if (settings.Current.AutoDownloadUpdates && !string.IsNullOrEmpty(info.DownloadUrl))
                 _ = Task.Run(StartDownloadAsync);
@@ -281,14 +308,14 @@ public partial class MainWindowViewModel : ViewModelBase
         var progress = new Progress<int>(p => Dispatcher.UIThread.Post(() =>
         {
             UpdateDownloadProgress = p;
-            UpdateStatusText       = string.Format(LocalizationService.Instance["Update_Status_Downloading"], p);
+            SetUpdateStatus("Update_Status_Downloading", p);
         }));
 
         await Dispatcher.UIThread.InvokeAsync(() =>
         {
             UpdateDownloading    = true;
             UpdateReadyToInstall = false;
-            UpdateStatusText     = Pikura.Avalonia.Localization.LocalizationService.Instance["Main_StartingDownload"];
+            SetUpdateStatus("Main_StartingDownload");
         });
 
         // Velopack-managed install: the backend downloads and applies the update itself.
@@ -303,7 +330,7 @@ public partial class MainWindowViewModel : ViewModelBase
                 await Dispatcher.UIThread.InvokeAsync(() =>
                 {
                     UpdateDownloading = false;
-                    UpdateStatusText  = Pikura.Avalonia.Localization.LocalizationService.Instance["Main_DownloadCancelled"];
+                    SetUpdateStatus("Main_DownloadCancelled");
                 });
             }
             catch (Exception ex)
@@ -311,7 +338,7 @@ public partial class MainWindowViewModel : ViewModelBase
                 await Dispatcher.UIThread.InvokeAsync(() =>
                 {
                     UpdateDownloading = false;
-                    UpdateStatusText  = string.Format(LocalizationService.Instance["Update_Status_Failed"], ex.Message);
+                    SetUpdateStatus("Update_Status_Failed", ex.Message);
                 });
             }
             return;
@@ -327,7 +354,7 @@ public partial class MainWindowViewModel : ViewModelBase
             {
                 UpdateDownloading    = false;
                 UpdateReadyToInstall = true;
-                UpdateStatusText     = string.Format(LocalizationService.Instance["Update_Status_Ready"], _pendingUpdate.Version);
+                SetUpdateStatus("Update_Status_Ready", _pendingUpdate.Version);
             });
         }
         catch (OperationCanceledException)
@@ -335,7 +362,7 @@ public partial class MainWindowViewModel : ViewModelBase
             await Dispatcher.UIThread.InvokeAsync(() =>
             {
                 UpdateDownloading = false;
-                UpdateStatusText  = Pikura.Avalonia.Localization.LocalizationService.Instance["Main_DownloadCancelled"];
+                SetUpdateStatus("Main_DownloadCancelled");
             });
         }
         catch (Exception ex)
@@ -343,7 +370,7 @@ public partial class MainWindowViewModel : ViewModelBase
             await Dispatcher.UIThread.InvokeAsync(() =>
             {
                 UpdateDownloading = false;
-                UpdateStatusText  = string.Format(LocalizationService.Instance["Update_Status_DownloadFailed"], ex.Message);
+                SetUpdateStatus("Update_Status_DownloadFailed", ex.Message);
             });
         }
     }
@@ -355,7 +382,7 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         try
         {
-            await Dispatcher.UIThread.InvokeAsync(() => UpdateStatusText = Pikura.Avalonia.Localization.LocalizationService.Instance["Main_StartingInstaller"]);
+            await Dispatcher.UIThread.InvokeAsync(() => SetUpdateStatus("Main_StartingInstaller"));
 
             // Try to recover _downloadedPath from temp using the version shown in the banner.
             // UpdateVersion may or may not have a leading 'v' — strip it for the filename match.
@@ -377,7 +404,7 @@ public partial class MainWindowViewModel : ViewModelBase
                 if (_pendingUpdate is null)
                 {
                     await Dispatcher.UIThread.InvokeAsync(() =>
-                        UpdateStatusText = Pikura.Avalonia.Localization.LocalizationService.Instance["Main_CannotInstallUpdateInfoLostPlease"]);
+                        SetUpdateStatus("Main_CannotInstallUpdateInfoLostPlease"));
                     return;
                 }
                 await StartDownloadAsync();
@@ -390,7 +417,7 @@ public partial class MainWindowViewModel : ViewModelBase
         {
             _logger.LogError(ex, "InstallAndRestartUpdate failed");
             await Dispatcher.UIThread.InvokeAsync(() =>
-                UpdateStatusText = string.Format(LocalizationService.Instance["Update_Status_InstallFailed"], ex.Message));
+                SetUpdateStatus("Update_Status_InstallFailed", ex.Message));
         }
     }
 

@@ -26,7 +26,12 @@ public partial class HoshiView : UserControl
         InitializeComponent();
         // Refresh session headers when the page becomes visible — startup load can
         // race the account resolve and leave the sidebar empty.
-        AttachedToVisualTree += (_, _) => { if (VM != null) _ = VM.SessionsService.RefreshHeadersAsync(); };
+        AttachedToVisualTree += (_, _) =>
+        {
+            if (VM != null) _ = VM.SessionsService.RefreshHeadersAsync();
+            LocalizationService.Instance.PropertyChanged += OnLanguagePropertyChanged;
+        };
+        DetachedFromVisualTree += (_, _) => LocalizationService.Instance.PropertyChanged -= OnLanguagePropertyChanged;
         DataContextChanged += (_, _) => RefreshAll();
         Loaded += (_, _) =>
         {
@@ -62,6 +67,14 @@ public partial class HoshiView : UserControl
             Dispatcher.UIThread.Post(RefreshImageStrip);
         if (e.PropertyName == nameof(AiViewModel.CurrentSession))
             Dispatcher.UIThread.Post(RefreshSessionTitle);
+    }
+
+    private void OnLanguagePropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName != nameof(LocalizationService.Language)) return;
+        RefreshSessionTitle();
+        RefreshImageStrip();
+        if (VM is { } vm) SyncToggleButton(vm);
     }
 
     private void RefreshSessionTitle()
@@ -231,7 +244,7 @@ public partial class HoshiView : UserControl
         var card = await vm.ResolveContextArtworkAsync();
         if (card == null)
         {
-            vm.Messages.Add(new AiChatMessage { Role = "system", Content = "⚠ No artwork selected — open an artwork in the viewer first." });
+            vm.Messages.Add(new AiChatMessage { Role = "system", Content = Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_Note_NoArtworkSelected"] });
             return;
         }
         var favs = AppServices.Get<Pikura.Core.Services.LocalFavoritesService>();
@@ -425,7 +438,7 @@ public partial class HoshiView : UserControl
         var artworkId = GetCurrentArtworkId();
         if (string.IsNullOrEmpty(artworkId))
         {
-            VM?.Messages.Add(new AiChatMessage { Role = "system", Content = "⚠ No Pixiv artwork is associated with this session." });
+            VM?.Messages.Add(new AiChatMessage { Role = "system", Content = Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_Note_NoArtworkInSession"] });
             return;
         }
 
@@ -452,7 +465,7 @@ public partial class HoshiView : UserControl
         }
         catch (Exception ex)
         {
-            VM?.Messages.Add(new AiChatMessage { Role = "system", Content = $"✗ Could not open artwork: {ex.Message}" });
+            VM?.Messages.Add(new AiChatMessage { Role = "system", Content = Pikura.Avalonia.Localization.LocalizationService.F("Hoshi_Note_OpenArtworkFailed", ex.Message) });
         }
     }
 
@@ -478,7 +491,7 @@ public partial class HoshiView : UserControl
         }
         catch (Exception ex)
         {
-            VM?.Messages.Add(new AiChatMessage { Role = "system", Content = $"✗ Could not open URL: {ex.Message}" });
+            VM?.Messages.Add(new AiChatMessage { Role = "system", Content = Pikura.Avalonia.Localization.LocalizationService.F("Hoshi_Note_OpenUrlFailed", ex.Message) });
         }
     }
 
@@ -498,7 +511,7 @@ public partial class HoshiView : UserControl
         }
         catch (Exception ex)
         {
-            VM?.Messages.Add(new AiChatMessage { Role = "system", Content = $"✗ Could not open artist gallery: {ex.Message}" });
+            VM?.Messages.Add(new AiChatMessage { Role = "system", Content = Pikura.Avalonia.Localization.LocalizationService.F("Hoshi_Note_OpenArtistFailed", ex.Message) });
         }
     }
 
@@ -530,7 +543,7 @@ public partial class HoshiView : UserControl
         }
         catch (Exception ex)
         {
-            VM?.Messages.Add(new AiChatMessage { Role = "system", Content = $"✗ Drop failed: {ex.Message}" });
+            VM?.Messages.Add(new AiChatMessage { Role = "system", Content = Pikura.Avalonia.Localization.LocalizationService.F("Hoshi_Note_DropFailed", ex.Message) });
         }
     }
 
@@ -555,7 +568,7 @@ public partial class HoshiView : UserControl
         }
         catch (Exception ex)
         {
-            vm.Messages.Add(new AiChatMessage { Role = "system", Content = $"✗ Could not load image: {ex.Message}" });
+            vm.Messages.Add(new AiChatMessage { Role = "system", Content = Pikura.Avalonia.Localization.LocalizationService.F("Hoshi_Note_LoadImageFailed", ex.Message) });
         }
     }
 
@@ -566,7 +579,7 @@ public partial class HoshiView : UserControl
         VM?.Messages.Add(new AiChatMessage
         {
             Role = "system",
-            Content = "Clipboard paste isn’t available yet — use 📂 Open, drag-and-drop, or 🌐 URL to attach an image."
+            Content = Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_Note_ClipboardUnavailable"]
         });
         return Task.FromResult(false);
     }
@@ -589,7 +602,7 @@ public partial class HoshiView : UserControl
         }
         catch (Exception ex)
         {
-            vm.Messages.Add(new AiChatMessage { Role = "system", Content = $"✗ Could not fetch image from URL: {ex.Message}" });
+            vm.Messages.Add(new AiChatMessage { Role = "system", Content = Pikura.Avalonia.Localization.LocalizationService.F("Hoshi_Note_FetchUrlFailed", ex.Message) });
         }
     }
     

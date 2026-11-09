@@ -203,12 +203,22 @@ public partial class ArtworkViewerWindow : Window
             e.Handled = true;
             return;
         }
-        if (e.Key == Key.Escape && WindowState == WindowState.FullScreen)
+        if (e.Key == Key.Escape)
         {
-            // ESC in fullscreen closes the window entirely
-            Close();
-            e.Handled = true;
-            return;
+            // Close the all-pages overlay before any other Escape handling
+            if (DataContext is ArtworkViewerViewModel { IsPageGridVisible: true } gridVm)
+            {
+                gridVm.IsPageGridVisible = false;
+                e.Handled = true;
+                return;
+            }
+            if (WindowState == WindowState.FullScreen)
+            {
+                // ESC in fullscreen closes the window entirely
+                Close();
+                e.Handled = true;
+                return;
+            }
         }
 
         // Arrow keys for page navigation
@@ -231,6 +241,26 @@ public partial class ArtworkViewerWindow : Window
         }
     }
 
+    private void OnPageStripClick(object? sender, RoutedEventArgs e)
+    {
+        if (sender is not Button btn || btn.DataContext is not PageThumbnailItem item) return;
+        if (DataContext is not ArtworkViewerViewModel vm) return;
+        _ = vm.GoToPageAsync(item.Index);
+    }
+
+    private void OnClosePageGrid(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is not ArtworkViewerViewModel vm) return;
+        vm.TogglePageGridCommand.Execute(null);
+    }
+
+    private void OnPageGridItemClick(object? sender, RoutedEventArgs e)
+    {
+        if (sender is not Button btn || btn.DataContext is not PageThumbnailItem item) return;
+        if (DataContext is not ArtworkViewerViewModel vm) return;
+        vm.SelectPageFromGridCommand.Execute(item);
+    }
+
     private void OnFullscreenClicked(object? sender, RoutedEventArgs e) => ToggleFullscreen();
 
     private void ToggleFullscreen()
@@ -243,6 +273,8 @@ public partial class ArtworkViewerWindow : Window
             bottom.IsVisible = !goingFull;
         if (this.FindControl<Border>("TopToolbar") is { } top)
             top.IsVisible = !goingFull;
+        if (this.FindControl<Border>("PageBar") is { } pageBar)
+            pageBar.IsVisible = !goingFull && (DataContext as ArtworkViewerViewModel)?.HasMultiplePages == true;
         if (this.FindControl<StackPanel>("LoadingSpinner") is { } spinner)
             spinner.IsVisible = !goingFull && (DataContext as ArtworkViewerViewModel)?.IsLoadingPage == true;
 

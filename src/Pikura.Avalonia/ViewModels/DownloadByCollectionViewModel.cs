@@ -104,7 +104,7 @@ public partial class DownloadByCollectionViewModel : ViewModelBase
         {
             foreach (var id in ParsedIds.ToList())
             {
-                StatusMessage = string.Format(LocalizationService.Instance["DlCollection_Status_Loading"], id);
+                SetStatus("DlCollection_Status_Loading", id);
                 var collection = await _client.GetCollectionAsync(id);
                 if (collection == null || collection.Works.Count == 0)
                 {

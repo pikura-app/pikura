@@ -84,7 +84,7 @@ public partial class AiChatMessage : ObservableObject
 /// ViewModel that backs the AI assistant panel.
 /// Exposed as a singleton so both the viewer and the sidebar can bind to it.
 /// </summary>
-public partial class AiViewModel : ObservableObject
+public partial class AiViewModel : ViewModelBase
 {
     /// <summary>Multi-select mode for the sessions sidebar (⋯ → Select).</summary>
     [ObservableProperty] private bool _isSelectionMode;
@@ -256,10 +256,12 @@ public partial class AiViewModel : ObservableObject
     }
 
     /// <summary>A kind-header row (Artwork chats / Standalone chats) in the flattened list.</summary>
-    public sealed class KindRow
+    public sealed class KindRow : CommunityToolkit.Mvvm.ComponentModel.ObservableObject, Pikura.Avalonia.Localization.ILanguageAware
     {
-        public KindRow(string kind) => Kind = kind;
+        public KindRow(string kind) { Kind = kind; Pikura.Avalonia.Localization.LocalizationService.Instance.Register(this); }
         public string Kind { get; }
+        void Pikura.Avalonia.Localization.ILanguageAware.OnLanguageChanged()
+            => Pikura.Avalonia.Localization.LanguageRefresh.RaiseComputedStrings(this, OnPropertyChanged);
         public string DisplayName => Pikura.Avalonia.Localization.LocalizationService.Instance[
             Kind == "artwork" ? "Hoshi_ArtworkChats" : "Hoshi_StandaloneChats"];
     }
@@ -457,7 +459,6 @@ public partial class AiViewModel : ObservableObject
         }
         CurrentImageBytes = null;
     }
-    private readonly Dictionary<string, HoshiSession> _sessionByArtwork = new();
     /// <summary>Guarantee a real session exists before any user-initiated action writes
     /// a message — transient viewer context (null session) gets the current artwork's
     /// chat, otherwise a fresh standalone chat.</summary>
@@ -524,10 +525,14 @@ public partial class AiViewModel : ObservableObject
     /// <summary>The session for <paramref name="artworkId"/> if one exists (in-memory — no DB scan).</summary>
     public HoshiSession? SessionForArtwork(string artworkId)
     {
-        if (_sessionByArtwork.Count == 0)
-            foreach (var se in _sessions.Sessions)
-                if (!string.IsNullOrEmpty(se.PixivArtworkId)) _sessionByArtwork[se.PixivArtworkId] = se;
-        return _sessionByArtwork.TryGetValue(artworkId, out var s) ? s : null;
+        // Scan the live list rather than caching: a cache built once missed chats linked to an
+        // artwork later (Hoshi page, "+ New" then attach) and kept deleted ones, so the viewer
+        // showed a blank panel for artworks that do have a chat.
+        HoshiSession? best = null;
+        foreach (var se in _sessions.Sessions)
+            if (se.PixivArtworkId == artworkId && (best == null || se.UpdatedAt > best.UpdatedAt))
+                best = se;
+        return best;
     }
     /// <summary>Explicit open: create or reuse the artwork's chat. Only called when the user
     /// opens Hoshi (toggle button, start-chat, or a send/quick action) — never on navigation.</summary>
@@ -960,7 +965,7 @@ public partial class AiViewModel : ObservableObject
                     CurrentCard = card;
                     var bytes = string.IsNullOrEmpty(card.ThumbnailUrl) ? null : await _imageLoader.FetchBytesAsync(card.ThumbnailUrl);
                     if (bytes != null) SetSessionImageBytes(CurrentSession!, bytes);
-                    AddAssistantMessage($"✓ Found: {card.Title} by {card.UserName}");
+                    AddAssistantMessage(Pikura.Avalonia.Localization.LocalizationService.F("Hoshi_Note_Found", card.Title, card.UserName));
                     return $"Showed '{card.Title}' (ID {card.Id}).";
                 } },
             new OllamaService.HoshiTool { Name = "open_in_viewer",
@@ -1015,7 +1020,7 @@ public partial class AiViewModel : ObservableObject
                     if (_favorites.IsFavorite(CurrentCard.Id))
                         return Task.FromResult($"{CurrentCard.Title} is already in your local favorites.");
                     _favorites.Add(CurrentCard.Artwork);
-                    AddAssistantMessage($"Added {CurrentCard.Title} to local favorites ★");
+                    AddAssistantMessage(Pikura.Avalonia.Localization.LocalizationService.F("Hoshi_Note_FavAdded", CurrentCard.Title));
                     return Task.FromResult($"Added '{CurrentCard.Title}' to favorites.");
                 } },
             new OllamaService.HoshiTool { Name = "remove_favorite",
@@ -1026,7 +1031,7 @@ public partial class AiViewModel : ObservableObject
                     if (!_favorites.IsFavorite(CurrentCard.Id))
                         return Task.FromResult($"{CurrentCard.Title} is not in your favorites.");
                     _favorites.Remove(CurrentCard.Id);
-                    AddAssistantMessage($"Removed {CurrentCard.Title} from local favorites.");
+                    AddAssistantMessage(Pikura.Avalonia.Localization.LocalizationService.F("Hoshi_Note_FavRemoved", CurrentCard.Title));
                     return Task.FromResult($"Removed '{CurrentCard.Title}' from favorites.");
                 } },
             new OllamaService.HoshiTool { Name = "suggest_tags",
@@ -1054,8 +1059,16 @@ public partial class AiViewModel : ObservableObject
     {
         var id = CurrentCard?.Id ?? CurrentSession?.PixivArtworkId;
         var facts = id == null ? null : await GetFactsAsync(id, ct);
+        var appLanguage = Pikura.Avalonia.Localization.LocalizationService.Instance.Culture
+            .TwoLetterISOLanguageName switch
+        {
+            "ja" => "Japanese",
+            "zh" => "Chinese (Simplified)",
+            "ko" => "Korean",
+            _ => (string?)null,
+        };
         return Pikura.Core.Services.Hoshi.HoshiPrompt.BuildSystemPrompt(
-            facts, _lastTaggerTags, toolsEnabled, DateTimeOffset.Now);
+            facts, _lastTaggerTags, toolsEnabled, DateTimeOffset.Now, appLanguage);
     }
     // SendAsync's free-text intent parser (TryHandleIntentAsync). That parser matches on
     // loose keyword co-occurrence (e.g. "artist" + "similar" anywhere in the message), so
@@ -1067,7 +1080,7 @@ public partial class AiViewModel : ObservableObject
     {
         await EnsureSessionForContextAsync();
         if (IsThinking) return;
-        AddUserMessage("Find artworks similar to this image");
+        AddUserMessage(Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_Msg_SimilarArtworks"]);
         await RunRelatedFetchAsync(wantArtists: false);
     }
     [RelayCommand]
@@ -1075,7 +1088,7 @@ public partial class AiViewModel : ObservableObject
     {
         await EnsureSessionForContextAsync();
         if (IsThinking) return;
-        AddUserMessage("Find artists with a similar style to this image");
+        AddUserMessage(Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_Msg_SimilarArtists"]);
         await RunRelatedFetchAsync(wantArtists: true);
     }
     private async Task RunRelatedFetchAsync(bool wantArtists)
@@ -1083,7 +1096,7 @@ public partial class AiViewModel : ObservableObject
         var seedId = CurrentCard?.Id ?? CurrentSession?.PixivArtworkId;
         if (string.IsNullOrEmpty(seedId))
         {
-            AddAssistantMessage($"⚠ Open an artwork first — I need a starting point to find similar {(wantArtists ? "artists" : "artworks")}.");
+            AddAssistantMessage(Pikura.Avalonia.Localization.LocalizationService.Instance[wantArtists ? "Hoshi_Note_OpenArtworkSimilarArtists" : "Hoshi_Note_OpenArtworkSimilarArtworks"]);
             return;
         }
         // A new seed image means "start over" — clear what we've already shown so the
@@ -1101,7 +1114,7 @@ public partial class AiViewModel : ObservableObject
         SetModelBusy(true);
         try
         {
-            AddAssistantMessage(wantArtists ? "Finding artists with similar work…" : "Finding similar artworks…");
+            AddAssistantMessage(Pikura.Avalonia.Localization.LocalizationService.Instance[wantArtists ? "Hoshi_Note_FindingArtists" : "Hoshi_Note_FindingArtworks"]);
             // Pull a larger pool than we'll show (Pixiv caps this endpoint at 180) so repeated
             // clicks have real variety to draw from instead of re-deriving the same top-5 from
             // a tiny 24-item response.
@@ -1109,7 +1122,7 @@ public partial class AiViewModel : ObservableObject
             var illusts = related?.Illusts ?? [];
             if (illusts.Count == 0)
             {
-                AddAssistantMessage("⚠ No related results found.");
+                AddAssistantMessage(Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_Note_NoRelated"]);
                 return;
             }
             if (wantArtists)
@@ -1121,7 +1134,7 @@ public partial class AiViewModel : ObservableObject
                     .ToList();
                 if (candidates.Count == 0)
                 {
-                    AddAssistantMessage("⚠ No other artists found among related works.");
+                    AddAssistantMessage(Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_Note_NoOtherArtists"]);
                     return;
                 }
                 var artists = PickUnseenAndShuffle(candidates, i => i.UserId!, _shownSimilarArtistIds, 5);
@@ -1138,7 +1151,7 @@ public partial class AiViewModel : ObservableObject
         catch (OperationCanceledException) { /* cancelled by a newer request */ }
         catch (Exception ex)
         {
-            AddSystemMessage($"✗ Failed to fetch related results: {ex.Message}");
+            AddSystemMessage(Pikura.Avalonia.Localization.LocalizationService.F("Hoshi_Note_FetchRelatedFailed", ex.Message));
         }
         finally
         {
@@ -1324,7 +1337,7 @@ public partial class AiViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            AddSystemMessage($"Error: {ex.Message}");
+            AddSystemMessage(Pikura.Avalonia.Localization.LocalizationService.F("Hoshi_Note_Error", ex.Message));
         }
         finally
         {
@@ -1453,7 +1466,7 @@ public partial class AiViewModel : ObservableObject
         await EnsureSessionForContextAsync();
         if (!await EnsureImageBytesAsync()) return;
         _nextSendWithImage = true;
-        InputText = "Describe this image in detail. Include the art style, subject, mood, and any notable elements.";
+        InputText = Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_Prompt_Describe"];
         await SendAsync();
     }
     [RelayCommand]
@@ -1476,7 +1489,7 @@ public partial class AiViewModel : ObservableObject
             // Fall through to the LLM fallback so the user still gets some result.
         }
         _nextSendWithImage = true;
-        InputText = "Suggest Pixiv-style tags for this image. Include both Japanese and English tags (Pixiv tags are usually Japanese). Example format: アニメ (anime), 女の子 (girl), ポートレート (portrait), 金髪 (blonde hair), 夕日 (sunset).";
+        InputText = Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_Prompt_SuggestTags"];
         await SendAsync();
     }
     private async Task GenerateTagsWithTaggerAsync(TaggerModelInfo model)
@@ -1491,25 +1504,25 @@ public partial class AiViewModel : ObservableObject
                 _settings.Current.HoshiAnimeTaggerThreshold,
                 _settings.Current.HoshiAnimeTaggerMaxTags);
             var sb = new System.Text.StringBuilder();
-            sb.AppendLine("**Danbooru-style tags**");
+            sb.AppendLine("**" + Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_Tagger_Heading"] + "**");
             sb.AppendLine();
             if (result.Character.Count > 0)
-                sb.AppendLine($"Character: {string.Join(", ", result.Character.Select(t => t.Name))}");
+                sb.AppendLine(Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_Tagger_Character"] + ": " + string.Join(", ", result.Character.Select(t => t.Name)));
             if (result.Copyright.Count > 0)
-                sb.AppendLine($"Copyright: {string.Join(", ", result.Copyright.Select(t => t.Name))}");
+                sb.AppendLine(Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_Tagger_Copyright"] + ": " + string.Join(", ", result.Copyright.Select(t => t.Name)));
             if (result.Artist.Count > 0)
-                sb.AppendLine($"Artist: {string.Join(", ", result.Artist.Select(t => t.Name))}");
+                sb.AppendLine(Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_Tagger_Artist"] + ": " + string.Join(", ", result.Artist.Select(t => t.Name)));
             if (result.General.Count > 0)
-                sb.AppendLine($"General: {string.Join(", ", result.General.Select(t => t.Name))}");
+                sb.AppendLine(Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_Tagger_General"] + ": " + string.Join(", ", result.General.Select(t => t.Name)));
             _lastTaggerTags = result.General.Concat(result.Character).Concat(result.Copyright)
                 .Concat(result.Artist).Select(t => t.Name).Distinct().Take(30).ToList();
             if (result.Meta.Count > 0)
-                sb.AppendLine($"Meta: {string.Join(", ", result.Meta.Select(t => t.Name))}");
+                sb.AppendLine(Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_Tagger_Meta"] + ": " + string.Join(", ", result.Meta.Select(t => t.Name)));
             var tagText = sb.ToString().Trim();
             Messages.Add(new AiChatMessage
             {
                 Role = "user",
-                Content = "Suggest tags for this image.",
+                Content = Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_Msg_SuggestTags"],
                 ImageBytes = CurrentImageBytes
             });
             Messages.Add(new AiChatMessage
@@ -1523,7 +1536,7 @@ public partial class AiViewModel : ObservableObject
         {
             // Surface the failure in the chat itself — StatusText alone isn't enough since the
             // finally block below resets it right after, making tagger errors invisible otherwise.
-            AddSystemMessage($"✗ Anime tagger failed: {ex.Message}");
+            AddSystemMessage(Pikura.Avalonia.Localization.LocalizationService.F("Hoshi_Note_TaggerFailed", ex.Message));
         }
         finally
         {
@@ -1546,7 +1559,7 @@ public partial class AiViewModel : ObservableObject
         var card = CurrentCard;
         if (card == null)
         {
-            AddAssistantMessage("⚠ Open an artwork first — I need to know which submission's pages to describe.");
+            AddAssistantMessage(Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_Note_OpenArtworkPages"]);
             return;
         }
         if (card.PageCount <= 1)
@@ -1555,7 +1568,7 @@ public partial class AiViewModel : ObservableObject
             await DescribeImageAsync();
             return;
         }
-        AddUserMessage($"Describe all {card.PageCount} pages of this submission");
+        AddUserMessage(Pikura.Avalonia.Localization.LocalizationService.F("Hoshi_Msg_DescribeAllPages", card.PageCount));
         _cts?.Cancel();
         _cts?.Dispose();
         _cts = new CancellationTokenSource();
@@ -1571,7 +1584,7 @@ public partial class AiViewModel : ObservableObject
             var pages = await _pixiv.GetArtworkPagesAsync(card.Id, ct);
             if (pages.Count == 0)
             {
-                AddAssistantMessage("⚠ Could not load this submission's pages.");
+                AddAssistantMessage(Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_Note_PagesLoadFailed"]);
                 return;
             }
             // Cap how many pages actually go through the vision model — a long manga
@@ -1579,8 +1592,8 @@ public partial class AiViewModel : ObservableObject
             const int maxPages = 10;
             var toDescribe = pages.Take(maxPages).ToList();
             AddAssistantMessage(pages.Count > maxPages
-                ? $"Describing the first {maxPages} of {pages.Count} pages…"
-                : $"Describing all {pages.Count} pages…");
+                ? Pikura.Avalonia.Localization.LocalizationService.F("Hoshi_Msg_DescribingFirstN", maxPages, pages.Count)
+                : Pikura.Avalonia.Localization.LocalizationService.F("Hoshi_Msg_DescribingAll", pages.Count));
             for (int i = 0; i < toDescribe.Count; i++)
             {
                 ct.ThrowIfCancellationRequested();
@@ -1592,13 +1605,13 @@ public partial class AiViewModel : ObservableObject
                 catch { bytes = null; }
                 if (bytes is not { Length: > 0 })
                 {
-                    AddSystemMessage($"✗ Page {i + 1}: could not load image.");
+                    AddSystemMessage(Pikura.Avalonia.Localization.LocalizationService.F("Hoshi_Note_PageLoadFailed", i + 1));
                     continue;
                 }
                 var sb = new System.Text.StringBuilder();
                 var pagePrompt = await BuildPromptAsync(false, ct);
                 await foreach (var chunk in _ollama.SendAsync(
-                    "Describe this image in detail. Include the art style, subject, mood, and any notable elements.",
+                    Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_Prompt_Describe"],
                     bytes, pagePrompt, null, remember: false, ct: ct))
                 {
                     sb.Append(chunk);
@@ -1606,7 +1619,7 @@ public partial class AiViewModel : ObservableObject
                 var msg = new AiChatMessage
                 {
                     Role = "assistant",
-                    Content = $"**Page {i + 1}/{pages.Count}**\n{sb}",
+                    Content = $"**{Pikura.Avalonia.Localization.LocalizationService.F("Hoshi_Msg_PageHeader", i + 1, pages.Count)}**\n{sb}",
                     ImageBytes = bytes
                 };
                 await Dispatcher.UIThread.InvokeAsync(() => Messages.Add(msg));
@@ -1621,7 +1634,7 @@ public partial class AiViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            AddSystemMessage($"✗ Failed to describe pages: {ex.Message}");
+            AddSystemMessage(Pikura.Avalonia.Localization.LocalizationService.F("Hoshi_Note_DescribeFailed", ex.Message));
         }
         finally
         {
@@ -1634,7 +1647,7 @@ public partial class AiViewModel : ObservableObject
         await EnsureSessionForContextAsync();
         if (!await EnsureImageBytesAsync()) return;
         _nextSendWithImage = true;
-        InputText = "Is this image NSFW or R-18? Answer yes or no and briefly explain why.";
+        InputText = Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_Prompt_R18"];
         await SendAsync();
     }
     /// <summary>
@@ -1700,7 +1713,7 @@ public partial class AiViewModel : ObservableObject
     /// </summary>
     public async Task DownloadArtworkWithJobAsync(ArtworkCardViewModel card, CancellationToken ct = default)
     {
-        AddAssistantMessage($"⏳ Downloading {card.Title}…");
+        AddAssistantMessage(Pikura.Avalonia.Localization.LocalizationService.F("Hoshi_Note_Downloading", card.Title));
         var target = new DownloadTarget
         {
             TargetId     = card.Artwork.Id,
@@ -1732,13 +1745,13 @@ public partial class AiViewModel : ObservableObject
             job.OutputFolder = paths.Count > 0 ? System.IO.Path.GetDirectoryName(paths[0]) : null;
             if (paths.Count == 0)
             {
-                AddAssistantMessage($"⚠ No files were downloaded for {card.Title}.");
+                AddAssistantMessage(Pikura.Avalonia.Localization.LocalizationService.F("Hoshi_Note_NoFilesDownloaded", card.Title));
             }
             else
             {
                 var folder = job.OutputFolder ?? "(unknown)";
                 var fileWord = paths.Count == 1 ? "file" : "files";
-                AddAssistantMessage($"✓ Downloaded {paths.Count} {fileWord} for {card.Title}\nSaved to: {folder}");
+                AddAssistantMessage(Pikura.Avalonia.Localization.LocalizationService.F("Hoshi_Note_Downloaded", paths.Count, fileWord, card.Title, folder));
             }
         }
         catch (OperationCanceledException)
@@ -1751,7 +1764,7 @@ public partial class AiViewModel : ObservableObject
             target.Status = TargetStatus.Failed;
             target.ErrorMessage = ex.Message;
             job.Status = JobStatus.Failed;
-            AddSystemMessage($"✗ Download failed for {card.Title}: {ex.Message}");
+            AddSystemMessage(Pikura.Avalonia.Localization.LocalizationService.F("Hoshi_Note_DownloadFailed", card.Title, ex.Message));
         }
         finally
         {
@@ -1774,7 +1787,7 @@ public partial class AiViewModel : ObservableObject
                 await DownloadArtworkWithJobAsync(card, ct);
                 return true;
             }
-            AddAssistantMessage("⚠ No image available to download. Please fetch an image first using commands like 'show image by ID', 'random artwork', or 'random artist [name]'.");
+            AddAssistantMessage(Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_Note_NoImageToDownload"]);
             return true;
         }
         // Add to favorites
@@ -1783,11 +1796,11 @@ public partial class AiViewModel : ObservableObject
             if (!_favorites.IsFavorite(CurrentCard.Id))
             {
                 _favorites.Add(CurrentCard.Artwork);
-                AddAssistantMessage($"Added {CurrentCard.Title} to local favorites ★");
+                AddAssistantMessage(Pikura.Avalonia.Localization.LocalizationService.F("Hoshi_Note_FavAdded", CurrentCard.Title));
             }
             else
             {
-                AddAssistantMessage($"{CurrentCard.Title} is already in your local favorites.");
+                AddAssistantMessage(Pikura.Avalonia.Localization.LocalizationService.F("Hoshi_Note_FavAlready", CurrentCard.Title));
             }
             return true;
         }
@@ -1797,11 +1810,11 @@ public partial class AiViewModel : ObservableObject
             if (_favorites.IsFavorite(CurrentCard.Id))
             {
                 _favorites.Remove(CurrentCard.Id);
-                AddAssistantMessage($"Removed {CurrentCard.Title} from local favorites.");
+                AddAssistantMessage(Pikura.Avalonia.Localization.LocalizationService.F("Hoshi_Note_FavRemoved", CurrentCard.Title));
             }
             else
             {
-                AddAssistantMessage($"{CurrentCard.Title} is not in your favorites.");
+                AddAssistantMessage(Pikura.Avalonia.Localization.LocalizationService.F("Hoshi_Note_FavNot", CurrentCard.Title));
             }
             return true;
         }
@@ -1817,7 +1830,7 @@ public partial class AiViewModel : ObservableObject
                     if (!_favorites.IsFavorite(CurrentCard.Id))
                         _favorites.Add(CurrentCard.Artwork);
                     _favorites.SetFolder(CurrentCard.Id, folder);
-                    AddAssistantMessage($"Moved {CurrentCard.Title} to folder \"{folder}\".");
+                    AddAssistantMessage(Pikura.Avalonia.Localization.LocalizationService.F("Hoshi_Note_MovedToFolder", CurrentCard.Title, folder));
                     return true;
                 }
             }
@@ -1828,7 +1841,7 @@ public partial class AiViewModel : ObservableObject
             var match = System.Text.RegularExpressions.Regex.Match(input, @"(\d+)");
             if (match.Success)
             {
-                AddAssistantMessage($"Fetching image by ID: {match.Value}…");
+                AddAssistantMessage(Pikura.Avalonia.Localization.LocalizationService.F("Hoshi_Note_FetchingById", match.Value));
                 try
                 {
                     var card = await FetchArtworkByIdAsync(match.Value);
@@ -1855,17 +1868,17 @@ public partial class AiViewModel : ObservableObject
                         }
                         else
                         {
-                            AddAssistantMessage($"✓ Found: {card.Title} by {card.UserName}");
+                            AddAssistantMessage(Pikura.Avalonia.Localization.LocalizationService.F("Hoshi_Note_Found", card.Title, card.UserName));
                         }
                     }
                     else
                     {
-                        AddAssistantMessage($"⚠ Could not find image with ID {match.Value}");
+                        AddAssistantMessage(Pikura.Avalonia.Localization.LocalizationService.F("Hoshi_Note_ImageNotFound", match.Value));
                     }
                 }
                 catch (Exception ex)
                 {
-                    AddSystemMessage($"✗ Failed to fetch image: {ex.Message}");
+                    AddSystemMessage(Pikura.Avalonia.Localization.LocalizationService.F("Hoshi_Note_FetchImageFailed", ex.Message));
                 }
                 return true;
             }
@@ -1879,7 +1892,7 @@ public partial class AiViewModel : ObservableObject
             if (match.Success)
             {
                 var artistIdentifier = match.Groups[1].Value.Trim().Trim('"', '\'');
-                AddAssistantMessage($"Fetching {(useRecent ? "recent" : "random")} image from artist: {artistIdentifier}…");
+                AddAssistantMessage(Pikura.Avalonia.Localization.LocalizationService.F(useRecent ? "Hoshi_Note_FetchingRecentArtistImage" : "Hoshi_Note_FetchingRandomArtistImage", artistIdentifier));
                 try
                 {
                     var card = await FetchRandomByArtistAsync(artistIdentifier, useRecent);
@@ -1905,17 +1918,17 @@ public partial class AiViewModel : ObservableObject
                         }
                         else
                         {
-                            AddAssistantMessage($"✓ Found: {card.Title} by {card.UserName}");
+                            AddAssistantMessage(Pikura.Avalonia.Localization.LocalizationService.F("Hoshi_Note_Found", card.Title, card.UserName));
                         }
                     }
                     else
                     {
-                        AddAssistantMessage($"⚠ Could not find artworks for artist: {artistIdentifier}");
+                        AddAssistantMessage(Pikura.Avalonia.Localization.LocalizationService.F("Hoshi_Note_ArtistArtworksNotFound", artistIdentifier));
                     }
                 }
                 catch (Exception ex)
                 {
-                    AddSystemMessage($"✗ Failed to fetch artist artwork: {ex.Message}");
+                    AddSystemMessage(Pikura.Avalonia.Localization.LocalizationService.F("Hoshi_Note_FetchArtistArtworkFailed", ex.Message));
                 }
                 return true;
             }
@@ -1952,7 +1965,7 @@ public partial class AiViewModel : ObservableObject
             // Update CurrentCard so subsequent vision queries also have it
             if (CurrentCard == null) CurrentCard = metaCard;
             // Create the placeholder message up-front so PropertyChanged subscription fires correctly
-            var placeholder = new AiChatMessage { Role = "assistant", Content = "⏳ Looking up artwork info from Pixiv…" };
+            var placeholder = new AiChatMessage { Role = "assistant", Content = Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_Note_LookingUpArtwork"] };
             await Dispatcher.UIThread.InvokeAsync(() => Messages.Add(placeholder));
             try
             {
@@ -2075,15 +2088,15 @@ public partial class AiViewModel : ObservableObject
                 var id   = _lastMentionedArtistId   ?? CurrentCard?.UserId;
                 var name = _lastMentionedArtistName ?? CurrentCard?.UserName;
                 AddAssistantMessage(id is { Length: > 0 }
-                    ? $"🆔 **{name ?? "Artist"}'s** user ID is **{id}**.\n🔗 pixiv.net/users/{id}"
-                    : "⚠ I don't have an artist in context yet — ask about an artwork's artist first, or open one in the viewer.");
+                    ? Pikura.Avalonia.Localization.LocalizationService.F("Hoshi_Note_ArtistId", name ?? Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_Artist"], id)
+                    : Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_Note_NoArtistContext"]);
                 return true;
             }
             if (isLinkFollowUpQ)
             {
                 AddAssistantMessage(seedId is { Length: > 0 }
                     ? $"🔗 https://www.pixiv.net/artworks/{seedId}"
-                    : "⚠ No artwork loaded to link to.");
+                    : Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_Note_NoArtworkToLink"]);
                 return true;
             }
             if (isMoreByArtistQ)
@@ -2091,39 +2104,39 @@ public partial class AiViewModel : ObservableObject
                 var artistId = _lastMentionedArtistId ?? CurrentCard?.UserId;
                 if (string.IsNullOrEmpty(artistId))
                 {
-                    AddAssistantMessage("⚠ I don't know which artist you mean yet — ask \"who is the artist\" first, or open an artwork.");
+                    AddAssistantMessage(Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_Note_ArtistUnknown"]);
                     return true;
                 }
-                AddAssistantMessage("Fetching more works by this artist…");
+                AddAssistantMessage(Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_Note_FetchingMoreWorks"]);
                 try
                 {
                     var resp = await _pixiv.GetUserIllustsAsync(artistId, 0, 24, ct);
                     var works = resp?.Illusts?.Take(5).ToList() ?? [];
                     if (works.Count == 0)
-                        AddAssistantMessage("⚠ No other works found for this artist.");
+                        AddAssistantMessage(Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_Note_NoOtherWorks"]);
                     else
                         await PostWorksAsync(works);
                 }
                 catch (Exception ex)
                 {
-                    AddSystemMessage($"✗ Failed to fetch artist's works: {ex.Message}");
+                    AddSystemMessage(Pikura.Avalonia.Localization.LocalizationService.F("Hoshi_Note_FetchWorksFailed", ex.Message));
                 }
                 return true;
             }
             // Recommended works / recommended artists both derive from the related-works feed
             if (string.IsNullOrEmpty(seedId))
             {
-                AddAssistantMessage("⚠ Open an artwork first — I need a starting point to find similar works or artists.");
+                AddAssistantMessage(Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_Note_OpenArtworkSimilarAll"]);
                 return true;
             }
-            AddAssistantMessage(isRecommendedArtistsQ ? "Finding artists with similar work…" : "Finding similar artworks…");
+            AddAssistantMessage(Pikura.Avalonia.Localization.LocalizationService.Instance[isRecommendedArtistsQ ? "Hoshi_Note_FindingArtists" : "Hoshi_Note_FindingArtworks"]);
             try
             {
                 var related = await _pixiv.GetRelatedWorksAsync(seedId, 24, ct);
                 var illusts = related?.Illusts ?? [];
                 if (illusts.Count == 0)
                 {
-                    AddAssistantMessage("⚠ No related results found.");
+                    AddAssistantMessage(Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_Note_NoRelated"]);
                     return true;
                 }
                 if (isRecommendedArtistsQ)
@@ -2136,7 +2149,7 @@ public partial class AiViewModel : ObservableObject
                         .ToList();
                     if (artists.Count == 0)
                     {
-                        AddAssistantMessage("⚠ No other artists found among related works.");
+                        AddAssistantMessage(Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_Note_NoOtherArtists"]);
                         return true;
                     }
                     await PostArtistsAsync(artists, ct);
@@ -2150,14 +2163,14 @@ public partial class AiViewModel : ObservableObject
             }
             catch (Exception ex)
             {
-                AddSystemMessage($"✗ Failed to fetch related results: {ex.Message}");
+                AddSystemMessage(Pikura.Avalonia.Localization.LocalizationService.F("Hoshi_Note_FetchRelatedFailed", ex.Message));
             }
             return true;
         }
         // Show random artwork
         if (lower.Contains("random") && lower.Contains("artwork"))
         {
-            AddAssistantMessage("Fetching a random artwork…");
+            AddAssistantMessage(Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_Note_FetchingRandom"]);
             try
             {
                 var card = await FetchRandomArtworkAsync();
@@ -2183,17 +2196,17 @@ public partial class AiViewModel : ObservableObject
                     }
                     else
                     {
-                        AddAssistantMessage($"✓ Found: {card.Title} by {card.UserName}");
+                        AddAssistantMessage(Pikura.Avalonia.Localization.LocalizationService.F("Hoshi_Note_Found", card.Title, card.UserName));
                     }
                 }
                 else
                 {
-                    AddAssistantMessage("⚠ Could not fetch a random artwork");
+                    AddAssistantMessage(Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_Note_RandomFailed"]);
                 }
             }
             catch (Exception ex)
             {
-                AddSystemMessage($"✗ Failed to fetch random artwork: {ex.Message}");
+                AddSystemMessage(Pikura.Avalonia.Localization.LocalizationService.F("Hoshi_Note_FetchRandomFailed", ex.Message));
             }
             return true;
         }
@@ -2210,10 +2223,10 @@ public partial class AiViewModel : ObservableObject
             var hasImg  = CurrentImageBytes is { Length: > 0 };
             if (string.IsNullOrEmpty(pixivId) && !hasImg)
             {
-                AddAssistantMessage("⚠ No image or artwork loaded. Open an artwork or attach an image first, then ask me to identify it.");
+                AddAssistantMessage(Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_Note_NoImageIdentify"]);
                 return true;
             }
-            var placeholder = new AiChatMessage { Role = "assistant", Content = "🔍 Looking up character and source info…" };
+            var placeholder = new AiChatMessage { Role = "assistant", Content = Pikura.Avalonia.Localization.LocalizationService.Instance["Hoshi_Note_LookingUpCharacter"] };
             await Dispatcher.UIThread.InvokeAsync(() => Messages.Add(placeholder));
             try
             {
@@ -2385,7 +2398,7 @@ public partial class AiViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            AddSystemMessage($"✗ Could not open artwork: {ex.Message}");
+            AddSystemMessage(Pikura.Avalonia.Localization.LocalizationService.F("Hoshi_Note_OpenArtworkFailed", ex.Message));
         }
     }
     [RelayCommand]
@@ -2399,7 +2412,7 @@ public partial class AiViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            AddSystemMessage($"✗ Could not open artist gallery: {ex.Message}");
+            AddSystemMessage(Pikura.Avalonia.Localization.LocalizationService.F("Hoshi_Note_OpenArtistFailed", ex.Message));
         }
     }
 }

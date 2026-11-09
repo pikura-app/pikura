@@ -24,7 +24,7 @@ namespace Pikura.Avalonia.ViewModels;
 /// from the collection page's own embedded Next.js data, the same technique already used for
 /// user search and CSRF tokens).
 /// </summary>
-public partial class CollectionsViewModel : ObservableObject
+public partial class CollectionsViewModel : ViewModelBase
 {
     private readonly PixivClient _pixivClient;
     private readonly PixivImageLoader _imageLoader;
@@ -336,11 +336,11 @@ public partial class CollectionsViewModel : ObservableObject
             else await LoadMoreAllCollectionsAsync();
 
             if (featured.Count == 0 && AllCollections.Count == 0)
-                StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Collections_CouldnTLoadCollectionsYouCan"];
+                SetStatus("Collections_CouldnTLoadCollectionsYouCan");
         }
         catch (Exception ex)
         {
-            StatusMessage = string.Format(LocalizationService.Instance["Collections_Status_LoadFeaturedFailed"], ex.Message);
+            SetStatus("Collections_Status_LoadFeaturedFailed", ex.Message);
         }
         finally { IsBrowseLoading = false; }
     }
@@ -483,7 +483,7 @@ public partial class CollectionsViewModel : ObservableObject
 
             if (items.Count == 0 && total == 0)
             {
-                StatusMessage = string.Format(LocalizationService.Instance["Collections_Status_PageRateLimited"], page);
+                SetStatus("Collections_Status_PageRateLimited", page);
                 return;
             }
 
@@ -500,7 +500,7 @@ public partial class CollectionsViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            StatusMessage = string.Format(LocalizationService.Instance["Collections_Status_PageFailed"], page, ex.Message);
+            SetStatus("Collections_Status_PageFailed", page, ex.Message);
         }
         finally { IsLoadingMoreAllCollections = false; }
     }
@@ -532,7 +532,7 @@ public partial class CollectionsViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            StatusMessage = string.Format(LocalizationService.Instance["Collections_Status_MoreFailed"], ex.Message);
+            SetStatus("Collections_Status_MoreFailed", ex.Message);
         }
         finally { IsLoadingMoreAllCollections = false; }
     }
@@ -651,7 +651,7 @@ public partial class CollectionsViewModel : ObservableObject
         CollectionComments.Clear();
         CollectionCommentCount = 0;
         NewCollectionComment = string.Empty;
-        StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Collections_PasteAPixivNetCollectionsId"];
+        SetStatus("Collections_PasteAPixivNetCollectionsId");
     }
 
     /// <summary>Fetches (and caches) full collection data for a browse tile, needed before
@@ -684,7 +684,7 @@ public partial class CollectionsViewModel : ObservableObject
         IsLoading = true;
         try
         {
-            StatusMessage = string.Format(LocalizationService.Instance["Collections_Status_LoadingCollage"], selected.Count);
+            SetStatus("Collections_Status_LoadingCollage", selected.Count);
             var cards = new List<ArtworkCardViewModel>();
             foreach (var tile in selected)
             {
@@ -700,19 +700,19 @@ public partial class CollectionsViewModel : ObservableObject
 
             if (cards.Count == 0)
             {
-                StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Collections_NoArtworksFoundInTheSelected"];
+                SetStatus("Collections_NoArtworksFoundInTheSelected");
                 return;
             }
 
             GalleryVm.ShowCollage(cards);
 ShowPreview = true;
             _settingsService.Update(s => s.ViewerBrowsePanelHidden = false);
-            StatusMessage = string.Format(LocalizationService.Instance["Collections_Status_CollageOpened"], cards.Count, selected.Count);
+            SetStatus("Collections_Status_CollageOpened", cards.Count, selected.Count);
         }
         catch (Exception ex)
         {
             Debug.WriteLine($"Failed to view selected collections as collage: {ex}");
-            StatusMessage = string.Format(LocalizationService.Instance["Collections_Status_CollageFailed"], ex.Message);
+            SetStatus("Collections_Status_CollageFailed", ex.Message);
         }
         finally
         {
@@ -738,7 +738,7 @@ ShowPreview = true;
         var cards = new List<ArtworkCardViewModel>();
         if (selected.Count == 0 || cap <= 0) return (cards, 0);
 
-        StatusMessage = string.Format(LocalizationService.Instance["Collections_Status_LoadingCollage"], selected.Count);
+        SetStatus("Collections_Status_LoadingCollage", selected.Count);
         foreach (var tile in selected)
         {
             if (cards.Count >= cap) break;
@@ -773,7 +773,7 @@ ShowPreview = true;
             var (cards, _) = await ResolveSelectedCollectionWorksAsync(remaining);
             if (cards.Count == 0)
             {
-                StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Collections_NoArtworksFoundInTheSelected"];
+                SetStatus("Collections_NoArtworksFoundInTheSelected");
                 return;
             }
 
@@ -784,7 +784,7 @@ ShowPreview = true;
         catch (Exception ex)
         {
             Debug.WriteLine($"Failed to add selected collections to collage: {ex}");
-            StatusMessage = string.Format(LocalizationService.Instance["Collections_Status_AddCollageFailed"], ex.Message);
+            SetStatus("Collections_Status_AddCollageFailed", ex.Message);
         }
         finally
         {
@@ -803,7 +803,7 @@ ShowPreview = true;
             var (cards, _) = await ResolveSelectedCollectionWorksAsync(GalleryViewModel.MaxCollageItems);
             if (cards.Count == 0)
             {
-                StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Collections_NoArtworksFoundInTheSelected"];
+                SetStatus("Collections_NoArtworksFoundInTheSelected");
                 return;
             }
 
@@ -813,7 +813,7 @@ ShowPreview = true;
         catch (Exception ex)
         {
             Debug.WriteLine($"Failed to add selected collections to collage: {ex}");
-            StatusMessage = string.Format(LocalizationService.Instance["Collections_Status_AddCollageFailed"], ex.Message);
+            SetStatus("Collections_Status_AddCollageFailed", ex.Message);
         }
         finally
         {
@@ -834,26 +834,26 @@ ShowPreview = true;
         var selected = AllCollections.Concat(FeaturedCollections).Where(t => t.IsSelected).DistinctBy(t => t.Id).ToList();
         if (selected.Count == 0)
         {
-            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Collections_SelectOneOrMoreCollectionsFirst"];
+            SetStatus("Collections_SelectOneOrMoreCollectionsFirst");
             return;
         }
 
         IsDownloading = true;
         try
         {
-            StatusMessage = string.Format(LocalizationService.Instance["Collections_Status_LoadingN"], selected.Count);
+            SetStatus("Collections_Status_LoadingN", selected.Count);
             var resolved = new List<PixivCollection>();
             foreach (var tile in selected)
             {
                 var c = await ResolveCollectionAsync(tile.Id);
                 if (c != null && c.Works.Count > 0) resolved.Add(c);
             }
-            if (resolved.Count == 0) { StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Collections_NoneOfTheSelectedCollectionsCould"]; return; }
+            if (resolved.Count == 0) { SetStatus("Collections_NoneOfTheSelectedCollectionsCould"); return; }
 
             var firstWork = resolved[0].Works[0];
             var additional = resolved.SelectMany(c => c.Works).Skip(1).ToList();
             var preset = await _dialogService.ShowDownloadPresetDialogAsync(firstWork, additional);
-            if (preset == null) { StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Collections_DownloadCancelled"]; return; }
+            if (preset == null) { SetStatus("Collections_DownloadCancelled"); return; }
 
             var started = 0;
             foreach (var c in resolved)
@@ -864,11 +864,11 @@ ShowPreview = true;
                 await _coordinator.CreateJobAsync(DownloadJobType.ImageId, $"Collection: {c.Title}", targets, settingsOverride: null, startImmediately: true);
                 started++;
             }
-            StatusMessage = string.Format(LocalizationService.Instance["Collections_Status_DownloadJobs"], started, preset.Name);
+            SetStatus("Collections_Status_DownloadJobs", started, preset.Name);
         }
         catch (Exception ex)
         {
-            StatusMessage = string.Format(LocalizationService.Instance["Collections_Status_DownloadStartFailed"], ex.Message);
+            SetStatus("Collections_Status_DownloadStartFailed", ex.Message);
         }
         finally { IsDownloading = false; }
     }
@@ -877,7 +877,7 @@ ShowPreview = true;
     {
         if (tiles.Count == 0)
         {
-            StatusMessage = string.Format(LocalizationService.Instance["Collections_Status_NoneToDownload"], label);
+            SetStatus("Collections_Status_NoneToDownload", label);
             return;
         }
 
@@ -888,7 +888,7 @@ ShowPreview = true;
         {
             foreach (var tile in tiles)
             {
-                StatusMessage = string.Format(LocalizationService.Instance["Collections_Status_LoadingTile"], tile.Title);
+                SetStatus("Collections_Status_LoadingTile", tile.Title);
                 var collection = await ResolveCollectionAsync(tile.Id);
                 if (collection == null || collection.Works.Count == 0) { failed.Add(tile.Title); continue; }
 
@@ -911,7 +911,7 @@ ShowPreview = true;
         var id = ExtractCollectionId(CollectionUrlOrId);
         if (string.IsNullOrEmpty(id))
         {
-            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Collections_ThatDoesnTLookLikeA"];
+            SetStatus("Collections_ThatDoesnTLookLikeA");
             return;
         }
         await LoadCollectionAsync(id);
@@ -1081,7 +1081,7 @@ ShowPreview = true;
     {
         IsLoading = true;
         IsBrowsing = false;
-        StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Collections_LoadingCollection"];
+        SetStatus("Collections_LoadingCollection");
         Works.Clear();
         NotifyWorksSelectionChanged();
         ShowPreview = false;
@@ -1090,7 +1090,7 @@ ShowPreview = true;
             var collection = await _pixivClient.GetCollectionAsync(id);
             if (collection == null)
             {
-                StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Collections_CouldNotLoadThatCollectionIt"];
+                SetStatus("Collections_CouldNotLoadThatCollectionIt");
                 HasLoaded = false;
                 _currentCollection = null;
                 return;
@@ -1125,14 +1125,14 @@ ShowPreview = true;
             }
 
             HasLoaded = true;
-            StatusMessage = string.Format(LocalizationService.Instance["Collections_Status_WorksIn"], Works.Count);
+            SetStatus("Collections_Status_WorksIn", Works.Count);
 
             _ = LoadCollectionCommentsAsync(id);
             _ = LoadCollectionBookmarkStateAsync(id);
         }
         catch (Exception ex)
         {
-            StatusMessage = string.Format(LocalizationService.Instance["Collections_Status_LoadFailed"], ex.Message);
+            SetStatus("Collections_Status_LoadFailed", ex.Message);
             HasLoaded = false;
             _currentCollection = null;
         }
@@ -1194,10 +1194,10 @@ ShowPreview = true;
                 {
                     IsCollectionBookmarked = false;
                     CollectionBookmarkId = null;
-                    StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Collections_RemovedCollectionBookmark"];
+                    SetStatus("Collections_RemovedCollectionBookmark");
                     SyncCollectionBookmarksToBookmarksTab();
                 }
-                else StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Collections_FailedToRemoveCollectionBookmark"];
+                else SetStatus("Collections_FailedToRemoveCollectionBookmark");
             }
             else
             {
@@ -1205,11 +1205,11 @@ ShowPreview = true;
                 if (ok)
                 {
                     IsCollectionBookmarked = true;
-                    StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Collections_BookmarkedThisCollection"];
+                    SetStatus("Collections_BookmarkedThisCollection");
                     _ = LoadCollectionBookmarkStateAsync(_currentCollection.Id); // pick up the real bookmark id
                     SyncCollectionBookmarksToBookmarksTab();
                 }
-                else StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Collections_FailedToBookmarkCollection"];
+                else SetStatus("Collections_FailedToBookmarkCollection");
             }
         }
         finally { IsTogglingBookmark = false; }
@@ -1245,7 +1245,7 @@ ShowPreview = true;
             }
             else
             {
-                StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Collections_FailedToPostComment"];
+                SetStatus("Collections_FailedToPostComment");
             }
         }
         finally { IsPostingComment = false; }
@@ -1264,7 +1264,7 @@ ShowPreview = true;
         {
             var ok = await _pixivClient.PostCollectionStickerAsync(collectionId, stampId);
             if (ok) await LoadCollectionCommentsAsync(collectionId);
-            else StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Collections_FailedToPostSticker"];
+            else SetStatus("Collections_FailedToPostSticker");
         }
         finally { IsPostingComment = false; }
     }
@@ -1279,7 +1279,7 @@ ShowPreview = true;
 
         var ok = await _pixivClient.DeleteCollectionCommentAsync(collectionId, comment.Id);
         if (ok) CollectionComments.Remove(comment);
-        else StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Collections_FailedToDeleteComment"];
+        else SetStatus("Collections_FailedToDeleteComment");
     }
 
     /// <summary>Opens the artwork in the same inline viewer (with Like/Bookmark/Comments/etc.)
@@ -1325,7 +1325,7 @@ ShowPreview = true;
         var picked = Works.Where(w => w.IsSelected).ToList();
         if (picked.Count == 0 || _currentCollection == null)
         {
-            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Collections_SelectOneOrMoreArtworksFirst"];
+            SetStatus("Collections_SelectOneOrMoreArtworksFirst");
             return;
         }
 
@@ -1342,11 +1342,11 @@ ShowPreview = true;
                 settingsOverride: null,
                 startImmediately: true);
 
-            StatusMessage = string.Format(LocalizationService.Instance["Collections_Status_DownloadSel"], targets.Count, folder);
+            SetStatus("Collections_Status_DownloadSel", targets.Count, folder);
         }
         catch (Exception ex)
         {
-            StatusMessage = string.Format(LocalizationService.Instance["Collections_Status_DownloadStartFailed"], ex.Message);
+            SetStatus("Collections_Status_DownloadStartFailed", ex.Message);
         }
         finally { IsDownloading = false; }
     }
@@ -1358,13 +1358,13 @@ ShowPreview = true;
         if (picked.Count == 0) picked = Works.ToList();
         if (picked.Count == 0 || _currentCollection == null)
         {
-            StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Collections_NoArtworksToDownload"];
+            SetStatus("Collections_NoArtworksToDownload");
             return;
         }
 
         var preset = await _dialogService.ShowDownloadPresetDialogAsync(
             picked[0].Artwork, picked.Skip(1).Select(w => w.Artwork).ToList());
-        if (preset == null) { StatusMessage = Pikura.Avalonia.Localization.LocalizationService.Instance["Collections_DownloadCancelled"]; return; }
+        if (preset == null) { SetStatus("Collections_DownloadCancelled"); return; }
 
         IsDownloading = true;
         try
@@ -1381,11 +1381,11 @@ ShowPreview = true;
                 settingsOverride: null,
                 startImmediately: true);
 
-            StatusMessage = string.Format(LocalizationService.Instance["Collections_Status_DownloadPreset"], targets.Count, preset.Name, folder);
+            SetStatus("Collections_Status_DownloadPreset", targets.Count, preset.Name, folder);
         }
         catch (Exception ex)
         {
-            StatusMessage = string.Format(LocalizationService.Instance["Collections_Status_DownloadStartFailed"], ex.Message);
+            SetStatus("Collections_Status_DownloadStartFailed", ex.Message);
         }
         finally { IsDownloading = false; }
     }
@@ -1413,11 +1413,11 @@ ShowPreview = true;
                 settingsOverride: null,
                 startImmediately: true);
 
-            StatusMessage = string.Format(LocalizationService.Instance["Collections_Status_DownloadN"], targets.Count, folder);
+            SetStatus("Collections_Status_DownloadN", targets.Count, folder);
         }
         catch (Exception ex)
         {
-            StatusMessage = string.Format(LocalizationService.Instance["Collections_Status_DownloadStartFailed"], ex.Message);
+            SetStatus("Collections_Status_DownloadStartFailed", ex.Message);
         }
         finally { IsDownloading = false; }
     }
