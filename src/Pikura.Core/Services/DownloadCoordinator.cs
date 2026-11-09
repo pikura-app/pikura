@@ -1332,7 +1332,7 @@ public sealed class DownloadCoordinator : IDisposable
             return (0, 0);
 
         // Apply content filters
-        if (settings.FilterAiGenerated == true && detail.AiType is 1 or 2) return (1, 0);
+        if (settings.FilterAiGenerated == true && detail.AiType == 2) return (1, 0);
         if (settings.SkipR18          == true && detail.XRestrict >= 1)    return (1, 0);
         if (settings.SkipR18G         == true && detail.XRestrict == 2)    return (1, 0);
 

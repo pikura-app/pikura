@@ -44,8 +44,9 @@ public sealed record ArtworkPreview
     /// <summary>True when the artwork is specifically R-18G (grotesque/violent).</summary>
     public bool IsR18G => XRestrict == 2;
 
-    /// <summary>True when the artwork is AI-generated (aiType 1 or 2).</summary>
-    public bool IsAiGenerated => AiType is 1 or 2;
+    /// <summary>True when the artwork is AI-generated. pixiv's aiType: 0 = not specified,
+    /// 1 = not AI-generated, 2 = AI-generated.</summary>
+    public bool IsAiGenerated => AiType == 2;
 
     /// <summary>Human-readable type: 0=illust, 1=manga, 2=ugoira.</summary>
     public string TypeLabel => IllustType switch

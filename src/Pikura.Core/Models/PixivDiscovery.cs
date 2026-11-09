@@ -39,7 +39,7 @@ public sealed record RecommendIllustEntry
 
     public bool IsR18 => XRestrict >= 1;
     public bool IsR18G => XRestrict == 2;
-    public bool IsAiGenerated => AiType is 1 or 2;
+    public bool IsAiGenerated => AiType == 2;
 
     /// <summary>Convert to ArtworkPreview for use in existing UI components.</summary>
     public ArtworkPreview ToArtworkPreview() => new()
@@ -101,7 +101,7 @@ public sealed record DiscoveryIllust
 
     public bool IsR18 => XRestrict >= 1;
     public bool IsR18G => XRestrict == 2;
-    public bool IsAiGenerated => AiType is 1 or 2;
+    public bool IsAiGenerated => AiType == 2;
 
     /// <summary>Convert to ArtworkPreview for use in existing UI components.</summary>
     public ArtworkPreview ToArtworkPreview() => new()
