@@ -2,6 +2,26 @@
 
 All notable changes to Pikura are documented in this file.
 
+## [2.6.0]
+
+### New
+
+- Quick Setup wizard shown once after the splash (existing users once after updating): language, pixiv sign-in, downloads with template presets/tokens/path preview, existing-file handling, notifications, content filters, appearance, startup/tray/updates, optional Hoshi and anime tagger installs; Settings → About → Run setup again.
+- Accent colour setting with eight presets and a Windows System accent that follows changes.
+- Popup viewer page bar and all-pages grid; Popup opens at the current page.
+- Hoshi follows the app language: language instruction in the prompt, translated quick-action requests and notes.
+
+### Improved
+
+- Live language switching across all screens, status messages, side panel, Settings, download queue and Hoshi; localized History dates.
+- Pixivision reloads in the new language immediately.
+- Fullscreen opens at the current page; translated Blocklist scope options.
+
+### Fixed
+
+- AI filter treated pixiv `aiType` 1 ("not AI-generated") as AI; only `aiType` 2 is filtered now (feeds and downloads).
+- Blank side panel after opening an artwork from a Hoshi chat and navigating back.
+
 ## [2.5.2]
 
 ### Fixed

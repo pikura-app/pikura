@@ -1,3 +1,28 @@
+## Pikura 2.6.0
+
+Quick Setup to get you configured in a minute, accent colours, page controls in the Popup viewer, and language switching that reaches every screen, Hoshi included.
+
+### New Features
+
+- **Quick Setup** — a step-by-step setup opens once after the splash screen: app and pixiv content language, pixiv sign-in, download folder with folder/filename presets, tokens and a live example path, what to do with existing files, download notifications, content filters, appearance, startup, tray and update checks, and optionally Hoshi (Ollama vision model and anime tagger, installed with one click). Existing users see it once after updating; run it again any time from Settings → About.
+- **Accent colours** — choose Pikura blue, indigo, purple, pink, red, orange, green or teal in Settings → Appearance. On Windows, **System** follows your Windows accent colour and updates when you change it.
+- **Pages in the Popup viewer** — the Popup opens on the page you were viewing, with a page bar to step through or jump to pages, and an **All** button that shows every page as a grid.
+- **Hoshi speaks your language** — Hoshi answers in the app language unless you write to it in another one. Describe, Tags, R-18 and Describe all pages ask in your language, and Hoshi's own notes are translated.
+
+### Improvements
+
+- Changing the language now updates every screen immediately: labels, status messages, the side panel, Settings options, the download queue and Hoshi. History uses your language's date format.
+- Pixivision reloads articles in the new language straight away, including an open article.
+- Fullscreen opens at the current page of a multi-page work.
+- The Blocklist scope options are translated.
+
+### Fixes
+
+- **Hide AI-generated works hid normal art** — works that the artist marked as *not* AI-generated were hidden too. Only works pixiv labels as AI-generated are filtered now, in feeds and when downloading.
+- Opening an artwork from a Hoshi chat with **View Artwork** and going back no longer leaves the side panel blank.
+
+---
+
 ## Pikura 2.5.2
 
 A quick fix release for Natural-height layouts.
