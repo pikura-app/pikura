@@ -1,3 +1,22 @@
+## Pikura 2.6.1
+
+Search, history and tags for the Pixivision tab.
+
+### New Features
+
+- **Pixivision search** — search pixivision's articles from the box at the top, with page controls. A chip shows the active search; ✕ returns to the normal feed. The category buttons and the date picker filter the results.
+- **Clickable tags** — click any tag on an article card to see pixivision's articles with that tag.
+- **Recent searches** — the search box remembers your last 10 searches; remove one or clear them all.
+- **Viewed-article history** — a new 🕘 History button lists the articles you've opened, grouped by day (last 500). Filter it, remove single articles, pause recording, or clear it all.
+
+### Improvements
+
+- **Saved Articles** no longer shows the feed's category bar, date picker, Featured sidebar and page controls. Saved and History follow Grid/List and the card size, and both have a filter box for titles and tags.
+- Going back from an article you opened from Saved, History or search results returns you there.
+- The "Save for later" button is translated.
+
+---
+
 ## Pikura 2.6.0
 
 Quick Setup to get you configured in a minute, accent colours, page controls in the Popup viewer, and language switching that reaches every screen, Hoshi included.

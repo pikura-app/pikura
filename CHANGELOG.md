@@ -2,6 +2,21 @@
 
 All notable changes to Pikura are documented in this file.
 
+## [2.6.1]
+
+### New
+
+- Pixivision search (pixivision.net `/s/?q=`) with paging, active-search chip, client-side category filter and date range on results.
+- Clickable article tags open pixivision tag pages (`/t/{id}`); older entries without tag ids search by name.
+- Recent Pixivision searches (last 10).
+- Viewed-article history grouped by day (last 500) with filter, remove, pause and clear.
+
+### Improved
+
+- Saved Articles hides the feed's category, date, Featured and pager controls; Saved and History honour Grid/List and card size and have a title/tag filter.
+- Back from an article returns to Saved, History or search results.
+- Translated "Save for later" button.
+
 ## [2.6.0]
 
 ### New
