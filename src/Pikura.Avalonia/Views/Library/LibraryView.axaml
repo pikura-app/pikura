@@ -140,6 +140,7 @@
                     <Button Content="{loc:Tr Library_OpenFile}" Command="{Binding OpenSelectedCommand}"/>
                     <Button Content="{loc:Tr Library_OpenFoldersBtn}" Command="{Binding ShowSelectedInFoldersCommand}"/>
                     <Button Content="{loc:Tr Library_CopyPathsBtn}" Command="{Binding CopySelectedPathsCommand}"/>
+                    <Button Content="{Binding RenameSelectedLabel}" Command="{Binding RenameSelectedCommand}"/>
                     <Button Content="{loc:Tr Library_Delete}" Command="{Binding DeleteSelectedCommand}"/>
                 </StackPanel>
                 <Button Grid.Column="2" Content="{loc:Tr Library_FetchMissing}" Command="{Binding FetchMissingInfoCommand}"/>
@@ -160,7 +161,12 @@
                             </Style>
                         </WrapPanel.Styles>
                         <TextBox Text="{Binding SearchText}" PlaceholderText="{loc:Tr Library_SearchWatermark}" Width="240"/>
-                        <TextBox Text="{Binding ArtistFilter}" PlaceholderText="{loc:Tr Library_ArtistFilter}" Width="170"/>
+                        <ComboBox SelectedIndex="{Binding ArtistIndex}" ItemsSource="{Binding ArtistOptions}"
+                                  Width="170" IsVisible="{Binding HasArtistOptions}"
+                                  ToolTip.Tip="{loc:Tr Library_FilterArtist}"/>
+                        <ComboBox SelectedIndex="{Binding FolderIndex}" ItemsSource="{Binding FolderOptions}"
+                                  Width="200" IsVisible="{Binding HasFolderOptions}"
+                                  ToolTip.Tip="{loc:Tr Library_FilterFolder}"/>
                         <ComboBox SelectedIndex="{Binding YearIndex}" ItemsSource="{Binding YearOptions}" Width="105"/>
                         <CalendarDatePicker SelectedDate="{Binding DateFrom}" Width="140"
                                             PlaceholderText="{loc:Tr Library_DateFrom}"/>
@@ -255,6 +261,22 @@
                     <TextBlock Text="{Binding R18Notice}" FontSize="11" Foreground="Orange" VerticalAlignment="Center"
                                TextWrapping="Wrap"
                                IsVisible="{Binding R18Notice, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+                    <Button Content="{Binding RenameSelectedLabel}" Command="{Binding RenameSelectedCommand}"
+                            IsVisible="{Binding HasSelection}" Classes="accent" FontSize="11" Padding="8,2"/>
+                    <Button Content="{loc:Tr Library_RenameAllResults}" Command="{Binding RenameAllResultsCommand}"
+                            FontSize="11" Padding="8,2" ToolTip.Tip="{loc:Tr Library_RenameAllResultsTip}"/>
+                    <!-- Result of the last rename, with a session-only Undo -->
+                    <Border Background="{DynamicResource Container2BackgroundBrush}" CornerRadius="6" Padding="10,3,4,3"
+                            IsVisible="{Binding RenameMessage, Converter={x:Static ObjectConverters.IsNotNull}}">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <TextBlock Text="{Binding RenameMessage}" FontSize="11" VerticalAlignment="Center"
+                                       TextWrapping="Wrap" MaxWidth="420"/>
+                            <Button Content="{loc:Tr Library_UndoRename}" Command="{Binding UndoRenameCommand}"
+                                    IsVisible="{Binding CanUndoRename}" FontSize="11" Padding="8,2"/>
+                            <Button Content="✕" Command="{Binding DismissRenameStatusCommand}" FontSize="10" Padding="5,1"
+                                    Background="Transparent" BorderThickness="0"/>
+                        </StackPanel>
+                    </Border>
                 </WrapPanel>
                 <ScrollViewer Grid.Row="1" x:Name="LibraryScroll" Padding="0,0,14,0" ScrollChanged="OnLibraryScrollChanged" IsVisible="{Binding HasFiles}">
                     <Panel>

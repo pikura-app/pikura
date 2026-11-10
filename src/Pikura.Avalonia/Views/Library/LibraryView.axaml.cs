@@ -142,6 +142,7 @@ public partial class LibraryView : UserControl
             items.Add(Item(T("Library_OpenFile"), () => _ = vm.OpenSelectedCommand.ExecuteAsync(null)));
             items.Add(Item(T("Library_OpenFoldersBtn"), () => _ = vm.ShowSelectedInFoldersCommand.ExecuteAsync(null)));
             items.Add(Item(T("Library_CopyPathsBtn"), () => _ = vm.CopySelectedPathsCommand.ExecuteAsync(null)));
+            items.Add(Item(T("Library_RenameSelected"), () => _ = vm.RenameSelectedCommand.ExecuteAsync(null)));
             items.Add(new Separator());
             items.Add(Item(T("Library_Delete"), () => _ = vm.DeleteSelectedCommand.ExecuteAsync(null)));
         }
@@ -182,6 +183,7 @@ public partial class LibraryView : UserControl
             items.Add(browser);
             items.Add(new Separator());
             items.Add(Item(T("Library_TagWithAi"), () => _ = vm.TagWithAiCommand.ExecuteAsync(item)));
+            items.Add(Item(T("Library_RenameSelected"), () => _ = vm.RenameSelectedCommand.ExecuteAsync(null)));
             items.Add(Item(T("Library_Delete"), () => _ = vm.DeleteFileCommand.ExecuteAsync(item)));
         }
         var menu = new ContextMenu { ItemsSource = items };

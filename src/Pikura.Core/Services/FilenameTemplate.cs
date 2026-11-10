@@ -20,6 +20,9 @@ public sealed record FilenameContext
     public string? OriginalMemberId { get; init; }
     public string? OriginalMemberToken { get; init; }
     public string? OriginalArtist { get; init; }
+    /// <summary>Top AI-tagged character / series — only set by Library rename.</summary>
+    public string? Character { get; init; }
+    public string? Series { get; init; }
 
     /// <summary>Computed: number of digits for page number padding.</summary>
     public int PageDigits => PageCount <= 1 ? 1 : (int)Math.Floor(Math.Log10(PageCount)) + 1;
@@ -134,6 +137,10 @@ public sealed class FilenameTemplate
             "manga_series_order" => ctx.MangaSeriesOrder?.ToString() ?? string.Empty,
             "manga_series_id" => ctx.MangaSeriesId ?? string.Empty,
             "manga_series_title" => ctx.MangaSeriesTitle ?? string.Empty,
+
+            // AI tags (Library rename)
+            "character" => S(ctx.Character),
+            "series" => S(ctx.Series),
 
             // Extension (for info files etc)
             "image_ext" => Path.GetExtension(ctx.OriginalUrl).TrimStart('.'),

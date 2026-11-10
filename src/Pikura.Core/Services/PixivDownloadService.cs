@@ -1205,7 +1205,7 @@ public sealed class PixivDownloadService
     /// but replaces characters that Windows actually rejects, trims trailing
     /// dots/spaces (which Windows silently strips), and avoids reserved names.
     /// </summary>
-    private static string SafeName(string name)
+    internal static string SafeName(string name)
     {
         if (string.IsNullOrEmpty(name)) return "unknown";
 

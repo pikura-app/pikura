@@ -48,8 +48,18 @@ public sealed class LibraryFile
     public bool HasOriginalUrl => OriginalUrl != null;
     /// <summary>phash algorithm version (0/1 = legacy full-decode, 2 = scaled decode).</summary>
     public int PhashVersion { get; set; }
+    /// <summary>Anime-tagger content rating: general | sensitive | questionable | explicit;
+    /// "" = tagged by a model without ratings; null = not rated yet.</summary>
+    public string? AiRating { get; set; }
 
-    public bool IsR18 => XRestrict >= 1;
+    /// <summary>pixiv's rating when Pikura has pixiv metadata for the file.</summary>
+    public bool HasPixivRating => MetadataSource is "pixiv" or "download";
+
+    /// <summary>R-18 per pixiv (x_restrict or an R-18 tag), or — for files without pixiv
+    /// metadata — when the anime tagger rated it explicit. Mirrors <see cref="LibraryRepository.R18Sql"/>.</summary>
+    public bool IsR18 => XRestrict >= 1
+        || (Tags?.Contains("R-18", StringComparison.Ordinal) ?? false)
+        || (!HasPixivRating && AiRating == "explicit");
 }
 
 public sealed class LibraryAiTag
@@ -84,6 +94,8 @@ public sealed class LibraryQuery
     public List<string> AiTags { get; set; } = [];
     public string? MediaType { get; set; }
     public bool IncludeR18 { get; set; }
+    /// <summary>Folder (absolute) — matches files in it and its subfolders.</summary>
+    public string? Folder { get; set; }
     public LibrarySort Sort { get; set; } = LibrarySort.AddedDesc;
     public int Offset { get; set; }
     public int Limit { get; set; } = 200;
@@ -209,7 +221,7 @@ public sealed class LibraryRepository : IDisposable
             using (var alter = new SqliteCommand(
                 "ALTER TABLE library_files ADD COLUMN phash_version INTEGER NOT NULL DEFAULT 1", connection))
                 alter.ExecuteNonQuery();
-            var needed = new[] { "source_url", "original_url", "source_site", "downloaded_at" };
+            var needed = new[] { "source_url", "original_url", "source_site", "downloaded_at", "ai_rating" };
             var existing = new System.Collections.Generic.HashSet<string>();
             using (var info2 = new SqliteCommand("PRAGMA table_info(library_files)", connection))
             {
@@ -284,6 +296,7 @@ public sealed class LibraryRepository : IDisposable
             OriginalUrl = S(26),
             SourceSite = S(27),
             DownloadedAt = S(28),
+            AiRating = S(29),
         };
     }
 
@@ -291,7 +304,12 @@ public sealed class LibraryRepository : IDisposable
         "id, path, root, size, mtime, sha256, phash, width, height, media_type, artwork_id, page_index," +
         " title, artist_id, artist_name, tags, ai_tags_text, description, x_restrict, ai_type, create_date," +
         " added_at, metadata_source, ai_tagged_at, phash_version," +
-        " source_url, original_url, source_site, downloaded_at";
+        " source_url, original_url, source_site, downloaded_at, ai_rating";
+
+    /// <summary>SQL for "this row is R-18" — same rule as <see cref="LibraryFile.IsR18"/>.</summary>
+    internal const string R18Sql =
+        "(COALESCE(x_restrict,0) >= 1 OR COALESCE(tags,'') LIKE '%R-18%'" +
+        " OR (COALESCE(ai_rating,'') = 'explicit' AND COALESCE(metadata_source,'') NOT IN ('pixiv','download')))";
 
     private static void BindFile(SqliteCommand cmd, LibraryFile f)
     {
@@ -619,8 +637,16 @@ public sealed class LibraryRepository : IDisposable
     private void BuildWhere(LibraryQuery q, List<string> clauses, List<SqliteParameter> prms)
     {
         var i = prms.Count;
-        // Tags catch rows whose pixiv R-18/R-18G tag arrived without x_restrict (older imports).
-        if (!q.IncludeR18) clauses.Add("x_restrict < 1 AND COALESCE(tags,'') NOT LIKE '%R-18%'");
+        // Tags catch rows whose pixiv R-18/R-18G tag arrived without x_restrict (older imports);
+        // the anime tagger's rating covers files pixiv never rated.
+        if (!q.IncludeR18) clauses.Add("NOT " + R18Sql);
+        if (!string.IsNullOrEmpty(q.Folder))
+        {
+            var dir = q.Folder.TrimEnd('\\', '/').Replace("!", "!!").Replace("%", "!%").Replace("_", "!_");
+            clauses.Add($"path LIKE @p{i} ESCAPE '!'");
+            prms.Add(new($"@p{i}", dir + System.IO.Path.DirectorySeparatorChar + "%"));
+            i++;
+        }
         if (!string.IsNullOrEmpty(q.ArtistId)) { clauses.Add($"artist_id=@p{i}"); prms.Add(new($"@p{i}", q.ArtistId)); i++; }
         if (!string.IsNullOrEmpty(q.Artist))
         {
@@ -765,13 +791,14 @@ public sealed class LibraryRepository : IDisposable
         return (items, total);
     }
 
-    /// <summary>Rows whose age rating is unknown (no pixiv metadata yet), so the R-18 filter can't judge them.</summary>
+    /// <summary>Rows whose age rating is unknown (no pixiv metadata and no tagger rating yet), so the R-18 filter can't judge them.</summary>
     public async Task<long> CountUnratedAsync(CancellationToken ct = default)
     {
         using var c = CreateConnection();
         await c.OpenAsync(ct);
         using var cmd = new SqliteCommand(
-            "SELECT COUNT(*) FROM library_files WHERE COALESCE(metadata_source,'') NOT IN ('pixiv','download')", c);
+            "SELECT COUNT(*) FROM library_files WHERE COALESCE(metadata_source,'') NOT IN ('pixiv','download')" +
+            " AND COALESCE(ai_rating,'') = ''", c);
         return (long)(await cmd.ExecuteScalarAsync(ct))!;
     }
 
@@ -823,7 +850,9 @@ public sealed class LibraryRepository : IDisposable
     // ── AI tags ─────────────────────────────────────────────────────────────
 
     /// <summary>Replaces a file's AI tags; updates the denormalized ai_tags_text + FTS.</summary>
-    public async Task SetAiTagsAsync(long fileId, IReadOnlyList<LibraryAiTag> tags, CancellationToken ct = default)
+    /// <param name="rating">Tagger content rating ("" when the model has none); null leaves ai_rating unchanged
+    /// (e.g. sidecar imports, which carry no rating).</param>
+    public async Task SetAiTagsAsync(long fileId, IReadOnlyList<LibraryAiTag> tags, string? rating = null, CancellationToken ct = default)
     {
         using var c = CreateConnection();
         await c.OpenAsync(ct);
@@ -860,15 +889,130 @@ public sealed class LibraryRepository : IDisposable
 
             var joined = string.Join(' ', tags.Select(t => t.Tag));
             using (var upd = new SqliteCommand(
-                "UPDATE library_files SET ai_tags_text=@txt, ai_tagged_at=@at WHERE id=@id", c, tx))
+                "UPDATE library_files SET ai_tags_text=@txt, ai_tagged_at=@at, ai_rating=COALESCE(@rating, ai_rating) WHERE id=@id", c, tx))
             {
                 upd.Parameters.AddWithValue("@txt", joined);
+                upd.Parameters.AddWithValue("@rating", (object?)rating ?? DBNull.Value);
                 upd.Parameters.AddWithValue("@at", DateTimeOffset.UtcNow.ToString("O"));
                 upd.Parameters.AddWithValue("@id", fileId);
                 await upd.ExecuteNonQueryAsync(ct);
             }
 
             f.AiTagsText = joined;
+            SyncFts(c, tx, fileId, old, f);
+            tx.Commit();
+        }
+        catch { tx.Rollback(); throw; }
+    }
+
+    /// <summary>Artists from pixiv metadata with their file counts, most files first.</summary>
+    public async Task<IReadOnlyList<(string ArtistId, string Name, long Count)>> GetArtistFacetsAsync(CancellationToken ct = default)
+    {
+        var list = new List<(string, string, long)>();
+        using var c = CreateConnection();
+        await c.OpenAsync(ct);
+        using var cmd = new SqliteCommand(
+            "SELECT artist_id, MAX(artist_name), COUNT(*) n FROM library_files WHERE artist_id IS NOT NULL AND artist_id <> ''" +
+            " GROUP BY artist_id ORDER BY n DESC, MAX(artist_name) COLLATE NOCASE", c);
+        await using var r = await cmd.ExecuteReaderAsync(ct);
+        while (await r.ReadAsync(ct))
+            list.Add((r.GetString(0), r.IsDBNull(1) ? r.GetString(0) : r.GetString(1), r.GetInt64(2)));
+        return list;
+    }
+
+    /// <summary>Every folder that holds indexed files (and their parents up to the library root),
+    /// with the number of files in it and its subfolders. Sorted by path.</summary>
+    public async Task<IReadOnlyList<(string Folder, string Root, long Count)>> GetFolderFacetsAsync(CancellationToken ct = default)
+    {
+        var counts = new Dictionary<string, (string Root, long Count)>(StringComparer.OrdinalIgnoreCase);
+        using var c = CreateConnection();
+        await c.OpenAsync(ct);
+        using var cmd = new SqliteCommand("SELECT path, root FROM library_files", c);
+        await using var r = await cmd.ExecuteReaderAsync(ct);
+        while (await r.ReadAsync(ct))
+        {
+            var root = r.GetString(1).TrimEnd('\\', '/');
+            var dir = System.IO.Path.GetDirectoryName(r.GetString(0));
+            while (!string.IsNullOrEmpty(dir) && dir.Length >= root.Length)
+            {
+                counts[dir] = counts.TryGetValue(dir, out var e) ? (e.Root, e.Count + 1) : (root, 1);
+                if (dir.Equals(root, StringComparison.OrdinalIgnoreCase)) break;
+                dir = System.IO.Path.GetDirectoryName(dir);
+            }
+        }
+        return counts.OrderBy(k => k.Key, StringComparer.OrdinalIgnoreCase)
+            .Select(k => (k.Key, k.Value.Root, k.Value.Count)).ToList();
+    }
+
+    /// <summary>Top-scoring character and series (copyright) AI tag per file.</summary>
+    public async Task<Dictionary<long, (string? Character, string? Series)>> GetTopCharacterSeriesAsync(
+        IReadOnlyCollection<long> fileIds, CancellationToken ct = default)
+    {
+        var map = new Dictionary<long, (string? Character, string? Series)>();
+        if (fileIds.Count == 0) return map;
+        using var c = CreateConnection();
+        await c.OpenAsync(ct);
+        foreach (var chunk in fileIds.Chunk(500))
+        {
+            using var cmd = new SqliteCommand(
+                $"SELECT file_id, category, tag FROM library_ai_tags WHERE category IN ('character','copyright')" +
+                $" AND file_id IN ({string.Join(',', chunk)}) ORDER BY score DESC", c);
+            await using var r = await cmd.ExecuteReaderAsync(ct);
+            while (await r.ReadAsync(ct))
+            {
+                var id = r.GetInt64(0);
+                map.TryGetValue(id, out var e);
+                if (r.GetString(1) == "character") e.Character ??= r.GetString(2);
+                else e.Series ??= r.GetString(2);
+                map[id] = e;
+            }
+        }
+        return map;
+    }
+
+    /// <summary>Number of pages per artwork id, judged by the highest indexed page_index.</summary>
+    public async Task<Dictionary<string, int>> GetPageCountsAsync(IReadOnlyCollection<string> artworkIds, CancellationToken ct = default)
+    {
+        var map = new Dictionary<string, int>();
+        if (artworkIds.Count == 0) return map;
+        using var c = CreateConnection();
+        await c.OpenAsync(ct);
+        foreach (var chunk in artworkIds.Distinct().Chunk(500))
+        {
+            using var cmd = new SqliteCommand("SELECT artwork_id, MAX(COALESCE(page_index,0)) FROM library_files" +
+                $" WHERE artwork_id IN ({string.Join(',', chunk.Select((_, i) => "@a" + i))}) GROUP BY artwork_id", c);
+            for (var i = 0; i < chunk.Length; i++) cmd.Parameters.AddWithValue("@a" + i, chunk[i]);
+            await using var r = await cmd.ExecuteReaderAsync(ct);
+            while (await r.ReadAsync(ct)) map[r.GetString(0)] = r.GetInt32(1) + 1;
+        }
+        return map;
+    }
+
+    /// <summary>Moves a row to a new path (file already moved on disk) and re-syncs FTS.</summary>
+    public async Task UpdatePathAsync(long fileId, string newPath, CancellationToken ct = default)
+    {
+        using var c = CreateConnection();
+        await c.OpenAsync(ct);
+        using var tx = c.BeginTransaction();
+        try
+        {
+            LibraryFile? f;
+            using (var get = new SqliteCommand($"SELECT {SelectColumns} FROM library_files WHERE id=@id", c, tx))
+            {
+                get.Parameters.AddWithValue("@id", fileId);
+                await using var r = await get.ExecuteReaderAsync(ct);
+                f = await r.ReadAsync(ct) ? MapRow(r) : null;
+            }
+            if (f == null) { tx.Rollback(); return; }
+            var old = new LibraryFile { Title = f.Title, ArtistName = f.ArtistName, Tags = f.Tags,
+                AiTagsText = f.AiTagsText, Description = f.Description, Path = f.Path };
+            using (var upd = new SqliteCommand("UPDATE library_files SET path=@p WHERE id=@id", c, tx))
+            {
+                upd.Parameters.AddWithValue("@p", newPath);
+                upd.Parameters.AddWithValue("@id", fileId);
+                await upd.ExecuteNonQueryAsync(ct);
+            }
+            f.Path = newPath;
             SyncFts(c, tx, fileId, old, f);
             tx.Commit();
         }
@@ -1003,7 +1147,7 @@ public sealed class LibraryRepository : IDisposable
         await QueryAllAsync("WHERE artwork_id IS NOT NULL AND metadata_source='filename'", ct);
 
     public async Task<IReadOnlyList<LibraryFile>> GetFilesMissingAiTagsAsync(CancellationToken ct = default) =>
-        await QueryAllAsync("WHERE media_type='image' AND ai_tagged_at IS NULL", ct);
+        await QueryAllAsync("WHERE media_type='image' AND (ai_tagged_at IS NULL OR ai_rating IS NULL)", ct);
 
     public async Task<IReadOnlyList<LibraryFile>> GetFilesWithoutHashAsync(CancellationToken ct = default) =>
         await QueryAllAsync("WHERE sha256 IS NULL", ct);
@@ -1046,7 +1190,7 @@ public sealed class LibraryRepository : IDisposable
                    SUM(CASE WHEN sha256 IS NOT NULL AND sha256<>'' THEN 1 ELSE 0 END),
                    SUM(CASE WHEN phash IS NOT NULL THEN 1 ELSE 0 END),
                    SUM(CASE WHEN artwork_id IS NOT NULL AND metadata_source='filename' THEN 1 ELSE 0 END),
-                   SUM(CASE WHEN media_type='image' AND ai_tagged_at IS NULL THEN 1 ELSE 0 END)
+                   SUM(CASE WHEN media_type='image' AND (ai_tagged_at IS NULL OR ai_rating IS NULL) THEN 1 ELSE 0 END)
             FROM library_files", c);
         await using var r = await cmd.ExecuteReaderAsync(ct);
         if (await r.ReadAsync(ct))

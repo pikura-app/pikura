@@ -174,7 +174,11 @@ public sealed class AnimeTaggerService : IDisposable
             var copyright = scored.Where(t => CategoryOf(t.Name) == 3).ToList();
             var character = scored.Where(t => CategoryOf(t.Name) == 4).ToList();
             var meta = scored.Where(t => CategoryOf(t.Name) == 5).ToList();
-            var rating = scored.Where(t => _loadedModel.CategoryNames.ContainsKey(5) && CategoryOf(t.Name) == 5).ToList();
+            // Rating comes from all scores, not the thresholded list: rating probabilities often sit
+            // below the tag threshold, but one of them is always the answer.
+            var top = PickTopRating(_tags.Select((tag, i) =>
+                (tag.Name, tag.Category, (double)(i < probabilities.Length ? probabilities[i] : 0f))));
+            IReadOnlyList<ScoredTag> rating = top is null ? [] : [top];
 
             return new AnimeTagResult(general, character, copyright, artist, meta, rating);
         }
@@ -385,6 +389,17 @@ public sealed class AnimeTaggerService : IDisposable
     }
 
     private static float Sigmoid(float x) => 1.0f / (1.0f + MathF.Exp(-x));
+
+    /// <summary>Danbooru taggers (WD v3) list the content rating as category 9:
+    /// general / sensitive / questionable / explicit.</summary>
+    public const int RatingCategory = 9;
+
+    /// <summary>Highest-scoring rating tag, or null when the model has no rating rows.</summary>
+    public static ScoredTag? PickTopRating(IEnumerable<(string Name, int Category, double Score)> tags) =>
+        tags.Where(t => t.Category == RatingCategory)
+            .OrderByDescending(t => t.Score)
+            .Select(t => new ScoredTag(t.Name, t.Score))
+            .FirstOrDefault();
 
     private sealed record TagEntry(int Id, string Name, int Category);
 }

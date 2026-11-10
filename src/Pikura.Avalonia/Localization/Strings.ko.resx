@@ -5910,9 +5910,6 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="Library_SearchWatermark" xml:space="preserve">
     <value>라이브러리 검색…</value>
   </data>
-  <data name="Library_ArtistFilter" xml:space="preserve">
-    <value>작가 ID…</value>
-  </data>
   <data name="Library_MediaAll" xml:space="preserve">
     <value>전체</value>
   </data>
@@ -6397,6 +6394,7 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="Library_GoToArtist" xml:space="preserve"><value>작가 보기</value></data>
   <data name="Library_FindOriginal" xml:space="preserve"><value>원본 찾기(역검색)</value></data>
   <data name="Library_SearchInBrowser" xml:space="preserve"><value>브라우저에서 검색</value></data>
+  <data name="Library_MatchFound" xml:space="preserve"><value>일치 항목: pixiv #{0} (유사도 {1}%) — 여기서 열고 전체 결과는 브라우저에 표시했습니다</value></data>
   <data name="Library_NoMatchSaucenao" xml:space="preserve"><value>일치 없음 (SauceNAO)</value></data>
   <data name="Library_ReverseSearchFailed" xml:space="preserve"><value>역검색 실패: {0}</value></data>
   <data name="Library_ReverseSearchUnavailable" xml:space="preserve"><value>역검색 사용 불가</value></data>
@@ -7253,5 +7251,80 @@ https://www.pixiv.net/en/artworks/12345678
   </data>
   <data name="Pixivision_ClearHistoryMessage" xml:space="preserve">
     <value>Pixivision 기록에서 기사 {0}개를 모두 삭제합니다. 저장한 기사는 삭제되지 않습니다. 이 작업은 되돌릴 수 없습니다.</value>
+  </data>
+  <data name="Library_AnyArtist" xml:space="preserve">
+    <value>모든 작가</value>
+  </data>
+  <data name="Library_AllFolders" xml:space="preserve">
+    <value>모든 폴더</value>
+  </data>
+  <data name="Library_FilterArtist" xml:space="preserve">
+    <value>이 작가의 파일만 표시</value>
+  </data>
+  <data name="Library_FilterFolder" xml:space="preserve">
+    <value>이 폴더와 하위 폴더의 파일 표시</value>
+  </data>
+  <data name="Library_RenameSelected" xml:space="preserve">
+    <value>이름 바꾸기…</value>
+  </data>
+  <data name="Library_RenameSelectedCount" xml:space="preserve">
+    <value>이름 바꾸기 ({0})</value>
+  </data>
+  <data name="Library_RenameAllResults" xml:space="preserve">
+    <value>모든 결과 이름 바꾸기…</value>
+  </data>
+  <data name="Library_RenameAllResultsTip" xml:space="preserve">
+    <value>현재 필터와 일치하는 모든 파일을 다운로드 폴더·파일 이름 템플릿으로 이름을 바꿉니다</value>
+  </data>
+  <data name="Library_UndoRename" xml:space="preserve">
+    <value>실행 취소</value>
+  </data>
+  <data name="Library_RenamedFiles" xml:space="preserve">
+    <value>파일 {0}개의 이름을 바꿨습니다.</value>
+  </data>
+  <data name="Library_RenamedFilesWithErrors" xml:space="preserve">
+    <value>파일 {0}개의 이름을 바꿨습니다. {1}개는 바꾸지 못했습니다({2}).</value>
+  </data>
+  <data name="Library_RenameUndone" xml:space="preserve">
+    <value>이름 바꾸기를 취소했습니다. 파일 {0}개를 되돌렸습니다.</value>
+  </data>
+  <data name="Library_RenameTitle" xml:space="preserve">
+    <value>파일 이름 바꾸기</value>
+  </data>
+  <data name="Library_RenameHeader" xml:space="preserve">
+    <value>파일 {0}개 이름 바꾸기</value>
+  </data>
+  <data name="Library_RenameHint" xml:space="preserve">
+    <value>파일은 라이브러리 폴더 아래 폴더 템플릿 위치로 옮겨지고 파일 이름 템플릿으로 이름이 바뀝니다. 템플릿은 설정 → 다운로드에서 가져오며, 여기서 바꾼 내용은 이번 이름 바꾸기에만 적용됩니다. 토큰에 필요한 정보가 없는 파일은 건너뜁니다.</value>
+  </data>
+  <data name="Library_RenameFolder" xml:space="preserve">
+    <value>폴더</value>
+  </data>
+  <data name="Library_RenameFilename" xml:space="preserve">
+    <value>파일 이름</value>
+  </data>
+  <data name="Library_RenameInsertToken" xml:space="preserve">
+    <value>토큰 삽입</value>
+  </data>
+  <data name="Library_RenameReset" xml:space="preserve">
+    <value>설정값으로 되돌리기</value>
+  </data>
+  <data name="Library_RenameButton" xml:space="preserve">
+    <value>이름 바꾸기</value>
+  </data>
+  <data name="Library_RenameSkippedMissing" xml:space="preserve">
+    <value>건너뜀 — {0} 없음</value>
+  </data>
+  <data name="Library_RenameUnchanged" xml:space="preserve">
+    <value>이미 이 이름입니다</value>
+  </data>
+  <data name="Library_RenameMoreRows" xml:space="preserve">
+    <value>…외 {0}개</value>
+  </data>
+  <data name="Library_RenameSummary" xml:space="preserve">
+    <value>변경 {0}개 · 건너뜀 {1}개 · 그대로 {2}개</value>
+  </data>
+  <data name="Library_RenameSkippedOutside" xml:space="preserve">
+    <value>건너뜀 — 폴더 템플릿이 라이브러리 폴더 밖을 가리킵니다</value>
   </data>
 </root>

@@ -1,0 +1,83 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:loc="using:Pikura.Avalonia.Localization"
+        xmlns:vm="using:Pikura.Avalonia.ViewModels"
+        x:Class="Pikura.Avalonia.Views.Dialogs.LibraryRenameDialog"
+        x:DataType="vm:LibraryRenameDialogViewModel"
+        Title="{loc:Tr Library_RenameTitle}"
+        Width="820" Height="620" MinWidth="560" MinHeight="420"
+        WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource Container2BackgroundBrush}">
+    <Grid RowDefinitions="Auto,Auto,Auto,Auto,*,Auto" Margin="22,18">
+        <StackPanel Grid.Row="0" Spacing="4">
+            <TextBlock Text="{Binding Header}" FontSize="16" FontWeight="SemiBold"/>
+            <TextBlock Text="{loc:Tr Library_RenameHint}" FontSize="12" TextWrapping="Wrap"
+                       Foreground="{DynamicResource DefaultForegroundBrushSecondary}"/>
+        </StackPanel>
+
+        <!-- Folder template -->
+        <Grid Grid.Row="1" ColumnDefinitions="110,*,Auto" Margin="0,16,0,0">
+            <TextBlock Grid.Column="0" Text="{loc:Tr Library_RenameFolder}" VerticalAlignment="Center" FontSize="12"/>
+            <TextBox Grid.Column="1" Name="FolderBox" Text="{Binding FolderTemplate, Mode=TwoWay}" FontSize="12" CornerRadius="6"/>
+            <ComboBox Grid.Column="2" Name="FolderTokenPicker" ItemsSource="{Binding FolderTokens}" Margin="8,0,0,0" Width="170"
+                      PlaceholderText="{loc:Tr Library_RenameInsertToken}" SelectionChanged="OnFolderTokenPicked"/>
+        </Grid>
+
+        <!-- Filename template -->
+        <Grid Grid.Row="2" ColumnDefinitions="110,*,Auto" Margin="0,8,0,0">
+            <TextBlock Grid.Column="0" Text="{loc:Tr Library_RenameFilename}" VerticalAlignment="Center" FontSize="12"/>
+            <TextBox Grid.Column="1" Name="FilenameBox" Text="{Binding FilenameTemplate, Mode=TwoWay}" FontSize="12" CornerRadius="6"/>
+            <ComboBox Grid.Column="2" Name="FilenameTokenPicker" ItemsSource="{Binding FilenameTokens}" Margin="8,0,0,0" Width="170"
+                      PlaceholderText="{loc:Tr Library_RenameInsertToken}" SelectionChanged="OnFilenameTokenPicked"/>
+        </Grid>
+
+        <Grid Grid.Row="3" ColumnDefinitions="*,Auto" Margin="0,12,0,8">
+            <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                <TextBlock Text="{Binding Summary}" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                <ProgressBar IsIndeterminate="True" Width="60" Height="3" IsVisible="{Binding IsComputing}" VerticalAlignment="Center"/>
+            </StackPanel>
+            <Button Grid.Column="1" Content="{loc:Tr Library_RenameReset}" Command="{Binding ResetToSettingsCommand}"
+                    FontSize="11" Padding="10,4"/>
+        </Grid>
+
+        <!-- Preview -->
+        <Border Grid.Row="4" Background="{DynamicResource Container1BackgroundBrush}"
+                BorderBrush="{DynamicResource Container1BorderBrush}" BorderThickness="1" CornerRadius="8">
+            <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                <StackPanel Margin="10,6">
+                    <ItemsControl ItemsSource="{Binding Rows}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:LibraryRenameRow">
+                                <Grid ColumnDefinitions="*,Auto,*" Margin="0,4">
+                                    <TextBlock Grid.Column="0" Text="{Binding OldName}" FontSize="11" TextTrimming="CharacterEllipsis"
+                                               ToolTip.Tip="{Binding OldName}" VerticalAlignment="Center"
+                                               Foreground="{DynamicResource DefaultForegroundBrushSecondary}"/>
+                                    <TextBlock Grid.Column="1" Text="→" FontSize="11" Margin="10,0" VerticalAlignment="Center"
+                                               IsVisible="{Binding IsRename}"/>
+                                    <TextBlock Grid.Column="2" Text="{Binding NewName}" FontSize="11" FontWeight="SemiBold"
+                                               TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding NewName}"
+                                               VerticalAlignment="Center" IsVisible="{Binding IsRename}"/>
+                                    <TextBlock Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding Note}" FontSize="11" Margin="10,0,0,0"
+                                               VerticalAlignment="Center" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding Note}"
+                                               Foreground="#F59E0B" IsVisible="{Binding IsSkipped}"/>
+                                    <TextBlock Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding Note}" FontSize="11" Margin="10,0,0,0"
+                                               VerticalAlignment="Center"
+                                               Foreground="{DynamicResource DefaultForegroundBrushTertiary}" IsVisible="{Binding IsUnchanged}"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <TextBlock Text="{Binding MoreRowsNote}" FontSize="11" Margin="0,6,0,2"
+                               Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
+                               IsVisible="{Binding MoreRowsNote, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+
+        <StackPanel Grid.Row="5" Orientation="Horizontal" Spacing="10" HorizontalAlignment="Right" Margin="0,14,0,0">
+            <Button Content="{loc:Tr Common_Cancel}" Padding="16,7" MinWidth="96" HorizontalContentAlignment="Center" Click="OnCancel"/>
+            <Button Content="{loc:Tr Library_RenameButton}" Classes="accent" Padding="16,7" MinWidth="96" HorizontalContentAlignment="Center"
+                    IsEnabled="{Binding CanRename}" Click="OnRename"/>
+        </StackPanel>
+    </Grid>
+</Window>

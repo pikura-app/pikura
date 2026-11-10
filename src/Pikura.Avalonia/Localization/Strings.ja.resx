@@ -5910,9 +5910,6 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="Library_SearchWatermark" xml:space="preserve">
     <value>ライブラリを検索…</value>
   </data>
-  <data name="Library_ArtistFilter" xml:space="preserve">
-    <value>作者ID…</value>
-  </data>
   <data name="Library_MediaAll" xml:space="preserve">
     <value>すべて</value>
   </data>
@@ -6397,6 +6394,7 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="Library_GoToArtist" xml:space="preserve"><value>作者を表示</value></data>
   <data name="Library_FindOriginal" xml:space="preserve"><value>元画像を検索（リバースサーチ）</value></data>
   <data name="Library_SearchInBrowser" xml:space="preserve"><value>ブラウザで検索</value></data>
+  <data name="Library_MatchFound" xml:space="preserve"><value>一致あり: pixiv #{0}（類似度 {1}%）— ここで開き、詳しい結果はブラウザに表示しました</value></data>
   <data name="Library_NoMatchSaucenao" xml:space="preserve"><value>一致が見つかりません (SauceNAO)</value></data>
   <data name="Library_ReverseSearchFailed" xml:space="preserve"><value>リバースサーチに失敗: {0}</value></data>
   <data name="Library_ReverseSearchUnavailable" xml:space="preserve"><value>リバースサーチは利用できません</value></data>
@@ -7253,5 +7251,80 @@ https://www.pixiv.net/en/artworks/12345678
   </data>
   <data name="Pixivision_ClearHistoryMessage" xml:space="preserve">
     <value>Pixivision の履歴から {0} 件の記事をすべて削除します。保存した記事は削除されません。この操作は元に戻せません。</value>
+  </data>
+  <data name="Library_AnyArtist" xml:space="preserve">
+    <value>すべての作者</value>
+  </data>
+  <data name="Library_AllFolders" xml:space="preserve">
+    <value>すべてのフォルダー</value>
+  </data>
+  <data name="Library_FilterArtist" xml:space="preserve">
+    <value>この作者のファイルのみ表示</value>
+  </data>
+  <data name="Library_FilterFolder" xml:space="preserve">
+    <value>このフォルダーとサブフォルダーのファイルを表示</value>
+  </data>
+  <data name="Library_RenameSelected" xml:space="preserve">
+    <value>名前を変更…</value>
+  </data>
+  <data name="Library_RenameSelectedCount" xml:space="preserve">
+    <value>名前を変更 ({0})</value>
+  </data>
+  <data name="Library_RenameAllResults" xml:space="preserve">
+    <value>すべての結果の名前を変更…</value>
+  </data>
+  <data name="Library_RenameAllResultsTip" xml:space="preserve">
+    <value>現在の絞り込みに一致するすべてのファイルを、ダウンロードのフォルダー・ファイル名テンプレートで名前変更します</value>
+  </data>
+  <data name="Library_UndoRename" xml:space="preserve">
+    <value>元に戻す</value>
+  </data>
+  <data name="Library_RenamedFiles" xml:space="preserve">
+    <value>{0} 件のファイルの名前を変更しました。</value>
+  </data>
+  <data name="Library_RenamedFilesWithErrors" xml:space="preserve">
+    <value>{0} 件の名前を変更しました。{1} 件は変更できませんでした（{2}）。</value>
+  </data>
+  <data name="Library_RenameUndone" xml:space="preserve">
+    <value>名前の変更を元に戻しました（{0} 件）。</value>
+  </data>
+  <data name="Library_RenameTitle" xml:space="preserve">
+    <value>ファイル名の変更</value>
+  </data>
+  <data name="Library_RenameHeader" xml:space="preserve">
+    <value>{0} 件のファイルの名前を変更</value>
+  </data>
+  <data name="Library_RenameHint" xml:space="preserve">
+    <value>ファイルはライブラリフォルダー内のフォルダーテンプレートの場所へ移動し、ファイル名テンプレートで名前を変更します。テンプレートは「設定 → ダウンロード」の内容から始まり、ここでの変更は今回の名前変更にのみ適用されます。トークンに必要な情報がないファイルはスキップされます。</value>
+  </data>
+  <data name="Library_RenameFolder" xml:space="preserve">
+    <value>フォルダー</value>
+  </data>
+  <data name="Library_RenameFilename" xml:space="preserve">
+    <value>ファイル名</value>
+  </data>
+  <data name="Library_RenameInsertToken" xml:space="preserve">
+    <value>トークンを挿入</value>
+  </data>
+  <data name="Library_RenameReset" xml:space="preserve">
+    <value>設定の内容に戻す</value>
+  </data>
+  <data name="Library_RenameButton" xml:space="preserve">
+    <value>名前を変更</value>
+  </data>
+  <data name="Library_RenameSkippedMissing" xml:space="preserve">
+    <value>スキップ（{0} がありません）</value>
+  </data>
+  <data name="Library_RenameUnchanged" xml:space="preserve">
+    <value>すでにこの名前です</value>
+  </data>
+  <data name="Library_RenameMoreRows" xml:space="preserve">
+    <value>…ほか {0} 件</value>
+  </data>
+  <data name="Library_RenameSummary" xml:space="preserve">
+    <value>変更 {0} 件 · スキップ {1} 件 · 変更なし {2} 件</value>
+  </data>
+  <data name="Library_RenameSkippedOutside" xml:space="preserve">
+    <value>スキップ（フォルダーテンプレートがライブラリフォルダーの外を指しています）</value>
   </data>
 </root>

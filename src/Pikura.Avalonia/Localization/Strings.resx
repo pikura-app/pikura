@@ -5974,9 +5974,6 @@ Resuming from {1}/{2} artworks</value>
   <data name="Library_SearchWatermark" xml:space="preserve">
     <value>Search library…</value>
   </data>
-  <data name="Library_ArtistFilter" xml:space="preserve">
-    <value>Artist ID…</value>
-  </data>
   <data name="Library_MediaAll" xml:space="preserve">
     <value>All media</value>
   </data>
@@ -6461,6 +6458,7 @@ Resuming from {1}/{2} artworks</value>
   <data name="Library_GoToArtist" xml:space="preserve"><value>Go to artist</value></data>
   <data name="Library_FindOriginal" xml:space="preserve"><value>Find original (reverse search)</value></data>
   <data name="Library_SearchInBrowser" xml:space="preserve"><value>Search in browser</value></data>
+  <data name="Library_MatchFound" xml:space="preserve"><value>Match found: pixiv #{0} ({1}% similar) — opened here, full results in your browser</value></data>
   <data name="Library_NoMatchSaucenao" xml:space="preserve"><value>No match found (SauceNAO)</value></data>
   <data name="Library_ReverseSearchFailed" xml:space="preserve"><value>Reverse search failed: {0}</value></data>
   <data name="Library_ReverseSearchUnavailable" xml:space="preserve"><value>Reverse search unavailable</value></data>
@@ -7317,5 +7315,80 @@ Saved to: {3}</value>
   </data>
   <data name="Pixivision_ClearHistoryMessage" xml:space="preserve">
     <value>This removes all {0} article(s) from your Pixivision history. Saved articles aren't affected. This can't be undone.</value>
+  </data>
+  <data name="Library_AnyArtist" xml:space="preserve">
+    <value>Any artist</value>
+  </data>
+  <data name="Library_AllFolders" xml:space="preserve">
+    <value>All folders</value>
+  </data>
+  <data name="Library_FilterArtist" xml:space="preserve">
+    <value>Show only this artist's files</value>
+  </data>
+  <data name="Library_FilterFolder" xml:space="preserve">
+    <value>Show files in this folder and its subfolders</value>
+  </data>
+  <data name="Library_RenameSelected" xml:space="preserve">
+    <value>Rename…</value>
+  </data>
+  <data name="Library_RenameSelectedCount" xml:space="preserve">
+    <value>Rename ({0})</value>
+  </data>
+  <data name="Library_RenameAllResults" xml:space="preserve">
+    <value>Rename all results…</value>
+  </data>
+  <data name="Library_RenameAllResultsTip" xml:space="preserve">
+    <value>Rename every file that matches the current filters with the download folder and filename templates</value>
+  </data>
+  <data name="Library_UndoRename" xml:space="preserve">
+    <value>Undo</value>
+  </data>
+  <data name="Library_RenamedFiles" xml:space="preserve">
+    <value>Renamed {0} file(s).</value>
+  </data>
+  <data name="Library_RenamedFilesWithErrors" xml:space="preserve">
+    <value>Renamed {0} file(s); {1} couldn't be renamed ({2}).</value>
+  </data>
+  <data name="Library_RenameUndone" xml:space="preserve">
+    <value>Rename undone — {0} file(s) moved back.</value>
+  </data>
+  <data name="Library_RenameTitle" xml:space="preserve">
+    <value>Rename files</value>
+  </data>
+  <data name="Library_RenameHeader" xml:space="preserve">
+    <value>Rename {0} file(s)</value>
+  </data>
+  <data name="Library_RenameHint" xml:space="preserve">
+    <value>Files are moved into the folder template under their library folder and renamed with the filename template. The templates start from Settings → Downloads; changes here only apply to this rename. Files missing the information a token needs are skipped.</value>
+  </data>
+  <data name="Library_RenameFolder" xml:space="preserve">
+    <value>Folder</value>
+  </data>
+  <data name="Library_RenameFilename" xml:space="preserve">
+    <value>File name</value>
+  </data>
+  <data name="Library_RenameInsertToken" xml:space="preserve">
+    <value>Insert token</value>
+  </data>
+  <data name="Library_RenameReset" xml:space="preserve">
+    <value>Reset to Settings</value>
+  </data>
+  <data name="Library_RenameButton" xml:space="preserve">
+    <value>Rename</value>
+  </data>
+  <data name="Library_RenameSkippedMissing" xml:space="preserve">
+    <value>Skipped — no {0}</value>
+  </data>
+  <data name="Library_RenameUnchanged" xml:space="preserve">
+    <value>Already named this way</value>
+  </data>
+  <data name="Library_RenameMoreRows" xml:space="preserve">
+    <value>…and {0} more</value>
+  </data>
+  <data name="Library_RenameSummary" xml:space="preserve">
+    <value>{0} will be renamed · {1} skipped · {2} unchanged</value>
+  </data>
+  <data name="Library_RenameSkippedOutside" xml:space="preserve">
+    <value>Skipped — the folder template points outside the library folder</value>
   </data>
 </root>

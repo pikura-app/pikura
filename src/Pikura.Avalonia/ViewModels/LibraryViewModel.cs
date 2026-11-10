@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -108,7 +109,6 @@ public partial class LibraryViewModel : ViewModelBase
     public bool IsBrowseTab => TabIndex == 0;
     public bool IsDuplicatesTab => TabIndex == 1;
     [ObservableProperty] private string _searchText = "";
-    [ObservableProperty] private string _artistFilter = "";
     [ObservableProperty] private bool _includeR18;
     [ObservableProperty] private int _mediaTypeIndex;
     [ObservableProperty] private int _sortIndex;
@@ -119,9 +119,23 @@ public partial class LibraryViewModel : ViewModelBase
     [ObservableProperty] private string _resultsText = "";
     public ObservableCollection<string> YearOptions { get; } = [""]; // index 0 = "Any year" (label set in RefreshFolders)
     public bool HasActiveFilters =>
-        !string.IsNullOrWhiteSpace(SearchText) || !string.IsNullOrWhiteSpace(ArtistFilter)
+        !string.IsNullOrWhiteSpace(SearchText) || ArtistIndex > 0 || FolderIndex > 0
         || YearIndex > 0 || DateFrom != null || DateTo != null || OrientationIndex > 0
         || CharacterIndex > 0 || SeriesIndex > 0;
+    // ── Artist / folder facets ──
+    [ObservableProperty] private int _artistIndex;
+    [ObservableProperty] private int _folderIndex;
+    public ObservableCollection<string> ArtistOptions { get; } = [""];
+    public ObservableCollection<string> FolderOptions { get; } = [""];
+    private List<string> _artistIds = [];
+    private List<string> _folderPaths = [];
+    public bool HasArtistOptions => _artistIds.Count > 0;
+    public bool HasFolderOptions => _folderPaths.Count > 1;
+    // ── Rename ──
+    private RenameResult? _lastRename;
+    private List<string> _lastRenameRoots = [];
+    [ObservableProperty] private string? _renameMessage;
+    public bool CanUndoRename => _lastRename is { Moved.Count: > 0 };
     // ── AI tag facets (character / series from the anime tagger) ──
     [ObservableProperty] private int _characterIndex;
     [ObservableProperty] private int _seriesIndex;
@@ -147,8 +161,10 @@ public partial class LibraryViewModel : ViewModelBase
     public System.Collections.Generic.List<LibraryItemViewModel> SelectedItems =>
         Items.Where(i => i.IsSelected).ToList();
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(DetailsSingle), nameof(HasMultiSelection))]
+    [NotifyPropertyChangedFor(nameof(DetailsSingle), nameof(HasMultiSelection), nameof(HasSelection), nameof(RenameSelectedLabel))]
     private int _selectedCount;
+    public bool HasSelection => SelectedCount > 0;
+    public string RenameSelectedLabel => string.Format(LocalizationService.Instance["Library_RenameSelectedCount"], SelectedCount);
     public bool HasMultiSelection => SelectedCount > 1;
     public LibraryItemViewModel? DetailsSingle => SelectedCount == 1 ? SelectedItems.FirstOrDefault() : null;
     [ObservableProperty] private Bitmap? _detailsPreview;
@@ -199,8 +215,9 @@ public partial class LibraryViewModel : ViewModelBase
     partial void OnShowTagsChanged(bool value) => _settings.Update(s => s.ShowTags = value);
     // session cache: fileId → pixiv id found via reverse search ("" = miss)
     private readonly Dictionary<long, string> _revSearchCache = new();
+    private readonly Dictionary<long, string> _revSearchPages = new();
     private int ResultsTotal;
-    private bool _autoSearch, _sauceKeyRejected, _lastBlur;
+    private bool _lastBlur;
     [ObservableProperty] private string? _r18Notice;
     [ObservableProperty] private string? _revSearchStatus;
     private int _queryGen; // bumped by RefreshAsync; stale page loads are discarded
@@ -386,7 +403,8 @@ public partial class LibraryViewModel : ViewModelBase
     private LibraryQuery BuildQuery() => new()
     {
         Text = string.IsNullOrWhiteSpace(SearchText) ? null : SearchText.Trim(),
-        Artist = string.IsNullOrWhiteSpace(ArtistFilter) ? null : ArtistFilter.Trim(),
+        ArtistId = ArtistIndex > 0 && ArtistIndex <= _artistIds.Count ? _artistIds[ArtistIndex - 1] : null,
+        Folder = FolderIndex > 0 && FolderIndex <= _folderPaths.Count ? _folderPaths[FolderIndex - 1] : null,
         Year = YearIndex > 0 && int.TryParse(YearOptions[YearIndex], out var y) ? y : null,
         DateFrom = DateFrom.HasValue ? DateOnly.FromDateTime(DateFrom.Value.Date) : null,
         DateTo = DateTo.HasValue ? DateOnly.FromDateTime(DateTo.Value.Date) : null,
@@ -518,7 +536,18 @@ public partial class LibraryViewModel : ViewModelBase
     }
 
     partial void OnSearchTextChanged(string value) => DebouncedSearch();
-    partial void OnArtistFilterChanged(string value) => DebouncedSearch();
+    partial void OnArtistIndexChanged(int value)
+    {
+        if (_updatingFacets || value < 0) return;
+        OnPropertyChanged(nameof(HasActiveFilters));
+        _ = RefreshAsync();
+    }
+    partial void OnFolderIndexChanged(int value)
+    {
+        if (_updatingFacets || value < 0) return;
+        OnPropertyChanged(nameof(HasActiveFilters));
+        _ = RefreshAsync();
+    }
     partial void OnIncludeR18Changed(bool value) => _ = RefreshAsync();
     partial void OnMediaTypeIndexChanged(int value) => _ = RefreshAsync();
     partial void OnSortIndexChanged(int value) => _ = RefreshAsync();
@@ -551,26 +580,42 @@ public partial class LibraryViewModel : ViewModelBase
         {
             var chars = await _library.Repository.GetTopTagsByCategoryAsync("character");
             var series = await _library.Repository.GetTopTagsByCategoryAsync("copyright");
-            static string Label(string tag, int n) => $"{tag.Replace('_', ' ')} ({n:N0})";
-            void Rebuild(ObservableCollection<string> opts, ref List<string> tags, List<(string Tag, int Count)> rows,
+            var artists = await _library.Repository.GetArtistFacetsAsync();
+            var folders = await _library.Repository.GetFolderFacetsAsync();
+            static string TagLabel(string tag, int n) => $"{tag.Replace('_', ' ')} ({n:N0})";
+            static string FolderLabel(string folder, string root, long n)
+            {
+                var rel = System.IO.Path.GetRelativePath(root, folder);
+                var name = System.IO.Path.GetFileName(root.TrimEnd('\\', '/'));
+                return (rel == "." ? name : System.IO.Path.Combine(name, rel)) + $" ({n:N0})";
+            }
+            void Rebuild(ObservableCollection<string> opts, ref List<string> keys, List<(string Key, string Label)> rows,
                 string anyKey, int selIndex, Action<int> setIndex)
             {
-                var selected = selIndex > 0 && selIndex <= tags.Count ? tags[selIndex - 1] : null;
-                tags = rows.Select(r => r.Tag).ToList();
+                var selected = selIndex > 0 && selIndex <= keys.Count ? keys[selIndex - 1] : null;
+                keys = rows.Select(r => r.Key).ToList();
                 opts.Clear();
                 opts.Add(LocalizationService.Instance[anyKey]);
-                foreach (var r in rows) opts.Add(Label(r.Tag, r.Count));
-                setIndex(selected != null ? tags.IndexOf(selected) + 1 : 0);
+                foreach (var r in rows) opts.Add(r.Label);
+                setIndex(selected != null ? keys.IndexOf(selected) + 1 : 0);
             }
             _updatingFacets = true;
             try
             {
-                Rebuild(CharacterOptions, ref _characterTags, chars, "Library_AnyCharacter", CharacterIndex, i => CharacterIndex = i);
-                Rebuild(SeriesOptions, ref _seriesTags, series, "Library_AnySeries", SeriesIndex, i => SeriesIndex = i);
+                Rebuild(CharacterOptions, ref _characterTags, chars.Select(r => (r.Tag, TagLabel(r.Tag, r.Count))).ToList(),
+                    "Library_AnyCharacter", CharacterIndex, i => CharacterIndex = i);
+                Rebuild(SeriesOptions, ref _seriesTags, series.Select(r => (r.Tag, TagLabel(r.Tag, r.Count))).ToList(),
+                    "Library_AnySeries", SeriesIndex, i => SeriesIndex = i);
+                Rebuild(ArtistOptions, ref _artistIds, artists.Select(a => (a.ArtistId, $"{a.Name} ({a.Count:N0})")).ToList(),
+                    "Library_AnyArtist", ArtistIndex, i => ArtistIndex = i);
+                Rebuild(FolderOptions, ref _folderPaths, folders.Select(f => (f.Folder, FolderLabel(f.Folder, f.Root, f.Count))).ToList(),
+                    "Library_AllFolders", FolderIndex, i => FolderIndex = i);
             }
             finally { _updatingFacets = false; }
             OnPropertyChanged(nameof(HasCharacterOptions));
             OnPropertyChanged(nameof(HasSeriesOptions));
+            OnPropertyChanged(nameof(HasArtistOptions));
+            OnPropertyChanged(nameof(HasFolderOptions));
         }
         catch (Exception ex) { Debug.WriteLine($"Tag facets failed: {ex.Message}"); }
     }
@@ -578,9 +623,9 @@ public partial class LibraryViewModel : ViewModelBase
     [RelayCommand]
     private void ClearFilters()
     {
-        SearchText = ArtistFilter = "";
+        SearchText = "";
         YearIndex = OrientationIndex = 0;
-        CharacterIndex = SeriesIndex = 0;
+        CharacterIndex = SeriesIndex = ArtistIndex = FolderIndex = 0;
         DateFrom = DateTo = null;
     }
     partial void OnDupThresholdChanged(double value)
@@ -697,13 +742,11 @@ public partial class LibraryViewModel : ViewModelBase
     public async Task OpenInViewerCoreAsync(LibraryItemViewModel? vm, bool newTab)
     {
         if (vm == null) return;
-        // Auto reverse search only with an API key — without one it would open a browser on every click.
+        // Auto reverse search only with an API key — anonymous searches have a small daily limit.
         if (vm.File.ArtworkId == null && !_revSearchCache.ContainsKey(vm.File.Id)
-            && !string.IsNullOrWhiteSpace(_settings.Current.SauceNaoApiKey) && !_sauceKeyRejected)
+            && !string.IsNullOrWhiteSpace(_settings.Current.SauceNaoApiKey))
         {
-            _autoSearch = true;
-            try { await ReverseSearchAsync(vm); }
-            finally { _autoSearch = false; }
+            await ReverseSearchAsync(vm);
             if (vm.File.ArtworkId != null) return; // a hit already opened the viewer
         }
         var list = NavCards();
@@ -768,20 +811,14 @@ public partial class LibraryViewModel : ViewModelBase
         var id = vm.File.Id;
         if (_revSearchCache.TryGetValue(id, out var cached))
         {
+            if (_revSearchPages.TryGetValue(id, out var page) && File.Exists(page)) OpenResultsPage(page);
             if (cached.Length > 0) { await OpenWithArtworkIdAsync(vm, cached); return; }
             RevSearchStatus = LocalizationService.Instance["Library_NoMatchSaucenao"];
             return;
         }
         if (_imageLookup == null) { RevSearchStatus = LocalizationService.Instance["Library_ReverseSearchUnavailable"]; return; }
+        // No key: the service searches like saucenao.com's own form, so this stays in the app.
         var apiKey = _settings.Current.SauceNaoApiKey;
-        if (string.IsNullOrWhiteSpace(apiKey))
-        {
-            // SauceNAO refuses anonymous API use — hand the image to the website instead.
-            if (!vm.IsSelected) ApplyItemClick(vm, false, false);
-            await SearchInBrowserAsync("saucenao");
-            RevSearchStatus = LocalizationService.Instance["Library_NoSauceKey"];
-            return;
-        }
         RevSearchStatus = LocalizationService.Instance["Library_Searching"];
         try
         {
@@ -798,26 +835,22 @@ public partial class LibraryViewModel : ViewModelBase
                 return (byte[]?)data.ToArray();
             });
             if (bytes == null) { RevSearchStatus = LocalizationService.Instance["Library_NoMatchSaucenao"]; return; }
-            var result = await _imageLookup.LookupByImageBytesAsync(bytes, apiKey, CancellationToken.None);
+            var result = await _imageLookup.LookupByImageBytesAsync(bytes, apiKey, CancellationToken.None, withTags: false);
+            // Show SauceNAO's own results page for this search in the browser as well.
+            if (_imageLookup.LastResultsHtml is { } html && SaveResultsPage(id, html) is { } saved)
+            {
+                _revSearchPages[id] = saved;
+                OpenResultsPage(saved);
+            }
             if (result?.PixivId is { } pid && pid.Length > 0)
             {
                 _revSearchCache[id] = pid;
-                RevSearchStatus = null;
+                RevSearchStatus = string.Format(LocalizationService.Instance["Library_MatchFound"], pid, result.Similarity.ToString("0.#"));
                 await OpenWithArtworkIdAsync(vm, pid, result);
-            }
-            else if (_imageLookup.LastError is { } err && err.StartsWith("SauceNAO 403", StringComparison.Ordinal))
-            {
-                // Key without API access (needs a paid SauceNAO plan): stop auto-searching, and
-                // for an explicit request use the website instead.
-                _sauceKeyRejected = true;
-                if (_autoSearch) return;
-                if (!vm.IsSelected) ApplyItemClick(vm, false, false);
-                await SearchInBrowserAsync("saucenao");
-                RevSearchStatus = LocalizationService.Instance["Library_SauceKeyRejected"];
             }
             else if (_imageLookup.LastError is { } err2)
             {
-                // Errors (quota, network) aren't cached, so the user can retry later.
+                // Errors (search limit, network) aren't cached, so the user can retry later.
                 RevSearchStatus = string.Format(LocalizationService.Instance["Library_ReverseSearchFailed"], err2);
             }
             else
@@ -830,6 +863,28 @@ public partial class LibraryViewModel : ViewModelBase
         {
             RevSearchStatus = string.Format(LocalizationService.Instance["Library_ReverseSearchFailed"], ex.Message);
         }
+    }
+
+    /// <summary>Saves a saucenao.com results page locally; the base tag keeps its links and thumbnails working.</summary>
+    private static string? SaveResultsPage(long fileId, string html)
+    {
+        try
+        {
+            var dir = Path.Combine(Path.GetTempPath(), "Pikura");
+            Directory.CreateDirectory(dir);
+            var path = Path.Combine(dir, $"saucenao-{fileId}.html");
+            var i = html.IndexOf("<head>", StringComparison.OrdinalIgnoreCase);
+            const string baseTag = "<base href=\"https://saucenao.com/\">";
+            File.WriteAllText(path, i >= 0 ? html.Insert(i + 6, baseTag) : baseTag + html);
+            return path;
+        }
+        catch { return null; }
+    }
+
+    private static void OpenResultsPage(string path)
+    {
+        try { Process.Start(new ProcessStartInfo(path) { UseShellExecute = true }); }
+        catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[Library] open results page failed: {ex.Message}"); }
     }
 
     private async Task OpenWithArtworkIdAsync(LibraryItemViewModel vm, string artworkId, Pikura.Core.Services.ImageLookupResult? hit = null)
@@ -1073,6 +1128,75 @@ public partial class LibraryViewModel : ViewModelBase
         ClearSelection();
     }
 
+    // ── Rename with the download templates ───────────────────────────────────
+
+    [RelayCommand] private Task RenameSelectedAsync() => RenameFilesAsync(SelectedItems.Select(v => v.File).ToList());
+
+    /// <summary>Every file matching the current filters, not just the loaded page.</summary>
+    [RelayCommand]
+    private async Task RenameAllResultsAsync()
+    {
+        var q = BuildQuery();
+        q.Offset = 0;
+        q.Limit = int.MaxValue;
+        var (files, _) = await _library.Repository.SearchAsync(q);
+        await RenameFilesAsync(files);
+    }
+
+    private async Task RenameFilesAsync(IReadOnlyList<LibraryFile> files)
+    {
+        if (files.Count == 0 || IsBusy) return;
+        var owner = global::Avalonia.Application.Current?.ApplicationLifetime is
+            global::Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime d ? d.MainWindow : null;
+        if (owner == null) return;
+
+        var svc = new LibraryRenameService(_library.Repository);
+        var infos = await svc.LoadInfoAsync(files);
+        var dialog = new Views.Dialogs.LibraryRenameDialog(new LibraryRenameDialogViewModel(infos, _settings));
+        var plan = await dialog.ShowDialog<IReadOnlyList<RenamePlanItem>?>(owner);
+        if (plan == null || plan.All(p => p.Status != RenameStatus.Rename)) return;
+
+        IsBusy = true;
+        try
+        {
+            _lastRenameRoots = LibraryRoots(files);
+            var result = await svc.ApplyAsync(plan, _lastRenameRoots);
+            _lastRename = result;
+            RenameMessage = result.Failed.Count == 0
+                ? string.Format(LocalizationService.Instance["Library_RenamedFiles"], result.Moved.Count)
+                : string.Format(LocalizationService.Instance["Library_RenamedFilesWithErrors"], result.Moved.Count,
+                    result.Failed.Count, result.Failed[0].Error);
+        }
+        catch (Exception ex) { RenameMessage = ex.Message; }
+        finally { IsBusy = false; }
+        OnPropertyChanged(nameof(CanUndoRename));
+        await RefreshAsync();
+        await LoadTagFacetsAsync();
+    }
+
+    [RelayCommand]
+    private async Task UndoRenameAsync()
+    {
+        if (_lastRename is not { Moved.Count: > 0 } last || IsBusy) return;
+        IsBusy = true;
+        try
+        {
+            var undone = await new LibraryRenameService(_library.Repository).UndoAsync(last, _lastRenameRoots);
+            RenameMessage = string.Format(LocalizationService.Instance["Library_RenameUndone"], undone.Moved.Count);
+        }
+        catch (Exception ex) { RenameMessage = ex.Message; }
+        finally { IsBusy = false; _lastRename = null; }
+        OnPropertyChanged(nameof(CanUndoRename));
+        await RefreshAsync();
+        await LoadTagFacetsAsync();
+    }
+
+    [RelayCommand] private void DismissRenameStatus() { RenameMessage = null; _lastRename = null; OnPropertyChanged(nameof(CanUndoRename)); }
+
+    /// <summary>Folders the empty-folder cleanup may never delete: configured library folders and the files' roots.</summary>
+    private List<string> LibraryRoots(IEnumerable<LibraryFile> files) =>
+        _library.GetConfiguredFolders().Concat(files.Select(f => f.Root)).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+
     // ── Status bar actions ───────────────────────────────────────────────────
 
     private async Task RunWorkAsync(string phase, Func<IProgress<LibraryScanProgress>, CancellationToken, Task> work)
@@ -1095,6 +1219,7 @@ public partial class LibraryViewModel : ViewModelBase
             ProgressLine = null;
             LastScanText = string.Format(LocalizationService.Instance["Library_LastScanFmt"], DateTime.Now.ToString("g"));
             await RefreshAsync();
+            await LoadTagFacetsAsync(); // new folders/artists from the scan
             // Without this an empty result looks like the button did nothing.
             // (A missing folder is already explained by the empty-state panel.)
             if (TotalFiles == 0 && AnyFolderExists)

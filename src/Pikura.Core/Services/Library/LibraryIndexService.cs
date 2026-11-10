@@ -144,11 +144,14 @@ public sealed class LibraryIndexService : IDisposable
         {
             var f = await _repo.GetByPathAsync(imagePath, ct);
             if (f == null) return;
-            await _repo.SetAiTagsAsync(f.Id, ToLibraryTags(result), ct);
+            await _repo.SetAiTagsAsync(f.Id, ToLibraryTags(result), RatingOf(result), ct);
             await WriteHashColumnsAsync(f.Id, imagePath, ct);
         }
         catch (Exception ex) { _logger.LogWarning(ex, "Failed to record AI tags for {Path}", imagePath); }
     }
+
+    /// <summary>"" when the model gives no rating, so the file isn't re-queued for one.</summary>
+    private static string RatingOf(AnimeTagResult r) => r.Rating.Count > 0 ? r.Rating[0].Name : "";
 
     private static IReadOnlyList<LibraryAiTag> ToLibraryTags(AnimeTagResult r)
     {
@@ -297,7 +300,7 @@ public sealed class LibraryIndexService : IDisposable
         var ids = await _repo.UpsertFilesAsync(batch.Select(b => b.File).ToList(), ct);
         for (var i = 0; i < batch.Count; i++)
             if (batch[i].Tags is { Count: > 0 } t && ids[i] > 0)
-                await _repo.SetAiTagsAsync(ids[i], t, ct);
+                await _repo.SetAiTagsAsync(ids[i], t, null, ct);
     }
 
     private async Task<long> HashAndUpsertReturnId(LibraryFile f, CancellationToken ct)
@@ -470,7 +473,7 @@ public sealed class LibraryIndexService : IDisposable
                 var bytes = await File.ReadAllBytesAsync(f.Path, ct);
                 var result = await _tagger.TagImageAsync(bytes, model,
                     s.HoshiAnimeTaggerThreshold, s.HoshiAnimeTaggerMaxTags, ct);
-                await _repo.SetAiTagsAsync(f.Id, ToLibraryTags(result), ct);
+                await _repo.SetAiTagsAsync(f.Id, ToLibraryTags(result), RatingOf(result), ct);
                 var sidecar = f.Path + ".tags.txt";
                 if (writeSidecars && !File.Exists(sidecar))
                     await File.WriteAllTextAsync(sidecar,
@@ -488,7 +491,7 @@ public sealed class LibraryIndexService : IDisposable
         var s = _settings.Current;
         var bytes = await File.ReadAllBytesAsync(file.Path, ct);
         var result = await _tagger.TagImageAsync(bytes, model, s.HoshiAnimeTaggerThreshold, s.HoshiAnimeTaggerMaxTags, ct);
-        await _repo.SetAiTagsAsync(file.Id, ToLibraryTags(result), ct);
+        await _repo.SetAiTagsAsync(file.Id, ToLibraryTags(result), RatingOf(result), ct);
     }
 
     // ── Duplicates / delete ──────────────────────────────────────────────────

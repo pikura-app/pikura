@@ -5910,9 +5910,6 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="Library_SearchWatermark" xml:space="preserve">
     <value>搜索媒体库…</value>
   </data>
-  <data name="Library_ArtistFilter" xml:space="preserve">
-    <value>作者 ID…</value>
-  </data>
   <data name="Library_MediaAll" xml:space="preserve">
     <value>全部</value>
   </data>
@@ -6397,6 +6394,7 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="Library_GoToArtist" xml:space="preserve"><value>查看作者</value></data>
   <data name="Library_FindOriginal" xml:space="preserve"><value>查找原图（以图搜图）</value></data>
   <data name="Library_SearchInBrowser" xml:space="preserve"><value>在浏览器中搜索</value></data>
+  <data name="Library_MatchFound" xml:space="preserve"><value>找到匹配：pixiv #{0}（相似度 {1}%）— 已在此打开，完整结果显示在浏览器中</value></data>
   <data name="Library_NoMatchSaucenao" xml:space="preserve"><value>未找到匹配 (SauceNAO)</value></data>
   <data name="Library_ReverseSearchFailed" xml:space="preserve"><value>以图搜图失败: {0}</value></data>
   <data name="Library_ReverseSearchUnavailable" xml:space="preserve"><value>以图搜图不可用</value></data>
@@ -7253,5 +7251,80 @@ https://www.pixiv.net/en/artworks/12345678
   </data>
   <data name="Pixivision_ClearHistoryMessage" xml:space="preserve">
     <value>这将从 Pixivision 历史记录中删除全部 {0} 篇文章。已保存的文章不受影响。此操作无法撤销。</value>
+  </data>
+  <data name="Library_AnyArtist" xml:space="preserve">
+    <value>所有作者</value>
+  </data>
+  <data name="Library_AllFolders" xml:space="preserve">
+    <value>所有文件夹</value>
+  </data>
+  <data name="Library_FilterArtist" xml:space="preserve">
+    <value>只显示该作者的文件</value>
+  </data>
+  <data name="Library_FilterFolder" xml:space="preserve">
+    <value>显示此文件夹及其子文件夹中的文件</value>
+  </data>
+  <data name="Library_RenameSelected" xml:space="preserve">
+    <value>重命名…</value>
+  </data>
+  <data name="Library_RenameSelectedCount" xml:space="preserve">
+    <value>重命名 ({0})</value>
+  </data>
+  <data name="Library_RenameAllResults" xml:space="preserve">
+    <value>重命名所有结果…</value>
+  </data>
+  <data name="Library_RenameAllResultsTip" xml:space="preserve">
+    <value>使用下载的文件夹和文件名模板，重命名所有符合当前筛选条件的文件</value>
+  </data>
+  <data name="Library_UndoRename" xml:space="preserve">
+    <value>撤销</value>
+  </data>
+  <data name="Library_RenamedFiles" xml:space="preserve">
+    <value>已重命名 {0} 个文件。</value>
+  </data>
+  <data name="Library_RenamedFilesWithErrors" xml:space="preserve">
+    <value>已重命名 {0} 个文件；{1} 个无法重命名（{2}）。</value>
+  </data>
+  <data name="Library_RenameUndone" xml:space="preserve">
+    <value>已撤销重命名，{0} 个文件已还原。</value>
+  </data>
+  <data name="Library_RenameTitle" xml:space="preserve">
+    <value>重命名文件</value>
+  </data>
+  <data name="Library_RenameHeader" xml:space="preserve">
+    <value>重命名 {0} 个文件</value>
+  </data>
+  <data name="Library_RenameHint" xml:space="preserve">
+    <value>文件会移动到其媒体库文件夹下的文件夹模板位置，并按文件名模板重命名。模板默认来自“设置 → 下载”，此处的更改只对本次重命名生效。缺少令牌所需信息的文件会被跳过。</value>
+  </data>
+  <data name="Library_RenameFolder" xml:space="preserve">
+    <value>文件夹</value>
+  </data>
+  <data name="Library_RenameFilename" xml:space="preserve">
+    <value>文件名</value>
+  </data>
+  <data name="Library_RenameInsertToken" xml:space="preserve">
+    <value>插入令牌</value>
+  </data>
+  <data name="Library_RenameReset" xml:space="preserve">
+    <value>恢复为设置中的模板</value>
+  </data>
+  <data name="Library_RenameButton" xml:space="preserve">
+    <value>重命名</value>
+  </data>
+  <data name="Library_RenameSkippedMissing" xml:space="preserve">
+    <value>已跳过 — 缺少 {0}</value>
+  </data>
+  <data name="Library_RenameUnchanged" xml:space="preserve">
+    <value>已是此名称</value>
+  </data>
+  <data name="Library_RenameMoreRows" xml:space="preserve">
+    <value>…另有 {0} 个</value>
+  </data>
+  <data name="Library_RenameSummary" xml:space="preserve">
+    <value>将重命名 {0} 个 · 跳过 {1} 个 · 未更改 {2} 个</value>
+  </data>
+  <data name="Library_RenameSkippedOutside" xml:space="preserve">
+    <value>已跳过 — 文件夹模板指向媒体库文件夹之外</value>
   </data>
 </root>

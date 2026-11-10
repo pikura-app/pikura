@@ -1376,8 +1376,21 @@ public partial class InlineArtworkViewer : UserControl
 
     private async void OnLibraryFindOriginal(object? sender, RoutedEventArgs e)
     {
-        try { if (LibraryFileId is > 0 and var id) await AppServices.Get<LibraryViewModel>().ViewerReverseSearchAsync(id); }
-        catch (Exception ex) { if (VM != null) VM.StatusMessage = ex.Message; }
+        if (LibraryFileId is not (> 0 and var id)) return;
+        var btn = sender as Button;
+        var lib = AppServices.Get<LibraryViewModel>();
+        // The Library status bar isn't visible from the viewer, so report progress on the button.
+        var text = new TextBlock { Text = LocalizationService.Instance["Library_Searching"], TextWrapping = TextWrapping.Wrap, MaxWidth = 320 };
+        var flyout = new Flyout { Content = text, Placement = PlacementMode.Bottom };
+        if (btn != null) { btn.IsEnabled = false; flyout.ShowAt(btn); }
+        try
+        {
+            await lib.ViewerReverseSearchAsync(id);
+            // A hit reopens the viewer on the pixiv artwork; otherwise say why nothing opened.
+            if (lib.RevSearchStatus is { } msg) text.Text = msg; else flyout.Hide();
+        }
+        catch (Exception ex) { text.Text = ex.Message; }
+        finally { if (btn != null) btn.IsEnabled = true; }
     }
 
     private async void OnLibraryTagWithAi(object? sender, RoutedEventArgs e)
