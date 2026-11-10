@@ -7179,4 +7179,79 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="WhatsNew_Fixes260_Description" xml:space="preserve">
     <value>AI 生成作品を非表示にしても、作者が「AI 生成ではない」と指定した作品は非表示にならなくなりました。Hoshi のチャットから作品を開いて戻ったときに、サイドパネルが空白になる問題も修正しました。</value>
   </data>
+  <data name="Pixivision_TagChip" xml:space="preserve">
+    <value>タグ: #{0}</value>
+  </data>
+  <data name="Pixivision_SearchChip" xml:space="preserve">
+    <value>検索: 「{0}」</value>
+  </data>
+  <data name="Pixivision_NoCategoryOnPage" xml:space="preserve">
+    <value>このページに{0}の記事はありません。次のページをお試しください。</value>
+  </data>
+  <data name="Pixivision_NoCategoryResults" xml:space="preserve">
+    <value>この結果に{0}の記事はありません。</value>
+  </data>
+  <data name="Pixivision_NoSearchResults" xml:space="preserve">
+    <value>「{0}」に一致する記事は見つかりませんでした。</value>
+  </data>
+  <data name="Pixivision_SavedLabel" xml:space="preserve">
+    <value>保存済み</value>
+  </data>
+  <data name="Pixivision_SaveForLaterLabel" xml:space="preserve">
+    <value>あとで読む</value>
+  </data>
+  <data name="Pixivision_HistoryCount" xml:space="preserve">
+    <value>🕘 履歴 ({0})</value>
+  </data>
+  <data name="Pixivision_SavedStatus" xml:space="preserve">
+    <value>保存した記事 {0} 件</value>
+  </data>
+  <data name="Pixivision_HistoryStatus" xml:space="preserve">
+    <value>閲覧した記事 {0} 件</value>
+  </data>
+  <data name="Pixivision_ShowArticlesWithThisTag" xml:space="preserve">
+    <value>このタグの記事を表示</value>
+  </data>
+  <data name="Pixivision_RemoveFromThisList" xml:space="preserve">
+    <value>このリストから削除</value>
+  </data>
+  <data name="Pixivision_ArticlesYouViewed" xml:space="preserve">
+    <value>開いた記事</value>
+  </data>
+  <data name="Pixivision_ViewedArticles" xml:space="preserve">
+    <value>🕘 閲覧した記事</value>
+  </data>
+  <data name="Pixivision_FilterByTitleOrTag" xml:space="preserve">
+    <value>タイトルまたはタグで絞り込む</value>
+  </data>
+  <data name="Pixivision_PauseHistory" xml:space="preserve">
+    <value>履歴を一時停止</value>
+  </data>
+  <data name="Pixivision_PauseHistoryTip" xml:space="preserve">
+    <value>一時停止中は、開いた記事が履歴に追加されません</value>
+  </data>
+  <data name="Pixivision_ClearHistory" xml:space="preserve">
+    <value>履歴を消去</value>
+  </data>
+  <data name="Pixivision_SearchPixivision" xml:space="preserve">
+    <value>pixivision を検索</value>
+  </data>
+  <data name="Pixivision_RecentSearches" xml:space="preserve">
+    <value>最近の検索</value>
+  </data>
+  <data name="Pixivision_BackToTheFeed" xml:space="preserve">
+    <value>記事一覧に戻る</value>
+  </data>
+  <data name="Pixivision_NoArticlesMatchFilter" xml:space="preserve">
+    <value>この条件に一致する記事はありません。</value>
+  </data>
+  <data name="Pixivision_NoViewedArticlesYet" xml:space="preserve">
+    <value>閲覧した記事はまだありません。開いた記事がここに表示されます。</value>
+  </data>
+  <data name="Pixivision_ClearHistoryTitle" xml:space="preserve">
+    <value>閲覧履歴を消去しますか？</value>
+  </data>
+  <data name="Pixivision_ClearHistoryMessage" xml:space="preserve">
+    <value>Pixivision の履歴から {0} 件の記事をすべて削除します。保存した記事は削除されません。この操作は元に戻せません。</value>
+  </data>
 </root>

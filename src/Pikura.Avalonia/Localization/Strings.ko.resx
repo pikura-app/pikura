@@ -7179,4 +7179,79 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="WhatsNew_Fixes260_Description" xml:space="preserve">
     <value>AI 생성 작품 숨기기가 더 이상 작가가 AI 생성이 아니라고 표시한 작품을 숨기지 않습니다. Hoshi 채팅에서 작품을 열고 돌아갔을 때 사이드 패널이 비어 있던 문제도 수정했습니다.</value>
   </data>
+  <data name="Pixivision_TagChip" xml:space="preserve">
+    <value>태그: #{0}</value>
+  </data>
+  <data name="Pixivision_SearchChip" xml:space="preserve">
+    <value>검색: “{0}”</value>
+  </data>
+  <data name="Pixivision_NoCategoryOnPage" xml:space="preserve">
+    <value>이 페이지에는 {0} 기사가 없습니다. 다음 페이지를 확인해 보세요.</value>
+  </data>
+  <data name="Pixivision_NoCategoryResults" xml:space="preserve">
+    <value>이 결과에는 {0} 기사가 없습니다.</value>
+  </data>
+  <data name="Pixivision_NoSearchResults" xml:space="preserve">
+    <value>“{0}”에 대한 기사를 찾을 수 없습니다.</value>
+  </data>
+  <data name="Pixivision_SavedLabel" xml:space="preserve">
+    <value>저장됨</value>
+  </data>
+  <data name="Pixivision_SaveForLaterLabel" xml:space="preserve">
+    <value>나중에 읽기</value>
+  </data>
+  <data name="Pixivision_HistoryCount" xml:space="preserve">
+    <value>🕘 기록 ({0})</value>
+  </data>
+  <data name="Pixivision_SavedStatus" xml:space="preserve">
+    <value>저장한 기사 {0}개</value>
+  </data>
+  <data name="Pixivision_HistoryStatus" xml:space="preserve">
+    <value>본 기사 {0}개</value>
+  </data>
+  <data name="Pixivision_ShowArticlesWithThisTag" xml:space="preserve">
+    <value>이 태그의 기사 보기</value>
+  </data>
+  <data name="Pixivision_RemoveFromThisList" xml:space="preserve">
+    <value>이 목록에서 삭제</value>
+  </data>
+  <data name="Pixivision_ArticlesYouViewed" xml:space="preserve">
+    <value>열어 본 기사</value>
+  </data>
+  <data name="Pixivision_ViewedArticles" xml:space="preserve">
+    <value>🕘 본 기사</value>
+  </data>
+  <data name="Pixivision_FilterByTitleOrTag" xml:space="preserve">
+    <value>제목 또는 태그로 필터</value>
+  </data>
+  <data name="Pixivision_PauseHistory" xml:space="preserve">
+    <value>기록 일시 중지</value>
+  </data>
+  <data name="Pixivision_PauseHistoryTip" xml:space="preserve">
+    <value>일시 중지 중에는 연 기사가 기록에 추가되지 않습니다</value>
+  </data>
+  <data name="Pixivision_ClearHistory" xml:space="preserve">
+    <value>기록 지우기</value>
+  </data>
+  <data name="Pixivision_SearchPixivision" xml:space="preserve">
+    <value>pixivision 검색</value>
+  </data>
+  <data name="Pixivision_RecentSearches" xml:space="preserve">
+    <value>최근 검색</value>
+  </data>
+  <data name="Pixivision_BackToTheFeed" xml:space="preserve">
+    <value>기사 목록으로 돌아가기</value>
+  </data>
+  <data name="Pixivision_NoArticlesMatchFilter" xml:space="preserve">
+    <value>이 필터와 일치하는 기사가 없습니다.</value>
+  </data>
+  <data name="Pixivision_NoViewedArticlesYet" xml:space="preserve">
+    <value>아직 본 기사가 없습니다. 연 기사가 여기에 표시됩니다.</value>
+  </data>
+  <data name="Pixivision_ClearHistoryTitle" xml:space="preserve">
+    <value>열람 기록을 지울까요?</value>
+  </data>
+  <data name="Pixivision_ClearHistoryMessage" xml:space="preserve">
+    <value>Pixivision 기록에서 기사 {0}개를 모두 삭제합니다. 저장한 기사는 삭제되지 않습니다. 이 작업은 되돌릴 수 없습니다.</value>
+  </data>
 </root>

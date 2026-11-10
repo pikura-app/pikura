@@ -99,6 +99,8 @@ public sealed class SavedArticleEntry
     public string Title { get; set; } = string.Empty;
     public string? ThumbnailUrl { get; set; }
     public List<string> Tags { get; set; } = [];
+    public List<PixivisionTagRef> TagRefs { get; set; } = [];
+    public string? CategorySlug { get; set; }
     public DateTimeOffset SavedAt { get; set; } = DateTimeOffset.UtcNow;
 
     public PixivisionArticleSummary ToSummary() => new()
@@ -107,6 +109,8 @@ public sealed class SavedArticleEntry
         Title = Title,
         ThumbnailUrl = ThumbnailUrl,
         Tags = Tags,
+        TagRefs = TagRefs,
+        CategorySlug = CategorySlug,
     };
 
     public static SavedArticleEntry FromSummary(PixivisionArticleSummary s) => new()
@@ -115,6 +119,8 @@ public sealed class SavedArticleEntry
         Title = s.Title,
         ThumbnailUrl = s.ThumbnailUrl,
         Tags = s.Tags.ToList(),
+        TagRefs = s.TagRefs.ToList(),
+        CategorySlug = s.CategorySlug,
         SavedAt = DateTimeOffset.UtcNow,
     };
 }

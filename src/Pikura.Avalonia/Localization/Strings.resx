@@ -7243,4 +7243,79 @@ Saved to: {3}</value>
   <data name="WhatsNew_Fixes260_Description" xml:space="preserve">
     <value>Hiding AI-generated works no longer hides works that artists marked as not AI-generated. Opening an artwork from a Hoshi chat and going back no longer leaves the side panel blank.</value>
   </data>
+  <data name="Pixivision_TagChip" xml:space="preserve">
+    <value>Tag: #{0}</value>
+  </data>
+  <data name="Pixivision_SearchChip" xml:space="preserve">
+    <value>Search: “{0}”</value>
+  </data>
+  <data name="Pixivision_NoCategoryOnPage" xml:space="preserve">
+    <value>No {0} articles on this page — try the next page.</value>
+  </data>
+  <data name="Pixivision_NoCategoryResults" xml:space="preserve">
+    <value>No {0} articles in these results.</value>
+  </data>
+  <data name="Pixivision_NoSearchResults" xml:space="preserve">
+    <value>No articles found for “{0}”.</value>
+  </data>
+  <data name="Pixivision_SavedLabel" xml:space="preserve">
+    <value>Saved</value>
+  </data>
+  <data name="Pixivision_SaveForLaterLabel" xml:space="preserve">
+    <value>Save for later</value>
+  </data>
+  <data name="Pixivision_HistoryCount" xml:space="preserve">
+    <value>🕘 History ({0})</value>
+  </data>
+  <data name="Pixivision_SavedStatus" xml:space="preserve">
+    <value>{0} saved article(s)</value>
+  </data>
+  <data name="Pixivision_HistoryStatus" xml:space="preserve">
+    <value>{0} viewed article(s)</value>
+  </data>
+  <data name="Pixivision_ShowArticlesWithThisTag" xml:space="preserve">
+    <value>Show articles with this tag</value>
+  </data>
+  <data name="Pixivision_RemoveFromThisList" xml:space="preserve">
+    <value>Remove from this list</value>
+  </data>
+  <data name="Pixivision_ArticlesYouViewed" xml:space="preserve">
+    <value>Articles you've opened</value>
+  </data>
+  <data name="Pixivision_ViewedArticles" xml:space="preserve">
+    <value>🕘 Viewed Articles</value>
+  </data>
+  <data name="Pixivision_FilterByTitleOrTag" xml:space="preserve">
+    <value>Filter by title or tag</value>
+  </data>
+  <data name="Pixivision_PauseHistory" xml:space="preserve">
+    <value>Pause history</value>
+  </data>
+  <data name="Pixivision_PauseHistoryTip" xml:space="preserve">
+    <value>While paused, articles you open aren't added to your history</value>
+  </data>
+  <data name="Pixivision_ClearHistory" xml:space="preserve">
+    <value>Clear history</value>
+  </data>
+  <data name="Pixivision_SearchPixivision" xml:space="preserve">
+    <value>Search pixivision</value>
+  </data>
+  <data name="Pixivision_RecentSearches" xml:space="preserve">
+    <value>Recent searches</value>
+  </data>
+  <data name="Pixivision_BackToTheFeed" xml:space="preserve">
+    <value>Back to the feed</value>
+  </data>
+  <data name="Pixivision_NoArticlesMatchFilter" xml:space="preserve">
+    <value>No articles match this filter.</value>
+  </data>
+  <data name="Pixivision_NoViewedArticlesYet" xml:space="preserve">
+    <value>No viewed articles yet. Articles you open will appear here.</value>
+  </data>
+  <data name="Pixivision_ClearHistoryTitle" xml:space="preserve">
+    <value>Clear your viewed history?</value>
+  </data>
+  <data name="Pixivision_ClearHistoryMessage" xml:space="preserve">
+    <value>This removes all {0} article(s) from your Pixivision history. Saved articles aren't affected. This can't be undone.</value>
+  </data>
 </root>

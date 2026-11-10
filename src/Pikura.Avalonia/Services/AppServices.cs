@@ -71,6 +71,7 @@ public static class AppServices
 
                 // Pixivision "read later" saved articles (app-side persistence)
                 services.AddSingleton<Pikura.Core.Services.PixivisionSavedArticlesService>();
+                services.AddSingleton<Pikura.Core.Services.PixivisionHistoryService>();
 
                 // Download job repository (SQLite)
                 var dbPath = Path.Combine(
@@ -274,7 +275,8 @@ public static class AppServices
                         provider.GetRequiredService<PixivClient>(),
                         provider.GetRequiredService<PixivImageLoader>(),
                         provider.GetRequiredService<SettingsService>(),
-                        provider.GetRequiredService<Pikura.Core.Services.PixivisionSavedArticlesService>()));
+                        provider.GetRequiredService<Pikura.Core.Services.PixivisionSavedArticlesService>(),
+                        provider.GetRequiredService<Pikura.Core.Services.PixivisionHistoryService>()));
                 services.AddSingleton<CollectionsViewModel>(provider =>
                     new CollectionsViewModel(
                         provider.GetRequiredService<PixivClient>(),

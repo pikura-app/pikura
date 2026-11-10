@@ -32,6 +32,7 @@ public partial class PixivisionViewModel : ViewModelBase
     private readonly PixivImageLoader _imageLoader;
     private readonly SettingsService _settingsService;
     private readonly PixivisionSavedArticlesService _savedArticles;
+    private readonly PixivisionHistoryService _history;
 
     private const int MaxConcurrentWorkFetches = 4;
 
@@ -131,14 +132,14 @@ public partial class PixivisionViewModel : ViewModelBase
         while (!IsMonthScanCovered(monthStart) && !_dateScanExhausted && _dateScanNextPage <= MaxDateScanPages)
         {
             PixivisionArticlePage result;
-            try { result = await _pixivision.GetArticlesAsync(SelectedCategory.Slug, _dateScanNextPage); }
+            try { result = await FetchPageAsync(_dateScanNextPage); }
             catch { break; }
 
             if (result.Items.Count == 0) { _dateScanExhausted = true; break; }
 
             foreach (var a in result.Items)
             {
-                if (a.PublishedDate is not { } d) continue;
+                if (a.PublishedDate is not { } d || !PassesCategoryFilter(a)) continue;
                 var day = d.Date;
                 _scannedArticleDates.Add(day);
                 if (_scanOldestDate is null || day < _scanOldestDate) _scanOldestDate = day;
@@ -167,14 +168,127 @@ public partial class PixivisionViewModel : ViewModelBase
         return empty;
     }
 
-    partial void OnSelectedCategoryChanged(PixivisionCategory value)
+    // The feed (and thus which days have articles) differs per category and per search/tag
+    // source, so switching either invalidates all scan progress.
+    partial void OnSelectedCategoryChanged(PixivisionCategory value) => ResetDateScan();
+
+    private void ResetDateScan()
     {
-        // The feed (and thus which days have articles) differs per category, so a category
-        // switch invalidates all scan progress.
         _scannedArticleDates.Clear();
         _dateScanNextPage = 1;
         _scanOldestDate = null;
         _dateScanExhausted = false;
+    }
+
+    // ── Search / tag source ────────────────────────────────────────────────
+    // pixivision's own keyword search (/s/?q=) or a tag page (/t/{id}) replaces the feed as the
+    // list's source. Categories can't be passed to either, so in these modes the category chips
+    // filter the results client-side by each card's category.
+    [ObservableProperty] private string _searchText = "";
+    [ObservableProperty] private string? _activeQuery;
+    [ObservableProperty] private PixivisionTagRef? _activeTag;
+    public bool HasActiveSource => ActiveQuery != null || ActiveTag != null;
+    public string ActiveSourceLabel => ActiveTag is { } t ? LocalizationService.F("Pixivision_TagChip", t.Name)
+        : ActiveQuery is { } q ? LocalizationService.F("Pixivision_SearchChip", q) : "";
+    partial void OnActiveQueryChanged(string? value) => OnSourceChanged();
+    partial void OnActiveTagChanged(PixivisionTagRef? value) => OnSourceChanged();
+    private void OnSourceChanged()
+    {
+        ResetDateScan();
+        OnPropertyChanged(nameof(HasActiveSource));
+        OnPropertyChanged(nameof(ActiveSourceLabel));
+    }
+
+    private Task<PixivisionArticlePage> FetchPageAsync(int page, CancellationToken ct = default) =>
+        ActiveTag is { } tag ? _pixivision.GetTagArticlesAsync(tag.Id, page, ct)
+        : ActiveQuery is { } q ? _pixivision.SearchArticlesAsync(q, page, ct)
+        : _pixivision.GetArticlesAsync(SelectedCategory.Slug, page, ct);
+
+    private bool PassesCategoryFilter(PixivisionArticleSummary a) =>
+        !HasActiveSource || string.IsNullOrEmpty(SelectedCategory.Slug) || a.CategorySlug == SelectedCategory.Slug;
+
+    private string CategoryDisplayName => LocLabelConverter.Translate("Pixivision_Cat_", SelectedCategory.Label);
+
+    [RelayCommand]
+    public Task SubmitSearchAsync()
+    {
+        var q = SearchText.Trim();
+        if (q.Length == 0) return ClearSourceAsync();
+        RecordRecentSearch(q);
+        return ShowSourceAsync(q, null);
+    }
+
+    /// <summary>Clicking a tag: its tag page when the id is known, otherwise a search for its name
+    /// (older saved/history entries only stored tag names).</summary>
+    [RelayCommand]
+    public Task OpenTagAsync(PixivisionTagRef tag)
+    {
+        if (tag.Id > 0) return ShowSourceAsync(null, tag);
+        SearchText = tag.Name;
+        return SubmitSearchAsync();
+    }
+
+    [RelayCommand]
+    public Task ClearSourceAsync()
+    {
+        SearchText = "";
+        if (!HasActiveSource) return Task.CompletedTask;
+        ActiveQuery = null;
+        ActiveTag = null;
+        return GoToPageAsync(1);
+    }
+
+    private Task ShowSourceAsync(string? query, PixivisionTagRef? tag)
+    {
+        if (IsViewingArticle) BackToList();
+        IsViewingSavedArticles = false;
+        IsViewingHistory = false;
+        if (tag != null) SearchText = "";
+        ActiveTag = tag;
+        ActiveQuery = query;
+        SelectedCategory = PixivisionService.Categories[0];
+        return GoToPageAsync(1);
+    }
+
+    // Recent search terms, most recent first — same idea as the Search tab's history dropdown.
+    private const int MaxRecentSearches = 10;
+    public ObservableCollection<string> RecentSearches { get; } = [];
+    public bool HasRecentSearches => RecentSearches.Count > 0;
+
+    private void RecordRecentSearch(string q)
+    {
+        for (var i = RecentSearches.Count - 1; i >= 0; i--)
+            if (RecentSearches[i].Equals(q, StringComparison.OrdinalIgnoreCase)) RecentSearches.RemoveAt(i);
+        RecentSearches.Insert(0, q);
+        while (RecentSearches.Count > MaxRecentSearches) RecentSearches.RemoveAt(RecentSearches.Count - 1);
+        SaveRecentSearches();
+    }
+
+    [RelayCommand]
+    public Task ApplyRecentSearchAsync(string q)
+    {
+        SearchText = q;
+        return SubmitSearchAsync();
+    }
+
+    [RelayCommand]
+    public void RemoveRecentSearch(string q)
+    {
+        RecentSearches.Remove(q);
+        SaveRecentSearches();
+    }
+
+    [RelayCommand]
+    public void ClearRecentSearches()
+    {
+        RecentSearches.Clear();
+        SaveRecentSearches();
+    }
+
+    private void SaveRecentSearches()
+    {
+        OnPropertyChanged(nameof(HasRecentSearches));
+        _settingsService.Update(s => s.PixivisionRecentSearches = RecentSearches.ToList());
     }
 
     public IReadOnlyList<PixivisionCategoryGroup> CategoryGroups => PixivisionService.CategoryGroups;
@@ -216,11 +330,111 @@ public partial class PixivisionViewModel : ViewModelBase
     // enough (Id/Title/ThumbnailUrl/Tags) to persist without needing a second network round-trip.
     private PixivisionArticleCardViewModel? _currentArticleSummary;
     public bool IsCurrentArticleSaved => CurrentArticleId > 0 && _savedArticles.IsSaved(CurrentArticleId);
-    public string SaveArticleButtonLabel => IsCurrentArticleSaved ? "🔖 Saved" : "🔖 Save for later";
+    public string SaveArticleButtonLabel => "🔖 " + LocalizationService.Instance[IsCurrentArticleSaved ? "Pixivision_SavedLabel" : "Pixivision_SaveForLaterLabel"];
+    /// <summary>Saved articles matching <see cref="LocalFilterText"/>.</summary>
     public ObservableCollection<PixivisionArticleCardViewModel> SavedArticles { get; } = [];
     public bool HasSavedArticles => SavedArticles.Count > 0;
-    public string SavedArticlesButtonLabel => Pikura.Avalonia.Localization.LocalizationService.F("Pixivision_SavedCount", SavedArticles.Count);
+    public string SavedArticlesButtonLabel => Pikura.Avalonia.Localization.LocalizationService.F("Pixivision_SavedCount", _savedArticles.GetAll().Count);
     [ObservableProperty] private bool _isViewingSavedArticles;
+
+    // ── Saved / History overlays ───────────────────────────────────────────
+    // Both replace the article list; the feed's category, date, sidebar and pager controls
+    // don't apply to them and are hidden (ShowFeedControls).
+    [ObservableProperty] private bool _isViewingHistory;
+    public bool IsViewingOverlay => IsViewingSavedArticles || IsViewingHistory;
+    public bool ShowFeedControls => !IsViewingArticle && !IsViewingOverlay;
+    partial void OnIsViewingSavedArticlesChanged(bool value) { if (value) IsViewingHistory = false; OnOverlayChanged(); }
+    partial void OnIsViewingHistoryChanged(bool value) { if (value) IsViewingSavedArticles = false; OnOverlayChanged(); }
+    partial void OnIsViewingArticleChanged(bool value) => OnPropertyChanged(nameof(ShowFeedControls));
+
+    private void OnOverlayChanged()
+    {
+        OnPropertyChanged(nameof(IsViewingOverlay));
+        OnPropertyChanged(nameof(ShowFeedControls));
+        if (IsViewingHistory && _historyDirty) RefreshHistory();
+        LocalFilterText = "";
+        if (!IsViewingArticle) RestoreListStatus();
+    }
+
+    /// <summary>Client-side filter (title or tag) for the Saved and History lists.</summary>
+    [ObservableProperty] private string _localFilterText = "";
+    public bool HasLocalFilter => !string.IsNullOrWhiteSpace(LocalFilterText);
+    partial void OnLocalFilterTextChanged(string value)
+    {
+        OnPropertyChanged(nameof(HasLocalFilter));
+        RefreshSavedArticles();
+        if (IsViewingHistory) RefreshHistory(); else _historyDirty = true;
+        if (IsViewingOverlay && !IsViewingArticle) RestoreListStatus();
+    }
+
+    private bool MatchesLocalFilter(string title, IEnumerable<string> tags)
+    {
+        var f = LocalFilterText.Trim();
+        return f.Length == 0
+            || title.Contains(f, StringComparison.OrdinalIgnoreCase)
+            || tags.Any(t => t.Contains(f, StringComparison.OrdinalIgnoreCase));
+    }
+
+    public ObservableCollection<PixivisionHistoryGroupViewModel> HistoryGroups { get; } = [];
+    public bool HasHistory => HistoryGroups.Count > 0;
+    public string HistoryButtonLabel => LocalizationService.F("Pixivision_HistoryCount", _history.GetAll().Count);
+    public string ClearHistoryMessage => LocalizationService.F("Pixivision_ClearHistoryMessage", _history.GetAll().Count);
+    private bool _historyDirty = true;
+    // Cards are reused across refreshes so opening an article doesn't re-download every thumbnail.
+    private readonly Dictionary<long, PixivisionArticleCardViewModel> _historyCards = new();
+
+    public bool HistoryPaused
+    {
+        get => _settingsService.Current.PixivisionHistoryPaused;
+        set
+        {
+            if (value == HistoryPaused) return;
+            _settingsService.Update(s => s.PixivisionHistoryPaused = value);
+            OnPropertyChanged();
+        }
+    }
+
+    private void RefreshHistory()
+    {
+        _historyDirty = false;
+        HistoryGroups.Clear();
+        var entries = _history.GetAll();
+        foreach (var id in _historyCards.Keys.Except(entries.Select(e => e.Id)).ToList()) _historyCards.Remove(id);
+        foreach (var day in entries.Where(e => MatchesLocalFilter(e.Title, e.Tags)).GroupBy(e => e.ViewedAt.LocalDateTime.Date))
+        {
+            var group = new PixivisionHistoryGroupViewModel(HistoryGroupViewModel.FormatDayLabel(day.Key));
+            foreach (var entry in day)
+            {
+                if (!_historyCards.TryGetValue(entry.Id, out var card))
+                {
+                    card = new PixivisionArticleCardViewModel(entry.ToSummary());
+                    _historyCards[entry.Id] = card;
+                    _ = card.LoadThumbnailAsync(_imageLoader);
+                }
+                card.IsSaved = _savedArticles.IsSaved(entry.Id);
+                group.Items.Add(card);
+            }
+            HistoryGroups.Add(group);
+        }
+        OnPropertyChanged(nameof(HasHistory));
+    }
+
+    [RelayCommand] public void ShowHistory() => IsViewingHistory = true;
+    [RelayCommand] public void HideHistory() => IsViewingHistory = false;
+    [RelayCommand] public void RemoveHistoryArticle(PixivisionArticleCardViewModel card) => _history.Remove(card.Id);
+    [RelayCommand] public void ClearHistory() => _history.Clear();
+
+    /// <summary>Status-bar text for whatever list is showing (Saved, History or the feed).</summary>
+    private void RestoreListStatus()
+    {
+        if (IsViewingSavedArticles) SetStatus("Pixivision_SavedStatus", SavedArticles.Count);
+        else if (IsViewingHistory) SetStatus("Pixivision_HistoryStatus", HistoryGroups.Sum(g => g.Items.Count));
+        else if (Articles.Count > 0)
+        {
+            if (IsAutoloadMode) SetStatus("Pixivision_ArticlesLoaded", Articles.Count);
+            else SetStatus("Pixivision_ArticlesPage", Articles.Count, ArticlePage);
+        }
+    }
 
     // Interview-article ("Artist's Spotlight" etc.) extras — absent (null/empty) on regular articles.
     [ObservableProperty] private PixivisionProfile? _articleProfile;
@@ -330,13 +544,16 @@ public partial class PixivisionViewModel : ViewModelBase
         PixivClient pixivClient,
         PixivImageLoader imageLoader,
         SettingsService settingsService,
-        PixivisionSavedArticlesService savedArticles)
+        PixivisionSavedArticlesService savedArticles,
+        PixivisionHistoryService history)
     {
         _pixivision = pixivision;
         _pixivClient = pixivClient;
         _imageLoader = imageLoader;
         _settingsService = settingsService;
         _savedArticles = savedArticles;
+        _history = history;
+        foreach (var q in _settingsService.Current.PixivisionRecentSearches.Take(MaxRecentSearches)) RecentSearches.Add(q);
         _cardSize = _settingsService.Current.CardSize;
         _showBadges = _settingsService.Current.ShowBadges;
         _isAutoloadMode = !_settingsService.Current.PixivisionUsePagination;
@@ -349,8 +566,10 @@ public partial class PixivisionViewModel : ViewModelBase
             if (e.PropertyName is nameof(Pikura.Avalonia.Localization.LocalizationService.Language))
             {
                 foreach (var n in new[] { nameof(DateLabel), nameof(SavedArticlesButtonLabel), nameof(InlineArtworkLayoutLabel),
-                                          nameof(SidePanelLabel), nameof(RelatedLatestHeading), nameof(RelatedPopularHeading), nameof(PageLabel) })
+                                          nameof(SidePanelLabel), nameof(RelatedLatestHeading), nameof(RelatedPopularHeading), nameof(PageLabel),
+                                          nameof(HistoryButtonLabel), nameof(ClearHistoryMessage), nameof(ActiveSourceLabel), nameof(SaveArticleButtonLabel) })
                     OnPropertyChanged(n);
+                if (IsViewingHistory) RefreshHistory(); else _historyDirty = true;
                 // Stay on the same page, and re-fetch an open article so its text switches too.
                 _ = IsFilteredByDate || IsAutoloadMode ? LoadArticlesAsync() : LoadArticlesPageAsync(Math.Max(1, ArticlePage), append: false);
                 if (IsViewingArticle && _currentArticleSummary is { } open) _ = OpenArticleAsync(open);
@@ -380,6 +599,13 @@ public partial class PixivisionViewModel : ViewModelBase
             OnPropertyChanged(nameof(SaveArticleButtonLabel));
             RefreshSavedArticles();
             RefreshCardSavedStates();
+            if (IsViewingSavedArticles && !IsViewingArticle) RestoreListStatus();
+        };
+        _history.Changed += (_, _) =>
+        {
+            OnPropertyChanged(nameof(HistoryButtonLabel)); OnPropertyChanged(nameof(ClearHistoryMessage));
+            if (IsViewingHistory) RefreshHistory(); else _historyDirty = true;
+            if (IsViewingHistory && !IsViewingArticle) RestoreListStatus();
         };
         RefreshSavedArticles();
 
@@ -423,23 +649,24 @@ public partial class PixivisionViewModel : ViewModelBase
 
         try
         {
-            var result = await _pixivision.GetArticlesAsync(SelectedCategory.Slug, page, cts.Token);
+            var result = await FetchPageAsync(page, cts.Token);
             if (cts.IsCancellationRequested) return;
 
             ArticlePage = result.Page;
             HasNextPage = result.HasNextPage;
-            foreach (var a in result.Items)
+            foreach (var a in result.Items.Where(PassesCategoryFilter))
             {
                 if (cts.IsCancellationRequested) return;
                 var card = new PixivisionArticleCardViewModel(a);
                 Articles.Add(card);
                 _ = card.LoadThumbnailAsync(_imageLoader);
             }
-            StatusMessage = Articles.Count == 0
-                ? Pikura.Avalonia.Localization.LocalizationService.Instance["Pixivision_CouldNotLoad"]
-                : IsAutoloadMode
-                    ? Pikura.Avalonia.Localization.LocalizationService.F("Pixivision_ArticlesLoaded", Articles.Count)
-                    : Pikura.Avalonia.Localization.LocalizationService.F("Pixivision_ArticlesPage", Articles.Count, ArticlePage);
+            if (IsViewingOverlay) RestoreListStatus();
+            else if (Articles.Count > 0) RestoreListStatus();
+            else if (result.Items.Count > 0 && HasNextPage) SetStatus("Pixivision_NoCategoryOnPage", CategoryDisplayName);
+            else if (result.Items.Count > 0) SetStatus("Pixivision_NoCategoryResults", CategoryDisplayName);
+            else if (ActiveQuery != null) SetStatus("Pixivision_NoSearchResults", ActiveQuery);
+            else SetStatus("Pixivision_CouldNotLoad");
             OnPropertyChanged(nameof(HasArticles));
             // The sidebar widgets are category-scoped on pixivision's own site, so refresh them
             // on every fresh page load (category switch, page jump) — but not on autoload's
@@ -521,13 +748,14 @@ public partial class PixivisionViewModel : ViewModelBase
             var scannedPages = 0;
             while (page <= MaxDateScanPages)
             {
-                var result = await _pixivision.GetArticlesAsync(SelectedCategory.Slug, page);
+                var result = await FetchPageAsync(page);
                 scannedPages++;
                 if (result.Items.Count == 0) break;
 
                 var passedTarget = false;
                 foreach (var a in result.Items)
                 {
+                    if (!PassesCategoryFilter(a)) continue;
                     if (a.PublishedDate is not { } d) continue;
                     if (d.Date == target)
                     {
@@ -624,13 +852,14 @@ public partial class PixivisionViewModel : ViewModelBase
             var scannedPages = 0;
             while (page <= MaxDateScanPages)
             {
-                var result = await _pixivision.GetArticlesAsync(SelectedCategory.Slug, page);
+                var result = await FetchPageAsync(page);
                 scannedPages++;
                 if (result.Items.Count == 0) break;
 
                 var passedStart = false;
                 foreach (var a in result.Items)
                 {
+                    if (!PassesCategoryFilter(a)) continue;
                     if (a.PublishedDate is not { } d) continue;
                     var date = d.Date;
                     if ((end is null || date <= end) && (start is null || date >= start))
@@ -666,8 +895,8 @@ public partial class PixivisionViewModel : ViewModelBase
         var cts = new CancellationTokenSource();
         _articleCts = cts;
 
+        // Saved/History stay flagged while the article is open, so Back returns to them.
         IsViewingArticle = true;
-        IsViewingSavedArticles = false;
         _currentArticleSummary = summary;
         CurrentArticleId = summary.Id;
         ArticleTitle = summary.Title;
@@ -701,6 +930,14 @@ public partial class PixivisionViewModel : ViewModelBase
             }
 
             ArticleTitle = detail.Title;
+
+            if (!HistoryPaused)
+            {
+                var viewed = summary.ToSummary();
+                if (string.IsNullOrWhiteSpace(viewed.Title)) viewed.Title = detail.Title;
+                if (string.IsNullOrWhiteSpace(viewed.ThumbnailUrl)) viewed.ThumbnailUrl = detail.EyecatchUrl;
+                _history.Record(viewed);
+            }
 
             ArticleProfile = detail.Profile;
             if (detail.Profile?.HasAvatar == true)
@@ -919,10 +1156,8 @@ public partial class PixivisionViewModel : ViewModelBase
         OnPropertyChanged(nameof(HasArticleToc));
         // The article view overwrote StatusMessage; if the list never loaded, retry rather than
         // leaving an empty page showing the last article's status.
-        if (Articles.Count == 0 && !IsLoading && !IsFilteredByDate) _ = LoadArticlesPageAsync(ArticlePage, append: false);
-        else if (Articles.Count > 0) StatusMessage = IsAutoloadMode
-            ? Pikura.Avalonia.Localization.LocalizationService.F("Pixivision_ArticlesLoaded", Articles.Count)
-            : Pikura.Avalonia.Localization.LocalizationService.F("Pixivision_ArticlesPage", Articles.Count, ArticlePage);
+        if (!IsViewingOverlay && Articles.Count == 0 && !IsLoading && !IsFilteredByDate) _ = LoadArticlesPageAsync(ArticlePage, append: false);
+        else RestoreListStatus();
     }
 
     [RelayCommand]
@@ -967,7 +1202,7 @@ public partial class PixivisionViewModel : ViewModelBase
     private void RefreshCardSavedStates()
     {
         foreach (var card in Articles.Concat(RelatedLatest).Concat(RelatedPopular)
-                     .Concat(MonthlyRanking).Concat(Featured).Concat(SavedArticles)
+                     .Concat(MonthlyRanking).Concat(Featured).Concat(SavedArticles).Concat(_historyCards.Values)
                      .Concat(ArticleParagraphs.SelectMany(p => p.RelatedCards)))
         {
             card.IsSaved = _savedArticles.IsSaved(card.Id);
@@ -983,7 +1218,7 @@ public partial class PixivisionViewModel : ViewModelBase
     private void RefreshSavedArticles()
     {
         SavedArticles.Clear();
-        foreach (var entry in _savedArticles.GetAll())
+        foreach (var entry in _savedArticles.GetAll().Where(e => MatchesLocalFilter(e.Title, e.Tags)))
         {
             var card = new PixivisionArticleCardViewModel(entry.ToSummary()) { IsSaved = true };
             SavedArticles.Add(card);
@@ -1118,6 +1353,13 @@ public partial class PixivisionParagraphViewModel : ObservableObject
     public ObservableCollection<PixivisionArticleCardViewModel> RelatedCards { get; } = [];
 }
 
+/// <summary>One day of the Pixivision history ("Today", "Yesterday", …).</summary>
+public sealed class PixivisionHistoryGroupViewModel(string label)
+{
+    public string Label { get; } = label;
+    public ObservableCollection<PixivisionArticleCardViewModel> Items { get; } = [];
+}
+
 /// <summary>Thin, bindable wrapper around <see cref="PixivisionArticleSummary"/> that adds an
 /// async-loaded thumbnail bitmap for the article grid, mirroring ArtworkCardViewModel's pattern.</summary>
 public partial class PixivisionArticleCardViewModel : ObservableObject
@@ -1126,6 +1368,10 @@ public partial class PixivisionArticleCardViewModel : ObservableObject
     public string Title { get; }
     public string? ThumbnailUrl { get; }
     public IReadOnlyList<string> Tags { get; }
+    public IReadOnlyList<PixivisionTagRef> TagRefs { get; }
+    /// <summary>Clickable tag chips: tag refs when the card linked them, otherwise names with Id 0.</summary>
+    public IReadOnlyList<PixivisionTagRef> TagChips { get; }
+    public string? CategorySlug { get; }
     public DateTime? PublishedDate { get; }
     public string DateLabel => PublishedDate?.ToString("yyyy.MM.dd") ?? string.Empty;
     public bool HasDate => PublishedDate.HasValue;
@@ -1144,6 +1390,9 @@ public partial class PixivisionArticleCardViewModel : ObservableObject
         Title = summary.Title;
         ThumbnailUrl = summary.ThumbnailUrl;
         Tags = summary.Tags;
+        TagRefs = summary.TagRefs;
+        TagChips = TagRefs.Count > 0 ? TagRefs : Tags.Select(t => new PixivisionTagRef(0, t)).ToList();
+        CategorySlug = summary.CategorySlug;
         PublishedDate = summary.PublishedDate;
     }
 
@@ -1153,6 +1402,8 @@ public partial class PixivisionArticleCardViewModel : ObservableObject
         Title = Title,
         ThumbnailUrl = ThumbnailUrl,
         Tags = Tags.ToList(),
+        TagRefs = TagRefs.ToList(),
+        CategorySlug = CategorySlug,
         PublishedDate = PublishedDate,
     };
 

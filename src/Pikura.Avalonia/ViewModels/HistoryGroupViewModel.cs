@@ -20,7 +20,7 @@ public partial class HistoryGroupViewModel : ObservableObject, Pikura.Avalonia.L
     public DateTime Date { get; }
 
     /// <summary>Human-friendly label: "Today", "Yesterday", a weekday, or a full date.</summary>
-    public string Label => MakeLabel(Date);
+    public string Label => FormatDayLabel(Date);
 
     /// <summary>Jobs belonging to this date, in display order (newest first).</summary>
     public ObservableCollection<DownloadJobViewModel> Jobs { get; } = new();
@@ -59,7 +59,8 @@ public partial class HistoryGroupViewModel : ObservableObject, Pikura.Avalonia.L
     [RelayCommand]
     private void Toggle() => IsExpanded = !IsExpanded;
 
-    private static string MakeLabel(DateTime date)
+    /// <summary>Localized day heading: Today / Yesterday / weekday / date.</summary>
+    public static string FormatDayLabel(DateTime date)
     {
         var loc = Pikura.Avalonia.Localization.LocalizationService.Instance;
         var today = DateTime.Now.Date;

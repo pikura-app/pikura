@@ -86,20 +86,51 @@ public sealed partial class PixivisionService
         var basePath = string.IsNullOrEmpty(category) ? $"{BaseUrl}/{lang}/" : $"{BaseUrl}/{lang}/c/{category}/";
         var url = page <= 1 ? basePath : $"{basePath}?p={page}";
         var html = await GetHtmlAsync(url, ct).ConfigureAwait(false);
-        var result = new PixivisionArticlePage { Page = page };
-        if (html == null) return result;
+        if (html == null) return new PixivisionArticlePage { Page = page };
 
-        var matches = ArticleListItemRegex().Matches(html);
         // Defensive: a locale whose markup yields 0 articles falls back to English.
-        if (matches.Count == 0 && lang != "en")
+        if (!ArticleListItemRegex().IsMatch(html) && lang != "en")
         {
             _logger.LogWarning("pixivision /{Lang}/ feed yielded 0 items — retrying /en/", lang);
             basePath = string.IsNullOrEmpty(category) ? $"{BaseUrl}/en/" : $"{BaseUrl}/en/c/{category}/";
             url = page <= 1 ? basePath : $"{basePath}?p={page}";
             html = await GetHtmlAsync(url, ct).ConfigureAwait(false);
-            if (html == null) return result;
-            matches = ArticleListItemRegex().Matches(html);
+            if (html == null) return new PixivisionArticlePage { Page = page };
         }
+
+        var result = ParseArticleList(html, page);
+        result.MonthlyRanking = ExtractSection(html, RankingSectionRegex(), SidebarCardRegex());
+        result.Featured = ExtractSection(html, FeaturedSectionRegex(), SidebarCardRegex());
+        return result;
+    }
+
+    /// <summary>pixivision's own keyword search (<c>/{lang}/s/?q=</c>). No results is a 404,
+    /// which comes back as an empty page.</summary>
+    public async Task<PixivisionArticlePage> SearchArticlesAsync(string query, int page = 1, CancellationToken ct = default)
+    {
+        var url = $"{BaseUrl}/{Language}/s/?q={Uri.EscapeDataString(query.Trim())}" + (page > 1 ? $"&p={page}" : "");
+        var html = await GetHtmlAsync(url, ct).ConfigureAwait(false);
+        return html == null ? new PixivisionArticlePage { Page = page } : ParseArticleList(html, page);
+    }
+
+    /// <summary>Articles with one tag (<c>/{lang}/t/{id}</c>). <see cref="PixivisionArticlePage.Title"/>
+    /// carries the tag name from the page heading.</summary>
+    public async Task<PixivisionArticlePage> GetTagArticlesAsync(long tagId, int page = 1, CancellationToken ct = default)
+    {
+        var url = $"{BaseUrl}/{Language}/t/{tagId}" + (page > 1 ? $"?p={page}" : "");
+        var html = await GetHtmlAsync(url, ct).ConfigureAwait(false);
+        if (html == null) return new PixivisionArticlePage { Page = page };
+        var result = ParseArticleList(html, page);
+        var name = TagPageNameRegex().Match(html);
+        if (name.Success) result.Title = WebUtility.HtmlDecode(name.Groups["name"].Value.Trim()).TrimStart('#');
+        return result;
+    }
+
+    /// <summary>Parses the article cards shared by the feed, category, search and tag pages.</summary>
+    public static PixivisionArticlePage ParseArticleList(string html, int page)
+    {
+        var result = new PixivisionArticlePage { Page = page };
+        var matches = ArticleListItemRegex().Matches(html);
         var seen = new HashSet<long>();
         for (var i = 0; i < matches.Count; i++)
         {
@@ -118,6 +149,13 @@ public sealed partial class PixivisionService
                 .Where(t => !string.IsNullOrWhiteSpace(t))
                 .Distinct()
                 .ToList();
+            var tagRefs = TagLinkRegex().Matches(segment)
+                .Select(t => (Ok: long.TryParse(t.Groups["tid"].Value, out var tid), Id: tid, Name: WebUtility.HtmlDecode(t.Groups["tag"].Value)))
+                .Where(t => t.Ok && !string.IsNullOrWhiteSpace(t.Name))
+                .DistinctBy(t => t.Id)
+                .Select(t => new PixivisionTagRef(t.Id, t.Name))
+                .ToList();
+            var category = CategoryLinkRegex().Match(segment);
 
             DateTime? published = null;
             var dateMatch = DateRegex().Match(segment);
@@ -130,13 +168,13 @@ public sealed partial class PixivisionService
                 Title = WebUtility.HtmlDecode(m.Groups["title"].Value.Trim()),
                 ThumbnailUrl = WebUtility.HtmlDecode(m.Groups["thumb"].Value.Trim()),
                 Tags = tags,
+                TagRefs = tagRefs,
+                CategorySlug = category.Success ? category.Groups["cat"].Value : null,
                 PublishedDate = published
             });
         }
 
         result.HasNextPage = NextPageRegex().IsMatch(html);
-        result.MonthlyRanking = ExtractSection(html, RankingSectionRegex(), SidebarCardRegex());
-        result.Featured = ExtractSection(html, FeaturedSectionRegex(), SidebarCardRegex());
         return result;
     }
 
@@ -402,6 +440,15 @@ public sealed partial class PixivisionService
     // the decoded, human-readable tag text so there's no need to dig into the nested <div> text.
     [GeneratedRegex("data-gtm-action=\"ClickTag\"\\s*data-gtm-label=\"(?<tag>[^\"]*)\"")]
     private static partial Regex TagRegex();
+
+    [GeneratedRegex("""href="(?:https://www\.pixivision\.net)?/(?:en|ja|zh|zh-tw|ko)/t/(?<tid>\d+)"\s*data-gtm-action="ClickTag"\s*data-gtm-label="(?<tag>[^"]*)""")]
+    private static partial Regex TagLinkRegex();
+
+    [GeneratedRegex("""data-gtm-action="ClickCategory"\s*data-gtm-label="(?<cat>[^"]+)""")]
+    private static partial Regex CategoryLinkRegex();
+
+    [GeneratedRegex("""<span class="tdc__tag-name">(?<name>[^<]*)</span>""")]
+    private static partial Regex TagPageNameRegex();
 
     [GeneratedRegex("<time[^>]*datetime=\"(?<date>[^\"]*)\"")]
     private static partial Regex DateRegex();

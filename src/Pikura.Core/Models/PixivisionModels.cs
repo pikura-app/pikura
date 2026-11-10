@@ -7,8 +7,15 @@ public sealed class PixivisionArticleSummary
     public string Title { get; set; } = string.Empty;
     public string? ThumbnailUrl { get; set; }
     public List<string> Tags { get; set; } = new();
+    /// <summary>Tags with their pixivision tag-page id (<c>/{lang}/t/{id}</c>), when the card linked them.</summary>
+    public List<PixivisionTagRef> TagRefs { get; set; } = new();
+    /// <summary>pixivision category slug of the card (e.g. "illustration", "news"), when known.</summary>
+    public string? CategorySlug { get; set; }
     public DateTime? PublishedDate { get; set; }
 }
+
+/// <summary>A pixivision tag with its tag-page id.</summary>
+public sealed record PixivisionTagRef(long Id, string Name);
 
 /// <summary>One page of results from the article feed/category listing, with pagination info
 /// scraped from pixivision's own pager widget.</summary>
@@ -17,6 +24,8 @@ public sealed class PixivisionArticlePage
     public List<PixivisionArticleSummary> Items { get; set; } = new();
     public int Page { get; set; } = 1;
     public bool HasNextPage { get; set; }
+    /// <summary>Heading of the listing when it has one (the tag name on tag pages).</summary>
+    public string? Title { get; set; }
 
     /// <summary>pixivision's own "Monthly Ranking" sidebar widget, top-to-bottom order = rank.
     /// Identical on every page of a given category, so callers only need to read it once.</summary>

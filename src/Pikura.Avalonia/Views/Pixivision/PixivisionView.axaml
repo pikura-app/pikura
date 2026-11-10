@@ -47,6 +47,121 @@
             <Separator/>
             <MenuItem Header="{loc:Tr Pixivision_OpenOnPixivisionNet}" Click="OnContextOpenArticlePixivision"/>
         </ContextMenu>
+
+        <!-- Clickable tag chips, shared by the grid and list card templates -->
+        <DataTemplate x:Key="ArticleTagChipsTemplate" x:DataType="vm:PixivisionArticleCardViewModel">
+            <ItemsControl ItemsSource="{Binding TagChips}" IsVisible="{Binding HasTags}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="models:PixivisionTagRef">
+                        <Button Classes="tagChip" Click="OnTagClicked" Tag="{Binding}"
+                                ToolTip.Tip="{loc:Tr Pixivision_ShowArticlesWithThisTag}">
+                            <TextBlock Text="{Binding Name}" FontSize="9"
+                                       Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
+                        </Button>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </DataTemplate>
+
+        <!-- Article card (grid view) — used by the feed, Saved and History -->
+        <DataTemplate x:Key="ArticleGridCardTemplate" x:DataType="vm:PixivisionArticleCardViewModel">
+            <Border Margin="0"
+                    Background="{DynamicResource Container1BackgroundBrush}"
+                    BorderBrush="{DynamicResource Container1BorderBrush}"
+                    BorderThickness="1" CornerRadius="8"
+                    BoxShadow="{DynamicResource CardShadow}" Cursor="Hand"
+                    PointerPressed="OnArticleCardClicked" Tapped="OnArticleCardClickedTapped"
+                    ContextMenu="{StaticResource ArticleCardContextMenu}">
+                <Border.Styles>
+                    <Style Selector="Border:pointerover">
+                        <Setter Property="BoxShadow" Value="{DynamicResource CardShadowHover}"/>
+                        <Setter Property="BorderBrush" Value="{DynamicResource ControlBackgroundBrushSolidAccent}"/>
+                    </Style>
+                </Border.Styles>
+                <Grid RowDefinitions="Auto,Auto">
+                    <Panel Grid.Row="0">
+                        <Border Height="150" CornerRadius="7,7,0,0" ClipToBounds="True">
+                            <Panel>
+                                <Border Background="{DynamicResource Container2BackgroundBrush}"
+                                        IsVisible="{Binding Thumbnail, Converter={x:Static ObjectConverters.IsNull}}"/>
+                                <Image Source="{Binding Thumbnail}" Stretch="UniformToFill" RenderOptions.BitmapInterpolationMode="HighQuality" UseLayoutRounding="True"/>
+                            </Panel>
+                        </Border>
+                        <Button Content="🌐" FontSize="11" Padding="5,3" CornerRadius="4"
+                                VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,6,6,0"
+                                Background="#AA000000" Foreground="White" BorderThickness="0"
+                                Click="OnArticleOpenInBrowserClicked"
+                                ToolTip.Tip="{loc:Tr Pixivision_OpenOnPixivisionNet_2}"/>
+                        <Button Content="🔖" FontSize="12" Padding="5,3" CornerRadius="4"
+                                VerticalAlignment="Top" HorizontalAlignment="Left" Margin="6,6,0,0"
+                                Background="{Binding IsSaved, Converter={x:Static conv:BoolToBookmarkIconConverter.Instance}}"
+                                Foreground="White" BorderThickness="0"
+                                Click="OnBookmarkIconClicked"
+                                ToolTip.Tip="{loc:Tr Pixivision_SaveForLater_2}"/>
+                    </Panel>
+                    <Grid Grid.Row="1" ColumnDefinitions="*,Auto" Margin="8,6,8,8">
+                        <StackPanel Grid.Column="0" Spacing="4">
+                            <TextBlock Text="{Binding Title}" FontSize="12" FontWeight="SemiBold"
+                                       TextWrapping="Wrap" MaxLines="3"/>
+                            <TextBlock Text="{Binding DateLabel}" FontSize="10" IsVisible="{Binding HasDate}"
+                                       Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
+                            <ContentControl Content="{Binding}" ContentTemplate="{StaticResource ArticleTagChipsTemplate}"/>
+                        </StackPanel>
+                        <Button Grid.Column="1" Content="✕" FontSize="11" Padding="6,3" Margin="6,0,0,0"
+                                VerticalAlignment="Top" Background="Transparent" BorderThickness="0"
+                                IsVisible="{Binding $parent[UserControl].((vm:PixivisionViewModel)DataContext).IsViewingOverlay}"
+                                Click="OnRemoveFromListClicked"
+                                ToolTip.Tip="{loc:Tr Pixivision_RemoveFromThisList}"/>
+                    </Grid>
+                </Grid>
+            </Border>
+        </DataTemplate>
+
+        <!-- Article row (list view) — used by the feed, Saved and History -->
+        <DataTemplate x:Key="ArticleListRowTemplate" x:DataType="vm:PixivisionArticleCardViewModel">
+            <Border Margin="0,0,0,4"
+                    Background="{DynamicResource Container1BackgroundBrush}"
+                    BorderBrush="{DynamicResource Container1BorderBrush}"
+                    BorderThickness="1" CornerRadius="6"
+                    BoxShadow="{DynamicResource CardShadow}" Cursor="Hand"
+                    PointerPressed="OnArticleCardClicked" Tapped="OnArticleCardClickedTapped"
+                    ContextMenu="{StaticResource ArticleCardContextMenu}">
+                <Grid ColumnDefinitions="Auto,*,Auto,Auto" Margin="8,6">
+                    <Border Grid.Column="0" Width="90" Height="60" CornerRadius="4" ClipToBounds="True" Margin="0,0,10,0">
+                        <Panel>
+                            <Border Background="{DynamicResource Container2BackgroundBrush}"
+                                    IsVisible="{Binding Thumbnail, Converter={x:Static ObjectConverters.IsNull}}"/>
+                            <Image Source="{Binding Thumbnail}" Stretch="UniformToFill" RenderOptions.BitmapInterpolationMode="HighQuality" UseLayoutRounding="True"/>
+                        </Panel>
+                    </Border>
+                    <StackPanel Grid.Column="1" Spacing="3" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding Title}" FontSize="12" FontWeight="SemiBold"
+                                   TextTrimming="CharacterEllipsis" MaxLines="1"/>
+                        <ContentControl Content="{Binding}" ContentTemplate="{StaticResource ArticleTagChipsTemplate}"/>
+                    </StackPanel>
+                    <TextBlock Grid.Column="2" Text="{Binding DateLabel}" FontSize="10"
+                               Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
+                               VerticalAlignment="Center" Margin="12,0"/>
+                    <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                        <Button Content="🔖" FontSize="11" Padding="6,4" CornerRadius="4"
+                                Background="{Binding IsSaved, Converter={x:Static conv:BoolToBookmarkIconConverter.Instance}}"
+                                Foreground="White" BorderThickness="0"
+                                Click="OnBookmarkIconClicked"
+                                ToolTip.Tip="{loc:Tr Pixivision_SaveForLater_2}"/>
+                        <Button Content="🌐" FontSize="11" Padding="6,4" CornerRadius="4"
+                                Click="OnArticleOpenInBrowserClicked"
+                                ToolTip.Tip="{loc:Tr Pixivision_OpenOnPixivisionNet_2}"/>
+                        <Button Content="✕" FontSize="11" Padding="6,4" CornerRadius="4"
+                                IsVisible="{Binding $parent[UserControl].((vm:PixivisionViewModel)DataContext).IsViewingOverlay}"
+                                Click="OnRemoveFromListClicked"
+                                ToolTip.Tip="{loc:Tr Pixivision_RemoveFromThisList}"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </DataTemplate>
     </UserControl.Resources>
 
     <UserControl.Styles>
@@ -61,6 +176,19 @@
         <Style Selector="Button.linkChip:pointerover /template/ ContentPresenter">
             <Setter Property="Background" Value="Transparent"/>
         </Style>
+        <Style Selector="Button.tagChip">
+            <Setter Property="Background" Value="{DynamicResource Container2BackgroundBrush}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="CornerRadius" Value="3"/>
+            <Setter Property="Padding" Value="5,2"/>
+            <Setter Property="Margin" Value="0,0,3,3"/>
+            <Setter Property="MinHeight" Value="0"/>
+            <Setter Property="MinWidth" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        <Style Selector="Button.tagChip:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource Container3BackgroundBrush}"/>
+        </Style>
     </UserControl.Styles>
 
     <!-- header | category tabs | view controls | actions | content | status -->
@@ -73,19 +201,64 @@
                 BorderThickness="0,0,0,1" Padding="20,10"
                 Margin="0,32,0,0">
             <Grid ColumnDefinitions="Auto,*,Auto">
-                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
-                    <StackPanel.IsVisible>
-                        <MultiBinding Converter="{x:Static BoolConverters.And}">
-                            <Binding Path="!IsViewingArticle"/>
-                            <Binding Path="!IsViewingSavedArticles"/>
-                        </MultiBinding>
-                    </StackPanel.IsVisible>
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center"
+                            IsVisible="{Binding ShowFeedControls}">
                     <TextBlock Text="Pixivision" FontWeight="Bold" FontSize="20" VerticalAlignment="Center"/>
                     <ProgressBar IsIndeterminate="True" Width="70" Height="3"
                                  IsVisible="{Binding IsLoading}" VerticalAlignment="Center"/>
                     <Button Content="{Binding SavedArticlesButtonLabel}" CornerRadius="6" Padding="10,5" FontSize="11"
                             Command="{Binding ShowSavedArticlesCommand}"
                             ToolTip.Tip="{loc:Tr Pixivision_ArticlesSavedForReadingLater}"/>
+                    <Button Content="{Binding HistoryButtonLabel}" CornerRadius="6" Padding="10,5" FontSize="11"
+                            Command="{Binding ShowHistoryCommand}"
+                            ToolTip.Tip="{loc:Tr Pixivision_ArticlesYouViewed}"/>
+                </StackPanel>
+
+                <!-- Saved / History header: Back, title and a local filter -->
+                <StackPanel Grid.Column="0" Grid.ColumnSpan="3" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                    <StackPanel.IsVisible>
+                        <MultiBinding Converter="{x:Static BoolConverters.And}">
+                            <Binding Path="IsViewingOverlay"/>
+                            <Binding Path="!IsViewingArticle"/>
+                        </MultiBinding>
+                    </StackPanel.IsVisible>
+                    <Button Content="{loc:Tr Pixivision_Back}" CornerRadius="6" Padding="10,5" FontSize="11"
+                            Click="OnLeaveOverlayClicked"/>
+                    <TextBlock Text="{loc:Tr Pixivision_SavedArticles}" FontWeight="Bold" FontSize="16" VerticalAlignment="Center"
+                               IsVisible="{Binding IsViewingSavedArticles}"/>
+                    <TextBlock Text="{loc:Tr Pixivision_ViewedArticles}" FontWeight="Bold" FontSize="16" VerticalAlignment="Center"
+                               IsVisible="{Binding IsViewingHistory}"/>
+                    <TextBox Text="{Binding LocalFilterText, Mode=TwoWay}" Width="240" CornerRadius="7" FontSize="12"
+                             PlaceholderText="{loc:Tr Pixivision_FilterByTitleOrTag}" VerticalAlignment="Center"/>
+                    <ToggleButton IsChecked="{Binding HistoryPaused, Mode=TwoWay}" IsVisible="{Binding IsViewingHistory}"
+                                  CornerRadius="6" Padding="10,5" FontSize="11"
+                                  ToolTip.Tip="{loc:Tr Pixivision_PauseHistoryTip}">
+                        <TextBlock Text="{loc:Tr Pixivision_PauseHistory}"/>
+                    </ToggleButton>
+                    <Button Name="ClearHistoryButton" Content="{loc:Tr Pixivision_ClearHistory}" IsVisible="{Binding IsViewingHistory}"
+                            IsEnabled="{Binding HasHistory}" CornerRadius="6" Padding="10,5" FontSize="11">
+                        <Button.Flyout>
+                            <Flyout Placement="BottomEdgeAlignedLeft">
+                                <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto" Width="360" Margin="10,8">
+                                    <PathIcon Grid.Row="0" Grid.RowSpan="2" Data="{StaticResource WarningIcon}" Width="22" Height="22"
+                                              VerticalAlignment="Top" Margin="0,2,14,0"
+                                              Foreground="#F59E0B"/>
+                                    <TextBlock Grid.Column="1" Grid.Row="0" Text="{loc:Tr Pixivision_ClearHistoryTitle}"
+                                               FontWeight="SemiBold" FontSize="15" TextWrapping="Wrap"/>
+                                    <TextBlock Grid.Column="1" Grid.Row="1" Text="{Binding ClearHistoryMessage}"
+                                               FontSize="12" TextWrapping="Wrap" LineHeight="18" Margin="0,8,0,0"
+                                               Foreground="{DynamicResource DefaultForegroundBrushSecondary}"/>
+                                    <StackPanel Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="2" Orientation="Horizontal" Spacing="10"
+                                                HorizontalAlignment="Right" Margin="0,22,0,0">
+                                        <Button Content="{loc:Tr Common_Cancel}" Padding="16,7" MinWidth="96" CornerRadius="6"
+                                                HorizontalContentAlignment="Center" Click="OnCancelClearHistoryClicked"/>
+                                        <Button Content="{loc:Tr Pixivision_ClearHistory}" Classes="accent" Padding="16,7" MinWidth="96" CornerRadius="6"
+                                                HorizontalContentAlignment="Center" Click="OnConfirmClearHistoryClicked"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Flyout>
+                        </Button.Flyout>
+                    </Button>
                 </StackPanel>
 
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center"
@@ -101,7 +274,62 @@
                 <!-- Date toolbar — centred, grouped in a single rounded container, matching Rankings -->
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6"
                             HorizontalAlignment="Center" VerticalAlignment="Center"
-                            IsVisible="{Binding !IsViewingArticle}">
+                            IsVisible="{Binding ShowFeedControls}">
+                    <!-- pixivision search + recent searches dropdown (mirrors the Search tab) -->
+                    <Panel>
+                        <TextBox Name="PixivisionSearchBox" Text="{Binding SearchText, Mode=TwoWay}"
+                                 PlaceholderText="{loc:Tr Pixivision_SearchPixivision}"
+                                 Width="230" CornerRadius="7" FontSize="12" VerticalAlignment="Center"
+                                 KeyDown="OnSearchBoxKeyDown"
+                                 GotFocus="OnSearchBoxGotFocus" LostFocus="OnSearchBoxLostFocus"
+                                 PointerPressed="OnSearchBoxPointerPressed"/>
+                        <Popup Name="RecentSearchesPopup" PlacementTarget="{Binding #PixivisionSearchBox}"
+                               Placement="BottomEdgeAlignedLeft" IsLightDismissEnabled="True"
+                               Width="260" MaxHeight="340">
+                            <Border Background="{DynamicResource Container1BackgroundBrush}"
+                                    BorderBrush="{DynamicResource Container1BorderBrush}"
+                                    BorderThickness="1" CornerRadius="8" Margin="0,4,0,0"
+                                    BoxShadow="{DynamicResource DropdownShadow}">
+                                <StackPanel>
+                                    <Grid ColumnDefinitions="*,Auto" Margin="12,8">
+                                        <TextBlock Grid.Column="0" Text="{loc:Tr Pixivision_RecentSearches}" FontWeight="SemiBold" FontSize="12"/>
+                                        <Button Grid.Column="1" Content="{loc:Tr Search_ClearHistory}" FontSize="11"
+                                                Background="Transparent" BorderThickness="0" Padding="0"
+                                                Command="{Binding ClearRecentSearchesCommand}"/>
+                                    </Grid>
+                                    <ScrollViewer MaxHeight="280" VerticalScrollBarVisibility="Auto">
+                                        <ItemsControl ItemsSource="{Binding RecentSearches}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate x:DataType="x:String">
+                                                    <Grid ColumnDefinitions="*,Auto" Margin="12,5" Background="Transparent"
+                                                          Cursor="Hand" PointerPressed="OnRecentSearchClicked">
+                                                        <TextBlock Grid.Column="0" Text="{Binding}" FontSize="12"
+                                                                   TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
+                                                        <Button Grid.Column="1" Content="✕" FontSize="11"
+                                                                Background="Transparent" BorderThickness="0" Padding="4"
+                                                                Command="{Binding $parent[UserControl].((vm:PixivisionViewModel)DataContext).RemoveRecentSearchCommand}"
+                                                                CommandParameter="{Binding}"/>
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </ScrollViewer>
+                                </StackPanel>
+                            </Border>
+                        </Popup>
+                    </Panel>
+                    <Button Content="🔍" CornerRadius="6" Padding="9,5" FontSize="12"
+                            Command="{Binding SubmitSearchCommand}" ToolTip.Tip="{loc:Tr Nav_Search}"/>
+                    <!-- Active search / tag chip; ✕ returns to the normal feed -->
+                    <Border Background="{DynamicResource Container2BackgroundBrush}" CornerRadius="12" Padding="10,3,4,3"
+                            IsVisible="{Binding HasActiveSource}" VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                            <TextBlock Text="{Binding ActiveSourceLabel}" FontSize="11" VerticalAlignment="Center"
+                                       MaxWidth="220" TextTrimming="CharacterEllipsis"/>
+                            <Button Content="✕" FontSize="10" Padding="5,1" Background="Transparent" BorderThickness="0"
+                                    Command="{Binding ClearSourceCommand}" ToolTip.Tip="{loc:Tr Pixivision_BackToTheFeed}"/>
+                        </StackPanel>
+                    </Border>
                     <Border Background="{DynamicResource Container2BackgroundBrush}"
                             BorderBrush="{DynamicResource Container1BorderBrush}"
                             BorderThickness="1" CornerRadius="7" Padding="3">
@@ -180,7 +408,7 @@
                 Background="{DynamicResource Container1BackgroundBrush}"
                 BorderBrush="{DynamicResource Container1BorderBrush}"
                 BorderThickness="0,0,0,1" Padding="20,10"
-                IsVisible="{Binding !IsViewingArticle}">
+                IsVisible="{Binding ShowFeedControls}">
             <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
                 <ItemsControl ItemsSource="{Binding CategoryGroups}">
                     <ItemsControl.ItemsPanel>
@@ -250,22 +478,24 @@
                         <Slider Value="{Binding ArticleCardSize}" Minimum="140" Maximum="320"
                                 Width="90" VerticalAlignment="Center"
                                 IsVisible="{Binding IsArticleGridView}"/>
-                        <Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}"
-                                   IsVisible="{Binding IsArticleGridView}"/>
-                        <ToggleButton IsChecked="{Binding ShowSidebarWidgets}" CornerRadius="5" Padding="9,5" FontSize="11"
-                                      ToolTip.Tip="{loc:Tr Pixivision_ShowOrHideTheMonthlyRanking}"><TextBlock Text="{loc:Tr Pixivision_Featured}" FontSize="{Binding $parent[ContentControl].FontSize}"/></ToggleButton>
-                        <Slider Value="{Binding SidebarWidth}" Minimum="200" Maximum="520"
-                                Width="90" VerticalAlignment="Center"
-                                IsVisible="{Binding ShowSidebarPanel}"
-                                ToolTip.Tip="{loc:Tr Pixivision_SidebarSizeWidensTheMonthlyRanking}"/>
-                        <Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}"/>
-                        <ToggleButton IsChecked="{Binding ShowPreview}" CornerRadius="5" Padding="10,5" FontSize="11"
-                                      ToolTip.Tip="{loc:Tr Rankings_ToggleTheSidePanelBrowseArtworks}">
-                            <StackPanel Orientation="Horizontal" Spacing="4">
-                                <TextBlock Text="▣" FontSize="12"/>
-                                <TextBlock Text="{Binding SidePanelLabel}" FontSize="11"/>
-                            </StackPanel>
-                        </ToggleButton>
+                        <StackPanel Orientation="Horizontal" Spacing="10" IsVisible="{Binding ShowFeedControls}">
+                            <Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}"
+                                       IsVisible="{Binding IsArticleGridView}"/>
+                            <ToggleButton IsChecked="{Binding ShowSidebarWidgets}" CornerRadius="5" Padding="9,5" FontSize="11"
+                                          ToolTip.Tip="{loc:Tr Pixivision_ShowOrHideTheMonthlyRanking}"><TextBlock Text="{loc:Tr Pixivision_Featured}" FontSize="{Binding $parent[ContentControl].FontSize}"/></ToggleButton>
+                            <Slider Value="{Binding SidebarWidth}" Minimum="200" Maximum="520"
+                                    Width="90" VerticalAlignment="Center"
+                                    IsVisible="{Binding ShowSidebarPanel}"
+                                    ToolTip.Tip="{loc:Tr Pixivision_SidebarSizeWidensTheMonthlyRanking}"/>
+                            <Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}"/>
+                            <ToggleButton IsChecked="{Binding ShowPreview}" CornerRadius="5" Padding="10,5" FontSize="11"
+                                          ToolTip.Tip="{loc:Tr Rankings_ToggleTheSidePanelBrowseArtworks}">
+                                <StackPanel Orientation="Horizontal" Spacing="4">
+                                    <TextBlock Text="▣" FontSize="12"/>
+                                    <TextBlock Text="{Binding SidePanelLabel}" FontSize="11"/>
+                                </StackPanel>
+                            </ToggleButton>
+                        </StackPanel>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center"
                                 IsVisible="{Binding IsViewingArticle}">
@@ -410,13 +640,8 @@
                 </Border>
 
                 <!-- ── Article LIST mode ── -->
-                <Grid Grid.Column="0" ColumnDefinitions="*,Auto" Name="ArticlesLayoutGrid" SizeChanged="OnArticlesLayoutSizeChanged">
-                    <Grid.IsVisible>
-                        <MultiBinding Converter="{x:Static BoolConverters.And}">
-                            <Binding Path="!IsViewingArticle"/>
-                            <Binding Path="!IsViewingSavedArticles"/>
-                        </MultiBinding>
-                    </Grid.IsVisible>
+                <Grid Grid.Column="0" ColumnDefinitions="*,Auto" Name="ArticlesLayoutGrid" SizeChanged="OnArticlesLayoutSizeChanged"
+                      IsVisible="{Binding ShowFeedControls}">
                 <Panel Grid.Column="0">
                     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="8"
                                 IsVisible="{Binding !HasArticles}">
@@ -432,70 +657,10 @@
                                   AllowAutoHide="False"
                                   ScrollChanged="OnArticleScrollChanged"
                                   IsVisible="{Binding IsArticleGridView}">
-                        <ItemsControl ItemsSource="{Binding Articles}" Margin="14">
+                        <ItemsControl ItemsSource="{Binding Articles}" Margin="14" ItemTemplate="{StaticResource ArticleGridCardTemplate}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate><gallery:FillWrapPanel MinItemWidth="{Binding $parent[UserControl].((vm:PixivisionViewModel)DataContext).ArticleCardSize}" ItemSpacing="10"/></ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate x:DataType="vm:PixivisionArticleCardViewModel">
-                                    <Border Margin="0"
-                                            Background="{DynamicResource Container1BackgroundBrush}"
-                                            BorderBrush="{DynamicResource Container1BorderBrush}"
-                                            BorderThickness="1" CornerRadius="8"
-                                            BoxShadow="{DynamicResource CardShadow}" Cursor="Hand"
-                                            PointerPressed="OnArticleCardClicked" Tapped="OnArticleCardClickedTapped"
-                                            ContextMenu="{StaticResource ArticleCardContextMenu}">
-                                        <Border.Styles>
-                                            <Style Selector="Border:pointerover">
-                                                <Setter Property="BoxShadow" Value="{DynamicResource CardShadowHover}"/>
-                                                <Setter Property="BorderBrush" Value="{DynamicResource ControlBackgroundBrushSolidAccent}"/>
-                                            </Style>
-                                        </Border.Styles>
-                                        <Grid RowDefinitions="Auto,Auto">
-                                            <Panel Grid.Row="0">
-                                                <Border Height="150" CornerRadius="7,7,0,0" ClipToBounds="True">
-                                                    <Panel>
-                                                        <Border Background="{DynamicResource Container2BackgroundBrush}"
-                                                                IsVisible="{Binding Thumbnail, Converter={x:Static ObjectConverters.IsNull}}"/>
-                                                        <Image Source="{Binding Thumbnail}" Stretch="UniformToFill" RenderOptions.BitmapInterpolationMode="HighQuality" UseLayoutRounding="True"/>
-                                                    </Panel>
-                                                </Border>
-                                                <Button Content="🌐" FontSize="11" Padding="5,3" CornerRadius="4"
-                                                        VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,6,6,0"
-                                                        Background="#AA000000" Foreground="White" BorderThickness="0"
-                                                        Click="OnArticleOpenInBrowserClicked"
-                                                        ToolTip.Tip="{loc:Tr Pixivision_OpenOnPixivisionNet_2}"/>
-                                                <Button Content="🔖" FontSize="12" Padding="5,3" CornerRadius="4"
-                                                        VerticalAlignment="Top" HorizontalAlignment="Left" Margin="6,6,0,0"
-                                                        Background="{Binding IsSaved, Converter={x:Static conv:BoolToBookmarkIconConverter.Instance}}"
-                                                        Foreground="White" BorderThickness="0"
-                                                        Click="OnBookmarkIconClicked"
-                                                        ToolTip.Tip="{loc:Tr Pixivision_SaveForLater_2}"/>
-                                            </Panel>
-                                            <StackPanel Grid.Row="1" Margin="8,6,8,8" Spacing="4">
-                                                <TextBlock Text="{Binding Title}" FontSize="12" FontWeight="SemiBold"
-                                                           TextWrapping="Wrap" MaxLines="3"/>
-                                                <TextBlock Text="{Binding DateLabel}" FontSize="10" IsVisible="{Binding HasDate}"
-                                                           Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
-                                                <ItemsControl ItemsSource="{Binding Tags}" IsVisible="{Binding HasTags}">
-                                                    <ItemsControl.ItemsPanel>
-                                                        <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
-                                                    </ItemsControl.ItemsPanel>
-                                                    <ItemsControl.ItemTemplate>
-                                                        <DataTemplate x:DataType="x:String">
-                                                            <Border Margin="0,0,3,3" Padding="5,2" CornerRadius="3"
-                                                                    Background="{DynamicResource Container2BackgroundBrush}">
-                                                                <TextBlock Text="{Binding}" FontSize="9"
-                                                                           Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
-                                                            </Border>
-                                                        </DataTemplate>
-                                                    </ItemsControl.ItemTemplate>
-                                                </ItemsControl>
-                                            </StackPanel>
-                                        </Grid>
-                                    </Border>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
                         </ItemsControl>
                     </ScrollViewer>
 
@@ -506,59 +671,7 @@
                                   AllowAutoHide="False"
                                   ScrollChanged="OnArticleScrollChanged"
                                   IsVisible="{Binding IsArticleListView}">
-                        <ItemsControl ItemsSource="{Binding Articles}" Margin="8">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate x:DataType="vm:PixivisionArticleCardViewModel">
-                                    <Border Margin="0,0,0,4"
-                                            Background="{DynamicResource Container1BackgroundBrush}"
-                                            BorderBrush="{DynamicResource Container1BorderBrush}"
-                                            BorderThickness="1" CornerRadius="6"
-                                            BoxShadow="{DynamicResource CardShadow}" Cursor="Hand"
-                                            PointerPressed="OnArticleCardClicked" Tapped="OnArticleCardClickedTapped"
-                                            ContextMenu="{StaticResource ArticleCardContextMenu}">
-                                        <Grid ColumnDefinitions="Auto,*,Auto,Auto" Margin="8,6">
-                                            <Border Grid.Column="0" Width="90" Height="60" CornerRadius="4" ClipToBounds="True" Margin="0,0,10,0">
-                                                <Panel>
-                                                    <Border Background="{DynamicResource Container2BackgroundBrush}"
-                                                            IsVisible="{Binding Thumbnail, Converter={x:Static ObjectConverters.IsNull}}"/>
-                                                    <Image Source="{Binding Thumbnail}" Stretch="UniformToFill" RenderOptions.BitmapInterpolationMode="HighQuality" UseLayoutRounding="True"/>
-                                                </Panel>
-                                            </Border>
-                                            <StackPanel Grid.Column="1" Spacing="3" VerticalAlignment="Center">
-                                                <TextBlock Text="{Binding Title}" FontSize="12" FontWeight="SemiBold"
-                                                           TextTrimming="CharacterEllipsis" MaxLines="1"/>
-                                                <ItemsControl ItemsSource="{Binding Tags}" IsVisible="{Binding HasTags}">
-                                                    <ItemsControl.ItemsPanel>
-                                                        <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
-                                                    </ItemsControl.ItemsPanel>
-                                                    <ItemsControl.ItemTemplate>
-                                                        <DataTemplate x:DataType="x:String">
-                                                            <Border Margin="0,0,3,3" Padding="5,2" CornerRadius="3"
-                                                                    Background="{DynamicResource Container2BackgroundBrush}">
-                                                                <TextBlock Text="{Binding}" FontSize="9"
-                                                                           Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
-                                                            </Border>
-                                                        </DataTemplate>
-                                                    </ItemsControl.ItemTemplate>
-                                                </ItemsControl>
-                                            </StackPanel>
-                                            <TextBlock Grid.Column="2" Text="{Binding DateLabel}" FontSize="10"
-                                                       Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
-                                                       VerticalAlignment="Center" Margin="12,0"/>
-                                            <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
-                                                <Button Content="🔖" FontSize="11" Padding="6,4" CornerRadius="4"
-                                                        Background="{Binding IsSaved, Converter={x:Static conv:BoolToBookmarkIconConverter.Instance}}"
-                                                        Foreground="White" BorderThickness="0"
-                                                        Click="OnBookmarkIconClicked"
-                                                        ToolTip.Tip="{loc:Tr Pixivision_SaveForLater_2}"/>
-                                                <Button Content="🌐" FontSize="11" Padding="6,4" CornerRadius="4"
-                                                        Click="OnArticleOpenInBrowserClicked"
-                                                        ToolTip.Tip="{loc:Tr Pixivision_OpenOnPixivisionNet_2}"/>
-                                            </StackPanel>
-                                        </Grid>
-                                    </Border>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
+                        <ItemsControl ItemsSource="{Binding Articles}" Margin="8" ItemTemplate="{StaticResource ArticleListRowTemplate}">
                         </ItemsControl>
                     </ScrollViewer>
                 </Panel>
@@ -641,62 +754,72 @@
                 </ScrollViewer>
                 </Grid>
 
-                <!-- ── Saved articles ("read later") mode ── -->
-                <Grid Grid.Column="0" RowDefinitions="Auto,*">
-                    <Grid.IsVisible>
+                <!-- ── Saved articles ("read later") mode — honours Grid/List and card size ── -->
+                <Panel Grid.Column="0">
+                    <Panel.IsVisible>
                         <MultiBinding Converter="{x:Static BoolConverters.And}">
                             <Binding Path="IsViewingSavedArticles"/>
                             <Binding Path="!IsViewingArticle"/>
                         </MultiBinding>
-                    </Grid.IsVisible>
-                    <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="10" Margin="20,14,20,0">
-                        <Button Content="{loc:Tr Pixivision_Back}" CornerRadius="6" Padding="10,5" FontSize="11"
-                                Command="{Binding HideSavedArticlesCommand}"/>
-                        <TextBlock Text="{loc:Tr Pixivision_SavedArticles}" FontWeight="Bold" FontSize="16" VerticalAlignment="Center"/>
+                    </Panel.IsVisible>
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{Binding !HasSavedArticles}">
+                        <TextBlock Text="{loc:Tr Pixivision_NoSavedArticlesYetOpenAn}" IsVisible="{Binding !HasLocalFilter}"
+                                   FontSize="13" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
+                                   HorizontalAlignment="Center" TextWrapping="Wrap" MaxWidth="400"/>
+                        <TextBlock Text="{loc:Tr Pixivision_NoArticlesMatchFilter}" IsVisible="{Binding HasLocalFilter}"
+                                   FontSize="13" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
+                                   HorizontalAlignment="Center" TextWrapping="Wrap" MaxWidth="400"/>
                     </StackPanel>
-                    <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
-                        <Panel>
-                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="8"
-                                        IsVisible="{Binding !HasSavedArticles}" Margin="0,60,0,0">
-                                <TextBlock Text="{loc:Tr Pixivision_NoSavedArticlesYetOpenAn}"
-                                           FontSize="13" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
-                                           HorizontalAlignment="Center" TextWrapping="Wrap" MaxWidth="400"/>
-                            </StackPanel>
-                            <ItemsControl ItemsSource="{Binding SavedArticles}" Margin="20">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate><WrapPanel HorizontalAlignment="Center"/></ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate x:DataType="vm:PixivisionArticleCardViewModel">
-                                        <Border Width="300" Margin="0,0,12,12"
-                                                Background="{DynamicResource Container1BackgroundBrush}"
-                                                BorderBrush="{DynamicResource Container1BorderBrush}"
-                                                BorderThickness="1" CornerRadius="8" ClipToBounds="True" Cursor="Hand"
-                                                PointerPressed="OnArticleCardClicked" Tapped="OnArticleCardClickedTapped"
-                                                ContextMenu="{StaticResource ArticleCardContextMenu}">
-                                            <StackPanel>
-                                                <Panel Height="185">
-                                                    <Border Background="{DynamicResource Container2BackgroundBrush}"
-                                                            IsVisible="{Binding Thumbnail, Converter={x:Static ObjectConverters.IsNull}}"/>
-                                                    <Image Source="{Binding Thumbnail}" Stretch="UniformToFill" RenderOptions.BitmapInterpolationMode="HighQuality" UseLayoutRounding="True"/>
-                                                </Panel>
-                                                <Grid ColumnDefinitions="*,Auto" Margin="10">
-                                                    <TextBlock Grid.Column="0" Text="{Binding Title}" FontSize="13"
-                                                               TextWrapping="Wrap" MaxLines="3"/>
-                                                    <Button Grid.Column="1" Content="✕" Classes="tool" FontSize="11"
-                                                            VerticalAlignment="Top"
-                                                            ToolTip.Tip="{loc:Tr Pixivision_RemoveFromSaved_2}"
-                                                            Command="{Binding $parent[UserControl].((vm:PixivisionViewModel)DataContext).RemoveSavedArticleCommand}"
-                                                            CommandParameter="{Binding}"/>
-                                                </Grid>
-                                            </StackPanel>
-                                        </Border>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                        </Panel>
+                    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto"
+                                  IsVisible="{Binding IsArticleGridView}">
+                        <ItemsControl ItemsSource="{Binding SavedArticles}" Margin="14" ItemTemplate="{StaticResource ArticleGridCardTemplate}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate><gallery:FillWrapPanel MinItemWidth="{Binding $parent[UserControl].((vm:PixivisionViewModel)DataContext).ArticleCardSize}" ItemSpacing="10"/></ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                        </ItemsControl>
                     </ScrollViewer>
-                </Grid>
+                    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto"
+                                  IsVisible="{Binding IsArticleListView}">
+                        <ItemsControl ItemsSource="{Binding SavedArticles}" Margin="8" ItemTemplate="{StaticResource ArticleListRowTemplate}"/>
+                    </ScrollViewer>
+                </Panel>
+
+                <!-- ── Viewed-article History, grouped by day ── -->
+                <Panel Grid.Column="0">
+                    <Panel.IsVisible>
+                        <MultiBinding Converter="{x:Static BoolConverters.And}">
+                            <Binding Path="IsViewingHistory"/>
+                            <Binding Path="!IsViewingArticle"/>
+                        </MultiBinding>
+                    </Panel.IsVisible>
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{Binding !HasHistory}">
+                        <TextBlock Text="{loc:Tr Pixivision_NoViewedArticlesYet}" IsVisible="{Binding !HasLocalFilter}"
+                                   FontSize="13" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
+                                   HorizontalAlignment="Center" TextWrapping="Wrap" MaxWidth="400"/>
+                        <TextBlock Text="{loc:Tr Pixivision_NoArticlesMatchFilter}" IsVisible="{Binding HasLocalFilter}"
+                                   FontSize="13" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
+                                   HorizontalAlignment="Center" TextWrapping="Wrap" MaxWidth="400"/>
+                    </StackPanel>
+                    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                        <ItemsControl ItemsSource="{Binding HistoryGroups}" Margin="14,6,14,14">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:PixivisionHistoryGroupViewModel">
+                                    <StackPanel Spacing="8" Margin="0,8,0,6">
+                                        <TextBlock Text="{Binding Label}" FontWeight="Bold" FontSize="14"/>
+                                        <ItemsControl ItemsSource="{Binding Items}" ItemTemplate="{StaticResource ArticleGridCardTemplate}"
+                                                      IsVisible="{Binding $parent[UserControl].((vm:PixivisionViewModel)DataContext).IsArticleGridView}">
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate><gallery:FillWrapPanel MinItemWidth="{Binding $parent[UserControl].((vm:PixivisionViewModel)DataContext).ArticleCardSize}" ItemSpacing="10"/></ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                        </ItemsControl>
+                                        <ItemsControl ItemsSource="{Binding Items}" ItemTemplate="{StaticResource ArticleListRowTemplate}"
+                                                      IsVisible="{Binding $parent[UserControl].((vm:PixivisionViewModel)DataContext).IsArticleListView}"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Panel>
 
                 <!-- ── Article DETAIL mode ── -->
                 <ScrollViewer x:Name="ArticleDetailScrollViewer" Grid.Column="0" IsVisible="{Binding IsViewingArticle}"
@@ -1385,7 +1508,7 @@
                            Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                            Text="{Binding StatusMessage}" VerticalAlignment="Center"/>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8"
-                            IsVisible="{Binding !IsViewingArticle}">
+                            IsVisible="{Binding ShowFeedControls}">
                     <!-- Single switch: checked = paged (Prev/Next), unchecked = autoload while scrolling —
                          mirrors Rankings' "Pages" toggle for a consistent, unambiguous control. -->
                     <ToggleButton IsChecked="{Binding UsePagedMode, Mode=TwoWay}"

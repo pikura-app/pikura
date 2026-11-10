@@ -621,8 +621,77 @@ public partial class PixivisionView : UserControl
     private void OnArticleCardClickedTapped(object? sender, TappedEventArgs e)
     {
         if (_tapPtr == PointerType.Mouse) return; // mouse already handled via PointerPressed
+        if ((e.Source as Visual)?.FindAncestorOfType<Button>(includeSelf: true) != null) return; // tag/✕/🔖 buttons
         if (sender is not Control c || c.DataContext is not PixivisionArticleCardViewModel article) return;
         VM?.OpenArticleCommand.Execute(article);
+    }
+
+    // ── Tags, Saved/History ─────────────────────────────────────────────────
+    private void OnTagClicked(object? sender, RoutedEventArgs e)
+    {
+        e.Handled = true;
+        if (sender is Control { Tag: Pikura.Core.Models.PixivisionTagRef tag }) _ = VM?.OpenTagCommand.ExecuteAsync(tag);
+    }
+
+    private void OnRemoveFromListClicked(object? sender, RoutedEventArgs e)
+    {
+        e.Handled = true;
+        if (VM == null || sender is not Control { DataContext: PixivisionArticleCardViewModel card }) return;
+        if (VM.IsViewingHistory) VM.RemoveHistoryArticleCommand.Execute(card);
+        else VM.RemoveSavedArticleCommand.Execute(card);
+    }
+
+    private void OnLeaveOverlayClicked(object? sender, RoutedEventArgs e)
+    {
+        if (VM == null) return;
+        VM.IsViewingSavedArticles = false;
+        VM.IsViewingHistory = false;
+    }
+
+    private void OnCancelClearHistoryClicked(object? sender, RoutedEventArgs e) => ClearHistoryButton.Flyout?.Hide();
+
+    private void OnConfirmClearHistoryClicked(object? sender, RoutedEventArgs e)
+    {
+        ClearHistoryButton.Flyout?.Hide();
+        VM?.ClearHistoryCommand.Execute(null);
+    }
+
+    // ── Search box + recent searches dropdown (same behaviour as the Search tab) ──
+    private void OnSearchBoxKeyDown(object? sender, KeyEventArgs e)
+    {
+        if (e.Key != Key.Enter) return;
+        e.Handled = true;
+        RecentSearchesPopup.IsOpen = false;
+        _ = VM?.SubmitSearchCommand.ExecuteAsync(null);
+    }
+
+    private void OnSearchBoxGotFocus(object? sender, RoutedEventArgs e)
+    {
+        if (VM is { HasRecentSearches: true }) RecentSearchesPopup.IsOpen = true;
+    }
+
+    // A click outside that lands on a non-focusable area never moves focus away from the TextBox,
+    // so GotFocus wouldn't fire again — reopen on every press too.
+    private void OnSearchBoxPointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        if (VM is { HasRecentSearches: true } && !RecentSearchesPopup.IsOpen) RecentSearchesPopup.IsOpen = true;
+    }
+
+    private void OnSearchBoxLostFocus(object? sender, RoutedEventArgs e)
+    {
+        // Deferred so a click on a recent-search row runs before the popup closes.
+        Dispatcher.UIThread.Post(() =>
+        {
+            if (!PixivisionSearchBox.IsFocused) RecentSearchesPopup.IsOpen = false;
+        }, DispatcherPriority.Background);
+    }
+
+    private void OnRecentSearchClicked(object? sender, PointerPressedEventArgs e)
+    {
+        if (e.Source is Visual v && v.FindAncestorOfType<Button>(includeSelf: true) != null) return;
+        if ((sender as Control)?.DataContext is not string q) return;
+        RecentSearchesPopup.IsOpen = false;
+        _ = VM?.ApplyRecentSearchCommand.ExecuteAsync(q);
     }
 
     /// <summary>Touch/pen tap (finger lifted without scrolling): same action as the card click.</summary>

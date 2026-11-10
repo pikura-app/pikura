@@ -542,6 +542,12 @@ public sealed class AppSettings
     /// Sidebar thumbnail and title sizes scale from this.</summary>
     public double PixivisionSidebarWidth { get; set; } = 230;
 
+    /// <summary>When true, opened Pixivision articles are not added to the Pixivision history.</summary>
+    public bool PixivisionHistoryPaused { get; set; }
+
+    /// <summary>Recent Pixivision search terms, most recent first (max 10).</summary>
+    public List<string> PixivisionRecentSearches { get; set; } = [];
+
     /// <summary>App theme: "Light", "Dark", "System", "Scheduled".</summary>
     public string Theme { get; set; } = "System";
 

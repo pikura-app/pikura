@@ -7179,4 +7179,79 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="WhatsNew_Fixes260_Description" xml:space="preserve">
     <value>隐藏 AI 生成作品时，不再隐藏作者标记为非 AI 生成的作品。从 Hoshi 聊天中打开作品后返回，侧边栏不再显示为空白。</value>
   </data>
+  <data name="Pixivision_TagChip" xml:space="preserve">
+    <value>标签：#{0}</value>
+  </data>
+  <data name="Pixivision_SearchChip" xml:space="preserve">
+    <value>搜索：“{0}”</value>
+  </data>
+  <data name="Pixivision_NoCategoryOnPage" xml:space="preserve">
+    <value>此页没有{0}文章，请尝试下一页。</value>
+  </data>
+  <data name="Pixivision_NoCategoryResults" xml:space="preserve">
+    <value>这些结果中没有{0}文章。</value>
+  </data>
+  <data name="Pixivision_NoSearchResults" xml:space="preserve">
+    <value>未找到与“{0}”相关的文章。</value>
+  </data>
+  <data name="Pixivision_SavedLabel" xml:space="preserve">
+    <value>已保存</value>
+  </data>
+  <data name="Pixivision_SaveForLaterLabel" xml:space="preserve">
+    <value>稍后阅读</value>
+  </data>
+  <data name="Pixivision_HistoryCount" xml:space="preserve">
+    <value>🕘 历史记录 ({0})</value>
+  </data>
+  <data name="Pixivision_SavedStatus" xml:space="preserve">
+    <value>{0} 篇已保存文章</value>
+  </data>
+  <data name="Pixivision_HistoryStatus" xml:space="preserve">
+    <value>{0} 篇已浏览文章</value>
+  </data>
+  <data name="Pixivision_ShowArticlesWithThisTag" xml:space="preserve">
+    <value>显示带有此标签的文章</value>
+  </data>
+  <data name="Pixivision_RemoveFromThisList" xml:space="preserve">
+    <value>从此列表中移除</value>
+  </data>
+  <data name="Pixivision_ArticlesYouViewed" xml:space="preserve">
+    <value>你打开过的文章</value>
+  </data>
+  <data name="Pixivision_ViewedArticles" xml:space="preserve">
+    <value>🕘 已浏览文章</value>
+  </data>
+  <data name="Pixivision_FilterByTitleOrTag" xml:space="preserve">
+    <value>按标题或标签筛选</value>
+  </data>
+  <data name="Pixivision_PauseHistory" xml:space="preserve">
+    <value>暂停记录历史</value>
+  </data>
+  <data name="Pixivision_PauseHistoryTip" xml:space="preserve">
+    <value>暂停期间，打开的文章不会添加到历史记录</value>
+  </data>
+  <data name="Pixivision_ClearHistory" xml:space="preserve">
+    <value>清除历史记录</value>
+  </data>
+  <data name="Pixivision_SearchPixivision" xml:space="preserve">
+    <value>搜索 pixivision</value>
+  </data>
+  <data name="Pixivision_RecentSearches" xml:space="preserve">
+    <value>最近搜索</value>
+  </data>
+  <data name="Pixivision_BackToTheFeed" xml:space="preserve">
+    <value>返回文章列表</value>
+  </data>
+  <data name="Pixivision_NoArticlesMatchFilter" xml:space="preserve">
+    <value>没有符合此筛选条件的文章。</value>
+  </data>
+  <data name="Pixivision_NoViewedArticlesYet" xml:space="preserve">
+    <value>还没有浏览过的文章。你打开的文章会显示在这里。</value>
+  </data>
+  <data name="Pixivision_ClearHistoryTitle" xml:space="preserve">
+    <value>要清除浏览记录吗？</value>
+  </data>
+  <data name="Pixivision_ClearHistoryMessage" xml:space="preserve">
+    <value>这将从 Pixivision 历史记录中删除全部 {0} 篇文章。已保存的文章不受影响。此操作无法撤销。</value>
+  </data>
 </root>

@@ -18,7 +18,12 @@ public sealed class LocLabelConverter : IMultiValueConverter
     public object? Convert(IList<object?> values, Type targetType, object? parameter, CultureInfo culture)
     {
         if (values.Count == 0 || values[0] is not string label || label.Length == 0) return values.Count > 0 ? values[0] : null;
-        var key = (parameter as string ?? "") + label.Replace(" ", "");
+        return Translate(parameter as string ?? "", label);
+    }
+
+    public static string Translate(string prefix, string label)
+    {
+        var key = prefix + label.Replace(" ", "");
         var text = LocalizationService.Instance[key];
         return text == key ? label : text;
     }
