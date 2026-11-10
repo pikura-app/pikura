@@ -2,6 +2,19 @@
 
 All notable changes to Pikura are documented in this file.
 
+## [2.6.2]
+
+### New
+
+- Library template rename for selected files or all filtered results, with editable templates, token picker, preview, collision numbering, sidecar moves, index updates, empty-folder cleanup, library-root safety and Undo.
+- `%character%` and `%series%` filename tokens from AI tags.
+- Library artist dropdown (with counts) and folder filter (includes subfolders).
+- AI tagger content rating stored; files without pixiv info count as R-18 when rated explicit. pixiv's rating takes precedence.
+
+### Improved
+
+- Find original uses SauceNAO's web search when no API key is set (and when a key lacks API access), skips the slow Danbooru tag lookup, and opens SauceNAO's results page in the browser. Viewer button shows progress and the result.
+
 ## [2.6.1]
 
 ### New

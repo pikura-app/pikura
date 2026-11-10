@@ -1,3 +1,20 @@
+## Pikura 2.6.2
+
+Rename your Library files from templates, filter by artist and folder, R-18 detection from AI tags, and a Find original that actually searches.
+
+### New Features
+
+- **Rename files** — rename selected files (**Rename (N)**) or every file matching your filters (**Rename all results…**) using the folder and filename templates from Settings. Edit the templates for one rename, insert tokens, preview old → new names with a summary of what's skipped or unchanged, then **Undo** if needed. Name clashes are numbered, `.tags.txt` sidecars move with their files, empty folders are cleaned up, and files never leave their library folder.
+- **New tokens** — `%character%` and `%series%` from AI tags, for downloads and renames.
+- **Artist and folder filters** — an **Any artist** dropdown with file counts replaces the Artist ID box, and **All folders** filters to a folder and its subfolders.
+- **R-18 from AI tagging** — files without pixiv info count as R-18 when the AI tagger rates them explicit, for Include R-18, blur and the separate R-18 folder. pixiv's own rating still wins when it's known. Already-tagged files are re-tagged in the background to get a rating.
+
+### Improvements
+
+- **Find original** searches SauceNAO from inside Pikura — no API key needed. A match saves the pixiv ID and opens the artwork, and SauceNAO's results page for that search opens in your browser. Progress and results show under the viewer's Find original button too.
+
+---
+
 ## Pikura 2.6.1
 
 Search, history and tags for the Pixivision tab.
