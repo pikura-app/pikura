@@ -40,6 +40,7 @@ public partial class ArtworkViewerViewModel : ObservableObject
     [ObservableProperty] private bool _isUgoira;
     [ObservableProperty] private bool _isPlayingUgoira = true;
 
+    public string ArtworkId => _artwork.Id;
     public string Title => _artwork.Title;
     public string ArtistName => _artwork.UserName;
     public string TypeLabel => _artwork.TypeLabel;

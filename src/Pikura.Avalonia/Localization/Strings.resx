@@ -7391,4 +7391,12 @@ Saved to: {3}</value>
   <data name="Library_RenameSkippedOutside" xml:space="preserve">
     <value>Skipped — the folder template points outside the library folder</value>
   </data>
+  <data name="Viewer_StripThisSubmission" xml:space="preserve"><value>This submission</value></data>
+  <data name="Viewer_StripEverything" xml:space="preserve"><value>Everything (incl. collages)</value></data>
+  <data name="Viewer_StripArtistAll" xml:space="preserve"><value>{0} — all in gallery</value></data>
+  <data name="Viewer_StripHint" xml:space="preserve"><value>click to view, right-click to open in a new tab</value></data>
+  <data name="Viewer_StripLoadAll" xml:space="preserve"><value>Load all</value></data>
+  <data name="Viewer_StripLoadAllCount" xml:space="preserve"><value>Load all {0}</value></data>
+  <data name="Viewer_StripLoading" xml:space="preserve"><value>Loading… ({0})</value></data>
+  <data name="Viewer_StripCountOf" xml:space="preserve"><value>{0}  ({1} of {2})</value></data>
 </root>

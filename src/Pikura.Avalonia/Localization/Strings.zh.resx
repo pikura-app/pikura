@@ -7327,4 +7327,12 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="Library_RenameSkippedOutside" xml:space="preserve">
     <value>已跳过 — 文件夹模板指向媒体库文件夹之外</value>
   </data>
+  <data name="Viewer_StripThisSubmission" xml:space="preserve"><value>此作品</value></data>
+  <data name="Viewer_StripEverything" xml:space="preserve"><value>全部（含拼贴）</value></data>
+  <data name="Viewer_StripArtistAll" xml:space="preserve"><value>{0} — 图库中的全部</value></data>
+  <data name="Viewer_StripHint" xml:space="preserve"><value>单击查看，右键在新标签页中打开</value></data>
+  <data name="Viewer_StripLoadAll" xml:space="preserve"><value>全部加载</value></data>
+  <data name="Viewer_StripLoadAllCount" xml:space="preserve"><value>全部加载（{0}）</value></data>
+  <data name="Viewer_StripLoading" xml:space="preserve"><value>加载中…（{0}）</value></data>
+  <data name="Viewer_StripCountOf" xml:space="preserve"><value>{0}  （{1} / {2}）</value></data>
 </root>

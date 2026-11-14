@@ -683,6 +683,12 @@ ShowPreview = true;
     public ObservableCollection<ArtworkCardViewModel> VisibleArtworks { get; } = [];
     public ObservableCollection<ArtworkCardViewModel> FilteredArtworks { get; } = [];
 
+    private List<ArtworkCardViewModel> _navigableArtworks = [];
+    /// <summary>Every loaded artwork that passes the filters, in sort order. Unlike
+    /// <see cref="FilteredArtworks"/> it isn't cut to the current page, so viewer navigation and
+    /// the fullscreen strip cover everything loaded, not just the page on screen.</summary>
+    public IReadOnlyList<ArtworkCardViewModel> NavigableArtworks => _navigableArtworks;
+
     private void AddArtworkCard(ArtworkCardViewModel vm, string? currentArtistId = null)
     {
         var artistId = currentArtistId ?? SelectedArtist?.UserId;
@@ -1236,10 +1242,13 @@ ShowPreview = true;
             _                             => src,
         };
 
+        _navigableArtworks = src.ToList();
+        src = _navigableArtworks;
+
         // Apply pagination if enabled
         if (UsePagination)
         {
-            var totalItems = src.Count();
+            var totalItems = _navigableArtworks.Count;
             TotalPages = Math.Max(1, (int)Math.Ceiling(totalItems / (double)ItemsPerPage));
             CurrentPage = Math.Clamp(CurrentPage, 1, TotalPages);
             CanGoPrevious = CurrentPage > 1;
@@ -2517,10 +2526,36 @@ ShowPreview = true;
     /// After loading more artworks, sync the active viewer tab's NavList and TotalCount
     /// so the "X / Y" counter and prev/next navigation reflect the new cards.
     /// </summary>
+    /// <summary>
+    /// Points a tab at the gallery the user is now browsing — used when a tab restored at startup
+    /// (which only remembers its one artwork) gets its artist loaded from fullscreen. The tab's
+    /// list, counter and load-more then cover the artist's works. Left alone when the tab's
+    /// artwork isn't among the loaded, filtered works, so its position stays valid.
+    /// </summary>
+    public void AdoptTabIntoGallery(ViewerTab tab)
+    {
+        if (SelectedArtist == null || tab.IsCollage || tab.Card is not { } card) return;
+        if (!_navigableArtworks.Any(c => c.Id == card.Id)) return;
+        tab.Source = CurrentGalleryViewerSource;
+        tab.NavList.Clear();
+        foreach (var c in _navigableArtworks) tab.NavList.Add(c);
+        tab.TotalCount = Math.Max(ArtworksTotal, tab.NavList.Count);
+        tab.LoadMoreAsync = CanLoadMore
+            ? async () =>
+            {
+                if (!CanLoadMore) return [];
+                await LoadMoreArtworksCommand.ExecuteAsync(null);
+                return _navigableArtworks.ToList();
+            }
+            : null;
+        _navListVersion++;
+        OnPropertyChanged(nameof(NavListVersion));
+    }
+
     private void SyncViewerTabNavList()
     {
         if (SelectedArtist == null) return;
-        var current = FilteredArtworks.ToList();
+        var current = _navigableArtworks.ToList();
         SyncViewerTabs(CurrentGalleryViewerSource, current, ArtworksTotal);
     }
 
@@ -2738,7 +2773,7 @@ ShowPreview = true;
     {
         if (source == "Gallery" && SelectedArtist != null)
             source = CurrentGalleryViewerSource;
-        var list = navList ?? FilteredArtworks.ToList();
+        var list = navList ?? _navigableArtworks.ToList();
         // Total is the actual count of navigable items (not the artist's announced catalogue size)
         int total = totalCount > 0
             ? totalCount
@@ -2753,7 +2788,7 @@ ShowPreview = true;
             {
                 if (artist == null || !CanLoadMore) return [];
                 await LoadMoreArtworksCommand.ExecuteAsync(null);
-                return FilteredArtworks.ToList();
+                return _navigableArtworks.ToList();
             };
         }
 
@@ -2827,7 +2862,7 @@ ShowPreview = true;
             source = CurrentGalleryViewerSource;
         ViewerSource = source;
         // Snapshot filtered artworks so navigating to another artist doesn't mutate this tab's list
-        var list = navList ?? FilteredArtworks.ToList();
+        var list = navList ?? _navigableArtworks.ToList();
 
         // Total is the actual count of navigable items (not the artist's announced catalogue size)
         int total = totalCount > 0
@@ -2844,7 +2879,7 @@ ShowPreview = true;
             {
                 if (artist == null || !CanLoadMore) return [];
                 await LoadMoreArtworksCommand.ExecuteAsync(null);
-                return FilteredArtworks.ToList();
+                return _navigableArtworks.ToList();
             };
         }
 

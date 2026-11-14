@@ -1944,6 +1944,20 @@ if (result != null && presetWindow.DownloadClicked)
 
         var viewer = new FullscreenViewerWindow(_currentCard.Artwork with { PageIndex = _currentPageIndex }, VM, seed, navList);
         await viewer.ShowDialog(window);
+        if (viewer.LastArtworkId is { } lastId) await ShowPageAfterFullscreenAsync(lastId, viewer.LastPageIndex);
+    }
+
+    /// <summary>Turns the side panel to the page fullscreen ended on. The panel may still be
+    /// loading that artwork (fullscreen switched it in the background), so wait briefly for its
+    /// pages first.</summary>
+    private async Task ShowPageAfterFullscreenAsync(string artworkId, int page)
+    {
+        for (var i = 0; i < 50 && _currentCard?.Id == artworkId && _pages.Count == 0; i++)
+            await Task.Delay(100);
+        if (_currentCard?.Id != artworkId || page == _currentPageIndex || page < 0 || page >= _pages.Count) return;
+        _currentPageIndex = page;
+        UpdatePageIndicator();
+        _ = RenderPageAsync(_currentPageIndex);
     }
 
     private void OnOpenInPixiv(object? sender, RoutedEventArgs e)

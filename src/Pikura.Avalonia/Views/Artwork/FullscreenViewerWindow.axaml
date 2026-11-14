@@ -11,6 +11,16 @@
         WindowState="FullScreen"
         ShowInTaskbar="False">
 
+    <Window.Styles>
+        <!-- The artwork being viewed, outlined in the artwork strip. -->
+        <Style Selector="Button.stripItem Border.thumb">
+            <Setter Property="BorderBrush" Value="Transparent"/>
+        </Style>
+        <Style Selector="Button.stripItem.current Border.thumb">
+            <Setter Property="BorderBrush" Value="{DynamicResource ControlBackgroundBrushSolidAccent}"/>
+        </Style>
+    </Window.Styles>
+
     <Canvas Name="Canvas" ClipToBounds="True" Background="{DynamicResource ImageCanvasBackgroundBrush}">
         <Image Name="Image"
                Source="{Binding CurrentPageBitmap}"
@@ -93,7 +103,8 @@
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate x:DataType="vm:ArtworkCardViewModel">
-                            <Button Padding="0" Background="Transparent" BorderThickness="0"
+                            <Button Classes="stripItem" Tag="{Binding Id}"
+                                    Padding="0" Background="Transparent" BorderThickness="0"
                                     Cursor="Hand" Click="OnArtworkStripClick"
                                     ToolTip.Tip="{Binding Title}">
                                 <Button.ContextMenu>
@@ -101,8 +112,8 @@
                                         <MenuItem Header="{loc:Tr Gallery_OpenInNewTab_2}" Click="OnOpenArtworkInNewTab"/>
                                     </ContextMenu>
                                 </Button.ContextMenu>
-                                <Border Width="68" Height="68" CornerRadius="5" ClipToBounds="True"
-                                        Background="#22FFFFFF">
+                                <Border Classes="thumb" Width="68" Height="68" CornerRadius="5" ClipToBounds="True"
+                                        Background="#22FFFFFF" BorderThickness="3">
                                     <Image Source="{Binding Thumbnail}" Stretch="UniformToFill"
                                            RenderOptions.BitmapInterpolationMode="HighQuality"/>
                                 </Border>

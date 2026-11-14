@@ -7327,4 +7327,12 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="Library_RenameSkippedOutside" xml:space="preserve">
     <value>スキップ（フォルダーテンプレートがライブラリフォルダーの外を指しています）</value>
   </data>
+  <data name="Viewer_StripThisSubmission" xml:space="preserve"><value>この作品</value></data>
+  <data name="Viewer_StripEverything" xml:space="preserve"><value>すべて（コラージュを含む）</value></data>
+  <data name="Viewer_StripArtistAll" xml:space="preserve"><value>{0} — ギャラリー内のすべて</value></data>
+  <data name="Viewer_StripHint" xml:space="preserve"><value>クリックで表示、右クリックで新しいタブで開く</value></data>
+  <data name="Viewer_StripLoadAll" xml:space="preserve"><value>すべて読み込む</value></data>
+  <data name="Viewer_StripLoadAllCount" xml:space="preserve"><value>{0} 件すべて読み込む</value></data>
+  <data name="Viewer_StripLoading" xml:space="preserve"><value>読み込み中…（{0}）</value></data>
+  <data name="Viewer_StripCountOf" xml:space="preserve"><value>{0}  （{2} 件中 {1} 件）</value></data>
 </root>

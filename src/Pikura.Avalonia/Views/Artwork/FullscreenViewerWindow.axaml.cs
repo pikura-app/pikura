@@ -62,6 +62,14 @@ public partial class FullscreenViewerWindow : Window
         // Belt and braces: if capture is taken away (popup opening, window losing focus) make sure
         // we don't stay stuck in panning mode.
         Canvas.PointerCaptureLost += (_, _) => _isPanning = false;
+        // An ugoira's size is only known once its first frame decodes (frames become Source);
+        // fit then, once — later frames must not undo the user's zoom.
+        UgoiraImage.PropertyChanged += (_, e) =>
+        {
+            if (e.Property != Image.SourceProperty || _ugoiraFitted || ContentPixelSize() is null) return;
+            _ugoiraFitted = true;
+            FitToCanvas();
+        };
         Canvas.SizeChanged += (_, _) =>
         {
             if (PageGridOverlay is not null)
@@ -83,8 +91,21 @@ public partial class FullscreenViewerWindow : Window
         AttachViewModel(new ArtworkViewerViewModel(artwork, gallery, this), seedBitmap);
     }
 
+    private ArtworkViewerViewModel? _attachedVm;
+    private bool _ugoiraFitted;
+
+    /// <summary>The artwork and page on screen when fullscreen closed, so the side panel can
+    /// pick up where the user left off.</summary>
+    public string? LastArtworkId => _attachedVm?.ArtworkId;
+    public int LastPageIndex => _attachedVm?.CurrentPageIndex ?? 0;
+    private System.ComponentModel.PropertyChangedEventHandler? _vmChanged;
+
     private void AttachViewModel(ArtworkViewerViewModel vm, Bitmap? seedBitmap = null)
     {
+        // Detach from the previous artwork so its late image loads can't trigger layout here.
+        if (_attachedVm != null && _vmChanged != null) _attachedVm.PropertyChanged -= _vmChanged;
+        _attachedVm = vm;
+        _ugoiraFitted = false;
         DataContext = vm;
 
         // Paint the caller's existing bitmap first so there's never an empty fullscreen window.
@@ -94,8 +115,10 @@ public partial class FullscreenViewerWindow : Window
             vm.CurrentPageBitmap = seedBitmap;
             FitToCanvasWhenReady();
         }
-        vm.PropertyChanged += (_, e) =>
+        _vmChanged = (_, e) =>
         {
+            // A new ugoira file replaces the frames, so its size must be measured again.
+            if (e.PropertyName == nameof(ArtworkViewerViewModel.UgoiraPreviewPath)) _ugoiraFitted = false;
             if (e.PropertyName == nameof(ArtworkViewerViewModel.CurrentPageBitmap) ||
                 e.PropertyName == nameof(ArtworkViewerViewModel.UgoiraPreviewPath))
                 Dispatcher.UIThread.Post(FitToCanvasWhenReady);
@@ -103,6 +126,7 @@ public partial class FullscreenViewerWindow : Window
             if (e.PropertyName == nameof(ArtworkViewerViewModel.HasMultiplePages))
                 Dispatcher.UIThread.Post(LayoutArtworkStrip);
         };
+        vm.PropertyChanged += _vmChanged;
         LayoutArtworkStrip();
         _ = vm.LoadFirstPageAsync();
     }
@@ -146,6 +170,10 @@ public partial class FullscreenViewerWindow : Window
         /// </summary>
         public SectionPager? Pager { get; init; }
 
+        /// <summary>The group for the artist of the artwork on screen — the strip's fallback
+        /// starting point when the open tab has no list of its own (e.g. restored at startup).</summary>
+        public bool IsCurrentArtist { get; init; }
+
         /// <summary>True when more of this source can still be fetched.</summary>
         public bool CanPageMore => Pager?.CanMore() == true;
 
@@ -153,7 +181,7 @@ public partial class FullscreenViewerWindow : Window
         public override string ToString()
         {
             if (TotalAvailable is { } total && total > Items.Count)
-                return $"{Label}  ({Items.Count} of {total})";
+                return string.Format(LocalizationService.Instance["Viewer_StripCountOf"], Label, Items.Count, total);
             if (CanPageMore)
                 return $"{Label}  ({Items.Count}+)";
             return $"{Label}  ({Items.Count})";
@@ -217,12 +245,49 @@ public partial class FullscreenViewerWindow : Window
     private SectionPager? GalleryPager()
     {
         if (_gallery is null) return null;
+        var g = _gallery;
         return new SectionPager(
-            () => _gallery.CanLoadMore && !_gallery.IsLoading,
-            () => _gallery.LoadMoreArtworksCommand.ExecuteAsync(null),
+            // Only an artist's page can be paged; CanLoadMore can be left over from a previous
+            // artist while the Gallery shows a feed or search, where Load more would do nothing.
+            () => g.SelectedArtist != null && g.CanLoadMore,
+            async () =>
+            {
+                // The gallery may still be fetching its own next page; wait instead of giving up.
+                for (var i = 0; i < 300 && g.IsLoading; i++) await Task.Delay(100);
+                await g.LoadMoreArtworksCommand.ExecuteAsync(null);
+            },
             // VisibleArtworks, not FilteredArtworks — the latter is paginated to one page.
             () => _gallery.VisibleArtworks.Count,
             _gallery.ArtworksTotal > 0 ? _gallery.ArtworksTotal : null);
+    }
+
+    /// <summary>
+    /// Pages one artist's works through the Gallery. When the Gallery isn't showing that artist
+    /// yet — typically a tab restored at startup, which only remembers its one artwork — the
+    /// first page loads the artist there, and tabs holding just that artist's artwork are pointed
+    /// at the loaded gallery so their counter and arrows cover it too.
+    /// </summary>
+    private SectionPager? ArtistPager(string? userId)
+    {
+        if (_gallery is null || string.IsNullOrWhiteSpace(userId)) return null;
+        var g = _gallery;
+        bool OnArtist() => g.SelectedArtist?.UserId == userId;
+        return new SectionPager(
+            () => !OnArtist() || g.CanLoadMore,
+            async () =>
+            {
+                for (var i = 0; i < 300 && g.IsLoading; i++) await Task.Delay(100);
+                if (OnArtist())
+                {
+                    await g.LoadMoreArtworksCommand.ExecuteAsync(null);
+                    return;
+                }
+                await g.LoadArtistByIdAsync(userId);
+                foreach (var tab in g.ViewerTabs.Where(t => !t.IsCollage && t.NavList.Count <= 1 && t.Card?.UserId == userId).ToList())
+                    g.AdoptTabIntoGallery(tab);
+            },
+            () => g.VisibleArtworks.Count(c => c.UserId == userId),
+            OnArtist() && g.ArtworksTotal > 0 ? g.ArtworksTotal : null);
     }
 
     /// <summary>The artworks of the currently chosen source. Null until the strip is first opened,
@@ -234,16 +299,40 @@ public partial class FullscreenViewerWindow : Window
         if (_gallery is null) return [];
 
         // Whatever the user picked in the dropdown wins, so the strip and the arrow keys always
-        // agree on what "next artwork" means.
-        if (_selectedSourceItems is { Count: > 0 }) return _selectedSourceItems;
+        // agree on what "next artwork" means — except "This submission", a single artwork, which
+        // would leave the arrow keys nowhere to go.
+        if (_selectedSourceItems is { Count: > 1 }) return _selectedSourceItems;
 
         // An explicitly supplied list wins — that's how a collage keeps navigation scoped to its
         // own artworks instead of leaking into the surrounding gallery.
-        if (_explicitNavList is { Count: > 0 }) return _explicitNavList;
         var tab = _gallery.SelectedViewerTab;
+        if (_explicitNavList is { Count: > 0 })
+        {
+            // The list is a snapshot from when fullscreen opened; once loading more grows the
+            // tab it came from, follow the tab so the new artworks are reachable too.
+            if (tab is { IsCollage: false } && tab.NavList.Count > _explicitNavList.Count
+                && tab.NavList.Any(c => c.Id == _explicitNavList[0].Id))
+                return tab.NavList;
+            return _explicitNavList;
+        }
         if (tab?.NavList.Count > 0) return tab.NavList;
         if (_gallery.InlineViewerCardList is { } ext) return ext;
-        return _gallery.FilteredArtworks;
+        return _gallery.NavigableArtworks;
+    }
+
+    /// <summary>What the strip shows: exactly the chosen source, even a single artwork.</summary>
+    private IReadOnlyList<ArtworkCardViewModel> StripList()
+        => _selectedSourceItems is { Count: > 0 } ? _selectedSourceItems : CurrentNavList();
+
+    /// <summary>How to fetch more of whatever the arrow keys are moving through.</summary>
+    private SectionPager? NavPager()
+    {
+        if (_selectedSourceItems is { Count: > 1 })
+            return (ArtworkSourceCombo?.SelectedItem as StripSource)?.Pager;
+        if (_gallery.SelectedViewerTab is not { IsCollage: false } tab) return null;
+        // A tab holding just one artwork (restored at startup, or opened on its own) has no list
+        // to page; → at its end brings in the artist's gallery instead.
+        return tab.NavList.Count <= 1 ? ArtistPager(tab.Card?.UserId) : PagerFor(tab.Source);
     }
 
     /// <summary>Caps how many per-artist gallery groups are listed — a rankings page can contain
@@ -270,7 +359,7 @@ public partial class FullscreenViewerWindow : Window
         //    what made the picker confusing — opening one artwork appeared to select a hundred.
         var currentCard = _gallery.InlineViewerCard ?? active?.Card;
         if (currentCard != null)
-            sources.Add(new StripSource { Label = "This submission", Items = [currentCard] });
+            sources.Add(new StripSource { Label = LocalizationService.Instance["Viewer_StripThisSubmission"], Items = [currentCard] });
 
         // 2. Every collage tab, individually, so you can hop straight between collages.
         foreach (var tab in _gallery.ViewerTabs.Where(t => t.IsCollage))
@@ -316,7 +405,7 @@ public partial class FullscreenViewerWindow : Window
         if (everything.Count > 0)
             sources.Add(new StripSource
             {
-                Label = "Everything (incl. collages)",
+                Label = LocalizationService.Instance["Viewer_StripEverything"],
                 Items = everything,
                 Pager = GalleryPager(),
             });
@@ -444,7 +533,6 @@ public partial class FullscreenViewerWindow : Window
         // Only the artist the gallery is actually browsing can be paged further, and whether more
         // exists comes from CanLoadMore — ArtworksTotal is just for the nicer "50 of 112" label.
         var galleryArtistId = _gallery.SelectedArtist?.UserId;
-        var canPage = _gallery.CanLoadMore;
 
         return pool
             .GroupBy(ArtistKey)
@@ -454,10 +542,11 @@ public partial class FullscreenViewerWindow : Window
             .Take(MaxArtistGroups)
             .Select(g => new StripSource
             {
-                Label = $"{ArtistLabel(g)} — all in gallery",
+                Label = string.Format(LocalizationService.Instance["Viewer_StripArtistAll"], ArtistLabel(g)),
                 Items = g.ToList(),
-                // Only the artist the gallery is actually browsing can be paged further.
-                Pager = canPage && g.Key == galleryArtistId ? GalleryPager() : null,
+                // Any artist can be paged: one the Gallery isn't showing is loaded there first.
+                Pager = g.Any(c => c.UserId == g.Key) ? ArtistPager(g.Key) : null,
+                IsCurrentArtist = g.Key == currentArtistId,
                 TotalAvailable = g.Key == galleryArtistId && _gallery.ArtworksTotal > g.Count()
                     ? _gallery.ArtworksTotal
                     : null,
@@ -551,7 +640,12 @@ public partial class FullscreenViewerWindow : Window
         var restored = previousLabel is null
             ? null
             : sources.FirstOrDefault(s => s.Label == previousLabel);
-        ArtworkSourceCombo.SelectedItem = restored ?? sources.FirstOrDefault();
+        // First time: start on the tab being viewed (marked ●) so the strip shows its artworks,
+        // rather than "This submission" with a single thumbnail.
+        ArtworkSourceCombo.SelectedItem = restored
+            ?? sources.FirstOrDefault(s => s.Label.StartsWith("● ", StringComparison.Ordinal))
+            ?? sources.FirstOrDefault(s => s.IsCurrentArtist)
+            ?? sources.FirstOrDefault();
         _suppressSourceChanged = false;
 
         _selectedSourceItems = (ArtworkSourceCombo.SelectedItem as StripSource)?.Items;
@@ -577,7 +671,7 @@ public partial class FullscreenViewerWindow : Window
         {
             ArtworkStripHint.Text = count == 0
                 ? string.Empty
-                : "click to view, right-click to open in a new tab";
+                : LocalizationService.Instance["Viewer_StripHint"];
         }
 
         // Offer paging whenever the selected source's section supports it.
@@ -595,8 +689,8 @@ public partial class FullscreenViewerWindow : Window
             if (canPage)
             {
                 LoadAllButton.Content = source!.TotalAvailable is { } total
-                    ? $"Load all {total}"
-                    : "Load all";
+                    ? string.Format(LocalizationService.Instance["Viewer_StripLoadAllCount"], total)
+                    : LocalizationService.Instance["Viewer_StripLoadAll"];
             }
         }
     }
@@ -635,7 +729,7 @@ public partial class FullscreenViewerWindow : Window
             for (var page = 0; page < maxPages && pager.CanMore(); page++)
             {
                 var before = pager.Count();
-                if (LoadAllButton != null) LoadAllButton.Content = $"Loading… ({before})";
+                if (LoadAllButton != null) LoadAllButton.Content = string.Format(LocalizationService.Instance["Viewer_StripLoading"], before);
 
                 await pager.LoadMore();
 
@@ -671,10 +765,31 @@ public partial class FullscreenViewerWindow : Window
 
         if (!show || ArtworkStripList is null) return;
 
-        var list = CurrentNavList();
+        var list = StripList();
         ArtworkStripList.ItemsSource = list;
         _stripThumbCts = new CancellationTokenSource();
         _ = LoadStripThumbnailsAsync(list, _stripThumbCts.Token);
+        HighlightStripCurrent();
+    }
+
+    /// <summary>Outlines the artwork being viewed in the strip and scrolls it into view. Posted
+    /// so it runs after the strip has created its thumbnails.</summary>
+    private void HighlightStripCurrent()
+    {
+        if (ArtworkStrip?.IsVisible != true || ArtworkStripList is null) return;
+        Dispatcher.UIThread.Post(() =>
+        {
+            var id = _gallery?.InlineViewerCard?.Id;
+            Button? current = null;
+            foreach (var b in ArtworkStripList.GetVisualDescendants().OfType<Button>())
+            {
+                if (!b.Classes.Contains("stripItem")) continue;
+                var on = id != null && Equals(b.Tag, id);
+                b.Classes.Set("current", on);
+                if (on) current ??= b;
+            }
+            current?.BringIntoView();
+        }, DispatcherPriority.Loaded);
     }
 
     /// <summary>
@@ -721,7 +836,16 @@ public partial class FullscreenViewerWindow : Window
     {
         if ((sender as Control)?.DataContext is not ArtworkCardViewModel card) return;
         if (_gallery is null) return;
+        ShowCard(card, card.Thumbnail);
+        // Keep the strip populated with the same scoped list after navigating.
+        if (ArtworkStripList != null) ArtworkStripList.ItemsSource = StripList();
+        HighlightStripCurrent();
+    }
 
+    /// <summary>Shows <paramref name="card"/> here and in the tab behind fullscreen. Shared by the
+    /// strip and the arrow keys so both pick the same tab.</summary>
+    private void ShowCard(ArtworkCardViewModel card, Bitmap? seed = null)
+    {
         // Select the tab that owns this artwork rather than retargeting the active one. Without
         // this, clicking an artwork belonging to another tab rewrote the current tab's card — so a
         // single-artwork tab could never actually be reached from the strip.
@@ -746,10 +870,9 @@ public partial class FullscreenViewerWindow : Window
         _imgX = _imgY = _imgW = _imgH = 0;
         if (Image != null) { Image.Width = 0; Image.Height = 0; }
 
-        AttachViewModel(new ArtworkViewerViewModel(card.Artwork, _gallery, this), card.Thumbnail);
+        AttachViewModel(new ArtworkViewerViewModel(card.Artwork, _gallery, this), seed);
         LayoutArtworkStrip();
-        // Keep the strip populated with the same scoped list after navigating.
-        if (ArtworkStripList != null) ArtworkStripList.ItemsSource = CurrentNavList();
+        HighlightStripCurrent();
     }
 
     /// <summary>
@@ -761,7 +884,7 @@ public partial class FullscreenViewerWindow : Window
         if ((sender as Control)?.DataContext is not ArtworkCardViewModel card) return;
         if (_gallery is null) return;
 
-        var list = CurrentNavList();
+        var list = StripList();
         _gallery.OpenInNewTab(card, list, list.Count, source: _gallery.SelectedViewerTab?.Source ?? "Gallery");
         _gallery.ShowPreview = true;
         Close();
@@ -793,33 +916,22 @@ public partial class FullscreenViewerWindow : Window
         var ch = Canvas.Bounds.Height;
         if (cw <= 0 || ch <= 0) return;
 
-        if (vm.IsUgoira)
+        if (ContentPixelSize() is not { } size)
         {
-            // Ugoira: the AnimatedImage intrinsic size isn't known until rendered.
-            // Use the canvas size and let Stretch=Uniform handle aspect; just center it.
-            var ugoira = UgoiraImage;
-            if (ugoira == null) return;
-            var iw = ugoira.DesiredSize.Width > 0 ? ugoira.DesiredSize.Width : cw;
-            var ih = ugoira.DesiredSize.Height > 0 ? ugoira.DesiredSize.Height : ch;
-            var scaleX = cw / iw;
-            var scaleY = ch / ih;
-            var s = Math.Min(scaleX, scaleY);
-            var fw = iw * s;
-            var fh = ih * s;
-            ugoira.Width  = cw;   // fill canvas width; Stretch=Uniform keeps aspect
-            ugoira.Height = ch;
-            Canvas.SetLeft(ugoira, 0);
-            Canvas.SetTop(ugoira, 0);
-            _ = (fw, fh); // suppress unused warning
+            // Ugoira whose first frame hasn't decoded yet: fill the canvas (Stretch=Uniform keeps
+            // the aspect) until the real size is known and the fit is redone.
+            if (vm.IsUgoira && UgoiraImage != null)
+            {
+                _scale = 1.0;
+                _imgX = _imgY = 0;
+                _imgW = cw; _imgH = ch;
+                ApplyTransform();
+            }
             return;
         }
 
-        if (Image == null) return;
-        var bmp = vm.CurrentPageBitmap;
-        if (bmp == null) return;
-
-        var bw = bmp.PixelSize.Width;
-        var bh = bmp.PixelSize.Height;
+        var bw = size.Width;
+        var bh = size.Height;
 
         var scX = cw / bw;
         var scY = ch / bh;
@@ -832,17 +944,30 @@ public partial class FullscreenViewerWindow : Window
         ApplyTransform();
     }
 
+    /// <summary>The element showing the artwork: the animated image for ugoira, else the still.</summary>
+    private Image? ContentElement()
+        => DataContext is ArtworkViewerViewModel { IsUgoira: true } ? UgoiraImage : Image;
+
+    /// <summary>Pixel size of what's on screen — the current page, or the ugoira's frames once
+    /// decoded. Null while nothing has loaded yet.</summary>
+    private PixelSize? ContentPixelSize()
+    {
+        if (DataContext is not ArtworkViewerViewModel vm) return null;
+        var bmp = vm.IsUgoira ? UgoiraImage?.Source as Bitmap : vm.CurrentPageBitmap;
+        return bmp is { PixelSize: { Width: > 0, Height: > 0 } ps } ? ps : null;
+    }
+
     private void ApplyTransform()
     {
-        if (Image == null || Canvas == null) return;
+        if (ContentElement() is not { } el || Canvas == null) return;
 
         // Size the image element to its logical display size
-        Image.Width = _imgW;
-        Image.Height = _imgH;
+        el.Width = _imgW;
+        el.Height = _imgH;
 
         // Position on canvas
-        Canvas.SetLeft(Image, _imgX);
-        Canvas.SetTop(Image, _imgY);
+        Canvas.SetLeft(el, _imgX);
+        Canvas.SetTop(el, _imgY);
     }
 
     private void OnWheel(object? sender, PointerWheelEventArgs e)
@@ -855,17 +980,14 @@ public partial class FullscreenViewerWindow : Window
 
     private void ZoomAroundPoint(double factor, double cx, double cy)
     {
-        if (Canvas == null || Image == null) return;
-        if (DataContext is not ArtworkViewerViewModel vm) return;
-        var bmp = vm.CurrentPageBitmap;
-        if (bmp == null) return;
+        if (Canvas == null || ContentPixelSize() is not { } size) return;
 
         var newScale = _scale * factor;
         if (newScale < 0.1) newScale = 0.1;
         if (newScale > 50) newScale = 50;
 
-        var bw = bmp.PixelSize.Width;
-        var bh = bmp.PixelSize.Height;
+        var bw = size.Width;
+        var bh = size.Height;
 
         var oldW = bw * _scale;
         var oldH = bh * _scale;
@@ -982,6 +1104,14 @@ public partial class FullscreenViewerWindow : Window
 
     private void OnKeyDown(object? sender, KeyEventArgs e)
     {
+        if (DataContext is ArtworkViewerViewModel { IsPageGridVisible: true } gridVm && e.Key == Key.Escape)
+        {
+            // Esc backs out of the all-pages grid first instead of leaving fullscreen.
+            gridVm.IsPageGridVisible = false;
+            e.Handled = true;
+            return;
+        }
+
         if (e.Key == Key.Escape || e.Key == Key.F11)
         {
             Close();
@@ -1017,13 +1147,14 @@ public partial class FullscreenViewerWindow : Window
         }
     }
 
-    private void NavigateGalleryArtwork(int direction, ArtworkViewerViewModel currentVm)
+    private bool _navLoadingMore;
+
+    private async void NavigateGalleryArtwork(int direction, ArtworkViewerViewModel currentVm)
     {
-        var tab = _gallery.SelectedViewerTab;
         // Single source of truth shared with the artwork strip, so an explicitly scoped list
         // (e.g. a collage's own four images) is honoured here too.
         var list = CurrentNavList();
-        if (list.Count == 0) return;
+        if (list.Count == 0 || _navLoadingMore) return;
 
         var currentCard = _gallery.InlineViewerCard;
         if (currentCard == null) return;
@@ -1031,16 +1162,25 @@ public partial class FullscreenViewerWindow : Window
         if (idx >= list.Count) return;
 
         var nextIdx = idx + direction;
+        // Past the last loaded artwork: fetch the next page, like the inline viewer does.
+        if (nextIdx >= list.Count && NavPager() is { } pager && pager.CanMore())
+        {
+            _navLoadingMore = true;
+            try
+            {
+                await pager.LoadMore();
+                // The chosen strip source is a snapshot; rebuild it even while the strip is hidden.
+                if (_selectedSourceItems != null) PopulateSourceCombo();
+                if (ArtworkStrip?.IsVisible == true) RefreshArtworkStrip(true);
+                list = CurrentNavList();
+            }
+            catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"Fullscreen load more failed: {ex}"); }
+            finally { _navLoadingMore = false; }
+            // The user may have moved on while the page loaded.
+            if (!ReferenceEquals(DataContext, currentVm)) return;
+        }
         if (nextIdx < 0 || nextIdx >= list.Count) return;
 
-        var nextCard = list[nextIdx];
-        tab?.NavigateTo(nextCard);
-        _gallery.InlineViewerCard = nextCard;
-
-        // Reset canvas state so stale image/position from previous artwork is cleared
-        _scale = 1.0;
-        _imgX = _imgY = _imgW = _imgH = 0;
-        if (Image != null) { Image.Width = 0; Image.Height = 0; }
-        AttachViewModel(new ArtworkViewerViewModel(nextCard.Artwork, _gallery, this));
+        ShowCard(list[nextIdx], list[nextIdx].Thumbnail);
     }
 }

@@ -7327,4 +7327,12 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="Library_RenameSkippedOutside" xml:space="preserve">
     <value>건너뜀 — 폴더 템플릿이 라이브러리 폴더 밖을 가리킵니다</value>
   </data>
+  <data name="Viewer_StripThisSubmission" xml:space="preserve"><value>이 작품</value></data>
+  <data name="Viewer_StripEverything" xml:space="preserve"><value>전체 (콜라주 포함)</value></data>
+  <data name="Viewer_StripArtistAll" xml:space="preserve"><value>{0} — 갤러리 전체</value></data>
+  <data name="Viewer_StripHint" xml:space="preserve"><value>클릭하여 보기, 오른쪽 클릭으로 새 탭에서 열기</value></data>
+  <data name="Viewer_StripLoadAll" xml:space="preserve"><value>모두 불러오기</value></data>
+  <data name="Viewer_StripLoadAllCount" xml:space="preserve"><value>{0}개 모두 불러오기</value></data>
+  <data name="Viewer_StripLoading" xml:space="preserve"><value>불러오는 중… ({0})</value></data>
+  <data name="Viewer_StripCountOf" xml:space="preserve"><value>{0}  ({2}개 중 {1}개)</value></data>
 </root>
