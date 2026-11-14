@@ -2,6 +2,23 @@
 
 All notable changes to Pikura are documented in this file.
 
+## [2.6.3]
+
+### Improved
+
+- Fullscreen strip: artist entries can load that artist into the Gallery (restored tabs adopt the loaded gallery list); → at the end of a single-artwork tab does the same.
+- Strip outlines and scrolls to the current artwork; defaults to the active tab (or the current artist) rather than "This submission".
+- Leaving fullscreen restores the side panel to the last page viewed.
+- Ugoira zoom and pan in fullscreen.
+- → past the last loaded artwork loads the next page; Esc closes the page grid before fullscreen.
+- Strip text localized (en/ja/zh/ko).
+
+### Fixed
+
+- Viewer nav lists and the fullscreen strip used the paginated Gallery page; they now use the full filtered, sorted list (`NavigableArtworks`).
+- Load all offered without a selected artist; Load all hidden while the Gallery was loading.
+- Arrow keys limited to one artwork after opening the strip; arrow keys and strip clicks now share one navigation path.
+
 ## [2.6.2]
 
 ### New

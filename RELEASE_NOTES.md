@@ -1,3 +1,25 @@
+## Pikura 2.6.3
+
+Fullscreen viewer fixes: Load all, the artwork strip, arrow keys, ugoira zoom, and restored tabs.
+
+### Improvements
+
+- **Restored tabs reach their artist's gallery** — a tab reopened at startup only remembers its one artwork. In fullscreen, the artist's entry in the artwork strip now offers **Load more / Load all**, which loads that artist into the Gallery; the tab then follows the artist's works (counter, ← / →). Pressing → at the end of such a tab does the same.
+- **The artwork strip follows you** — the artwork on screen is outlined and scrolled into view, and the strip opens on the tab you're viewing instead of a single thumbnail.
+- **Back to the same page** — leaving fullscreen turns the side panel to the page you ended on.
+- **Animated (ugoira) artworks** can be zoomed with the mouse wheel and dragged in fullscreen.
+- **→ at the end of the loaded artworks** fetches the next page and keeps going.
+- **Esc** closes the all-pages grid first, then fullscreen.
+- The artwork strip is translated.
+
+### Fixes
+
+- **Load all** in the fullscreen strip showed nothing new when the Gallery uses pages: the strip and viewer only ever received the page on screen. They now cover every loaded artwork that matches your filters, which also lets the viewer's arrows go past the current Gallery page.
+- **Load all** no longer appears where it can't load anything (Recent works, searches), and no longer disappears when the Gallery is already loading.
+- Opening the artwork strip no longer stops ← / → from moving between artworks.
+
+---
+
 ## Pikura 2.6.2
 
 Rename your Library files from templates, filter by artist and folder, R-18 detection from AI tags, and a Find original that actually searches.
