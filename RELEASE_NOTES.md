@@ -1,3 +1,17 @@
+## Pikura 2.6.5
+
+Safer in-app updates: an interrupted or damaged update download is no longer offered for install.
+
+### Fixes
+
+- **"The setup files are corrupted"** — if an update download was cut off, Pikura kept offering the partial file as "ready to install" and the installer rejected it. Downloads are now saved as a temporary `.part` file and only marked ready once their size and SHA-256 checksum match the release. Leftover or unverified files are discarded and downloaded again.
+- **Checked again before installing** — Install & Restart re-checks the file and downloads a fresh copy if it has changed or is incomplete.
+- **Retries** — a dropped or stalled connection (no data for 60 seconds) is retried up to 3 times, and a failed download now shows "Download failed" instead of "ready to install".
+
+> If you're updating from 2.6.4 or earlier and see "The setup files are corrupted", delete `%TEMP%\Pikura-update-*.exe` and restart Pikura, or install `Pikura-2.6.5-Setup.exe` from this page.
+
+---
+
 ## Pikura 2.6.4
 
 Faded empty days in the History calendar, R-18 filters and blur, type-to-filter Library dropdowns, faster and sharper fullscreen, Pages / auto-scroll that keeps your place, and Most Viewed Artists in Analytics.

@@ -2,6 +2,13 @@
 
 All notable changes to Pikura are documented in this file.
 
+## [2.6.5]
+
+### Fixed
+
+- Update downloads are written to `.part`, verified against the GitHub asset `size` and `digest` (SHA-256), then moved into place with a `.sha256` record; unverified or partial files are discarded on startup, on update check and before install (`UpdateCheckService.IsVerifiedDownload`).
+- Update downloads retry transient failures up to 3 times and fail on a 60 s stall.
+
 ## [2.6.4]
 
 ### New
