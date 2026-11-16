@@ -186,6 +186,14 @@ public partial class MainWindowViewModel : ViewModelBase
             // Only restore if this version is newer than current
             if (UpdateCheckService.CompareSemVer(ver, UpdateCheckService.CurrentVersion) <= 0) return;
 
+            // An interrupted or damaged download must not be offered for install.
+            if (!await Task.Run(() => UpdateCheckService.IsVerifiedDownload(file)))
+            {
+                _logger.LogWarning("Discarding unverified update download {File}", file);
+                UpdateCheckService.DeleteDownload(file);
+                return;
+            }
+
             _downloadedPath = file;
 
             await Dispatcher.UIThread.InvokeAsync(() =>
@@ -218,6 +226,10 @@ public partial class MainWindowViewModel : ViewModelBase
         var shouldToast = settings.Current.NotifyOnUpdate
                           && _lastNotifiedVersion != info.Version;
 
+        var expectedPath = UpdateCheckService.GetDownloadPath(info);
+        var alreadyDownloaded = await Task.Run(() => UpdateCheckService.IsVerifiedDownload(expectedPath, info.Sha256));
+        if (!alreadyDownloaded) UpdateCheckService.DeleteDownload(expectedPath);
+
         await Dispatcher.UIThread.InvokeAsync(() =>
         {
             _pendingUpdate       = info;
@@ -231,11 +243,8 @@ public partial class MainWindowViewModel : ViewModelBase
             if (settings.Current.NotifyOnUpdate)
                 UpdateAvailable = true;
 
-                // Restore previously downloaded file if it still exists in temp
-            var expectedPath = System.IO.Path.Combine(
-                System.IO.Path.GetTempPath(),
-                $"Pikura-update-{info.Version}{System.IO.Path.GetExtension(info.DownloadUrl?.Split('?')[0] ?? ".exe")}");
-            if (System.IO.File.Exists(expectedPath))
+            // Restore a previously downloaded, verified file if it still exists in temp
+            if (alreadyDownloaded)
             {
                 _downloadedPath      = expectedPath;
                 UpdateReadyToInstall = true;
@@ -392,10 +401,21 @@ public partial class MainWindowViewModel : ViewModelBase
                 var ver     = UpdateVersion.TrimStart('v');
                 var tempDir = System.IO.Path.GetTempPath();
                 var recovered = System.IO.Directory
-                    .EnumerateFiles(tempDir, $"Pikura-update-{ver}*")
-                    .FirstOrDefault();
+                    .EnumerateFiles(tempDir, $"Pikura-update-{ver}.*")
+                    .FirstOrDefault(f => !f.EndsWith(".sha256", StringComparison.OrdinalIgnoreCase) &&
+                                         !f.EndsWith(".part", StringComparison.OrdinalIgnoreCase));
                 if (recovered != null)
                     _downloadedPath = recovered;
+            }
+
+            // Never hand the installer a file that is incomplete or changed since it was verified —
+            // discard it and download a fresh copy instead.
+            if (_downloadedPath is { } existing &&
+                !await Task.Run(() => UpdateCheckService.IsVerifiedDownload(existing, _pendingUpdate?.Sha256)))
+            {
+                _logger.LogWarning("Update file {File} failed verification; re-downloading", existing);
+                UpdateCheckService.DeleteDownload(existing);
+                _downloadedPath = null;
             }
 
             // If still missing, re-download

@@ -94,7 +94,9 @@ public sealed class UpdateCheckService
                 release.Name ?? $"Pikura v{latestTag}",
                 release.Body ?? string.Empty,
                 ReleasesPageUrl,
-                asset?.BrowserDownloadUrl);
+                asset?.BrowserDownloadUrl,
+                asset?.Size > 0 ? asset.Size : null,
+                ParseSha256(asset?.Digest));
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
@@ -311,9 +313,21 @@ public sealed class UpdateCheckService
 
     // ── Download ──────────────────────────────────────────────────────────────
 
+    private static readonly TimeSpan DownloadStallTimeout = TimeSpan.FromSeconds(60);
+
+    /// <summary>Local path an update for <paramref name="info"/> is downloaded to.</summary>
+    public static string GetDownloadPath(UpdateInfo info)
+    {
+        var ext = Path.GetExtension(info.DownloadUrl?.Split('?')[0] ?? ".exe");
+        if (string.IsNullOrEmpty(ext)) ext = ".exe";
+        return Path.Combine(Path.GetTempPath(), $"Pikura-update-{info.Version}{ext}");
+    }
+
     /// <summary>
     /// Downloads the update asset to a temp file, reporting progress 0–100.
-    /// Returns the local path of the downloaded file.
+    /// The file is written as <c>.part</c> and only moved into place once its size and
+    /// SHA-256 match the release asset, so an interrupted or damaged download is never
+    /// offered for install. Retries transient failures. Returns the local path.
     /// </summary>
     public async Task<string> DownloadUpdateAsync(
         UpdateInfo info,
@@ -323,33 +337,115 @@ public sealed class UpdateCheckService
         if (string.IsNullOrWhiteSpace(info.DownloadUrl))
             throw new InvalidOperationException("No download URL available for this release.");
 
-        var ext      = Path.GetExtension(info.DownloadUrl.Split('?')[0]);
-        var destPath = Path.Combine(Path.GetTempPath(), $"Pikura-update-{info.Version}{ext}");
+        var destPath = GetDownloadPath(info);
+        DeleteDownload(destPath);
 
-        using var response = await _http
-            .GetAsync(info.DownloadUrl, HttpCompletionOption.ResponseHeadersRead, ct)
-            .ConfigureAwait(false);
-        response.EnsureSuccessStatusCode();
-
-        var total  = response.Content.Headers.ContentLength ?? -1L;
-        var buffer = new byte[81920];
-        long read  = 0;
-
-        await using var src  = await response.Content.ReadAsStreamAsync(ct).ConfigureAwait(false);
-        await using var dest = File.Create(destPath);
-
-        int bytesRead;
-        while ((bytesRead = await src.ReadAsync(buffer, ct).ConfigureAwait(false)) > 0)
+        const int attempts = 3;
+        for (var attempt = 1; ; attempt++)
         {
-            await dest.WriteAsync(buffer.AsMemory(0, bytesRead), ct).ConfigureAwait(false);
-            read += bytesRead;
-            if (total > 0) progress.Report((int)(read * 100 / total));
+            try
+            {
+                await DownloadVerifiedAsync(info, destPath, progress, ct).ConfigureAwait(false);
+                _logger.LogInformation("Update downloaded and verified: {Path}", destPath);
+                return destPath;
+            }
+            catch (Exception ex) when (attempt < attempts && !ct.IsCancellationRequested &&
+                                       ex is HttpRequestException or IOException or InvalidDataException or TimeoutException)
+            {
+                _logger.LogWarning(ex, "Update download attempt {Attempt} failed, retrying", attempt);
+                await Task.Delay(TimeSpan.FromSeconds(2 * attempt), ct).ConfigureAwait(false);
+            }
         }
-        progress.Report(100);
-
-        _logger.LogInformation("Update downloaded to {Path}", destPath);
-        return destPath;
     }
+
+    private async Task DownloadVerifiedAsync(UpdateInfo info, string destPath, IProgress<int> progress, CancellationToken ct)
+    {
+        var partPath = destPath + ".part";
+        try
+        {
+            using var response = await _http
+                .GetAsync(info.DownloadUrl, HttpCompletionOption.ResponseHeadersRead, ct)
+                .ConfigureAwait(false);
+            response.EnsureSuccessStatusCode();
+
+            var total  = info.ExpectedSize ?? response.Content.Headers.ContentLength ?? -1L;
+            var buffer = new byte[81920];
+            long read  = 0;
+            using var sha = System.Security.Cryptography.IncrementalHash.CreateHash(
+                System.Security.Cryptography.HashAlgorithmName.SHA256);
+
+            await using (var src = await response.Content.ReadAsStreamAsync(ct).ConfigureAwait(false))
+            await using (var dest = File.Create(partPath))
+            {
+                while (true)
+                {
+                    using var stall = CancellationTokenSource.CreateLinkedTokenSource(ct);
+                    stall.CancelAfter(DownloadStallTimeout);
+                    int bytesRead;
+                    try { bytesRead = await src.ReadAsync(buffer, stall.Token).ConfigureAwait(false); }
+                    catch (OperationCanceledException) when (!ct.IsCancellationRequested)
+                    {
+                        throw new TimeoutException("The download stalled.");
+                    }
+                    if (bytesRead == 0) break;
+                    await dest.WriteAsync(buffer.AsMemory(0, bytesRead), ct).ConfigureAwait(false);
+                    sha.AppendData(buffer, 0, bytesRead);
+                    read += bytesRead;
+                    if (total > 0) progress.Report((int)Math.Min(99, read * 100 / total));
+                }
+                await dest.FlushAsync(ct).ConfigureAwait(false);
+            }
+
+            if (total > 0 && read != total)
+                throw new InvalidDataException($"Incomplete download ({read:N0} of {total:N0} bytes).");
+
+            var hash = Convert.ToHexString(sha.GetHashAndReset()).ToLowerInvariant();
+            if (info.Sha256 is { } expected && !string.Equals(hash, expected, StringComparison.OrdinalIgnoreCase))
+                throw new InvalidDataException("Downloaded file is corrupted (checksum mismatch).");
+
+            File.Move(partPath, destPath, overwrite: true);
+            await File.WriteAllTextAsync(destPath + ".sha256", hash, CancellationToken.None).ConfigureAwait(false);
+            progress.Report(100);
+        }
+        finally
+        {
+            try { if (File.Exists(partPath)) File.Delete(partPath); } catch { /* best effort */ }
+        }
+    }
+
+    /// <summary>
+    /// True when <paramref name="path"/> is a completed download whose contents still match the
+    /// checksum recorded when it was verified (and <paramref name="expectedSha256"/>, if known).
+    /// Files without a checksum record (interrupted or from older versions) are not trusted.
+    /// </summary>
+    public static bool IsVerifiedDownload(string path, string? expectedSha256 = null)
+    {
+        try
+        {
+            var sidecar = path + ".sha256";
+            if (!File.Exists(path) || !File.Exists(sidecar)) return false;
+            var recorded = File.ReadAllText(sidecar).Trim();
+            if (recorded.Length != 64) return false;
+            if (expectedSha256 is not null && !string.Equals(recorded, expectedSha256, StringComparison.OrdinalIgnoreCase))
+                return false;
+            using var fs = File.OpenRead(path);
+            var actual = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(fs));
+            return string.Equals(actual, recorded, StringComparison.OrdinalIgnoreCase);
+        }
+        catch { return false; }
+    }
+
+    /// <summary>Deletes a downloaded update together with its checksum record and partial file.</summary>
+    public static void DeleteDownload(string path)
+    {
+        foreach (var f in new[] { path, path + ".sha256", path + ".part" })
+            try { if (File.Exists(f)) File.Delete(f); } catch { /* best effort */ }
+    }
+
+    internal static string? ParseSha256(string? digest) =>
+        digest is not null && digest.StartsWith("sha256:", StringComparison.OrdinalIgnoreCase) && digest.Length == 71
+            ? digest[7..].ToLowerInvariant()
+            : null;
 
     // ── Install & restart ─────────────────────────────────────────────────────
 
@@ -568,6 +664,8 @@ public sealed class UpdateCheckService
     {
         [JsonPropertyName("name")]                 public string? Name                { get; init; }
         [JsonPropertyName("browser_download_url")] public string? BrowserDownloadUrl  { get; init; }
+        [JsonPropertyName("size")]                 public long    Size                { get; init; }
+        [JsonPropertyName("digest")]               public string? Digest              { get; init; }
     }
 }
 
@@ -577,4 +675,6 @@ public sealed record UpdateInfo(
     string  Title,
     string  ReleaseNotes,
     string  ReleasePageUrl,
-    string? DownloadUrl);
+    string? DownloadUrl,
+    long?   ExpectedSize = null,
+    string? Sha256       = null);
