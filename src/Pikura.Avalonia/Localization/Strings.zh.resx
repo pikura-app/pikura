@@ -1105,6 +1105,12 @@
   <data name="Analytics_RankedByNumberOfDownloadSessions" xml:space="preserve">
     <value>按下载会话数排名</value>
   </data>
+  <data name="Analytics_MostViewedArtists" xml:space="preserve">
+    <value>最常浏览的作者</value>
+  </data>
+  <data name="Analytics_RankedByArtworksViewed" xml:space="preserve">
+    <value>按浏览记录中的作品数排名</value>
+  </data>
   <data name="Artwork_Back" xml:space="preserve">
     <value>← 返回</value>
   </data>
@@ -7335,4 +7341,12 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="Viewer_StripLoadAllCount" xml:space="preserve"><value>全部加载（{0}）</value></data>
   <data name="Viewer_StripLoading" xml:space="preserve"><value>加载中…（{0}）</value></data>
   <data name="Viewer_StripCountOf" xml:space="preserve"><value>{0}  （{1} / {2}）</value></data>
+  <data name="Library_FilterOptionsWatermark" xml:space="preserve"><value>输入以筛选…</value></data>
+  <data name="R18Filter_All" xml:space="preserve"><value>全部</value></data>
+  <data name="R18Filter_Hide" xml:space="preserve"><value>隐藏 R-18</value></data>
+  <data name="R18Filter_Only" xml:space="preserve"><value>仅 R-18</value></data>
+  <data name="R18Filter_FilterTip" xml:space="preserve"><value>显示全部、隐藏 R-18 或仅显示 R-18 作品</value></data>
+  <data name="History_BlurR18" xml:space="preserve"><value>模糊 R-18</value></data>
+  <data name="History_BlurR18Tip" xml:space="preserve"><value>模糊 R-18 缩略图（点击卡片显示）</value></data>
+  <data name="Viewer_StripNoR18Match" xml:space="preserve"><value>此列表中没有符合 R-18 筛选条件的作品</value></data>
 </root>

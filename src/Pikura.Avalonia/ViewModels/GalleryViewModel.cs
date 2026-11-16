@@ -683,6 +683,10 @@ ShowPreview = true;
     public ObservableCollection<ArtworkCardViewModel> VisibleArtworks { get; } = [];
     public ObservableCollection<ArtworkCardViewModel> FilteredArtworks { get; } = [];
 
+    /// <summary>Keeps the user's place when switching between Pages and autoload.</summary>
+    public Pikura.Avalonia.Services.ScrollAnchor ScrollAnchor { get; } = new();
+
+
     private List<ArtworkCardViewModel> _navigableArtworks = [];
     /// <summary>Every loaded artwork that passes the filters, in sort order. Unlike
     /// <see cref="FilteredArtworks"/> it isn't cut to the current page, so viewer navigation and
@@ -1651,9 +1655,13 @@ ShowPreview = true;
 
     partial void OnUsePaginationChanged(bool value)
     {
-        CurrentPage = 1; // Reset to first page when toggling
+        // Keep the user's place: Pages opens on the page holding the topmost visible card, and
+        // autoload shows the full list scrolled to it — instead of jumping back to the top.
+        var anchor = ScrollAnchor.Capture() as ArtworkCardViewModel;
         _settingsService.Update(s => s.GalleryUsePagination = value);
+        if (value) MovePageTo(anchor);
         UpdatePagination();
+        ScrollAnchor.ScrollTo(anchor);
     }
 
     partial void OnItemsPerPageChanged(int value)
@@ -1661,9 +1669,22 @@ ShowPreview = true;
         _settingsService.Update(s => s.GalleryItemsPerPage = value);
         if (UsePagination)
         {
-            CurrentPage = 1; // Reset to first page when changing items per page
+            // Stay on the page that holds the card that was at the top.
+            var anchor = ScrollAnchor.Capture() as ArtworkCardViewModel;
+            MovePageTo(anchor);
             UpdatePagination();
+            ScrollAnchor.ScrollTo(anchor);
         }
+    }
+
+    /// <summary>Sets <see cref="CurrentPage"/> to the page containing <paramref name="card"/>
+    /// (page 1 when it isn't in the list).</summary>
+    private void MovePageTo(ArtworkCardViewModel? card)
+    {
+        var perPage = Math.Max(1, ItemsPerPage);
+        TotalPages = Math.Max(1, (int)Math.Ceiling(_navigableArtworks.Count / (double)perPage));
+        var index = card == null ? -1 : _navigableArtworks.IndexOf(card);
+        CurrentPage = index < 0 ? 1 : index / perPage + 1;
     }
 
     [RelayCommand] private void SetGridView() => ViewMode = GalleryViewMode.Grid;
@@ -1725,9 +1746,7 @@ ShowPreview = true;
     [RelayCommand]
     private void SetItemsPerPage(int count)
     {
-        ItemsPerPage = count;
-        CurrentPage = 1; // Reset to first page
-        UpdatePagination();
+        ItemsPerPage = count; // OnItemsPerPageChanged keeps the current position
     }
 
     partial void OnCurrentPageChanged(int value)

@@ -19,6 +19,7 @@ public partial class ViewedHistoryView : UserControl
 {
     private ViewedHistoryViewModel? VM => DataContext as ViewedHistoryViewModel;
     private double _lastSidePanelWidth = 520;
+    private System.Collections.Generic.HashSet<DateTime>? _calendarActiveDates;
 
     public ViewedHistoryView()
     {
@@ -31,6 +32,11 @@ public partial class ViewedHistoryView : UserControl
         catch { }
 
         InitializeComponent();
+        DataContextChanged += (_, _) =>
+        {
+            if (VM is { } vm)
+                Pikura.Avalonia.Services.ScrollAnchor.Attach(this, vm.ScrollAnchor, vm.DisplayedResults);
+        };
 
         AttachedToVisualTree += (_, _) =>
         {
@@ -156,14 +162,30 @@ public partial class ViewedHistoryView : UserControl
             cal.SelectedDate = d;
             cal.DisplayDate = d;
         }
-        try
+        try { _calendarActiveDates = await VM.GetActiveDatesAsync(); }
+        catch { _calendarActiveDates = null; }
+        RefreshCalendarBlackouts(cal);
+    }
+
+    private void OnCalendarDisplayDateChanged(object? sender, CalendarDateChangedEventArgs e)
+    {
+        if (sender is Calendar cal) RefreshCalendarBlackouts(cal);
+    }
+
+    /// <summary>Greys out days in (and around) the displayed month that have no recorded views.</summary>
+    private void RefreshCalendarBlackouts(Calendar cal)
+    {
+        cal.BlackoutDates.Clear();
+        if (_calendarActiveDates == null) return;
+
+        var monthStart = new DateTime(cal.DisplayDate.Year, cal.DisplayDate.Month, 1);
+        var end = monthStart.AddMonths(1).AddDays(14);
+        if (end > DateTime.Today) end = DateTime.Today;
+        for (var day = monthStart.AddDays(-14); day <= end; day = day.AddDays(1))
         {
-            // Reserved for a future visual enhancement (highlighting active days) —
-            // Avalonia's Calendar doesn't support arbitrary date-marking without a
-            // custom template, so for now the flyout just lets you pick any date.
-            _ = await VM.GetActiveDatesAsync();
+            if (_calendarActiveDates.Contains(day) || cal.SelectedDate?.Date == day) continue;
+            try { cal.BlackoutDates.Add(new CalendarDateRange(day)); } catch { }
         }
-        catch { /* non-fatal */ }
     }
 
     private void OnCalendarSelectedDateChanged(object? sender, SelectionChangedEventArgs e)
@@ -232,8 +254,7 @@ public partial class ViewedHistoryView : UserControl
         if (ctrl.DataContext is not ArtworkCardViewModel card) return;
         if (VM == null) return;
 
-        var blurEnabled = VM.SettingsService.Current.BlurR18Content;
-        if (blurEnabled && card.IsR18 && card.IsBlurred)
+        if (card.IsR18 && card.IsBlurred)
         {
             card.IsBlurred = false;
         }
@@ -413,6 +434,6 @@ public partial class ViewedHistoryView : UserControl
     {
         if (_tapPtr == PointerType.Mouse) return; // mouse already handled via PointerPressed
         if (sender is not Control c || c.DataContext is not ArtworkCardViewModel card) return;
-        var blur = VM?.SettingsService?.Current.BlurR18Content == true && card.IsR18 && card.IsBlurred; if (blur) card.IsBlurred = false; else VM?.OpenCard(card);
+        var blur = card.IsR18 && card.IsBlurred; if (blur) card.IsBlurred = false; else VM?.OpenCard(card);
     }
 }

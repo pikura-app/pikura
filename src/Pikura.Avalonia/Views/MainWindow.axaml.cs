@@ -604,6 +604,7 @@ public partial class MainWindow : Window
         try
         {
             var vm = AppServices.Get<AnalyticsViewModel>();
+            if (_analyticsView != null) _ = vm.LoadMostViewedArtistsAsync(); // History changes while browsing
             _analyticsView ??= new Pikura.Avalonia.Views.Analytics.AnalyticsView { DataContext = vm };
             MainContentControl.Content = _analyticsView;
             SetSectionTitle(Pikura.Avalonia.Localization.LocalizationService.Instance["Nav_Analytics"]);

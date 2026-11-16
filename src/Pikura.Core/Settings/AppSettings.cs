@@ -795,6 +795,15 @@ public sealed class AppSettings
     /// <summary>Items per page in History's Default (flat) view when HistoryUsePagination is on.</summary>
     public int HistoryItemsPerPage { get; set; } = 50;
 
+    /// <summary>History's R-18 visibility filter: "All", "HideR18" or "OnlyR18".</summary>
+    public string HistoryR18Filter { get; set; } = "All";
+
+    /// <summary>Blur R-18 thumbnails in History. Null = follow <see cref="BlurR18Content"/>.</summary>
+    public bool? HistoryBlurR18 { get; set; }
+
+    /// <summary>Fullscreen viewer's R-18 filter for the artwork strip and arrow keys: "All", "HideR18" or "OnlyR18".</summary>
+    public string FullscreenR18Filter { get; set; } = "All";
+
     /// <summary>When true, use pagination in the Search view instead of autoload-on-scroll.</summary>
     public bool SearchUsePagination { get; set; } = false;
 

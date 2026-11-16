@@ -94,6 +94,7 @@ public partial class GalleryView : UserControl
         {
             vm.PropertyChanged += OnVmPropertyChanged;
             vm.CopyToClipboardRequested += OnCopyToClipboardRequested;
+            Pikura.Avalonia.Services.ScrollAnchor.Attach(this, vm.ScrollAnchor, vm.FilteredArtworks);
             _wiredVm = vm;
         }
     }

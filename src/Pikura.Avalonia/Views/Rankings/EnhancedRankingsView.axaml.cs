@@ -490,6 +490,7 @@ public partial class EnhancedRankingsView : UserControl
         if (VM is { } vm)
         {
             vm.PropertyChanged += OnVmPropertyChanged;
+            Pikura.Avalonia.Services.ScrollAnchor.Attach(this, vm.ScrollAnchor, vm.FilteredItems);
             if (!_showPreviewHooked)
             {
                 HookGalleryShowPreview();

@@ -8,6 +8,7 @@ using Pikura.Core.Data;
 using Pikura.Core.Models;
 using Pikura.Core.Services;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -69,6 +70,107 @@ public partial class ArtworkViewerViewModel : ObservableObject
         _jobRepository = AppServices.Get<DownloadJobRepository>();
     }
 
+    /// <summary>Pages lists by artwork id, so reopening an artwork doesn't wait on the pages API
+    /// before it can even start loading the image.</summary>
+    private static readonly ConcurrentDictionary<string, IReadOnlyList<ArtworkPage>> PagesCache = new();
+    private const int MaxCachedPageLists = 500;
+
+    private static async Task<IReadOnlyList<ArtworkPage>> GetPagesCachedAsync(PixivClient client, string artworkId)
+    {
+        if (PagesCache.TryGetValue(artworkId, out var cached)) return cached;
+        var pages = await client.GetArtworkPagesAsync(artworkId);
+        if (pages.Count > 0)
+        {
+            if (PagesCache.Count >= MaxCachedPageLists) PagesCache.Clear();
+            PagesCache[artworkId] = pages;
+        }
+        return pages;
+    }
+
+    /// <summary>
+    /// Warms the caches for an artwork the user is likely to open next: its pages list and the
+    /// first page's Original, so arrowing onto it shows full quality straight away.
+    /// </summary>
+    public static async Task PrefetchAsync(ArtworkPreview artwork)
+    {
+        if (artwork.IllustType == 2) return;
+        try
+        {
+            var pages = await GetPagesCachedAsync(AppServices.Get<PixivClient>(), artwork.Id);
+            if (pages.Count == 0) return;
+            var page = pages[Math.Clamp(artwork.PageIndex, 0, pages.Count - 1)];
+            if (page.Urls.Original is not { Length: > 0 } original || TryGetDecoded(original) != null) return;
+            var bytes = await AppServices.Get<PixivImageLoader>().FetchBytesAsync(original);
+            if (bytes == null) return;
+            if (await Task.Run(() => DecodeBytes(bytes)) is { } bmp)
+                RememberDecoded(original, bmp);
+        }
+        catch { /* best-effort */ }
+    }
+
+    // Recently shown / prefetched Originals, already decoded. Decoding a multi-megapixel
+    // Original takes a noticeable moment even from disk, so going back and forth between
+    // recent artworks reuses these instead. Evicted entries aren't disposed — one may still be
+    // on screen — the GC frees them once nothing references them.
+    private static readonly object DecodedLock = new();
+    private static readonly LinkedList<(string Url, Bitmap Bitmap)> Decoded = new();
+    private static int? _maxDecoded;
+
+    private static int MaxDecoded => _maxDecoded ??= GetDeviceTier() switch
+    {
+        DeviceTier.High => 6,
+        DeviceTier.Low => 1,
+        _ => 3,
+    };
+
+    private static DeviceTier GetDeviceTier()
+    {
+        try { return AppServices.Get<DeviceCapabilityService>().Tier; }
+        catch { return DeviceTier.Medium; }
+    }
+
+    private static Bitmap? TryGetDecoded(string url)
+    {
+        lock (DecodedLock)
+        {
+            for (var node = Decoded.First; node != null; node = node.Next)
+            {
+                if (node.Value.Url != url) continue;
+                Decoded.Remove(node);
+                Decoded.AddFirst(node);
+                return node.Value.Bitmap;
+            }
+        }
+        return null;
+    }
+
+    private static void RememberDecoded(string url, Bitmap bitmap)
+    {
+        lock (DecodedLock)
+        {
+            for (var node = Decoded.First; node != null; node = node.Next)
+            {
+                if (node.Value.Url != url) continue;
+                Decoded.Remove(node);
+                break;
+            }
+            Decoded.AddFirst((url, bitmap));
+            while (Decoded.Count > MaxDecoded) Decoded.RemoveLast();
+        }
+    }
+
+    private static Bitmap? DecodeBytes(byte[] bytes)
+    {
+        try { using var ms = new MemoryStream(bytes); return new Bitmap(ms); }
+        catch { return null; }
+    }
+
+    private readonly TaskCompletionSource _fullQualityShown = new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+    /// <summary>Completes once the first page has finished loading (at full quality when
+    /// possible), so background prefetching can wait until it no longer competes with it.</summary>
+    public Task FirstPageLoaded => _fullQualityShown.Task;
+
     /// <summary>Navigate directly to a specific page index (0-based).</summary>
     public async Task GoToPageAsync(int index)
     {
@@ -99,7 +201,7 @@ public partial class ArtworkViewerViewModel : ObservableObject
                 {
                     await Dispatcher.UIThread.InvokeAsync(() =>
                     {
-                        if (i < PageList.Count)
+                        if (i < PageList.Count && !IsAtLeastAsSharp(PageList[i].Thumbnail, bmp))
                             PageList[i].Thumbnail = bmp;
                     });
                 }
@@ -123,7 +225,7 @@ public partial class ArtworkViewerViewModel : ObservableObject
         }
     }
 
-    public async Task LoadFirstPageAsync()
+    public async Task LoadFirstPageAsync(Bitmap? seed = null)
     {
         IsLoadingPage = true;
         try
@@ -142,7 +244,7 @@ public partial class ArtworkViewerViewModel : ObservableObject
             else
             {
                 IsUgoira = false;
-                _pages = await _pixivClient.GetArtworkPagesAsync(_artwork.Id);
+                _pages = await GetPagesCachedAsync(_pixivClient, _artwork.Id);
                 PageList = new ObservableCollection<PageThumbnailItem>(
                     _pages.Select((_, i) => new PageThumbnailItem(i, i + 1)));
                 OnPropertyChanged(nameof(PageCount));
@@ -151,7 +253,7 @@ public partial class ArtworkViewerViewModel : ObservableObject
                 OnPropertyChanged(nameof(PageList));
                 _ = LoadPageThumbnailsAsync();
                 var startIndex = Math.Clamp(_artwork.PageIndex, 0, _pages.Count - 1);
-                await LoadPageAsync(startIndex);
+                await LoadPageAsync(startIndex, seed);
             }
         }
         catch (Exception ex)
@@ -163,6 +265,7 @@ public partial class ArtworkViewerViewModel : ObservableObject
         finally
         {
             IsLoadingPage = false;
+            _fullQualityShown.TrySetResult();
         }
     }
 
@@ -170,7 +273,7 @@ public partial class ArtworkViewerViewModel : ObservableObject
     /// user has already navigated away from can't overwrite the current image.</summary>
     private int _pageLoadToken;
 
-    private async Task LoadPageAsync(int index)
+    private async Task LoadPageAsync(int index, Bitmap? seed = null)
     {
         if (_pages.Count == 0 || index < 0 || index >= _pages.Count) return;
         IsLoadingPage = true;
@@ -189,15 +292,32 @@ public partial class ArtworkViewerViewModel : ObservableObject
 
         try
         {
-            // Two-stage load. Previously this fetched Original first and only assigned the bitmap
-            // once the whole multi-megabyte file had arrived, so the viewer sat completely blank
-            // until then — very obvious in fullscreen. Show the much smaller Regular immediately,
-            // then transparently swap in the full-resolution Original.
-            if (!string.IsNullOrEmpty(preview))
-                await SetPageBitmapAsync(preview, token);
+            // Two-stage load: the small Regular first so the viewer is never blank, then the
+            // full-resolution Original. The Original download starts straight away, in parallel,
+            // and the Regular step is skipped entirely when it would only be a downgrade — the
+            // Original is already cached (an artwork opened before), or the caller's seed bitmap
+            // is already at least Regular quality.
+            var hasOriginal = !string.IsNullOrEmpty(original);
+            var originalTask = hasOriginal ? DecodeAsync(original!, keepDecoded: true) : null;
+            var seedIsSharp = seed is { } s && Math.Max(s.PixelSize.Width, s.PixelSize.Height) >= 1200;
+            var skipPreview = string.IsNullOrEmpty(preview)
+                || (hasOriginal && (original == preview || TryGetDecoded(original!) != null
+                    || _imageLoader.IsCached(original!) || seedIsSharp));
 
-            if (!string.IsNullOrEmpty(original) && original != preview)
-                await SetPageBitmapAsync(original, token);
+            if (!skipPreview)
+            {
+                var regular = await DecodeAsync(preview!);
+                if (originalTask is not { IsCompletedSuccessfully: true, Result: not null })
+                    await ApplyPageBitmapAsync(regular, token);
+            }
+
+            if (originalTask != null)
+                await ApplyPageBitmapAsync(await originalTask, token);
+
+            // Warm the next page so turning to it is instant too.
+            if (token == _pageLoadToken && index + 1 < _pages.Count
+                && _pages[index + 1].Urls.Original is { Length: > 0 } next && !_imageLoader.IsCached(next))
+                _ = _imageLoader.FetchBytesAsync(next);
         }
         finally
         {
@@ -205,19 +325,34 @@ public partial class ArtworkViewerViewModel : ObservableObject
         }
     }
 
-    /// <summary>Fetches and decodes <paramref name="url"/>, assigning it as the current page image
-    /// only if this load is still the newest one.</summary>
-    private async Task SetPageBitmapAsync(string url, int token)
+    /// <summary>Fetches and decodes <paramref name="url"/> off the UI thread — originals can be
+    /// several megabytes, and decoding them on the UI thread stalled the window.</summary>
+    private async Task<Bitmap?> DecodeAsync(string url, bool keepDecoded = false)
     {
+        if (TryGetDecoded(url) is { } decoded) return decoded;
         // priority: foreground viewer image — must not queue behind background thumbnail fetches.
-        var bytes = await _imageLoader.FetchBytesAsync(url, default, priority: true);
-        if (bytes == null || token != _pageLoadToken) return;
+        try
+        {
+            var bytes = await _imageLoader.FetchBytesAsync(url, default, priority: true);
+            if (bytes == null) return null;
+            var bmp = await Task.Run(() => DecodeBytes(bytes));
+            if (bmp != null && keepDecoded) RememberDecoded(url, bmp);
+            return bmp;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Viewer image load failed for {url}: {ex.Message}");
+            return null;
+        }
+    }
 
+    /// <summary>Shows <paramref name="bitmap"/> only if this load is still the newest one.</summary>
+    private async Task ApplyPageBitmapAsync(Bitmap? bitmap, int token)
+    {
+        if (bitmap == null || token != _pageLoadToken) return;
         await Dispatcher.UIThread.InvokeAsync(() =>
         {
-            if (token != _pageLoadToken) return;
-            using var ms = new MemoryStream(bytes);
-            CurrentPageBitmap = new Bitmap(ms);
+            if (token == _pageLoadToken) CurrentPageBitmap = bitmap;
         });
     }
 
@@ -303,6 +438,60 @@ public partial class ArtworkViewerViewModel : ObservableObject
 
     [RelayCommand]
     private void TogglePageGrid() => IsPageGridVisible = !IsPageGridVisible;
+
+    partial void OnIsPageGridVisibleChanged(bool value)
+    {
+        if (value) _ = UpgradePageThumbnailsAsync();
+    }
+
+    private static bool IsAtLeastAsSharp(Bitmap? existing, Bitmap candidate)
+        => existing != null && existing.PixelSize.Width >= candidate.PixelSize.Width;
+
+    private bool _pageThumbnailsUpgraded;
+
+    /// <summary>
+    /// The grid's tiles are 540 wide — on a high-DPI screen that's over 1000 physical pixels,
+    /// so the 540px strip thumbnails look soft. Swap in the 1200px master for each page, the
+    /// page on screen first (reusing the image already shown), once per artwork.
+    /// </summary>
+    private async Task UpgradePageThumbnailsAsync()
+    {
+        if (_pageThumbnailsUpgraded || _pages.Count == 0) return;
+        _pageThumbnailsUpgraded = true;
+        var pages = _pages;
+
+        var current = Math.Clamp(CurrentPageIndex, 0, pages.Count - 1);
+        if (CurrentPageBitmap is { } shown && current < PageList.Count
+            && !IsAtLeastAsSharp(PageList[current].Thumbnail, shown))
+            PageList[current].Thumbnail = shown;
+
+        var order = Enumerable.Range(0, pages.Count)
+            .OrderBy(i => i < current ? i + pages.Count : i) // current page onwards, then wrap
+            .ToList();
+        using var gate = new System.Threading.SemaphoreSlim(3);
+        await Task.WhenAll(order.Select(async i =>
+        {
+            await gate.WaitAsync();
+            try
+            {
+                if (!ReferenceEquals(_pages, pages)) return;
+                var url = pages[i].Urls.Regular ?? pages[i].Urls.Small;
+                if (string.IsNullOrEmpty(url)) return;
+                using var sk = await _imageLoader.FetchBitmapAsync(url, ThumbnailSize.Large);
+                if (sk is null) return;
+                var bmp = await Task.Run(() => (Bitmap?)BitmapInterop.SkiaToAvalonia(sk));
+                if (bmp is null) return;
+                await Dispatcher.UIThread.InvokeAsync(() =>
+                {
+                    if (ReferenceEquals(_pages, pages) && i < PageList.Count
+                        && !IsAtLeastAsSharp(PageList[i].Thumbnail, bmp))
+                        PageList[i].Thumbnail = bmp;
+                });
+            }
+            catch { /* keep the smaller tile */ }
+            finally { gate.Release(); }
+        }));
+    }
 
     [RelayCommand]
     private async Task SelectPageFromGrid(PageThumbnailItem? item)

@@ -471,6 +471,13 @@ public partial class PixivisionViewModel : ViewModelBase
     partial void OnShowPreviewChanged(bool value) => OnPropertyChanged(nameof(SidePanelLabel));
 
     public ObservableCollection<PixivisionArticleCardViewModel> Articles { get; } = [];
+
+    /// <summary>Keeps the user's place when switching between Pages and autoload.</summary>
+    public Pikura.Avalonia.Services.ScrollAnchor ScrollAnchor { get; } = new();
+
+    /// <summary>Which pixivision page each listed article came from (autoload mixes pages).</summary>
+    private readonly Dictionary<long, int> _articlePageById = new();
+
     public ObservableCollection<PixivisionParagraphViewModel> ArticleParagraphs { get; } = [];
     public ObservableCollection<ArtworkCardViewModel> FeaturedWorks { get; } = [];
 
@@ -536,8 +543,42 @@ public partial class PixivisionViewModel : ViewModelBase
     // paged mode has to collapse that back down to a single page's worth of articles, or the
     // paged view would show a confusing mix of everything loaded so far. Reload the page the
     // user last scrolled to (not page 1) so the switch feels seamless rather than a "reset".
-    [RelayCommand] public Task SetPagedMode() { IsAutoloadMode = false; return LoadArticlesPageAsync(Math.Max(1, ArticlePage), append: false); }
-    [RelayCommand] public Task SetAutoloadMode() { IsAutoloadMode = true; return GoToPageAsync(1); }
+    // Both directions keep the user's place: Pages opens the page the topmost visible article
+    // came from, and autoload loads up to the current page and scrolls to the same article,
+    // instead of starting over from page 1. A date-filtered list isn't paged, so it's left as is.
+    [RelayCommand]
+    public async Task SetPagedMode()
+    {
+        var anchor = ScrollAnchor.Capture() as PixivisionArticleCardViewModel;
+        IsAutoloadMode = false;
+        if (IsFilteredByDate) return;
+        var page = anchor != null && _articlePageById.TryGetValue(anchor.Id, out var p) ? p : Math.Max(1, ArticlePage);
+        await LoadArticlesPageAsync(page, append: false);
+        if (anchor != null) ScrollAnchor.ScrollTo(() => Articles.FirstOrDefault(a => a.Id == anchor.Id));
+    }
+
+    /// <summary>Furthest page autoload refills from page 1; beyond it, autoload starts at the
+    /// current page instead of fetching dozens of pages.</summary>
+    private const int MaxAutoloadRestorePages = 10;
+
+    [RelayCommand]
+    public async Task SetAutoloadMode()
+    {
+        var anchor = ScrollAnchor.Capture() as PixivisionArticleCardViewModel;
+        IsAutoloadMode = true;
+        if (IsFilteredByDate) return;
+        var page = Math.Max(1, ArticlePage);
+        await LoadArticlesPageAsync(page <= MaxAutoloadRestorePages ? 1 : page, append: false);
+        while (IsAutoloadMode && ArticlePage < page && HasNextPage)
+        {
+            var before = ArticlePage;
+            await LoadArticlesPageAsync(ArticlePage + 1, append: true);
+            if (ArticlePage == before) break;
+        }
+        ScrollAnchor.ScrollTo(() => Articles.FirstOrDefault(a => anchor != null
+            ? a.Id == anchor.Id
+            : _articlePageById.TryGetValue(a.Id, out var pg) && pg == page));
+    }
 
     public PixivisionViewModel(
         PixivisionService pixivision,
@@ -643,7 +684,7 @@ public partial class PixivisionViewModel : ViewModelBase
         var cts = new CancellationTokenSource();
         _articlesListCts = cts;
 
-        if (!append) { Articles.Clear(); SelectedCount = 0; }
+        if (!append) { Articles.Clear(); _articlePageById.Clear(); SelectedCount = 0; }
         IsLoading = true;
         SetStatus("Pixivision_LoadingPixivisionArticles");
 
@@ -658,6 +699,7 @@ public partial class PixivisionViewModel : ViewModelBase
             {
                 if (cts.IsCancellationRequested) return;
                 var card = new PixivisionArticleCardViewModel(a);
+                _articlePageById[card.Id] = result.Page;
                 Articles.Add(card);
                 _ = card.LoadThumbnailAsync(_imageLoader);
             }

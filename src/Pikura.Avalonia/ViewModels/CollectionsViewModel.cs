@@ -142,6 +142,10 @@ public partial class CollectionsViewModel : ViewModelBase
     public bool ShowFeaturedCollections => FeaturedCollections.Count > 0 && (!UsePagination || AllCollectionsPage == 1);
     public ObservableCollection<CollectionTileViewModel> AllCollections { get; } = [];
 
+    /// <summary>Keeps the user's place when switching between Pages and autoload.</summary>
+    public Pikura.Avalonia.Services.ScrollAnchor ScrollAnchor { get; } = new();
+
+
     /// <summary>Top-level comments on the Collection *itself* — distinct from any individual
     /// artwork's own comments. See <see cref="PixivClient.GetCollectionCommentsAsync"/>.</summary>
     public ObservableCollection<PixivComment> CollectionComments { get; } = [];
@@ -418,25 +422,48 @@ public partial class CollectionsViewModel : ViewModelBase
     public bool CanGoPreviousAllCollectionsPage => !IsLoadingMoreAllCollections && AllCollectionsPage > 1;
     public bool CanGoNextAllCollectionsPage => !IsLoadingMoreAllCollections && AllCollectionsPage < AllCollectionsTotalPages;
 
-    /// <summary>Switching modes always starts from a clean, consistent state — otherwise
-    /// stale/out-of-sync offsets between the two independent fetch paths (page-based vs.
-    /// append-based) could leave "Load more" visible at the same time as the page controls, or
-    /// leave the list looking empty.</summary>
+    /// <summary>Switching modes always rebuilds the list from a clean, consistent state —
+    /// otherwise stale/out-of-sync offsets between the two independent fetch paths (page-based
+    /// vs. append-based) could leave "Load more" visible at the same time as the page controls,
+    /// or leave the list looking empty. It keeps the user's place, though: the topmost visible
+    /// collection stays in view in the new mode.</summary>
     partial void OnUsePaginationChanged(bool value)
     {
+        var anchor = ScrollAnchor.Capture() as CollectionTileViewModel;
+        var local = anchor == null ? -1 : AllCollections.IndexOf(anchor);
+        var absolute = local < 0 ? -1 : value ? local : (AllCollectionsPage - 1) * AllCollectionsPageSize + local;
         OnPropertyChanged(nameof(CanLoadMoreAllCollections));
         OnPropertyChanged(nameof(ShowFeaturedCollections));
         LoadMoreAllCollectionsCommand.NotifyCanExecuteChanged();
-        if (value)
+        _ = SwitchAllCollectionsModeAsync(value, absolute);
+    }
+
+    /// <summary>Most "Load more" batches fetched in a row to get back to where Pages was.</summary>
+    private const int MaxRestoreBatches = 25;
+
+    private async Task SwitchAllCollectionsModeAsync(bool paged, int absoluteIndex)
+    {
+        var size = Math.Max(1, AllCollectionsPageSize);
+        if (paged)
         {
-            _ = GoToAllCollectionsPageAsync(1);
+            await GoToAllCollectionsPageAsync(absoluteIndex < 0 ? 1 : absoluteIndex / size + 1);
+            var local = absoluteIndex - (AllCollectionsPage - 1) * size;
+            if (absoluteIndex >= 0)
+                ScrollAnchor.ScrollTo(() => local >= 0 && local < AllCollections.Count ? AllCollections[local] : null);
+            return;
         }
-        else
+
+        _allCollectionsOffset = 0;
+        AllCollections.Clear();
+        for (var batch = 0; batch < MaxRestoreBatches && !UsePagination; batch++)
         {
-            _allCollectionsOffset = 0;
-            AllCollections.Clear();
-            _ = LoadMoreAllCollectionsAsync();
+            var before = AllCollections.Count;
+            await LoadMoreAllCollectionsAsync();
+            if (AllCollections.Count == before || AllCollections.Count > absoluteIndex
+                || AllCollections.Count >= AllCollectionsTotal) break;
         }
+        if (absoluteIndex >= 0)
+            ScrollAnchor.ScrollTo(() => absoluteIndex < AllCollections.Count ? AllCollections[absoluteIndex] : null);
     }
 
     [RelayCommand(CanExecute = nameof(CanGoPreviousAllCollectionsPage))]

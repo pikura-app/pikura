@@ -92,6 +92,10 @@ public partial class EnhancedRankingsViewModel : ViewModelBase
     public ObservableCollection<RankingCardViewModel> Items { get; } = [];
     public ObservableCollection<RankingCardViewModel> FilteredItems { get; } = [];
 
+    /// <summary>Keeps the user's place when switching between Pages and autoload.</summary>
+    public Pikura.Avalonia.Services.ScrollAnchor ScrollAnchor { get; } = new();
+
+
     // Tag filter (set when user clicks a tag chip)
     [ObservableProperty] private string _tagFilter = string.Empty;
     partial void OnTagFilterChanged(string value) => UpdateFilteredItems();
@@ -817,12 +821,14 @@ ShowPreview = true;
 
     partial void OnUsePaginationChanged(bool value)
     {
-        // GalleryCurrentPage is left untouched here on purpose: forcing it back to page 1 (or
-        // recomputing it from however many items autoload happens to have accumulated) made the
-        // toggle feel like a random reset. Leaving it alone means switching modes always lands
-        // back on whatever page the user was actually looking at.
+        // Keep the user's place: Pages opens on the rank range holding the topmost visible card
+        // (not whatever page was last open before autoload scrolled on), and autoload shows the
+        // full list scrolled to that card instead of the top.
+        var anchor = ScrollAnchor.Capture() as RankingCardViewModel;
         _settingsService.Update(s => s.RankingsUsePagination = value);
+        if (value) MovePageTo(anchor);
         UpdateFilteredItems();
+        ScrollAnchor.ScrollTo(anchor);
     }
 
     partial void OnItemsPerPageChanged(int value)
@@ -830,9 +836,21 @@ ShowPreview = true;
         _settingsService.Update(s => s.RankingsItemsPerPage = value);
         if (UsePagination)
         {
-            GalleryCurrentPage = 1;
+            var anchor = ScrollAnchor.Capture() as RankingCardViewModel;
+            MovePageTo(anchor);
             UpdateFilteredItems();
+            ScrollAnchor.ScrollTo(anchor);
         }
+    }
+
+    /// <summary>Sets <see cref="GalleryCurrentPage"/> to the rank range containing
+    /// <paramref name="card"/> (page 1 when there's no card).</summary>
+    private void MovePageTo(RankingCardViewModel? card)
+    {
+        var perPage = Math.Max(1, ItemsPerPage);
+        TotalPages = Math.Max(1, (int)Math.Ceiling(Math.Max(TotalItems, Items.Count) / (double)perPage));
+        var rank = card == null ? 0 : card.Rank > 0 ? card.Rank : Items.IndexOf(card) + 1;
+        GalleryCurrentPage = rank <= 0 ? 1 : (rank - 1) / perPage + 1;
     }
 
     /// <summary>

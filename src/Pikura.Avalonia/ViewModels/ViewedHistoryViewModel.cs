@@ -113,6 +113,47 @@ public partial class ViewedHistoryViewModel : ViewModelBase
     [ObservableProperty] private string _pageInput = "";
     public int[] ItemsPerPageOptions { get; } = { 10, 20, 50, 100 };
 
+    [ObservableProperty] private ViewedHistoryR18Filter _r18Filter;
+    [ObservableProperty] private bool _blurR18;
+    public bool IsR18FilterAll => R18Filter == ViewedHistoryR18Filter.All;
+    public bool IsR18FilterHide => R18Filter == ViewedHistoryR18Filter.HideR18;
+    public bool IsR18FilterOnly => R18Filter == ViewedHistoryR18Filter.OnlyR18;
+    public bool ShowR18Controls => _settingsService.Current.R18Mode != R18Mode.Off;
+    private bool _lastShowR18Controls;
+
+    [RelayCommand]
+    public Task SetR18FilterAsync(string mode)
+    {
+        R18Filter = mode switch
+        {
+            "hide" => ViewedHistoryR18Filter.HideR18,
+            "only" => ViewedHistoryR18Filter.OnlyR18,
+            _ => ViewedHistoryR18Filter.All,
+        };
+        OnPropertyChanged(nameof(IsR18FilterAll));
+        OnPropertyChanged(nameof(IsR18FilterHide));
+        OnPropertyChanged(nameof(IsR18FilterOnly));
+        return ReloadAsync();
+    }
+
+    partial void OnR18FilterChanged(ViewedHistoryR18Filter value)
+    {
+        OnPropertyChanged(nameof(IsR18FilterAll));
+        OnPropertyChanged(nameof(IsR18FilterHide));
+        OnPropertyChanged(nameof(IsR18FilterOnly));
+        var stored = value.ToString();
+        if (_settingsService.Current.HistoryR18Filter != stored)
+            _settingsService.Update(s => s.HistoryR18Filter = stored);
+    }
+
+    partial void OnBlurR18Changed(bool value)
+    {
+        if (_settingsService.Current.HistoryBlurR18 != value)
+            _settingsService.Update(s => s.HistoryBlurR18 = value);
+        foreach (var card in Results)
+            card.IsBlurred = value && card.IsR18;
+    }
+
     /// <summary>The slice of <see cref="Results"/> actually shown by the grid/list — the full
     /// set when <see cref="UsePagination"/> is off, or just the current page's worth when it's on.</summary>
     public ObservableCollection<ArtworkCardViewModel> DisplayedResults { get; } = [];
@@ -136,14 +177,29 @@ public partial class ViewedHistoryViewModel : ViewModelBase
 
     partial void OnUsePaginationChanged(bool value)
     {
+        // Keep the user's place: Pages opens on the page holding the topmost visible card, and
+        // autoload shows the full list scrolled to it — instead of a stale page or the top.
+        var anchor = ScrollAnchor.Capture() as ArtworkCardViewModel;
         _settingsService.Update(s => s.HistoryUsePagination = value);
+        if (value) CurrentPage = PageOf(anchor);
         UpdateDisplayedResults();
+        ScrollAnchor.ScrollTo(anchor);
     }
 
     partial void OnItemsPerPageChanged(int value)
     {
         _settingsService.Update(s => s.HistoryItemsPerPage = value);
-        if (UsePagination) { CurrentPage = 1; UpdateDisplayedResults(); }
+        if (!UsePagination) return;
+        var anchor = ScrollAnchor.Capture() as ArtworkCardViewModel;
+        CurrentPage = PageOf(anchor);
+        UpdateDisplayedResults();
+        ScrollAnchor.ScrollTo(anchor);
+    }
+
+    private int PageOf(ArtworkCardViewModel? card)
+    {
+        var index = card == null ? -1 : Results.IndexOf(card);
+        return index < 0 ? 1 : index / Math.Max(1, ItemsPerPage) + 1;
     }
 
     [RelayCommand]
@@ -394,6 +450,10 @@ public partial class ViewedHistoryViewModel : ViewModelBase
 
     public ObservableCollection<ArtworkCardViewModel> Results { get; } = [];
 
+    /// <summary>Keeps the user's place when switching between Pages and autoload.</summary>
+    public Pikura.Avalonia.Services.ScrollAnchor ScrollAnchor { get; } = new();
+
+
     [RelayCommand] public void TogglePreview() => ShowPreview = !ShowPreview;
     partial void OnSelectedCountChanged(int value) => OnPropertyChanged(nameof(HasSelection));
     partial void OnCardSizeChanged(int value)
@@ -418,11 +478,21 @@ public partial class ViewedHistoryViewModel : ViewModelBase
             : HistoryViewMode.Default;
         _usePagination = _settingsService.Current.HistoryUsePagination;
         _itemsPerPage = _settingsService.Current.HistoryItemsPerPage;
+        _r18Filter = Enum.TryParse<ViewedHistoryR18Filter>(_settingsService.Current.HistoryR18Filter, out var storedR18)
+            ? storedR18
+            : ViewedHistoryR18Filter.All;
+        _blurR18 = _settingsService.Current.HistoryBlurR18 ?? _settingsService.Current.BlurR18Content;
+        _lastShowR18Controls = ShowR18Controls;
 
         _settingsService.Changed += (_, _) =>
         {
             var shared = _settingsService.Current.CardSize;
             if (CardSize != shared) CardSize = shared;
+            // Changed fires on every write, often off the UI thread, so compare first and marshal.
+            var showR18 = _settingsService.Current.R18Mode != R18Mode.Off;
+            if (showR18 == _lastShowR18Controls) return;
+            _lastShowR18Controls = showR18;
+            global::Avalonia.Threading.Dispatcher.UIThread.Post(() => OnPropertyChanged(nameof(ShowR18Controls)));
         };
         _settingsService.ActiveIncognitoChanged += (_, _) =>
         {
@@ -475,16 +545,16 @@ public partial class ViewedHistoryViewModel : ViewModelBase
     private async Task<(List<ViewedHistoryEntry> Entries, int Total)> FetchPageAsync(int offset, int limit)
     {
         if (EffectiveSingleDay is { } date)
-            return await _repository.GetByDateAsync(date, offset, limit);
+            return await _repository.GetByDateAsync(date, offset, limit, R18Filter);
 
         if (QuickRange != "all")
         {
             var (startUtc, endUtc) = GetEffectiveRangeUtc();
-            return await _repository.GetByRangeAsync(startUtc, endUtc, offset, limit);
+            return await _repository.GetByRangeAsync(startUtc, endUtc, offset, limit, R18Filter);
         }
 
-        var entries = await _repository.GetRecentAsync(offset, limit);
-        var total = await _repository.GetTotalCountAsync();
+        var entries = await _repository.GetRecentAsync(offset, limit, R18Filter);
+        var total = await _repository.GetTotalCountAsync(R18Filter);
         return (entries, total);
     }
 
@@ -553,7 +623,7 @@ public partial class ViewedHistoryViewModel : ViewModelBase
         try
         {
             var (startUtc, endUtc) = QuickRange == "all" ? (null, (DateTime?)null) : GetEffectiveRangeUtc();
-            var groups = await _repository.GetDateGroupsAsync(startUtc, endUtc);
+            var groups = await _repository.GetDateGroupsAsync(startUtc, endUtc, r18: R18Filter);
 
             foreach (var g in groups)
             {
@@ -596,7 +666,7 @@ public partial class ViewedHistoryViewModel : ViewModelBase
     }
 
     /// <summary>Dates that have at least one recorded view — used to highlight active days in the calendar picker.</summary>
-    public async Task<HashSet<DateTime>> GetActiveDatesAsync() => await _repository.GetActiveDatesAsync();
+    public async Task<HashSet<DateTime>> GetActiveDatesAsync() => await _repository.GetActiveDatesAsync(R18Filter);
 
     private void AddCard(ViewedHistoryEntry entry)
     {
@@ -618,7 +688,7 @@ public partial class ViewedHistoryViewModel : ViewModelBase
         var viewedLocal = entry.ViewedAt.Kind == DateTimeKind.Utc ? entry.ViewedAt.ToLocalTime() : entry.ViewedAt;
         var card = new ArtworkCardViewModel(preview)
         {
-            IsBlurred = _settingsService.Current.BlurR18Content && entry.XRestrict >= 1,
+            IsBlurred = BlurR18 && entry.XRestrict >= 1,
             ViewedAtLabel = EffectiveSingleDay.HasValue
                 ? viewedLocal.ToString("h:mm tt")
                 : viewedLocal.ToString("MM/dd/yyyy 'at' h:mm tt"),

@@ -114,7 +114,10 @@ public partial class CollectionsView : UserControl
         if (_subscribedVm != null)
             _subscribedVm.CollectionComments.CollectionChanged -= OnCollectionCommentsChanged;
         if (VM is { } vm)
+        {
             vm.CollectionComments.CollectionChanged += OnCollectionCommentsChanged;
+            Pikura.Avalonia.Services.ScrollAnchor.Attach(this, vm.ScrollAnchor, vm.AllCollections);
+        }
         _subscribedVm = VM;
         RenderCollectionComments();
     }

@@ -14,7 +14,9 @@ using Avalonia.VisualTree;
 using Pikura.Avalonia.Localization;
 using Pikura.Avalonia.Services;
 using Pikura.Avalonia.ViewModels;
+using Pikura.Core.Data;
 using Pikura.Core.Models;
+using Pikura.Core.Settings;
 
 namespace Pikura.Avalonia.Views.Artwork;
 
@@ -88,7 +90,65 @@ public partial class FullscreenViewerWindow : Window
             PageGridOverlay.Height = Canvas.Bounds.Height;
         }
 
+        InitR18Filter();
         AttachViewModel(new ArtworkViewerViewModel(artwork, gallery, this), seedBitmap);
+    }
+
+    private ViewedHistoryR18Filter _r18Filter;
+    private bool _r18ModeOn;
+
+    private void InitR18Filter()
+    {
+        var settings = AppServices.Get<SettingsService>().Current;
+        _r18ModeOn = settings.R18Mode != R18Mode.Off;
+        _r18Filter = Enum.TryParse<ViewedHistoryR18Filter>(settings.FullscreenR18Filter, out var stored)
+            ? stored
+            : ViewedHistoryR18Filter.All;
+        if (R18FilterCombo is null) return;
+        R18FilterCombo.IsVisible = false;
+        _suppressR18FilterChanged = true;
+        R18FilterCombo.SelectedIndex = (int)_r18Filter;
+        _suppressR18FilterChanged = false;
+    }
+
+    private bool _suppressR18FilterChanged;
+
+    /// <summary>The filter is only offered, and only applied, when the list contains R-18 artworks.</summary>
+    private bool CanFilterR18(IReadOnlyList<ArtworkCardViewModel> list)
+        => _r18ModeOn && list.Any(c => c.IsR18);
+
+    private ViewedHistoryR18Filter EffectiveR18Filter(IReadOnlyList<ArtworkCardViewModel> list)
+        => _r18Filter != ViewedHistoryR18Filter.All && CanFilterR18(list) ? _r18Filter : ViewedHistoryR18Filter.All;
+
+    private static bool MatchesR18Filter(ArtworkCardViewModel card, ViewedHistoryR18Filter filter) => filter switch
+    {
+        ViewedHistoryR18Filter.HideR18 => !card.IsR18,
+        ViewedHistoryR18Filter.OnlyR18 => card.IsR18,
+        _ => true,
+    };
+
+    private IReadOnlyList<ArtworkCardViewModel> ApplyR18Filter(IReadOnlyList<ArtworkCardViewModel> list)
+    {
+        var filter = EffectiveR18Filter(list);
+        return filter == ViewedHistoryR18Filter.All ? list : list.Where(c => MatchesR18Filter(c, filter)).ToList();
+    }
+
+    private void UpdateR18FilterVisibility()
+    {
+        if (R18FilterCombo != null)
+            R18FilterCombo.IsVisible = CanFilterR18(RawStripList());
+    }
+
+    private void OnR18FilterChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        if (_suppressR18FilterChanged || R18FilterCombo is null || R18FilterCombo.SelectedIndex < 0) return;
+        _r18Filter = (ViewedHistoryR18Filter)R18FilterCombo.SelectedIndex;
+        var stored = _r18Filter.ToString();
+        var settings = AppServices.Get<SettingsService>();
+        if (settings.Current.FullscreenR18Filter != stored)
+            settings.Update(s => s.FullscreenR18Filter = stored);
+        UpdateStripHint();
+        RefreshArtworkStrip(ArtworkStrip?.IsVisible == true);
     }
 
     private ArtworkViewerViewModel? _attachedVm;
@@ -109,7 +169,7 @@ public partial class FullscreenViewerWindow : Window
         DataContext = vm;
 
         // Paint the caller's existing bitmap first so there's never an empty fullscreen window.
-        // LoadFirstPageAsync replaces it with the Regular, then the Original.
+        // LoadFirstPageAsync upgrades it to the Original (via the Regular only when the seed is smaller).
         if (seedBitmap != null)
         {
             vm.CurrentPageBitmap = seedBitmap;
@@ -122,27 +182,48 @@ public partial class FullscreenViewerWindow : Window
             if (e.PropertyName == nameof(ArtworkViewerViewModel.CurrentPageBitmap) ||
                 e.PropertyName == nameof(ArtworkViewerViewModel.UgoiraPreviewPath))
                 Dispatcher.UIThread.Post(FitToCanvasWhenReady);
-            // The multi-page strip appearing/disappearing moves the artwork strip above it.
+            // The multi-page strip sits above the artwork strip, so re-lay them out together.
             if (e.PropertyName == nameof(ArtworkViewerViewModel.HasMultiplePages))
                 Dispatcher.UIThread.Post(LayoutArtworkStrip);
         };
         vm.PropertyChanged += _vmChanged;
         LayoutArtworkStrip();
-        _ = vm.LoadFirstPageAsync();
+        _ = vm.LoadFirstPageAsync(seedBitmap);
+        _ = PrefetchNextArtworkAsync(vm);
+    }
+
+    /// <summary>Last arrow direction, so prefetching warms the artwork you're heading towards.</summary>
+    private int _navDirection = +1;
+
+    /// <summary>Once the artwork on screen has loaded, warms the next one (in the direction
+    /// you've been arrowing) so moving onto it shows full quality straight away.</summary>
+    private async Task PrefetchNextArtworkAsync(ArtworkViewerViewModel vm)
+    {
+        try
+        {
+            await vm.FirstPageLoaded;
+            if (!ReferenceEquals(DataContext, vm) || _gallery?.InlineViewerCard is not { } current) return;
+            var list = CurrentNavList();
+            var idx = list.TakeWhile(c => c.Id != current.Id).Count();
+            if (idx >= list.Count) return;
+            var next = NextMatchingIndex(list, idx, _navDirection);
+            if (next >= 0 && next < list.Count) await ArtworkViewerViewModel.PrefetchAsync(list[next].Artwork);
+        }
+        catch { /* best-effort */ }
     }
 
     // ── Artwork jump strip ───────────────────────────────────────────────────
     // A Canvas doesn't stretch children, so the strip's width and vertical position are driven
-    // from code. It sits above the multi-page strip when that's showing.
+    // from code. The multi-page strip sits above it when both are showing.
     private const double ArtworkStripHeight = 136;   // source picker row + thumbnail row
-    private const double PageStripHeight = 54;
 
     private void LayoutArtworkStrip()
     {
         if (ArtworkStrip is null || Canvas is null) return;
         ArtworkStrip.Width = Canvas.Bounds.Width;
-        var pageStripVisible = DataContext is ArtworkViewerViewModel { HasMultiplePages: true };
-        Canvas.SetBottom(ArtworkStrip, pageStripVisible ? PageStripHeight : 0);
+        Canvas.SetBottom(ArtworkStrip, 0);
+        if (PageStrip != null)
+            Canvas.SetBottom(PageStrip, ArtworkStrip.IsVisible ? ArtworkStripHeight : 0);
     }
 
     /// <summary>The list this viewer navigates — the active tab's nav list, the externally supplied
@@ -321,7 +402,9 @@ public partial class FullscreenViewerWindow : Window
     }
 
     /// <summary>What the strip shows: exactly the chosen source, even a single artwork.</summary>
-    private IReadOnlyList<ArtworkCardViewModel> StripList()
+    private IReadOnlyList<ArtworkCardViewModel> StripList() => ApplyR18Filter(RawStripList());
+
+    private IReadOnlyList<ArtworkCardViewModel> RawStripList()
         => _selectedSourceItems is { Count: > 0 } ? _selectedSourceItems : CurrentNavList();
 
     /// <summary>How to fetch more of whatever the arrow keys are moving through.</summary>
@@ -666,12 +749,15 @@ public partial class FullscreenViewerWindow : Window
     {
         var source = ArtworkSourceCombo?.SelectedItem as StripSource;
         var count = _selectedSourceItems?.Count ?? 0;
+        UpdateR18FilterVisibility();
 
         if (ArtworkStripHint != null)
         {
             ArtworkStripHint.Text = count == 0
                 ? string.Empty
-                : LocalizationService.Instance["Viewer_StripHint"];
+                : StripList().Count == 0
+                    ? LocalizationService.Instance["Viewer_StripNoR18Match"]
+                    : LocalizationService.Instance["Viewer_StripHint"];
         }
 
         // Offer paging whenever the selected source's section supports it.
@@ -765,6 +851,7 @@ public partial class FullscreenViewerWindow : Window
 
         if (!show || ArtworkStripList is null) return;
 
+        UpdateR18FilterVisibility();
         var list = StripList();
         ArtworkStripList.ItemsSource = list;
         _stripThumbCts = new CancellationTokenSource();
@@ -1149,8 +1236,19 @@ public partial class FullscreenViewerWindow : Window
 
     private bool _navLoadingMore;
 
+    /// <summary>Index of the next artwork after <paramref name="idx"/> that passes the R-18 filter;
+    /// <c>list.Count</c> when none is loaded going forward, -1 going backward.</summary>
+    private int NextMatchingIndex(IReadOnlyList<ArtworkCardViewModel> list, int idx, int direction)
+    {
+        var filter = EffectiveR18Filter(list);
+        var i = idx + direction;
+        while (i >= 0 && i < list.Count && !MatchesR18Filter(list[i], filter)) i += direction;
+        return Math.Clamp(i, -1, list.Count);
+    }
+
     private async void NavigateGalleryArtwork(int direction, ArtworkViewerViewModel currentVm)
     {
+        _navDirection = direction;
         // Single source of truth shared with the artwork strip, so an explicitly scoped list
         // (e.g. a collage's own four images) is honoured here too.
         var list = CurrentNavList();
@@ -1161,10 +1259,14 @@ public partial class FullscreenViewerWindow : Window
         var idx = list.TakeWhile(c => c.Id != currentCard.Id).Count();
         if (idx >= list.Count) return;
 
-        var nextIdx = idx + direction;
-        // Past the last loaded artwork: fetch the next page, like the inline viewer does.
-        if (nextIdx >= list.Count && NavPager() is { } pager && pager.CanMore())
+        // Step over artworks the R-18 filter hides. Indexing the unfiltered list keeps this working
+        // even when the artwork on screen is itself one the filter hides.
+        var nextIdx = NextMatchingIndex(list, idx, direction);
+        // Past the last loaded artwork: fetch the next page, like the inline viewer does. A page can
+        // be entirely filtered out, so keep going for a few pages.
+        for (var pages = 0; nextIdx >= list.Count && pages < 5 && NavPager() is { } pager && pager.CanMore(); pages++)
         {
+            var before = list.Count;
             _navLoadingMore = true;
             try
             {
@@ -1178,6 +1280,8 @@ public partial class FullscreenViewerWindow : Window
             finally { _navLoadingMore = false; }
             // The user may have moved on while the page loaded.
             if (!ReferenceEquals(DataContext, currentVm)) return;
+            if (list.Count <= before) break;
+            nextIdx = NextMatchingIndex(list, idx, direction);
         }
         if (nextIdx < 0 || nextIdx >= list.Count) return;
 

@@ -95,7 +95,18 @@
                                     <Flyout Placement="Bottom" ShowMode="Standard" Opened="OnCalendarOpened">
                                         <Calendar Name="DatePopupCalendar"
                                                   SelectionMode="SingleDate"
-                                                  SelectedDatesChanged="OnCalendarSelectedDateChanged"/>
+                                                  SelectedDatesChanged="OnCalendarSelectedDateChanged"
+                                                  DisplayDateChanged="OnCalendarDisplayDateChanged">
+                                            <Calendar.Styles>
+                                                <Style Selector="CalendarDayButton:blackout">
+                                                    <Setter Property="Opacity" Value="0.3"/>
+                                                </Style>
+                                                <Style Selector="CalendarDayButton /template/ Rectangle#blackout">
+                                                    <Setter Property="IsVisible" Value="False"/>
+                                                    <Setter Property="Opacity" Value="0"/>
+                                                </Style>
+                                            </Calendar.Styles>
+                                        </Calendar>
                                     </Flyout>
                                 </Button.Flyout>
                             </Button>
@@ -214,6 +225,25 @@
                         Classes="accent"
                         Click="OnDownloadPresetClicked"
                         ToolTip.Tip="{loc:Tr Search_DownloadWithImageProcessingPreset}"/>
+                <Rectangle Width="1" Height="18" Fill="{DynamicResource Container1BorderBrush}" Margin="4,0"
+                           IsVisible="{Binding ShowR18Controls}"/>
+                <StackPanel Orientation="Horizontal" Spacing="3" IsVisible="{Binding ShowR18Controls}"
+                            ToolTip.Tip="{loc:Tr R18Filter_FilterTip}">
+                    <ToggleButton IsChecked="{Binding IsR18FilterAll, Mode=OneWay}" FontSize="11"
+                                  Command="{Binding SetR18FilterCommand}" CommandParameter="all"
+                                  Content="{loc:Tr R18Filter_All}"/>
+                    <ToggleButton IsChecked="{Binding IsR18FilterHide, Mode=OneWay}" FontSize="11"
+                                  Command="{Binding SetR18FilterCommand}" CommandParameter="hide"
+                                  Content="{loc:Tr R18Filter_Hide}"/>
+                    <ToggleButton IsChecked="{Binding IsR18FilterOnly, Mode=OneWay}" FontSize="11"
+                                  Command="{Binding SetR18FilterCommand}" CommandParameter="only"
+                                  Content="{loc:Tr R18Filter_Only}"/>
+                </StackPanel>
+                <ToggleButton IsChecked="{Binding BlurR18}" FontSize="11"
+                              IsVisible="{Binding ShowR18Controls}"
+                              ToolTip.Tip="{loc:Tr History_BlurR18Tip}">
+                    <TextBlock FontSize="{Binding $parent[ContentControl].FontSize}"><Run Text="◌ "/><Run Text="{loc:Tr History_BlurR18}"/></TextBlock>
+                </ToggleButton>
             </StackPanel>
         </Border>
 

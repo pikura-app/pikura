@@ -1169,6 +1169,12 @@
   <data name="Analytics_RankedByNumberOfDownloadSessions" xml:space="preserve">
     <value>Ranked by number of download sessions</value>
   </data>
+  <data name="Analytics_MostViewedArtists" xml:space="preserve">
+    <value>Most Viewed Artists</value>
+  </data>
+  <data name="Analytics_RankedByArtworksViewed" xml:space="preserve">
+    <value>Ranked by how many of their artworks are in your History</value>
+  </data>
   <data name="Artwork_Back" xml:space="preserve">
     <value>← Back</value>
   </data>
@@ -7399,4 +7405,12 @@ Saved to: {3}</value>
   <data name="Viewer_StripLoadAllCount" xml:space="preserve"><value>Load all {0}</value></data>
   <data name="Viewer_StripLoading" xml:space="preserve"><value>Loading… ({0})</value></data>
   <data name="Viewer_StripCountOf" xml:space="preserve"><value>{0}  ({1} of {2})</value></data>
+  <data name="Library_FilterOptionsWatermark" xml:space="preserve"><value>Type to filter…</value></data>
+  <data name="R18Filter_All" xml:space="preserve"><value>All</value></data>
+  <data name="R18Filter_Hide" xml:space="preserve"><value>Hide R-18</value></data>
+  <data name="R18Filter_Only" xml:space="preserve"><value>R-18 only</value></data>
+  <data name="R18Filter_FilterTip" xml:space="preserve"><value>Show all, hide R-18, or show only R-18 artworks</value></data>
+  <data name="History_BlurR18" xml:space="preserve"><value>Blur R-18</value></data>
+  <data name="History_BlurR18Tip" xml:space="preserve"><value>Blur R-18 thumbnails (click a card to reveal it)</value></data>
+  <data name="Viewer_StripNoR18Match" xml:space="preserve"><value>No artworks in this list match the R-18 filter</value></data>
 </root>

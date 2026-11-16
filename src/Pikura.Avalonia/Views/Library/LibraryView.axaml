@@ -3,6 +3,7 @@
         xmlns:loc="using:Pikura.Avalonia.Localization"
         xmlns:vm="using:Pikura.Avalonia.ViewModels"
         xmlns:local="using:Pikura.Avalonia.Views.Gallery"
+        xmlns:controls="using:Pikura.Avalonia.Controls"
         x:CompileBindings="false"
         x:Class="Pikura.Avalonia.Views.Library.LibraryView">
     <UserControl.Styles>
@@ -161,10 +162,12 @@
                             </Style>
                         </WrapPanel.Styles>
                         <TextBox Text="{Binding SearchText}" PlaceholderText="{loc:Tr Library_SearchWatermark}" Width="240"/>
-                        <ComboBox SelectedIndex="{Binding ArtistIndex}" ItemsSource="{Binding ArtistOptions}"
+                        <controls:SearchableComboBox SelectedIndex="{Binding ArtistIndex}" ItemsSource="{Binding ArtistOptions}"
+                                  SearchPlaceholder="{loc:Tr Library_FilterOptionsWatermark}"
                                   Width="170" IsVisible="{Binding HasArtistOptions}"
                                   ToolTip.Tip="{loc:Tr Library_FilterArtist}"/>
-                        <ComboBox SelectedIndex="{Binding FolderIndex}" ItemsSource="{Binding FolderOptions}"
+                        <controls:SearchableComboBox SelectedIndex="{Binding FolderIndex}" ItemsSource="{Binding FolderOptions}"
+                                  SearchPlaceholder="{loc:Tr Library_FilterOptionsWatermark}"
                                   Width="200" IsVisible="{Binding HasFolderOptions}"
                                   ToolTip.Tip="{loc:Tr Library_FilterFolder}"/>
                         <ComboBox SelectedIndex="{Binding YearIndex}" ItemsSource="{Binding YearOptions}" Width="105"/>
@@ -184,10 +187,12 @@
                             <ComboBoxItem Content="{loc:Tr Library_OrientationLandscape}"/>
                             <ComboBoxItem Content="{loc:Tr Library_OrientationSquare}"/>
                         </ComboBox>
-                        <ComboBox SelectedIndex="{Binding CharacterIndex}" ItemsSource="{Binding CharacterOptions}"
+                        <controls:SearchableComboBox SelectedIndex="{Binding CharacterIndex}" ItemsSource="{Binding CharacterOptions}"
+                                  SearchPlaceholder="{loc:Tr Library_FilterOptionsWatermark}"
                                   Width="170" IsVisible="{Binding HasCharacterOptions}"
                                   ToolTip.Tip="{loc:Tr Library_FilterCharacter}"/>
-                        <ComboBox SelectedIndex="{Binding SeriesIndex}" ItemsSource="{Binding SeriesOptions}"
+                        <controls:SearchableComboBox SelectedIndex="{Binding SeriesIndex}" ItemsSource="{Binding SeriesOptions}"
+                                  SearchPlaceholder="{loc:Tr Library_FilterOptionsWatermark}"
                                   Width="170" IsVisible="{Binding HasSeriesOptions}"
                                   ToolTip.Tip="{loc:Tr Library_FilterSeries}"/>
                         <ComboBox SelectedIndex="{Binding SortIndex}" MinWidth="130">

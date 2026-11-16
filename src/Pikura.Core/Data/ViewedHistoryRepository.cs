@@ -28,6 +28,8 @@ public sealed class ViewedHistoryEntry
 /// in the inline viewer, anywhere in the app, is recorded here. Re-viewing an artwork
 /// bumps its timestamp rather than creating a duplicate entry.
 /// </summary>
+public enum ViewedHistoryR18Filter { All, HideR18, OnlyR18 }
+
 public sealed class ViewedHistoryRepository : IDisposable
 {
     private readonly string _connectionString;
@@ -64,6 +66,13 @@ public sealed class ViewedHistoryRepository : IDisposable
 
     private SqliteConnection CreateConnection() => new(_connectionString);
 
+    private static string R18Condition(ViewedHistoryR18Filter filter) => filter switch
+    {
+        ViewedHistoryR18Filter.HideR18 => "x_restrict < 1",
+        ViewedHistoryR18Filter.OnlyR18 => "x_restrict >= 1",
+        _ => "1 = 1",
+    };
+
     /// <summary>Records (or bumps) a view. Non-fatal on failure — history tracking should never break the viewer.</summary>
     public async Task RecordViewAsync(ViewedHistoryEntry entry, CancellationToken ct = default)
     {
@@ -96,15 +105,16 @@ public sealed class ViewedHistoryRepository : IDisposable
         }
     }
 
-    public async Task<List<ViewedHistoryEntry>> GetRecentAsync(int offset, int limit, CancellationToken ct = default)
+    public async Task<List<ViewedHistoryEntry>> GetRecentAsync(int offset, int limit, ViewedHistoryR18Filter r18 = ViewedHistoryR18Filter.All, CancellationToken ct = default)
     {
         using var connection = CreateConnection();
         await connection.OpenAsync(ct).ConfigureAwait(false);
 
         var results = new List<ViewedHistoryEntry>();
-        using var cmd = new SqliteCommand(@"
+        using var cmd = new SqliteCommand($@"
             SELECT artwork_id, title, user_id, user_name, thumbnail_url, illust_type, x_restrict, page_count, tags, viewed_at
             FROM viewed_history
+            WHERE {R18Condition(r18)}
             ORDER BY viewed_at DESC
             LIMIT @limit OFFSET @offset", connection);
         cmd.Parameters.AddWithValue("@limit", limit);
@@ -131,7 +141,7 @@ public sealed class ViewedHistoryRepository : IDisposable
     }
 
     /// <summary>Gets entries viewed on a specific local calendar date, newest first.</summary>
-    public async Task<(List<ViewedHistoryEntry> Results, int Total)> GetByDateAsync(DateTime date, int offset, int limit, CancellationToken ct = default)
+    public async Task<(List<ViewedHistoryEntry> Results, int Total)> GetByDateAsync(DateTime date, int offset, int limit, ViewedHistoryR18Filter r18 = ViewedHistoryR18Filter.All, CancellationToken ct = default)
     {
         var dayStart = date.Date.ToUniversalTime();
         var dayEnd = dayStart.AddDays(1);
@@ -141,7 +151,7 @@ public sealed class ViewedHistoryRepository : IDisposable
 
         var total = 0;
         using (var countCmd = new SqliteCommand(
-            "SELECT COUNT(*) FROM viewed_history WHERE viewed_at >= @start AND viewed_at < @end", connection))
+            $"SELECT COUNT(*) FROM viewed_history WHERE viewed_at >= @start AND viewed_at < @end AND {R18Condition(r18)}", connection))
         {
             countCmd.Parameters.AddWithValue("@start", dayStart.ToString("O"));
             countCmd.Parameters.AddWithValue("@end", dayEnd.ToString("O"));
@@ -149,10 +159,10 @@ public sealed class ViewedHistoryRepository : IDisposable
         }
 
         var results = new List<ViewedHistoryEntry>();
-        using (var cmd = new SqliteCommand(@"
+        using (var cmd = new SqliteCommand($@"
             SELECT artwork_id, title, user_id, user_name, thumbnail_url, illust_type, x_restrict, page_count, tags, viewed_at
             FROM viewed_history
-            WHERE viewed_at >= @start AND viewed_at < @end
+            WHERE viewed_at >= @start AND viewed_at < @end AND {R18Condition(r18)}
             ORDER BY viewed_at DESC
             LIMIT @limit OFFSET @offset", connection))
         {
@@ -189,12 +199,12 @@ public sealed class ViewedHistoryRepository : IDisposable
     /// open-ended range (both null = everything, i.e. same result set as <see cref="GetRecentAsync"/>).
     /// Used for the "past day/week/month/year" and custom-range pickers.
     /// </summary>
-    public async Task<(List<ViewedHistoryEntry> Results, int Total)> GetByRangeAsync(DateTime? startUtc, DateTime? endUtc, int offset, int limit, CancellationToken ct = default)
+    public async Task<(List<ViewedHistoryEntry> Results, int Total)> GetByRangeAsync(DateTime? startUtc, DateTime? endUtc, int offset, int limit, ViewedHistoryR18Filter r18 = ViewedHistoryR18Filter.All, CancellationToken ct = default)
     {
         using var connection = CreateConnection();
         await connection.OpenAsync(ct).ConfigureAwait(false);
 
-        var where = "WHERE (@start IS NULL OR viewed_at >= @start) AND (@end IS NULL OR viewed_at < @end)";
+        var where = $"WHERE (@start IS NULL OR viewed_at >= @start) AND (@end IS NULL OR viewed_at < @end) AND {R18Condition(r18)}";
 
         var total = 0;
         using (var countCmd = new SqliteCommand($"SELECT COUNT(*) FROM viewed_history {where}", connection))
@@ -254,15 +264,15 @@ public sealed class ViewedHistoryRepository : IDisposable
     /// the whole range into memory and groups client-side — acceptable for a local,
     /// single-user history table of this size.
     /// </summary>
-    public async Task<List<DateGroup>> GetDateGroupsAsync(DateTime? startUtc, DateTime? endUtc, int thumbnailsPerGroup = 4, CancellationToken ct = default)
+    public async Task<List<DateGroup>> GetDateGroupsAsync(DateTime? startUtc, DateTime? endUtc, int thumbnailsPerGroup = 4, ViewedHistoryR18Filter r18 = ViewedHistoryR18Filter.All, CancellationToken ct = default)
     {
         using var connection = CreateConnection();
         await connection.OpenAsync(ct).ConfigureAwait(false);
 
-        using var cmd = new SqliteCommand(@"
+        using var cmd = new SqliteCommand($@"
             SELECT thumbnail_url, viewed_at
             FROM viewed_history
-            WHERE (@start IS NULL OR viewed_at >= @start) AND (@end IS NULL OR viewed_at < @end)
+            WHERE (@start IS NULL OR viewed_at >= @start) AND (@end IS NULL OR viewed_at < @end) AND {R18Condition(r18)}
             ORDER BY viewed_at DESC", connection);
         cmd.Parameters.AddWithValue("@start", (object?)startUtc?.ToString("O") ?? DBNull.Value);
         cmd.Parameters.AddWithValue("@end", (object?)endUtc?.ToString("O") ?? DBNull.Value);
@@ -292,11 +302,11 @@ public sealed class ViewedHistoryRepository : IDisposable
     }
 
     /// <summary>Gets the distinct set of local calendar dates that have at least one recorded view — used to highlight days with activity in the calendar picker.</summary>
-    public async Task<HashSet<DateTime>> GetActiveDatesAsync(CancellationToken ct = default)
+    public async Task<HashSet<DateTime>> GetActiveDatesAsync(ViewedHistoryR18Filter r18 = ViewedHistoryR18Filter.All, CancellationToken ct = default)
     {
         using var connection = CreateConnection();
         await connection.OpenAsync(ct).ConfigureAwait(false);
-        using var cmd = new SqliteCommand("SELECT viewed_at FROM viewed_history", connection);
+        using var cmd = new SqliteCommand($"SELECT viewed_at FROM viewed_history WHERE {R18Condition(r18)}", connection);
         using var reader = await cmd.ExecuteReaderAsync(ct).ConfigureAwait(false);
 
         var dates = new HashSet<DateTime>();
@@ -308,11 +318,37 @@ public sealed class ViewedHistoryRepository : IDisposable
         return dates;
     }
 
-    public async Task<int> GetTotalCountAsync(CancellationToken ct = default)
+    /// <summary>One row of "most viewed artists": how many distinct artworks by the artist are in history.</summary>
+    public sealed record ArtistViewCount(string UserId, string UserName, int Count);
+
+    /// <summary>Artists with the most distinct artworks in history, most first. The name is the
+    /// one from the artist's most recent view, so renamed artists show their current name.</summary>
+    public async Task<List<ArtistViewCount>> GetTopViewedArtistsAsync(int limit, CancellationToken ct = default)
     {
         using var connection = CreateConnection();
         await connection.OpenAsync(ct).ConfigureAwait(false);
-        using var cmd = new SqliteCommand("SELECT COUNT(*) FROM viewed_history", connection);
+        using var cmd = new SqliteCommand(@"
+            SELECT v.user_id,
+                   (SELECT n.user_name FROM viewed_history n WHERE n.user_id = v.user_id ORDER BY n.viewed_at DESC LIMIT 1),
+                   COUNT(*) AS c
+            FROM viewed_history v
+            WHERE v.user_id <> ''
+            GROUP BY v.user_id
+            ORDER BY c DESC
+            LIMIT @limit", connection);
+        cmd.Parameters.AddWithValue("@limit", limit);
+        var result = new List<ArtistViewCount>();
+        using var reader = await cmd.ExecuteReaderAsync(ct).ConfigureAwait(false);
+        while (await reader.ReadAsync(ct).ConfigureAwait(false))
+            result.Add(new ArtistViewCount(reader.GetString(0), reader.IsDBNull(1) ? reader.GetString(0) : reader.GetString(1), reader.GetInt32(2)));
+        return result;
+    }
+
+    public async Task<int> GetTotalCountAsync(ViewedHistoryR18Filter r18 = ViewedHistoryR18Filter.All, CancellationToken ct = default)
+    {
+        using var connection = CreateConnection();
+        await connection.OpenAsync(ct).ConfigureAwait(false);
+        using var cmd = new SqliteCommand($"SELECT COUNT(*) FROM viewed_history WHERE {R18Condition(r18)}", connection);
         return Convert.ToInt32(await cmd.ExecuteScalarAsync(ct).ConfigureAwait(false));
     }
 

@@ -55,10 +55,13 @@ public partial class PixivisionView : UserControl
         DataContextChanged += (_, _) =>
         {
             if (VM is { } vm)
+            {
                 vm.PropertyChanged += (_, pe) =>
                 {
                     if (pe.PropertyName == nameof(PixivisionViewModel.SidebarWidth)) UpdateSidebarWidth();
                 };
+                Pikura.Avalonia.Services.ScrollAnchor.Attach(this, vm.ScrollAnchor, vm.Articles);
+            }
             UpdateSidebarWidth();
         };
 

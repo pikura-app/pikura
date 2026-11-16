@@ -124,6 +124,21 @@ public sealed class PixivImageLoader : IDisposable
         return bytes;
     }
 
+    /// <summary>True when <paramref name="url"/> can be served without a network request
+    /// (already in memory, or in the on-disk cache and not expired).</summary>
+    public bool IsCached(string url)
+    {
+        if (string.IsNullOrWhiteSpace(url)) return false;
+        if (_memoryCache.TryGetValue(url, out var task) && task.IsCompletedSuccessfully && task.Result is not null)
+            return true;
+        try
+        {
+            var fi = new FileInfo(GetDiskPath(url));
+            return fi.Exists && fi.Length > 0 && DateTime.UtcNow - fi.LastWriteTimeUtc <= DiskCacheTtl;
+        }
+        catch { return false; }
+    }
+
     private async Task<byte[]?> FetchInternalAsync(string url, CancellationToken ct, bool priority = false)
     {
         // Try the on-disk cache first — avoids hitting Pixiv's CDN at all

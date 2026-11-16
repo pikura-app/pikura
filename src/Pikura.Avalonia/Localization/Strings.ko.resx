@@ -1105,6 +1105,12 @@
   <data name="Analytics_RankedByNumberOfDownloadSessions" xml:space="preserve">
     <value>다운로드 세션 수 순</value>
   </data>
+  <data name="Analytics_MostViewedArtists" xml:space="preserve">
+    <value>가장 많이 본 작가</value>
+  </data>
+  <data name="Analytics_RankedByArtworksViewed" xml:space="preserve">
+    <value>기록에 있는 작품 수 순</value>
+  </data>
   <data name="Artwork_Back" xml:space="preserve">
     <value>← 뒤로</value>
   </data>
@@ -7335,4 +7341,12 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="Viewer_StripLoadAllCount" xml:space="preserve"><value>{0}개 모두 불러오기</value></data>
   <data name="Viewer_StripLoading" xml:space="preserve"><value>불러오는 중… ({0})</value></data>
   <data name="Viewer_StripCountOf" xml:space="preserve"><value>{0}  ({2}개 중 {1}개)</value></data>
+  <data name="Library_FilterOptionsWatermark" xml:space="preserve"><value>입력하여 필터…</value></data>
+  <data name="R18Filter_All" xml:space="preserve"><value>전체</value></data>
+  <data name="R18Filter_Hide" xml:space="preserve"><value>R-18 숨기기</value></data>
+  <data name="R18Filter_Only" xml:space="preserve"><value>R-18만</value></data>
+  <data name="R18Filter_FilterTip" xml:space="preserve"><value>전체 표시, R-18 숨기기 또는 R-18만 표시</value></data>
+  <data name="History_BlurR18" xml:space="preserve"><value>R-18 흐리게</value></data>
+  <data name="History_BlurR18Tip" xml:space="preserve"><value>R-18 썸네일 흐리게 (카드를 클릭하면 표시)</value></data>
+  <data name="Viewer_StripNoR18Match" xml:space="preserve"><value>이 목록에 R-18 필터와 일치하는 작품이 없습니다</value></data>
 </root>

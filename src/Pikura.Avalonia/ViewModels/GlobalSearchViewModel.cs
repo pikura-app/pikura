@@ -295,6 +295,10 @@ public partial class GlobalSearchViewModel : ViewModelBase
 
     public ObservableCollection<ArtworkCardViewModel> Results { get; } = [];
 
+    /// <summary>Keeps the user's place when switching between Pages and autoload.</summary>
+    public Pikura.Avalonia.Services.ScrollAnchor ScrollAnchor { get; } = new();
+
+
     // ── Pagination ("Pages" toggle) — mirrors EnhancedRankingsViewModel/GalleryViewModel's
     // pattern: default is autoload-on-scroll (ScrollChanged -> LoadMoreAsync, see the View's
     // code-behind); toggling this on switches to a discrete Prev/Next/page-jump UI instead,
@@ -338,16 +342,28 @@ public partial class GlobalSearchViewModel : ViewModelBase
 
     partial void OnUsePaginationChanged(bool value)
     {
+        // Keep the user's place: Pages opens on the page holding the topmost visible result,
+        // and autoload shows every result scrolled to it — instead of the first page/top.
+        var anchor = ScrollAnchor.Capture() as ArtworkCardViewModel;
         _settingsService.Update(s => s.SearchUsePagination = value);
-        DisplayPage = 1;
+        if (value) DisplayPage = PageOf(anchor);
         UpdateDisplayedResults();
+        ScrollAnchor.ScrollTo(anchor);
     }
 
     partial void OnItemsPerPageChanged(int value)
     {
+        var anchor = ScrollAnchor.Capture() as ArtworkCardViewModel;
         _settingsService.Update(s => s.SearchItemsPerPage = value);
-        DisplayPage = 1;
+        DisplayPage = PageOf(anchor);
         UpdateDisplayedResults();
+        ScrollAnchor.ScrollTo(anchor);
+    }
+
+    private int PageOf(ArtworkCardViewModel? card)
+    {
+        var index = card == null ? -1 : Results.IndexOf(card);
+        return index < 0 ? 1 : index / Math.Max(1, ItemsPerPage) + 1;
     }
 
     partial void OnDisplayPageChanged(int value) => UpdateDisplayedResults();

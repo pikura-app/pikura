@@ -74,6 +74,14 @@
                           MinWidth="250" FontSize="11" CornerRadius="5"
                           SelectionChanged="OnArtworkSourceChanged"
                           ToolTip.Tip="{loc:Tr Viewer_ChooseWhichTabCollageOrCombined}"/>
+                <ComboBox x:Name="R18FilterCombo"
+                          MinWidth="110" FontSize="11" CornerRadius="5"
+                          SelectionChanged="OnR18FilterChanged"
+                          ToolTip.Tip="{loc:Tr R18Filter_FilterTip}">
+                    <ComboBoxItem Content="{loc:Tr R18Filter_All}"/>
+                    <ComboBoxItem Content="{loc:Tr R18Filter_Hide}"/>
+                    <ComboBoxItem Content="{loc:Tr R18Filter_Only}"/>
+                </ComboBox>
                 <Button x:Name="LoadMoreButton"
                         FontSize="11" Padding="9,4" CornerRadius="5"
                         Background="#33FFFFFF" Foreground="White" BorderThickness="0"
@@ -125,7 +133,7 @@
           </Grid>
         </Border>
 
-        <!-- Page strip — bottom, clickable page numbers for quick jumps -->
+        <!-- Page strip — bottom (above the artwork strip when open), clickable page numbers for quick jumps -->
         <Border x:Name="PageStrip"
                 Canvas.Left="0" Canvas.Right="0" Canvas.Bottom="0"
                 Height="54"

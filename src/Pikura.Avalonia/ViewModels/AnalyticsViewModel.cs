@@ -12,6 +12,7 @@ namespace Pikura.Avalonia.ViewModels;
 public partial class AnalyticsViewModel : ViewModelBase
 {
     private readonly DownloadJobRepository _jobRepository;
+    private readonly ViewedHistoryRepository _historyRepository;
 
     [ObservableProperty] private int _totalJobs;
     [ObservableProperty] private int _completedJobs;
@@ -28,10 +29,13 @@ public partial class AnalyticsViewModel : ViewModelBase
     public List<TopItem> TopArtists { get; } = new();
     public List<TopItem> TopTags { get; } = new();
     public List<TopItem> MostFrequentedArtists { get; } = new();
+    /// <summary>Artists ranked by how many of their artworks are in viewing History.</summary>
+    public System.Collections.ObjectModel.ObservableCollection<TopItem> MostViewedArtists { get; } = new();
 
-    public AnalyticsViewModel(DownloadJobRepository jobRepository)
+    public AnalyticsViewModel(DownloadJobRepository jobRepository, ViewedHistoryRepository historyRepository)
     {
         _jobRepository = jobRepository;
+        _historyRepository = historyRepository;
         
         _ = LoadAnalyticsAsync();
     }
@@ -45,7 +49,18 @@ public partial class AnalyticsViewModel : ViewModelBase
         await LoadJobBreakdownAsync();
         await LoadRecentActivityAsync();
         await LoadTopItemsAsync();
+        await LoadMostViewedArtistsAsync();
         CalculateStorageUsage();
+    }
+
+    public async Task LoadMostViewedArtistsAsync()
+    {
+        List<ViewedHistoryRepository.ArtistViewCount> top;
+        try { top = await _historyRepository.GetTopViewedArtistsAsync(10); }
+        catch { return; }
+        MostViewedArtists.Clear();
+        for (var i = 0; i < top.Count; i++)
+            MostViewedArtists.Add(new TopItem { Name = top[i].UserName, Count = top[i].Count, Rank = $"#{i + 1}" });
     }
 
     private async Task LoadStatisticsAsync()

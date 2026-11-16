@@ -32,6 +32,11 @@ public partial class GlobalSearchView : UserControl
         catch { }
 
         InitializeComponent();
+        DataContextChanged += (_, _) =>
+        {
+            if (VM is { } vm)
+                Pikura.Avalonia.Services.ScrollAnchor.Attach(this, vm.ScrollAnchor, vm.DisplayResults);
+        };
 
         // TextBox's own internal pointer handling (caret placement/selection) marks
         // PointerPressed Handled during the tunnel pass, so a plain XAML-attached handler on it
