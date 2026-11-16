@@ -2,6 +2,28 @@
 
 All notable changes to Pikura are documented in this file.
 
+## [2.6.4]
+
+### New
+
+- History R-18 filter (All / Hide / Only, filtered in SQL) and Blur R-18 toggle, persisted (`HistoryR18Filter`, `HistoryBlurR18`).
+- Fullscreen R-18 filter for the artwork strip and ← / → (`FullscreenR18Filter`), shown only when R-18 mode is on and the source contains R-18 works.
+- `SearchableComboBox`: type-to-filter for Library artist, folder, character and series dropdowns.
+- Analytics: Most Viewed Artists from viewed history (`GetTopViewedArtistsAsync`).
+
+### Improved
+
+- History calendar blacks out (fades) dates with no viewed history.
+- Pages ↔ autoload and items-per-page changes keep the topmost visible item in view and open its page (`ScrollAnchor`) across Gallery, Rankings, Search, History, Collections and Pixivision.
+- Fullscreen: cached page lists, parallel preview/original fetch, off-thread decode, recent decoded originals kept by device tier, directional prefetch of the next artwork, `PixivImageLoader.IsCached`.
+- Fullscreen page grid upgrades tiles to Large (1200 px) and reuses the current original; page indicators sit above the artwork strip.
+
+### Fixed
+
+- Search and Gallery reset to page 1 on mode/page-size changes; Rankings/History reopened a stale page; Collections and Pixivision autoload restarted from page 1 (Pixivision also cleared the active source); Pixivision mode switches replaced date-filtered results.
+- Page-grid thumbnails could be downgraded by a later lower-resolution load.
+- History R-18 visibility updated from a background settings thread.
+
 ## [2.6.3]
 
 ### Improved

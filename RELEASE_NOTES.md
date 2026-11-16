@@ -1,3 +1,31 @@
+## Pikura 2.6.4
+
+Faded empty days in the History calendar, R-18 filters and blur, type-to-filter Library dropdowns, faster and sharper fullscreen, Pages / auto-scroll that keeps your place, and Most Viewed Artists in Analytics.
+
+### New Features
+
+- **History R-18 filter and blur** — **All / Hide R-18 / R-18 only** and a **Blur R-18** toggle in History's action bar, both remembered. Counts, Grouped/List views and the calendar follow the filter. Hidden when R-18 mode is off.
+- **Fullscreen R-18 filter** — in fullscreen's **Artworks** strip, show all, hide R-18 or show only R-18 works; ← / → skip what's filtered out. Only offered when the list actually contains R-18 works.
+- **Type to filter in Library** — the Any artist, All folders, character and series dropdowns open with a "Type to filter…" box; arrow keys and Enter pick a result.
+- **Most Viewed Artists** in Analytics — your top artists by how many of their artworks are in your History.
+
+### Improvements
+
+- **History calendar** — days with nothing in your History are faded and can't be picked, as you move between months.
+- **Pages / auto-scroll keep your place** — switching modes, or changing items per page, keeps the artwork you were looking at in view and opens the page it's on, in Followed Artists, Rankings, Search, History, Collections and Pixivision.
+- **Faster full quality in fullscreen** — originals you've opened before show straight away, the full-quality image downloads alongside the preview, large images are decoded in the background instead of freezing the window, and the next page and artwork are prepared ahead of time.
+- **Sharper "All pages" grid** — multi-page tiles load at 1200 px, and your current page reuses the full-quality image.
+- **Page numbers above the artwork strip** — for multi-page works in fullscreen, while the strip is open.
+
+### Fixes
+
+- Switching Search or Followed Artists to Pages, or changing items per page, jumped back to page 1.
+- Switching Rankings or History to Pages reopened an old page instead of where you'd scrolled to.
+- Collections' "Load more" mode and Pixivision's auto-scroll restarted from the top; Pixivision also cleared its search or tag filter.
+- A multi-page tile in the "All pages" grid could be replaced by a blurrier copy.
+
+---
+
 ## Pikura 2.6.3
 
 Fullscreen viewer fixes: Load all, the artwork strip, arrow keys, ugoira zoom, and restored tabs.
