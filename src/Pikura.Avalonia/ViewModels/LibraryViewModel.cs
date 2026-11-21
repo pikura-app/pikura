@@ -2,6 +2,8 @@ using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Pikura.Avalonia.Localization;
 using Pikura.Avalonia.Services;
 using Pikura.Core.Data;
@@ -18,6 +20,22 @@ using System.Threading.Tasks;
 
 namespace Pikura.Avalonia.ViewModels;
 
+/// <summary>Web links for library files. Source URLs come from third-party metadata (reverse-search
+/// hits) and the shell opens whatever it's given, so only http(s) links are used.</summary>
+internal static class LibraryLinks
+{
+    /// <summary>The file's source page, else its pixiv artwork page; null when there's no web link.</summary>
+    public static string? SourceUrlFor(LibraryFile f) =>
+        AsWebUrl(f.SourceUrl)
+        ?? (f.ArtworkId != null ? AsWebUrl($"https://www.pixiv.net/artworks/{Uri.EscapeDataString(f.ArtworkId)}") : null);
+
+    /// <summary>The URL when it's an absolute http(s) link, otherwise null.</summary>
+    public static string? AsWebUrl(string? url) =>
+        Uri.TryCreate(url, UriKind.Absolute, out var u) && (u.Scheme == Uri.UriSchemeHttp || u.Scheme == Uri.UriSchemeHttps)
+            ? u.AbsoluteUri
+            : null;
+}
+
 public partial class LibraryItemViewModel : ObservableObject, ILanguageAware
 {
     void ILanguageAware.OnLanguageChanged() => LanguageRefresh.RaiseComputedStrings(this, OnPropertyChanged);
@@ -33,7 +51,7 @@ public partial class LibraryItemViewModel : ObservableObject, ILanguageAware
         get
         {
             var line = $"{File.Width}x{File.Height} · {DuplicateFileRow.FormatSize(File.Size)} · {File.Mtime}";
-            var url = File.SourceUrl ?? (File.ArtworkId != null ? $"https://www.pixiv.net/artworks/{File.ArtworkId}" : null);
+            var url = LibraryLinks.SourceUrlFor(File);
             if (url != null && Uri.TryCreate(url, UriKind.Absolute, out var u)) line += " · " + u.Host;
             return line;
         }
@@ -226,7 +244,7 @@ public partial class LibraryViewModel : ViewModelBase
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsEmpty))]
     private bool _isBusy;
-    [ObservableProperty] private bool _hasMore = true;
+    [ObservableProperty] private bool _hasMore;
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsEmpty), nameof(HasFiles))]
     private long _totalFiles;
@@ -259,24 +277,46 @@ public partial class LibraryViewModel : ViewModelBase
     private CancellationTokenSource? _searchCts;
     private CancellationTokenSource? _workCts;
     private int _offset;
-    private bool _loadingPage;
+    private int _loadingGen;
+    private Task? _activeLoadMoreTask;
+    private Task _refreshTask = Task.CompletedTask;
+    // > 0 while files are being deleted. Their rows vanish and every later row moves up, so a page
+    // read meanwhile would start past files that were never shown.
+    private int _pagingHold;
+    internal bool IsLoadingPage => _loadingGen == _queryGen && _loadingGen != 0;
+    internal bool CanLoadMore => !IsLoadingPage && !IsBusy && _pagingHold == 0 && HasMore && _offset > 0;
+    internal Task CurrentRefreshTask => _refreshTask;
+
+    /// <summary>Raised when paging was held (busy work, a delete) and may continue. A grid that
+    /// already sits at the bottom gets no scroll event to request the page it was waiting for.</summary>
+    internal event EventHandler? PagingUnblocked;
+
+    partial void OnIsBusyChanged(bool value)
+    {
+        if (!value && _pagingHold == 0) PagingUnblocked?.Invoke(this, EventArgs.Empty);
+    }
+
+    private Task<(IReadOnlyList<LibraryFile> Items, long Total)> ExecuteSearchAsync(LibraryQuery query) =>
+        Task.Run(() => _library.Repository.SearchAsync(query));
     private readonly Dictionary<long, Bitmap> _thumbCache = new();
     private readonly LinkedList<long> _lru = new();
     private const int ThumbCacheCap = 500;
 
     public LibraryViewModel(LibraryIndexService library, SettingsService settings, DialogService dialog,
-        GalleryViewModel? galleryVm = null)
+        GalleryViewModel galleryVm, Pikura.Core.Services.ImageLookupService? imageLookup,
+        LibraryAutoTagService autoTag, ILogger<LibraryViewModel>? logger = null)
+        : base(logger ?? NullLogger<LibraryViewModel>.Instance)
     {
         _library = library; _settings = settings; _dialog = dialog;
-        GalleryVm = galleryVm ?? Services.AppServices.Get<GalleryViewModel>();
-        _imageLookup = Services.AppServices.Get<Pikura.Core.Services.ImageLookupService>();
+        GalleryVm = galleryVm;
+        _imageLookup = imageLookup;
         _browsePanelWidth = settings.Current.BrowsePanelWidth >= 200 ? settings.Current.BrowsePanelWidth : 450;
         _cardSize = settings.Current.CardSize;
         _showInfo = settings.Current.ShowInfo;
         _showTags = settings.Current.ShowTags;
         _includeR18 = settings.Current.R18Mode == Pikura.Core.Settings.R18Mode.Show;
         _dupThreshold = settings.Current.LibraryDuplicateThreshold;
-        AutoTag = Services.AppServices.Get<LibraryAutoTagService>();
+        AutoTag = autoTag;
         AutoTag.PropertyChanged += (_, e) =>
         {
             if (e.PropertyName is nameof(LibraryAutoTagService.Done) or nameof(LibraryAutoTagService.Total))
@@ -285,7 +325,7 @@ public partial class LibraryViewModel : ViewModelBase
                 OnPropertyChanged(nameof(AutoTagPauseText));
         };
         AutoTag.RunCompleted += async (_, _) => { await LoadTagFacetsAsync(); await LoadChipsAsync(); };
-        _ = RefreshAsync();
+        _refreshTask = RefreshAsync();
         _ = LoadChipsAsync();
         _ = LoadTagFacetsAsync();
         // Follow Settings → "Blur R-18 content" live (Changed fires on every write, so compare first).
@@ -299,24 +339,30 @@ public partial class LibraryViewModel : ViewModelBase
         };
     }
 
-    private async Task RefreshAsync()
+    internal async Task RefreshAsync()
     {
-        _queryGen++;
+        var gen = ++_queryGen;
+        _loadingGen = gen;
+        _activeLoadMoreTask = null;
         _offset = 0;
         Items.Clear();
-        HasMore = true;
+        HasMore = false;
         ResultsText = "";
         ResultsTotal = 0;
         ClearSelection(); // Items replaced — stale selection/details must not linger
-        await LoadPageAsync(); // first page is unconditional — not gated by _loadingPage
+        await LoadPageAsync(gen); // first page is unconditional — supersedes any in-flight scroll load
+        if (gen != _queryGen) return;
         var st = await _library.Repository.GetStatsAsync();
+        if (gen != _queryGen) return;
         StatusLine = string.Format(LocalizationService.Instance["Library_FilesIndexed"], st.Files);
         TotalFiles = st.Files;
         RefreshFolders();
         // Files without pixiv metadata have no age rating, so hiding R-18 can't catch them — say so.
         var unrated = IncludeR18 ? 0 : await _library.Repository.CountUnratedAsync();
+        if (gen != _queryGen) return;
         R18Notice = unrated > 0 ? string.Format(LocalizationService.Instance["Library_UnratedNotice"], unrated) : null;
         var years = await _library.Repository.GetYearsAsync();
+        if (gen != _queryGen) return;
         // Rebuild only when the actual year list changed — and preserve the selection by
         // VALUE (the ComboBox's two-way SelectedIndex push otherwise loops back into RefreshAsync).
         var next = years.Select(y => y.ToString()).ToList();
@@ -426,40 +472,69 @@ public partial class LibraryViewModel : ViewModelBase
     };
 
     [RelayCommand]
-    private async Task LoadMoreAsync()
+    internal async Task LoadMoreAsync()
     {
         // Scroll paging only — RefreshAsync loads the first page itself.
-        if (_loadingPage || IsBusy || !HasMore) return;
-        _loadingPage = true;
+        if (IsBusy || _pagingHold > 0 || !HasMore || _offset == 0) return;
+        if (_loadingGen == _queryGen)
+        {
+            if (_activeLoadMoreTask is { } inFlight)
+                await inFlight;
+            return;
+        }
         var gen = _queryGen;
+        _loadingGen = gen;
+        var task = LoadMoreCoreAsync(gen);
+        if (!task.IsCompleted) _activeLoadMoreTask = task;
+        await task;
+    }
+
+    private async Task LoadMoreCoreAsync(int gen)
+    {
         try
         {
-            var (items, total) = await _library.Repository.SearchAsync(BuildQuery());
+            var query = BuildQuery();
+            var (items, total) = await ExecuteSearchAsync(query);
             if (gen != _queryGen) return; // a newer query superseded this page — discard
+            // OFFSET pages shift when rows are added above the loaded range (downloads index
+            // themselves at the top of the default sort), so skip files that are already shown.
+            var shown = Items.Select(i => i.File.Id).ToHashSet();
             foreach (var f in items)
             {
+                if (!shown.Add(f.Id)) continue;
                 var vm = new LibraryItemViewModel(f);
                 vm.ApplyBlur(_settings.Current.BlurR18Content);
                 vm.UpdateImageHeight(CardSize, IsNaturalHeight);
                 Items.Add(vm);
                 _ = LoadThumbAsync(vm);
             }
-            _offset += items.Count;
+            _offset += items.Count; // rows read, repeats included, so the next page lines up
             HasMore = items.Count > 0 && _offset < total;
             ResultsText = string.Format(LocalizationService.Instance["Library_Results"], total);
             ResultsTotal = (int)Math.Min(total, int.MaxValue);
         }
-        finally { _loadingPage = false; }
+        catch (Exception ex)
+        {
+            Logger.LogWarning(ex, "Library page load at offset {Offset} failed", _offset);
+        }
+        finally
+        {
+            if (_loadingGen == gen)
+            {
+                _loadingGen = 0;
+                _activeLoadMoreTask = null;
+            }
+        }
     }
 
     /// <summary>Unconditional first-page load for RefreshAsync — runs even while a scroll
     /// page is in flight (that page's results will be discarded by the gen check).</summary>
-    private async Task LoadPageAsync()
+    private async Task LoadPageAsync(int gen)
     {
-        var gen = _queryGen;
         try
         {
-            var (items, total) = await _library.Repository.SearchAsync(BuildQuery());
+            var query = BuildQuery();
+            var (items, total) = await ExecuteSearchAsync(query);
             if (gen != _queryGen) return;
             foreach (var f in items)
             {
@@ -474,7 +549,15 @@ public partial class LibraryViewModel : ViewModelBase
             ResultsText = string.Format(LocalizationService.Instance["Library_Results"], total);
             ResultsTotal = (int)Math.Min(total, int.MaxValue);
         }
-        catch { /* keep grid empty on failure — status line already reports it */ }
+        catch (Exception ex)
+        {
+            // Keep the grid empty on failure — the status line already reports it.
+            Logger.LogWarning(ex, "Library first page load failed");
+        }
+        finally
+        {
+            if (_loadingGen == gen) _loadingGen = 0;
+        }
     }
 
     private readonly SemaphoreSlim _thumbGate = new(Math.Max(2, Environment.ProcessorCount / 2));
@@ -633,12 +716,25 @@ public partial class LibraryViewModel : ViewModelBase
         _settings.Current.LibraryDuplicateThreshold = (int)Math.Round(value);
     }
 
-    private async Task LoadChipsAsync()
+    internal async Task LoadChipsAsync()
     {
-        var ai = await _library.Repository.GetTopAiTagsAsync(12);
-        foreach (var (t, _) in ai) AiTagChips.Add(t);
-        var px = await _library.Repository.GetTopPixivTagsAsync(12);
-        foreach (var (t, _) in px) PixivTagChips.Add(t);
+        try
+        {
+            var ai = await _library.Repository.GetTopAiTagsAsync(12);
+            var px = await _library.Repository.GetTopPixivTagsAsync(12);
+            // Runs again after every auto-tag pass: replace the chips, or each pass appends a copy.
+            ReplaceChips(AiTagChips, ai.Select(t => t.Tag));
+            ReplaceChips(PixivTagChips, px.Select(t => t.Tag));
+        }
+        catch (Exception ex) { Logger.LogWarning(ex, "Library tag chips failed"); }
+    }
+
+    private static void ReplaceChips(ObservableCollection<string> chips, IEnumerable<string> tags)
+    {
+        var next = tags.ToList();
+        if (chips.SequenceEqual(next)) return;
+        chips.Clear();
+        foreach (var t in next) chips.Add(t);
     }
 
     [RelayCommand]
@@ -711,8 +807,78 @@ public partial class LibraryViewModel : ViewModelBase
             LocalizationService.Instance["Library_DeleteTitle"],
             string.Format(LocalizationService.Instance["Library_DeleteConfirm"], 1));
         if (!ok) return;
-        await _library.DeleteFilesAsync([vm.File.Id], true);
-        Items.Remove(vm);
+        await DeleteFromLibraryAsync([vm.File.Id]);
+    }
+
+    /// <summary>Deletes files for the commands: the browse results and the viewer both let go of them.</summary>
+    private async Task<IReadOnlyList<long>> DeleteFromLibraryAsync(IReadOnlyList<long> ids)
+    {
+        var deleted = await DeleteAndUnloadAsync(ids);
+        RemoveDeletedFromTabs(deleted, GalleryVm.ViewerTabs, GalleryVm.CloseViewerTab);
+        return deleted;
+    }
+
+    /// <summary>Takes deleted files out of the viewer. A tab showing one closes: prev/next moves a tab
+    /// between files without changing the file it was opened from, so the card on screen decides.
+    /// Other tabs drop the files from their lists, so navigation can't land on them.</summary>
+    internal static void RemoveDeletedFromTabs(IReadOnlyCollection<long> deletedIds, IList<ViewerTab> tabs,
+        Action<ViewerTab> closeTab)
+    {
+        if (deletedIds.Count == 0) return;
+        var gone = deletedIds.ToHashSet();
+        foreach (var tab in tabs.ToList())
+        {
+            if (!tab.IsCollage && tab.Card is { LibraryFileId: > 0 } shown && gone.Contains(shown.LibraryFileId))
+            {
+                closeTab(tab);
+                continue;
+            }
+            var removed = tab.NavList.RemoveAll(c => gone.Contains(c.LibraryFileId));
+            if (removed > 0) tab.TotalCount = Math.Max(tab.NavList.Count, tab.TotalCount - removed);
+        }
+    }
+
+    /// <summary>Deletes files and keeps the browse results in step. Paging is held meanwhile: a page
+    /// read while the rows disappear would start past files that just moved up.</summary>
+    internal async Task<IReadOnlyList<long>> DeleteAndUnloadAsync(IReadOnlyList<long> ids)
+    {
+        _pagingHold++;
+        try
+        {
+            // Let a page that is already loading land before the rows it counted from move.
+            if (_activeLoadMoreTask is { } inFlight) await inFlight;
+            var deleted = await _library.DeleteFilesAsync(ids, true);
+            RemoveDeletedFromResults(deleted);
+            return deleted;
+        }
+        finally
+        {
+            if (--_pagingHold == 0 && !IsBusy) PagingUnblocked?.Invoke(this, EventArgs.Empty);
+        }
+    }
+
+    /// <summary>Drops deleted files from the loaded results. Their rows are gone, so every later row
+    /// of this query moved up: the next page has to start that much earlier or it skips files.</summary>
+    internal void RemoveDeletedFromResults(IReadOnlyCollection<long> deletedIds)
+    {
+        if (deletedIds.Count == 0) return;
+        var gone = deletedIds.ToHashSet();
+        var anchor = _lastSelectedIndex >= 0 && _lastSelectedIndex < Items.Count ? Items[_lastSelectedIndex] : null;
+        var removed = 0;
+        var selectionChanged = false;
+        for (var i = Items.Count - 1; i >= 0; i--)
+        {
+            if (!gone.Contains(Items[i].File.Id)) continue;
+            selectionChanged |= Items[i].IsSelected;
+            Items.RemoveAt(i);
+            removed++;
+        }
+        if (removed == 0) return;
+        _offset = Math.Max(0, _offset - removed);
+        ResultsTotal = Math.Max(0, ResultsTotal - removed);
+        ResultsText = string.Format(LocalizationService.Instance["Library_Results"], ResultsTotal);
+        _lastSelectedIndex = anchor != null ? Items.IndexOf(anchor) : -1;
+        if (selectionChanged) SelectionChanged();
     }
 
     // ── Open artwork in the shared inline viewer ───────────────────────────
@@ -788,8 +954,7 @@ public partial class LibraryViewModel : ViewModelBase
     [RelayCommand] private void OpenSource(LibraryItemViewModel? vm)
     {
         if (vm == null || !OperatingSystem.IsWindows()) return;
-        var src = vm.File.SourceUrl ?? (vm.File.ArtworkId != null ? $"https://www.pixiv.net/artworks/{vm.File.ArtworkId}" : null);
-        if (src != null) Process.Start(new ProcessStartInfo(src) { UseShellExecute = true });
+        if (LibraryLinks.SourceUrlFor(vm.File) is { } src) Process.Start(new ProcessStartInfo(src) { UseShellExecute = true });
     }
 
     [RelayCommand] private async Task CopyOriginalUrl(LibraryItemViewModel? vm)
@@ -808,6 +973,8 @@ public partial class LibraryViewModel : ViewModelBase
     private async Task ReverseSearchAsync(LibraryItemViewModel? vm)
     {
         if (vm == null) return;
+        // A cached hit opens the viewer without writing a status, so don't leave the last search's.
+        RevSearchStatus = null;
         var id = vm.File.Id;
         if (_revSearchCache.TryGetValue(id, out var cached))
         {
@@ -929,12 +1096,15 @@ public partial class LibraryViewModel : ViewModelBase
     }
 
     public async Task ViewerReverseSearchAsync(long fileId)
-    { if (await ItemForAsync(fileId) is { } i) await ReverseSearchAsync(i); }
+    {
+        RevSearchStatus = null; // the viewer's flyout shows whatever status this leaves behind
+        if (await ItemForAsync(fileId) is { } i) await ReverseSearchAsync(i);
+    }
 
     public async Task ViewerTagWithAiAsync(long fileId)
     { if (await ItemForAsync(fileId) is { } i) await TagWithAi(i); }
 
-    /// <summary>Deletes after the existing confirmation; closes the viewer tab it came from.</summary>
+    /// <summary>Deletes after the existing confirmation; the viewer tab showing the file closes.</summary>
     public async Task ViewerDeleteAsync(long fileId)
     {
         var item = await ItemForAsync(fileId);
@@ -943,10 +1113,7 @@ public partial class LibraryViewModel : ViewModelBase
             LocalizationService.Instance["Library_DeleteTitle"],
             string.Format(LocalizationService.Instance["Library_DeleteConfirm"], 1));
         if (!ok) return;
-        await _library.DeleteFilesAsync([item.File.Id], true);
-        if (Items.FirstOrDefault(i => i.File.Id == fileId) is { } loaded) Items.Remove(loaded);
-        var tab = GalleryVm.ViewerTabs.FirstOrDefault(t => t.LibraryFileId == fileId);
-        if (tab != null) GalleryVm.ViewerTabs.Remove(tab);
+        await DeleteFromLibraryAsync([item.File.Id]); // a file still on disk keeps its tab
     }
 
     /// <summary>Context-menu: open the artist in the Gallery tab.</summary>
@@ -1123,8 +1290,7 @@ public partial class LibraryViewModel : ViewModelBase
             LocalizationService.Instance["Library_DeleteTitle"],
             string.Format(LocalizationService.Instance["Library_DeleteConfirm"], sel.Count));
         if (!ok) return;
-        await _library.DeleteFilesAsync(sel.Select(v => v.File.Id).ToArray(), true);
-        foreach (var v in sel) Items.Remove(v);
+        await DeleteFromLibraryAsync(sel.Select(v => v.File.Id).ToArray());
         ClearSelection();
     }
 
@@ -1303,10 +1469,10 @@ public partial class LibraryViewModel : ViewModelBase
             LocalizationService.Instance["Library_DeleteTitle"],
             string.Format(LocalizationService.Instance["Library_DeleteConfirmRecycle"], ids.Count));
         if (!ok) return;
-        var deleted = await _library.DeleteFilesAsync(ids, true);
+        var deleted = (await DeleteFromLibraryAsync(ids)).ToHashSet();
         foreach (var g in DupGroups.ToList())
         {
-            foreach (var r in g.Rows.Where(r => r.IsMarked && ids.Contains(r.File.Id)).ToList())
+            foreach (var r in g.Rows.Where(r => deleted.Contains(r.File.Id)).ToList())
                 g.Rows.Remove(r);
         }
         for (var i = DupGroups.Count - 1; i >= 0; i--)
@@ -1314,6 +1480,10 @@ public partial class LibraryViewModel : ViewModelBase
     }
 
     /// <summary>Called when the browse grid scrolls near the bottom.</summary>
-    public void OnScrolledToEnd() => _ = LoadMoreAsync();
+    public void OnScrolledToEnd()
+    {
+        if (!CanLoadMore) return;
+        _ = LoadMoreAsync();
+    }
 }
 
