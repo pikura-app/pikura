@@ -536,8 +536,10 @@ public partial class MainWindow : Window
     {
         try
         {
-            var vm = AppServices.Get<Pikura.Avalonia.ViewModels.LibraryViewModel>();
-            _libraryView ??= new Views.Library.LibraryView { DataContext = vm };
+            _libraryView ??= new Views.Library.LibraryView
+            {
+                DataContext = AppServices.Get<Pikura.Avalonia.ViewModels.LibraryViewModel>()
+            };
             MainContentControl.Content = _libraryView;
             SetSectionTitle(Pikura.Avalonia.Localization.LocalizationService.Instance["Nav_Library"]);
         }

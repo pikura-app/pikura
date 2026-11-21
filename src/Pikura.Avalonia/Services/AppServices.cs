@@ -188,11 +188,7 @@ public static class AppServices
                         provider.GetRequiredService<ILogger<LibraryAutoTagService>>()));
 
                 // Library section viewmodel
-                services.AddTransient<Pikura.Avalonia.ViewModels.LibraryViewModel>(provider =>
-                    new Pikura.Avalonia.ViewModels.LibraryViewModel(
-                        provider.GetRequiredService<Pikura.Core.Services.Library.LibraryIndexService>(),
-                        provider.GetRequiredService<SettingsService>(),
-                        provider.GetRequiredService<DialogService>()));
+                RegisterLibraryViewModel(services);
 
                 services.AddSingleton<VelopackMigrationService>(provider =>
                     new VelopackMigrationService(
@@ -715,6 +711,22 @@ public static class AppServices
 
     /// <summary>Singleton background overlay service, exposed for XAML bindings.</summary>
     public static BackgroundOverlayService OverlayService => Get<BackgroundOverlayService>();
+
+    /// <summary>Registers <see cref="LibraryViewModel"/> as a singleton so tab navigation and
+    /// inline-viewer actions reuse the single active instance instead of spawning extra view
+    /// models that reload page 1 and leak event subscriptions on long-lived services.</summary>
+    internal static void RegisterLibraryViewModel(IServiceCollection services)
+    {
+        services.AddSingleton<Pikura.Avalonia.ViewModels.LibraryViewModel>(provider =>
+            new Pikura.Avalonia.ViewModels.LibraryViewModel(
+                provider.GetRequiredService<Pikura.Core.Services.Library.LibraryIndexService>(),
+                provider.GetRequiredService<SettingsService>(),
+                provider.GetRequiredService<DialogService>(),
+                provider.GetRequiredService<GalleryViewModel>(),
+                provider.GetRequiredService<ImageLookupService>(),
+                provider.GetRequiredService<LibraryAutoTagService>(),
+                provider.GetService<ILogger<Pikura.Avalonia.ViewModels.LibraryViewModel>>()));
+    }
 
     public static T Get<T>() where T : class
     {

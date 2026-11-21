@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Input.Platform;
 using Avalonia.Interactivity;
+using Avalonia.Threading;
 using System.Linq;
 using Pikura.Avalonia.ViewModels;
 using Avalonia.Platform.Storage;
@@ -22,6 +23,7 @@ public partial class LibraryView : UserControl
         LibraryInlineViewer.ToggleBrowse += OnViewerToggleBrowse;
         LibraryInlineViewer.ExpandViewer += OnExpandViewer;
         LibraryInlineViewer.ViewerClosed += OnViewerClosed;
+        DataContextChanged += (_, _) => RebindPaging();
         AttachedToVisualTree += (_, _) =>
         {
             if (VM is not { } vm) return;
@@ -168,7 +170,7 @@ public partial class LibraryView : UserControl
                 items.Add(Item(T("Library_GoToArtist"), () => _ = vm.GoToArtistCommand.ExecuteAsync(item)));
                 items.Add(Item(T("Library_OpenOnPixiv"), () => vm.OpenOnPixivCommand.Execute(item)));
             }
-            if (item.File.HasSource)
+            if (LibraryLinks.SourceUrlFor(item.File) != null)
                 items.Add(Item(T("Library_OpenSource"), () => vm.OpenSourceCommand.Execute(item)));
             if (item.File.OriginalUrl != null)
                 items.Add(Item(T("Library_CopyOriginalUrl"), () => _ = vm.CopyOriginalUrlCommand.ExecuteAsync(item)));
@@ -226,12 +228,40 @@ public partial class LibraryView : UserControl
         else if (e.Key == Key.Escape) { vm.ClearSelection(); e.Handled = true; }
     }
 
+    // ── Scroll paging ────────────────────────────────────────────────────────
+    private readonly LibraryScrollPager _pager = new();
+    private LibraryViewModel? _pagingVm;
+
+    private static LibraryScrollMetrics Metrics(ScrollViewer sv) =>
+        new(sv.Offset.Y, sv.Viewport.Height, sv.Extent.Height);
+
+    private static LibraryPagingState Paging(LibraryViewModel vm) =>
+        new(vm.CanLoadMore, vm.IsLoadingPage, vm.Items.Count);
+
     private void OnLibraryScrollChanged(object? sender, ScrollChangedEventArgs e)
     {
         if (DataContext is not LibraryViewModel vm || sender is not ScrollViewer sv) return;
-        if (e.ExtentDelta.Y > 0 && sv.Offset.Y + sv.Viewport.Height >= sv.Extent.Height - 50)
+        if (_pager.OnScrollChanged(Metrics(sv), Paging(vm), e.OffsetDelta.Y, e.ViewportDelta.Y, e.ExtentDelta.Y))
             vm.OnScrolledToEnd();
     }
+
+    private void RebindPaging()
+    {
+        if (_pagingVm != null) _pagingVm.PagingUnblocked -= OnPagingUnblocked;
+        _pagingVm = DataContext as LibraryViewModel;
+        if (_pagingVm != null) _pagingVm.PagingUnblocked += OnPagingUnblocked;
+    }
+
+    // Busy work or a delete held paging. Check again once layout has run: that work may have changed
+    // the grid, and a grid already at the bottom (or too short to scroll) sends no scroll event.
+    private void OnPagingUnblocked(object? sender, EventArgs e) => Dispatcher.UIThread.Post(() =>
+    {
+        // A detached page can still report visible; its last layout is stale, so skip it.
+        if (DataContext is not LibraryViewModel vm || !LibraryScroll.IsEffectivelyVisible
+            || TopLevel.GetTopLevel(this) == null) return;
+        if (_pager.OnPagingUnblocked(Metrics(LibraryScroll), Paging(vm)))
+            vm.OnScrolledToEnd();
+    }, DispatcherPriority.Background);
 
     // Last non-mouse pointer type — distinguishes a touch tap from a scroll swipe.
     private PointerType _tapPtr = PointerType.Mouse;

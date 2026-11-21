@@ -2,4 +2,5 @@
   <Project Path="src\Pikura.Core\Pikura.Core.csproj" />
   <Project Path="src\Pikura.Avalonia\Pikura.Avalonia.csproj" />
   <Project Path="tests\Pikura.Core.Tests\Pikura.Core.Tests.csproj" />
+  <Project Path="tests\Pikura.Avalonia.Tests\Pikura.Avalonia.Tests.csproj" />
 </Solution>

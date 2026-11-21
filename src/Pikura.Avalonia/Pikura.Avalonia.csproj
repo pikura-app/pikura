@@ -50,4 +50,8 @@
     <PackageReference Include="SkiaSharp" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="Pikura.Avalonia.Tests" />
+  </ItemGroup>
+
 </Project>
