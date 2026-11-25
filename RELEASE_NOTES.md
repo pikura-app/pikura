@@ -1,3 +1,21 @@
+## Pikura 2.6.6
+
+Fixes for Library paging, faster Gallery and fullscreen loading, and no more crash reports when Pixiv limits requests.
+
+### Fixes
+
+- **Library keeps loading as you scroll** — the grid sometimes stopped after the first 200 items; it now loads the next page whenever you reach the bottom (#24).
+- **Library preview no longer slows down over time** — moving through artworks in the preview created a hidden copy of the Library each time, and each copy loaded thumbnails and stayed in memory (#24).
+- **Switching back to an artist in Gallery is instant** — restoring cached artworks rebuilt the list once per artwork; it now rebuilds once (#26).
+- **No crash report on Pixiv rate limits** — when Pixiv answered "429 Too Many Requests" while loading more of an artist's works, Pikura wrote a crash report and kept retrying on every scroll. It now shows a status message and waits 30 seconds before trying again.
+
+### Improvements
+
+- **Fullscreen artwork strip** — only the thumbnails you can see are created, so long lists open quickly, and thumbnails load starting from the artwork on screen.
+- **Fullscreen page thumbnails** — multi-page works load page thumbnails 4 at a time, starting from the page you're on.
+
+---
+
 ## Pikura 2.6.5
 
 Safer in-app updates: an interrupted or damaged update download is no longer offered for install.

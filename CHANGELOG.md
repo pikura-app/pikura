@@ -2,6 +2,20 @@
 
 All notable changes to Pikura are documented in this file.
 
+## [2.6.6]
+
+### Fixed
+
+- `LibraryViewModel` is a singleton; `InlineArtworkViewer` looks up library files through `LibraryIndexService.Repository` instead of resolving a new view model per lookup (#24).
+- Library scroll paging triggers on distance to the bottom instead of `ExtentDelta.Y > 0`, and waits for the first page before paging (#24).
+- Gallery defers `FilteredArtworks` rebuilds during batch adds (`DeferFilterRebuild`), so cached-artist restore, Load More and recent works rebuild once (#26).
+- Gallery load-more failures are caught and reported in the status bar; auto-load backs off 30 s after HTTP 429/503 and 5 s after other errors.
+
+### Improved
+
+- Fullscreen artwork strip uses `VirtualizingStackPanel` and loads thumbnails nearest the current artwork first.
+- Fullscreen page thumbnails load 4 at a time, nearest the current page first.
+
 ## [2.6.5]
 
 ### Fixed
