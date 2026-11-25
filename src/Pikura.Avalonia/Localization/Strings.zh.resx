@@ -5252,6 +5252,9 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="Gallery_EnterANewNameForThis" xml:space="preserve">
     <value>输入此标签页的新名称:</value>
   </data>
+  <data name="Gallery_LoadMoreRateLimited" xml:space="preserve">
+    <value>Pixiv 正在限制请求。请约 30 秒后再次向下滚动以加载更多作品。</value>
+  </data>
   <data name="Gallery_FailedToLoadArtworks" xml:space="preserve">
     <value>加载作品失败: </value>
   </data>

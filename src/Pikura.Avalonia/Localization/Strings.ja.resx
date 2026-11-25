@@ -5252,6 +5252,9 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="Gallery_EnterANewNameForThis" xml:space="preserve">
     <value>このタブの新しい名前を入力:</value>
   </data>
+  <data name="Gallery_LoadMoreRateLimited" xml:space="preserve">
+    <value>Pixivのリクエスト制限中です。約30秒後にもう一度スクロールすると続きを読み込みます。</value>
+  </data>
   <data name="Gallery_FailedToLoadArtworks" xml:space="preserve">
     <value>作品の読み込み失敗: </value>
   </data>

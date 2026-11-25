@@ -855,8 +855,25 @@ public partial class FullscreenViewerWindow : Window
         var list = StripList();
         ArtworkStripList.ItemsSource = list;
         _stripThumbCts = new CancellationTokenSource();
-        _ = LoadStripThumbnailsAsync(list, _stripThumbCts.Token);
+        _ = LoadStripThumbnailsAsync(list, IndexOfCurrent(list), _stripThumbCts.Token);
         HighlightStripCurrent();
+    }
+
+    private int IndexOfCurrent(IReadOnlyList<ArtworkCardViewModel> list)
+    {
+        var id = _gallery?.InlineViewerCard?.Id;
+        if (id == null) return 0;
+        for (var i = 0; i < list.Count; i++)
+            if (list[i].Id == id) return i;
+        return 0;
+    }
+
+    /// <summary>The strip is virtualized, so its buttons are created and recycled as it scrolls —
+    /// mark the current artwork whenever a button is bound to a new card.</summary>
+    private void OnStripItemDataContextChanged(object? sender, EventArgs e)
+    {
+        if (sender is Button b)
+            b.Classes.Set("current", b.DataContext is ArtworkCardViewModel c && c.Id == _gallery?.InlineViewerCard?.Id);
     }
 
     /// <summary>Outlines the artwork being viewed in the strip and scrolls it into view. Posted
@@ -867,6 +884,9 @@ public partial class FullscreenViewerWindow : Window
         Dispatcher.UIThread.Post(() =>
         {
             var id = _gallery?.InlineViewerCard?.Id;
+            // Realize the current artwork's button first — off-screen ones don't exist yet.
+            if (ArtworkStripList.ItemsSource is IReadOnlyList<ArtworkCardViewModel> items)
+                ArtworkStripList.ScrollIntoView(IndexOfCurrent(items));
             Button? current = null;
             foreach (var b in ArtworkStripList.GetVisualDescendants().OfType<Button>())
             {
@@ -889,13 +909,18 @@ public partial class FullscreenViewerWindow : Window
     /// hidden or the window closes so a big list doesn't keep downloading in the background.
     /// </para>
     /// </summary>
-    private static async Task LoadStripThumbnailsAsync(IReadOnlyList<ArtworkCardViewModel> list, CancellationToken ct)
+    private static async Task LoadStripThumbnailsAsync(IReadOnlyList<ArtworkCardViewModel> list, int startIndex, CancellationToken ct)
     {
         var loader = AppServices.Get<Pikura.Core.Services.PixivImageLoader>();
         if (loader is null) return;
 
         const int batchSize = 8;
-        var pending = list.Where(c => c.Thumbnail is null).ToList();
+        // Nearest the artwork on screen first — that's the part of the strip being looked at.
+        var pending = list.Select((c, i) => (c, i))
+            .Where(x => x.c.Thumbnail is null)
+            .OrderBy(x => Math.Abs(x.i - startIndex))
+            .Select(x => x.c)
+            .ToList();
 
         for (var i = 0; i < pending.Count; i += batchSize)
         {

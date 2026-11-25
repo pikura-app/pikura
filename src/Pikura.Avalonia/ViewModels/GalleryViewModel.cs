@@ -693,6 +693,33 @@ ShowPreview = true;
     /// the fullscreen strip cover everything loaded, not just the page on screen.</summary>
     public IReadOnlyList<ArtworkCardViewModel> NavigableArtworks => _navigableArtworks;
 
+    // While > 0, VisibleArtworks changes don't rebuild FilteredArtworks; the outermost
+    // scope rebuilds once. Adding N cards one by one otherwise rebuilt the list N times.
+    private int _filterRebuildDeferral;
+    private bool _filterRebuildPending;
+
+    private FilterRebuildScope DeferFilterRebuild()
+    {
+        _filterRebuildDeferral++;
+        return new FilterRebuildScope(this);
+    }
+
+    private readonly struct FilterRebuildScope(GalleryViewModel owner) : IDisposable
+    {
+        public void Dispose()
+        {
+            if (--owner._filterRebuildDeferral > 0 || !owner._filterRebuildPending) return;
+            owner._filterRebuildPending = false;
+            owner.RebuildFilteredArtworks();
+        }
+    }
+
+    private void OnVisibleArtworksChanged()
+    {
+        if (_filterRebuildDeferral > 0) { _filterRebuildPending = true; return; }
+        RebuildFilteredArtworks();
+    }
+
     private void AddArtworkCard(ArtworkCardViewModel vm, string? currentArtistId = null)
     {
         var artistId = currentArtistId ?? SelectedArtist?.UserId;
@@ -876,10 +903,10 @@ ShowPreview = true;
             thumbnailLoads.Add(vm.LoadThumbnailAsync(_imageLoader));
         }
 
-        // Add all to collection at once (ObservableCollection will batch notifications)
-        foreach (var vm in batch)
+        using (DeferFilterRebuild())
         {
-            VisibleArtworks.Add(vm);
+            foreach (var vm in batch)
+                VisibleArtworks.Add(vm);
         }
 
         // Fire-and-forget thumbnail loads
@@ -976,7 +1003,7 @@ ShowPreview = true;
 
         // Only load on first construction - singleton means this only fires once
         _ = LoadFollowedArtistsAsync();
-        VisibleArtworks.CollectionChanged += (_, __) => RebuildFilteredArtworks();
+        VisibleArtworks.CollectionChanged += (_, __) => OnVisibleArtworksChanged();
         FilteredArtworks.CollectionChanged += (_, __) =>
         {
             OnPropertyChanged(nameof(HasArtworks));
@@ -2329,6 +2356,7 @@ ShowPreview = true;
                 if (feed.Thumbnails.Illusts.Count == 0) break;
                 allIds.AddRange(feed.Thumbnails.Illusts);
             }
+            using var deferRebuild = DeferFilterRebuild();
             foreach (var preview in allIds)
             {
                 if (!ShowR18 && preview.IsR18) continue;
@@ -2354,9 +2382,38 @@ ShowPreview = true;
     {
         if (SelectedArtist == null || !CanLoadMore) return;
         var ct = _artworkLoadCts?.Token ?? CancellationToken.None;
-        await LoadArtworkPageAsync(SelectedArtist, append: true, ct);
+        if (!await TryLoadMoreArtworksAsync(SelectedArtist, ct)) return;
         UpdateCache(SelectedArtist);
         SyncViewerTabNavList();
+    }
+
+    /// <summary>When a scroll-triggered page last failed, scrolling doesn't retry until this time —
+    /// otherwise every scroll event re-sent the request straight into Pixiv's rate limit.</summary>
+    private DateTime _autoLoadRetryAfter;
+
+    /// <summary>Appends the next page of the artist's artworks. These loads run from scroll events
+    /// and buttons with nobody awaiting them, so a failure (e.g. Pixiv's HTTP 429 rate limit) is
+    /// reported in the status bar here instead of escaping as an unobserved task exception.</summary>
+    private async Task<bool> TryLoadMoreArtworksAsync(ArtistCardViewModel artist, CancellationToken ct)
+    {
+        try
+        {
+            await LoadArtworkPageAsync(artist, append: true, ct);
+            return true;
+        }
+        catch (OperationCanceledException) { return false; }
+        catch (Exception ex)
+        {
+            var rateLimited = ex is System.Net.Http.HttpRequestException
+                { StatusCode: System.Net.HttpStatusCode.TooManyRequests or System.Net.HttpStatusCode.ServiceUnavailable };
+            _autoLoadRetryAfter = DateTime.UtcNow.AddSeconds(rateLimited ? 30 : 5);
+            Logger.LogWarning(ex, "Failed to load more artworks for {Artist}", artist.Name);
+            if (SelectedArtist?.UserId == artist.UserId)
+                StatusMessage = rateLimited
+                    ? Pikura.Avalonia.Localization.LocalizationService.Instance["Gallery_LoadMoreRateLimited"]
+                    : Pikura.Avalonia.Localization.LocalizationService.Instance["Gallery_FailedToLoadArtworks"] + ex.Message;
+            return false;
+        }
     }
 
     [RelayCommand]
@@ -2367,7 +2424,7 @@ ShowPreview = true;
         while (CanLoadMore && !ct.IsCancellationRequested)
         {
             if (IsLoading) { await Task.Delay(100); continue; }
-            await LoadArtworkPageAsync(SelectedArtist, append: true, ct);
+            if (!await TryLoadMoreArtworksAsync(SelectedArtist, ct)) break;
         }
         UpdateCache(SelectedArtist);
         SyncViewerTabNavList();
@@ -2378,6 +2435,7 @@ ShowPreview = true;
     public async Task TriggerAutoLoadAsync()
     {
         if (SelectedArtist == null || !CanLoadMore || IsLoading || IsBulkDownloading) return;
+        if (DateTime.UtcNow < _autoLoadRetryAfter) return;
         // Prevent re-entrance: scroll events can fire faster than the network load completes,
         // and concurrent LoadArtworkPageAsync calls would read the same _currentArtistLoadedCount
         // offset, double-incrementing it and stalling load-more prematurely.
@@ -2385,7 +2443,7 @@ ShowPreview = true;
         try
         {
             var ct = _artworkLoadCts?.Token ?? CancellationToken.None;
-            await LoadArtworkPageAsync(SelectedArtist, append: true, ct);
+            if (!await TryLoadMoreArtworksAsync(SelectedArtist, ct)) return;
             UpdateCache(SelectedArtist);
             SyncViewerTabNavList();
         }
@@ -3204,8 +3262,11 @@ ShowPreview = true;
         // Restore from cache instantly — no spinner, no network call
         if (_artworkCache.TryGetValue(artist.UserId, out var cached))
         {
-            VisibleArtworks.Clear();
-            foreach (var c in cached.Cards) AddArtworkCard(c, artist.UserId);
+            using (DeferFilterRebuild())
+            {
+                VisibleArtworks.Clear();
+                foreach (var c in cached.Cards) AddArtworkCard(c, artist.UserId);
+            }
             _currentArtistAllIds = cached.AllIds;   // full list so Load More works
             _currentArtistLoadedCount = cached.LoadedCount;
             ArtworksTotal = cached.TotalIds;
@@ -3317,6 +3378,7 @@ ShowPreview = true;
 
         var existingIds = VisibleArtworks.Select(v => v.Id).ToHashSet();
         var artistFollowed = IsArtistFollowed(artist.UserId);
+        using (DeferFilterRebuild())
         foreach (var id in batch)
         {
             if (!works.TryGetValue(id, out var artwork)) continue;

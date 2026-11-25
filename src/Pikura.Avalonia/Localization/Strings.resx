@@ -5316,6 +5316,9 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="Gallery_EnterANewNameForThis" xml:space="preserve">
     <value>Enter a new name for this tab:</value>
   </data>
+  <data name="Gallery_LoadMoreRateLimited" xml:space="preserve">
+    <value>Pixiv is limiting requests right now. Scroll down again in about 30 seconds to load more artworks.</value>
+  </data>
   <data name="Gallery_FailedToLoadArtworks" xml:space="preserve">
     <value>Failed to load artworks: </value>
   </data>

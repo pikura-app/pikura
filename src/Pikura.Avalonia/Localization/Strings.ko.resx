@@ -5252,6 +5252,9 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="Gallery_EnterANewNameForThis" xml:space="preserve">
     <value>이 탭의 새 이름 입력:</value>
   </data>
+  <data name="Gallery_LoadMoreRateLimited" xml:space="preserve">
+    <value>Pixiv에서 요청을 제한하고 있습니다. 약 30초 후 다시 스크롤하면 작품을 더 불러옵니다.</value>
+  </data>
   <data name="Gallery_FailedToLoadArtworks" xml:space="preserve">
     <value>작품 로드 실패: </value>
   </data>

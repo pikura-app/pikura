@@ -106,14 +106,16 @@
                 <ItemsControl x:Name="ArtworkStripList">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
-                            <StackPanel Orientation="Horizontal" Spacing="6"/>
+                            <!-- Virtualized: a whole-gallery list can hold hundreds of artworks. -->
+                            <VirtualizingStackPanel Orientation="Horizontal"/>
                         </ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate x:DataType="vm:ArtworkCardViewModel">
                             <Button Classes="stripItem" Tag="{Binding Id}"
-                                    Padding="0" Background="Transparent" BorderThickness="0"
+                                    Padding="0" Margin="0,0,6,0" Background="Transparent" BorderThickness="0"
                                     Cursor="Hand" Click="OnArtworkStripClick"
+                                    DataContextChanged="OnStripItemDataContextChanged"
                                     ToolTip.Tip="{Binding Title}">
                                 <Button.ContextMenu>
                                     <ContextMenu>

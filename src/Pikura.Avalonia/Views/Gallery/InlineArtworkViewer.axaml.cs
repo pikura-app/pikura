@@ -1331,7 +1331,7 @@ public partial class InlineArtworkViewer : UserControl
         if (!IsLibraryTab || id == 0) { LibraryInfoLabel.Text = ""; return; }
         try
         {
-            var f = await AppServices.Get<LibraryViewModel>().GetFileAsync(id);
+            var f = await AppServices.Get<Pikura.Core.Services.Library.LibraryIndexService>().Repository.GetByIdAsync(id);
             if (f == null || LibraryFileId != id) return;
             var date = DateTime.TryParse(f.Mtime, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var dt)
                 ? dt.ToLocalTime().ToString("g") : "";
@@ -1346,7 +1346,7 @@ public partial class InlineArtworkViewer : UserControl
         if (tab?.Source != "Library") return;
         _ = Task.Run(async () =>
         {
-            var f = await AppServices.Get<LibraryViewModel>().GetFileAsync(tab.LibraryFileId);
+            var f = await AppServices.Get<Pikura.Core.Services.Library.LibraryIndexService>().Repository.GetByIdAsync(tab.LibraryFileId);
             var src = f?.SourceUrl ?? (f?.ArtworkId != null ? $"https://www.pixiv.net/artworks/{f.ArtworkId}" : null);
             if (src != null)
                 await Dispatcher.UIThread.InvokeAsync(() =>

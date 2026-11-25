@@ -181,33 +181,38 @@ public partial class ArtworkViewerViewModel : ObservableObject
     /// This runs in the background after the first page is loaded.</summary>
     private async Task LoadPageThumbnailsAsync()
     {
-        for (int i = 0; i < _pages.Count; i++)
+        // Several at a time, starting from the page being opened: one-by-one from page 1 left a
+        // long submission's grid filling in slowly, with the pages around the current one last.
+        var pages = _pages;
+        var start = Math.Clamp(_artwork.PageIndex, 0, Math.Max(0, pages.Count - 1));
+        var order = Enumerable.Range(0, pages.Count).OrderBy(i => Math.Abs(i - start)).ToList();
+        using var gate = new System.Threading.SemaphoreSlim(4);
+        await Task.WhenAll(order.Select(async i =>
         {
+            await gate.WaitAsync();
             try
             {
-                var url = _pages[i].Urls.Small
-                       ?? _pages[i].Urls.Regular
-                       ?? _pages[i].Urls.ThumbMini;
-                if (string.IsNullOrEmpty(url)) continue;
+                if (!ReferenceEquals(_pages, pages) || (i < PageList.Count && PageList[i].Thumbnail != null)) return;
+                var url = pages[i].Urls.Small
+                       ?? pages[i].Urls.Regular
+                       ?? pages[i].Urls.ThumbMini;
+                if (string.IsNullOrEmpty(url)) return;
 
-                var skBitmap = await _imageLoader.FetchBitmapAsync(url, ThumbnailSize.Medium);
-                if (skBitmap is null) continue;
+                using var skBitmap = await _imageLoader.FetchBitmapAsync(url, ThumbnailSize.Medium);
+                if (skBitmap is null) return;
 
-                var bmp = await Task.Run(() =>
-                    (Bitmap?)BitmapInterop.SkiaToAvalonia(skBitmap));
-                skBitmap.Dispose();
-
-                if (bmp is not null && i < PageList.Count)
+                var bmp = await Task.Run(() => (Bitmap?)BitmapInterop.SkiaToAvalonia(skBitmap));
+                if (bmp is null) return;
+                await Dispatcher.UIThread.InvokeAsync(() =>
                 {
-                    await Dispatcher.UIThread.InvokeAsync(() =>
-                    {
-                        if (i < PageList.Count && !IsAtLeastAsSharp(PageList[i].Thumbnail, bmp))
-                            PageList[i].Thumbnail = bmp;
-                    });
-                }
+                    if (ReferenceEquals(_pages, pages) && i < PageList.Count
+                        && !IsAtLeastAsSharp(PageList[i].Thumbnail, bmp))
+                        PageList[i].Thumbnail = bmp;
+                });
             }
             catch { /* best-effort page thumbnails */ }
-        }
+            finally { gate.Release(); }
+        }));
     }
 
     /// <summary>Ensure all property-changed notifications are raised on the UI thread.

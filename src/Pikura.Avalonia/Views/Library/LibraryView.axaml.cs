@@ -229,7 +229,8 @@ public partial class LibraryView : UserControl
     private void OnLibraryScrollChanged(object? sender, ScrollChangedEventArgs e)
     {
         if (DataContext is not LibraryViewModel vm || sender is not ScrollViewer sv) return;
-        if (e.ExtentDelta.Y > 0 && sv.Offset.Y + sv.Viewport.Height >= sv.Extent.Height - 50)
+        // Any scroll, resize or content change can reach the end — not only content growth.
+        if (sv.Extent.Height > 0 && sv.Extent.Height - (sv.Offset.Y + sv.Viewport.Height) <= 50)
             vm.OnScrolledToEnd();
     }
 

@@ -260,6 +260,7 @@ public partial class LibraryViewModel : ViewModelBase
     private CancellationTokenSource? _workCts;
     private int _offset;
     private bool _loadingPage;
+    private bool _firstPageLoading;
     private readonly Dictionary<long, Bitmap> _thumbCache = new();
     private readonly LinkedList<long> _lru = new();
     private const int ThumbCacheCap = 500;
@@ -429,7 +430,8 @@ public partial class LibraryViewModel : ViewModelBase
     private async Task LoadMoreAsync()
     {
         // Scroll paging only — RefreshAsync loads the first page itself.
-        if (_loadingPage || IsBusy || !HasMore) return;
+        // Until the first page lands _offset is still 0, so a scroll page would duplicate it.
+        if (_loadingPage || _firstPageLoading || IsBusy || !HasMore) return;
         _loadingPage = true;
         var gen = _queryGen;
         try
@@ -457,6 +459,7 @@ public partial class LibraryViewModel : ViewModelBase
     private async Task LoadPageAsync()
     {
         var gen = _queryGen;
+        _firstPageLoading = true;
         try
         {
             var (items, total) = await _library.Repository.SearchAsync(BuildQuery());
@@ -475,6 +478,7 @@ public partial class LibraryViewModel : ViewModelBase
             ResultsTotal = (int)Math.Min(total, int.MaxValue);
         }
         catch { /* keep grid empty on failure — status line already reports it */ }
+        finally { if (gen == _queryGen) _firstPageLoading = false; }
     }
 
     private readonly SemaphoreSlim _thumbGate = new(Math.Max(2, Environment.ProcessorCount / 2));

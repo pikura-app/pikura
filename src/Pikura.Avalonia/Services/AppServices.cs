@@ -188,7 +188,9 @@ public static class AppServices
                         provider.GetRequiredService<ILogger<LibraryAutoTagService>>()));
 
                 // Library section viewmodel
-                services.AddTransient<Pikura.Avalonia.ViewModels.LibraryViewModel>(provider =>
+                // Singleton: the constructor loads the first page and subscribes to long-lived
+                // services, so every extra instance leaked and reloaded (viewer lookups resolved one per call).
+                services.AddSingleton<Pikura.Avalonia.ViewModels.LibraryViewModel>(provider =>
                     new Pikura.Avalonia.ViewModels.LibraryViewModel(
                         provider.GetRequiredService<Pikura.Core.Services.Library.LibraryIndexService>(),
                         provider.GetRequiredService<SettingsService>(),
