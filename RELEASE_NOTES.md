@@ -1,3 +1,21 @@
+## Pikura 2.6.7
+
+More Library fixes, contributed by @bailong-Hakuryu in #25.
+
+### Fixes
+
+- **Deleting files while scrolling the Library** — later pages no longer skip items after a delete. The preview tab of a deleted file closes, and other open tabs drop it.
+- **Multi-page artworks in the Library preview** — Next/Prev now steps through every page (p0 → p1 → p2) of the same artwork.
+- **Paging after a Rescan** — the Library loads the next page by itself once a scan or delete finishes, even when the first page fills the whole window.
+- **Tag chips** — they no longer appear twice after reloading.
+- **"Open source page"** — only opens web (http/https) links, and is hidden when an item has no web link.
+
+### Internal
+
+- New `Pikura.Avalonia.Tests` project with 39 Library browsing tests.
+
+---
+
 ## Pikura 2.6.6
 
 Fixes for Library paging, faster Gallery and fullscreen loading, and no more crash reports when Pixiv limits requests.

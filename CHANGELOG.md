@@ -2,6 +2,20 @@
 
 All notable changes to Pikura are documented in this file.
 
+## [2.6.7]
+
+### Fixed
+
+- Library scroll paging moved into `LibraryScrollPager`, with generation tracking against overlapping loads and a `PagingUnblocked` re-check after busy work or deletions (#25).
+- `LibraryIndexService.DeleteFilesAsync` returns the IDs actually deleted; `DeleteAndUnloadAsync` adjusts `_offset` around in-flight page loads, and appended pages are de-duplicated (#25).
+- Library preview locates the current card by instance / `LibraryFileId` and merges nav cards per file, so multi-page artworks navigate correctly (#25).
+- Deleting closes the viewer tab showing the file and removes it from other tabs' navigation lists (#25).
+- `LoadChipsAsync` replaces tag chips instead of appending; source links are limited to http/https via `LibraryLinks.SourceUrlFor` (#25).
+
+### Added
+
+- `tests/Pikura.Avalonia.Tests` (39 tests); `LibraryRepository.SearchAsync` is virtual for tests (#25).
+
 ## [2.6.6]
 
 ### Fixed
