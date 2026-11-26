@@ -496,15 +496,17 @@ public sealed class LibraryIndexService : IDisposable
 
     // ── Duplicates / delete ──────────────────────────────────────────────────
 
-    /// <summary>Deletes files (Recycle Bin on Windows when requested) and removes their index rows.</summary>
-    public async Task<int> DeleteFilesAsync(IReadOnlyList<long> ids, bool toRecycleBin, CancellationToken ct = default)
+    /// <summary>Deletes files (Recycle Bin on Windows when requested) and removes their index rows.
+    /// Returns the ids that no longer have a row: deleted now, or already gone. A file that
+    /// couldn't be deleted keeps its row and is left out.</summary>
+    public async Task<IReadOnlyList<long>> DeleteFilesAsync(IReadOnlyList<long> ids, bool toRecycleBin, CancellationToken ct = default)
     {
-        var deleted = 0;
+        var deleted = new List<long>(ids.Count);
         foreach (var id in ids)
         {
             ct.ThrowIfCancellationRequested();
             var f = await _repo.GetByIdAsync(id, ct);
-            if (f == null) continue;
+            if (f == null) { deleted.Add(id); continue; }
             try
             {
                 if (File.Exists(f.Path))
@@ -519,7 +521,7 @@ public sealed class LibraryIndexService : IDisposable
                 var sidecar = f.Path + ".tags.txt";
                 if (File.Exists(sidecar)) File.Delete(sidecar);
                 await _repo.DeleteByIdAsync(id, ct);
-                deleted++;
+                deleted.Add(id);
             }
             catch (Exception ex) { _logger.LogWarning(ex, "Failed to delete {Path}", f.Path); }
         }

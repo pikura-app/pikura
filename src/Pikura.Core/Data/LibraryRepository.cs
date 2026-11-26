@@ -123,8 +123,9 @@ public sealed class DuplicateGroup
 /// SQLite repository for the local download library: files on disk, hashes,
 /// AI tags, and FTS5 full-text search (unicode61 + trigram for CJK).
 /// Lives in the same database file as the other Pikura repositories.
+/// Not sealed so tests can hold a <see cref="SearchAsync"/> call in flight.
 /// </summary>
-public sealed class LibraryRepository : IDisposable
+public class LibraryRepository : IDisposable
 {
     private static readonly Regex CjkRegex = new(
         "[\\u3040-\\u30ff\\u3400-\\u9fff\\uf900-\\ufaff\\uac00-\\ud7af\\u4e00-\\u9fff]",
@@ -751,7 +752,7 @@ public sealed class LibraryRepository : IDisposable
     }
 
     /// <summary>Runs a query; returns (page of items, total count).</summary>
-    public async Task<(IReadOnlyList<LibraryFile> Items, long Total)> SearchAsync(LibraryQuery q, CancellationToken ct = default)
+    public virtual async Task<(IReadOnlyList<LibraryFile> Items, long Total)> SearchAsync(LibraryQuery q, CancellationToken ct = default)
     {
         var clauses = new List<string>();
         var prms = new List<SqliteParameter>();

@@ -309,7 +309,10 @@ public partial class InlineArtworkViewer : UserControl
         SubscribeToAncestorVisibility();
         LocalizationService.Instance.PropertyChanged += OnLanguagePropertyChanged;
         if (IsEffectivelyVisible)
+        {
             _ = LoadCardAsync(VM?.InlineViewerCard);
+            _ = UpdateLibraryInfoAsync();
+        }
         if (TopLevel.GetTopLevel(this) is { } tl)
             tl.AddHandler(KeyDownEvent, OnViewerKeyDown, RoutingStrategies.Tunnel);
     }
@@ -371,6 +374,7 @@ public partial class InlineArtworkViewer : UserControl
                         if (!IsEffectivelyVisible) return;
                         _loadedCardId = null;
                         _ = LoadCardAsync(VM?.InlineViewerCard);
+                        _ = UpdateLibraryInfoAsync();
                     });
                 else if (e.NewValue is false)
                     _loadedCardId = null;
@@ -418,6 +422,7 @@ public partial class InlineArtworkViewer : UserControl
         {
             _ = LoadCardAsync(vm.InlineViewerCard);
             UpdateTabHighlight();
+            _ = UpdateLibraryInfoAsync();
         }
     }
 
@@ -1324,33 +1329,51 @@ public partial class InlineArtworkViewer : UserControl
     private string? LibraryPath => _currentCard?.LocalPath ?? VM?.SelectedViewerTab?.LocalPath;
     private long LibraryFileId => _currentCard is { LibraryFileId: > 0 } c ? c.LibraryFileId : VM?.SelectedViewerTab?.LibraryFileId ?? 0;
 
+    internal static async Task<string> GetLibraryInfoTextAsync(LibraryRepository repository, long id)
+    {
+        if (id <= 0) return "";
+        var f = await repository.GetByIdAsync(id);
+        if (f == null) return "";
+        var date = DateTime.TryParse(f.Mtime, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var dt)
+            ? dt.ToLocalTime().ToString("g") : "";
+        return $"{f.Width}×{f.Height} · {DuplicateFileRow.FormatSize(f.Size)} · {date}";
+    }
+
+    internal static async Task<string?> GetLibrarySourceUrlAsync(LibraryRepository repository, long id)
+    {
+        if (id <= 0) return null;
+        var f = await repository.GetByIdAsync(id);
+        return f == null ? null : LibraryLinks.SourceUrlFor(f);
+    }
+
     private async Task UpdateLibraryInfoAsync()
     {
         if (LibraryInfoLabel == null) return;
+        if (!IsEffectivelyVisible || TopLevel.GetTopLevel(this) == null) return;
         var id = LibraryFileId;
         if (!IsLibraryTab || id == 0) { LibraryInfoLabel.Text = ""; return; }
         try
         {
-            var f = await AppServices.Get<Pikura.Core.Services.Library.LibraryIndexService>().Repository.GetByIdAsync(id);
-            if (f == null || LibraryFileId != id) return;
-            var date = DateTime.TryParse(f.Mtime, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var dt)
-                ? dt.ToLocalTime().ToString("g") : "";
-            LibraryInfoLabel.Text = $"{f.Width}×{f.Height} · {DuplicateFileRow.FormatSize(f.Size)} · {date}";
+            var text = await GetLibraryInfoTextAsync(AppServices.Get<LibraryRepository>(), id);
+            if (LibraryFileId != id) return;
+            LibraryInfoLabel.Text = text;
         }
         catch { LibraryInfoLabel.Text = ""; }
     }
 
     private void OnLibrarySourceClicked(object? sender, RoutedEventArgs e)
     {
-        var tab = VM?.SelectedViewerTab;
-        if (tab?.Source != "Library") return;
+        if (!IsLibraryTab || LibraryFileId is not (> 0 and var id)) return;
         _ = Task.Run(async () =>
         {
-            var f = await AppServices.Get<Pikura.Core.Services.Library.LibraryIndexService>().Repository.GetByIdAsync(tab.LibraryFileId);
-            var src = f?.SourceUrl ?? (f?.ArtworkId != null ? $"https://www.pixiv.net/artworks/{f.ArtworkId}" : null);
-            if (src != null)
-                await Dispatcher.UIThread.InvokeAsync(() =>
-                    global::System.Diagnostics.Process.Start(new global::System.Diagnostics.ProcessStartInfo(src) { UseShellExecute = true }));
+            try
+            {
+                var src = await GetLibrarySourceUrlAsync(AppServices.Get<LibraryRepository>(), id);
+                if (src != null)
+                    await Dispatcher.UIThread.InvokeAsync(() =>
+                        global::System.Diagnostics.Process.Start(new global::System.Diagnostics.ProcessStartInfo(src) { UseShellExecute = true }));
+            }
+            catch { }
         });
     }
 
@@ -2048,22 +2071,23 @@ if (result != null && presetWindow.DownloadClicked)
     {
         if (_currentCard == null) return;
         var list = NavList();
-        var idx = IndexOfById(list, _currentCard.Id);
+        var idx = IndexOfCard(list, _currentCard);
         if (idx > 0) NavigateToArtwork(list[idx - 1]);
     }
 
     private async void OnNextArtwork(object? sender, RoutedEventArgs e)
     {
         if (_currentCard == null) return;
+        var card = _currentCard;
         var list = NavList();
-        var idx = IndexOfById(list, _currentCard.Id);
+        var idx = IndexOfCard(list, card);
         if (idx < 0) return;
 
         if (idx >= list.Count - 1 && VM?.SelectedViewerTab is { LoadMoreAsync: not null } loadTab)
         {
             await LoadMoreIntoTabAsync(loadTab);
             list = NavList();
-            idx = IndexOfById(list, _currentCard.Id);
+            idx = IndexOfCard(list, _currentCard ?? card);
         }
 
         if (idx >= 0 && idx < list.Count - 1)
@@ -2134,9 +2158,7 @@ if (result != null && presetWindow.DownloadClicked)
         try
         {
             var newCards = await tab.LoadMoreAsync();
-            var existingIds = new System.Collections.Generic.HashSet<string>(tab.NavList.Select(c => c.Id));
-            foreach (var c in newCards)
-                if (existingIds.Add(c.Id)) tab.NavList.Add(c);
+            MergeNavCards(tab.NavList, newCards);
             tab.TotalCount = Math.Max(tab.TotalCount, tab.NavList.Count);
             UpdateArtworkCounter();
         }
@@ -2150,13 +2172,40 @@ if (result != null && presetWindow.DownloadClicked)
         return -1;
     }
 
+    /// <summary>Where <paramref name="card"/> sits in the nav list: the same instance first, then the
+    /// same library file, then the first card with its id. Library files of one multi-page pixiv
+    /// work share that work's id, so an id-only lookup always found the first page and "next"
+    /// stuck on the second.</summary>
+    internal static int IndexOfCard(System.Collections.Generic.IReadOnlyList<ArtworkCardViewModel> list, ArtworkCardViewModel card)
+    {
+        for (int i = 0; i < list.Count; i++)
+            if (ReferenceEquals(list[i], card)) return i;
+        if (card.LibraryFileId > 0)
+            for (int i = 0; i < list.Count; i++)
+                if (list[i].LibraryFileId == card.LibraryFileId) return i;
+        return IndexOfById(list, card.Id);
+    }
+
+    /// <summary>Identity for de-duplicating loaded cards: one per library file, otherwise per id.</summary>
+    internal static string NavKey(ArtworkCardViewModel card) =>
+        card.LibraryFileId > 0 ? $"library:{card.LibraryFileId}" : card.Id;
+
+    /// <summary>Appends the cards a load-more returned that the nav list doesn't hold yet.</summary>
+    internal static void MergeNavCards(System.Collections.Generic.List<ArtworkCardViewModel> navList,
+        System.Collections.Generic.IEnumerable<ArtworkCardViewModel> newCards)
+    {
+        var existing = new System.Collections.Generic.HashSet<string>(navList.Select(NavKey));
+        foreach (var c in newCards)
+            if (existing.Add(NavKey(c))) navList.Add(c);
+    }
+
     private void UpdateArtworkCounter()
     {
         Dispatcher.UIThread.InvokeAsync(() =>
         {
             if (VM == null || _currentCard == null || ArtworkCounterLabel == null) return;
             var list = NavList();
-            var idx = IndexOfById(list, _currentCard.Id);
+            var idx = IndexOfCard(list, _currentCard);
             if (idx < 0)
             {
                 ArtworkCounterLabel.Text = "";
