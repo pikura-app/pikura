@@ -767,14 +767,14 @@ public partial class FullscreenViewerWindow : Window
         UpdateStripHint();
     }
 
-    /// <summary>Drops sources listing exactly the same artworks as an earlier one — e.g. a restored
+    /// <summary>Drops sources listing the same artworks as an earlier one, in any order — e.g. a restored
     /// tab that joined the artist's gallery and that artist's "(all)" entry. "Everything" stays.</summary>
     private static List<StripSource> DropDuplicateSources(List<StripSource> sources)
     {
         var everything = LocalizationService.Instance["Viewer_StripEverything"];
         var seen = new HashSet<string>();
         return sources.Where(s => s.Items.Count <= 1 || s.Label == everything
-                                  || seen.Add(string.Join(",", s.Items.Select(c => c.Id))))
+                                  || seen.Add(string.Join(",", s.Items.Select(c => c.Id).Order(StringComparer.Ordinal))))
                       .ToList();
     }
 
