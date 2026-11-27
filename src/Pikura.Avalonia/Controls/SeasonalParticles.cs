@@ -37,13 +37,15 @@ public sealed class SeasonalParticles : Control
     private readonly List<Particle> _particles = [];
     private readonly Random _rng = new();
     private readonly Stopwatch _clock = new();
-    private FormattedText[] _glyphs = [];
-    private FormattedText[] _sceneryGlyphs = [];
+    private GlyphImage[] _glyphs = [];
+    private GlyphImage[] _sceneryGlyphs = [];
     private Decoration[] _scenery = [];
     private SeasonalOccasion? _occasion;
     private string? _intensity;
     private DispatcherTimer? _timer;
     private double _lastSeconds;
+    private Window? _window;
+    private bool _falling;
 
     public SeasonalParticles()
     {
@@ -55,9 +57,8 @@ public sealed class SeasonalParticles : Control
         base.OnAttachedToVisualTree(e);
         SeasonalTheme.Changed += OnChanged;
         ActualThemeVariantChanged += OnThemeVariantChanged;
-        _occlusionTimer = new DispatcherTimer(TimeSpan.FromMilliseconds(500), DispatcherPriority.Background,
-            (_, _) => UpdateOcclusion());
-        _occlusionTimer.Start();
+        _window = TopLevel.GetTopLevel(this) as Window;
+        if (_window != null) _window.PropertyChanged += OnWindowPropertyChanged;
         Refresh();
     }
 
@@ -65,10 +66,43 @@ public sealed class SeasonalParticles : Control
     {
         SeasonalTheme.Changed -= OnChanged;
         ActualThemeVariantChanged -= OnThemeVariantChanged;
-        _occlusionTimer?.Stop();
-        _occlusionTimer = null;
-        Stop();
+        if (_window != null) _window.PropertyChanged -= OnWindowPropertyChanged;
+        _window = null;
+        _falling = false;
+        UpdateTimers();
         base.OnDetachedFromVisualTree(e);
+    }
+
+    private void OnWindowPropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
+    {
+        if (e.Property == Window.WindowStateProperty || e.Property == IsVisibleProperty) UpdateTimers();
+    }
+
+    /// <summary>The window is on screen: not minimized and not hidden (e.g. closed to the tray).</summary>
+    private bool WindowShown => _window is not { IsVisible: false } and not { WindowState: WindowState.Minimized };
+
+    /// <summary>Runs the animation timer only while something falls, and the occlusion check only
+    /// while corner scenery or a sprite is shown; both pause while the window is minimized or hidden.</summary>
+    private void UpdateTimers()
+    {
+        var shown = _window != null && WindowShown;
+        if (_falling && shown) Start();
+        else Stop();
+
+        var needsOcclusion = shown && SeasonalTheme.SceneryEnabled
+                             && (_scenery.Length > 0 || _occasion?.Sprite != null);
+        if (needsOcclusion && _occlusionTimer == null)
+        {
+            _occlusionTimer = new DispatcherTimer(TimeSpan.FromMilliseconds(500), DispatcherPriority.Background,
+                (_, _) => UpdateOcclusion());
+            _occlusionTimer.Start();
+            Dispatcher.UIThread.Post(UpdateOcclusion, DispatcherPriority.Background);
+        }
+        else if (!needsOcclusion && _occlusionTimer != null)
+        {
+            _occlusionTimer.Stop();
+            _occlusionTimer = null;
+        }
     }
 
     private void OnChanged() => Dispatcher.UIThread.Post(Refresh);
@@ -91,6 +125,7 @@ public sealed class SeasonalParticles : Control
             IBrush brush = ActualThemeVariant == ThemeVariant.Dark
                 ? Brushes.White
                 : new SolidColorBrush(Color.FromRgb(0x7F, 0xA8, 0xD6));
+            foreach (var g in _glyphs.Concat(_sceneryGlyphs)) g.Dispose();
             _glyphs = (occasion?.Particles ?? []).Select(g => Glyph(g, 24, brush)).ToArray();
             _sceneryGlyphs = (occasion?.Scenery ?? []).Select(g => Glyph(g, 64, brush)).ToArray();
             _scenery = BuildScenery(occasion, _intensity);
@@ -103,18 +138,18 @@ public sealed class SeasonalParticles : Control
         }
         if (!SeasonalTheme.SceneryEnabled) _scenery = [];
         else if (_scenery.Length == 0) _scenery = BuildScenery(occasion, _intensity);
-        if (falling) Start();
-        else
+        _falling = falling;
+        if (!falling)
         {
             _particles.Clear();
             _fx.Clear();
-            Stop();
         }
+        UpdateTimers();
         InvalidateVisual();
     }
 
-    private static FormattedText Glyph(string text, double size, IBrush brush) =>
-        new(text, CultureInfo.InvariantCulture, FlowDirection.LeftToRight, EmojiTypeface, size, brush);
+    private static GlyphImage Glyph(string text, double size, IBrush brush) =>
+        new(new FormattedText(text, CultureInfo.InvariantCulture, FlowDirection.LeftToRight, EmojiTypeface, size, brush));
 
     private static (double Count, double Opacity, double Size) Level(string? intensity) => intensity switch
     {
@@ -163,6 +198,8 @@ public sealed class SeasonalParticles : Control
         if (_timer != null) return;
         _clock.Restart();
         _lastSeconds = 0;
+        // Schedules are clock times, so they restart with the clock.
+        _nextSwitch = _nextBolt = _nextRipple = _nextMist = _nextStreak = _nextTwinkle = _nextBall = _emberDue = 0;
         _timer = new DispatcherTimer(TimeSpan.FromMilliseconds(40), DispatcherPriority.Background, (_, _) => Tick());
         _timer.Start();
     }
@@ -193,8 +230,7 @@ public sealed class SeasonalParticles : Control
         var now = _clock.Elapsed.TotalSeconds;
         var dt = Math.Min(0.1, now - _lastSeconds);
         _lastSeconds = now;
-        if (TopLevel.GetTopLevel(this) is Window { WindowState: WindowState.Minimized } || _glyphs.Length == 0)
-            return;
+        if (!WindowShown || _glyphs.Length == 0) return;
 
         var (w, h) = (Bounds.Width, Bounds.Height);
         if (w < 1 || h < 1) return;
@@ -233,7 +269,7 @@ public sealed class SeasonalParticles : Control
                             * Matrix.CreateScale(scale, scale)
                             * Matrix.CreateTranslation(x, y);
                     using (context.PushTransform(m))
-                        context.DrawText(glyph, default);
+                        glyph.Draw(context);
                 }
             }
         }
@@ -257,7 +293,7 @@ public sealed class SeasonalParticles : Control
                         * Matrix.CreateScale(scale, scale)
                         * Matrix.CreateTranslation(x, p.Y);
                 using (context.PushTransform(m))
-                    context.DrawText(glyph, default);
+                    glyph.Draw(context);
             }
         }
     }
@@ -285,9 +321,11 @@ public sealed class SeasonalParticles : Control
     {
         var (w, h) = (Bounds.Width, Bounds.Height);
         if (w < 1 || h < 1 || TopLevel.GetTopLevel(this) is not { } root) return;
+        if (_occlusionTimer == null) return;
         var changed = false;
         _blocked = [];
-        CollectBlocked(root, new Rect(0, 0, w, h));
+        _interest = InterestAreas(w, h);
+        if (_interest.Count > 0) CollectBlocked(root, new Rect(0, 0, w, h));
 
         var hidden = new bool[_scenery.Length];
         for (var i = 0; i < _scenery.Length; i++)
@@ -320,6 +358,30 @@ public sealed class SeasonalParticles : Control
     }
 
     private List<Rect> _blocked = [];
+    private List<Rect> _interest = [];
+
+    /// <summary>Where occlusion matters: the decorated corners and, with a sprite, the bottom-right
+    /// quarter it may move within. Subtrees elsewhere are skipped, which keeps the walk cheap on
+    /// screens with many cards.</summary>
+    private List<Rect> InterestAreas(double w, double h)
+    {
+        var areas = new List<Rect>();
+        foreach (var corner in _scenery.Select(d => d.Corner).Distinct())
+        {
+            var reach = _scenery.Where(d => d.Corner == corner).Max(d => Math.Max(d.Dx, d.Dy) + d.Size) + 12;
+            areas.Add(new Rect(corner is 0 or 3 ? 0 : w - reach, corner is 0 or 1 ? 0 : h - reach, reach, reach));
+        }
+        if (SeasonalTheme.SceneryEnabled && _occasion?.Sprite != null)
+            areas.Add(new Rect(w / 2 - 40, h / 2 - 40, w / 2 + 40, h / 2 + 40));
+        return areas;
+    }
+
+    private bool InInterest(Rect rect)
+    {
+        foreach (var r in _interest)
+            if (r.Intersects(rect)) return true;
+        return false;
+    }
 
     private bool Covers(Rect rect)
     {
@@ -350,6 +412,7 @@ public sealed class SeasonalParticles : Control
             {
                 if (child.ClipToBounds) continue;
             }
+            else if (!InInterest(rect)) continue;
             else if (IsBlocking(child))
             {
                 _blocked.Add(rect);

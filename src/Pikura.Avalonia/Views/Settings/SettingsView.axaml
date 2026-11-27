@@ -866,6 +866,17 @@
                             </StackPanel>
                         </Border>
 
+                        <!-- Library -->
+                        <Border Background="{DynamicResource Container1BackgroundBrush}"
+                                BorderBrush="{DynamicResource Container1BorderBrush}"
+                                BorderThickness="1" CornerRadius="8" Padding="28">
+                            <StackPanel Spacing="20">
+                                <TextBlock Text="{loc:Tr Settings_LibrarySection}" FontWeight="SemiBold" FontSize="14"/>
+                                <CheckBox Content="{loc:Tr Settings_LibraryAutoIndex}" IsChecked="{Binding LibraryAutoIndexDownloads}"
+                                          FontSize="13"/>
+                            </StackPanel>
+                        </Border>
+
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>
@@ -2523,15 +2534,6 @@
                             </StackPanel>
                         </Border>
 
-                        <StackPanel Spacing="12" Margin="0,24,0,0">
-                                    <TextBlock Text="{loc:Tr Settings_LibrarySection}" FontSize="16" FontWeight="Bold"/>
-                                    <CheckBox Content="{loc:Tr Settings_LibraryAutoIndex}" IsChecked="{Binding LibraryAutoIndexDownloads}"/>
-                                    <StackPanel Orientation="Horizontal" Spacing="8">
-                                        <TextBlock Text="{loc:Tr Settings_LibraryDupThreshold}" VerticalAlignment="Center"/>
-                                        <Slider Value="{Binding LibraryDuplicateThreshold}" Minimum="0" Maximum="7" Width="160" VerticalAlignment="Center"/>
-                                        <TextBlock Text="{Binding LibraryDuplicateThreshold, StringFormat='{}{0}'}" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </StackPanel>
                         <StackPanel Spacing="12" Margin="0,24,0,0">
                             <Button Content="{loc:Tr Settings_SwitchUpdater}" Command="{Binding SwitchToNewUpdaterCommand}"
                                     IsVisible="{Binding CanMigrateToVelopack}" IsEnabled="{Binding !IsMigrating}"/>

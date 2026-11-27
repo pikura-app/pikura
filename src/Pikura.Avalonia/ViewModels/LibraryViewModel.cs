@@ -713,7 +713,7 @@ public partial class LibraryViewModel : ViewModelBase
     }
     partial void OnDupThresholdChanged(double value)
     {
-        _settings.Current.LibraryDuplicateThreshold = (int)Math.Round(value);
+        _settings.Update(s => s.LibraryDuplicateThreshold = (int)Math.Round(value));
     }
 
     internal async Task LoadChipsAsync()

@@ -2,6 +2,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Media;
+using Avalonia.Threading;
 using Avalonia.VisualTree;
 using Pikura.Avalonia.ViewModels;
 using System;
@@ -94,6 +95,11 @@ public class MasonryPanel : Panel
     private double _cachedColumnWidth;
     private int _cachedColumnCount;
     private double _scale = 1.0;
+    // StretchToFill: the width the panel was last arranged at, when it came out narrower than
+    // the measure width (e.g. a vertical scrollbar appearing). Measuring at it keeps the stretched
+    // columns fitting, instead of the arrange dropping one and centring the rest in a wide gap.
+    private double _arrangedWidth = double.NaN;
+    private double _measuredWidth = double.NaN;
     private readonly HashSet<Control> _scaledChildren = new();
     private ScrollViewer? _parentScrollViewer;
     private readonly Dictionary<ArtworkCardViewModel, Control> _cardSubscriptions = new();
@@ -197,6 +203,11 @@ public class MasonryPanel : Panel
             }
         }
 
+        if (StretchToFill && !double.IsNaN(_arrangedWidth) && _arrangedWidth < availableWidth
+            && availableWidth - _arrangedWidth < 40)
+            availableWidth = _arrangedWidth;
+        _measuredWidth = availableWidth;
+
         var columnCount = Math.Max(1, (int)Math.Floor((availableWidth + ItemSpacing) / (ColumnWidth + ItemSpacing)));
         // StretchToFill: widen the columns so they fill the row — children are measured
         // at the real column width (no RenderTransform), so the card templates get a
@@ -283,12 +294,21 @@ public class MasonryPanel : Panel
 
         var availableWidth = finalSize.Width;
         var actualColumnWidth = _cachedColumnWidth;
+        if (StretchToFill && availableWidth > 0 && !double.IsInfinity(availableWidth)
+            && availableWidth < _measuredWidth - 0.5
+            && (double.IsNaN(_arrangedWidth) || Math.Abs(_arrangedWidth - availableWidth) > 0.5))
+        {
+            _arrangedWidth = availableWidth;
+            Dispatcher.UIThread.Post(InvalidateMeasure);
+        }
 
         // Recalculate column count from the final arrange width so the panel always fits
+        // (the epsilon matters for StretchToFill, whose columns fill the width exactly and
+        // would otherwise round down to one column fewer, leaving a wide gap on both sides)
         // inside the viewport even if Measure used a fallback/wider width.
         var columnCount = _scale < 1 || double.IsInfinity(availableWidth) || availableWidth <= 0
             ? _cachedColumnCount
-            : Math.Max(1, (int)Math.Floor((availableWidth + ItemSpacing) / (actualColumnWidth + ItemSpacing)));
+            : Math.Max(1, (int)Math.Floor((availableWidth + ItemSpacing) / (actualColumnWidth + ItemSpacing) + 1e-6));
 
         var columnHeights = new double[columnCount];
 

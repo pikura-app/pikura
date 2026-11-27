@@ -1721,27 +1721,37 @@ ShowPreview = true;
     /// <summary>Asks the view to scroll the artist list to <see cref="SelectedArtist"/>.</summary>
     public event Action? RevealArtistRequested;
 
-    /// <summary>Brings <paramref name="artworkId"/> into view in the current artist's gallery — turning
-    /// to its page, or loading up to 10 more pages until it appears — and briefly outlines it.</summary>
-    public async Task RevealArtworkAsync(string? artworkId)
+    /// <summary>Loads up to 10 more pages of the current artist's gallery until <paramref name="artworkId"/>
+    /// is in it, so it sits at its real position with every newer artwork before it. Null when it
+    /// can't be reached or a filter hides it.</summary>
+    public async Task<ArtworkCardViewModel?> LoadUntilArtworkAsync(string? artworkId)
     {
-        if (string.IsNullOrEmpty(artworkId) || SelectedArtist is not { } artist) return;
+        if (string.IsNullOrEmpty(artworkId) || SelectedArtist is not { } artist) return null;
         var ct = _artworkLoadCts?.Token ?? CancellationToken.None;
         ArtworkCardViewModel? card;
         for (var loads = 0; (card = _navigableArtworks.FirstOrDefault(c => c.Id == artworkId)) == null; loads++)
         {
             // Loaded but hidden by a filter: more pages won't make it visible.
-            if (VisibleArtworks.Any(c => c.Id == artworkId)) return;
+            if (VisibleArtworks.Any(c => c.Id == artworkId)) return null;
             if (loads >= 10 || !CanLoadMore || ct.IsCancellationRequested
                 || !ReferenceEquals(SelectedArtist, artist)
                 || !await TryLoadMoreArtworksAsync(artist, ct))
-                return;
+                return null;
             UpdateCache(artist);
             SyncViewerTabNavList();
         }
-        // Tabs showing this artwork now navigate the artist's gallery, so their counter shows the
-        // artwork's real position (e.g. 12 / 49) instead of 1 / 1.
-        foreach (var tab in ViewerTabs.Where(t => !t.IsCollage && t.Card?.Id == artworkId).ToList())
+        return card;
+    }
+
+    /// <summary>Brings <paramref name="artworkId"/> into view in the current artist's gallery — turning
+    /// to its page, or loading up to 10 more pages until it appears — and briefly outlines it.</summary>
+    public async Task RevealArtworkAsync(string? artworkId)
+    {
+        if (await LoadUntilArtworkAsync(artworkId) is not { } card) return;
+        // Lone tabs showing this artwork now navigate the artist's gallery, so their counter shows the
+        // artwork's real position (e.g. 12 / 49) instead of 1 / 1. Tabs with their own list (Rankings,
+        // Search, Bookmarks…) keep it.
+        foreach (var tab in ViewerTabs.Where(t => !t.IsCollage && t.NavList.Count <= 1 && t.Card?.Id == artworkId).ToList())
             AdoptTabIntoGallery(tab);
         if (UsePagination)
         {
@@ -2436,8 +2446,13 @@ ShowPreview = true;
     /// reported in the status bar here instead of escaping as an unobserved task exception.</summary>
     private async Task<bool> TryLoadMoreArtworksAsync(ArtistCardViewModel artist, CancellationToken ct)
     {
+        // One page at a time: concurrent loads would read the same _currentArtistLoadedCount
+        // offset, fetch the same batch, and advance the offset twice, skipping a page.
+        try { await _pageLoadLock.WaitAsync(ct); }
+        catch (OperationCanceledException) { return false; }
         try
         {
+            if (SelectedArtist?.UserId != artist.UserId) return false;
             await LoadArtworkPageAsync(artist, append: true, ct);
             return true;
         }
@@ -2454,7 +2469,10 @@ ShowPreview = true;
                     : Pikura.Avalonia.Localization.LocalizationService.Instance["Gallery_FailedToLoadArtworks"] + ex.Message;
             return false;
         }
+        finally { _pageLoadLock.Release(); }
     }
+
+    private readonly SemaphoreSlim _pageLoadLock = new(1, 1);
 
     [RelayCommand]
     private async Task LoadAllArtworksAsync()
@@ -2476,6 +2494,8 @@ ShowPreview = true;
     {
         if (SelectedArtist == null || !CanLoadMore || IsLoading || IsBulkDownloading) return;
         if (DateTime.UtcNow < _autoLoadRetryAfter) return;
+        // A page is already loading (e.g. for RevealArtworkAsync); scrolling shouldn't queue another.
+        if (_pageLoadLock.CurrentCount == 0) return;
         // Prevent re-entrance: scroll events can fire faster than the network load completes,
         // and concurrent LoadArtworkPageAsync calls would read the same _currentArtistLoadedCount
         // offset, double-incrementing it and stalling load-more prematurely.
@@ -2667,6 +2687,30 @@ ShowPreview = true;
             : null;
         _navListVersion++;
         OnPropertyChanged(nameof(NavListVersion));
+        MergeDuplicateTabs(tab);
+    }
+
+    /// <summary>Once a tab joins the artist's gallery, other tabs on the same artwork — a lone restored
+    /// tab, or a Gallery tab opened for it meanwhile — are the same thing twice; keep one.</summary>
+    private void MergeDuplicateTabs(ViewerTab tab)
+    {
+        if (tab.Card is not { } card) return;
+        var same = ViewerTabs.Where(t => !t.IsCollage && t.Card?.Id == card.Id
+                                         && (ReferenceEquals(t, tab) || t.Source == tab.Source || t.NavList.Count <= 1))
+                             .ToList();
+        if (same.Count < 2) return;
+        var keep = same.Contains(SelectedViewerTab!) ? SelectedViewerTab! : tab;
+        if (!ReferenceEquals(keep, tab))
+        {
+            keep.Source = tab.Source;
+            keep.NavList.Clear();
+            foreach (var c in tab.NavList) keep.NavList.Add(c);
+            keep.TotalCount = tab.TotalCount;
+            keep.LoadMoreAsync = tab.LoadMoreAsync;
+        }
+        // Removed directly: CloseViewerTab would move the selection off the tab being kept.
+        foreach (var t in same.Where(t => !ReferenceEquals(t, keep))) ViewerTabs.Remove(t);
+        if (!ReferenceEquals(SelectedViewerTab, keep) && SelectedViewerTab is null) SelectedViewerTab = keep;
     }
 
     private void SyncViewerTabNavList()
@@ -3249,7 +3293,6 @@ ShowPreview = true;
 
         // Debug: Log when SelectedArtist changes
         System.Diagnostics.Debug.WriteLine($"SelectedArtist changed to: {value?.Name ?? "null"}");
-        OnPropertyChanged(nameof(SelectedArtist));
 
         // Sync IsCurrentArtist on all visible cards
         var selectedId = value?.UserId;
@@ -3369,7 +3412,9 @@ ShowPreview = true;
             // after both pages finish so that revisits restore the full 96-card view.
             if (CanLoadMore)
             {
-                await LoadArtworkPageAsync(artist, append: true, ct);
+                await _pageLoadLock.WaitAsync(ct);
+                try { await LoadArtworkPageAsync(artist, append: true, ct); }
+                finally { _pageLoadLock.Release(); }
                 ct.ThrowIfCancellationRequested();
                 RefreshLikedBookmarkedFavoriteFlags();
             }

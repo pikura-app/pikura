@@ -56,6 +56,7 @@ public partial class FullscreenViewerWindow : Window
         InitializeComponent();
         _gallery = gallery;
         _explicitNavList = navList;
+        AppServices.Get<SettingsService>().Changed += OnSettingsChanged;
         KeyDown += OnKeyDown;
         Canvas.PointerWheelChanged += OnWheel;
         Canvas.PointerPressed += OnPressed;
@@ -359,19 +360,35 @@ public partial class FullscreenViewerWindow : Window
         if (_gallery is null || string.IsNullOrWhiteSpace(userId)) return null;
         var g = _gallery;
         bool OnArtist() => g.SelectedArtist?.UserId == userId;
+        // Lone tabs of this artist whose artwork the Gallery already holds — after a restart the
+        // cached gallery is usually there before anything is paged, so the tab just has to join it.
+        List<ViewerTab> Adoptable() => g.ViewerTabs
+            .Where(t => !t.IsCollage && t.NavList.Count <= 1 && t.Card is { } tc && tc.UserId == userId
+                        && g.NavigableArtworks.Any(a => a.Id == tc.Id))
+            .ToList();
+        void Adopt() { foreach (var tab in Adoptable()) g.AdoptTabIntoGallery(tab); }
         return new SectionPager(
-            () => !OnArtist() || g.CanLoadMore,
+            () => !OnArtist() || g.CanLoadMore || Adoptable().Count > 0,
             async () =>
             {
                 for (var i = 0; i < 300 && g.IsLoading; i++) await Task.Delay(100);
+                // The artwork being viewed may sit deeper than the first page; load up to it so
+                // it lands at its real position (e.g. 10 / 100) with the newer ones before it.
+                var viewing = (g.InlineViewerCard ?? g.SelectedViewerTab?.Card) is { } c && c.UserId == userId
+                    ? c.Id : null;
                 if (OnArtist())
                 {
-                    await g.LoadMoreArtworksCommand.ExecuteAsync(null);
+                    if (Adoptable().Count > 0) { Adopt(); return; }
+                    if (viewing == null || g.NavigableArtworks.Any(a => a.Id == viewing))
+                        await g.LoadMoreArtworksCommand.ExecuteAsync(null);
+                    else
+                        await g.LoadUntilArtworkAsync(viewing);
+                    Adopt();
                     return;
                 }
                 await g.LoadArtistByIdAsync(userId);
-                foreach (var tab in g.ViewerTabs.Where(t => !t.IsCollage && t.NavList.Count <= 1 && t.Card?.UserId == userId).ToList())
-                    g.AdoptTabIntoGallery(tab);
+                if (viewing != null) await g.LoadUntilArtworkAsync(viewing);
+                Adopt();
             },
             () => g.VisibleArtworks.Count(c => c.UserId == userId),
             OnArtist() && g.ArtworksTotal > 0 ? g.ArtworksTotal : null);
@@ -720,8 +737,11 @@ public partial class FullscreenViewerWindow : Window
     {
         if (ArtworkSourceCombo is null) return;
 
-        var previousLabel = (ArtworkSourceCombo.SelectedItem as StripSource)?.Label;
-        var sources = BuildSources();
+        var previous = ArtworkSourceCombo.SelectedItem as StripSource;
+        var previousLabel = previous?.Label;
+        var previousLabels = (ArtworkSourceCombo.ItemsSource as IEnumerable<StripSource>)?
+            .Select(s => s.Label).ToHashSet() ?? [];
+        var sources = DropDuplicateSources(BuildSources());
 
         _suppressSourceChanged = true;
         ArtworkSourceCombo.ItemsSource = sources;
@@ -729,6 +749,12 @@ public partial class FullscreenViewerWindow : Window
         var restored = previousLabel is null
             ? null
             : sources.FirstOrDefault(s => s.Label == previousLabel);
+        // Loading the gallery turned the single artwork's tab into a gallery tab: follow it rather
+        // than staying on the one-artwork entry (or an artist entry the tab now duplicates).
+        if (previousLabel != null && (restored is null || restored.Items.Count <= 1)
+            && sources.FirstOrDefault(s => s.Label.StartsWith("● ", StringComparison.Ordinal)
+                                          && !previousLabels.Contains(s.Label)) is { } grown)
+            restored = grown;
         // First time: start on the tab being viewed (marked ●) so the strip shows its artworks,
         // rather than "This submission" with a single thumbnail.
         ArtworkSourceCombo.SelectedItem = restored
@@ -739,6 +765,17 @@ public partial class FullscreenViewerWindow : Window
 
         _selectedSourceItems = (ArtworkSourceCombo.SelectedItem as StripSource)?.Items;
         UpdateStripHint();
+    }
+
+    /// <summary>Drops sources listing the same artworks as an earlier one, in any order — e.g. a restored
+    /// tab that joined the artist's gallery and that artist's "(all)" entry. "Everything" stays.</summary>
+    private static List<StripSource> DropDuplicateSources(List<StripSource> sources)
+    {
+        var everything = LocalizationService.Instance["Viewer_StripEverything"];
+        var seen = new HashSet<string>();
+        return sources.Where(s => s.Items.Count <= 1 || s.Label == everything
+                                  || seen.Add(string.Join(",", s.Items.Select(c => c.Id).Order(StringComparer.Ordinal))))
+                      .ToList();
     }
 
     private bool _suppressSourceChanged;
@@ -945,6 +982,7 @@ public partial class FullscreenViewerWindow : Window
     protected override void OnClosed(EventArgs e)
     {
         base.OnClosed(e);
+        if (_gallery is not null) AppServices.Get<SettingsService>().Changed -= OnSettingsChanged;
         _stripThumbCts?.Cancel();
         _stripThumbCts?.Dispose();
         _stripThumbCts = null;
@@ -1325,6 +1363,7 @@ public partial class FullscreenViewerWindow : Window
         var tags = (DataContext as ArtworkViewerViewModel)?.Tags;
         var glyphs = PixivEffects.GlyphsFor(tags);
         var settings = AppServices.Get<Pikura.Core.Settings.SettingsService>().Current;
+        _effectSettings = (settings.ShowPixivEffects, settings.ReduceMotion);
         var on = glyphs != null && settings.ShowPixivEffects && !settings.ReduceMotion;
         if (EffectToggleBtn != null)
         {
@@ -1341,6 +1380,15 @@ public partial class FullscreenViewerWindow : Window
             EffectOverlay.IsVisible = on;
         }
     }
+
+    private (bool Show, bool ReduceMotion)? _effectSettings;
+
+    /// <summary>Keeps the effect in step when it's toggled in a viewer or Settings.</summary>
+    private void OnSettingsChanged(object? sender, EventArgs e) => Dispatcher.UIThread.Post(() =>
+    {
+        var s = AppServices.Get<SettingsService>().Current;
+        if (_effectSettings != (s.ShowPixivEffects, s.ReduceMotion)) UpdateEffectOverlay();
+    });
 
     private void OnToggleEffect(object? sender, global::Avalonia.Interactivity.RoutedEventArgs e)
     {

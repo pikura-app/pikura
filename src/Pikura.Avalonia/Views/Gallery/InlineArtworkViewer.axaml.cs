@@ -308,6 +308,8 @@ public partial class InlineArtworkViewer : UserControl
         base.OnAttachedToVisualTree(e);
         SubscribeToAncestorVisibility();
         LocalizationService.Instance.PropertyChanged += OnLanguagePropertyChanged;
+        AppServices.Get<Pikura.Core.Settings.SettingsService>().Changed += OnSettingsChanged;
+        UpdateEffectOverlay();
         if (IsEffectivelyVisible)
         {
             _ = LoadCardAsync(VM?.InlineViewerCard);
@@ -321,6 +323,7 @@ public partial class InlineArtworkViewer : UserControl
     {
         base.OnDetachedFromVisualTree(e);
         LocalizationService.Instance.PropertyChanged -= OnLanguagePropertyChanged;
+        AppServices.Get<Pikura.Core.Settings.SettingsService>().Changed -= OnSettingsChanged;
         if (TopLevel.GetTopLevel(this) is { } tl)
             tl.RemoveHandler(KeyDownEvent, OnViewerKeyDown);
         UnsubscribeAncestorVisibility();
@@ -2217,6 +2220,7 @@ if (result != null && presetWindow.DownloadClicked)
         var tags = _currentCard?.Tags;
         var glyphs = PixivEffects.GlyphsFor(tags);
         var settings = AppServices.Get<Pikura.Core.Settings.SettingsService>().Current;
+        _effectSettings = (settings.ShowPixivEffects, settings.ReduceMotion);
         var on = glyphs != null && settings.ShowPixivEffects && !settings.ReduceMotion;
         if (EffectToggleBtn != null)
         {
@@ -2231,6 +2235,16 @@ if (result != null && presetWindow.DownloadClicked)
             EffectOverlay.IsVisible = on;
         }
     }
+
+    private (bool Show, bool ReduceMotion)? _effectSettings;
+
+    /// <summary>Keeps the effect in step when it's toggled in fullscreen, another viewer or
+    /// Settings. Settings change on every write, so only react when the effect settings did.</summary>
+    private void OnSettingsChanged(object? sender, EventArgs e) => Dispatcher.UIThread.Post(() =>
+    {
+        var s = AppServices.Get<Pikura.Core.Settings.SettingsService>().Current;
+        if (_effectSettings != (s.ShowPixivEffects, s.ReduceMotion)) UpdateEffectOverlay();
+    });
 
     private void OnToggleEffect(object? sender, global::Avalonia.Interactivity.RoutedEventArgs e)
     {

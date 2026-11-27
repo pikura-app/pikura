@@ -7,6 +7,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Threading;
+using Avalonia.VisualTree;
 
 namespace Pikura.Avalonia.Controls;
 
@@ -37,10 +38,11 @@ public sealed class EffectParticles : Control
     private readonly List<Particle> _particles = [];
     private readonly Random _rng = new();
     private readonly Stopwatch _clock = new();
-    private FormattedText[] _glyphs = [];
+    private GlyphImage[] _glyphs = [];
     private DispatcherTimer? _timer;
     private double _lastSeconds;
     private bool _attached;
+    private Window? _window;
 
     public EffectParticles()
     {
@@ -48,18 +50,53 @@ public sealed class EffectParticles : Control
         ClipToBounds = true;
     }
 
+    /// <summary>Ancestors watched for visibility, so hiding a host panel (e.g. a viewer that is
+    /// collapsed) stops the timer and showing it again resumes it.</summary>
+    private readonly List<Visual> _ancestors = [];
+
+    private void OnAncestorPropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
+    {
+        if (e.Property == IsVisibleProperty) Dispatcher.UIThread.Post(UpdateTimer);
+    }
+
     protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
     {
         base.OnAttachedToVisualTree(e);
         _attached = true;
+        _window = TopLevel.GetTopLevel(this) as Window;
+        if (_window != null) _window.PropertyChanged += OnWindowPropertyChanged;
+        for (var v = this.GetVisualParent(); v != null && v != _window; v = v.GetVisualParent())
+        {
+            v.PropertyChanged += OnAncestorPropertyChanged;
+            _ancestors.Add(v);
+        }
         Refresh();
     }
 
     protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
     {
         _attached = false;
+        if (_window != null) _window.PropertyChanged -= OnWindowPropertyChanged;
+        _window = null;
+        foreach (var v in _ancestors) v.PropertyChanged -= OnAncestorPropertyChanged;
+        _ancestors.Clear();
         Stop();
         base.OnDetachedFromVisualTree(e);
+    }
+
+    private void OnWindowPropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
+    {
+        if (e.Property == Window.WindowStateProperty || e.Property == IsVisibleProperty) UpdateTimer();
+    }
+
+    /// <summary>Animates only while on screen: attached, effectively visible, with glyphs, in a
+    /// window that is neither minimized nor hidden (e.g. closed to the tray).</summary>
+    private void UpdateTimer()
+    {
+        var onScreen = _attached && IsEffectivelyVisible && _glyphs.Length > 0
+                       && _window is not { IsVisible: false } and not { WindowState: WindowState.Minimized };
+        if (onScreen) Start();
+        else Stop();
     }
 
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
@@ -71,12 +108,12 @@ public sealed class EffectParticles : Control
     private void Refresh()
     {
         _particles.Clear();
+        foreach (var g in _glyphs) g.Dispose();
         _glyphs = (Glyphs ?? [])
-            .Select(g => new FormattedText(g, CultureInfo.InvariantCulture, FlowDirection.LeftToRight,
-                EmojiTypeface, 26, Brushes.White))
+            .Select(g => new GlyphImage(new FormattedText(g, CultureInfo.InvariantCulture, FlowDirection.LeftToRight,
+                EmojiTypeface, 26, Brushes.White)))
             .ToArray();
-        if (_attached && IsVisible && _glyphs.Length > 0) Start();
-        else Stop();
+        UpdateTimer();
         InvalidateVisual();
     }
 
@@ -144,7 +181,7 @@ public sealed class EffectParticles : Control
                         * Matrix.CreateScale(p.Scale, p.Scale)
                         * Matrix.CreateTranslation(x, p.Y);
                 using (context.PushTransform(m))
-                    context.DrawText(glyph, default);
+                    glyph.Draw(context);
             }
         }
     }

@@ -124,7 +124,8 @@ public partial class App : Application
             Pikura.Avalonia.Services.SeasonalTheme.Decorations(settings.Current, now),
             settings.Current.SeasonalEffects && !settings.Current.ReduceMotion,
             settings.Current.SeasonalScenery, settings.Current.SeasonalIntensity);
-        ApplySeasonalTint(settings.Current.SeasonalTint ? occasion : null, secondary, settings.Current.SeasonalIntensity);
+        ApplySeasonalTint(settings.Current.SeasonalTint ? occasion : null, secondary, settings.Current.SeasonalIntensity,
+            settings.Current.UseHighContrast);
 
         // Re-evaluated every minute for the dark-mode schedule and for "Auto" seasonal changeovers.
         var needsTimer = theme == "Scheduled"
@@ -165,23 +166,37 @@ public partial class App : Application
     ];
     private static string? _appliedTint;
 
+    /// <summary>Border keys High Contrast also overrides; while it's on, its brushes win.</summary>
+    private static readonly HashSet<string> HighContrastBorderKeys =
+    [
+        "Container1BorderBrush", "Container2BorderBrush", "Container3BorderBrush",
+        "Container4BorderBrush", "ControlBorderBrush",
+    ];
+
+    /// <summary>Makes the next <see cref="ApplyTheme"/> re-apply the seasonal tint, e.g. after High
+    /// Contrast removed the border overrides it shares with the tint.</summary>
+    public static void InvalidateSeasonalTint() => _appliedTint = "";
+
     /// <summary>Overrides the light/dark palette's backgrounds and borders with versions blended
     /// toward the occasion's tones for the current variant; null restores the normal palette.
     /// Overrides go in the app's own resources, which take precedence over its theme dictionaries.</summary>
     private static void ApplySeasonalTint(Pikura.Avalonia.Services.SeasonalOccasion? occasion,
-        Pikura.Avalonia.Services.SeasonalOccasion? accentFrom, string? intensity)
+        Pikura.Avalonia.Services.SeasonalOccasion? accentFrom, string? intensity, bool highContrast)
     {
         if (Current is null) return;
         var dark = Current.ActualThemeVariant == ThemeVariant.Dark;
         var scale = Pikura.Avalonia.Services.SeasonalTheme.IntensityScale(intensity);
-        var key = occasion == null ? null : $"{occasion.Key}+{accentFrom?.Key}:{(dark ? "Dark" : "Light")}:{scale}";
+        var key = occasion == null ? null
+            : $"{occasion.Key}+{accentFrom?.Key}:{(dark ? "Dark" : "Light")}:{scale}:{highContrast}";
         if (key == _appliedTint) return;
         _appliedTint = key;
 
         var resources = Current.Resources;
         if (occasion == null)
         {
-            foreach (var entry in SeasonalTintKeys) resources.Remove(entry.Key);
+            foreach (var entry in SeasonalTintKeys)
+                if (!highContrast || !HighContrastBorderKeys.Contains(entry.Key))
+                    resources.Remove(entry.Key);
             return;
         }
         if (!resources.ThemeDictionaries.TryGetValue(dark ? ThemeVariant.Dark : ThemeVariant.Light, out var provider)
@@ -192,6 +207,7 @@ public partial class App : Application
         if (accentFrom != null) tones[^1] = Color.Parse((dark ? accentFrom.Dark : accentFrom.Light)[^1]);
         foreach (var (k, tone, darkAmount, lightAmount) in SeasonalTintKeys)
         {
+            if (highContrast && HighContrastBorderKeys.Contains(k)) continue;
             if (!palette.TryGetValue(k, out var value)) continue;
             var amount = (dark ? darkAmount : lightAmount) * scale;
             var target = tones[Math.Min(tone, tones.Length - 1)];

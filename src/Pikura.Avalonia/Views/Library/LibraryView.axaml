@@ -170,18 +170,18 @@
                                   SearchPlaceholder="{loc:Tr Library_FilterOptionsWatermark}"
                                   Width="200" IsVisible="{Binding HasFolderOptions}"
                                   ToolTip.Tip="{loc:Tr Library_FilterFolder}"/>
-                        <ComboBox SelectedIndex="{Binding YearIndex}" ItemsSource="{Binding YearOptions}" Width="105"/>
+                        <ComboBox SelectedIndex="{Binding YearIndex}" ItemsSource="{Binding YearOptions}" MinWidth="105"/>
                         <CalendarDatePicker SelectedDate="{Binding DateFrom}" Width="140"
                                             PlaceholderText="{loc:Tr Library_DateFrom}"/>
                         <CalendarDatePicker SelectedDate="{Binding DateTo}" Width="140"
                                             PlaceholderText="{loc:Tr Library_DateTo}"/>
-                        <ComboBox SelectedIndex="{Binding MediaTypeIndex}" Width="110">
+                        <ComboBox SelectedIndex="{Binding MediaTypeIndex}" MinWidth="110">
                             <ComboBoxItem Content="{loc:Tr Library_MediaAll}"/>
                             <ComboBoxItem Content="{loc:Tr Library_MediaImage}"/>
                             <ComboBoxItem Content="{loc:Tr Library_MediaVideo}"/>
                             <ComboBoxItem Content="{loc:Tr Library_MediaAnimation}"/>
                         </ComboBox>
-                        <ComboBox SelectedIndex="{Binding OrientationIndex}" Width="120">
+                        <ComboBox SelectedIndex="{Binding OrientationIndex}" MinWidth="120">
                             <ComboBoxItem Content="{loc:Tr Library_OrientationAll}"/>
                             <ComboBoxItem Content="{loc:Tr Library_OrientationPortrait}"/>
                             <ComboBoxItem Content="{loc:Tr Library_OrientationLandscape}"/>
@@ -288,10 +288,11 @@
                     <ItemsControl ItemsSource="{Binding Items}" IsVisible="{Binding ShowFixedGrid}">
                         <ItemsControl.ItemsPanel><ItemsPanelTemplate><local:FillWrapPanel MinItemWidth="{Binding CardSize}" ItemSpacing="6"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate><DataTemplate>
-                            <Border Margin="0" CornerRadius="8" Padding="6"
+                            <Border CornerRadius="8" ClipToBounds="True"
                                     x:Name="ItemCard"
                                     Classes.selected="{Binding IsSelected}"
-                                    Background="{DynamicResource Container2BackgroundBrush}"
+                                    Background="{DynamicResource Container1BackgroundBrush}"
+                                    BorderBrush="{DynamicResource Container2BorderBrush}" BorderThickness="1"
                                     ToolTip.Tip="{Binding PathTooltip}"
                                     PointerPressed="OnItemPressed" Tapped="OnItemPressedTapped" ContextRequested="OnItemContextRequested" DoubleTapped="OnItemDoubleTapped">
                                 <Border.Styles>
@@ -300,10 +301,17 @@
                                         <Setter Property="BorderThickness" Value="2"/>
                                     </Style>
                                 </Border.Styles>
-                                <StackPanel Spacing="4">
-                                    <Border CornerRadius="4" ClipToBounds="True" Height="{Binding $parent[ItemsControl].DataContext.CardSize}">
-                                        <Image Source="{Binding Thumbnail}" Stretch="Uniform"><Image.Effect><BlurEffect Radius="{Binding BlurRadius}"/></Image.Effect></Image>
+                                <StackPanel>
+                                    <Border ClipToBounds="True" Height="{Binding $parent[ItemsControl].DataContext.CardSize}">
+                                        <Image Source="{Binding Thumbnail}" Stretch="UniformToFill" RenderOptions.BitmapInterpolationMode="HighQuality"><Image.Effect><BlurEffect Radius="{Binding BlurRadius}"/></Image.Effect></Image>
                                     </Border>
+                                    <StackPanel Margin="8,4,8,6" Spacing="4">
+                                        <StackPanel.IsVisible>
+                                            <MultiBinding Converter="{x:Static BoolConverters.Or}">
+                                                <Binding Path="$parent[ItemsControl].DataContext.ShowInfo"/>
+                                                <Binding Path="$parent[ItemsControl].DataContext.ShowTags"/>
+                                            </MultiBinding>
+                                        </StackPanel.IsVisible>
                                     <TextBlock Text="{Binding DisplayName}" FontSize="12" TextTrimming="CharacterEllipsis" MaxLines="1"
                                                IsVisible="{Binding $parent[ItemsControl].DataContext.ShowInfo}"/>
                                     <TextBlock Text="{Binding SubText}" FontSize="11"
@@ -314,6 +322,7 @@
                                                Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                                TextTrimming="CharacterEllipsis" MaxLines="2" TextWrapping="Wrap"
                                                IsVisible="{Binding $parent[ItemsControl].DataContext.ShowTags}"/>
+                                    </StackPanel>
                                 </StackPanel>
                             </Border>
                         </DataTemplate></ItemsControl.ItemTemplate>
@@ -322,9 +331,10 @@
                     <ItemsControl ItemsSource="{Binding Items}" IsVisible="{Binding ShowNaturalGrid}">
                         <ItemsControl.ItemsPanel><ItemsPanelTemplate><local:MasonryPanel ColumnWidth="{Binding CardSize}" ItemSpacing="6" StretchToFill="True"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate><DataTemplate>
-                            <Border CornerRadius="8" Padding="6"
+                            <Border CornerRadius="8" ClipToBounds="True"
                                     Classes.selected="{Binding IsSelected}"
-                                    Background="{DynamicResource Container2BackgroundBrush}"
+                                    Background="{DynamicResource Container1BackgroundBrush}"
+                                    BorderBrush="{DynamicResource Container2BorderBrush}" BorderThickness="1"
                                     ToolTip.Tip="{Binding PathTooltip}"
                                     PointerPressed="OnItemPressed" Tapped="OnItemPressedTapped" ContextRequested="OnItemContextRequested" DoubleTapped="OnItemDoubleTapped">
                                 <Border.Styles>
@@ -333,10 +343,17 @@
                                         <Setter Property="BorderThickness" Value="2"/>
                                     </Style>
                                 </Border.Styles>
-                                <StackPanel Spacing="4">
-                                    <Border CornerRadius="4" ClipToBounds="True" >
-                                        <Image Source="{Binding Thumbnail}" Stretch="Uniform"><Image.Effect><BlurEffect Radius="{Binding BlurRadius}"/></Image.Effect></Image>
+                                <StackPanel>
+                                    <Border ClipToBounds="True">
+                                        <Image Source="{Binding Thumbnail}" Stretch="Uniform" RenderOptions.BitmapInterpolationMode="HighQuality"><Image.Effect><BlurEffect Radius="{Binding BlurRadius}"/></Image.Effect></Image>
                                     </Border>
+                                    <StackPanel Margin="8,4,8,6" Spacing="4">
+                                        <StackPanel.IsVisible>
+                                            <MultiBinding Converter="{x:Static BoolConverters.Or}">
+                                                <Binding Path="$parent[ItemsControl].DataContext.ShowInfo"/>
+                                                <Binding Path="$parent[ItemsControl].DataContext.ShowTags"/>
+                                            </MultiBinding>
+                                        </StackPanel.IsVisible>
                                     <TextBlock Text="{Binding DisplayName}" FontSize="12" TextTrimming="CharacterEllipsis" MaxLines="1"
                                                IsVisible="{Binding $parent[ItemsControl].DataContext.ShowInfo}"/>
                                     <TextBlock Text="{Binding SubText}" FontSize="11"
@@ -347,6 +364,7 @@
                                                Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
                                                TextTrimming="CharacterEllipsis" MaxLines="2" TextWrapping="Wrap"
                                                IsVisible="{Binding $parent[ItemsControl].DataContext.ShowTags}"/>
+                                    </StackPanel>
                                 </StackPanel>
                             </Border>
                         </DataTemplate></ItemsControl.ItemTemplate>

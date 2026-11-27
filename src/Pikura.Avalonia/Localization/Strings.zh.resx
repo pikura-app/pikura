@@ -5998,7 +5998,7 @@ https://www.pixiv.net/en/artworks/12345678
     <value>查找重复</value>
   </data>
   <data name="Library_Threshold" xml:space="preserve">
-    <value>阈值</value>
+    <value>相似度（0 = 完全相同，7 = 宽松）</value>
   </data>
   <data name="Library_Exact" xml:space="preserve">
     <value>完全相同</value>
@@ -6032,9 +6032,6 @@ https://www.pixiv.net/en/artworks/12345678
   </data>
   <data name="Settings_LibraryAutoIndex" xml:space="preserve">
     <value>将下载的文件索引到本地媒体库</value>
-  </data>
-  <data name="Settings_LibraryDupThreshold" xml:space="preserve">
-    <value>重复阈值（pHash 距离 0-12）</value>
   </data>
   <data name="Update_MigrateTitle" xml:space="preserve">
     <value>切换到新的更新器</value>

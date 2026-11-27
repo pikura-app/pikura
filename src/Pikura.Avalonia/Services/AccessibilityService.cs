@@ -109,6 +109,8 @@ public class AccessibilityService
             currentResources.Remove("AccessibilityBorder");
             foreach (var key in HighContrastBorderKeys)
                 currentResources.Remove(key);
+            // Those keys may have held the seasonal tint's borders too; have it re-apply them.
+            App.InvalidateSeasonalTint();
             App.ApplyTheme();
         }
     }
