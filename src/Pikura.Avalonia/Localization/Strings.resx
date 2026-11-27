@@ -6062,7 +6062,7 @@ Resuming from {1}/{2} artworks</value>
     <value>Find duplicates</value>
   </data>
   <data name="Library_Threshold" xml:space="preserve">
-    <value>Threshold</value>
+    <value>Similarity (0 = identical, 7 = loose)</value>
   </data>
   <data name="Library_Exact" xml:space="preserve">
     <value>Exact</value>
@@ -6096,9 +6096,6 @@ Resuming from {1}/{2} artworks</value>
   </data>
   <data name="Settings_LibraryAutoIndex" xml:space="preserve">
     <value>Index downloaded files into the local library</value>
-  </data>
-  <data name="Settings_LibraryDupThreshold" xml:space="preserve">
-    <value>Duplicate threshold (pHash distance 0-12)</value>
   </data>
   <data name="Update_MigrateTitle" xml:space="preserve">
     <value>Switch to the new updater</value>

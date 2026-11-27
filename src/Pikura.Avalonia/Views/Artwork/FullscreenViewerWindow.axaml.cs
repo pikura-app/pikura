@@ -365,12 +365,20 @@ public partial class FullscreenViewerWindow : Window
             async () =>
             {
                 for (var i = 0; i < 300 && g.IsLoading; i++) await Task.Delay(100);
+                // The artwork being viewed may sit deeper than the first page; load up to it so
+                // it lands at its real position (e.g. 10 / 100) with the newer ones before it.
+                var viewing = (g.InlineViewerCard ?? g.SelectedViewerTab?.Card) is { } c && c.UserId == userId
+                    ? c.Id : null;
                 if (OnArtist())
                 {
-                    await g.LoadMoreArtworksCommand.ExecuteAsync(null);
+                    if (viewing == null || g.NavigableArtworks.Any(a => a.Id == viewing))
+                        await g.LoadMoreArtworksCommand.ExecuteAsync(null);
+                    else
+                        await g.LoadUntilArtworkAsync(viewing);
                     return;
                 }
                 await g.LoadArtistByIdAsync(userId);
+                if (viewing != null) await g.LoadUntilArtworkAsync(viewing);
                 foreach (var tab in g.ViewerTabs.Where(t => !t.IsCollage && t.NavList.Count <= 1 && t.Card?.UserId == userId).ToList())
                     g.AdoptTabIntoGallery(tab);
             },

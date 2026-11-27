@@ -756,7 +756,7 @@
                                   IsVisible="{Binding IsGridView}">
                         <Panel>
                         <!-- FIXED MODE: dense layout -->
-                        <ItemsControl ItemsSource="{Binding FilteredArtworks}" Margin="10,10,4,10"
+                        <ItemsControl ItemsSource="{Binding FilteredArtworks}" Margin="16,10,4,10"
                                       IsVisible="{Binding IsFixedHeight}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
@@ -1157,7 +1157,7 @@
                         </ItemsControl>
 
                         <!-- NATURAL MODE: masonry with breathing room (matches Bookmarks/Rankings) -->
-                        <ItemsControl ItemsSource="{Binding FilteredArtworks}" Margin="10,10,4,10"
+                        <ItemsControl ItemsSource="{Binding FilteredArtworks}" Margin="16,10,4,10"
                                       IsVisible="{Binding IsNaturalHeight}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
@@ -1169,8 +1169,10 @@
                                 <DataTemplate x:DataType="vm:ArtworkCardViewModel">
                                     <Panel>
                                         <!-- Drawn just outside the card, above it, so the outline never covers the image and the image cannot cover it. -->
-                                        <Border Classes="hoverRing" Classes.revealed="{Binding IsRevealed}" Margin="-2,-2,4,4"/>
-                                        <Border Margin="0,0,6,6"
+                                        <Border Classes="hoverRing" Classes.revealed="{Binding IsRevealed}" Margin="-2,-2,-2,4"/>
+                                        <!-- Exactly one column wide: a right margin on top of Width=CardSize overflowed the
+                                             column, and the centred card slid left over its outline. ItemSpacing is the gap. -->
+                                        <Border Margin="0,0,0,6"
                                                 Width="{Binding $parent[UserControl].((vm:GalleryViewModel)DataContext).CardSize}"
                                                 Background="{DynamicResource Container1BackgroundBrush}"
                                                 BorderBrush="{DynamicResource Container2BorderBrush}"

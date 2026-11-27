@@ -1721,24 +1721,33 @@ ShowPreview = true;
     /// <summary>Asks the view to scroll the artist list to <see cref="SelectedArtist"/>.</summary>
     public event Action? RevealArtistRequested;
 
-    /// <summary>Brings <paramref name="artworkId"/> into view in the current artist's gallery — turning
-    /// to its page, or loading up to 10 more pages until it appears — and briefly outlines it.</summary>
-    public async Task RevealArtworkAsync(string? artworkId)
+    /// <summary>Loads up to 10 more pages of the current artist's gallery until <paramref name="artworkId"/>
+    /// is in it, so it sits at its real position with every newer artwork before it. Null when it
+    /// can't be reached or a filter hides it.</summary>
+    public async Task<ArtworkCardViewModel?> LoadUntilArtworkAsync(string? artworkId)
     {
-        if (string.IsNullOrEmpty(artworkId) || SelectedArtist is not { } artist) return;
+        if (string.IsNullOrEmpty(artworkId) || SelectedArtist is not { } artist) return null;
         var ct = _artworkLoadCts?.Token ?? CancellationToken.None;
         ArtworkCardViewModel? card;
         for (var loads = 0; (card = _navigableArtworks.FirstOrDefault(c => c.Id == artworkId)) == null; loads++)
         {
             // Loaded but hidden by a filter: more pages won't make it visible.
-            if (VisibleArtworks.Any(c => c.Id == artworkId)) return;
+            if (VisibleArtworks.Any(c => c.Id == artworkId)) return null;
             if (loads >= 10 || !CanLoadMore || ct.IsCancellationRequested
                 || !ReferenceEquals(SelectedArtist, artist)
                 || !await TryLoadMoreArtworksAsync(artist, ct))
-                return;
+                return null;
             UpdateCache(artist);
             SyncViewerTabNavList();
         }
+        return card;
+    }
+
+    /// <summary>Brings <paramref name="artworkId"/> into view in the current artist's gallery — turning
+    /// to its page, or loading up to 10 more pages until it appears — and briefly outlines it.</summary>
+    public async Task RevealArtworkAsync(string? artworkId)
+    {
+        if (await LoadUntilArtworkAsync(artworkId) is not { } card) return;
         // Lone tabs showing this artwork now navigate the artist's gallery, so their counter shows the
         // artwork's real position (e.g. 12 / 49) instead of 1 / 1. Tabs with their own list (Rankings,
         // Search, Bookmarks…) keep it.

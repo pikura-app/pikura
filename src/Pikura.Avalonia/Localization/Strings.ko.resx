@@ -5998,7 +5998,7 @@ https://www.pixiv.net/en/artworks/12345678
     <value>중복 찾기</value>
   </data>
   <data name="Library_Threshold" xml:space="preserve">
-    <value>임계값</value>
+    <value>유사도 (0 = 동일, 7 = 느슨함)</value>
   </data>
   <data name="Library_Exact" xml:space="preserve">
     <value>완전 일치</value>
@@ -6032,9 +6032,6 @@ https://www.pixiv.net/en/artworks/12345678
   </data>
   <data name="Settings_LibraryAutoIndex" xml:space="preserve">
     <value>다운로드한 파일을 로컬 라이브러리에 인덱싱</value>
-  </data>
-  <data name="Settings_LibraryDupThreshold" xml:space="preserve">
-    <value>중복 임계값(pHash 거리 0-12)</value>
   </data>
   <data name="Update_MigrateTitle" xml:space="preserve">
     <value>새 업데이터로 전환</value>

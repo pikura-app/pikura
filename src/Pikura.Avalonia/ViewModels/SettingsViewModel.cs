@@ -355,7 +355,6 @@ public partial class SettingsViewModel : ViewModelBase
     [ObservableProperty] private int _downloadTimeout = 60;
     [ObservableProperty] private int _retryCount = 3;
     [ObservableProperty] private int _retryDelaySeconds = 5;
-    [ObservableProperty] private int _libraryDuplicateThreshold = 6;
     [ObservableProperty] private bool _libraryAutoIndexDownloads = true;
     [ObservableProperty] private bool _restoreViewerTabs = true;
     [ObservableProperty] private int _downloadDelaySeconds;
@@ -881,7 +880,6 @@ public partial class SettingsViewModel : ViewModelBase
         DownloadTimeout = s.DownloadTimeout;
         RetryCount = s.RetryCount;
         RetryDelaySeconds = s.RetryDelaySeconds;
-        LibraryDuplicateThreshold = s.LibraryDuplicateThreshold;
         LibraryAutoIndexDownloads = s.LibraryAutoIndexDownloads;
         RestoreViewerTabs = s.RestoreViewerTabsOnStartup;
         DownloadDelaySeconds = s.DownloadDelaySeconds;
@@ -1470,8 +1468,6 @@ public partial class SettingsViewModel : ViewModelBase
 
     partial void OnRetryDelaySecondsChanged(int value)
         => _settingsService.Update(s => s.RetryDelaySeconds = value);
-    partial void OnLibraryDuplicateThresholdChanged(int value)
-        => _settingsService.Update(s => s.LibraryDuplicateThreshold = value);
     partial void OnLibraryAutoIndexDownloadsChanged(bool value)
         => _settingsService.Update(s => s.LibraryAutoIndexDownloads = value);
     partial void OnRestoreViewerTabsChanged(bool value)
