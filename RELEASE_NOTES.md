@@ -1,3 +1,23 @@
+## Pikura 2.6.9
+
+Smoother themes, fullscreen Load more that keeps your place, and Library card fixes.
+
+### Fixes
+
+- **Performance** — theme decorations and pixiv effects are much cheaper to draw, and stop animating while the window is minimized, closed to the tray, or the viewer is hidden (#27).
+- **High Contrast** — borders stay white or black when a theme is on or turned off, and character effects resume right away after toggling them (#28).
+- **Gallery artist list** — no longer re-centers while you click or scroll, opening an artist from a Rankings or Search tab keeps that tab's list, and pages can't be skipped during fast scrolling (#29).
+- **pixiv effects** — turning ✨ on or off in fullscreen, another viewer or Settings updates every open viewer immediately (#30).
+- **Fullscreen Load more / Load all** — loads the artist's gallery up to the artwork you're viewing, so it sits at its real position (e.g. 10 / 272), including tabs restored after a restart. The restored tab merges into the gallery instead of leaving a duplicate tab or source entry.
+- **Gallery cards** — the selection outline is no longer cut off on the left.
+- **Library cards** — thumbnails fill the card edge to edge like the Gallery, Natural mode fills the full width instead of leaving wide gaps, and the filter dropdowns fit their text.
+
+### Improvements
+
+- **Settings** — "Index downloaded files into the local library" moved to Storage & Naming. The duplicate threshold lives only in Library › Duplicates, labeled "Similarity (0 = identical, 7 = loose)".
+
+---
+
 ## Pikura 2.6.8
 
 Seasonal, holiday and anime themes, pixiv effect tags, and smoother "Open artist gallery".

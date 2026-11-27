@@ -2,6 +2,22 @@
 
 All notable changes to Pikura are documented in this file.
 
+## [2.6.9]
+
+### Fixed
+
+- `SeasonalParticles` / `EffectParticles`: glyphs drawn from cached `GlyphImage` bitmaps; timers pause while the window is minimized or hidden, an ancestor is hidden, or the control is detached; occlusion checks only run while corner scenery or a sprite is shown (#27).
+- Seasonal tint no longer overrides High Contrast border brushes and is reapplied when High Contrast turns off; ambient schedules reset when the animation clock restarts (#28).
+- Gallery: artist-list centering only on programmatic reveal, single `SelectedArtist` notification, `RevealArtworkAsync` adopts only lone tabs, page loads serialized (#29).
+- Inline and fullscreen viewers follow `ShowPixivEffects` / `ReduceMotion` changes via `SettingsService.Changed` (#30).
+- Fullscreen Load more / Load all: `LoadUntilArtworkAsync` loads up to the viewed artwork, restored tabs adopt the cached artist gallery, `MergeDuplicateTabs` merges same-artwork tabs, and duplicate sources (same artworks in any order) are dropped.
+- Gallery Natural cards are exactly one column wide, so the hover/reveal outline isn't covered.
+- Library cards are edge-to-edge; `MasonryPanel` `StretchToFill` measures at the arranged width so a column isn't dropped; filter dropdowns use `MinWidth`.
+
+### Changed
+
+- `LibraryAutoIndexDownloads` moved to Settings › Storage & Naming; `LibraryDuplicateThreshold` is set only from Library › Duplicates.
+
 ## [2.6.8]
 
 ### Added
