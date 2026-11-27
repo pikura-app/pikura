@@ -737,8 +737,11 @@ public partial class FullscreenViewerWindow : Window
     {
         if (ArtworkSourceCombo is null) return;
 
-        var previousLabel = (ArtworkSourceCombo.SelectedItem as StripSource)?.Label;
-        var sources = BuildSources();
+        var previous = ArtworkSourceCombo.SelectedItem as StripSource;
+        var previousLabel = previous?.Label;
+        var previousLabels = (ArtworkSourceCombo.ItemsSource as IEnumerable<StripSource>)?
+            .Select(s => s.Label).ToHashSet() ?? [];
+        var sources = DropDuplicateSources(BuildSources());
 
         _suppressSourceChanged = true;
         ArtworkSourceCombo.ItemsSource = sources;
@@ -746,6 +749,12 @@ public partial class FullscreenViewerWindow : Window
         var restored = previousLabel is null
             ? null
             : sources.FirstOrDefault(s => s.Label == previousLabel);
+        // Loading the gallery turned the single artwork's tab into a gallery tab: follow it rather
+        // than staying on the one-artwork entry (or an artist entry the tab now duplicates).
+        if (previousLabel != null && (restored is null || restored.Items.Count <= 1)
+            && sources.FirstOrDefault(s => s.Label.StartsWith("● ", StringComparison.Ordinal)
+                                          && !previousLabels.Contains(s.Label)) is { } grown)
+            restored = grown;
         // First time: start on the tab being viewed (marked ●) so the strip shows its artworks,
         // rather than "This submission" with a single thumbnail.
         ArtworkSourceCombo.SelectedItem = restored
@@ -756,6 +765,17 @@ public partial class FullscreenViewerWindow : Window
 
         _selectedSourceItems = (ArtworkSourceCombo.SelectedItem as StripSource)?.Items;
         UpdateStripHint();
+    }
+
+    /// <summary>Drops sources listing exactly the same artworks as an earlier one — e.g. a restored
+    /// tab that joined the artist's gallery and that artist's "(all)" entry. "Everything" stays.</summary>
+    private static List<StripSource> DropDuplicateSources(List<StripSource> sources)
+    {
+        var everything = LocalizationService.Instance["Viewer_StripEverything"];
+        var seen = new HashSet<string>();
+        return sources.Where(s => s.Items.Count <= 1 || s.Label == everything
+                                  || seen.Add(string.Join(",", s.Items.Select(c => c.Id))))
+                      .ToList();
     }
 
     private bool _suppressSourceChanged;
