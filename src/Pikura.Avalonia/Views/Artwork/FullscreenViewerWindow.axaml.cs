@@ -360,8 +360,15 @@ public partial class FullscreenViewerWindow : Window
         if (_gallery is null || string.IsNullOrWhiteSpace(userId)) return null;
         var g = _gallery;
         bool OnArtist() => g.SelectedArtist?.UserId == userId;
+        // Lone tabs of this artist whose artwork the Gallery already holds — after a restart the
+        // cached gallery is usually there before anything is paged, so the tab just has to join it.
+        List<ViewerTab> Adoptable() => g.ViewerTabs
+            .Where(t => !t.IsCollage && t.NavList.Count <= 1 && t.Card is { } tc && tc.UserId == userId
+                        && g.NavigableArtworks.Any(a => a.Id == tc.Id))
+            .ToList();
+        void Adopt() { foreach (var tab in Adoptable()) g.AdoptTabIntoGallery(tab); }
         return new SectionPager(
-            () => !OnArtist() || g.CanLoadMore,
+            () => !OnArtist() || g.CanLoadMore || Adoptable().Count > 0,
             async () =>
             {
                 for (var i = 0; i < 300 && g.IsLoading; i++) await Task.Delay(100);
@@ -371,16 +378,17 @@ public partial class FullscreenViewerWindow : Window
                     ? c.Id : null;
                 if (OnArtist())
                 {
+                    if (Adoptable().Count > 0) { Adopt(); return; }
                     if (viewing == null || g.NavigableArtworks.Any(a => a.Id == viewing))
                         await g.LoadMoreArtworksCommand.ExecuteAsync(null);
                     else
                         await g.LoadUntilArtworkAsync(viewing);
+                    Adopt();
                     return;
                 }
                 await g.LoadArtistByIdAsync(userId);
                 if (viewing != null) await g.LoadUntilArtworkAsync(viewing);
-                foreach (var tab in g.ViewerTabs.Where(t => !t.IsCollage && t.NavList.Count <= 1 && t.Card?.UserId == userId).ToList())
-                    g.AdoptTabIntoGallery(tab);
+                Adopt();
             },
             () => g.VisibleArtworks.Count(c => c.UserId == userId),
             OnArtist() && g.ArtworksTotal > 0 ? g.ArtworksTotal : null);
