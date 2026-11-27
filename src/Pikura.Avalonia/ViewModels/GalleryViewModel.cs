@@ -1739,9 +1739,10 @@ ShowPreview = true;
             UpdateCache(artist);
             SyncViewerTabNavList();
         }
-        // Tabs showing this artwork now navigate the artist's gallery, so their counter shows the
-        // artwork's real position (e.g. 12 / 49) instead of 1 / 1.
-        foreach (var tab in ViewerTabs.Where(t => !t.IsCollage && t.Card?.Id == artworkId).ToList())
+        // Lone tabs showing this artwork now navigate the artist's gallery, so their counter shows the
+        // artwork's real position (e.g. 12 / 49) instead of 1 / 1. Tabs with their own list (Rankings,
+        // Search, Bookmarks…) keep it.
+        foreach (var tab in ViewerTabs.Where(t => !t.IsCollage && t.NavList.Count <= 1 && t.Card?.Id == artworkId).ToList())
             AdoptTabIntoGallery(tab);
         if (UsePagination)
         {
@@ -2436,8 +2437,13 @@ ShowPreview = true;
     /// reported in the status bar here instead of escaping as an unobserved task exception.</summary>
     private async Task<bool> TryLoadMoreArtworksAsync(ArtistCardViewModel artist, CancellationToken ct)
     {
+        // One page at a time: concurrent loads would read the same _currentArtistLoadedCount
+        // offset, fetch the same batch, and advance the offset twice, skipping a page.
+        try { await _pageLoadLock.WaitAsync(ct); }
+        catch (OperationCanceledException) { return false; }
         try
         {
+            if (SelectedArtist?.UserId != artist.UserId) return false;
             await LoadArtworkPageAsync(artist, append: true, ct);
             return true;
         }
@@ -2454,7 +2460,10 @@ ShowPreview = true;
                     : Pikura.Avalonia.Localization.LocalizationService.Instance["Gallery_FailedToLoadArtworks"] + ex.Message;
             return false;
         }
+        finally { _pageLoadLock.Release(); }
     }
+
+    private readonly SemaphoreSlim _pageLoadLock = new(1, 1);
 
     [RelayCommand]
     private async Task LoadAllArtworksAsync()
@@ -2476,6 +2485,8 @@ ShowPreview = true;
     {
         if (SelectedArtist == null || !CanLoadMore || IsLoading || IsBulkDownloading) return;
         if (DateTime.UtcNow < _autoLoadRetryAfter) return;
+        // A page is already loading (e.g. for RevealArtworkAsync); scrolling shouldn't queue another.
+        if (_pageLoadLock.CurrentCount == 0) return;
         // Prevent re-entrance: scroll events can fire faster than the network load completes,
         // and concurrent LoadArtworkPageAsync calls would read the same _currentArtistLoadedCount
         // offset, double-incrementing it and stalling load-more prematurely.
@@ -3249,7 +3260,6 @@ ShowPreview = true;
 
         // Debug: Log when SelectedArtist changes
         System.Diagnostics.Debug.WriteLine($"SelectedArtist changed to: {value?.Name ?? "null"}");
-        OnPropertyChanged(nameof(SelectedArtist));
 
         // Sync IsCurrentArtist on all visible cards
         var selectedId = value?.UserId;
@@ -3369,7 +3379,9 @@ ShowPreview = true;
             // after both pages finish so that revisits restore the full 96-card view.
             if (CanLoadMore)
             {
-                await LoadArtworkPageAsync(artist, append: true, ct);
+                await _pageLoadLock.WaitAsync(ct);
+                try { await LoadArtworkPageAsync(artist, append: true, ct); }
+                finally { _pageLoadLock.Release(); }
                 ct.ThrowIfCancellationRequested();
                 RefreshLikedBookmarkedFavoriteFlags();
             }

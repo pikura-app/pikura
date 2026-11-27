@@ -30,6 +30,10 @@ public partial class GalleryView : UserControl
         LayoutUpdated += OnLayoutUpdated;
         DataContextChanged += OnDataContextChanged;
         Unloaded += OnUnloaded;
+        // Any scroll, click or key in the artist list cancels pending programmatic centering.
+        ArtistList.AddHandler(PointerWheelChangedEvent, (_, _) => _artistScrollGen++, RoutingStrategies.Tunnel, true);
+        ArtistList.AddHandler(PointerPressedEvent, (_, _) => _artistScrollGen++, RoutingStrategies.Tunnel, true);
+        ArtistList.AddHandler(KeyDownEvent, (_, _) => _artistScrollGen++, RoutingStrategies.Tunnel, true);
 
         // Wire ToggleBrowse + Expand + Close events from both viewers
         GallerySideViewer.ToggleBrowse += OnToggleBrowse;
@@ -92,17 +96,17 @@ public partial class GalleryView : UserControl
         if (_wiredVm != null)
         {
             _wiredVm.CopyToClipboardRequested -= OnCopyToClipboardRequested;
-            _wiredVm.RevealArtistRequested -= ScrollSelectedArtistIntoView;
+            _wiredVm.RevealArtistRequested -= CenterSelectedArtist;
         }
 
         if (VM is { } vm)
         {
             vm.PropertyChanged += OnVmPropertyChanged;
             vm.CopyToClipboardRequested += OnCopyToClipboardRequested;
-            vm.RevealArtistRequested += ScrollSelectedArtistIntoView;
+            vm.RevealArtistRequested += CenterSelectedArtist;
             Pikura.Avalonia.Services.ScrollAnchor.Attach(this, vm.ScrollAnchor, vm.FilteredArtworks);
             _wiredVm = vm;
-            ScrollSelectedArtistIntoView();
+            CenterSelectedArtist();
         }
     }
 
@@ -111,21 +115,36 @@ public partial class GalleryView : UserControl
         CopyToClipboard(text);
     }
 
-    /// <summary>Centers the selected artist in the artist list. Retried a few times because the
-    /// Gallery is often still being swapped in (page transition, first layout) when this runs.</summary>
-    private void ScrollSelectedArtistIntoView()
+    private int _artistScrollGen;
+
+    private void CenterSelectedArtist() => ScrollSelectedArtistIntoView(center: true);
+
+    /// <summary>Brings the selected artist into view in the artist list; with <paramref name="center"/>
+    /// (programmatic navigation) it's centered, otherwise an artist already in view is left alone.
+    /// Retried a few times because the Gallery is often still being swapped in (page transition,
+    /// first layout) when this runs. A newer request or any user input in the list cancels it.</summary>
+    private void ScrollSelectedArtistIntoView(bool center)
     {
+        var gen = ++_artistScrollGen;
         void Attempt(int attempt)
         {
             Dispatcher.UIThread.Post(() =>
             {
+                if (gen != _artistScrollGen) return;
                 if (VM?.SelectedArtist is not { } artist || ArtistList?.Items.Contains(artist) != true) return;
-                if (ArtistList.IsEffectivelyVisible && ArtistList.Bounds.Height > 0)
+                if (ArtistList.IsEffectivelyVisible && ArtistList.Bounds.Height > 0
+                    && ArtistList.FindDescendantOfType<ScrollViewer>() is { } sv)
                 {
-                    ArtistList.ScrollIntoView(artist);
-                    if (ArtistList.FindDescendantOfType<ScrollViewer>() is { } sv
-                        && ArtistList.ContainerFromItem(artist) is { } c
-                        && c.TranslatePoint(default, sv) is { } p)
+                    var c = ArtistList.ContainerFromItem(artist);
+                    var inView = c?.TranslatePoint(default, sv) is { } top
+                                 && top.Y >= 0 && top.Y + c.Bounds.Height <= sv.Viewport.Height;
+                    if (inView && !center) return;
+                    if (!inView)
+                    {
+                        ArtistList.ScrollIntoView(artist);
+                        c = ArtistList.ContainerFromItem(artist);
+                    }
+                    if (center && c?.TranslatePoint(default, sv) is { } p)
                     {
                         var y = sv.Offset.Y + p.Y - (sv.Viewport.Height - c.Bounds.Height) / 2;
                         sv.Offset = new global::Avalonia.Vector(sv.Offset.X, Math.Max(0, y));
@@ -141,7 +160,7 @@ public partial class GalleryView : UserControl
     private void OnVmPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
         if (e.PropertyName == nameof(GalleryViewModel.SelectedArtist))
-            ScrollSelectedArtistIntoView();
+            ScrollSelectedArtistIntoView(center: false);
         if (e.PropertyName == nameof(GalleryViewModel.IsFixedHeight)
             || e.PropertyName == nameof(GalleryViewModel.IsNaturalHeight)
             || e.PropertyName == nameof(GalleryViewModel.CardHeightMode))

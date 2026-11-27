@@ -44,6 +44,8 @@ public sealed class SeasonalParticles : Control
     private string? _intensity;
     private DispatcherTimer? _timer;
     private double _lastSeconds;
+    private Window? _window;
+    private bool _falling;
 
     public SeasonalParticles()
     {
@@ -55,9 +57,8 @@ public sealed class SeasonalParticles : Control
         base.OnAttachedToVisualTree(e);
         SeasonalTheme.Changed += OnChanged;
         ActualThemeVariantChanged += OnThemeVariantChanged;
-        _occlusionTimer = new DispatcherTimer(TimeSpan.FromMilliseconds(500), DispatcherPriority.Background,
-            (_, _) => UpdateOcclusion());
-        _occlusionTimer.Start();
+        _window = TopLevel.GetTopLevel(this) as Window;
+        if (_window != null) _window.PropertyChanged += OnWindowPropertyChanged;
         Refresh();
     }
 
@@ -65,10 +66,43 @@ public sealed class SeasonalParticles : Control
     {
         SeasonalTheme.Changed -= OnChanged;
         ActualThemeVariantChanged -= OnThemeVariantChanged;
-        _occlusionTimer?.Stop();
-        _occlusionTimer = null;
-        Stop();
+        if (_window != null) _window.PropertyChanged -= OnWindowPropertyChanged;
+        _window = null;
+        _falling = false;
+        UpdateTimers();
         base.OnDetachedFromVisualTree(e);
+    }
+
+    private void OnWindowPropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
+    {
+        if (e.Property == Window.WindowStateProperty || e.Property == IsVisibleProperty) UpdateTimers();
+    }
+
+    /// <summary>The window is on screen: not minimized and not hidden (e.g. closed to the tray).</summary>
+    private bool WindowShown => _window is not { IsVisible: false } and not { WindowState: WindowState.Minimized };
+
+    /// <summary>Runs the animation timer only while something falls, and the occlusion check only
+    /// while corner scenery or a sprite is shown; both pause while the window is minimized or hidden.</summary>
+    private void UpdateTimers()
+    {
+        var shown = _window != null && WindowShown;
+        if (_falling && shown) Start();
+        else Stop();
+
+        var needsOcclusion = shown && SeasonalTheme.SceneryEnabled
+                             && (_scenery.Length > 0 || _occasion?.Sprite != null);
+        if (needsOcclusion && _occlusionTimer == null)
+        {
+            _occlusionTimer = new DispatcherTimer(TimeSpan.FromMilliseconds(500), DispatcherPriority.Background,
+                (_, _) => UpdateOcclusion());
+            _occlusionTimer.Start();
+            Dispatcher.UIThread.Post(UpdateOcclusion, DispatcherPriority.Background);
+        }
+        else if (!needsOcclusion && _occlusionTimer != null)
+        {
+            _occlusionTimer.Stop();
+            _occlusionTimer = null;
+        }
     }
 
     private void OnChanged() => Dispatcher.UIThread.Post(Refresh);
@@ -103,13 +137,13 @@ public sealed class SeasonalParticles : Control
         }
         if (!SeasonalTheme.SceneryEnabled) _scenery = [];
         else if (_scenery.Length == 0) _scenery = BuildScenery(occasion, _intensity);
-        if (falling) Start();
-        else
+        _falling = falling;
+        if (!falling)
         {
             _particles.Clear();
             _fx.Clear();
-            Stop();
         }
+        UpdateTimers();
         InvalidateVisual();
     }
 
@@ -163,6 +197,8 @@ public sealed class SeasonalParticles : Control
         if (_timer != null) return;
         _clock.Restart();
         _lastSeconds = 0;
+        // Schedules are clock times, so they restart with the clock.
+        _nextSwitch = _nextBolt = _nextRipple = _nextMist = _nextStreak = _nextTwinkle = _nextBall = _emberDue = 0;
         _timer = new DispatcherTimer(TimeSpan.FromMilliseconds(40), DispatcherPriority.Background, (_, _) => Tick());
         _timer.Start();
     }
@@ -193,8 +229,7 @@ public sealed class SeasonalParticles : Control
         var now = _clock.Elapsed.TotalSeconds;
         var dt = Math.Min(0.1, now - _lastSeconds);
         _lastSeconds = now;
-        if (TopLevel.GetTopLevel(this) is Window { WindowState: WindowState.Minimized } || _glyphs.Length == 0)
-            return;
+        if (!WindowShown || _glyphs.Length == 0) return;
 
         var (w, h) = (Bounds.Width, Bounds.Height);
         if (w < 1 || h < 1) return;
@@ -285,6 +320,7 @@ public sealed class SeasonalParticles : Control
     {
         var (w, h) = (Bounds.Width, Bounds.Height);
         if (w < 1 || h < 1 || TopLevel.GetTopLevel(this) is not { } root) return;
+        if (_occlusionTimer == null) return;
         var changed = false;
         _blocked = [];
         CollectBlocked(root, new Rect(0, 0, w, h));

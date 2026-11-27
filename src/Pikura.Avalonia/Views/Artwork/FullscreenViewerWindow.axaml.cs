@@ -56,6 +56,7 @@ public partial class FullscreenViewerWindow : Window
         InitializeComponent();
         _gallery = gallery;
         _explicitNavList = navList;
+        AppServices.Get<SettingsService>().Changed += OnSettingsChanged;
         KeyDown += OnKeyDown;
         Canvas.PointerWheelChanged += OnWheel;
         Canvas.PointerPressed += OnPressed;
@@ -945,6 +946,7 @@ public partial class FullscreenViewerWindow : Window
     protected override void OnClosed(EventArgs e)
     {
         base.OnClosed(e);
+        if (_gallery is not null) AppServices.Get<SettingsService>().Changed -= OnSettingsChanged;
         _stripThumbCts?.Cancel();
         _stripThumbCts?.Dispose();
         _stripThumbCts = null;
@@ -1325,6 +1327,7 @@ public partial class FullscreenViewerWindow : Window
         var tags = (DataContext as ArtworkViewerViewModel)?.Tags;
         var glyphs = PixivEffects.GlyphsFor(tags);
         var settings = AppServices.Get<Pikura.Core.Settings.SettingsService>().Current;
+        _effectSettings = (settings.ShowPixivEffects, settings.ReduceMotion);
         var on = glyphs != null && settings.ShowPixivEffects && !settings.ReduceMotion;
         if (EffectToggleBtn != null)
         {
@@ -1341,6 +1344,15 @@ public partial class FullscreenViewerWindow : Window
             EffectOverlay.IsVisible = on;
         }
     }
+
+    private (bool Show, bool ReduceMotion)? _effectSettings;
+
+    /// <summary>Keeps the effect in step when it's toggled in a viewer or Settings.</summary>
+    private void OnSettingsChanged(object? sender, EventArgs e) => Dispatcher.UIThread.Post(() =>
+    {
+        var s = AppServices.Get<SettingsService>().Current;
+        if (_effectSettings != (s.ShowPixivEffects, s.ReduceMotion)) UpdateEffectOverlay();
+    });
 
     private void OnToggleEffect(object? sender, global::Avalonia.Interactivity.RoutedEventArgs e)
     {
