@@ -2687,6 +2687,30 @@ ShowPreview = true;
             : null;
         _navListVersion++;
         OnPropertyChanged(nameof(NavListVersion));
+        MergeDuplicateTabs(tab);
+    }
+
+    /// <summary>Once a tab joins the artist's gallery, other tabs on the same artwork — a lone restored
+    /// tab, or a Gallery tab opened for it meanwhile — are the same thing twice; keep one.</summary>
+    private void MergeDuplicateTabs(ViewerTab tab)
+    {
+        if (tab.Card is not { } card) return;
+        var same = ViewerTabs.Where(t => !t.IsCollage && t.Card?.Id == card.Id
+                                         && (ReferenceEquals(t, tab) || t.Source == tab.Source || t.NavList.Count <= 1))
+                             .ToList();
+        if (same.Count < 2) return;
+        var keep = same.Contains(SelectedViewerTab!) ? SelectedViewerTab! : tab;
+        if (!ReferenceEquals(keep, tab))
+        {
+            keep.Source = tab.Source;
+            keep.NavList.Clear();
+            foreach (var c in tab.NavList) keep.NavList.Add(c);
+            keep.TotalCount = tab.TotalCount;
+            keep.LoadMoreAsync = tab.LoadMoreAsync;
+        }
+        // Removed directly: CloseViewerTab would move the selection off the tab being kept.
+        foreach (var t in same.Where(t => !ReferenceEquals(t, keep))) ViewerTabs.Remove(t);
+        if (!ReferenceEquals(SelectedViewerTab, keep) && SelectedViewerTab is null) SelectedViewerTab = keep;
     }
 
     private void SyncViewerTabNavList()
