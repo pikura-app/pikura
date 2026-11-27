@@ -38,7 +38,7 @@ public sealed class EffectParticles : Control
     private readonly List<Particle> _particles = [];
     private readonly Random _rng = new();
     private readonly Stopwatch _clock = new();
-    private FormattedText[] _glyphs = [];
+    private GlyphImage[] _glyphs = [];
     private DispatcherTimer? _timer;
     private double _lastSeconds;
     private bool _attached;
@@ -108,9 +108,10 @@ public sealed class EffectParticles : Control
     private void Refresh()
     {
         _particles.Clear();
+        foreach (var g in _glyphs) g.Dispose();
         _glyphs = (Glyphs ?? [])
-            .Select(g => new FormattedText(g, CultureInfo.InvariantCulture, FlowDirection.LeftToRight,
-                EmojiTypeface, 26, Brushes.White))
+            .Select(g => new GlyphImage(new FormattedText(g, CultureInfo.InvariantCulture, FlowDirection.LeftToRight,
+                EmojiTypeface, 26, Brushes.White)))
             .ToArray();
         UpdateTimer();
         InvalidateVisual();
@@ -180,7 +181,7 @@ public sealed class EffectParticles : Control
                         * Matrix.CreateScale(p.Scale, p.Scale)
                         * Matrix.CreateTranslation(x, p.Y);
                 using (context.PushTransform(m))
-                    context.DrawText(glyph, default);
+                    glyph.Draw(context);
             }
         }
     }
