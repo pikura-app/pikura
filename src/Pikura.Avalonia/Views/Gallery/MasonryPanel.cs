@@ -285,10 +285,12 @@ public class MasonryPanel : Panel
         var actualColumnWidth = _cachedColumnWidth;
 
         // Recalculate column count from the final arrange width so the panel always fits
+        // (the epsilon matters for StretchToFill, whose columns fill the width exactly and
+        // would otherwise round down to one column fewer, leaving a wide gap on both sides)
         // inside the viewport even if Measure used a fallback/wider width.
         var columnCount = _scale < 1 || double.IsInfinity(availableWidth) || availableWidth <= 0
             ? _cachedColumnCount
-            : Math.Max(1, (int)Math.Floor((availableWidth + ItemSpacing) / (actualColumnWidth + ItemSpacing)));
+            : Math.Max(1, (int)Math.Floor((availableWidth + ItemSpacing) / (actualColumnWidth + ItemSpacing) + 1e-6));
 
         var columnHeights = new double[columnCount];
 
