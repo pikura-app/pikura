@@ -1,3 +1,25 @@
+## Pikura 2.6.8
+
+Seasonal, holiday and anime themes, pixiv effect tags, and smoother "Open artist gallery".
+
+### New
+
+- **Themes** (Settings › Appearance › Themes) — optional Season, Holiday and Anime themes recolor the whole app, with separate Light and Dark palettes. Decorations sit in the corners and fall gently; Intensity sets how strong they are, and each part can be turned off. Corner pieces and sprites move out of the way of buttons, text, tags and artwork.
+  - **Seasons and holidays** — Spring, Summer, Fall, Winter, Halloween, Thanksgiving, Christmas, New Year and Valentine's Day, or Auto to follow the date.
+  - **Anime** — Hatsune Miku, The Quintessential Quintuplets, Demon Slayer, Jujutsu Kaisen, Naruto, One Piece and Dragon Ball Z, each with an "All characters" option and the main cast in a cascading menu. Every character has its own colors, motifs, an original pixel-art motif sprite and a signature effect, such as lightning for Zenitsu, embers for Rengoku or the seven Dragon Balls for Goku.
+  - **Combining themes** — when several are on, pick which one supplies the colors, mix their decorations, and optionally blend accents.
+- **pixiv effect tags** — artworks tagged with a pixiv effect (e.g. `#pixivHalloweenEffect`, `#pixivSnow2024`) play a matching falling effect in the viewer and fullscreen, with an on/off button. Artworks without an effect tag are unchanged.
+- **Pixivision articles per page** — Pages mode has a dropdown for 10, 20, 30, 50 or 100 articles.
+
+### Improvements
+
+- **Open artist gallery from a tab** — selects the artist, scrolls the artist list to them, jumps to the artwork in their gallery and outlines it; the viewer counter shows its real position instead of 1 / 1.
+- **Gallery hover outline** — the card outline is drawn on all four sides.
+
+All theme animations stay off with Reduce motion.
+
+---
+
 ## Pikura 2.6.7
 
 More Library fixes, contributed by @bailong-Hakuryu in #25.

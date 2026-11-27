@@ -2,6 +2,21 @@
 
 All notable changes to Pikura are documented in this file.
 
+## [2.6.8]
+
+### Added
+
+- `SeasonalTheme` / `SeasonalParticles`: Season, Holiday and Anime themes with Light/Dark palettes, intensity, corner scenery, falling decorations, built-in `PixelSprite` motif sprites and per-character ambient effects (lightning, embers, ripples, mist, wind, sparkles, rising, Dragon Balls). Settings: `SeasonalTheme`, `HolidayTheme`, `AnimeTheme`, `ThemeColorsFrom`, `ThemeMixDecorations`, `ThemeBlendAccent`, `SeasonalTint`, `SeasonalIntensity`, `SeasonalScenery`, `SeasonalEffects`.
+- Overlay occlusion: corner scenery hides and the sprite moves to the nearest clear spot, avoiding buttons (including disabled), inputs, text, images and tag chips.
+- `PixivEffects` / `EffectParticles`: effect-tag recognition (`pixiv…Effect`, `pixiv<Name><year>`) and per-tag overlays in the inline viewer and fullscreen; `ShowPixivEffects` setting.
+- Pixivision Pages mode articles-per-page selector.
+- Tests: `SeasonalThemeTests`, `PixivEffectsTests`.
+
+### Fixed
+
+- "Open artist gallery" clears a hiding artist filter, scrolls the artist list to the artist, reveals the artwork (`RevealArtworkAsync`) and adopts the tab into the gallery navigation list.
+- Gallery hover ring (`Border.hoverRing`) drawn above the card so all four sides show.
+
 ## [2.6.7]
 
 ### Fixed
