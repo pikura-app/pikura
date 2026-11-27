@@ -1576,10 +1576,14 @@ ShowPreview = true;
         var existing = Artists.FirstOrDefault(a => a.UserId == userId);
         if (existing != null)
         {
+            // An artist-list search that hides them would leave nothing to scroll to.
+            if (!FilteredArtists.Contains(existing) && !string.IsNullOrEmpty(ArtistFilter))
+                ArtistFilter = string.Empty;
             if (SelectedArtist?.UserId != existing.UserId)
                 SelectedArtist = existing;
             else
                 _artistLoadTask = LoadArtistArtworksAsync(existing);
+            RevealArtistRequested?.Invoke();
             await _artistLoadTask;
             return;
         }
@@ -1712,6 +1716,42 @@ ShowPreview = true;
         TotalPages = Math.Max(1, (int)Math.Ceiling(_navigableArtworks.Count / (double)perPage));
         var index = card == null ? -1 : _navigableArtworks.IndexOf(card);
         CurrentPage = index < 0 ? 1 : index / perPage + 1;
+    }
+
+    /// <summary>Asks the view to scroll the artist list to <see cref="SelectedArtist"/>.</summary>
+    public event Action? RevealArtistRequested;
+
+    /// <summary>Brings <paramref name="artworkId"/> into view in the current artist's gallery — turning
+    /// to its page, or loading up to 10 more pages until it appears — and briefly outlines it.</summary>
+    public async Task RevealArtworkAsync(string? artworkId)
+    {
+        if (string.IsNullOrEmpty(artworkId) || SelectedArtist is not { } artist) return;
+        var ct = _artworkLoadCts?.Token ?? CancellationToken.None;
+        ArtworkCardViewModel? card;
+        for (var loads = 0; (card = _navigableArtworks.FirstOrDefault(c => c.Id == artworkId)) == null; loads++)
+        {
+            // Loaded but hidden by a filter: more pages won't make it visible.
+            if (VisibleArtworks.Any(c => c.Id == artworkId)) return;
+            if (loads >= 10 || !CanLoadMore || ct.IsCancellationRequested
+                || !ReferenceEquals(SelectedArtist, artist)
+                || !await TryLoadMoreArtworksAsync(artist, ct))
+                return;
+            UpdateCache(artist);
+            SyncViewerTabNavList();
+        }
+        // Tabs showing this artwork now navigate the artist's gallery, so their counter shows the
+        // artwork's real position (e.g. 12 / 49) instead of 1 / 1.
+        foreach (var tab in ViewerTabs.Where(t => !t.IsCollage && t.Card?.Id == artworkId).ToList())
+            AdoptTabIntoGallery(tab);
+        if (UsePagination)
+        {
+            MovePageTo(card);
+            UpdatePagination();
+        }
+        ScrollAnchor.ScrollTo(card);
+        card.IsRevealed = true;
+        await Task.Delay(TimeSpan.FromSeconds(4));
+        card.IsRevealed = false;
     }
 
     [RelayCommand] private void SetGridView() => ViewMode = GalleryViewMode.Grid;
@@ -4015,6 +4055,8 @@ public partial class ArtworkCardViewModel : ObservableObject, ILanguageAware
     [ObservableProperty] private Bitmap? _thumbnail;
     [ObservableProperty] private bool _isFollowed;
     [ObservableProperty] private bool _isCurrentArtist;
+    /// <summary>Briefly outlines the card after "Open artist gallery" jumps to it.</summary>
+    [ObservableProperty] private bool _isRevealed;
     [ObservableProperty] private bool _isLocalFavorite;
     [ObservableProperty] private bool _isPixivBookmarked;
     [ObservableProperty] private bool _isPixivPrivateBookmark;

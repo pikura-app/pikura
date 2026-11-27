@@ -35,6 +35,17 @@
                             RenderTransformOrigin="0,0"
                             IsVisible="{Binding IsUgoira}"/>
 
+        <!-- pixiv effect tag animation, only for artworks that have one -->
+        <anim:EffectParticles Name="EffectOverlay" IsVisible="False"/>
+        <Button Name="EffectToggleBtn" Canvas.Left="20" Canvas.Top="20" IsVisible="False"
+                Click="OnToggleEffect" Padding="10,5" CornerRadius="6"
+                Background="#99000000" Foreground="White">
+            <StackPanel Orientation="Horizontal" Spacing="6">
+                <TextBlock Text="✨" FontSize="13" VerticalAlignment="Center" FontFamily="Segoe UI Emoji, Apple Color Emoji, Noto Color Emoji"/>
+                <TextBlock Text="{loc:Tr Viewer_PixivEffectShort}" FontSize="12" VerticalAlignment="Center"/>
+            </StackPanel>
+        </Button>
+
         <!-- Page counter — top-right, only for multi-page artworks -->
         <Border Canvas.Right="20" Canvas.Top="20"
                 IsVisible="{Binding HasMultiplePages}"

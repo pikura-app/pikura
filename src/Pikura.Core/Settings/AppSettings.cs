@@ -555,6 +555,37 @@ public sealed class AppSettings
     /// name such as "Indigo", "Purple", "Pink", "Red", "Orange", "Green", "Teal".</summary>
     public string AccentColor { get; set; } = "Default";
 
+    /// <summary>Season theming: "Off", "Auto" (follows the calendar) or a pinned season such as "Fall".</summary>
+    public string SeasonalTheme { get; set; } = "Off";
+
+    /// <summary>Holiday theming: "Off", "Auto" (follows the calendar) or a pinned holiday such as
+    /// "Christmas". An active holiday takes precedence over the season.</summary>
+    public string HolidayTheme { get; set; } = "Off";
+    /// <summary>"Off" or a character theme such as "Miku"; takes precedence over holidays and seasons.</summary>
+    public string AnimeTheme { get; set; } = "Off";
+    /// <summary>Which active theme sets the colors when several are on: "Auto" (anime, then holiday,
+    /// then season), "Anime", "Holiday" or "Season".</summary>
+    public string ThemeColorsFrom { get; set; } = "Auto";
+    /// <summary>Mix the decorations of every active theme instead of only the color theme's.</summary>
+    public bool ThemeMixDecorations { get; set; } = true;
+    /// <summary>Tint controls and borders toward the second active theme.</summary>
+    public bool ThemeBlendAccent { get; set; }
+
+    /// <summary>Tint the app's backgrounds and borders with the active season/holiday colors.</summary>
+    public bool SeasonalTint { get; set; } = true;
+
+    /// <summary>Strength of the seasonal tint: "Subtle", "Medium" or "Festive".</summary>
+    public string SeasonalIntensity { get; set; } = "Medium";
+
+    /// <summary>Show the season's decorations clustered in the window's corners.</summary>
+    public bool SeasonalScenery { get; set; } = true;
+
+    /// <summary>Animate pixiv effect tags (e.g. #pixivHalloweenEffect) over artworks that have one.</summary>
+    public bool ShowPixivEffects { get; set; } = true;
+
+    /// <summary>Drift the occasion's glyphs (snow, leaves…) across the window while seasonal theming is on.</summary>
+    public bool SeasonalEffects { get; set; } = true;
+
     /// <summary>When <see cref="Theme"/> is "Scheduled", the local time of day to switch to dark mode.</summary>
     public TimeSpan ThemeScheduleDarkStart { get; set; } = TimeSpan.FromHours(20);
 
@@ -787,6 +818,9 @@ public sealed class AppSettings
     /// autoloading while scrolling. Not persisted before — always silently reset to autoload on
     /// every restart regardless of what the user had picked.</summary>
     public bool PixivisionUsePagination { get; set; } = true;
+
+    /// <summary>Articles per Pixivision page; 0 uses pixivision's own page size.</summary>
+    public int PixivisionArticlesPerPage { get; set; }
 
     /// <summary>When true, History browses page-by-page instead of autoloading while scrolling
     /// (Default/flat mode only — Grouped/List mode always shows one date at a time).</summary>

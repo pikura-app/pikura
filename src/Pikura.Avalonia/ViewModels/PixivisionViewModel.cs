@@ -49,6 +49,98 @@ public partial class PixivisionViewModel : ViewModelBase
     [ObservableProperty] private bool _isAutoloadMode;
     [ObservableProperty] private string _pageInput = "";
     public bool HasPrevPage => ArticlePage > 1;
+
+    /// <summary>Articles-per-page choices; 0 means pixivision's own page size.</summary>
+    public static readonly int[] ArticlesPerPageValues = [0, 10, 20, 30, 50, 100];
+    public string[] ArticlesPerPageOptions => ArticlesPerPageValues
+        .Select(v => v == 0 ? Pikura.Avalonia.Localization.LocalizationService.Instance["Pixivision_PerPageDefault"] : v.ToString())
+        .ToArray();
+    [ObservableProperty] private int _articlesPerPageIndex;
+    private int ArticlesPerPage => ArticlesPerPageValues[Math.Clamp(ArticlesPerPageIndex, 0, ArticlesPerPageValues.Length - 1)];
+
+    /// <summary>Changing the page size keeps the topmost visible article in view, on whichever
+    /// page now contains it.</summary>
+    partial void OnArticlesPerPageIndexChanged(int oldValue, int newValue)
+    {
+        if (newValue < 0)
+        {
+            // The ComboBox clears its selection while the localized options are rebuilt.
+            Dispatcher.UIThread.Post(() => ArticlesPerPageIndex =
+                Math.Max(0, Array.IndexOf(ArticlesPerPageValues, _settingsService.Current.PixivisionArticlesPerPage)));
+            return;
+        }
+        var size = ArticlesPerPageValues[Math.Min(newValue, ArticlesPerPageValues.Length - 1)];
+        if (_settingsService.Current.PixivisionArticlesPerPage == size) return;
+        var oldSize = EffectivePageSize(_settingsService.Current.PixivisionArticlesPerPage);
+        _settingsService.Update(s => s.PixivisionArticlesPerPage = size);
+        if (IsFilteredByDate || IsAutoloadMode) return;
+        if (oldSize <= 0) { _ = ReloadAtAsync(1, null); return; }
+        var anchor = ScrollAnchor.Capture() as PixivisionArticleCardViewModel;
+        var index = (ArticlePage - 1) * oldSize + Math.Max(0, anchor != null ? Articles.IndexOf(anchor) : 0);
+        var newSize = EffectivePageSize(size);
+        var page = newSize > 0 ? index / newSize + 1 : 1;
+        _ = ReloadAtAsync(page, anchor);
+    }
+
+    private async Task ReloadAtAsync(int page, PixivisionArticleCardViewModel? anchor)
+    {
+        await LoadArticlesPageAsync(page, append: false);
+        if (anchor != null) ScrollAnchor.ScrollTo(() => Articles.FirstOrDefault(a => a.Id == anchor.Id));
+    }
+
+    // pixivision's own page size per listing (category, tag or search), learned from full pages.
+    private readonly Dictionary<string, int> _sitePageSize = new();
+    private string SourceKey => ActiveTag is { } t ? $"t:{t.Id}" : ActiveQuery is { } q ? $"s:{q}" : $"c:{SelectedCategory.Slug}";
+    private int EffectivePageSize(int perPage) =>
+        perPage > 0 ? perPage : _sitePageSize.GetValueOrDefault(SourceKey);
+
+    /// <summary>Fetches page <paramref name="page"/> of <see cref="ArticlesPerPage"/> articles by
+    /// stitching together the pixivision pages that cover it.</summary>
+    private async Task<PixivisionArticlePage> FetchListPageAsync(int page, CancellationToken ct)
+    {
+        var perPage = ArticlesPerPage;
+        var key = SourceKey;
+        if (perPage <= 0) return Learn(await FetchPageAsync(page, ct));
+
+        var cache = new Dictionary<int, PixivisionArticlePage>();
+        async Task<PixivisionArticlePage> Site(int p)
+        {
+            if (!cache.TryGetValue(p, out var r)) cache[p] = r = Learn(await FetchPageAsync(p, ct));
+            return r;
+        }
+        if (!_sitePageSize.ContainsKey(key)) await Site(1);
+        var siteSize = _sitePageSize.GetValueOrDefault(key);
+        if (siteSize <= 0) return await Site(1);
+
+        var start = (page - 1) * perPage;
+        var first = start / siteSize + 1;
+        var last = (start + perPage - 1) / siteSize + 1;
+        var items = new List<PixivisionArticleSummary>();
+        PixivisionArticlePage? head = null, tail = null;
+        for (var p = first; p <= last; p++)
+        {
+            tail = await Site(p);
+            head ??= tail;
+            items.AddRange(tail.Items);
+            if (!tail.HasNextPage) break;
+        }
+        var skip = start - (first - 1) * siteSize;
+        return new PixivisionArticlePage
+        {
+            Items = items.Skip(skip).Take(perPage).ToList(),
+            Page = page,
+            HasNextPage = items.Count > skip + perPage || tail is { HasNextPage: true },
+            Title = head?.Title,
+            MonthlyRanking = head?.MonthlyRanking ?? [],
+            Featured = head?.Featured ?? [],
+        };
+
+        PixivisionArticlePage Learn(PixivisionArticlePage r)
+        {
+            if (r.HasNextPage && r.Items.Count > 0) _sitePageSize[key] = r.Items.Count;
+            return r;
+        }
+    }
     partial void OnArticlePageChanged(int value)
     {
         OnPropertyChanged(nameof(PageLabel));
@@ -598,6 +690,7 @@ public partial class PixivisionViewModel : ViewModelBase
         _cardSize = _settingsService.Current.CardSize;
         _showBadges = _settingsService.Current.ShowBadges;
         _isAutoloadMode = !_settingsService.Current.PixivisionUsePagination;
+        _articlesPerPageIndex = Math.Max(0, Array.IndexOf(ArticlesPerPageValues, _settingsService.Current.PixivisionArticlesPerPage));
         _sidebarWidth = Math.Clamp(_settingsService.Current.PixivisionSidebarWidth, 200, 520);
 
         Pikura.Avalonia.Localization.LocalizationService.Instance.PropertyChanged += (_, e) =>
@@ -608,7 +701,8 @@ public partial class PixivisionViewModel : ViewModelBase
             {
                 foreach (var n in new[] { nameof(DateLabel), nameof(SavedArticlesButtonLabel), nameof(InlineArtworkLayoutLabel),
                                           nameof(SidePanelLabel), nameof(RelatedLatestHeading), nameof(RelatedPopularHeading), nameof(PageLabel),
-                                          nameof(HistoryButtonLabel), nameof(ClearHistoryMessage), nameof(ActiveSourceLabel), nameof(SaveArticleButtonLabel) })
+                                          nameof(HistoryButtonLabel), nameof(ClearHistoryMessage), nameof(ActiveSourceLabel), nameof(SaveArticleButtonLabel),
+                                          nameof(ArticlesPerPageOptions) })
                     OnPropertyChanged(n);
                 if (IsViewingHistory) RefreshHistory(); else _historyDirty = true;
                 // Stay on the same page, and re-fetch an open article so its text switches too.
@@ -690,7 +784,7 @@ public partial class PixivisionViewModel : ViewModelBase
 
         try
         {
-            var result = await FetchPageAsync(page, cts.Token);
+            var result = await FetchListPageAsync(page, cts.Token);
             if (cts.IsCancellationRequested) return;
 
             ArticlePage = result.Page;

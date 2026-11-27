@@ -3,6 +3,7 @@
         xmlns:actipro="http://schemas.actiprosoftware.com/avaloniaui"
         xmlns:vm="using:Pikura.Avalonia.ViewModels"
         xmlns:loc="using:Pikura.Avalonia.Localization"
+        xmlns:controls="using:Pikura.Avalonia.Controls"
         xmlns:chrome="using:Avalonia.Controls.Chrome"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -483,6 +484,7 @@
                     ToolTip.Tip="{loc:Tr Main_ToggleSidebar}">
                 <PathIcon Data="{StaticResource HamburgerIcon}" Width="16" Height="16" Foreground="{Binding $parent[Button].Foreground}" />
             </Button>
+            <controls:SeasonalParticles Grid.RowSpan="10" Grid.ColumnSpan="10" ZIndex="1000"/>
     </Grid>
     </Border>
 

@@ -115,20 +115,102 @@ public partial class App : Application
         }
 
         Current.RequestedThemeVariant = variant;
-        ApplyAccent(settings.Current.AccentColor);
+        var now = DateTime.Now;
+        var occasion = Pikura.Avalonia.Services.SeasonalTheme.For(settings.Current, now);
+        var secondary = settings.Current.ThemeBlendAccent
+            ? Pikura.Avalonia.Services.SeasonalTheme.Secondary(settings.Current, now) : null;
+        ApplyAccent(occasion?.Accent ?? settings.Current.AccentColor);
+        Pikura.Avalonia.Services.SeasonalTheme.Update(
+            Pikura.Avalonia.Services.SeasonalTheme.Decorations(settings.Current, now),
+            settings.Current.SeasonalEffects && !settings.Current.ReduceMotion,
+            settings.Current.SeasonalScenery, settings.Current.SeasonalIntensity);
+        ApplySeasonalTint(settings.Current.SeasonalTint ? occasion : null, secondary, settings.Current.SeasonalIntensity);
 
-        if (theme == "Scheduled" && _themeTimer is null)
+        // Re-evaluated every minute for the dark-mode schedule and for "Auto" seasonal changeovers.
+        var needsTimer = theme == "Scheduled"
+            || settings.Current.SeasonalTheme == "Auto" || settings.Current.HolidayTheme == "Auto";
+        if (needsTimer && _themeTimer is null)
         {
             _themeTimer = new DispatcherTimer(TimeSpan.FromMinutes(1), DispatcherPriority.Background, (_, _) => ApplyTheme())
             {
                 IsEnabled = true
             };
         }
-        else if (theme != "Scheduled")
+        else if (!needsTimer)
         {
             _themeTimer?.Stop();
             _themeTimer = null;
         }
+    }
+
+    // Brush keys tinted by seasonal themes: which palette tone (0 window, 1 panels/cards, 2 controls)
+    // and how far each moves toward it at "Festive" (dark mode, light mode). Lower intensities scale these.
+    private static readonly (string Key, int Tone, double Dark, double Light)[] SeasonalTintKeys =
+    [
+        ("WindowBackgroundBrush", 0, 0.90, 0.85),
+        ("SystemChromeLowColor", 0, 0.90, 0.85),
+        ("Container4BackgroundBrush", 0, 0.90, 0.85),
+        ("Container1BackgroundBrush", 1, 0.85, 0.60),
+        ("Container3BackgroundBrush", 1, 0.85, 0.60),
+        ("ImageCanvasBackgroundBrush", 1, 0.70, 0.60),
+        ("Container2BackgroundBrush", 2, 0.85, 0.75),
+        ("ControlBackgroundBrush", 2, 0.85, 0.75),
+        ("ControlBackgroundBrushSoftAccent", 2, 0.70, 0.70),
+        ("ControlBackgroundBrushSelected", 2, 0.70, 0.70),
+        ("Container1BorderBrush", 2, 0.75, 0.70),
+        ("Container2BorderBrush", 2, 0.75, 0.70),
+        ("Container3BorderBrush", 2, 0.75, 0.70),
+        ("Container4BorderBrush", 2, 0.75, 0.70),
+        ("ControlBorderBrush", 2, 0.75, 0.70),
+    ];
+    private static string? _appliedTint;
+
+    /// <summary>Overrides the light/dark palette's backgrounds and borders with versions blended
+    /// toward the occasion's tones for the current variant; null restores the normal palette.
+    /// Overrides go in the app's own resources, which take precedence over its theme dictionaries.</summary>
+    private static void ApplySeasonalTint(Pikura.Avalonia.Services.SeasonalOccasion? occasion,
+        Pikura.Avalonia.Services.SeasonalOccasion? accentFrom, string? intensity)
+    {
+        if (Current is null) return;
+        var dark = Current.ActualThemeVariant == ThemeVariant.Dark;
+        var scale = Pikura.Avalonia.Services.SeasonalTheme.IntensityScale(intensity);
+        var key = occasion == null ? null : $"{occasion.Key}+{accentFrom?.Key}:{(dark ? "Dark" : "Light")}:{scale}";
+        if (key == _appliedTint) return;
+        _appliedTint = key;
+
+        var resources = Current.Resources;
+        if (occasion == null)
+        {
+            foreach (var entry in SeasonalTintKeys) resources.Remove(entry.Key);
+            return;
+        }
+        if (!resources.ThemeDictionaries.TryGetValue(dark ? ThemeVariant.Dark : ThemeVariant.Light, out var provider)
+            || provider is not IResourceDictionary palette)
+            return;
+        var tones = (dark ? occasion.Dark : occasion.Light).Select(Color.Parse).ToArray();
+        // Accent blend: controls and borders (tone 2) take the second theme's tone.
+        if (accentFrom != null) tones[^1] = Color.Parse((dark ? accentFrom.Dark : accentFrom.Light)[^1]);
+        foreach (var (k, tone, darkAmount, lightAmount) in SeasonalTintKeys)
+        {
+            if (!palette.TryGetValue(k, out var value)) continue;
+            var amount = (dark ? darkAmount : lightAmount) * scale;
+            var target = tones[Math.Min(tone, tones.Length - 1)];
+            switch (value)
+            {
+                case SolidColorBrush { Color.A: > 0 } brush:
+                    resources[k] = new SolidColorBrush(Blend(brush.Color, target, amount));
+                    break;
+                case Color c:
+                    resources[k] = Blend(c, target, amount);
+                    break;
+            }
+        }
+
+        static Color Blend(Color from, Color to, double t) => Color.FromArgb(
+            from.A,
+            (byte)Math.Round(from.R + (to.R - from.R) * t),
+            (byte)Math.Round(from.G + (to.G - from.G) * t),
+            (byte)Math.Round(from.B + (to.B - from.B) * t));
     }
 
     // Accent currently baked into the generated Actipro brushes ("Default" = App.axaml as loaded).

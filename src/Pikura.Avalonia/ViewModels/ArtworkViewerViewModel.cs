@@ -43,6 +43,7 @@ public partial class ArtworkViewerViewModel : ObservableObject
 
     public string ArtworkId => _artwork.Id;
     public string Title => _artwork.Title;
+    public IReadOnlyList<string> Tags => _artwork.Tags;
     public string ArtistName => _artwork.UserName;
     public string TypeLabel => _artwork.TypeLabel;
     public int PageCount => _pages.Count > 0 ? _pages.Count : _artwork.PageCount;

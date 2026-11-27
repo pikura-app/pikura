@@ -300,6 +300,9 @@
                             Name="ZoomInBtn" Click="OnZoomIn" ToolTip.Tip="{loc:Tr Viewer_ZoomIn}">
                         <PathIcon Data="{StaticResource PlusIcon}" Width="14" Height="14" VerticalAlignment="Center" Foreground="{Binding $parent[Button].Foreground}" />
                     </Button>
+                    <Button Classes="tb" Name="EffectToggleBtn" Click="OnToggleEffect" IsVisible="False">
+                        <TextBlock Text="✨" FontSize="13" VerticalAlignment="Center" FontFamily="Segoe UI Emoji, Apple Color Emoji, Noto Color Emoji"/>
+                    </Button>
 
                     <Rectangle Width="1" Height="16" Fill="{DynamicResource Container1BorderBrush}" Margin="4,0"/>
 
@@ -758,6 +761,9 @@
                         </TransformGroup>
                     </anim:AnimatedImage.RenderTransform>
                 </anim:AnimatedImage>
+
+                <!-- pixiv effect tag animation, only for artworks that have one -->
+                <anim:EffectParticles Name="EffectOverlay" IsVisible="False"/>
 
                 <!-- ── All-pages grid overlay (inline) ── -->
                 <Border Name="PageGridOverlay" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"

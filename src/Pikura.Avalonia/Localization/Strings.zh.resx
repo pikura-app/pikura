@@ -7352,4 +7352,358 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="History_BlurR18" xml:space="preserve"><value>模糊 R-18</value></data>
   <data name="History_BlurR18Tip" xml:space="preserve"><value>模糊 R-18 缩略图（点击卡片显示）</value></data>
   <data name="Viewer_StripNoR18Match" xml:space="preserve"><value>此列表中没有符合 R-18 筛选条件的作品</value></data>
+  <data name="Settings_SeasonalTheme" xml:space="preserve">
+    <value>季节主题</value>
+  </data>
+  <data name="Settings_SeasonalThemeHint" xml:space="preserve">
+    <value>按季节为应用着色。自动模式按日历切换。开启时会替换强调色。</value>
+  </data>
+  <data name="Settings_SeasonalEffects" xml:space="preserve">
+    <value>飘落装饰</value>
+  </data>
+  <data name="Settings_Seasonal_Off" xml:space="preserve">
+    <value>关闭</value>
+  </data>
+  <data name="Settings_Seasonal_Auto" xml:space="preserve">
+    <value>自动</value>
+  </data>
+  <data name="Settings_Seasonal_NewYear" xml:space="preserve">
+    <value>新年</value>
+  </data>
+  <data name="Settings_Seasonal_Valentines" xml:space="preserve">
+    <value>情人节</value>
+  </data>
+  <data name="Settings_Seasonal_Spring" xml:space="preserve">
+    <value>春季</value>
+  </data>
+  <data name="Settings_Seasonal_Summer" xml:space="preserve">
+    <value>夏季</value>
+  </data>
+  <data name="Settings_Seasonal_Halloween" xml:space="preserve">
+    <value>万圣节</value>
+  </data>
+  <data name="Settings_Seasonal_Fall" xml:space="preserve">
+    <value>秋季</value>
+  </data>
+  <data name="Settings_Seasonal_Thanksgiving" xml:space="preserve">
+    <value>感恩节</value>
+  </data>
+  <data name="Settings_Seasonal_Christmas" xml:space="preserve">
+    <value>圣诞节</value>
+  </data>
+  <data name="Settings_Seasonal_Winter" xml:space="preserve">
+    <value>冬季</value>
+  </data>
+  <data name="Settings_HolidayTheme" xml:space="preserve">
+    <value>节日主题</value>
+  </data>
+  <data name="Settings_HolidayThemeHint" xml:space="preserve">
+    <value>在圣诞节、感恩节、万圣节等节日为应用着色。节日期间优先于季节主题。</value>
+  </data>
+  <data name="Settings_SeasonalTint" xml:space="preserve">
+    <value>背景着色</value>
+  </data>
+  <data name="Settings_SeasonalSection" xml:space="preserve">
+    <value>主题</value>
+  </data>
+  <data name="Settings_SeasonalSectionHint" xml:space="preserve">
+    <value>用季节、节日或动漫角色装扮应用。启用多个时，由一个决定配色，装饰可以混合。主题启用时会替换上方的强调色。</value>
+  </data>
+  <data name="Settings_SeasonalSeason" xml:space="preserve">
+    <value>季节</value>
+  </data>
+  <data name="Settings_SeasonalHoliday" xml:space="preserve">
+    <value>节日</value>
+  </data>
+  <data name="Settings_SeasonalActive" xml:space="preserve">
+    <value>当前：</value>
+  </data>
+  <data name="Settings_SeasonalIntensity" xml:space="preserve">
+    <value>强度</value>
+  </data>
+  <data name="Settings_SeasonalIntensity_Subtle" xml:space="preserve">
+    <value>淡雅</value>
+  </data>
+  <data name="Settings_SeasonalIntensity_Medium" xml:space="preserve">
+    <value>适中</value>
+  </data>
+  <data name="Settings_SeasonalIntensity_Festive" xml:space="preserve">
+    <value>浓郁</value>
+  </data>
+  <data name="Settings_SeasonalScenery" xml:space="preserve">
+    <value>角落装饰</value>
+  </data>
+  <data name="Settings_SeasonalIntensityHint" xml:space="preserve">
+    <value>着色、角落装饰和飘落装饰的强度。</value>
+  </data>
+  <data name="Pixivision_PerPageDefault" xml:space="preserve">
+    <value>默认</value>
+  </data>
+  <data name="Pixivision_ArticlesPerPage" xml:space="preserve">
+    <value>每页文章数</value>
+  </data>
+  <data name="Viewer_PixivEffect" xml:space="preserve">
+    <value>pixiv 特效 (#{0})：点击开启或关闭</value>
+  </data>
+  <data name="Viewer_PixivEffectShort" xml:space="preserve">
+    <value>特效</value>
+  </data>
+  <data name="Settings_SeasonalAnime" xml:space="preserve">
+    <value>动漫</value>
+  </data>
+  <data name="Settings_AnimeThemeHint" xml:space="preserve">
+    <value>角色配色和装饰，优先于节日和季节</value>
+  </data>
+  <data name="Settings_Seasonal_Miku" xml:space="preserve">
+    <value>初音未来</value>
+  </data>
+  <data name="Settings_Seasonal_Quintuplets" xml:space="preserve">
+    <value>五等分的新娘（五人全员）</value>
+  </data>
+  <data name="Settings_Seasonal_Ichika" xml:space="preserve">
+    <value>中野一花</value>
+  </data>
+  <data name="Settings_Seasonal_Nino" xml:space="preserve">
+    <value>中野二乃</value>
+  </data>
+  <data name="Settings_Seasonal_MikuNakano" xml:space="preserve">
+    <value>中野三玖</value>
+  </data>
+  <data name="Settings_Seasonal_Yotsuba" xml:space="preserve">
+    <value>中野四叶</value>
+  </data>
+  <data name="Settings_Seasonal_Itsuki" xml:space="preserve">
+    <value>中野五月</value>
+  </data>
+  <data name="Settings_Seasonal_QuintupletsGroup" xml:space="preserve">
+    <value>五等分的新娘</value>
+  </data>
+  <data name="Settings_Seasonal_QuintupletsAll" xml:space="preserve">
+    <value>五人全员</value>
+  </data>
+  <data name="Settings_Seasonal_DemonSlayer" xml:space="preserve">
+    <value>鬼灭之刃（全员）</value>
+  </data>
+  <data name="Settings_Seasonal_Tanjiro" xml:space="preserve">
+    <value>灶门炭治郎</value>
+  </data>
+  <data name="Settings_Seasonal_Nezuko" xml:space="preserve">
+    <value>灶门祢豆子</value>
+  </data>
+  <data name="Settings_Seasonal_Zenitsu" xml:space="preserve">
+    <value>我妻善逸</value>
+  </data>
+  <data name="Settings_Seasonal_Inosuke" xml:space="preserve">
+    <value>嘴平伊之助</value>
+  </data>
+  <data name="Settings_Seasonal_Kanao" xml:space="preserve">
+    <value>栗花落香奈乎</value>
+  </data>
+  <data name="Settings_Seasonal_Giyu" xml:space="preserve">
+    <value>富冈义勇</value>
+  </data>
+  <data name="Settings_Seasonal_Shinobu" xml:space="preserve">
+    <value>蝴蝶忍</value>
+  </data>
+  <data name="Settings_Seasonal_Rengoku" xml:space="preserve">
+    <value>炼狱杏寿郎</value>
+  </data>
+  <data name="Settings_Seasonal_Tengen" xml:space="preserve">
+    <value>宇髓天元</value>
+  </data>
+  <data name="Settings_Seasonal_Mitsuri" xml:space="preserve">
+    <value>甘露寺蜜璃</value>
+  </data>
+  <data name="Settings_Seasonal_Muichiro" xml:space="preserve">
+    <value>时透无一郎</value>
+  </data>
+  <data name="Settings_Seasonal_Gyomei" xml:space="preserve">
+    <value>悲鸣屿行冥</value>
+  </data>
+  <data name="Settings_Seasonal_Sanemi" xml:space="preserve">
+    <value>不死川实弥</value>
+  </data>
+  <data name="Settings_Seasonal_Obanai" xml:space="preserve">
+    <value>伊黑小芭内</value>
+  </data>
+  <data name="Settings_Seasonal_DemonSlayerGroup" xml:space="preserve">
+    <value>鬼灭之刃</value>
+  </data>
+  <data name="Settings_Seasonal_DemonSlayerAll" xml:space="preserve">
+    <value>全员</value>
+  </data>
+  <data name="Settings_Seasonal_JJKGroup" xml:space="preserve">
+    <value>咒术回战</value>
+  </data>
+  <data name="Settings_Seasonal_JJK" xml:space="preserve">
+    <value>咒术回战（全员）</value>
+  </data>
+  <data name="Settings_Seasonal_Yuji" xml:space="preserve">
+    <value>虎杖悠仁</value>
+  </data>
+  <data name="Settings_Seasonal_Megumi" xml:space="preserve">
+    <value>伏黑惠</value>
+  </data>
+  <data name="Settings_Seasonal_Nobara" xml:space="preserve">
+    <value>钉崎野蔷薇</value>
+  </data>
+  <data name="Settings_Seasonal_Gojo" xml:space="preserve">
+    <value>五条悟</value>
+  </data>
+  <data name="Settings_Seasonal_Maki" xml:space="preserve">
+    <value>禅院真希</value>
+  </data>
+  <data name="Settings_Seasonal_Inumaki" xml:space="preserve">
+    <value>狗卷棘</value>
+  </data>
+  <data name="Settings_Seasonal_Panda" xml:space="preserve">
+    <value>熊猫</value>
+  </data>
+  <data name="Settings_Seasonal_Yuta" xml:space="preserve">
+    <value>乙骨忧太</value>
+  </data>
+  <data name="Settings_Seasonal_Sukuna" xml:space="preserve">
+    <value>两面宿傩</value>
+  </data>
+  <data name="Settings_Seasonal_NarutoGroup" xml:space="preserve">
+    <value>火影忍者</value>
+  </data>
+  <data name="Settings_Seasonal_Naruto" xml:space="preserve">
+    <value>火影忍者（全员）</value>
+  </data>
+  <data name="Settings_Seasonal_NarutoUzumaki" xml:space="preserve">
+    <value>漩涡鸣人</value>
+  </data>
+  <data name="Settings_Seasonal_Sasuke" xml:space="preserve">
+    <value>宇智波佐助</value>
+  </data>
+  <data name="Settings_Seasonal_SakuraHaruno" xml:space="preserve">
+    <value>春野樱</value>
+  </data>
+  <data name="Settings_Seasonal_Kakashi" xml:space="preserve">
+    <value>旗木卡卡西</value>
+  </data>
+  <data name="Settings_Seasonal_Itachi" xml:space="preserve">
+    <value>宇智波鼬</value>
+  </data>
+  <data name="Settings_Seasonal_Hinata" xml:space="preserve">
+    <value>日向雏田</value>
+  </data>
+  <data name="Settings_Seasonal_Gaara" xml:space="preserve">
+    <value>我爱罗</value>
+  </data>
+  <data name="Settings_Seasonal_Shikamaru" xml:space="preserve">
+    <value>奈良鹿丸</value>
+  </data>
+  <data name="Settings_Seasonal_Jiraiya" xml:space="preserve">
+    <value>自来也</value>
+  </data>
+  <data name="Settings_Seasonal_OnePieceGroup" xml:space="preserve">
+    <value>航海王</value>
+  </data>
+  <data name="Settings_Seasonal_OnePiece" xml:space="preserve">
+    <value>航海王（全员）</value>
+  </data>
+  <data name="Settings_Seasonal_Luffy" xml:space="preserve">
+    <value>蒙奇·D·路飞</value>
+  </data>
+  <data name="Settings_Seasonal_Zoro" xml:space="preserve">
+    <value>罗罗诺亚·索隆</value>
+  </data>
+  <data name="Settings_Seasonal_Nami" xml:space="preserve">
+    <value>娜美</value>
+  </data>
+  <data name="Settings_Seasonal_Usopp" xml:space="preserve">
+    <value>乌索普</value>
+  </data>
+  <data name="Settings_Seasonal_Sanji" xml:space="preserve">
+    <value>山治</value>
+  </data>
+  <data name="Settings_Seasonal_Chopper" xml:space="preserve">
+    <value>托尼托尼·乔巴</value>
+  </data>
+  <data name="Settings_Seasonal_Robin" xml:space="preserve">
+    <value>妮可·罗宾</value>
+  </data>
+  <data name="Settings_Seasonal_Franky" xml:space="preserve">
+    <value>弗兰奇</value>
+  </data>
+  <data name="Settings_Seasonal_Brook" xml:space="preserve">
+    <value>布鲁克</value>
+  </data>
+  <data name="Settings_Seasonal_Jinbe" xml:space="preserve">
+    <value>甚平</value>
+  </data>
+  <data name="Settings_Seasonal_Ace" xml:space="preserve">
+    <value>波特卡斯·D·艾斯</value>
+  </data>
+  <data name="Settings_Seasonal_Shanks" xml:space="preserve">
+    <value>香克斯</value>
+  </data>
+  <data name="Settings_Seasonal_DBZGroup" xml:space="preserve">
+    <value>龙珠Z</value>
+  </data>
+  <data name="Settings_Seasonal_DBZ" xml:space="preserve">
+    <value>龙珠Z（全员）</value>
+  </data>
+  <data name="Settings_Seasonal_Goku" xml:space="preserve">
+    <value>孙悟空</value>
+  </data>
+  <data name="Settings_Seasonal_Vegeta" xml:space="preserve">
+    <value>贝吉塔</value>
+  </data>
+  <data name="Settings_Seasonal_Gohan" xml:space="preserve">
+    <value>孙悟饭</value>
+  </data>
+  <data name="Settings_Seasonal_Piccolo" xml:space="preserve">
+    <value>比克</value>
+  </data>
+  <data name="Settings_Seasonal_Trunks" xml:space="preserve">
+    <value>特兰克斯</value>
+  </data>
+  <data name="Settings_Seasonal_Frieza" xml:space="preserve">
+    <value>弗利萨</value>
+  </data>
+  <data name="Settings_Seasonal_Cell" xml:space="preserve">
+    <value>沙鲁</value>
+  </data>
+  <data name="Settings_Seasonal_Buu" xml:space="preserve">
+    <value>魔人布欧</value>
+  </data>
+  <data name="Settings_Seasonal_Bulma" xml:space="preserve">
+    <value>布尔玛</value>
+  </data>
+  <data name="Settings_Seasonal_Krillin" xml:space="preserve">
+    <value>克林</value>
+  </data>
+  <data name="Settings_ThemeColorsFrom" xml:space="preserve">
+    <value>配色来源</value>
+  </data>
+  <data name="Settings_ThemeColorsFromHint" xml:space="preserve">
+    <value>用哪个主题决定应用配色</value>
+  </data>
+  <data name="Settings_ThemeColorsFrom_Auto" xml:space="preserve">
+    <value>自动</value>
+  </data>
+  <data name="Settings_ThemeColorsFrom_Anime" xml:space="preserve">
+    <value>动漫</value>
+  </data>
+  <data name="Settings_ThemeColorsFrom_Holiday" xml:space="preserve">
+    <value>节日</value>
+  </data>
+  <data name="Settings_ThemeColorsFrom_Season" xml:space="preserve">
+    <value>季节</value>
+  </data>
+  <data name="Settings_ThemeMixDecorations" xml:space="preserve">
+    <value>混合装饰</value>
+  </data>
+  <data name="Settings_ThemeMixDecorationsHint" xml:space="preserve">
+    <value>显示所有已启用主题的装饰（以配色主题为主）</value>
+  </data>
+  <data name="Settings_ThemeBlendAccent" xml:space="preserve">
+    <value>混合强调色</value>
+  </data>
+  <data name="Settings_ThemeBlendAccentHint" xml:space="preserve">
+    <value>控件和边框使用第二个主题的颜色</value>
+  </data>
 </root>

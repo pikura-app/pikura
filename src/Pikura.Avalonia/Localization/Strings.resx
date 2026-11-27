@@ -7416,4 +7416,358 @@ Saved to: {3}</value>
   <data name="History_BlurR18" xml:space="preserve"><value>Blur R-18</value></data>
   <data name="History_BlurR18Tip" xml:space="preserve"><value>Blur R-18 thumbnails (click a card to reveal it)</value></data>
   <data name="Viewer_StripNoR18Match" xml:space="preserve"><value>No artworks in this list match the R-18 filter</value></data>
+  <data name="Settings_SeasonalTheme" xml:space="preserve">
+    <value>Seasonal theme</value>
+  </data>
+  <data name="Settings_SeasonalThemeHint" xml:space="preserve">
+    <value>Colors the app for the season. Automatic follows the calendar. Replaces the accent color while on.</value>
+  </data>
+  <data name="Settings_SeasonalEffects" xml:space="preserve">
+    <value>Falling decorations</value>
+  </data>
+  <data name="Settings_Seasonal_Off" xml:space="preserve">
+    <value>Off</value>
+  </data>
+  <data name="Settings_Seasonal_Auto" xml:space="preserve">
+    <value>Automatic</value>
+  </data>
+  <data name="Settings_Seasonal_NewYear" xml:space="preserve">
+    <value>New Year</value>
+  </data>
+  <data name="Settings_Seasonal_Valentines" xml:space="preserve">
+    <value>Valentine's Day</value>
+  </data>
+  <data name="Settings_Seasonal_Spring" xml:space="preserve">
+    <value>Spring</value>
+  </data>
+  <data name="Settings_Seasonal_Summer" xml:space="preserve">
+    <value>Summer</value>
+  </data>
+  <data name="Settings_Seasonal_Halloween" xml:space="preserve">
+    <value>Halloween</value>
+  </data>
+  <data name="Settings_Seasonal_Fall" xml:space="preserve">
+    <value>Fall</value>
+  </data>
+  <data name="Settings_Seasonal_Thanksgiving" xml:space="preserve">
+    <value>Thanksgiving</value>
+  </data>
+  <data name="Settings_Seasonal_Christmas" xml:space="preserve">
+    <value>Christmas</value>
+  </data>
+  <data name="Settings_Seasonal_Winter" xml:space="preserve">
+    <value>Winter</value>
+  </data>
+  <data name="Settings_HolidayTheme" xml:space="preserve">
+    <value>Holiday theme</value>
+  </data>
+  <data name="Settings_HolidayThemeHint" xml:space="preserve">
+    <value>Colors the app for holidays like Christmas, Thanksgiving and Halloween. On those days it takes precedence over the season.</value>
+  </data>
+  <data name="Settings_SeasonalTint" xml:space="preserve">
+    <value>Tint backgrounds</value>
+  </data>
+  <data name="Settings_SeasonalSection" xml:space="preserve">
+    <value>Themes</value>
+  </data>
+  <data name="Settings_SeasonalSectionHint" xml:space="preserve">
+    <value>Dress the app up with seasons, holidays or an anime character. When several are on, one sets the colors and their decorations can mix. The accent color above is replaced while a theme is active.</value>
+  </data>
+  <data name="Settings_SeasonalSeason" xml:space="preserve">
+    <value>Season</value>
+  </data>
+  <data name="Settings_SeasonalHoliday" xml:space="preserve">
+    <value>Holiday</value>
+  </data>
+  <data name="Settings_SeasonalActive" xml:space="preserve">
+    <value>Active:</value>
+  </data>
+  <data name="Settings_SeasonalIntensity" xml:space="preserve">
+    <value>Intensity</value>
+  </data>
+  <data name="Settings_SeasonalIntensity_Subtle" xml:space="preserve">
+    <value>Subtle</value>
+  </data>
+  <data name="Settings_SeasonalIntensity_Medium" xml:space="preserve">
+    <value>Medium</value>
+  </data>
+  <data name="Settings_SeasonalIntensity_Festive" xml:space="preserve">
+    <value>Festive</value>
+  </data>
+  <data name="Settings_SeasonalScenery" xml:space="preserve">
+    <value>Corner decorations</value>
+  </data>
+  <data name="Settings_SeasonalIntensityHint" xml:space="preserve">
+    <value>How strong the tint, corner decorations and falling decorations are.</value>
+  </data>
+  <data name="Pixivision_PerPageDefault" xml:space="preserve">
+    <value>Default</value>
+  </data>
+  <data name="Pixivision_ArticlesPerPage" xml:space="preserve">
+    <value>Articles per page</value>
+  </data>
+  <data name="Viewer_PixivEffect" xml:space="preserve">
+    <value>pixiv effect (#{0}): click to turn on or off</value>
+  </data>
+  <data name="Viewer_PixivEffectShort" xml:space="preserve">
+    <value>Effect</value>
+  </data>
+  <data name="Settings_SeasonalAnime" xml:space="preserve">
+    <value>Anime</value>
+  </data>
+  <data name="Settings_AnimeThemeHint" xml:space="preserve">
+    <value>Character colors and decorations; takes precedence over holidays and seasons</value>
+  </data>
+  <data name="Settings_Seasonal_Miku" xml:space="preserve">
+    <value>Hatsune Miku</value>
+  </data>
+  <data name="Settings_Seasonal_Quintuplets" xml:space="preserve">
+    <value>The Quintuplets (all five)</value>
+  </data>
+  <data name="Settings_Seasonal_Ichika" xml:space="preserve">
+    <value>Ichika Nakano</value>
+  </data>
+  <data name="Settings_Seasonal_Nino" xml:space="preserve">
+    <value>Nino Nakano</value>
+  </data>
+  <data name="Settings_Seasonal_MikuNakano" xml:space="preserve">
+    <value>Miku Nakano</value>
+  </data>
+  <data name="Settings_Seasonal_Yotsuba" xml:space="preserve">
+    <value>Yotsuba Nakano</value>
+  </data>
+  <data name="Settings_Seasonal_Itsuki" xml:space="preserve">
+    <value>Itsuki Nakano</value>
+  </data>
+  <data name="Settings_Seasonal_QuintupletsGroup" xml:space="preserve">
+    <value>The Quintessential Quintuplets</value>
+  </data>
+  <data name="Settings_Seasonal_QuintupletsAll" xml:space="preserve">
+    <value>All five</value>
+  </data>
+  <data name="Settings_Seasonal_DemonSlayer" xml:space="preserve">
+    <value>Demon Slayer (all)</value>
+  </data>
+  <data name="Settings_Seasonal_Tanjiro" xml:space="preserve">
+    <value>Tanjiro Kamado</value>
+  </data>
+  <data name="Settings_Seasonal_Nezuko" xml:space="preserve">
+    <value>Nezuko Kamado</value>
+  </data>
+  <data name="Settings_Seasonal_Zenitsu" xml:space="preserve">
+    <value>Zenitsu Agatsuma</value>
+  </data>
+  <data name="Settings_Seasonal_Inosuke" xml:space="preserve">
+    <value>Inosuke Hashibira</value>
+  </data>
+  <data name="Settings_Seasonal_Kanao" xml:space="preserve">
+    <value>Kanao Tsuyuri</value>
+  </data>
+  <data name="Settings_Seasonal_Giyu" xml:space="preserve">
+    <value>Giyu Tomioka</value>
+  </data>
+  <data name="Settings_Seasonal_Shinobu" xml:space="preserve">
+    <value>Shinobu Kocho</value>
+  </data>
+  <data name="Settings_Seasonal_Rengoku" xml:space="preserve">
+    <value>Kyojuro Rengoku</value>
+  </data>
+  <data name="Settings_Seasonal_Tengen" xml:space="preserve">
+    <value>Tengen Uzui</value>
+  </data>
+  <data name="Settings_Seasonal_Mitsuri" xml:space="preserve">
+    <value>Mitsuri Kanroji</value>
+  </data>
+  <data name="Settings_Seasonal_Muichiro" xml:space="preserve">
+    <value>Muichiro Tokito</value>
+  </data>
+  <data name="Settings_Seasonal_Gyomei" xml:space="preserve">
+    <value>Gyomei Himejima</value>
+  </data>
+  <data name="Settings_Seasonal_Sanemi" xml:space="preserve">
+    <value>Sanemi Shinazugawa</value>
+  </data>
+  <data name="Settings_Seasonal_Obanai" xml:space="preserve">
+    <value>Obanai Iguro</value>
+  </data>
+  <data name="Settings_Seasonal_DemonSlayerGroup" xml:space="preserve">
+    <value>Demon Slayer</value>
+  </data>
+  <data name="Settings_Seasonal_DemonSlayerAll" xml:space="preserve">
+    <value>All characters</value>
+  </data>
+  <data name="Settings_Seasonal_JJKGroup" xml:space="preserve">
+    <value>Jujutsu Kaisen</value>
+  </data>
+  <data name="Settings_Seasonal_JJK" xml:space="preserve">
+    <value>Jujutsu Kaisen (all)</value>
+  </data>
+  <data name="Settings_Seasonal_Yuji" xml:space="preserve">
+    <value>Yuji Itadori</value>
+  </data>
+  <data name="Settings_Seasonal_Megumi" xml:space="preserve">
+    <value>Megumi Fushiguro</value>
+  </data>
+  <data name="Settings_Seasonal_Nobara" xml:space="preserve">
+    <value>Nobara Kugisaki</value>
+  </data>
+  <data name="Settings_Seasonal_Gojo" xml:space="preserve">
+    <value>Satoru Gojo</value>
+  </data>
+  <data name="Settings_Seasonal_Maki" xml:space="preserve">
+    <value>Maki Zenin</value>
+  </data>
+  <data name="Settings_Seasonal_Inumaki" xml:space="preserve">
+    <value>Toge Inumaki</value>
+  </data>
+  <data name="Settings_Seasonal_Panda" xml:space="preserve">
+    <value>Panda</value>
+  </data>
+  <data name="Settings_Seasonal_Yuta" xml:space="preserve">
+    <value>Yuta Okkotsu</value>
+  </data>
+  <data name="Settings_Seasonal_Sukuna" xml:space="preserve">
+    <value>Ryomen Sukuna</value>
+  </data>
+  <data name="Settings_Seasonal_NarutoGroup" xml:space="preserve">
+    <value>Naruto</value>
+  </data>
+  <data name="Settings_Seasonal_Naruto" xml:space="preserve">
+    <value>Naruto (all)</value>
+  </data>
+  <data name="Settings_Seasonal_NarutoUzumaki" xml:space="preserve">
+    <value>Naruto Uzumaki</value>
+  </data>
+  <data name="Settings_Seasonal_Sasuke" xml:space="preserve">
+    <value>Sasuke Uchiha</value>
+  </data>
+  <data name="Settings_Seasonal_SakuraHaruno" xml:space="preserve">
+    <value>Sakura Haruno</value>
+  </data>
+  <data name="Settings_Seasonal_Kakashi" xml:space="preserve">
+    <value>Kakashi Hatake</value>
+  </data>
+  <data name="Settings_Seasonal_Itachi" xml:space="preserve">
+    <value>Itachi Uchiha</value>
+  </data>
+  <data name="Settings_Seasonal_Hinata" xml:space="preserve">
+    <value>Hinata Hyuga</value>
+  </data>
+  <data name="Settings_Seasonal_Gaara" xml:space="preserve">
+    <value>Gaara</value>
+  </data>
+  <data name="Settings_Seasonal_Shikamaru" xml:space="preserve">
+    <value>Shikamaru Nara</value>
+  </data>
+  <data name="Settings_Seasonal_Jiraiya" xml:space="preserve">
+    <value>Jiraiya</value>
+  </data>
+  <data name="Settings_Seasonal_OnePieceGroup" xml:space="preserve">
+    <value>One Piece</value>
+  </data>
+  <data name="Settings_Seasonal_OnePiece" xml:space="preserve">
+    <value>One Piece (all)</value>
+  </data>
+  <data name="Settings_Seasonal_Luffy" xml:space="preserve">
+    <value>Monkey D. Luffy</value>
+  </data>
+  <data name="Settings_Seasonal_Zoro" xml:space="preserve">
+    <value>Roronoa Zoro</value>
+  </data>
+  <data name="Settings_Seasonal_Nami" xml:space="preserve">
+    <value>Nami</value>
+  </data>
+  <data name="Settings_Seasonal_Usopp" xml:space="preserve">
+    <value>Usopp</value>
+  </data>
+  <data name="Settings_Seasonal_Sanji" xml:space="preserve">
+    <value>Sanji</value>
+  </data>
+  <data name="Settings_Seasonal_Chopper" xml:space="preserve">
+    <value>Tony Tony Chopper</value>
+  </data>
+  <data name="Settings_Seasonal_Robin" xml:space="preserve">
+    <value>Nico Robin</value>
+  </data>
+  <data name="Settings_Seasonal_Franky" xml:space="preserve">
+    <value>Franky</value>
+  </data>
+  <data name="Settings_Seasonal_Brook" xml:space="preserve">
+    <value>Brook</value>
+  </data>
+  <data name="Settings_Seasonal_Jinbe" xml:space="preserve">
+    <value>Jinbe</value>
+  </data>
+  <data name="Settings_Seasonal_Ace" xml:space="preserve">
+    <value>Portgas D. Ace</value>
+  </data>
+  <data name="Settings_Seasonal_Shanks" xml:space="preserve">
+    <value>Shanks</value>
+  </data>
+  <data name="Settings_Seasonal_DBZGroup" xml:space="preserve">
+    <value>Dragon Ball Z</value>
+  </data>
+  <data name="Settings_Seasonal_DBZ" xml:space="preserve">
+    <value>Dragon Ball Z (all)</value>
+  </data>
+  <data name="Settings_Seasonal_Goku" xml:space="preserve">
+    <value>Goku</value>
+  </data>
+  <data name="Settings_Seasonal_Vegeta" xml:space="preserve">
+    <value>Vegeta</value>
+  </data>
+  <data name="Settings_Seasonal_Gohan" xml:space="preserve">
+    <value>Gohan</value>
+  </data>
+  <data name="Settings_Seasonal_Piccolo" xml:space="preserve">
+    <value>Piccolo</value>
+  </data>
+  <data name="Settings_Seasonal_Trunks" xml:space="preserve">
+    <value>Trunks</value>
+  </data>
+  <data name="Settings_Seasonal_Frieza" xml:space="preserve">
+    <value>Frieza</value>
+  </data>
+  <data name="Settings_Seasonal_Cell" xml:space="preserve">
+    <value>Cell</value>
+  </data>
+  <data name="Settings_Seasonal_Buu" xml:space="preserve">
+    <value>Majin Buu</value>
+  </data>
+  <data name="Settings_Seasonal_Bulma" xml:space="preserve">
+    <value>Bulma</value>
+  </data>
+  <data name="Settings_Seasonal_Krillin" xml:space="preserve">
+    <value>Krillin</value>
+  </data>
+  <data name="Settings_ThemeColorsFrom" xml:space="preserve">
+    <value>Colors from</value>
+  </data>
+  <data name="Settings_ThemeColorsFromHint" xml:space="preserve">
+    <value>Which active theme sets the app colors</value>
+  </data>
+  <data name="Settings_ThemeColorsFrom_Auto" xml:space="preserve">
+    <value>Automatic</value>
+  </data>
+  <data name="Settings_ThemeColorsFrom_Anime" xml:space="preserve">
+    <value>Anime</value>
+  </data>
+  <data name="Settings_ThemeColorsFrom_Holiday" xml:space="preserve">
+    <value>Holiday</value>
+  </data>
+  <data name="Settings_ThemeColorsFrom_Season" xml:space="preserve">
+    <value>Season</value>
+  </data>
+  <data name="Settings_ThemeMixDecorations" xml:space="preserve">
+    <value>Mix decorations</value>
+  </data>
+  <data name="Settings_ThemeMixDecorationsHint" xml:space="preserve">
+    <value>Show decorations from every active theme, mostly the color theme's</value>
+  </data>
+  <data name="Settings_ThemeBlendAccent" xml:space="preserve">
+    <value>Blend accents</value>
+  </data>
+  <data name="Settings_ThemeBlendAccentHint" xml:space="preserve">
+    <value>Tint controls and borders with the second theme's color</value>
+  </data>
 </root>

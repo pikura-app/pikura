@@ -120,6 +120,199 @@
                                 BorderBrush="{DynamicResource Container1BorderBrush}"
                                 BorderThickness="1" CornerRadius="8" Padding="28">
                             <StackPanel Spacing="20">
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <StackPanel Spacing="4">
+                                        <TextBlock Text="{loc:Tr Settings_SeasonalSection}" FontWeight="SemiBold" FontSize="14"/>
+                                        <TextBlock Text="{loc:Tr Settings_SeasonalSectionHint}" FontSize="12" TextWrapping="Wrap"
+                                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
+                                    </StackPanel>
+                                    <Border Grid.Column="1" VerticalAlignment="Top" Padding="10,4" CornerRadius="12" Background="{DynamicResource ControlBackgroundBrushSoftAccent}"
+                                            IsVisible="{Binding SeasonalThemeNow, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+                                        <StackPanel Orientation="Horizontal" Spacing="6">
+                                            <TextBlock Text="{Binding SeasonalThemeEmoji}" FontSize="16" VerticalAlignment="Center"
+                                                       FontFamily="Segoe UI Emoji, Apple Color Emoji, Noto Color Emoji"/>
+                                            <TextBlock FontSize="13" VerticalAlignment="Center">
+                                                <Run Text="{loc:Tr Settings_SeasonalActive}"/>
+                                                <Run Text="{Binding SeasonalThemeNow}" FontWeight="SemiBold"/>
+                                            </TextBlock>
+                                        </StackPanel>
+                                    </Border>
+                                </Grid>
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <TextBlock Text="{loc:Tr Settings_SeasonalSeason}" FontSize="13" VerticalAlignment="Center" MinWidth="110"/>
+                                    <ComboBox ItemsSource="{Binding AvailableSeasonalThemes}"
+                                              SelectedItem="{Binding SeasonalTheme, Mode=TwoWay}" MinWidth="180"
+                                              ToolTip.Tip="{loc:Tr Settings_SeasonalThemeHint}">
+                                        <ComboBox.ItemTemplate><DataTemplate><TextBlock>
+                                            <TextBlock.Text><MultiBinding Converter="{x:Static loc:LocLabelConverter.Instance}" ConverterParameter="Settings_Seasonal_">
+                                                <ReflectionBinding/>
+                                                <ReflectionBinding Path="Language" Source="{x:Static loc:LocalizationService.Instance}"/>
+                                            </MultiBinding></TextBlock.Text>
+                                        </TextBlock></DataTemplate></ComboBox.ItemTemplate>
+                                    </ComboBox>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <TextBlock Text="{loc:Tr Settings_SeasonalHoliday}" FontSize="13" VerticalAlignment="Center" MinWidth="110"/>
+                                    <ComboBox ItemsSource="{Binding AvailableHolidayThemes}"
+                                              SelectedItem="{Binding HolidayTheme, Mode=TwoWay}" MinWidth="180"
+                                              ToolTip.Tip="{loc:Tr Settings_HolidayThemeHint}">
+                                        <ComboBox.ItemTemplate><DataTemplate><TextBlock>
+                                            <TextBlock.Text><MultiBinding Converter="{x:Static loc:LocLabelConverter.Instance}" ConverterParameter="Settings_Seasonal_">
+                                                <ReflectionBinding/>
+                                                <ReflectionBinding Path="Language" Source="{x:Static loc:LocalizationService.Instance}"/>
+                                            </MultiBinding></TextBlock.Text>
+                                        </TextBlock></DataTemplate></ComboBox.ItemTemplate>
+                                    </ComboBox>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <TextBlock Text="{loc:Tr Settings_SeasonalAnime}" FontSize="13" VerticalAlignment="Center" MinWidth="110"/>
+                                    <Button MinWidth="180" HorizontalContentAlignment="Stretch" ToolTip.Tip="{loc:Tr Settings_AnimeThemeHint}">
+                                        <DockPanel>
+                                            <TextBlock DockPanel.Dock="Right" Text="▾" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                                            <TextBlock VerticalAlignment="Center">
+                                                <TextBlock.Text><MultiBinding Converter="{x:Static loc:LocLabelConverter.Instance}" ConverterParameter="Settings_Seasonal_">
+                                                    <Binding Path="AnimeTheme"/>
+                                                    <ReflectionBinding Path="Language" Source="{x:Static loc:LocalizationService.Instance}"/>
+                                                </MultiBinding></TextBlock.Text>
+                                            </TextBlock>
+                                        </DockPanel>
+                                        <Button.Flyout>
+                                            <MenuFlyout Placement="BottomEdgeAlignedLeft">
+                                                <MenuItem Header="{loc:Tr Settings_Seasonal_Off}" Command="{Binding SetAnimeThemeCommand}" CommandParameter="Off"/>
+                                                <MenuItem Header="{loc:Tr Settings_Seasonal_Miku}" Command="{Binding SetAnimeThemeCommand}" CommandParameter="Miku"/>
+                                                    <MenuItem Header="{loc:Tr Settings_Seasonal_QuintupletsGroup}">
+                                                    <MenuItem Header="{loc:Tr Settings_Seasonal_QuintupletsAll}" Command="{Binding SetAnimeThemeCommand}" CommandParameter="Quintuplets"/>
+                                                    <Separator/>
+                                                    <MenuItem Header="{loc:Tr Settings_Seasonal_Ichika}" Command="{Binding SetAnimeThemeCommand}" CommandParameter="Ichika"/>
+                                                    <MenuItem Header="{loc:Tr Settings_Seasonal_Nino}" Command="{Binding SetAnimeThemeCommand}" CommandParameter="Nino"/>
+                                                    <MenuItem Header="{loc:Tr Settings_Seasonal_MikuNakano}" Command="{Binding SetAnimeThemeCommand}" CommandParameter="MikuNakano"/>
+                                                    <MenuItem Header="{loc:Tr Settings_Seasonal_Yotsuba}" Command="{Binding SetAnimeThemeCommand}" CommandParameter="Yotsuba"/>
+                                                    <MenuItem Header="{loc:Tr Settings_Seasonal_Itsuki}" Command="{Binding SetAnimeThemeCommand}" CommandParameter="Itsuki"/>
+                                                </MenuItem>
+                                                <MenuItem Header="{loc:Tr Settings_Seasonal_DemonSlayerGroup}">
+                                                    <MenuItem Header="{loc:Tr Settings_Seasonal_DemonSlayerAll}" Command="{Binding SetAnimeThemeCommand}" CommandParameter="DemonSlayer"/>
+                                                    <Separator/>
+                                                    <MenuItem Header="{loc:Tr Settings_Seasonal_Tanjiro}" Command="{Binding SetAnimeThemeCommand}" CommandParameter="Tanjiro"/>
+                                                    <MenuItem Header="{loc:Tr Settings_Seasonal_Nezuko}" Command="{Binding SetAnimeThemeCommand}" CommandParameter="Nezuko"/>
+                                                    <MenuItem Header="{loc:Tr Settings_Seasonal_Zenitsu}" Command="{Binding SetAnimeThemeCommand}" CommandParameter="Zenitsu"/>
+                                                    <MenuItem Header="{loc:Tr Settings_Seasonal_Inosuke}" Command="{Binding SetAnimeThemeCommand}" CommandParameter="Inosuke"/>
+                                                    <MenuItem Header="{loc:Tr Settings_Seasonal_Kanao}" Command="{Binding SetAnimeThemeCommand}" CommandParameter="Kanao"/>
+                                                    <Separator/>
+                                                    <MenuItem Header="{loc:Tr Settings_Seasonal_Giyu}" Command="{Binding SetAnimeThemeCommand}" CommandParameter="Giyu"/>
+                                                    <MenuItem Header="{loc:Tr Settings_Seasonal_Shinobu}" Command="{Binding SetAnimeThemeCommand}" CommandParameter="Shinobu"/>
+                                                    <MenuItem Header="{loc:Tr Settings_Seasonal_Rengoku}" Command="{Binding SetAnimeThemeCommand}" CommandParameter="Rengoku"/>
+                                                    <MenuItem Header="{loc:Tr Settings_Seasonal_Tengen}" Command="{Binding SetAnimeThemeCommand}" CommandParameter="Tengen"/>
+                                                    <MenuItem Header="{loc:Tr Settings_Seasonal_Mitsuri}" Command="{Binding SetAnimeThemeCommand}" CommandParameter="Mitsuri"/>
+                                                    <MenuItem Header="{loc:Tr Settings_Seasonal_Muichiro}" Command="{Binding SetAnimeThemeCommand}" CommandParameter="Muichiro"/>
+                                                    <MenuItem Header="{loc:Tr Settings_Seasonal_Gyomei}" Command="{Binding SetAnimeThemeCommand}" CommandParameter="Gyomei"/>
+                                                    <MenuItem Header="{loc:Tr Settings_Seasonal_Sanemi}" Command="{Binding SetAnimeThemeCommand}" CommandParameter="Sanemi"/>
+                                                    <MenuItem Header="{loc:Tr Settings_Seasonal_Obanai}" Command="{Binding SetAnimeThemeCommand}" CommandParameter="Obanai"/>
+                                                </MenuItem>
+                                                <MenuItem Header="{loc:Tr Settings_Seasonal_JJKGroup}">
+                                                    <MenuItem Header="{loc:Tr Settings_Seasonal_DemonSlayerAll}" Command="{Binding SetAnimeThemeCommand}" CommandParameter="JJK"/>
+                                                    <Separator/>
+                                                    <MenuItem Header="{loc:Tr Settings_Seasonal_Yuji}" Command="{Binding SetAnimeThemeCommand}" CommandParameter="Yuji"/>
+                                                    <MenuItem Header="{loc:Tr Settings_Seasonal_Megumi}" Command="{Binding SetAnimeThemeCommand}" CommandParameter="Megumi"/>
+                                                    <MenuItem Header="{loc:Tr Settings_Seasonal_Nobara}" Command="{Binding SetAnimeThemeCommand}" CommandParameter="Nobara"/>
+                                                    <MenuItem Header="{loc:Tr Settings_Seasonal_Gojo}" Command="{Binding SetAnimeThemeCommand}" CommandParameter="Gojo"/>
+                                                    <MenuItem Header="{loc:Tr Settings_Seasonal_Maki}" Command="{Binding SetAnimeThemeCommand}" CommandParameter="Maki"/>
+                                                    <MenuItem Header="{loc:Tr Settings_Seasonal_Inumaki}" Command="{Binding SetAnimeThemeCommand}" CommandParameter="Inumaki"/>
+                                                    <MenuItem Header="{loc:Tr Settings_Seasonal_Panda}" Command="{Binding SetAnimeThemeCommand}" CommandParameter="Panda"/>
+                                                    <MenuItem Header="{loc:Tr Settings_Seasonal_Yuta}" Command="{Binding SetAnimeThemeCommand}" CommandParameter="Yuta"/>
+                                                    <MenuItem Header="{loc:Tr Settings_Seasonal_Sukuna}" Command="{Binding SetAnimeThemeCommand}" CommandParameter="Sukuna"/>
+                                                </MenuItem>
+                                                <MenuItem Header="{loc:Tr Settings_Seasonal_NarutoGroup}">
+                                                    <MenuItem Header="{loc:Tr Settings_Seasonal_DemonSlayerAll}" Command="{Binding SetAnimeThemeCommand}" CommandParameter="Naruto"/>
+                                                    <Separator/>
+                                                    <MenuItem Header="{loc:Tr Settings_Seasonal_NarutoUzumaki}" Command="{Binding SetAnimeThemeCommand}" CommandParameter="NarutoUzumaki"/>
+                                                    <MenuItem Header="{loc:Tr Settings_Seasonal_Sasuke}" Command="{Binding SetAnimeThemeCommand}" CommandParameter="Sasuke"/>
+                                                    <MenuItem Header="{loc:Tr Settings_Seasonal_SakuraHaruno}" Command="{Binding SetAnimeThemeCommand}" CommandParameter="SakuraHaruno"/>
+                                                    <MenuItem Header="{loc:Tr Settings_Seasonal_Kakashi}" Command="{Binding SetAnimeThemeCommand}" CommandParameter="Kakashi"/>
+                                                    <MenuItem Header="{loc:Tr Settings_Seasonal_Itachi}" Command="{Binding SetAnimeThemeCommand}" CommandParameter="Itachi"/>
+                                                    <MenuItem Header="{loc:Tr Settings_Seasonal_Hinata}" Command="{Binding SetAnimeThemeCommand}" CommandParameter="Hinata"/>
+                                                    <MenuItem Header="{loc:Tr Settings_Seasonal_Gaara}" Command="{Binding SetAnimeThemeCommand}" CommandParameter="Gaara"/>
+                                                    <MenuItem Header="{loc:Tr Settings_Seasonal_Shikamaru}" Command="{Binding SetAnimeThemeCommand}" CommandParameter="Shikamaru"/>
+                                                    <MenuItem Header="{loc:Tr Settings_Seasonal_Jiraiya}" Command="{Binding SetAnimeThemeCommand}" CommandParameter="Jiraiya"/>
+                                                </MenuItem>
+                                                <MenuItem Header="{loc:Tr Settings_Seasonal_OnePieceGroup}">
+                                                    <MenuItem Header="{loc:Tr Settings_Seasonal_DemonSlayerAll}" Command="{Binding SetAnimeThemeCommand}" CommandParameter="OnePiece"/>
+                                                    <Separator/>
+                                                    <MenuItem Header="{loc:Tr Settings_Seasonal_Luffy}" Command="{Binding SetAnimeThemeCommand}" CommandParameter="Luffy"/>
+                                                    <MenuItem Header="{loc:Tr Settings_Seasonal_Zoro}" Command="{Binding SetAnimeThemeCommand}" CommandParameter="Zoro"/>
+                                                    <MenuItem Header="{loc:Tr Settings_Seasonal_Nami}" Command="{Binding SetAnimeThemeCommand}" CommandParameter="Nami"/>
+                                                    <MenuItem Header="{loc:Tr Settings_Seasonal_Usopp}" Command="{Binding SetAnimeThemeCommand}" CommandParameter="Usopp"/>
+                                                    <MenuItem Header="{loc:Tr Settings_Seasonal_Sanji}" Command="{Binding SetAnimeThemeCommand}" CommandParameter="Sanji"/>
+                                                    <MenuItem Header="{loc:Tr Settings_Seasonal_Chopper}" Command="{Binding SetAnimeThemeCommand}" CommandParameter="Chopper"/>
+                                                    <MenuItem Header="{loc:Tr Settings_Seasonal_Robin}" Command="{Binding SetAnimeThemeCommand}" CommandParameter="Robin"/>
+                                                    <MenuItem Header="{loc:Tr Settings_Seasonal_Franky}" Command="{Binding SetAnimeThemeCommand}" CommandParameter="Franky"/>
+                                                    <MenuItem Header="{loc:Tr Settings_Seasonal_Brook}" Command="{Binding SetAnimeThemeCommand}" CommandParameter="Brook"/>
+                                                    <MenuItem Header="{loc:Tr Settings_Seasonal_Jinbe}" Command="{Binding SetAnimeThemeCommand}" CommandParameter="Jinbe"/>
+                                                    <Separator/>
+                                                    <MenuItem Header="{loc:Tr Settings_Seasonal_Ace}" Command="{Binding SetAnimeThemeCommand}" CommandParameter="Ace"/>
+                                                    <MenuItem Header="{loc:Tr Settings_Seasonal_Shanks}" Command="{Binding SetAnimeThemeCommand}" CommandParameter="Shanks"/>
+                                                </MenuItem>
+                                                <MenuItem Header="{loc:Tr Settings_Seasonal_DBZGroup}">
+                                                    <MenuItem Header="{loc:Tr Settings_Seasonal_DemonSlayerAll}" Command="{Binding SetAnimeThemeCommand}" CommandParameter="DBZ"/>
+                                                    <Separator/>
+                                                    <MenuItem Header="{loc:Tr Settings_Seasonal_Goku}" Command="{Binding SetAnimeThemeCommand}" CommandParameter="Goku"/>
+                                                    <MenuItem Header="{loc:Tr Settings_Seasonal_Vegeta}" Command="{Binding SetAnimeThemeCommand}" CommandParameter="Vegeta"/>
+                                                    <MenuItem Header="{loc:Tr Settings_Seasonal_Gohan}" Command="{Binding SetAnimeThemeCommand}" CommandParameter="Gohan"/>
+                                                    <MenuItem Header="{loc:Tr Settings_Seasonal_Piccolo}" Command="{Binding SetAnimeThemeCommand}" CommandParameter="Piccolo"/>
+                                                    <MenuItem Header="{loc:Tr Settings_Seasonal_Trunks}" Command="{Binding SetAnimeThemeCommand}" CommandParameter="Trunks"/>
+                                                    <MenuItem Header="{loc:Tr Settings_Seasonal_Frieza}" Command="{Binding SetAnimeThemeCommand}" CommandParameter="Frieza"/>
+                                                    <MenuItem Header="{loc:Tr Settings_Seasonal_Cell}" Command="{Binding SetAnimeThemeCommand}" CommandParameter="Cell"/>
+                                                    <MenuItem Header="{loc:Tr Settings_Seasonal_Buu}" Command="{Binding SetAnimeThemeCommand}" CommandParameter="Buu"/>
+                                                    <MenuItem Header="{loc:Tr Settings_Seasonal_Bulma}" Command="{Binding SetAnimeThemeCommand}" CommandParameter="Bulma"/>
+                                                    <MenuItem Header="{loc:Tr Settings_Seasonal_Krillin}" Command="{Binding SetAnimeThemeCommand}" CommandParameter="Krillin"/>
+                                                </MenuItem>
+                                            </MenuFlyout>
+                                        </Button.Flyout>
+                                    </Button>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Spacing="10" IsVisible="{Binding HasMultipleThemes}">
+                                    <TextBlock Text="{loc:Tr Settings_ThemeColorsFrom}" FontSize="13" VerticalAlignment="Center" MinWidth="110"/>
+                                    <ComboBox ItemsSource="{Binding AvailableThemeColorsFrom}"
+                                              SelectedItem="{Binding ThemeColorsFrom, Mode=TwoWay}" MinWidth="180"
+                                              ToolTip.Tip="{loc:Tr Settings_ThemeColorsFromHint}">
+                                        <ComboBox.ItemTemplate><DataTemplate><TextBlock>
+                                            <TextBlock.Text><MultiBinding Converter="{x:Static loc:LocLabelConverter.Instance}" ConverterParameter="Settings_ThemeColorsFrom_">
+                                                <ReflectionBinding/>
+                                                <ReflectionBinding Path="Language" Source="{x:Static loc:LocalizationService.Instance}"/>
+                                            </MultiBinding></TextBlock.Text>
+                                        </TextBlock></DataTemplate></ComboBox.ItemTemplate>
+                                    </ComboBox>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Spacing="10" IsVisible="{Binding IsSeasonalThemeOn}">
+                                    <TextBlock Text="{loc:Tr Settings_SeasonalIntensity}" FontSize="13" VerticalAlignment="Center" MinWidth="110"/>
+                                    <ComboBox ItemsSource="{Binding AvailableSeasonalIntensities}"
+                                              SelectedItem="{Binding SeasonalIntensity, Mode=TwoWay}" MinWidth="180"
+                                              ToolTip.Tip="{loc:Tr Settings_SeasonalIntensityHint}">
+                                        <ComboBox.ItemTemplate><DataTemplate><TextBlock>
+                                            <TextBlock.Text><MultiBinding Converter="{x:Static loc:LocLabelConverter.Instance}" ConverterParameter="Settings_SeasonalIntensity_">
+                                                <ReflectionBinding/>
+                                                <ReflectionBinding Path="Language" Source="{x:Static loc:LocalizationService.Instance}"/>
+                                            </MultiBinding></TextBlock.Text>
+                                        </TextBlock></DataTemplate></ComboBox.ItemTemplate>
+                                    </ComboBox>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Spacing="16" IsVisible="{Binding IsSeasonalThemeOn}">
+                                    <CheckBox Content="{loc:Tr Settings_SeasonalTint}" IsChecked="{Binding SeasonalTint}"/>
+                                    <CheckBox Content="{loc:Tr Settings_SeasonalScenery}" IsChecked="{Binding SeasonalScenery}"/>
+                                    <CheckBox Content="{loc:Tr Settings_SeasonalEffects}" IsChecked="{Binding SeasonalEffects}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Spacing="16" IsVisible="{Binding HasMultipleThemes}">
+                                    <CheckBox Content="{loc:Tr Settings_ThemeMixDecorations}" IsChecked="{Binding ThemeMixDecorations}"
+                                              ToolTip.Tip="{loc:Tr Settings_ThemeMixDecorationsHint}"/>
+                                    <CheckBox Content="{loc:Tr Settings_ThemeBlendAccent}" IsChecked="{Binding ThemeBlendAccent}"
+                                              ToolTip.Tip="{loc:Tr Settings_ThemeBlendAccentHint}"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Background="{DynamicResource Container1BackgroundBrush}"
+                                BorderBrush="{DynamicResource Container1BorderBrush}"
+                                BorderThickness="1" CornerRadius="8" Padding="28">
+                            <StackPanel Spacing="20">
                                 <TextBlock Text="{loc:Tr Settings_Accessibility}" FontWeight="SemiBold" FontSize="14"/>
                                 <WrapPanel>
                                     <CheckBox Content="{loc:Tr Settings_HighContrast}" IsChecked="{Binding UseHighContrast, Mode=TwoWay}"

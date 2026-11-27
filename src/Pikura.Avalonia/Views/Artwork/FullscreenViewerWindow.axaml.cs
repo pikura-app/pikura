@@ -72,8 +72,14 @@ public partial class FullscreenViewerWindow : Window
             _ugoiraFitted = true;
             FitToCanvas();
         };
+        DataContextChanged += (_, _) => UpdateEffectOverlay();
         Canvas.SizeChanged += (_, _) =>
         {
+            if (EffectOverlay is not null)
+            {
+                EffectOverlay.Width = Canvas.Bounds.Width;
+                EffectOverlay.Height = Canvas.Bounds.Height;
+            }
             if (PageGridOverlay is not null)
             {
                 PageGridOverlay.Width = Canvas.Bounds.Width;
@@ -1311,5 +1317,34 @@ public partial class FullscreenViewerWindow : Window
         if (nextIdx < 0 || nextIdx >= list.Count) return;
 
         ShowCard(list[nextIdx], list[nextIdx].Thumbnail);
+    }
+
+    /// <summary>Shows the pixiv effect for the artwork's effect tag, if it has one and effects are on.</summary>
+    private void UpdateEffectOverlay()
+    {
+        var tags = (DataContext as ArtworkViewerViewModel)?.Tags;
+        var glyphs = PixivEffects.GlyphsFor(tags);
+        var settings = AppServices.Get<Pikura.Core.Settings.SettingsService>().Current;
+        var on = glyphs != null && settings.ShowPixivEffects && !settings.ReduceMotion;
+        if (EffectToggleBtn != null)
+        {
+            EffectToggleBtn.IsVisible = glyphs != null;
+            EffectToggleBtn.Opacity = on ? 1 : 0.6;
+            ToolTip.SetTip(EffectToggleBtn, Pikura.Avalonia.Localization.LocalizationService.F(
+                "Viewer_PixivEffect", PixivEffects.EffectTag(tags) ?? ""));
+        }
+        if (EffectOverlay != null)
+        {
+            EffectOverlay.Width = Canvas.Bounds.Width;
+            EffectOverlay.Height = Canvas.Bounds.Height;
+            EffectOverlay.Glyphs = on ? glyphs : null;
+            EffectOverlay.IsVisible = on;
+        }
+    }
+
+    private void OnToggleEffect(object? sender, global::Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        AppServices.Get<Pikura.Core.Settings.SettingsService>().Update(s => s.ShowPixivEffects = !s.ShowPixivEffects);
+        UpdateEffectOverlay();
     }
 }

@@ -1521,6 +1521,10 @@
                     </ToggleButton>
                     <StackPanel Orientation="Horizontal" Spacing="6"
                                 IsVisible="{Binding !IsAutoloadMode}">
+                        <ComboBox ItemsSource="{Binding ArticlesPerPageOptions}"
+                                  SelectedIndex="{Binding ArticlesPerPageIndex, Mode=TwoWay}"
+                                  CornerRadius="6" MinWidth="75" FontSize="11"
+                                  ToolTip.Tip="{loc:Tr Pixivision_ArticlesPerPage}"/>
                         <Button Content="{loc:Tr Search_Prev}" CornerRadius="6" Padding="10,5" FontSize="11"
                                 Command="{Binding PrevPageCommand}" IsEnabled="{Binding HasPrevPage}"/>
                         <TextBlock Text="{Binding PageLabel}" FontSize="11"

@@ -130,6 +130,119 @@ public partial class SettingsViewModel : ViewModelBase
         ? ["Default", "System", "Indigo", "Purple", "Pink", "Red", "Orange", "Green", "Teal"]
         : ["Default", "Indigo", "Purple", "Pink", "Red", "Orange", "Green", "Teal"];
 
+    [ObservableProperty] private string _seasonalTheme = "Off";
+    [ObservableProperty] private string _holidayTheme = "Off";
+    [ObservableProperty] private string _animeTheme = "Off";
+    [ObservableProperty] private string _themeColorsFrom = "Auto";
+    [ObservableProperty] private bool _themeMixDecorations = true;
+    [ObservableProperty] private bool _themeBlendAccent;
+    public string[] AvailableThemeColorsFrom => Pikura.Avalonia.Services.SeasonalTheme.ColorsFromOptions;
+    /// <summary>More than one theme is in effect, so the combining options apply.</summary>
+    public bool HasMultipleThemes => Pikura.Avalonia.Services.SeasonalTheme.Active(_settingsService.Current, DateTime.Now).Count > 1;
+
+    partial void OnThemeColorsFromChanged(string value)
+    {
+        if (!string.IsNullOrEmpty(value) && _settingsService.Current.ThemeColorsFrom != value)
+            _settingsService.Update(s => s.ThemeColorsFrom = value);
+        SeasonalSettingsChanged();
+    }
+
+    partial void OnThemeMixDecorationsChanged(bool value)
+    {
+        if (_settingsService.Current.ThemeMixDecorations != value)
+            _settingsService.Update(s => s.ThemeMixDecorations = value);
+        SeasonalSettingsChanged();
+    }
+
+    partial void OnThemeBlendAccentChanged(bool value)
+    {
+        if (_settingsService.Current.ThemeBlendAccent != value)
+            _settingsService.Update(s => s.ThemeBlendAccent = value);
+        SeasonalSettingsChanged();
+    }
+    [ObservableProperty] private bool _seasonalEffects = true;
+    [ObservableProperty] private bool _seasonalTint = true;
+    [ObservableProperty] private string _seasonalIntensity = "Medium";
+    [ObservableProperty] private bool _seasonalScenery = true;
+
+    partial void OnSeasonalSceneryChanged(bool value)
+    {
+        if (_settingsService.Current.SeasonalScenery != value)
+            _settingsService.Update(s => s.SeasonalScenery = value);
+        SeasonalSettingsChanged();
+    }
+    [ObservableProperty] private string _seasonalThemeEmoji = "";
+    public string[] AvailableSeasonalIntensities => Pikura.Avalonia.Services.SeasonalTheme.IntensityOptions;
+
+    partial void OnSeasonalIntensityChanged(string value)
+    {
+        if (!string.IsNullOrEmpty(value) && _settingsService.Current.SeasonalIntensity != value)
+            _settingsService.Update(s => s.SeasonalIntensity = value);
+        SeasonalSettingsChanged();
+    }
+    /// <summary>The occasion in effect right now, e.g. "🦃 Thanksgiving".</summary>
+    [ObservableProperty] private string _seasonalThemeNow = "";
+
+    public string[] AvailableSeasonalThemes => Pikura.Avalonia.Services.SeasonalTheme.SeasonOptions;
+    public string[] AvailableHolidayThemes => Pikura.Avalonia.Services.SeasonalTheme.HolidayOptions;
+    public string[] AvailableAnimeThemes => Pikura.Avalonia.Services.SeasonalTheme.AnimeOptions;
+    public bool IsSeasonalThemeOn => SeasonalTheme is not ("Off" or "") || HolidayTheme is not ("Off" or "")
+        || AnimeTheme is not ("Off" or "");
+
+    partial void OnSeasonalThemeChanged(string value)
+    {
+        if (!string.IsNullOrEmpty(value) && _settingsService.Current.SeasonalTheme != value)
+            _settingsService.Update(s => s.SeasonalTheme = value);
+        SeasonalSettingsChanged();
+    }
+
+    [RelayCommand]
+    private void SetAnimeTheme(string key) => AnimeTheme = key;
+
+    partial void OnAnimeThemeChanged(string value)
+    {
+        if (!string.IsNullOrEmpty(value) && _settingsService.Current.AnimeTheme != value)
+            _settingsService.Update(s => s.AnimeTheme = value);
+        SeasonalSettingsChanged();
+    }
+
+    partial void OnHolidayThemeChanged(string value)
+    {
+        if (!string.IsNullOrEmpty(value) && _settingsService.Current.HolidayTheme != value)
+            _settingsService.Update(s => s.HolidayTheme = value);
+        SeasonalSettingsChanged();
+    }
+
+    partial void OnSeasonalEffectsChanged(bool value)
+    {
+        if (_settingsService.Current.SeasonalEffects != value)
+            _settingsService.Update(s => s.SeasonalEffects = value);
+        SeasonalSettingsChanged();
+    }
+
+    partial void OnSeasonalTintChanged(bool value)
+    {
+        if (_settingsService.Current.SeasonalTint != value)
+            _settingsService.Update(s => s.SeasonalTint = value);
+        SeasonalSettingsChanged();
+    }
+
+    private void SeasonalSettingsChanged()
+    {
+        OnPropertyChanged(nameof(IsSeasonalThemeOn));
+        OnPropertyChanged(nameof(HasMultipleThemes));
+        var now = DateTime.Now;
+        var o = Pikura.Avalonia.Services.SeasonalTheme.For(_settingsService.Current, now);
+        SeasonalThemeEmoji = o?.Emoji ?? "";
+        var loc = Pikura.Avalonia.Localization.LocalizationService.Instance;
+        // Color theme first, then the others, e.g. "Hatsune Miku + Thanksgiving + Fall".
+        SeasonalThemeNow = o == null ? "" : string.Join(" + ",
+            Pikura.Avalonia.Services.SeasonalTheme.Active(_settingsService.Current, now)
+                .Select(a => a.Occasion).OrderBy(x => ReferenceEquals(x, o) ? 0 : 1)
+                .Select(x => loc["Settings_Seasonal_" + x.Key]));
+        App.ApplyTheme();
+    }
+
     partial void OnAccentColorChanged(string value)
     {
         if (string.IsNullOrEmpty(value) || _settingsService.Current.AccentColor == value) return;
@@ -873,6 +986,16 @@ public partial class SettingsViewModel : ViewModelBase
         // Theme
         SelectTheme(s.Theme);
         AccentColor = s.AccentColor;
+        SeasonalTheme = s.SeasonalTheme;
+        HolidayTheme = s.HolidayTheme;
+        AnimeTheme = s.AnimeTheme;
+        ThemeColorsFrom = s.ThemeColorsFrom;
+        ThemeMixDecorations = s.ThemeMixDecorations;
+        ThemeBlendAccent = s.ThemeBlendAccent;
+        SeasonalEffects = s.SeasonalEffects;
+        SeasonalTint = s.SeasonalTint;
+        SeasonalIntensity = s.SeasonalIntensity;
+        SeasonalScenery = s.SeasonalScenery;
         ThemeScheduleDarkStart = s.ThemeScheduleDarkStart;
         ThemeScheduleDarkEnd = s.ThemeScheduleDarkEnd;
 

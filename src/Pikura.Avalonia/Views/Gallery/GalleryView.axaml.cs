@@ -1,4 +1,6 @@
+using Avalonia;
 using Avalonia.Controls;
+using Avalonia.VisualTree;
 using Avalonia.Input;
 using Avalonia.Input.Platform;
 using Avalonia.Interactivity;
@@ -88,14 +90,19 @@ public partial class GalleryView : UserControl
     private void OnDataContextChanged(object? sender, EventArgs e)
     {
         if (_wiredVm != null)
+        {
             _wiredVm.CopyToClipboardRequested -= OnCopyToClipboardRequested;
+            _wiredVm.RevealArtistRequested -= ScrollSelectedArtistIntoView;
+        }
 
         if (VM is { } vm)
         {
             vm.PropertyChanged += OnVmPropertyChanged;
             vm.CopyToClipboardRequested += OnCopyToClipboardRequested;
+            vm.RevealArtistRequested += ScrollSelectedArtistIntoView;
             Pikura.Avalonia.Services.ScrollAnchor.Attach(this, vm.ScrollAnchor, vm.FilteredArtworks);
             _wiredVm = vm;
+            ScrollSelectedArtistIntoView();
         }
     }
 
@@ -104,8 +111,37 @@ public partial class GalleryView : UserControl
         CopyToClipboard(text);
     }
 
+    /// <summary>Centers the selected artist in the artist list. Retried a few times because the
+    /// Gallery is often still being swapped in (page transition, first layout) when this runs.</summary>
+    private void ScrollSelectedArtistIntoView()
+    {
+        void Attempt(int attempt)
+        {
+            Dispatcher.UIThread.Post(() =>
+            {
+                if (VM?.SelectedArtist is not { } artist || ArtistList?.Items.Contains(artist) != true) return;
+                if (ArtistList.IsEffectivelyVisible && ArtistList.Bounds.Height > 0)
+                {
+                    ArtistList.ScrollIntoView(artist);
+                    if (ArtistList.FindDescendantOfType<ScrollViewer>() is { } sv
+                        && ArtistList.ContainerFromItem(artist) is { } c
+                        && c.TranslatePoint(default, sv) is { } p)
+                    {
+                        var y = sv.Offset.Y + p.Y - (sv.Viewport.Height - c.Bounds.Height) / 2;
+                        sv.Offset = new global::Avalonia.Vector(sv.Offset.X, Math.Max(0, y));
+                    }
+                }
+                if (attempt < 4)
+                    DispatcherTimer.RunOnce(() => Attempt(attempt + 1), TimeSpan.FromMilliseconds(150 * (attempt + 1)));
+            }, global::Avalonia.Threading.DispatcherPriority.Background);
+        }
+        Attempt(0);
+    }
+
     private void OnVmPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
+        if (e.PropertyName == nameof(GalleryViewModel.SelectedArtist))
+            ScrollSelectedArtistIntoView();
         if (e.PropertyName == nameof(GalleryViewModel.IsFixedHeight)
             || e.PropertyName == nameof(GalleryViewModel.IsNaturalHeight)
             || e.PropertyName == nameof(GalleryViewModel.CardHeightMode))

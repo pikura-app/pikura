@@ -20,6 +20,19 @@
         <!-- Inline context menus defined per-card for proper DataContext -->
     </UserControl.Resources>
 
+    <UserControl.Styles>
+        <Style Selector="Border.hoverRing">
+            <Setter Property="ZIndex" Value="1"/>
+            <Setter Property="IsHitTestVisible" Value="False"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+        </Style>
+        <Style Selector="Panel:pointerover > Border.hoverRing, Border.hoverRing.revealed">
+            <Setter Property="BorderBrush" Value="{DynamicResource ControlBackgroundBrushSolidAccent}"/>
+        </Style>
+    </UserControl.Styles>
+
     <!-- Root: top bar | optional filter bar | content | status bar -->
     <Grid RowDefinitions="Auto,Auto,*,Auto">
 
@@ -518,7 +531,7 @@
                             BorderThickness="1" CornerRadius="12"
                             BoxShadow="{DynamicResource CardShadow}"
                             ClipToBounds="True">
-                    <ListBox ItemsSource="{Binding FilteredArtists}"
+                    <ListBox x:Name="ArtistList" ItemsSource="{Binding FilteredArtists}"
                              SelectedItem="{Binding SelectedArtist}"
                              Background="Transparent" Padding="6,4,6,6"
                              ScrollViewer.HorizontalScrollBarVisibility="Disabled">
@@ -755,6 +768,8 @@
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate x:DataType="vm:ArtworkCardViewModel">
                                     <Panel>
+                                        <!-- Drawn just outside the card, above it, so the outline never covers the image and the image cannot cover it. -->
+                                        <Border Classes="hoverRing" Classes.revealed="{Binding IsRevealed}" Margin="-2,-2,0,0"/>
                                         <!-- FIXED HEIGHT MODE: Seamless cropped images, clean layout -->
                                         <Border Margin="0,0,2,2"
                                                 Background="{DynamicResource Container1BackgroundBrush}"
@@ -1153,6 +1168,8 @@
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate x:DataType="vm:ArtworkCardViewModel">
                                     <Panel>
+                                        <!-- Drawn just outside the card, above it, so the outline never covers the image and the image cannot cover it. -->
+                                        <Border Classes="hoverRing" Classes.revealed="{Binding IsRevealed}" Margin="-2,-2,4,4"/>
                                         <Border Margin="0,0,6,6"
                                                 Width="{Binding $parent[UserControl].((vm:GalleryViewModel)DataContext).CardSize}"
                                                 Background="{DynamicResource Container1BackgroundBrush}"

@@ -7352,4 +7352,358 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="History_BlurR18" xml:space="preserve"><value>R-18 흐리게</value></data>
   <data name="History_BlurR18Tip" xml:space="preserve"><value>R-18 썸네일 흐리게 (카드를 클릭하면 표시)</value></data>
   <data name="Viewer_StripNoR18Match" xml:space="preserve"><value>이 목록에 R-18 필터와 일치하는 작품이 없습니다</value></data>
+  <data name="Settings_SeasonalTheme" xml:space="preserve">
+    <value>시즌 테마</value>
+  </data>
+  <data name="Settings_SeasonalThemeHint" xml:space="preserve">
+    <value>계절에 맞춰 앱 색을 바꿉니다. 자동은 달력을 따릅니다. 켜져 있는 동안 강조 색을 대신합니다.</value>
+  </data>
+  <data name="Settings_SeasonalEffects" xml:space="preserve">
+    <value>떨어지는 장식</value>
+  </data>
+  <data name="Settings_Seasonal_Off" xml:space="preserve">
+    <value>끄기</value>
+  </data>
+  <data name="Settings_Seasonal_Auto" xml:space="preserve">
+    <value>자동</value>
+  </data>
+  <data name="Settings_Seasonal_NewYear" xml:space="preserve">
+    <value>새해</value>
+  </data>
+  <data name="Settings_Seasonal_Valentines" xml:space="preserve">
+    <value>밸런타인데이</value>
+  </data>
+  <data name="Settings_Seasonal_Spring" xml:space="preserve">
+    <value>봄</value>
+  </data>
+  <data name="Settings_Seasonal_Summer" xml:space="preserve">
+    <value>여름</value>
+  </data>
+  <data name="Settings_Seasonal_Halloween" xml:space="preserve">
+    <value>핼러윈</value>
+  </data>
+  <data name="Settings_Seasonal_Fall" xml:space="preserve">
+    <value>가을</value>
+  </data>
+  <data name="Settings_Seasonal_Thanksgiving" xml:space="preserve">
+    <value>추수감사절</value>
+  </data>
+  <data name="Settings_Seasonal_Christmas" xml:space="preserve">
+    <value>크리스마스</value>
+  </data>
+  <data name="Settings_Seasonal_Winter" xml:space="preserve">
+    <value>겨울</value>
+  </data>
+  <data name="Settings_HolidayTheme" xml:space="preserve">
+    <value>기념일 테마</value>
+  </data>
+  <data name="Settings_HolidayThemeHint" xml:space="preserve">
+    <value>크리스마스, 추수감사절, 핼러윈 같은 기념일에 맞춰 앱 색을 바꿉니다. 그 기간에는 계절 테마보다 우선합니다.</value>
+  </data>
+  <data name="Settings_SeasonalTint" xml:space="preserve">
+    <value>배경 색조</value>
+  </data>
+  <data name="Settings_SeasonalSection" xml:space="preserve">
+    <value>테마</value>
+  </data>
+  <data name="Settings_SeasonalSectionHint" xml:space="preserve">
+    <value>계절, 휴일 또는 애니메이션 캐릭터로 앱을 꾸밉니다. 여러 개가 켜져 있으면 하나가 색상을 정하고 장식은 섞을 수 있습니다. 테마가 켜져 있는 동안 위의 강조색이 대체됩니다.</value>
+  </data>
+  <data name="Settings_SeasonalSeason" xml:space="preserve">
+    <value>계절</value>
+  </data>
+  <data name="Settings_SeasonalHoliday" xml:space="preserve">
+    <value>기념일</value>
+  </data>
+  <data name="Settings_SeasonalActive" xml:space="preserve">
+    <value>적용 중:</value>
+  </data>
+  <data name="Settings_SeasonalIntensity" xml:space="preserve">
+    <value>강도</value>
+  </data>
+  <data name="Settings_SeasonalIntensity_Subtle" xml:space="preserve">
+    <value>은은하게</value>
+  </data>
+  <data name="Settings_SeasonalIntensity_Medium" xml:space="preserve">
+    <value>보통</value>
+  </data>
+  <data name="Settings_SeasonalIntensity_Festive" xml:space="preserve">
+    <value>화려하게</value>
+  </data>
+  <data name="Settings_SeasonalScenery" xml:space="preserve">
+    <value>모서리 장식</value>
+  </data>
+  <data name="Settings_SeasonalIntensityHint" xml:space="preserve">
+    <value>색조, 모서리 장식, 떨어지는 장식의 강도입니다.</value>
+  </data>
+  <data name="Pixivision_PerPageDefault" xml:space="preserve">
+    <value>기본</value>
+  </data>
+  <data name="Pixivision_ArticlesPerPage" xml:space="preserve">
+    <value>페이지당 기사 수</value>
+  </data>
+  <data name="Viewer_PixivEffect" xml:space="preserve">
+    <value>pixiv 이펙트 (#{0}): 클릭하여 켜기/끄기</value>
+  </data>
+  <data name="Viewer_PixivEffectShort" xml:space="preserve">
+    <value>이펙트</value>
+  </data>
+  <data name="Settings_SeasonalAnime" xml:space="preserve">
+    <value>애니메이션</value>
+  </data>
+  <data name="Settings_AnimeThemeHint" xml:space="preserve">
+    <value>캐릭터 색상과 장식. 휴일·계절보다 우선합니다</value>
+  </data>
+  <data name="Settings_Seasonal_Miku" xml:space="preserve">
+    <value>하츠네 미쿠</value>
+  </data>
+  <data name="Settings_Seasonal_Quintuplets" xml:space="preserve">
+    <value>오등분의 신부 (다섯 명 모두)</value>
+  </data>
+  <data name="Settings_Seasonal_Ichika" xml:space="preserve">
+    <value>나카노 이치카</value>
+  </data>
+  <data name="Settings_Seasonal_Nino" xml:space="preserve">
+    <value>나카노 니노</value>
+  </data>
+  <data name="Settings_Seasonal_MikuNakano" xml:space="preserve">
+    <value>나카노 미쿠</value>
+  </data>
+  <data name="Settings_Seasonal_Yotsuba" xml:space="preserve">
+    <value>나카노 요츠바</value>
+  </data>
+  <data name="Settings_Seasonal_Itsuki" xml:space="preserve">
+    <value>나카노 이츠키</value>
+  </data>
+  <data name="Settings_Seasonal_QuintupletsGroup" xml:space="preserve">
+    <value>오등분의 신부</value>
+  </data>
+  <data name="Settings_Seasonal_QuintupletsAll" xml:space="preserve">
+    <value>다섯 명 모두</value>
+  </data>
+  <data name="Settings_Seasonal_DemonSlayer" xml:space="preserve">
+    <value>귀멸의 칼날 (모두)</value>
+  </data>
+  <data name="Settings_Seasonal_Tanjiro" xml:space="preserve">
+    <value>카마도 탄지로</value>
+  </data>
+  <data name="Settings_Seasonal_Nezuko" xml:space="preserve">
+    <value>카마도 네즈코</value>
+  </data>
+  <data name="Settings_Seasonal_Zenitsu" xml:space="preserve">
+    <value>아가츠마 젠이츠</value>
+  </data>
+  <data name="Settings_Seasonal_Inosuke" xml:space="preserve">
+    <value>하시비라 이노스케</value>
+  </data>
+  <data name="Settings_Seasonal_Kanao" xml:space="preserve">
+    <value>츠유리 카나오</value>
+  </data>
+  <data name="Settings_Seasonal_Giyu" xml:space="preserve">
+    <value>토미오카 기유</value>
+  </data>
+  <data name="Settings_Seasonal_Shinobu" xml:space="preserve">
+    <value>코쵸우 시노부</value>
+  </data>
+  <data name="Settings_Seasonal_Rengoku" xml:space="preserve">
+    <value>렌고쿠 쿄쥬로</value>
+  </data>
+  <data name="Settings_Seasonal_Tengen" xml:space="preserve">
+    <value>우즈이 텐겐</value>
+  </data>
+  <data name="Settings_Seasonal_Mitsuri" xml:space="preserve">
+    <value>칸로지 미츠리</value>
+  </data>
+  <data name="Settings_Seasonal_Muichiro" xml:space="preserve">
+    <value>토키토 무이치로</value>
+  </data>
+  <data name="Settings_Seasonal_Gyomei" xml:space="preserve">
+    <value>히메지마 교메이</value>
+  </data>
+  <data name="Settings_Seasonal_Sanemi" xml:space="preserve">
+    <value>시나즈가와 사네미</value>
+  </data>
+  <data name="Settings_Seasonal_Obanai" xml:space="preserve">
+    <value>이구로 오바나이</value>
+  </data>
+  <data name="Settings_Seasonal_DemonSlayerGroup" xml:space="preserve">
+    <value>귀멸의 칼날</value>
+  </data>
+  <data name="Settings_Seasonal_DemonSlayerAll" xml:space="preserve">
+    <value>모두</value>
+  </data>
+  <data name="Settings_Seasonal_JJKGroup" xml:space="preserve">
+    <value>주술회전</value>
+  </data>
+  <data name="Settings_Seasonal_JJK" xml:space="preserve">
+    <value>주술회전 (모두)</value>
+  </data>
+  <data name="Settings_Seasonal_Yuji" xml:space="preserve">
+    <value>이타도리 유지</value>
+  </data>
+  <data name="Settings_Seasonal_Megumi" xml:space="preserve">
+    <value>후시구로 메구미</value>
+  </data>
+  <data name="Settings_Seasonal_Nobara" xml:space="preserve">
+    <value>쿠기사키 노바라</value>
+  </data>
+  <data name="Settings_Seasonal_Gojo" xml:space="preserve">
+    <value>고죠 사토루</value>
+  </data>
+  <data name="Settings_Seasonal_Maki" xml:space="preserve">
+    <value>젠인 마키</value>
+  </data>
+  <data name="Settings_Seasonal_Inumaki" xml:space="preserve">
+    <value>이누마키 토게</value>
+  </data>
+  <data name="Settings_Seasonal_Panda" xml:space="preserve">
+    <value>판다</value>
+  </data>
+  <data name="Settings_Seasonal_Yuta" xml:space="preserve">
+    <value>옷코츠 유타</value>
+  </data>
+  <data name="Settings_Seasonal_Sukuna" xml:space="preserve">
+    <value>료멘 스쿠나</value>
+  </data>
+  <data name="Settings_Seasonal_NarutoGroup" xml:space="preserve">
+    <value>나루토</value>
+  </data>
+  <data name="Settings_Seasonal_Naruto" xml:space="preserve">
+    <value>나루토 (모두)</value>
+  </data>
+  <data name="Settings_Seasonal_NarutoUzumaki" xml:space="preserve">
+    <value>우즈마키 나루토</value>
+  </data>
+  <data name="Settings_Seasonal_Sasuke" xml:space="preserve">
+    <value>우치하 사스케</value>
+  </data>
+  <data name="Settings_Seasonal_SakuraHaruno" xml:space="preserve">
+    <value>하루노 사쿠라</value>
+  </data>
+  <data name="Settings_Seasonal_Kakashi" xml:space="preserve">
+    <value>하타케 카카시</value>
+  </data>
+  <data name="Settings_Seasonal_Itachi" xml:space="preserve">
+    <value>우치하 이타치</value>
+  </data>
+  <data name="Settings_Seasonal_Hinata" xml:space="preserve">
+    <value>휴가 히나타</value>
+  </data>
+  <data name="Settings_Seasonal_Gaara" xml:space="preserve">
+    <value>가아라</value>
+  </data>
+  <data name="Settings_Seasonal_Shikamaru" xml:space="preserve">
+    <value>나라 시카마루</value>
+  </data>
+  <data name="Settings_Seasonal_Jiraiya" xml:space="preserve">
+    <value>지라이야</value>
+  </data>
+  <data name="Settings_Seasonal_OnePieceGroup" xml:space="preserve">
+    <value>원피스</value>
+  </data>
+  <data name="Settings_Seasonal_OnePiece" xml:space="preserve">
+    <value>원피스 (모두)</value>
+  </data>
+  <data name="Settings_Seasonal_Luffy" xml:space="preserve">
+    <value>몽키 D. 루피</value>
+  </data>
+  <data name="Settings_Seasonal_Zoro" xml:space="preserve">
+    <value>로로노아 조로</value>
+  </data>
+  <data name="Settings_Seasonal_Nami" xml:space="preserve">
+    <value>나미</value>
+  </data>
+  <data name="Settings_Seasonal_Usopp" xml:space="preserve">
+    <value>우솝</value>
+  </data>
+  <data name="Settings_Seasonal_Sanji" xml:space="preserve">
+    <value>상디</value>
+  </data>
+  <data name="Settings_Seasonal_Chopper" xml:space="preserve">
+    <value>토니토니 쵸파</value>
+  </data>
+  <data name="Settings_Seasonal_Robin" xml:space="preserve">
+    <value>니코 로빈</value>
+  </data>
+  <data name="Settings_Seasonal_Franky" xml:space="preserve">
+    <value>프랑키</value>
+  </data>
+  <data name="Settings_Seasonal_Brook" xml:space="preserve">
+    <value>브룩</value>
+  </data>
+  <data name="Settings_Seasonal_Jinbe" xml:space="preserve">
+    <value>징베</value>
+  </data>
+  <data name="Settings_Seasonal_Ace" xml:space="preserve">
+    <value>포트거스 D. 에이스</value>
+  </data>
+  <data name="Settings_Seasonal_Shanks" xml:space="preserve">
+    <value>샹크스</value>
+  </data>
+  <data name="Settings_Seasonal_DBZGroup" xml:space="preserve">
+    <value>드래곤볼 Z</value>
+  </data>
+  <data name="Settings_Seasonal_DBZ" xml:space="preserve">
+    <value>드래곤볼 Z (모두)</value>
+  </data>
+  <data name="Settings_Seasonal_Goku" xml:space="preserve">
+    <value>손오공</value>
+  </data>
+  <data name="Settings_Seasonal_Vegeta" xml:space="preserve">
+    <value>베지터</value>
+  </data>
+  <data name="Settings_Seasonal_Gohan" xml:space="preserve">
+    <value>손오반</value>
+  </data>
+  <data name="Settings_Seasonal_Piccolo" xml:space="preserve">
+    <value>피콜로</value>
+  </data>
+  <data name="Settings_Seasonal_Trunks" xml:space="preserve">
+    <value>트랭크스</value>
+  </data>
+  <data name="Settings_Seasonal_Frieza" xml:space="preserve">
+    <value>프리저</value>
+  </data>
+  <data name="Settings_Seasonal_Cell" xml:space="preserve">
+    <value>셀</value>
+  </data>
+  <data name="Settings_Seasonal_Buu" xml:space="preserve">
+    <value>마인 부우</value>
+  </data>
+  <data name="Settings_Seasonal_Bulma" xml:space="preserve">
+    <value>부르마</value>
+  </data>
+  <data name="Settings_Seasonal_Krillin" xml:space="preserve">
+    <value>크리링</value>
+  </data>
+  <data name="Settings_ThemeColorsFrom" xml:space="preserve">
+    <value>색상 기준</value>
+  </data>
+  <data name="Settings_ThemeColorsFromHint" xml:space="preserve">
+    <value>앱 색상에 사용할 테마</value>
+  </data>
+  <data name="Settings_ThemeColorsFrom_Auto" xml:space="preserve">
+    <value>자동</value>
+  </data>
+  <data name="Settings_ThemeColorsFrom_Anime" xml:space="preserve">
+    <value>애니메이션</value>
+  </data>
+  <data name="Settings_ThemeColorsFrom_Holiday" xml:space="preserve">
+    <value>휴일</value>
+  </data>
+  <data name="Settings_ThemeColorsFrom_Season" xml:space="preserve">
+    <value>계절</value>
+  </data>
+  <data name="Settings_ThemeMixDecorations" xml:space="preserve">
+    <value>장식 섞기</value>
+  </data>
+  <data name="Settings_ThemeMixDecorationsHint" xml:space="preserve">
+    <value>활성화된 모든 테마의 장식 표시(색상 테마 위주)</value>
+  </data>
+  <data name="Settings_ThemeBlendAccent" xml:space="preserve">
+    <value>강조색 혼합</value>
+  </data>
+  <data name="Settings_ThemeBlendAccentHint" xml:space="preserve">
+    <value>컨트롤과 테두리에 두 번째 테마 색상 적용</value>
+  </data>
 </root>

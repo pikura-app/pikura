@@ -416,6 +416,7 @@ public partial class InlineArtworkViewer : UserControl
 
         // Always force reload on re-attach — _currentCard may match a stale instance
         _currentCard = null;
+        UpdateEffectOverlay();
         _currentOriginalUrl = null;
 
         if (vm.InlineViewerCard != null)
@@ -518,6 +519,12 @@ public partial class InlineArtworkViewer : UserControl
         var rename = new MenuItem { Header = Pikura.Avalonia.Localization.LocalizationService.Instance["Common_Rename"] };
         rename.Click += (_, _) => _ = RenameTabAsync(tab);
         menu.Items.Add(rename);
+        if (tab.Card is { } tabCard)
+        {
+            var gallery = new MenuItem { Header = Pikura.Avalonia.Localization.LocalizationService.Instance["Search_OpenArtistGallery"] };
+            gallery.Click += (_, _) => NavigateToArtistGallery(tabCard.UserId, tabCard.Id);
+            menu.Items.Add(gallery);
+        }
         menu.Open(border);
         e.Handled = true;
 
@@ -705,6 +712,7 @@ public partial class InlineArtworkViewer : UserControl
         _loadCts?.Dispose();
         _loadCts = null;
         _currentCard = null;
+        UpdateEffectOverlay();
         _currentOriginalUrl = null;
         _pages = [];
         _currentPageIndex = 0;
@@ -801,6 +809,7 @@ public partial class InlineArtworkViewer : UserControl
         }
 
         _currentCard = card;
+        UpdateEffectOverlay();
 
         // A different artwork: close the "All pages" grid left open by the previous one.
         if (VM != null && VM.IsInlinePageGridVisible) VM.IsInlinePageGridVisible = false;
@@ -821,6 +830,7 @@ public partial class InlineArtworkViewer : UserControl
         if (ViewerImage != null) ViewerImage.Source = null;
 
         _currentCard = card;
+        UpdateEffectOverlay();
         _pageBitmaps.Clear();
         _pageFullResLoaded.Clear();
         // Re-apply the persisted Show/Hide stats toggle on every artwork navigation, not just
@@ -2148,6 +2158,7 @@ if (result != null && presetWindow.DownloadClicked)
         if (VM.SelectedViewerTab is { } tab)
             tab.NavigateTo(card);
         _currentCard = null;
+        UpdateEffectOverlay();
         VM.InlineViewerCard = card;
     }
 
@@ -2197,6 +2208,34 @@ if (result != null && presetWindow.DownloadClicked)
         var existing = new System.Collections.Generic.HashSet<string>(navList.Select(NavKey));
         foreach (var c in newCards)
             if (existing.Add(NavKey(c))) navList.Add(c);
+    }
+
+    /// <summary>Shows the pixiv effect for the current artwork's effect tag, if it has one and
+    /// effects are on, plus the toggle button for it.</summary>
+    private void UpdateEffectOverlay()
+    {
+        var tags = _currentCard?.Tags;
+        var glyphs = PixivEffects.GlyphsFor(tags);
+        var settings = AppServices.Get<Pikura.Core.Settings.SettingsService>().Current;
+        var on = glyphs != null && settings.ShowPixivEffects && !settings.ReduceMotion;
+        if (EffectToggleBtn != null)
+        {
+            EffectToggleBtn.IsVisible = glyphs != null;
+            EffectToggleBtn.Opacity = on ? 1 : 0.5;
+            ToolTip.SetTip(EffectToggleBtn, Pikura.Avalonia.Localization.LocalizationService.F(
+                "Viewer_PixivEffect", PixivEffects.EffectTag(tags) ?? ""));
+        }
+        if (EffectOverlay != null)
+        {
+            EffectOverlay.Glyphs = on ? glyphs : null;
+            EffectOverlay.IsVisible = on;
+        }
+    }
+
+    private void OnToggleEffect(object? sender, global::Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        AppServices.Get<Pikura.Core.Settings.SettingsService>().Update(s => s.ShowPixivEffects = !s.ShowPixivEffects);
+        UpdateEffectOverlay();
     }
 
     private void UpdateArtworkCounter()
@@ -2251,13 +2290,16 @@ if (result != null && presetWindow.DownloadClicked)
         catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[InlineArtworkViewer] follow check failed: {ex.Message}"); }
     }
 
-    private async void NavigateToArtistGallery(string userId)
+    /// <summary>Opens <paramref name="userId"/>'s gallery with the artist selected, then scrolls to
+    /// <paramref name="artworkId"/> (default: the artwork on screen).</summary>
+    private async void NavigateToArtistGallery(string userId, string? artworkId = null)
     {
         var galleryVm = AppServices.Get<GalleryViewModel>();
+        artworkId ??= _currentCard?.Id;
         try
         {
             // Cards built from partial data have no artist id yet — resolve it from the artwork.
-            if (string.IsNullOrWhiteSpace(userId) && _currentCard?.Id is { } artId)
+            if (string.IsNullOrWhiteSpace(userId) && artworkId is { } artId)
                 userId = (await _pixivClient.GetArtworkDetailAsync(artId))?.UserId ?? "";
             if (string.IsNullOrWhiteSpace(userId))
             {
@@ -2271,6 +2313,7 @@ if (result != null && presetWindow.DownloadClicked)
                 galleryVm.CloseInlineViewer();
             mainWindow?.LoadGalleryView();
             await galleryVm.LoadArtistByIdCommand.ExecuteAsync(userId);
+            await galleryVm.RevealArtworkAsync(artworkId);
         }
         catch (Exception ex)
         {
