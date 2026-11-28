@@ -3,6 +3,7 @@
              xmlns:loc="using:Pikura.Avalonia.Localization"
              xmlns:vm="using:Pikura.Avalonia.ViewModels"
              xmlns:models="using:Pikura.Core.Models"
+             xmlns:ctl="using:Pikura.Avalonia.Controls"
              x:Class="Pikura.Avalonia.Views.Novel.NovelReaderView"
              x:DataType="vm:NovelReaderViewModel">
     <UserControl.Styles>
@@ -45,8 +46,8 @@
                                         <TextBlock Text="{Binding UserName}" FontWeight="SemiBold" FontSize="12"/>
                                         <TextBlock Text="{Binding CommentDate}" FontSize="11" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                     </StackPanel>
-                                    <SelectableTextBlock Text="{Binding Comment}" TextWrapping="Wrap" FontSize="13"/>
-                                    <TextBlock Text="[stamp]" FontSize="11" IsVisible="{Binding HasStamp}" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
+                                    <ctl:PixivCommentBody Comment="{Binding}"/>
+                                    
                                 </StackPanel>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
