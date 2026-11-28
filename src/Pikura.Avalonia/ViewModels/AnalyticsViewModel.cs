@@ -142,9 +142,11 @@ public partial class AnalyticsViewModel : ViewModelBase
             (L("Analytics_TypeUgoira"), views.Count(v => v.IllustType == 2)),
             ("R-18", views.Count(v => v.XRestrict >= 1)),
         };
-        var downloaded = jobs.SelectMany(j => j.Targets.Where(t => t.Type == TargetType.Artist && !string.IsNullOrEmpty(t.Name))
-                .Select(t => (Name: ArtistName(t.Name), t.DownloadedItems)))
-            .GroupBy(t => t.Name).Select(g => (g.Key, g.Sum(t => t.DownloadedItems))).Where(t => t.Item2 > 0)
+        var downloaded = jobs.SelectMany(j => j.Targets.Where(t => t.Status == TargetStatus.Completed)
+                .Select(t => (Name: !string.IsNullOrWhiteSpace(t.UserName) ? t.UserName!.Trim() : t.Type == TargetType.Artist ? ArtistName(t.Name) : "",
+                    Items: Math.Max(1, t.DownloadedItems))))
+            .Where(t => t.Name.Length > 0)
+            .GroupBy(t => t.Name).Select(g => (g.Key, g.Sum(t => t.Items)))
             .OrderByDescending(t => t.Item2).Take(8).ToList();
         var jobRows = jobs.GroupBy(j => j.Status).Select(g => (StatusName(g.Key), g.Count())).OrderByDescending(x => x.Item2).ToList();
         return (stats, new Tables(Top(views.Select(v => v.UserName)), Top(views.SelectMany(v => v.Tags)), types, downloaded, jobRows));
