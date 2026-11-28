@@ -7886,4 +7886,112 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="Dic_Go" xml:space="preserve">
     <value>移動</value>
   </data>
+  <data name="Analytics_Stats" xml:space="preserve">
+    <value>統計</value>
+  </data>
+  <data name="Analytics_CountingSince" xml:space="preserve">
+    <value>{0} から集計 · {1} 日</value>
+  </data>
+  <data name="Analytics_Total" xml:space="preserve">
+    <value>合計</value>
+  </data>
+  <data name="Analytics_PerWeek" xml:space="preserve">
+    <value>週に約 {0}</value>
+  </data>
+  <data name="Analytics_Views" xml:space="preserve">
+    <value>閲覧</value>
+  </data>
+  <data name="Analytics_ViewsR18" xml:space="preserve">
+    <value>R-18 閲覧</value>
+  </data>
+  <data name="Analytics_Downloads" xml:space="preserve">
+    <value>ダウンロード</value>
+  </data>
+  <data name="Analytics_Today" xml:space="preserve">
+    <value>今日</value>
+  </data>
+  <data name="Analytics_TodaySub" xml:space="preserve">
+    <value>閲覧 {0} · ダウンロード {1}</value>
+  </data>
+  <data name="Analytics_Past7" xml:space="preserve">
+    <value>過去7日間</value>
+  </data>
+  <data name="Analytics_NoneBefore" xml:space="preserve">
+    <value>その前の7日間はなし</value>
+  </data>
+  <data name="Analytics_Before" xml:space="preserve">
+    <value>その前の7日間は {0}（{1}）</value>
+  </data>
+  <data name="Analytics_Streak" xml:space="preserve">
+    <value>連続日数</value>
+  </data>
+  <data name="Analytics_Days" xml:space="preserve">
+    <value>{0} 日</value>
+  </data>
+  <data name="Analytics_LongestYet" xml:space="preserve">
+    <value>過去最長</value>
+  </data>
+  <data name="Analytics_Longest" xml:space="preserve">
+    <value>最長: {0} 日</value>
+  </data>
+  <data name="Analytics_BusiestDay" xml:space="preserve">
+    <value>最も多かった日</value>
+  </data>
+  <data name="Analytics_EveryDay" xml:space="preserve">
+    <value>毎日</value>
+  </data>
+  <data name="Analytics_ActiveDays" xml:space="preserve">
+    <value>{1} 日中 {0} 日アクティブ</value>
+  </data>
+  <data name="Analytics_Less" xml:space="preserve">
+    <value>少</value>
+  </data>
+  <data name="Analytics_More" xml:space="preserve">
+    <value>多</value>
+  </data>
+  <data name="Analytics_TimeOfDay" xml:space="preserve">
+    <value>時間帯</value>
+  </data>
+  <data name="Analytics_BusiestHour" xml:space="preserve">
+    <value>最多 {0}</value>
+  </data>
+  <data name="Analytics_All" xml:space="preserve">
+    <value>すべて</value>
+  </data>
+  <data name="Analytics_DayOfWeek" xml:space="preserve">
+    <value>曜日</value>
+  </data>
+  <data name="Analytics_BusiestOn" xml:space="preserve">
+    <value>{0} が最多</value>
+  </data>
+  <data name="Analytics_Night" xml:space="preserve">
+    <value>深夜</value>
+  </data>
+  <data name="Analytics_Morning" xml:space="preserve">
+    <value>朝</value>
+  </data>
+  <data name="Analytics_Afternoon" xml:space="preserve">
+    <value>午後</value>
+  </data>
+  <data name="Analytics_Evening" xml:space="preserve">
+    <value>夜</value>
+  </data>
+  <data name="Analytics_TopTags" xml:space="preserve">
+    <value>よく見るタグ</value>
+  </data>
+  <data name="Analytics_ContentTypes" xml:space="preserve">
+    <value>閲覧した作品の種類</value>
+  </data>
+  <data name="Analytics_TypeIllust" xml:space="preserve">
+    <value>イラスト</value>
+  </data>
+  <data name="Analytics_TypeManga" xml:space="preserve">
+    <value>マンガ</value>
+  </data>
+  <data name="Analytics_TypeUgoira" xml:space="preserve">
+    <value>うごイラ</value>
+  </data>
+  <data name="Analytics_DownloadJobs" xml:space="preserve">
+    <value>ダウンロードジョブ</value>
+  </data>
 </root>

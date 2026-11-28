@@ -1,244 +1,217 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Pikura.Avalonia.Localization;
 using Pikura.Core.Data;
 using Pikura.Core.Models;
+using Pikura.Core.Services;
 
 namespace Pikura.Avalonia.ViewModels;
+
+/// <summary>One labeled bar row (share of the largest or of the total).</summary>
+public sealed class StatRow
+{
+    public string Name { get; init; } = "";
+    public int Count { get; init; }
+    public double Percent { get; init; }
+    public string ValueText { get; init; } = "";
+    public bool IsTop { get; init; }
+}
 
 public partial class AnalyticsViewModel : ViewModelBase
 {
     private readonly DownloadJobRepository _jobRepository;
     private readonly ViewedHistoryRepository _historyRepository;
+    private ActivityStats? _stats;
+    private bool _loading;
 
-    [ObservableProperty] private int _totalJobs;
-    [ObservableProperty] private int _completedJobs;
-    [ObservableProperty] private int _failedJobs;
-    [ObservableProperty] private int _runningJobs;
-    [ObservableProperty] private double _successRate;
-    [ObservableProperty] private int _totalDownloadedItems;
-    [ObservableProperty] private int _totalFailedItems;
-    [ObservableProperty] private string _storageUsage = "Calculating...";
-    
-    public Dictionary<string, int> JobsByType { get; } = new();
-    public Dictionary<string, int> JobsByStatus { get; } = new();
-    public List<DownloadMetric> RecentActivity { get; } = new();
-    public List<TopItem> TopArtists { get; } = new();
-    public List<TopItem> TopTags { get; } = new();
-    public List<TopItem> MostFrequentedArtists { get; } = new();
-    /// <summary>Artists ranked by how many of their artworks are in viewing History.</summary>
-    public System.Collections.ObjectModel.ObservableCollection<TopItem> MostViewedArtists { get; } = new();
+    [ObservableProperty] private string _subtitle = "";
+    [ObservableProperty] private string _totalText = "0";
+    [ObservableProperty] private string _totalSub = "";
+    [ObservableProperty] private double[] _totalSegments = [];
+    [ObservableProperty] private string _viewsLegend = "";
+    [ObservableProperty] private string _r18Legend = "";
+    [ObservableProperty] private string _downloadsLegend = "";
+    [ObservableProperty] private string _todayText = "0";
+    [ObservableProperty] private string _todaySub = "";
+    [ObservableProperty] private string _past7Text = "0";
+    [ObservableProperty] private string _past7Sub = "";
+    [ObservableProperty] private string _streakText = "";
+    [ObservableProperty] private string _streakSub = "";
+    [ObservableProperty] private string _busiestText = "—";
+    [ObservableProperty] private string _busiestSub = "";
+    [ObservableProperty] private IReadOnlyDictionary<DateOnly, int>? _daily;
+    [ObservableProperty] private DateOnly? _firstDay;
+    [ObservableProperty] private string _activeDaysText = "";
+    [ObservableProperty] private string _hourMode = "all";
+    [ObservableProperty] private int[] _hours = new int[24];
+    [ObservableProperty] private string _busiestHourText = "";
+    [ObservableProperty] private string _busiestWeekdayText = "";
+
+    public ObservableCollection<StatRow> Weekdays { get; } = [];
+    public ObservableCollection<StatRow> MostViewedArtists { get; } = [];
+    public ObservableCollection<StatRow> TopTags { get; } = [];
+    public ObservableCollection<StatRow> ContentTypes { get; } = [];
+    public ObservableCollection<StatRow> MostDownloadedArtists { get; } = [];
+    public ObservableCollection<StatRow> DownloadJobs { get; } = [];
 
     public AnalyticsViewModel(DownloadJobRepository jobRepository, ViewedHistoryRepository historyRepository)
     {
         _jobRepository = jobRepository;
         _historyRepository = historyRepository;
-        
         _ = LoadAnalyticsAsync();
     }
 
     public Task ReloadAsync() => LoadAnalyticsAsync();
+    public Task LoadMostViewedArtistsAsync() => LoadAnalyticsAsync();
+
+    private static string L(string key) => LocalizationService.Instance[key];
+    private static string F(string key, params object[] args) => string.Format(CultureInfo.CurrentCulture, L(key), args);
+    private static string N(double v) => v.ToString("N0", CultureInfo.CurrentCulture);
+    private static string Pct(double v) => v.ToString(v > 0 && v < 10 ? "0.#" : "0", CultureInfo.CurrentCulture) + "%";
+
+    partial void OnHourModeChanged(string value) => ApplyHours();
+
+    [RelayCommand] private void SetHourMode(string mode) => HourMode = mode;
+
+    private void ApplyHours()
+    {
+        if (_stats is null) return;
+        Hours = HourMode switch { "views" => _stats.HoursViews, "downloads" => _stats.HoursDownloads, _ => _stats.HoursAll };
+        var peak = Hours.Max() == 0 ? -1 : Array.IndexOf(Hours, Hours.Max());
+        BusiestHourText = peak < 0 ? "" : F("Analytics_BusiestHour", $"{peak:00}:00–{(peak + 1) % 24:00}:00");
+    }
 
     [RelayCommand]
     private async Task LoadAnalyticsAsync()
     {
-        await LoadStatisticsAsync();
-        await LoadJobBreakdownAsync();
-        await LoadRecentActivityAsync();
-        await LoadTopItemsAsync();
-        await LoadMostViewedArtistsAsync();
-        CalculateStorageUsage();
-    }
-
-    public async Task LoadMostViewedArtistsAsync()
-    {
-        List<ViewedHistoryRepository.ArtistViewCount> top;
-        try { top = await _historyRepository.GetTopViewedArtistsAsync(10); }
-        catch { return; }
-        MostViewedArtists.Clear();
-        for (var i = 0; i < top.Count; i++)
-            MostViewedArtists.Add(new TopItem { Name = top[i].UserName, Count = top[i].Count, Rank = $"#{i + 1}" });
-    }
-
-    private async Task LoadStatisticsAsync()
-    {
-        var jobs = await _jobRepository.GetJobsAsync();
-        
-        TotalJobs = jobs.Count;
-        CompletedJobs = jobs.Count(j => j.Status == JobStatus.Completed);
-        FailedJobs = jobs.Count(j => j.Status == JobStatus.Failed);
-        RunningJobs = jobs.Count(j => j.Status == JobStatus.Running);
-        
-        SuccessRate = TotalJobs > 0 ? (CompletedJobs * 100.0 / TotalJobs) : 0;
-        
-        TotalDownloadedItems = jobs.Sum(j => j.CompletedItems);
-        TotalFailedItems = jobs.Sum(j => j.FailedItems);
-    }
-
-    private async Task LoadJobBreakdownAsync()
-    {
-        var jobs = await _jobRepository.GetJobsAsync();
-        
-        JobsByType.Clear();
-        foreach (var job in jobs)
+        if (_loading) return;
+        _loading = true;
+        try
         {
-            var typeName = job.Type.ToString();
-            if (JobsByType.ContainsKey(typeName))
-                JobsByType[typeName]++;
-            else
-                JobsByType[typeName] = 1;
+            List<ViewedHistoryRepository.ViewActivity> views;
+            List<DownloadJob> jobs;
+            try { views = await _historyRepository.GetActivityAsync(); } catch { views = []; }
+            try { jobs = await _jobRepository.GetJobsAsync(); } catch { jobs = []; }
+            var today = DateOnly.FromDateTime(DateTime.Now);
+            var (stats, tables) = await Task.Run(() => Compute(views, jobs, today));
+            _stats = stats;
+            Apply(stats, today);
+            Fill(MostViewedArtists, tables.Artists, n => N(n));
+            Fill(TopTags, tables.Tags, n => N(n));
+            Fill(ContentTypes, tables.Types, null, stats.Views + stats.ViewsR18);
+            Fill(MostDownloadedArtists, tables.Downloaded, n => N(n));
+            Fill(DownloadJobs, tables.Jobs, null, jobs.Count);
         }
-        
-        JobsByStatus.Clear();
-        foreach (var job in jobs)
+        finally
         {
-            var statusName = job.Status.ToString();
-            if (JobsByStatus.ContainsKey(statusName))
-                JobsByStatus[statusName]++;
-            else
-                JobsByStatus[statusName] = 1;
+            _loading = false;
         }
-        
-        OnPropertyChanged(nameof(JobsByType));
-        OnPropertyChanged(nameof(JobsByStatus));
     }
 
-    private async Task LoadRecentActivityAsync()
+    private sealed record Tables(
+        List<(string, int)> Artists, List<(string, int)> Tags, List<(string, int)> Types,
+        List<(string, int)> Downloaded, List<(string, int)> Jobs);
+
+    private static (ActivityStats, Tables) Compute(List<ViewedHistoryRepository.ViewActivity> views, List<DownloadJob> jobs, DateOnly today)
     {
-        var jobs = await _jobRepository.GetJobsAsync();
-        var recentJobs = jobs
-            .OrderByDescending(j => j.CreatedAt)
-            .Take(20)
-            .Select(j => new DownloadMetric
+        var events = new List<ActivityEvent>(views.Count);
+        foreach (var v in views)
+            events.Add(new ActivityEvent(v.ViewedAtUtc.ToLocalTime(), v.XRestrict >= 1 ? ActivityKind.ViewR18 : ActivityKind.View));
+        foreach (var job in jobs)
+            foreach (var t in job.Targets.Where(t => t.Status == TargetStatus.Completed))
             {
-                Name = j.Name,
-                Type = j.Type.ToString(),
-                Status = j.Status.ToString(),
-                Date = j.CreatedAt,
-                Items = j.TotalItems
-            })
-            .ToList();
-        
-        RecentActivity.Clear();
-        foreach (var job in recentJobs)
+                var at = t.ProcessedAt ?? job.CompletedAt ?? job.CreatedAt;
+                var count = Math.Max(1, t.DownloadedItems);
+                for (var i = 0; i < count; i++) events.Add(new ActivityEvent(at.ToLocalTime(), ActivityKind.Download));
+            }
+        var stats = ActivityStats.Compute(events, today);
+
+        List<(string, int)> Top(IEnumerable<string> keys, int n = 8) => keys.Where(k => !string.IsNullOrWhiteSpace(k))
+            .GroupBy(k => k).Select(g => (g.Key, g.Count())).OrderByDescending(x => x.Item2).Take(n).ToList();
+
+        var types = new List<(string, int)>
         {
-            RecentActivity.Add(job);
-        }
-        
-        OnPropertyChanged(nameof(RecentActivity));
+            (L("Analytics_TypeIllust"), views.Count(v => v.IllustType == 0)),
+            (L("Analytics_TypeManga"), views.Count(v => v.IllustType == 1)),
+            (L("Analytics_TypeUgoira"), views.Count(v => v.IllustType == 2)),
+            ("R-18", views.Count(v => v.XRestrict >= 1)),
+        };
+        var downloaded = jobs.SelectMany(j => j.Targets.Where(t => t.Type == TargetType.Artist && !string.IsNullOrEmpty(t.Name))
+                .Select(t => (Name: ArtistName(t.Name), t.DownloadedItems)))
+            .GroupBy(t => t.Name).Select(g => (g.Key, g.Sum(t => t.DownloadedItems))).Where(t => t.Item2 > 0)
+            .OrderByDescending(t => t.Item2).Take(8).ToList();
+        var jobRows = jobs.GroupBy(j => j.Status).Select(g => (StatusName(g.Key), g.Count())).OrderByDescending(x => x.Item2).ToList();
+        return (stats, new Tables(Top(views.Select(v => v.UserName)), Top(views.SelectMany(v => v.Tags)), types, downloaded, jobRows));
     }
 
-    private async Task LoadTopItemsAsync()
+    private static string StatusName(JobStatus s) => s switch
     {
-        var jobs = await _jobRepository.GetJobsAsync();
+        JobStatus.Completed => L("Analytics_Completed"),
+        JobStatus.Failed => L("Analytics_Failed"),
+        _ => s.ToString(),
+    };
 
-        // Most downloaded artists: aggregate completed items from all artist-type targets across all jobs
-        var artistDownloads = jobs
-            .SelectMany(j => j.Targets
-                .Where(t => t.Type == TargetType.Artist && !string.IsNullOrEmpty(t.Name))
-                .Select(t => new { Name = ExtractArtistName(t.Name), Downloaded = t.DownloadedItems }))
-            .GroupBy(t => t.Name)
-            .Select(g => new TopItem { Name = g.Key, Count = g.Sum(t => t.Downloaded) })
-            .Where(t => t.Count > 0)
-            .OrderByDescending(t => t.Count)
-            .Take(10)
-            .ToList();
-
-        // Fall back to Artist-type job names if no targets found
-        if (artistDownloads.Count == 0)
-        {
-            artistDownloads = jobs
-                .Where(j => j.Type == DownloadJobType.Artist)
-                .GroupBy(j => j.Name)
-                .Select(g => new TopItem { Name = g.Key, Count = g.Sum(j => j.CompletedItems) })
-                .OrderByDescending(t => t.Count)
-                .Take(10)
-                .ToList();
-        }
-
-        TopArtists.Clear();
-        for (int i = 0; i < artistDownloads.Count; i++)
-        {
-            artistDownloads[i].Rank = $"#{i + 1}";
-            TopArtists.Add(artistDownloads[i]);
-        }
-
-        // Most frequented artists: number of times downloaded (job visits), regardless of item count
-        var frequentedArtists = jobs
-            .SelectMany(j => j.Targets
-                .Where(t => t.Type == TargetType.Artist && !string.IsNullOrEmpty(t.Name))
-                .Select(t => ExtractArtistName(t.Name)))
-            .GroupBy(name => name)
-            .Select(g => new TopItem { Name = g.Key, Count = g.Count() })
-            .OrderByDescending(t => t.Count)
-            .Take(10)
-            .ToList();
-
-        if (frequentedArtists.Count == 0)
-        {
-            frequentedArtists = jobs
-                .Where(j => j.Type == DownloadJobType.Artist)
-                .GroupBy(j => j.Name)
-                .Select(g => new TopItem { Name = g.Key, Count = g.Count() })
-                .OrderByDescending(t => t.Count)
-                .Take(10)
-                .ToList();
-        }
-
-        MostFrequentedArtists.Clear();
-        for (int i = 0; i < frequentedArtists.Count; i++)
-        {
-            frequentedArtists[i].Rank = $"#{i + 1}";
-            MostFrequentedArtists.Add(frequentedArtists[i]);
-        }
-
-        // Aggregate by tags (from search jobs)
-        var tagDownloads = jobs
-            .Where(j => j.Type == DownloadJobType.Search)
-            .GroupBy(j => j.Name)
-            .Select(g => new TopItem { Name = g.Key, Count = g.Sum(j => j.CompletedItems) })
-            .OrderByDescending(t => t.Count)
-            .Take(10)
-            .ToList();
-
-        TopTags.Clear();
-        foreach (var tag in tagDownloads)
-            TopTags.Add(tag);
-
-        OnPropertyChanged(nameof(TopArtists));
-        OnPropertyChanged(nameof(MostFrequentedArtists));
-        OnPropertyChanged(nameof(TopTags));
-    }
-
-    private static string ExtractArtistName(string targetName)
+    private static string ArtistName(string targetName)
     {
-        // Target names are typically "ArtworkTitle by ArtistName" or just "ArtistName"
-        var byIndex = targetName.LastIndexOf(" by ", StringComparison.OrdinalIgnoreCase);
-        return byIndex >= 0 ? targetName[(byIndex + 4)..].Trim() : targetName.Trim();
+        var i = targetName.LastIndexOf(" by ", StringComparison.OrdinalIgnoreCase);
+        return i >= 0 ? targetName[(i + 4)..].Trim() : targetName.Trim();
     }
 
-    private void CalculateStorageUsage()
+    private static void Fill(ObservableCollection<StatRow> target, List<(string Name, int Count)> rows, Func<int, string>? value, int total = 0)
     {
-        // Placeholder - would need to scan download directory
-        StorageUsage = "Not implemented";
+        target.Clear();
+        var max = rows.Count == 0 ? 1 : Math.Max(1, rows.Max(r => r.Count));
+        foreach (var (name, count) in rows)
+        {
+            var pct = total > 0 ? count * 100.0 / total : count * 100.0 / max;
+            target.Add(new StatRow
+            {
+                Name = name,
+                Count = count,
+                Percent = total > 0 ? pct : pct,
+                ValueText = value?.Invoke(count) ?? $"{N(count)}  ·  {Pct(pct)}",
+                IsTop = count == max && count > 0,
+            });
+        }
     }
-}
 
-public class DownloadMetric
-{
-    public string Name { get; set; } = string.Empty;
-    public string Type { get; set; } = string.Empty;
-    public string Status { get; set; } = string.Empty;
-    public DateTime Date { get; set; }
-    public int Items { get; set; }
-}
+    private void Apply(ActivityStats s, DateOnly today)
+    {
+        Subtitle = s.FirstDay is { } f ? F("Analytics_CountingSince", f.ToString("MMM d, yyyy", CultureInfo.CurrentCulture), N(s.DaysTracked)) : L("Analytics_NoDataYet");
+        TotalText = N(s.Total);
+        var weeks = Math.Max(1, s.DaysTracked / 7.0);
+        TotalSub = s.Total == 0 ? "" : F("Analytics_PerWeek", N(Math.Round(s.Total / weeks)));
+        TotalSegments = [s.Views, s.ViewsR18, s.Downloads];
+        var total = Math.Max(1, s.Total);
+        ViewsLegend = $"{L("Analytics_Views")}  {N(s.Views)}  {Pct(s.Views * 100.0 / total)}";
+        R18Legend = $"{L("Analytics_ViewsR18")}  {N(s.ViewsR18)}  {Pct(s.ViewsR18 * 100.0 / total)}";
+        DownloadsLegend = $"{L("Analytics_Downloads")}  {N(s.Downloads)}  {Pct(s.Downloads * 100.0 / total)}";
+        TodayText = N(s.Today);
+        TodaySub = F("Analytics_TodaySub", N(s.TodayViews), N(s.TodayDownloads));
+        Past7Text = N(s.Past7);
+        Past7Sub = s.Prev7 == 0 ? L("Analytics_NoneBefore") : F("Analytics_Before", N(s.Prev7),
+            (s.Past7 >= s.Prev7 ? "▲ " : "▼ ") + Pct(Math.Abs(s.Past7 - s.Prev7) * 100.0 / s.Prev7));
+        StreakText = F("Analytics_Days", N(s.CurrentStreak));
+        StreakSub = s.CurrentStreak > 0 && s.CurrentStreak >= s.LongestStreak ? L("Analytics_LongestYet") : F("Analytics_Longest", N(s.LongestStreak));
+        BusiestText = s.BusiestDay is null ? "—" : N(s.BusiestDayCount);
+        BusiestSub = s.BusiestDay?.ToString("ddd, MMM d, yyyy", CultureInfo.CurrentCulture) ?? "";
+        Daily = s.Daily;
+        FirstDay = s.FirstDay;
+        ActiveDaysText = F("Analytics_ActiveDays", N(s.ActiveDays), N(Math.Max(s.DaysTracked, 0)));
+        ApplyHours();
 
-public class TopItem
-{
-    public string Name { get; set; } = string.Empty;
-    public int Count { get; set; }
-    public string Rank { get; set; } = string.Empty;
+        var names = CultureInfo.CurrentCulture.DateTimeFormat.AbbreviatedDayNames;
+        var sum = Math.Max(1, s.Weekdays.Sum());
+        var maxDay = s.Weekdays.Max();
+        Weekdays.Clear();
+        for (var d = 0; d < 7; d++)
+            Weekdays.Add(new StatRow { Name = names[d], Count = s.Weekdays[d], Percent = s.Weekdays[d] * 100.0 / sum, ValueText = Pct(s.Weekdays[d] * 100.0 / sum), IsTop = maxDay > 0 && s.Weekdays[d] == maxDay });
+        BusiestWeekdayText = maxDay == 0 ? "" : F("Analytics_BusiestOn", CultureInfo.CurrentCulture.DateTimeFormat.GetDayName((DayOfWeek)Array.IndexOf(s.Weekdays, maxDay)));
+    }
 }

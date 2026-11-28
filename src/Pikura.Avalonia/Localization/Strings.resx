@@ -7950,4 +7950,112 @@ Saved to: {3}</value>
   <data name="Dic_Go" xml:space="preserve">
     <value>Go</value>
   </data>
+  <data name="Analytics_Stats" xml:space="preserve">
+    <value>Stats</value>
+  </data>
+  <data name="Analytics_CountingSince" xml:space="preserve">
+    <value>Counting since {0} · {1} days</value>
+  </data>
+  <data name="Analytics_Total" xml:space="preserve">
+    <value>Total</value>
+  </data>
+  <data name="Analytics_PerWeek" xml:space="preserve">
+    <value>about {0} a week</value>
+  </data>
+  <data name="Analytics_Views" xml:space="preserve">
+    <value>Views</value>
+  </data>
+  <data name="Analytics_ViewsR18" xml:space="preserve">
+    <value>R-18 views</value>
+  </data>
+  <data name="Analytics_Downloads" xml:space="preserve">
+    <value>Downloads</value>
+  </data>
+  <data name="Analytics_Today" xml:space="preserve">
+    <value>Today</value>
+  </data>
+  <data name="Analytics_TodaySub" xml:space="preserve">
+    <value>Views {0} · Downloads {1}</value>
+  </data>
+  <data name="Analytics_Past7" xml:space="preserve">
+    <value>Past 7 days</value>
+  </data>
+  <data name="Analytics_NoneBefore" xml:space="preserve">
+    <value>none in the 7 days before</value>
+  </data>
+  <data name="Analytics_Before" xml:space="preserve">
+    <value>{0} in the 7 days before ({1})</value>
+  </data>
+  <data name="Analytics_Streak" xml:space="preserve">
+    <value>Streak</value>
+  </data>
+  <data name="Analytics_Days" xml:space="preserve">
+    <value>{0} days</value>
+  </data>
+  <data name="Analytics_LongestYet" xml:space="preserve">
+    <value>your longest yet</value>
+  </data>
+  <data name="Analytics_Longest" xml:space="preserve">
+    <value>longest: {0} days</value>
+  </data>
+  <data name="Analytics_BusiestDay" xml:space="preserve">
+    <value>Busiest day</value>
+  </data>
+  <data name="Analytics_EveryDay" xml:space="preserve">
+    <value>Every day</value>
+  </data>
+  <data name="Analytics_ActiveDays" xml:space="preserve">
+    <value>{0} of {1} days active</value>
+  </data>
+  <data name="Analytics_Less" xml:space="preserve">
+    <value>Less</value>
+  </data>
+  <data name="Analytics_More" xml:space="preserve">
+    <value>More</value>
+  </data>
+  <data name="Analytics_TimeOfDay" xml:space="preserve">
+    <value>Time of day</value>
+  </data>
+  <data name="Analytics_BusiestHour" xml:space="preserve">
+    <value>busiest {0}</value>
+  </data>
+  <data name="Analytics_All" xml:space="preserve">
+    <value>All</value>
+  </data>
+  <data name="Analytics_DayOfWeek" xml:space="preserve">
+    <value>Day of the week</value>
+  </data>
+  <data name="Analytics_BusiestOn" xml:space="preserve">
+    <value>busiest on {0}</value>
+  </data>
+  <data name="Analytics_Night" xml:space="preserve">
+    <value>Night</value>
+  </data>
+  <data name="Analytics_Morning" xml:space="preserve">
+    <value>Morning</value>
+  </data>
+  <data name="Analytics_Afternoon" xml:space="preserve">
+    <value>Afternoon</value>
+  </data>
+  <data name="Analytics_Evening" xml:space="preserve">
+    <value>Evening</value>
+  </data>
+  <data name="Analytics_TopTags" xml:space="preserve">
+    <value>Top tags viewed</value>
+  </data>
+  <data name="Analytics_ContentTypes" xml:space="preserve">
+    <value>What you view</value>
+  </data>
+  <data name="Analytics_TypeIllust" xml:space="preserve">
+    <value>Illustrations</value>
+  </data>
+  <data name="Analytics_TypeManga" xml:space="preserve">
+    <value>Manga</value>
+  </data>
+  <data name="Analytics_TypeUgoira" xml:space="preserve">
+    <value>Ugoira</value>
+  </data>
+  <data name="Analytics_DownloadJobs" xml:space="preserve">
+    <value>Download jobs</value>
+  </data>
 </root>

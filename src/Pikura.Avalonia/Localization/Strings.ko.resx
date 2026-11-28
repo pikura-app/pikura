@@ -7886,4 +7886,112 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="Dic_Go" xml:space="preserve">
     <value>이동</value>
   </data>
+  <data name="Analytics_Stats" xml:space="preserve">
+    <value>통계</value>
+  </data>
+  <data name="Analytics_CountingSince" xml:space="preserve">
+    <value>{0}부터 집계 · {1}일</value>
+  </data>
+  <data name="Analytics_Total" xml:space="preserve">
+    <value>합계</value>
+  </data>
+  <data name="Analytics_PerWeek" xml:space="preserve">
+    <value>주당 약 {0}</value>
+  </data>
+  <data name="Analytics_Views" xml:space="preserve">
+    <value>조회</value>
+  </data>
+  <data name="Analytics_ViewsR18" xml:space="preserve">
+    <value>R-18 조회</value>
+  </data>
+  <data name="Analytics_Downloads" xml:space="preserve">
+    <value>다운로드</value>
+  </data>
+  <data name="Analytics_Today" xml:space="preserve">
+    <value>오늘</value>
+  </data>
+  <data name="Analytics_TodaySub" xml:space="preserve">
+    <value>조회 {0} · 다운로드 {1}</value>
+  </data>
+  <data name="Analytics_Past7" xml:space="preserve">
+    <value>지난 7일</value>
+  </data>
+  <data name="Analytics_NoneBefore" xml:space="preserve">
+    <value>이전 7일 동안 없음</value>
+  </data>
+  <data name="Analytics_Before" xml:space="preserve">
+    <value>이전 7일 동안 {0} ({1})</value>
+  </data>
+  <data name="Analytics_Streak" xml:space="preserve">
+    <value>연속</value>
+  </data>
+  <data name="Analytics_Days" xml:space="preserve">
+    <value>{0}일</value>
+  </data>
+  <data name="Analytics_LongestYet" xml:space="preserve">
+    <value>최장 기록</value>
+  </data>
+  <data name="Analytics_Longest" xml:space="preserve">
+    <value>최장: {0}일</value>
+  </data>
+  <data name="Analytics_BusiestDay" xml:space="preserve">
+    <value>가장 많은 날</value>
+  </data>
+  <data name="Analytics_EveryDay" xml:space="preserve">
+    <value>매일</value>
+  </data>
+  <data name="Analytics_ActiveDays" xml:space="preserve">
+    <value>{1}일 중 {0}일 활동</value>
+  </data>
+  <data name="Analytics_Less" xml:space="preserve">
+    <value>적음</value>
+  </data>
+  <data name="Analytics_More" xml:space="preserve">
+    <value>많음</value>
+  </data>
+  <data name="Analytics_TimeOfDay" xml:space="preserve">
+    <value>시간대</value>
+  </data>
+  <data name="Analytics_BusiestHour" xml:space="preserve">
+    <value>가장 많음 {0}</value>
+  </data>
+  <data name="Analytics_All" xml:space="preserve">
+    <value>전체</value>
+  </data>
+  <data name="Analytics_DayOfWeek" xml:space="preserve">
+    <value>요일</value>
+  </data>
+  <data name="Analytics_BusiestOn" xml:space="preserve">
+    <value>{0}에 가장 많음</value>
+  </data>
+  <data name="Analytics_Night" xml:space="preserve">
+    <value>밤</value>
+  </data>
+  <data name="Analytics_Morning" xml:space="preserve">
+    <value>아침</value>
+  </data>
+  <data name="Analytics_Afternoon" xml:space="preserve">
+    <value>오후</value>
+  </data>
+  <data name="Analytics_Evening" xml:space="preserve">
+    <value>저녁</value>
+  </data>
+  <data name="Analytics_TopTags" xml:space="preserve">
+    <value>많이 본 태그</value>
+  </data>
+  <data name="Analytics_ContentTypes" xml:space="preserve">
+    <value>조회한 작품 유형</value>
+  </data>
+  <data name="Analytics_TypeIllust" xml:space="preserve">
+    <value>일러스트</value>
+  </data>
+  <data name="Analytics_TypeManga" xml:space="preserve">
+    <value>만화</value>
+  </data>
+  <data name="Analytics_TypeUgoira" xml:space="preserve">
+    <value>움직이는 일러스트</value>
+  </data>
+  <data name="Analytics_DownloadJobs" xml:space="preserve">
+    <value>다운로드 작업</value>
+  </data>
 </root>

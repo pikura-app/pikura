@@ -7886,4 +7886,112 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="Dic_Go" xml:space="preserve">
     <value>跳转</value>
   </data>
+  <data name="Analytics_Stats" xml:space="preserve">
+    <value>统计</value>
+  </data>
+  <data name="Analytics_CountingSince" xml:space="preserve">
+    <value>自 {0} 起统计 · {1} 天</value>
+  </data>
+  <data name="Analytics_Total" xml:space="preserve">
+    <value>总计</value>
+  </data>
+  <data name="Analytics_PerWeek" xml:space="preserve">
+    <value>每周约 {0}</value>
+  </data>
+  <data name="Analytics_Views" xml:space="preserve">
+    <value>浏览</value>
+  </data>
+  <data name="Analytics_ViewsR18" xml:space="preserve">
+    <value>R-18 浏览</value>
+  </data>
+  <data name="Analytics_Downloads" xml:space="preserve">
+    <value>下载</value>
+  </data>
+  <data name="Analytics_Today" xml:space="preserve">
+    <value>今天</value>
+  </data>
+  <data name="Analytics_TodaySub" xml:space="preserve">
+    <value>浏览 {0} · 下载 {1}</value>
+  </data>
+  <data name="Analytics_Past7" xml:space="preserve">
+    <value>过去 7 天</value>
+  </data>
+  <data name="Analytics_NoneBefore" xml:space="preserve">
+    <value>之前 7 天没有</value>
+  </data>
+  <data name="Analytics_Before" xml:space="preserve">
+    <value>之前 7 天 {0}（{1}）</value>
+  </data>
+  <data name="Analytics_Streak" xml:space="preserve">
+    <value>连续</value>
+  </data>
+  <data name="Analytics_Days" xml:space="preserve">
+    <value>{0} 天</value>
+  </data>
+  <data name="Analytics_LongestYet" xml:space="preserve">
+    <value>最长纪录</value>
+  </data>
+  <data name="Analytics_Longest" xml:space="preserve">
+    <value>最长：{0} 天</value>
+  </data>
+  <data name="Analytics_BusiestDay" xml:space="preserve">
+    <value>最忙的一天</value>
+  </data>
+  <data name="Analytics_EveryDay" xml:space="preserve">
+    <value>每天</value>
+  </data>
+  <data name="Analytics_ActiveDays" xml:space="preserve">
+    <value>{1} 天中有 {0} 天活跃</value>
+  </data>
+  <data name="Analytics_Less" xml:space="preserve">
+    <value>少</value>
+  </data>
+  <data name="Analytics_More" xml:space="preserve">
+    <value>多</value>
+  </data>
+  <data name="Analytics_TimeOfDay" xml:space="preserve">
+    <value>时段</value>
+  </data>
+  <data name="Analytics_BusiestHour" xml:space="preserve">
+    <value>最多 {0}</value>
+  </data>
+  <data name="Analytics_All" xml:space="preserve">
+    <value>全部</value>
+  </data>
+  <data name="Analytics_DayOfWeek" xml:space="preserve">
+    <value>星期</value>
+  </data>
+  <data name="Analytics_BusiestOn" xml:space="preserve">
+    <value>{0}最多</value>
+  </data>
+  <data name="Analytics_Night" xml:space="preserve">
+    <value>夜间</value>
+  </data>
+  <data name="Analytics_Morning" xml:space="preserve">
+    <value>上午</value>
+  </data>
+  <data name="Analytics_Afternoon" xml:space="preserve">
+    <value>下午</value>
+  </data>
+  <data name="Analytics_Evening" xml:space="preserve">
+    <value>傍晚</value>
+  </data>
+  <data name="Analytics_TopTags" xml:space="preserve">
+    <value>常看标签</value>
+  </data>
+  <data name="Analytics_ContentTypes" xml:space="preserve">
+    <value>浏览的作品类型</value>
+  </data>
+  <data name="Analytics_TypeIllust" xml:space="preserve">
+    <value>插画</value>
+  </data>
+  <data name="Analytics_TypeManga" xml:space="preserve">
+    <value>漫画</value>
+  </data>
+  <data name="Analytics_TypeUgoira" xml:space="preserve">
+    <value>动图</value>
+  </data>
+  <data name="Analytics_DownloadJobs" xml:space="preserve">
+    <value>下载任务</value>
+  </data>
 </root>

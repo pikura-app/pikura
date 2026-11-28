@@ -318,6 +318,25 @@ public sealed class ViewedHistoryRepository : IDisposable
         return dates;
     }
 
+    public sealed record ViewActivity(DateTime ViewedAtUtc, string UserName, int XRestrict, int IllustType, IReadOnlyList<string> Tags);
+
+    /// <summary>Light rows of every history entry, for the Analytics page.</summary>
+    public async Task<List<ViewActivity>> GetActivityAsync(CancellationToken ct = default)
+    {
+        using var connection = CreateConnection();
+        await connection.OpenAsync(ct).ConfigureAwait(false);
+        using var cmd = new SqliteCommand("SELECT viewed_at, user_name, x_restrict, illust_type, tags FROM viewed_history", connection);
+        using var reader = await cmd.ExecuteReaderAsync(ct).ConfigureAwait(false);
+        var rows = new List<ViewActivity>();
+        while (await reader.ReadAsync(ct).ConfigureAwait(false))
+        {
+            if (!DateTime.TryParse(reader.GetString(0), null, System.Globalization.DateTimeStyles.RoundtripKind, out var dt)) continue;
+            rows.Add(new ViewActivity(dt.ToUniversalTime(), reader.GetString(1), reader.GetInt32(2), reader.GetInt32(3),
+                reader.GetString(4).Split(' ', StringSplitOptions.RemoveEmptyEntries)));
+        }
+        return rows;
+    }
+
     /// <summary>One row of "most viewed artists": how many distinct artworks by the artist are in history.</summary>
     public sealed record ArtistViewCount(string UserId, string UserName, int Count);
 
