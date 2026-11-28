@@ -92,7 +92,7 @@ public partial class DicView : UserControl
 
     // ── Article rendering ────────────────────────────────────────────────
 
-    private IBrush Accent => this.TryFindResource("AccentBrush", ActualThemeVariant, out var b) && b is IBrush br ? br : Brushes.DodgerBlue;
+    private IBrush Accent => this.TryFindResource("DicLinkBrush", out var b) && b is IBrush br ? br : Brushes.DodgerBlue;
     private IBrush Muted => this.TryFindResource("DefaultForegroundBrushTertiary", ActualThemeVariant, out var b) && b is IBrush br ? br : Brushes.Gray;
     private IBrush Panel2 => this.TryFindResource("Container2BackgroundBrush", ActualThemeVariant, out var b) && b is IBrush br ? br : Brushes.Transparent;
     private IBrush Border2 => this.TryFindResource("Container2BorderBrush", ActualThemeVariant, out var b) && b is IBrush br ? br : Brushes.Gray;
@@ -352,7 +352,7 @@ public partial class DicView : UserControl
                     Cursor = new Cursor(StandardCursorType.Hand),
                 };
                 link.PointerPressed += (_, e) => { e.Handled = true; _ = _vm?.OpenArticleAsync(to); };
-                inlines.Add(new InlineUIContainer(link) { BaselineAlignment = BaselineAlignment.TextBottom });
+                inlines.Add(new InlineUIContainer(link) { BaselineAlignment = BaselineAlignment.Baseline });
                 break;
             }
             case "external_link":
@@ -364,7 +364,7 @@ public partial class DicView : UserControl
                     TextDecorations = TextDecorations.Underline, Cursor = new Cursor(StandardCursorType.Hand),
                 };
                 link.PointerPressed += (_, e) => { e.Handled = true; if (to.StartsWith("http", StringComparison.OrdinalIgnoreCase)) OpenUrl(to); };
-                inlines.Add(new InlineUIContainer(link) { BaselineAlignment = BaselineAlignment.TextBottom });
+                inlines.Add(new InlineUIContainer(link) { BaselineAlignment = BaselineAlignment.Baseline });
                 break;
             }
             default:

@@ -34,6 +34,7 @@
     </UserControl.Styles>
 
     <UserControl.Resources>
+        <SolidColorBrush x:Key="DicLinkBrush" Color="#4EA1F3"/>
         <DataTemplate x:Key="SideItem" x:DataType="vm:DicArticleCard">
             <Button Classes="linkItem" Click="OnArticleCardClick">
                 <StackPanel Orientation="Horizontal" Spacing="8">
@@ -43,7 +44,7 @@
                     </Border>
                     <StackPanel VerticalAlignment="Center" MaxWidth="200">
                         <TextBlock Text="{Binding Title}" FontSize="12" FontWeight="SemiBold"
-                                   TextTrimming="CharacterEllipsis" Foreground="{DynamicResource AccentBrush}"/>
+                                   TextTrimming="CharacterEllipsis" Foreground="{StaticResource DicLinkBrush}"/>
                         <TextBlock Text="{Binding Meta}" FontSize="10" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                     </StackPanel>
                 </StackPanel>
@@ -68,7 +69,7 @@
                         Classes.accent="{Binding Topic, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=new}"/>
             </StackPanel>
             <TextBox Grid.Column="1" Margin="12,0" MaxWidth="460" HorizontalAlignment="Stretch"
-                     Text="{Binding SearchText}" Watermark="{loc:Tr Dic_SearchPlaceholder}" KeyDown="OnSearchKeyDown"/>
+                     Text="{Binding SearchText}" PlaceholderText="{loc:Tr Dic_SearchPlaceholder}" KeyDown="OnSearchKeyDown"/>
             <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
                 <Button Content="EN" Padding="10,5" CornerRadius="6" FontSize="12"
                         Command="{Binding SetLanguageCommand}" CommandParameter="en" Classes.accent="{Binding IsEnglish}"/>
@@ -132,7 +133,7 @@
                                             <StackPanel Grid.Column="1" Margin="14,0,0,0" Spacing="4">
                                                 <Button Classes="linkItem" Padding="0" Click="OnArticleCardClick">
                                                     <TextBlock Text="{Binding Title}" FontSize="17" FontWeight="SemiBold"
-                                                               Foreground="{DynamicResource AccentBrush}" TextWrapping="Wrap"/>
+                                                               Foreground="{StaticResource DicLinkBrush}" TextWrapping="Wrap"/>
                                                 </Button>
                                                 <TextBlock Text="{Binding Summary}" TextWrapping="Wrap" FontSize="13" IsVisible="{Binding HasSummary}"/>
                                                 <TextBlock Text="{Binding Meta}" FontSize="10" TextWrapping="Wrap"
