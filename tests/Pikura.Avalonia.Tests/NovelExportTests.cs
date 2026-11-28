@@ -134,3 +134,21 @@ public class NovelTargetIdTests
         Assert.Equal(["12", "34"], ids);
     }
 }
+
+public class NovelTranslationSplitTests
+{
+    [Fact]
+    public void Long_Paragraph_Splits_At_Sentence_Ends_Without_Losing_Text()
+    {
+        var text = string.Concat(Enumerable.Repeat("这是一个很长的句子，用来测试分割。", 200));
+        var pieces = Pikura.Avalonia.Services.NovelTranslation.SplitLong(text, 1200).ToList();
+        Assert.True(pieces.Count > 1);
+        Assert.All(pieces, p => Assert.True(p.Length <= 1200));
+        Assert.All(pieces.Take(pieces.Count - 1), p => Assert.EndsWith("。", p));
+        Assert.Equal(text, string.Concat(pieces));
+    }
+
+    [Fact]
+    public void Short_Paragraph_Is_One_Piece() =>
+        Assert.Single(Pikura.Avalonia.Services.NovelTranslation.SplitLong("短い文。", 1200));
+}

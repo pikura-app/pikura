@@ -19,30 +19,80 @@ public static class NovelTranslation
 
     public static async Task<IReadOnlyList<string>> TranslateAsync(IReadOnlyList<string> lines, string provider, string targetLang, CancellationToken ct)
     {
-        var result = lines.ToArray();
         var hoshi = provider == "hoshi";
-        var budget = hoshi ? 1500 : 4000;
-        var chunk = new List<int>();
-        var size = 0;
-        async Task FlushAsync()
-        {
-            if (chunk.Count == 0) return;
-            var input = chunk.Select(i => lines[i]).ToList();
-            var output = hoshi ? await HoshiAsync(input, targetLang, ct) : await GoogleAsync(input, targetLang, ct);
-            for (var k = 0; k < chunk.Count; k++) result[chunk[k]] = k < output.Count ? output[k] : "";
-            if (output.Count > chunk.Count) result[chunk[^1]] += " " + string.Join(" ", output.Skip(chunk.Count));
-            chunk.Clear();
-            size = 0;
-        }
+        // Long paragraphs are split into sentence pieces: Google's free endpoint stops partway
+        // through very long input, and a small model loses track of long lines.
+        var pieceMax = hoshi ? 600 : 1200;
+        var budget = hoshi ? 1500 : 3000;
+        var pieces = new List<(int Line, string Text)>();
         for (var i = 0; i < lines.Count; i++)
+            if (!string.IsNullOrWhiteSpace(lines[i]))
+                foreach (var piece in SplitLong(lines[i], pieceMax)) pieces.Add((i, piece));
+
+        var translated = new string[pieces.Count];
+        var batches = new List<List<int>>();
+        var current = new List<int>();
+        var size = 0;
+        for (var k = 0; k < pieces.Count; k++)
         {
-            if (string.IsNullOrWhiteSpace(lines[i])) continue;
-            if (size + lines[i].Length > budget) await FlushAsync();
-            chunk.Add(i);
-            size += lines[i].Length + 1;
+            if (current.Count > 0 && size + pieces[k].Text.Length > budget) { batches.Add(current); current = []; size = 0; }
+            current.Add(k);
+            size += pieces[k].Text.Length + 1;
         }
-        await FlushAsync();
+        if (current.Count > 0) batches.Add(current);
+
+        async Task RunBatchAsync(List<int> batch)
+        {
+            var input = batch.Select(k => pieces[k].Text).ToList();
+            var output = hoshi ? await HoshiAsync(input, targetLang, ct) : await GoogleAsync(input, targetLang, ct);
+            if (output.Count == input.Count)
+            {
+                for (var j = 0; j < batch.Count; j++) translated[batch[j]] = output[j];
+                return;
+            }
+            // Line count didn't survive: translate each piece on its own so nothing is left untranslated.
+            for (var j = 0; j < batch.Count; j++)
+            {
+                var single = hoshi ? await HoshiAsync([input[j]], targetLang, ct) : await GoogleAsync([input[j]], targetLang, ct);
+                translated[batch[j]] = string.Join(" ", single);
+            }
+        }
+
+        if (hoshi)
+            foreach (var batch in batches) await RunBatchAsync(batch);
+        else
+        {
+            using var gate = new SemaphoreSlim(3);
+            await Task.WhenAll(batches.Select(async batch =>
+            {
+                await gate.WaitAsync(ct);
+                try { await RunBatchAsync(batch); }
+                finally { gate.Release(); }
+            }));
+        }
+
+        var sep = targetLang is "ja" or "zh" ? "" : " ";
+        var result = lines.ToArray();
+        foreach (var group in pieces.Select((p, k) => (p.Line, Text: translated[k] ?? p.Text)).GroupBy(x => x.Line))
+            result[group.Key] = string.Join(sep, group.Select(x => x.Text.Trim()));
         return result;
+    }
+
+    /// <summary>Splits a paragraph into pieces of at most <paramref name="max"/> characters at sentence ends.</summary>
+    internal static IEnumerable<string> SplitLong(string text, int max)
+    {
+        if (text.Length <= max) { yield return text; yield break; }
+        var start = 0;
+        while (start < text.Length)
+        {
+            if (text.Length - start <= max) { yield return text[start..]; yield break; }
+            var cut = -1;
+            for (var i = start + max - 1; i > start + max / 3; i--)
+                if ("。！？!?.」』…\u3000 ".Contains(text[i])) { cut = i + 1; break; }
+            if (cut < 0) cut = start + max;
+            yield return text[start..cut];
+            start = cut;
+        }
     }
 
     private static async Task<List<string>> GoogleAsync(List<string> lines, string target, CancellationToken ct)
