@@ -39,6 +39,13 @@ public partial class NovelReaderViewModel : ObservableObject
         _loader = loader;
         _settings = settings;
         Comments.CollectionChanged += (_, _) => OnPropertyChanged(nameof(CommentsLabel));
+        SeriesItems.CollectionChanged += (_, e) =>
+        {
+            if (e.NewItems != null)
+                foreach (NovelSeriesItem item in e.NewItems)
+                    item.PropertyChanged += (_, pe) => { if (pe.PropertyName == nameof(NovelSeriesItem.IsSelected)) NotifySelection(); };
+            NotifySelection();
+        };
     }
 
     partial void OnCanLoadMoreCommentsChanged(bool value) => OnPropertyChanged(nameof(CommentsLabel));
@@ -51,6 +58,24 @@ public partial class NovelReaderViewModel : ObservableObject
     public ObservableCollection<NovelSeriesItem> SeriesItems { get; } = [];
     public string[] ExportFormats { get; } = ["TXT", "EPUB", "PDF", "DOCX"];
     [ObservableProperty] private bool _showComments;
+    [ObservableProperty] private bool _isSaved;
+    [ObservableProperty] private bool _exportTxt;
+    [ObservableProperty] private bool _exportEpub = true;
+    [ObservableProperty] private bool _exportPdf;
+    [ObservableProperty] private bool _exportDocx;
+    public int SelectedChapterCount => SeriesItems.Count(i => i.IsSelected);
+    public string DownloadSelectedLabel => LocalizationService.F("Novel_DownloadSelectedN", SelectedChapterCount);
+    private void NotifySelection() { OnPropertyChanged(nameof(SelectedChapterCount)); OnPropertyChanged(nameof(DownloadSelectedLabel)); }
+
+    private static NovelLibraryService? Library { get { try { return AppServices.Get<NovelLibraryService>(); } catch { return null; } } }
+    private static NovelLibraryEntry LibraryEntry(NovelText n) => new(n.Id, n.Title, n.UserName, n.CoverUrl, n.XRestrict, DateTimeOffset.Now, n.Tags);
+
+    [RelayCommand]
+    private void ToggleSave()
+    {
+        if (Novel is not { Id.Length: > 0 } n || Library is not { } lib) return;
+        IsSaved = lib.ToggleSaved(LibraryEntry(n));
+    }
     [ObservableProperty] private bool _showSeries;
     [ObservableProperty] private bool _canLoadMoreComments;
     [ObservableProperty] private int _exportFormatIndex = 1;
@@ -62,7 +87,7 @@ public partial class NovelReaderViewModel : ObservableObject
     public string CommentsLabel => Comments.Count > 0
         ? $"{Pikura.Avalonia.Localization.LocalizationService.Instance["Novel_Comments"]} ({Comments.Count}{(CanLoadMoreComments ? "+" : "")})"
         : Pikura.Avalonia.Localization.LocalizationService.Instance["Novel_Comments"];
-    public bool ShowText => !ShowComments && !ShowSeries;
+    public bool ShowText => !ShowSeries;
     public bool HasDownloadStatus => DownloadStatus.Length > 0;
     public bool HasLastExport => LastExportPath is not null;
     private string? _seriesLoadedFor;
@@ -113,8 +138,8 @@ public partial class NovelReaderViewModel : ObservableObject
     partial void OnStatusChanged(string value) => OnPropertyChanged(nameof(HasStatus));
     partial void OnDownloadStatusChanged(string value) => OnPropertyChanged(nameof(HasDownloadStatus));
     partial void OnLastExportPathChanged(string? value) => OnPropertyChanged(nameof(HasLastExport));
-    partial void OnShowCommentsChanged(bool value) { if (value) ShowSeries = false; OnPropertyChanged(nameof(ShowText)); if (value && Comments.Count == 0) _ = LoadCommentsAsync(false); }
-    partial void OnShowSeriesChanged(bool value) { if (value) ShowComments = false; OnPropertyChanged(nameof(ShowText)); if (value) _ = LoadSeriesAsync(); }
+    partial void OnShowCommentsChanged(bool value) { OnPropertyChanged(nameof(ShowText)); if (value && Comments.Count == 0) _ = LoadCommentsAsync(false); }
+    partial void OnShowSeriesChanged(bool value) { OnPropertyChanged(nameof(ShowText)); if (value) _ = LoadSeriesAsync(); }
     partial void OnFontSizeChanged(double value) => s_fontSize = value;
 
     private void NotifyPaging()
@@ -152,6 +177,7 @@ public partial class NovelReaderViewModel : ObservableObject
                 return;
             }
             Novel = novel;
+            if (Library is { } lib) { IsSaved = lib.IsSaved(novel.Id); lib.AddHistory(LibraryEntry(novel)); }
             Pages = NovelMarkup.Parse(novel.Content);
             PageIndex = 0;
             Comments.Clear();
@@ -249,31 +275,39 @@ public partial class NovelReaderViewModel : ObservableObject
         try
         {
             var coordinator = AppServices.Get<DownloadCoordinator>();
-            var format = (NovelExportFormat)ExportFormatIndex;
+            var formats = new List<NovelExportFormat>();
+            if (ExportTxt) formats.Add(NovelExportFormat.Txt);
+            if (ExportEpub) formats.Add(NovelExportFormat.Epub);
+            if (ExportPdf) formats.Add(NovelExportFormat.Pdf);
+            if (ExportDocx) formats.Add(NovelExportFormat.Docx);
+            if (formats.Count == 0) formats.Add(NovelExportFormat.Epub);
             var name = ids.Count == 1 && Novel is { } n && ids[0] == n.Id ? n.Title : title;
-            var target = new DownloadTarget
+            foreach (var format in formats)
             {
-                TargetId = DownloadCoordinator.NovelTargetId(format, ids),
-                Name = name,
-                UserName = Novel?.UserName,
-                UserId = Novel?.UserId,
-                ThumbnailUrl = Novel?.CoverUrl,
-                Type = TargetType.Novel,
-            };
-            var job = await coordinator.CreateJobAsync(DownloadJobType.ImageId,
-                $"{name} ({ExportFormats[ExportFormatIndex]})", [target],
-                new SettingsOverride { UseGlobalSettings = true }, startImmediately: true);
-            DownloadStatus = LocalizationService.F("Novel_Queued", ids.Count);
-            coordinator.SubscribeToProgress(job.Id, new Progress<JobProgress>(p =>
-            {
-                if (p.Status == JobStatus.Completed && job.OutputFolder is { } folder)
+                var target = new DownloadTarget
                 {
-                    LastExportPath = folder;
-                    DownloadStatus = string.Format(LocalizationService.Instance["Novel_Saved"], folder);
-                }
-                else if (p.Status == JobStatus.Failed)
-                    DownloadStatus = p.Message ?? LocalizationService.Instance["Novel_LoadFailed"];
-            }));
+                    TargetId = DownloadCoordinator.NovelTargetId(format, ids),
+                    Name = name,
+                    UserName = Novel?.UserName,
+                    UserId = Novel?.UserId,
+                    ThumbnailUrl = Novel?.CoverUrl,
+                    Type = TargetType.Novel,
+                };
+                var job = await coordinator.CreateJobAsync(DownloadJobType.ImageId,
+                    $"{name} ({format.ToString().ToUpperInvariant()})", [target],
+                    new SettingsOverride { UseGlobalSettings = true }, startImmediately: true);
+                coordinator.SubscribeToProgress(job.Id, new Progress<JobProgress>(p =>
+                {
+                    if (p.Status == JobStatus.Completed && job.OutputFolder is { } folder)
+                    {
+                        LastExportPath = folder;
+                        DownloadStatus = string.Format(LocalizationService.Instance["Novel_Saved"], folder);
+                    }
+                    else if (p.Status == JobStatus.Failed)
+                        DownloadStatus = p.Message ?? LocalizationService.Instance["Novel_LoadFailed"];
+                }));
+            }
+            DownloadStatus = LocalizationService.F("Novel_Queued", ids.Count);
         }
         catch (Exception ex)
         {

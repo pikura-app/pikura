@@ -7917,6 +7917,30 @@ Saved to: {3}</value>
   <data name="Novel_Downloading" xml:space="preserve">
     <value>Downloading chapter {0} of {1}…</value>
   </data>
+  <data name="Novel_ExitFullscreen" xml:space="preserve">
+    <value>Exit fullscreen</value>
+  </data>
+  <data name="Novel_SaveForLater" xml:space="preserve">
+    <value>Save for later</value>
+  </data>
+  <data name="Novel_Formats" xml:space="preserve">
+    <value>Formats (one job each)</value>
+  </data>
+  <data name="Novel_DownloadSelectedN" xml:space="preserve">
+    <value>Selected chapters ({0})</value>
+  </data>
+  <data name="Novel_TickChaptersHint" xml:space="preserve">
+    <value>Tick chapters in Series to pick them.</value>
+  </data>
+  <data name="Novel_SavedList" xml:space="preserve">
+    <value>Saved</value>
+  </data>
+  <data name="Novel_HistoryList" xml:space="preserve">
+    <value>History</value>
+  </data>
+  <data name="Novel_LibraryEmpty" xml:space="preserve">
+    <value>Nothing here yet.</value>
+  </data>
   <data name="Novel_Queued" xml:space="preserve">
     <value>Added {0} chapter(s) to Jobs</value>
   </data>

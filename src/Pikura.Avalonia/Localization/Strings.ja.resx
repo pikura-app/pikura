@@ -7853,6 +7853,30 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="Novel_Downloading" xml:space="preserve">
     <value>{1}話中{0}話目をダウンロード中…</value>
   </data>
+  <data name="Novel_ExitFullscreen" xml:space="preserve">
+    <value>全画面を終了</value>
+  </data>
+  <data name="Novel_SaveForLater" xml:space="preserve">
+    <value>あとで読む</value>
+  </data>
+  <data name="Novel_Formats" xml:space="preserve">
+    <value>形式（形式ごとにジョブ）</value>
+  </data>
+  <data name="Novel_DownloadSelectedN" xml:space="preserve">
+    <value>選択した話 ({0})</value>
+  </data>
+  <data name="Novel_TickChaptersHint" xml:space="preserve">
+    <value>シリーズで話にチェックを入れて選択します。</value>
+  </data>
+  <data name="Novel_SavedList" xml:space="preserve">
+    <value>保存済み</value>
+  </data>
+  <data name="Novel_HistoryList" xml:space="preserve">
+    <value>履歴</value>
+  </data>
+  <data name="Novel_LibraryEmpty" xml:space="preserve">
+    <value>まだありません。</value>
+  </data>
   <data name="Novel_Queued" xml:space="preserve">
     <value>{0} 話をジョブに追加しました</value>
   </data>

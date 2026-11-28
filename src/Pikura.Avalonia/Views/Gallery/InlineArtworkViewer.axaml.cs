@@ -1954,7 +1954,13 @@ if (result != null && presetWindow.DownloadClicked)
     private void OnNovelFullscreenRequested(object? sender, string novelId)
     {
         if (!IsEffectivelyVisible || TopLevel.GetTopLevel(this) == null) return;
-        Pikura.Avalonia.Views.Novel.NovelReaderWindow.Open(novelId, this, fullscreen: true);
+        OpenNovelFullscreen();
+    }
+
+    private void OpenNovelFullscreen()
+    {
+        if (VM?.SelectedNovel is not { } reader || TopLevel.GetTopLevel(this) is not Window owner) return;
+        _ = new Pikura.Avalonia.Views.Novel.NovelFullscreenWindow(reader).ShowDialog(owner);
     }
 
     private async void OnFullscreen(object? sender, RoutedEventArgs e)
@@ -1962,9 +1968,9 @@ if (result != null && presetWindow.DownloadClicked)
         var window = TopLevel.GetTopLevel(this) as Window;
         if (window == null || VM == null) return;
 
-        if (VM.SelectedViewerTab is { NovelId: { } novelId })
+        if (VM.SelectedViewerTab is { IsNovel: true })
         {
-            Pikura.Avalonia.Views.Novel.NovelReaderWindow.Open(novelId, this, fullscreen: true);
+            OpenNovelFullscreen();
             return;
         }
 

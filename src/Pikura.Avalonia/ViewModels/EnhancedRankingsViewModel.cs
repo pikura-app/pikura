@@ -97,6 +97,37 @@ public partial class EnhancedRankingsViewModel : ViewModelBase
         _ => ShowR18,
     };
 
+    /// <summary>Fills the Novels tab from the local Saved / History lists instead of a pixiv ranking.</summary>
+    private void LoadNovelLibrary()
+    {
+        var lib = Pikura.Avalonia.Services.AppServices.Get<NovelLibraryService>();
+        var entries = SelectedMode == "novel_saved" ? lib.Saved : lib.History;
+        var globalR18Off = _settingsService.Current.R18Mode == Pikura.Core.Settings.R18Mode.Off;
+        var rank = 0;
+        foreach (var e in entries)
+        {
+            if (globalR18Off && e.XRestrict > 0) continue;
+            var card = new RankingCardViewModel(new Pikura.Core.Models.NovelRankingEntry
+            {
+                NovelId = long.TryParse(e.Id, out var id) ? id : 0,
+                Title = e.Title,
+                UserName = e.Author,
+                ThumbnailUrl = e.CoverUrl,
+                Rank = ++rank,
+                XRestrict = e.XRestrict,
+                Tags = e.Tags ?? [],
+            });
+            card.IsBlurred = _settingsService.Current.BlurR18Content && card.IsR18;
+            card.PropertyChanged += OnCardPropertyChanged;
+            Items.Add(card);
+            _ = card.LoadThumbnailAsync(_imageLoader);
+        }
+        TotalItems = Items.Count;
+        CanLoadMore = false;
+        UpdateFilteredItems();
+        StatusMessage = Items.Count > 0 ? $"{Items.Count:N0}" : Pikura.Avalonia.Localization.LocalizationService.Instance["Novel_LibraryEmpty"];
+    }
+
     private string NovelMode(string mode)
     {
         var r18 = WantsR18Novels;
@@ -310,7 +341,7 @@ public partial class EnhancedRankingsViewModel : ViewModelBase
         OnPropertyChanged(nameof(ShowUgoiraModes));
         OnPropertyChanged(nameof(ShowMangaModes));
         OnPropertyChanged(nameof(ShowNovelModes));
-        if (value != "novel") { ShowNovelReader = false; NovelReaderExpanded = false; }
+        if (value != "novel") { ShowNovelReader = false; NovelReaderExpanded = false; if (SelectedMode.StartsWith("novel_", StringComparison.Ordinal)) SelectedMode = "daily"; }
     }
 
     [RelayCommand] public void SetFixedHeight()  { IsFixedHeight = true;  IsNaturalHeight = false; }
@@ -414,6 +445,11 @@ public partial class EnhancedRankingsViewModel : ViewModelBase
             var globalR18Off = _settingsService.Current.R18Mode == Pikura.Core.Settings.R18Mode.Off;
             var isR18Source = effectiveMode.Contains("_r18");
 
+            if (SelectedContent == "novel" && SelectedMode.StartsWith("novel_", StringComparison.Ordinal))
+            {
+                LoadNovelLibrary();
+                return;
+            }
             if (SelectedContent == "novel")
             {
                 effectiveMode = NovelMode(effectiveMode);
@@ -544,6 +580,11 @@ public partial class EnhancedRankingsViewModel : ViewModelBase
 
         try
         {
+            if (SelectedContent == "novel" && SelectedMode.StartsWith("novel_", StringComparison.Ordinal))
+            {
+                CanLoadMore = false;
+                return;
+            }
             if (SelectedContent == "novel")
             {
                 effectiveMode = NovelMode(effectiveMode);

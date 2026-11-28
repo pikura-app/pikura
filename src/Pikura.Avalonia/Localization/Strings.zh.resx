@@ -7853,6 +7853,30 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="Novel_Downloading" xml:space="preserve">
     <value>正在下载第 {0}/{1} 话…</value>
   </data>
+  <data name="Novel_ExitFullscreen" xml:space="preserve">
+    <value>退出全屏</value>
+  </data>
+  <data name="Novel_SaveForLater" xml:space="preserve">
+    <value>稍后阅读</value>
+  </data>
+  <data name="Novel_Formats" xml:space="preserve">
+    <value>格式（每种一个任务）</value>
+  </data>
+  <data name="Novel_DownloadSelectedN" xml:space="preserve">
+    <value>所选章节 ({0})</value>
+  </data>
+  <data name="Novel_TickChaptersHint" xml:space="preserve">
+    <value>在系列中勾选章节。</value>
+  </data>
+  <data name="Novel_SavedList" xml:space="preserve">
+    <value>已保存</value>
+  </data>
+  <data name="Novel_HistoryList" xml:space="preserve">
+    <value>历史</value>
+  </data>
+  <data name="Novel_LibraryEmpty" xml:space="preserve">
+    <value>暂无内容。</value>
+  </data>
   <data name="Novel_Queued" xml:space="preserve">
     <value>已将 {0} 章添加到任务</value>
   </data>

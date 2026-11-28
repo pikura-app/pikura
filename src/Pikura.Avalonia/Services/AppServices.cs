@@ -267,6 +267,7 @@ public static class AppServices
                         provider.GetRequiredService<SettingsService>()));
                 services.AddSingleton<DicService>();
                 services.AddSingleton<Pikura.Core.Services.DicLibraryService>();
+                services.AddSingleton<Pikura.Core.Services.NovelLibraryService>();
                 services.AddSingleton<DicViewModel>();
                 services.AddTransient<NovelReaderViewModel>();
                 services.AddSingleton<PixivisionViewModel>(provider =>

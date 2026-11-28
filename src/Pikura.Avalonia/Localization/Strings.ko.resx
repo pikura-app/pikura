@@ -7853,6 +7853,30 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="Novel_Downloading" xml:space="preserve">
     <value>{1}화 중 {0}화 다운로드 중…</value>
   </data>
+  <data name="Novel_ExitFullscreen" xml:space="preserve">
+    <value>전체 화면 종료</value>
+  </data>
+  <data name="Novel_SaveForLater" xml:space="preserve">
+    <value>나중에 보기</value>
+  </data>
+  <data name="Novel_Formats" xml:space="preserve">
+    <value>형식 (형식별 작업)</value>
+  </data>
+  <data name="Novel_DownloadSelectedN" xml:space="preserve">
+    <value>선택한 챕터 ({0})</value>
+  </data>
+  <data name="Novel_TickChaptersHint" xml:space="preserve">
+    <value>시리즈에서 챕터를 체크해 선택하세요.</value>
+  </data>
+  <data name="Novel_SavedList" xml:space="preserve">
+    <value>저장됨</value>
+  </data>
+  <data name="Novel_HistoryList" xml:space="preserve">
+    <value>기록</value>
+  </data>
+  <data name="Novel_LibraryEmpty" xml:space="preserve">
+    <value>아직 없습니다.</value>
+  </data>
   <data name="Novel_Queued" xml:space="preserve">
     <value>{0}개 챕터를 작업에 추가했습니다</value>
   </data>

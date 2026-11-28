@@ -22,10 +22,48 @@
             <WrapPanel>
                 <Button Classes="tb" Content="A−" Margin="0,0,4,4" Command="{Binding FontSmallerCommand}" ToolTip.Tip="{loc:Tr Novel_Smaller}"/>
                 <Button Classes="tb" Content="A+" Margin="0,0,10,4" Command="{Binding FontLargerCommand}" ToolTip.Tip="{loc:Tr Novel_Larger}"/>
-                <ToggleButton Classes="tb" Margin="0,0,4,4" IsChecked="{Binding ShowComments}" ToolTip.Tip="{loc:Tr Viewer_ViewAndPostComments}">
+                <Panel Margin="0,0,4,4">
+                    <ToggleButton x:Name="NovelCommentsBtn" Classes="tb" IsChecked="{Binding ShowComments}" ToolTip.Tip="{loc:Tr Viewer_ViewAndPostComments}">
+                        <StackPanel Orientation="Horizontal" Spacing="5">
+                            <PathIcon Data="{StaticResource CommentIcon}" Width="14" Height="14" Foreground="{Binding $parent[ToggleButton].Foreground}"/>
+                            <TextBlock Text="{Binding CommentsLabel}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </ToggleButton>
+                    <Popup PlacementTarget="{Binding #NovelCommentsBtn}" Placement="BottomEdgeAlignedLeft" IsLightDismissEnabled="True"
+                           IsOpen="{Binding ShowComments, Mode=TwoWay}" Width="400" MaxHeight="520">
+                        <Border Background="{DynamicResource Container1BackgroundBrush}" BorderBrush="{DynamicResource Container1BorderBrush}"
+                                BorderThickness="1" CornerRadius="8" Margin="0,4,0,0" BoxShadow="0 4 16 0 #55000000">
+                            <Grid RowDefinitions="Auto,*">
+                                <TextBlock Text="{Binding CommentsLabel}" FontWeight="SemiBold" FontSize="13" Margin="12,10,12,6"/>
+                                <ScrollViewer Grid.Row="1" MaxHeight="460" HorizontalScrollBarVisibility="Disabled">
+                                    <StackPanel Margin="12,0,12,10" Spacing="8">
+                    <ItemsControl ItemsSource="{Binding Comments}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="models:PixivComment">
+                                <StackPanel Margin="0,0,0,10" Spacing="2">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <TextBlock Text="{Binding UserName}" FontWeight="SemiBold" FontSize="12"/>
+                                        <TextBlock Text="{Binding CommentDate}" FontSize="11" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
+                                    </StackPanel>
+                                    <SelectableTextBlock Text="{Binding Comment}" TextWrapping="Wrap" FontSize="13"/>
+                                    <TextBlock Text="[stamp]" FontSize="11" IsVisible="{Binding HasStamp}" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <Button Content="{loc:Tr Novel_MoreComments}" Command="{Binding LoadMoreCommentsCommand}" IsVisible="{Binding CanLoadMoreComments}"/>
+                </StackPanel>
+            
+                                </ScrollViewer>
+                            </Grid>
+                        </Border>
+                    </Popup>
+                </Panel>
+                <ToggleButton Classes="tb" Margin="0,0,4,4" IsChecked="{Binding IsSaved, Mode=OneWay}" Command="{Binding ToggleSaveCommand}"
+                              ToolTip.Tip="{loc:Tr Novel_SaveForLater}">
                     <StackPanel Orientation="Horizontal" Spacing="5">
-                        <PathIcon Data="{StaticResource CommentIcon}" Width="14" Height="14" Foreground="{Binding $parent[ToggleButton].Foreground}"/>
-                        <TextBlock Text="{Binding CommentsLabel}" VerticalAlignment="Center"/>
+                        <PathIcon Data="{StaticResource BookmarkIcon}" Width="14" Height="14" Foreground="{Binding $parent[ToggleButton].Foreground}"/>
+                        <TextBlock Text="{loc:Tr Novel_SaveForLater}" VerticalAlignment="Center"/>
                     </StackPanel>
                 </ToggleButton>
                 <ToggleButton Classes="tb" Margin="0,0,4,4" IsChecked="{Binding ShowSeries}" IsVisible="{Binding HasSeries}">
@@ -39,9 +77,17 @@
                     <Button.Flyout>
                         <Flyout Placement="BottomEdgeAlignedLeft">
                             <StackPanel Spacing="6" Width="230">
-                                <ComboBox ItemsSource="{Binding ExportFormats}" SelectedIndex="{Binding ExportFormatIndex}" HorizontalAlignment="Stretch"/>
+                                <TextBlock Text="{loc:Tr Novel_Formats}" FontSize="11" Foreground="{DynamicResource DefaultForegroundBrushSecondary}"/>
+                                <WrapPanel>
+                                    <CheckBox Content="TXT" IsChecked="{Binding ExportTxt}" Margin="0,0,10,0"/>
+                                    <CheckBox Content="EPUB" IsChecked="{Binding ExportEpub}" Margin="0,0,10,0"/>
+                                    <CheckBox Content="PDF" IsChecked="{Binding ExportPdf}" Margin="0,0,10,0"/>
+                                    <CheckBox Content="DOCX" IsChecked="{Binding ExportDocx}"/>
+                                </WrapPanel>
                                 <Button Content="{loc:Tr Novel_DownloadChapter}" HorizontalAlignment="Stretch" Command="{Binding DownloadChapterCommand}"/>
-                                <Button Content="{loc:Tr Novel_DownloadSelected}" HorizontalAlignment="Stretch" Command="{Binding DownloadSelectedCommand}" IsVisible="{Binding ShowSeries}"/>
+                                <Button Content="{Binding DownloadSelectedLabel}" HorizontalAlignment="Stretch" Command="{Binding DownloadSelectedCommand}" IsVisible="{Binding HasSeries}"/>
+                                <TextBlock Text="{loc:Tr Novel_TickChaptersHint}" FontSize="11" TextWrapping="Wrap" IsVisible="{Binding HasSeries}"
+                                           Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                 <Button Content="{loc:Tr Novel_DownloadSeries}" HorizontalAlignment="Stretch" Command="{Binding DownloadSeriesCommand}" IsVisible="{Binding HasSeries}"/>
                             </StackPanel>
                         </Flyout>
@@ -88,29 +134,11 @@
             <ScrollViewer x:Name="TextScroll" HorizontalScrollBarVisibility="Disabled" IsVisible="{Binding ShowText}">
                 <StackPanel x:Name="PageHost" Spacing="10" MaxWidth="760" Margin="18,6,22,18" HorizontalAlignment="Stretch"/>
             </ScrollViewer>
-            <ScrollViewer IsVisible="{Binding ShowComments}" HorizontalScrollBarVisibility="Disabled">
-                <StackPanel Margin="16,6" Spacing="8">
-                    <ItemsControl ItemsSource="{Binding Comments}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate x:DataType="models:PixivComment">
-                                <StackPanel Margin="0,0,0,10" Spacing="2">
-                                    <StackPanel Orientation="Horizontal" Spacing="8">
-                                        <TextBlock Text="{Binding UserName}" FontWeight="SemiBold" FontSize="12"/>
-                                        <TextBlock Text="{Binding CommentDate}" FontSize="11" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
-                                    </StackPanel>
-                                    <SelectableTextBlock Text="{Binding Comment}" TextWrapping="Wrap" FontSize="13"/>
-                                    <TextBlock Text="[stamp]" FontSize="11" IsVisible="{Binding HasStamp}" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
-                                </StackPanel>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                    <Button Content="{loc:Tr Novel_MoreComments}" Command="{Binding LoadMoreCommentsCommand}" IsVisible="{Binding CanLoadMoreComments}"/>
-                </StackPanel>
-            </ScrollViewer>
+
             <Grid IsVisible="{Binding ShowSeries}" RowDefinitions="Auto,*">
                 <StackPanel Orientation="Horizontal" Spacing="6" Margin="16,6">
                     <Button Content="{loc:Tr Novel_SelectAll}" Command="{Binding SelectAllSeriesCommand}" Padding="8,3"/>
-                    <Button Content="{loc:Tr Novel_DownloadSelected}" Command="{Binding DownloadSelectedCommand}" Padding="8,3"/>
+                    <Button Content="{Binding DownloadSelectedLabel}" Command="{Binding DownloadSelectedCommand}" Padding="8,3"/>
                 </StackPanel>
                 <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled">
                     <ItemsControl ItemsSource="{Binding SeriesItems}" Margin="16,0,16,12">

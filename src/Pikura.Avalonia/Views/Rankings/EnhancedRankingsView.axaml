@@ -353,6 +353,12 @@
                     <Button Content="{loc:Tr Rankings_Female}"   CornerRadius="6" Padding="12,5" FontSize="11"
                             Command="{Binding SelectModeCommand}" CommandParameter="female"
                             Classes.accent="{Binding SelectedMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=female}"/>
+                    <Button Content="{loc:Tr Novel_SavedList}" CornerRadius="6" Padding="12,5" FontSize="11"
+                            Command="{Binding SelectModeCommand}" CommandParameter="novel_saved"
+                            Classes.accent="{Binding SelectedMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=novel_saved}"/>
+                    <Button Content="{loc:Tr Novel_HistoryList}" CornerRadius="6" Padding="12,5" FontSize="11"
+                            Command="{Binding SelectModeCommand}" CommandParameter="novel_history"
+                            Classes.accent="{Binding SelectedMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=novel_history}"/>
                 </StackPanel>
             </StackPanel>
             </ScrollViewer>
@@ -375,6 +381,7 @@
                         <TextBlock Text="{Binding SelectedCount, StringFormat='Download Selected ({0})'}" />
                     </StackPanel>
                 </Button>
+                <StackPanel Orientation="Horizontal" Spacing="8" IsVisible="{Binding !ShowNovelModes}">
                 <Button CornerRadius="6" Padding="12,6" FontSize="11"
                         Command="{Binding ViewSelectedAsCollageCommand}"
                         IsVisible="{Binding CanViewSelectedAsCollage}"
@@ -408,6 +415,7 @@
                         <TextBlock Text="{loc:Tr Search_ViewInNewTabs}" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
+                </StackPanel>
                 <Button CornerRadius="6" Padding="12,6" FontSize="11"
                         Command="{Binding DownloadVisibleCommand}"
                         ToolTip.Tip="{loc:Tr Rankings_DownloadAllVisibleArtworks}">
@@ -419,6 +427,7 @@
                 <Button Content="{loc:Tr Search_DownloadPreset}" CornerRadius="6" Padding="12,6" FontSize="11"
                         Classes="accent"
                         Click="OnDownloadPresetClicked"
+                        IsVisible="{Binding !ShowNovelModes}"
                         IsEnabled="{Binding !IsLoading}"
                         ToolTip.Tip="{loc:Tr Search_DownloadWithImageProcessingPreset}"/>
                 <Button Content="{loc:Tr Search_SelectAll}" CornerRadius="6" Padding="12,6" FontSize="11"
