@@ -7853,6 +7853,9 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="Novel_Downloading" xml:space="preserve">
     <value>正在下载第 {0}/{1} 话…</value>
   </data>
+  <data name="Novel_Queued" xml:space="preserve">
+    <value>已将 {0} 章添加到任务</value>
+  </data>
   <data name="Novel_Saved" xml:space="preserve">
     <value>已保存到 {0}</value>
   </data>

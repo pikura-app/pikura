@@ -1028,6 +1028,14 @@ ShowPreview = true;
         }
     }
 
+    /// <summary>Opens a novel as a tab in the shared inline viewer.</summary>
+    public void OpenNovel(NovelCardViewModel card)
+    {
+        GalleryVm.OpenNovelInNewTab(card.Id, card.Title, ViewerSourceKey);
+        ShowPreview = true;
+        _settingsService.Update(s => s.ViewerBrowsePanelHidden = false);
+    }
+
     public void OpenCard(ArtworkCardViewModel card)
     {
         var navList = Results.ToList();

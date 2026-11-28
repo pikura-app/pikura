@@ -282,7 +282,7 @@ public partial class GlobalSearchView : UserControl
         if (sender is not Control ctrl) return;
         if (ctrl.DataContext is not NovelCardViewModel card) return;
         e.Handled = true;
-        Pikura.Avalonia.Views.Novel.NovelReaderWindow.Open(card.Id, this);
+        VM?.OpenNovel(card);
     }
 
     private void OnUserCardClicked(object? sender, PointerPressedEventArgs e)
@@ -526,6 +526,6 @@ public partial class GlobalSearchView : UserControl
     {
         if (_tapPtr == PointerType.Mouse) return; // mouse already handled via PointerPressed
         if (sender is not Control c || c.DataContext is not NovelCardViewModel card) return;
-        Pikura.Avalonia.Views.Novel.NovelReaderWindow.Open(card.Id, this);
+        VM?.OpenNovel(card);
     }
 }

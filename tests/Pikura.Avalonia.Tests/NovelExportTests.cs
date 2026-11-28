@@ -113,3 +113,24 @@ public class DicPagingTests
     public void ParseTotalPages_Uses_Twelve_Per_Page(string info, int? expected) =>
         Assert.Equal(expected, Pikura.Avalonia.ViewModels.DicViewModel.ParseTotalPages(info));
 }
+
+public class NovelTargetIdTests
+{
+    [Fact]
+    public void Novel_Target_Id_Round_Trips_Format_And_Chapters()
+    {
+        var id = Pikura.Core.Services.DownloadCoordinator.NovelTargetId(Pikura.Core.Services.NovelExportFormat.Pdf, ["11", "22", "33"]);
+        Assert.Equal("PDF:11,22,33", id);
+        var (format, ids) = Pikura.Core.Services.DownloadCoordinator.ParseNovelTargetId(id);
+        Assert.Equal(Pikura.Core.Services.NovelExportFormat.Pdf, format);
+        Assert.Equal(["11", "22", "33"], ids);
+    }
+
+    [Fact]
+    public void Novel_Target_Id_Drops_Non_Numeric_Ids_And_Defaults_To_Epub()
+    {
+        var (format, ids) = Pikura.Core.Services.DownloadCoordinator.ParseNovelTargetId("12, x ,34");
+        Assert.Equal(Pikura.Core.Services.NovelExportFormat.Epub, format);
+        Assert.Equal(["12", "34"], ids);
+    }
+}

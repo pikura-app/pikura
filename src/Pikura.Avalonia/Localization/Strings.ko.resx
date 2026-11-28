@@ -7853,6 +7853,9 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="Novel_Downloading" xml:space="preserve">
     <value>{1}화 중 {0}화 다운로드 중…</value>
   </data>
+  <data name="Novel_Queued" xml:space="preserve">
+    <value>{0}개 챕터를 작업에 추가했습니다</value>
+  </data>
   <data name="Novel_Saved" xml:space="preserve">
     <value>{0}에 저장됨</value>
   </data>

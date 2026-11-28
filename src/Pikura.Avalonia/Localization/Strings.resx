@@ -7917,6 +7917,9 @@ Saved to: {3}</value>
   <data name="Novel_Downloading" xml:space="preserve">
     <value>Downloading chapter {0} of {1}…</value>
   </data>
+  <data name="Novel_Queued" xml:space="preserve">
+    <value>Added {0} chapter(s) to Jobs</value>
+  </data>
   <data name="Novel_Saved" xml:space="preserve">
     <value>Saved to {0}</value>
   </data>

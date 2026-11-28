@@ -303,9 +303,9 @@ public partial class EnhancedRankingsView : UserControl
         if (VM == null) return;
         if (card.IsNovel)
         {
-            VM.ShowNovelReader = true;
+            VM.ShowNovelReader = false;
+            AppServices.Get<GalleryViewModel>().OpenNovelInNewTab(card.Id, card.Title, "Rankings");
             VM.ShowPreview = true;
-            VM.NovelReaders.Open(card.Id, newTab: true);
             return;
         }
         VM.ShowNovelReader = false;
@@ -376,7 +376,7 @@ public partial class EnhancedRankingsView : UserControl
     private void OnContextOpenPopup(object? sender, RoutedEventArgs e)
     {
         if (GetCardFromMenu(sender) is not { } card) return;
-        if (card.IsNovel) { Pikura.Avalonia.Views.Novel.NovelReaderWindow.Open(card.Id, this); return; }
+        if (card.IsNovel) { OpenInlineViewer(card); return; }
         _ = OpenPopupAsync(card);
     }
 

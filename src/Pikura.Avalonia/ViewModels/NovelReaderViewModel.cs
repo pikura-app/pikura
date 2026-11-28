@@ -240,6 +240,7 @@ public partial class NovelReaderViewModel : ObservableObject
         await ExportAsync(SeriesItems.Select(i => i.Entry.Id).ToList(), Novel?.SeriesTitle ?? Title);
     }
 
+    /// <summary>Queues the chapters as a novel job in the normal download queue (Jobs).</summary>
     private async Task ExportAsync(IReadOnlyList<string> ids, string title)
     {
         if (ids.Count == 0 || IsDownloading) return;
@@ -247,23 +248,32 @@ public partial class NovelReaderViewModel : ObservableObject
         LastExportPath = null;
         try
         {
-            var chapters = new List<NovelText>();
-            for (var i = 0; i < ids.Count; i++)
-            {
-                DownloadStatus = string.Format(LocalizationService.Instance["Novel_Downloading"], i + 1, ids.Count);
-                var c = ids[i] == Novel?.Id ? Novel : await _client.GetNovelTextAsync(ids[i]);
-                if (c is not null && c.Content.Length > 0) chapters.Add(c);
-                if (i < ids.Count - 1 && ids[i] != Novel?.Id) await Task.Delay(400);
-            }
-            if (chapters.Count == 0) { DownloadStatus = LocalizationService.Instance["Novel_LoadFailed"]; return; }
+            var coordinator = AppServices.Get<DownloadCoordinator>();
             var format = (NovelExportFormat)ExportFormatIndex;
-            var author = chapters[0].UserName;
-            var dir = Path.Combine(_settings.Current.DownloadRoot, "Novels", NovelExporter.SafeFileName(author));
-            var name = NovelExporter.SafeFileName(chapters.Count == 1 ? chapters[0].Title : title);
-            var path = Path.Combine(dir, name + NovelExporter.Extension(format));
-            await Task.Run(() => NovelExporter.Export(chapters, chapters.Count == 1 ? chapters[0].Title : title, author, format, path));
-            LastExportPath = path;
-            DownloadStatus = string.Format(LocalizationService.Instance["Novel_Saved"], path);
+            var name = ids.Count == 1 && Novel is { } n && ids[0] == n.Id ? n.Title : title;
+            var target = new DownloadTarget
+            {
+                TargetId = DownloadCoordinator.NovelTargetId(format, ids),
+                Name = name,
+                UserName = Novel?.UserName,
+                UserId = Novel?.UserId,
+                ThumbnailUrl = Novel?.CoverUrl,
+                Type = TargetType.Novel,
+            };
+            var job = await coordinator.CreateJobAsync(DownloadJobType.ImageId,
+                $"{name} ({ExportFormats[ExportFormatIndex]})", [target],
+                new SettingsOverride { UseGlobalSettings = true }, startImmediately: true);
+            DownloadStatus = LocalizationService.F("Novel_Queued", ids.Count);
+            coordinator.SubscribeToProgress(job.Id, new Progress<JobProgress>(p =>
+            {
+                if (p.Status == JobStatus.Completed && job.OutputFolder is { } folder)
+                {
+                    LastExportPath = folder;
+                    DownloadStatus = string.Format(LocalizationService.Instance["Novel_Saved"], folder);
+                }
+                else if (p.Status == JobStatus.Failed)
+                    DownloadStatus = p.Message ?? LocalizationService.Instance["Novel_LoadFailed"];
+            }));
         }
         catch (Exception ex)
         {
@@ -281,7 +291,8 @@ public partial class NovelReaderViewModel : ObservableObject
         if (LastExportPath is not { } p) return;
         try
         {
-            if (OperatingSystem.IsWindows()) System.Diagnostics.Process.Start("explorer.exe", $"/select,\"{p}\"");
+            if (Directory.Exists(p)) System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(p) { UseShellExecute = true });
+            else if (OperatingSystem.IsWindows()) System.Diagnostics.Process.Start("explorer.exe", $"/select,\"{p}\"");
             else System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(Path.GetDirectoryName(p)!) { UseShellExecute = true });
         }
         catch { }

@@ -408,12 +408,14 @@ public partial class InlineArtworkViewer : UserControl
         if (_subscribedVm != null)
         {
             _subscribedVm.PropertyChanged -= OnVmPropertyChanged;
+            _subscribedVm.NovelFullscreenRequested -= OnNovelFullscreenRequested;
             _subscribedVm.ViewerTabs.CollectionChanged -= OnViewerTabsCollectionChanged;
             _subscribedVm = null;
         }
 
         if (VM is not { } vm) return;
         vm.PropertyChanged += OnVmPropertyChanged;
+        vm.NovelFullscreenRequested += OnNovelFullscreenRequested;
         vm.ViewerTabs.CollectionChanged += OnViewerTabsCollectionChanged;
         _subscribedVm = vm;
 
@@ -1949,10 +1951,22 @@ if (result != null && presetWindow.DownloadClicked)
         await viewer.ShowDialog(window);
     }
 
+    private void OnNovelFullscreenRequested(object? sender, string novelId)
+    {
+        if (!IsEffectivelyVisible || TopLevel.GetTopLevel(this) == null) return;
+        Pikura.Avalonia.Views.Novel.NovelReaderWindow.Open(novelId, this, fullscreen: true);
+    }
+
     private async void OnFullscreen(object? sender, RoutedEventArgs e)
     {
         var window = TopLevel.GetTopLevel(this) as Window;
         if (window == null || VM == null) return;
+
+        if (VM.SelectedViewerTab is { NovelId: { } novelId })
+        {
+            Pikura.Avalonia.Views.Novel.NovelReaderWindow.Open(novelId, this, fullscreen: true);
+            return;
+        }
 
         if (VM.IsCollageGridVisible && VM.CollageItems is { Count: > 0 } collageItems)
         {

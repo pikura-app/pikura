@@ -7853,6 +7853,9 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="Novel_Downloading" xml:space="preserve">
     <value>{1}話中{0}話目をダウンロード中…</value>
   </data>
+  <data name="Novel_Queued" xml:space="preserve">
+    <value>{0} 話をジョブに追加しました</value>
+  </data>
   <data name="Novel_Saved" xml:space="preserve">
     <value>{0} に保存しました</value>
   </data>

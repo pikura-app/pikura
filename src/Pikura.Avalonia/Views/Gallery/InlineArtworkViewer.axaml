@@ -8,6 +8,7 @@
              xmlns:conv="using:Pikura.Avalonia.Converters"
              xmlns:services="using:Pikura.Avalonia.Services"
              xmlns:local="using:Pikura.Avalonia.Views.Gallery"
+             xmlns:novel="using:Pikura.Avalonia.Views.Novel"
              x:Class="Pikura.Avalonia.Views.Gallery.InlineArtworkViewer"
              x:DataType="vm:GalleryViewModel"
              x:Name="ViewerRoot"
@@ -36,6 +37,12 @@
     </UserControl.Styles>
 
     <Grid Name="RootGrid" RowDefinitions="Auto,Auto,Auto,*,Auto,Auto">
+        <!-- Novel tabs share this viewer's tab strip and Hide Panel / Expand / Fullscreen / Close all bar;
+             the reader replaces the artwork rows below it. -->
+        <Border Grid.Row="1" Grid.RowSpan="5" ZIndex="10" IsVisible="{Binding IsNovelTabSelected}"
+                Background="{DynamicResource ImageCanvasBackgroundBrush}">
+            <novel:NovelReaderView DataContext="{Binding SelectedNovel}"/>
+        </Border>
 
         <!-- ── Tab strip ── -->
         <Border Grid.Row="0"

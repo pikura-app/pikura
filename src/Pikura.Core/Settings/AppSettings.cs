@@ -1079,6 +1079,9 @@ public sealed class PersistedViewerTab
     /// <summary>True if this is the collage tab.</summary>
     public bool IsCollage { get; set; }
 
+    /// <summary>pixiv novel ID shown by a novel tab.</summary>
+    public string? NovelId { get; set; }
+
     /// <summary>Artwork ID shown by a regular (non-collage) tab.</summary>
     public string? ArtworkId { get; set; }
 
