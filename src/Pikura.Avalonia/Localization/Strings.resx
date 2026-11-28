@@ -7957,25 +7957,25 @@ Saved to: {3}</value>
     <value>Counting since {0} · {1} days</value>
   </data>
   <data name="Analytics_Total" xml:space="preserve">
-    <value>Total</value>
+    <value>Activity</value>
   </data>
   <data name="Analytics_PerWeek" xml:space="preserve">
     <value>about {0} a week</value>
   </data>
   <data name="Analytics_Views" xml:space="preserve">
-    <value>Views</value>
+    <value>Artworks viewed</value>
   </data>
   <data name="Analytics_ViewsR18" xml:space="preserve">
-    <value>R-18 views</value>
+    <value>R-18 artworks viewed</value>
   </data>
   <data name="Analytics_Downloads" xml:space="preserve">
-    <value>Downloads</value>
+    <value>Images downloaded</value>
   </data>
   <data name="Analytics_Today" xml:space="preserve">
     <value>Today</value>
   </data>
   <data name="Analytics_TodaySub" xml:space="preserve">
-    <value>Views {0} · Downloads {1}</value>
+    <value>{0} artworks viewed · {1} images downloaded · {2} articles read</value>
   </data>
   <data name="Analytics_Past7" xml:space="preserve">
     <value>Past 7 days</value>
@@ -8057,5 +8057,44 @@ Saved to: {3}</value>
   </data>
   <data name="Analytics_DownloadJobs" xml:space="preserve">
     <value>Download jobs</value>
+  </data>
+  <data name="Analytics_TotalHint" xml:space="preserve">
+    <value>Artworks opened, images downloaded and articles read</value>
+  </data>
+  <data name="Analytics_ArticlesRead" xml:space="preserve">
+    <value>Articles read</value>
+  </data>
+  <data name="Analytics_RecentlyViewed" xml:space="preserve">
+    <value>Recently viewed artworks</value>
+  </data>
+  <data name="Analytics_MostViewedArtworks" xml:space="preserve">
+    <value>Most viewed artworks</value>
+  </data>
+  <data name="Analytics_RecentArticles" xml:space="preserve">
+    <value>Recently read articles</value>
+  </data>
+  <data name="Analytics_MostReadArticles" xml:space="preserve">
+    <value>Most read Dic articles</value>
+  </data>
+  <data name="Analytics_ViewCountsNew" xml:space="preserve">
+    <value>Pikura counts repeat views from now on, so this fills in as you reopen things.</value>
+  </data>
+  <data name="Analytics_ViewsCount" xml:space="preserve">
+    <value>{0} views</value>
+  </data>
+  <data name="Analytics_ReadsCount" xml:space="preserve">
+    <value>{0} reads</value>
+  </data>
+  <data name="Analytics_JustNow" xml:space="preserve">
+    <value>just now</value>
+  </data>
+  <data name="Analytics_MinutesAgo" xml:space="preserve">
+    <value>{0} min ago</value>
+  </data>
+  <data name="Analytics_HoursAgo" xml:space="preserve">
+    <value>{0} h ago</value>
+  </data>
+  <data name="Analytics_DaysAgo" xml:space="preserve">
+    <value>{0} d ago</value>
   </data>
 </root>

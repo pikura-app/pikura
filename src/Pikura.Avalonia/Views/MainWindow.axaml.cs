@@ -603,6 +603,20 @@ public partial class MainWindow : Window
         }
     }
 
+    public void OpenDicArticle(string tag, string lang)
+    {
+        DicButton_Click(null, new RoutedEventArgs());
+        var vm = AppServices.Get<Pikura.Avalonia.ViewModels.DicViewModel>();
+        if (vm.Language != lang) vm.Language = lang;
+        _ = vm.OpenArticleAsync(tag);
+    }
+
+    public void OpenPixivisionArticle(Pikura.Core.Models.PixivisionArticleSummary summary)
+    {
+        PixivisionButton_Click(null, new RoutedEventArgs());
+        _ = AppServices.Get<Pikura.Avalonia.ViewModels.PixivisionViewModel>().OpenArticleAsync(new Pikura.Avalonia.ViewModels.PixivisionArticleCardViewModel(summary));
+    }
+
     private void DicButton_Click(object? sender, RoutedEventArgs e)
     {
         try

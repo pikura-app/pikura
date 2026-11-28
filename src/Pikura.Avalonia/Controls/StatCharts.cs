@@ -11,10 +11,12 @@ namespace Pikura.Avalonia.Controls;
 
 internal static class StatPalette
 {
-    public static readonly Color Accent = Color.Parse("#2B8BE6");
-    public static readonly Color Highlight = Color.Parse("#8CC4F0");
-    public static readonly Color R18 = Color.Parse("#E2602C");
+    public static readonly Color R18 = Color.Parse("#E0245E");
     public static readonly Color Download = Color.Parse("#1E9E6A");
+
+    /// <summary>The theme's accent (follows seasonal palettes and Light/Dark/High Contrast).</summary>
+    public static Color Accent(Control c) =>
+        c.TryFindResource("ControlBackgroundBrushSolidAccent", c.ActualThemeVariant, out var r) && r is ISolidColorBrush b ? b.Color : Color.Parse("#2B8BE6");
 
     public static IBrush Muted(Control c) =>
         c.TryFindResource("DefaultForegroundBrushTertiary", c.ActualThemeVariant, out var r) && r is IBrush b ? b : Brushes.Gray;
@@ -24,8 +26,18 @@ internal static class StatPalette
             new Typeface(FontFamily.Default, FontStyle.Normal, bold ? FontWeight.SemiBold : FontWeight.Normal), size, brush);
 }
 
+/// <summary>Redraws when the theme variant or palette resources change.</summary>
+public abstract class StatChart : Control
+{
+    protected StatChart()
+    {
+        ActualThemeVariantChanged += (_, _) => InvalidateVisual();
+        ResourcesChanged += (_, _) => InvalidateVisual();
+    }
+}
+
 /// <summary>GitHub-style daily activity grid for the last year (weeks as columns, Sunday on top).</summary>
-public sealed class ActivityHeatmap : Control
+public sealed class ActivityHeatmap : StatChart
 {
     public static readonly StyledProperty<IReadOnlyDictionary<DateOnly, int>?> DataProperty =
         AvaloniaProperty.Register<ActivityHeatmap, IReadOnlyDictionary<DateOnly, int>?>(nameof(Data));
@@ -61,6 +73,7 @@ public sealed class ActivityHeatmap : Control
         var data = Data ?? new Dictionary<DateOnly, int>();
         var max = data.Count == 0 ? 1 : Math.Max(1, data.Values.Max());
         var muted = StatPalette.Muted(this);
+        var accent = StatPalette.Accent(this);
         var empty = new SolidColorBrush(Colors.Gray, 0.16);
         var outline = new Pen(new SolidColorBrush(Colors.Gray, 0.22), 1);
         var weekdayNames = CultureInfo.CurrentCulture.DateTimeFormat.AbbreviatedDayNames;
@@ -92,16 +105,15 @@ public sealed class ActivityHeatmap : Control
                     continue;
                 }
                 var level = (double)v / max;
-                var color = level > 0.75 ? StatPalette.Highlight : StatPalette.Accent;
-                var opacity = level > 0.75 ? 1 : level > 0.5 ? 1 : level > 0.25 ? 0.7 : 0.45;
-                ctx.DrawRectangle(new SolidColorBrush(color, opacity), null, rect, 2, 2);
+                var opacity = level > 0.75 ? 1 : level > 0.5 ? 0.8 : level > 0.25 ? 0.55 : 0.35;
+                ctx.DrawRectangle(new SolidColorBrush(accent, opacity), null, rect, 2, 2);
             }
         }
     }
 }
 
 /// <summary>24 hourly bars with Night/Morning/Afternoon/Evening shares under them.</summary>
-public sealed class HourBarChart : Control
+public sealed class HourBarChart : StatChart
 {
     public static readonly StyledProperty<int[]?> ValuesProperty = AvaloniaProperty.Register<HourBarChart, int[]?>(nameof(Values));
     static HourBarChart() => AffectsRender<HourBarChart>(ValuesProperty);
@@ -134,8 +146,7 @@ public sealed class HourBarChart : Control
             if (values[i] > 0)
             {
                 var bh = h * values[i] / max;
-                var color = values.Max() > 0 && i == peak ? StatPalette.Highlight : StatPalette.Accent;
-                ctx.DrawRectangle(new SolidColorBrush(color), null, new Rect(left + i * slot + slot * 0.12, baseY - bh, slot * 0.76, bh), 2, 2);
+                ctx.DrawRectangle(new SolidColorBrush(StatPalette.Accent(this), i == peak ? 1 : 0.6), null, new Rect(left + i * slot + slot * 0.12, baseY - bh, slot * 0.76, bh), 2, 2);
             }
             if (i % 3 == 0)
                 ctx.DrawText(StatPalette.Text(this, $"{i:00}:00", 11, muted), new Point(left + i * slot, baseY + 6));
@@ -155,12 +166,11 @@ public sealed class HourBarChart : Control
 }
 
 /// <summary>Single rounded bar split into colored segments.</summary>
-public sealed class StackedBar : Control
+public sealed class StackedBar : StatChart
 {
     public static readonly StyledProperty<double[]?> ValuesProperty = AvaloniaProperty.Register<StackedBar, double[]?>(nameof(Values));
     static StackedBar() => AffectsRender<StackedBar>(ValuesProperty);
     public double[]? Values { get => GetValue(ValuesProperty); set => SetValue(ValuesProperty, value); }
-    private static readonly Color[] Colors3 = [StatPalette.Accent, StatPalette.R18, StatPalette.Download];
 
     protected override Size MeasureOverride(Size available) => new(double.IsInfinity(available.Width) ? 400 : available.Width, 14);
 
@@ -169,12 +179,13 @@ public sealed class StackedBar : Control
         var values = Values ?? [];
         var total = values.Sum();
         if (total <= 0) { ctx.DrawRectangle(new SolidColorBrush(Colors.Gray, 0.2), null, new Rect(Bounds.Size), 7, 7); return; }
+        Color[] colors = [StatPalette.Accent(this), StatPalette.R18, StatPalette.Download, Colors.MediumPurple];
         var x = 0.0;
         for (var i = 0; i < values.Length; i++)
         {
             if (values[i] <= 0) continue;
             var w = Bounds.Width * values[i] / total;
-            ctx.DrawRectangle(new SolidColorBrush(Colors3[i % Colors3.Length]), null, new Rect(x, 0, Math.Max(0, w - 3), Bounds.Height), 7, 7);
+            ctx.DrawRectangle(new SolidColorBrush(colors[i % colors.Length]), null, new Rect(x, 0, Math.Max(0, w - 3), Bounds.Height), 7, 7);
             x += w;
         }
     }

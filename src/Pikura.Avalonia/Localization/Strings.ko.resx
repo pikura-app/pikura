@@ -7893,25 +7893,25 @@ https://www.pixiv.net/en/artworks/12345678
     <value>{0}부터 집계 · {1}일</value>
   </data>
   <data name="Analytics_Total" xml:space="preserve">
-    <value>합계</value>
+    <value>활동</value>
   </data>
   <data name="Analytics_PerWeek" xml:space="preserve">
     <value>주당 약 {0}</value>
   </data>
   <data name="Analytics_Views" xml:space="preserve">
-    <value>조회</value>
+    <value>본 작품</value>
   </data>
   <data name="Analytics_ViewsR18" xml:space="preserve">
-    <value>R-18 조회</value>
+    <value>본 R-18 작품</value>
   </data>
   <data name="Analytics_Downloads" xml:space="preserve">
-    <value>다운로드</value>
+    <value>다운로드한 이미지</value>
   </data>
   <data name="Analytics_Today" xml:space="preserve">
     <value>오늘</value>
   </data>
   <data name="Analytics_TodaySub" xml:space="preserve">
-    <value>조회 {0} · 다운로드 {1}</value>
+    <value>작품 {0}개 · 이미지 {1}개 · 글 {2}개</value>
   </data>
   <data name="Analytics_Past7" xml:space="preserve">
     <value>지난 7일</value>
@@ -7993,5 +7993,44 @@ https://www.pixiv.net/en/artworks/12345678
   </data>
   <data name="Analytics_DownloadJobs" xml:space="preserve">
     <value>다운로드 작업</value>
+  </data>
+  <data name="Analytics_TotalHint" xml:space="preserve">
+    <value>연 작품, 다운로드한 이미지, 읽은 글</value>
+  </data>
+  <data name="Analytics_ArticlesRead" xml:space="preserve">
+    <value>읽은 글</value>
+  </data>
+  <data name="Analytics_RecentlyViewed" xml:space="preserve">
+    <value>최근 본 작품</value>
+  </data>
+  <data name="Analytics_MostViewedArtworks" xml:space="preserve">
+    <value>가장 많이 본 작품</value>
+  </data>
+  <data name="Analytics_RecentArticles" xml:space="preserve">
+    <value>최근 읽은 글</value>
+  </data>
+  <data name="Analytics_MostReadArticles" xml:space="preserve">
+    <value>가장 많이 읽은 백과 글</value>
+  </data>
+  <data name="Analytics_ViewCountsNew" xml:space="preserve">
+    <value>지금부터 다시 본 횟수를 집계합니다.</value>
+  </data>
+  <data name="Analytics_ViewsCount" xml:space="preserve">
+    <value>{0}회 조회</value>
+  </data>
+  <data name="Analytics_ReadsCount" xml:space="preserve">
+    <value>{0}회</value>
+  </data>
+  <data name="Analytics_JustNow" xml:space="preserve">
+    <value>방금</value>
+  </data>
+  <data name="Analytics_MinutesAgo" xml:space="preserve">
+    <value>{0}분 전</value>
+  </data>
+  <data name="Analytics_HoursAgo" xml:space="preserve">
+    <value>{0}시간 전</value>
+  </data>
+  <data name="Analytics_DaysAgo" xml:space="preserve">
+    <value>{0}일 전</value>
   </data>
 </root>

@@ -19,25 +19,29 @@ public class ActivityStatsTests
             new(At(11, 9), ActivityKind.View),
             new(At(12, 9), ActivityKind.View),
             new(At(13, 9), ActivityKind.View),
+            new(At(0, 18), ActivityKind.Article),
         };
         var s = ActivityStats.Compute(events, today);
-        Assert.Equal(10, s.Total);
+        Assert.Equal(11, s.Total);
+        Assert.Equal(1, s.Articles);
+        Assert.Equal(1, s.TodayArticles);
+        Assert.Equal(1, s.TodayViews);
         Assert.Equal(1, s.ViewsR18);
         Assert.Equal(1, s.Downloads);
-        Assert.Equal(2, s.Today);
+        Assert.Equal(3, s.Today);
         Assert.Equal(1, s.TodayDownloads);
-        Assert.Equal(6, s.Past7);
+        Assert.Equal(7, s.Past7);
         Assert.Equal(4, s.Prev7);
         Assert.Equal(3, s.CurrentStreak);
         Assert.Equal(4, s.LongestStreak);
-        Assert.Equal(today.AddDays(-2), s.BusiestDay);
+        Assert.Equal(today, s.BusiestDay);
         Assert.Equal(3, s.BusiestDayCount);
         Assert.Equal(14, s.DaysTracked);
         Assert.Equal(7, s.ActiveDays);
-        Assert.Equal(2, s.HoursAll[18]);
+        Assert.Equal(3, s.HoursAll[18]);
         Assert.Equal(1, s.HoursDownloads[18]);
         Assert.Equal(1, s.HoursViews[18]);
-        Assert.Equal(2, s.Weekdays[(int)today.DayOfWeek]);
+        Assert.Equal(3, s.Weekdays[(int)today.DayOfWeek]);
     }
 
     [Fact]
