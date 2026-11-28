@@ -53,8 +53,8 @@
 
         <!-- Text -->
         <Grid Grid.Row="2">
-            <ScrollViewer x:Name="TextScroll" Padding="18,6,18,18">
-                <StackPanel x:Name="PageHost" Spacing="10" MaxWidth="760" HorizontalAlignment="Center"/>
+            <ScrollViewer x:Name="TextScroll" HorizontalScrollBarVisibility="Disabled">
+                <StackPanel x:Name="PageHost" Spacing="10" MaxWidth="760" Margin="18,6,22,18" HorizontalAlignment="Stretch"/>
             </ScrollViewer>
             <TextBlock Text="{Binding Status}" IsVisible="{Binding HasStatus}" TextWrapping="Wrap" Margin="18" VerticalAlignment="Top"/>
             <ProgressBar IsIndeterminate="True" IsVisible="{Binding IsLoading}" VerticalAlignment="Top" Height="3"/>

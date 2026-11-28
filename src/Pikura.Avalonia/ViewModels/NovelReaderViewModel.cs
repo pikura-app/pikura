@@ -113,8 +113,8 @@ public partial class NovelReaderViewModel : ObservableObject
                 return;
             }
             Novel = novel;
-            PageIndex = 0;
             Pages = NovelMarkup.Parse(novel.Content);
+            PageIndex = 0;
             if (novel.CoverUrl is { } c)
             {
                 using var sk = await _loader.FetchBitmapAsync(c, ThumbnailSize.Medium, cts.Token);

@@ -92,13 +92,16 @@ public sealed class DicService
                 "(function(){try{var x=new XMLHttpRequest();x.open('GET'," + JsonSerializer.Serialize(path) + ",false);x.send();" +
                 "var body=x.responseText;" +
                 (transform is null ? "" : "if(x.status===200){" + transform + "}") +
-                "return JSON.stringify({status:x.status,body:body});" +
+                "return JSON.stringify({status:x.status,body:body,url:x.responseURL});" +
                 "}catch(e){return JSON.stringify({status:-1,body:String(e)});}})()";
             var json = await InvokeAsync(_web!, script);
             if (json is null) return (0, "");
             using var doc = JsonDocument.Parse(json);
             var status = doc.RootElement.GetProperty("status").GetInt32();
             var body = doc.RootElement.GetProperty("body").GetString() ?? "";
+            if (doc.RootElement.TryGetProperty("url", out var final) && final.GetString() is { Length: > 0 } finalUrl
+                && !finalUrl.StartsWith(Origin + path.Split('?')[0], StringComparison.Ordinal))
+                _logger.LogInformation("Dic: {Path} was redirected to {Url}", path, finalUrl);
             return (status, body);
         }
         catch (Exception ex)
