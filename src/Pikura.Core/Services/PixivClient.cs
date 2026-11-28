@@ -1443,6 +1443,7 @@ public sealed partial class PixivClient
             CharacterCount = I(b, "characterCount"),
             ReadingTimeSeconds = I(b, "readingTime"),
             CreateDate = S(b, "createDate"),
+            SeriesId = series.ValueKind == JsonValueKind.Object && S(series, "seriesId") is { Length: > 0 } sid ? sid : null,
             SeriesTitle = series.ValueKind == JsonValueKind.Object && S(series, "title") is { Length: > 0 } st ? st : null,
             PrevId = Nav(series, "prev", "id"),
             PrevTitle = Nav(series, "prev", "title"),
@@ -1450,6 +1451,49 @@ public sealed partial class PixivClient
             NextTitle = Nav(series, "next", "title"),
             EmbeddedImages = images,
         };
+    }
+
+    /// <summary>GET /ajax/novels/comments/roots — top-level comments on a novel.</summary>
+    public async Task<PixivCommentsRootsResponse?> GetNovelCommentsAsync(
+        string novelId, int offset = 0, int limit = 30, CancellationToken ct = default)
+    {
+        var url = $"{BaseUrl}/ajax/novels/comments/roots?novel_id={novelId}&offset={offset}&limit={limit}&lang={_settings.Current.Locale}";
+        return await GetAjaxAsync<PixivCommentsRootsResponse>(url, ct).ConfigureAwait(false);
+    }
+
+    /// <summary>GET /ajax/novel/series/{id}.</summary>
+    public async Task<NovelSeries?> GetNovelSeriesAsync(string seriesId, CancellationToken ct = default)
+    {
+        var url = $"{BaseUrl}/ajax/novel/series/{seriesId}?lang={_settings.Current.Locale}";
+        var b = await GetAjaxAsync<JsonElement>(url, ct).ConfigureAwait(false);
+        if (b.ValueKind != JsonValueKind.Object) return null;
+        static string S(JsonElement e, string n) => e.TryGetProperty(n, out var v) ? v.ValueKind == JsonValueKind.String ? v.GetString() ?? "" : v.GetRawText() : "";
+        return new NovelSeries(S(b, "id"), S(b, "title"), S(b, "userName"), S(b, "caption"),
+            int.TryParse(S(b, "total"), out var t) ? t : 0, int.TryParse(S(b, "xRestrict"), out var x) ? x : 0);
+    }
+
+    /// <summary>All chapters of a series, oldest first (pages of 30 via <c>last_order</c>).</summary>
+    public async Task<IReadOnlyList<NovelSeriesEntry>> GetNovelSeriesContentAsync(string seriesId, CancellationToken ct = default)
+    {
+        var all = new List<NovelSeriesEntry>();
+        static string S(JsonElement e, string n) => e.TryGetProperty(n, out var v) ? v.ValueKind == JsonValueKind.String ? v.GetString() ?? "" : v.GetRawText() : "";
+        for (var guard = 0; guard < 100; guard++)
+        {
+            var url = $"{BaseUrl}/ajax/novel/series_content/{seriesId}?limit=30&last_order={all.Count}&order_by=asc&lang={_settings.Current.Locale}";
+            var b = await GetAjaxAsync<JsonElement>(url, ct).ConfigureAwait(false);
+            if (b.ValueKind != JsonValueKind.Object || !b.TryGetProperty("page", out var page)
+                || !page.TryGetProperty("seriesContents", out var items) || items.ValueKind != JsonValueKind.Array)
+                break;
+            var before = all.Count;
+            foreach (var i in items.EnumerateArray())
+            {
+                var order = i.TryGetProperty("series", out var se) && int.TryParse(S(se, "contentOrder"), out var o) ? o : all.Count + 1;
+                all.Add(new NovelSeriesEntry(S(i, "id"), S(i, "title"), order,
+                    int.TryParse(S(i, "characterCount"), out var c) ? c : 0, int.TryParse(S(i, "xRestrict"), out var x) ? x : 0));
+            }
+            if (all.Count - before < 30) break;
+        }
+        return all;
     }
 
     /// <summary>

@@ -20,6 +20,7 @@ public sealed record NovelText
     public int CharacterCount { get; init; }
     public int ReadingTimeSeconds { get; init; }
     public string CreateDate { get; init; } = "";
+    public string? SeriesId { get; init; }
     public string? SeriesTitle { get; init; }
     public string? PrevId { get; init; }
     public string? PrevTitle { get; init; }
@@ -93,3 +94,9 @@ public static partial class NovelMarkup
         return spans;
     }
 }
+
+/// <summary>A novel series from <c>GET /ajax/novel/series/{id}</c>.</summary>
+public sealed record NovelSeries(string Id, string Title, string UserName, string Caption, int Total, int XRestrict);
+
+/// <summary>One chapter of a series from <c>GET /ajax/novel/series_content/{id}</c>.</summary>
+public sealed record NovelSeriesEntry(string Id, string Title, int Order, int CharacterCount, int XRestrict);
