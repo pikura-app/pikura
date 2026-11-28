@@ -17,6 +17,7 @@ public sealed class NovelLibraryService
     {
         public List<NovelLibraryEntry> Saved { get; set; } = [];
         public List<NovelLibraryEntry> History { get; set; } = [];
+        public List<NovelLibraryEntry> Favorites { get; set; } = [];
     }
 
     public event EventHandler? Changed;
@@ -38,6 +39,22 @@ public sealed class NovelLibraryService
     public IReadOnlyList<NovelLibraryEntry> History { get { lock (_gate) return _store.History.OrderByDescending(e => e.Time).ToList(); } }
 
     public bool IsSaved(string id) { lock (_gate) return _store.Saved.Any(e => e.Id == id); }
+    public IReadOnlyList<NovelLibraryEntry> Favorites { get { lock (_gate) return _store.Favorites.OrderByDescending(e => e.Time).ToList(); } }
+    public bool IsFavorite(string id) { lock (_gate) return _store.Favorites.Any(e => e.Id == id); }
+
+    /// <summary>Favorites or unfavorites the novel; returns whether it is now a favorite.</summary>
+    public bool ToggleFavorite(NovelLibraryEntry entry)
+    {
+        bool fav;
+        lock (_gate)
+        {
+            fav = _store.Favorites.RemoveAll(e => e.Id == entry.Id) == 0;
+            if (fav) _store.Favorites.Add(entry);
+            Save();
+        }
+        Changed?.Invoke(this, EventArgs.Empty);
+        return fav;
+    }
 
     /// <summary>Saves or unsaves the novel; returns whether it is now saved.</summary>
     public bool ToggleSaved(NovelLibraryEntry entry)

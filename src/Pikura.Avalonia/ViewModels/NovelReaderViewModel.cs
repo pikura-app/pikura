@@ -71,6 +71,53 @@ public partial class NovelReaderViewModel : ObservableObject
     private static NovelLibraryService? Library { get { try { return AppServices.Get<NovelLibraryService>(); } catch { return null; } } }
     private static NovelLibraryEntry LibraryEntry(NovelText n) => new(n.Id, n.Title, n.UserName, n.CoverUrl, n.XRestrict, DateTimeOffset.Now, n.Tags);
 
+    // ── Like / Bookmark (pixiv) and Favorite (local) ──
+    [ObservableProperty] private bool _isLiked;
+    [ObservableProperty] private bool _isBookmarked;
+    [ObservableProperty] private bool _isFavorite;
+    private string? _bookmarkId;
+    public string LikeLabel => LocalizationService.Instance[IsLiked ? "Novel_Liked" : "Novel_Like"];
+    public string BookmarkLabel => LocalizationService.Instance[IsBookmarked ? "Novel_Bookmarked" : "Novel_Bookmark"];
+    partial void OnIsLikedChanged(bool value) => OnPropertyChanged(nameof(LikeLabel));
+    partial void OnIsBookmarkedChanged(bool value) => OnPropertyChanged(nameof(BookmarkLabel));
+
+    [RelayCommand]
+    private async Task LikeAsync()
+    {
+        if (IsLiked || Novel is not { Id.Length: > 0 } n) return;
+        if (await _client.LikeNovelAsync(n.Id)) IsLiked = true;
+        else DownloadStatus = LocalizationService.Instance["Novel_ActionFailed"];
+    }
+
+    [RelayCommand]
+    private async Task BookmarkAsync(string mode)
+    {
+        if (Novel is not { Id.Length: > 0 } n) return;
+        bool ok;
+        if (mode == "remove")
+        {
+            ok = _bookmarkId is { } id && await _client.DeleteNovelBookmarkAsync(id, n.Id);
+            if (ok) { IsBookmarked = false; _bookmarkId = null; }
+        }
+        else
+        {
+            ok = await _client.AddNovelBookmarkAsync(n.Id, mode == "private");
+            if (ok)
+            {
+                IsBookmarked = true;
+                _bookmarkId = (await _client.GetNovelTextAsync(n.Id))?.BookmarkId;
+            }
+        }
+        if (!ok) DownloadStatus = LocalizationService.Instance["Novel_ActionFailed"];
+    }
+
+    [RelayCommand]
+    private void ToggleFavorite()
+    {
+        if (Novel is not { Id.Length: > 0 } n || Library is not { } lib) return;
+        IsFavorite = lib.ToggleFavorite(LibraryEntry(n));
+    }
+
     [RelayCommand]
     private void ToggleSave()
     {
@@ -255,7 +302,10 @@ public partial class NovelReaderViewModel : ObservableObject
                 return;
             }
             Novel = novel;
-            if (Library is { } lib) { IsSaved = lib.IsSaved(novel.Id); lib.AddHistory(LibraryEntry(novel)); }
+            if (Library is { } lib) { IsSaved = lib.IsSaved(novel.Id); IsFavorite = lib.IsFavorite(novel.Id); lib.AddHistory(LibraryEntry(novel)); }
+            IsLiked = novel.IsLiked;
+            IsBookmarked = novel.BookmarkId != null;
+            _bookmarkId = novel.BookmarkId;
             Pages = NovelMarkup.Parse(novel.Content);
             PageIndex = 0;
             Comments.Clear();

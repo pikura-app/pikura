@@ -7913,6 +7913,57 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="Settings_NovelTranslator" xml:space="preserve">
     <value>小说翻译</value>
   </data>
+  <data name="Novel_Like" xml:space="preserve">
+    <value>赞</value>
+  </data>
+  <data name="Novel_Liked" xml:space="preserve">
+    <value>已赞</value>
+  </data>
+  <data name="Novel_Favorite" xml:space="preserve">
+    <value>收藏</value>
+  </data>
+  <data name="Novel_FavoriteTip" xml:space="preserve">
+    <value>添加到本地收藏或移除</value>
+  </data>
+  <data name="Novel_FavoritesList" xml:space="preserve">
+    <value>收藏</value>
+  </data>
+  <data name="Novel_Bookmark" xml:space="preserve">
+    <value>书签</value>
+  </data>
+  <data name="Novel_Bookmarked" xml:space="preserve">
+    <value>已加书签</value>
+  </data>
+  <data name="Novel_BookmarkTip" xml:space="preserve">
+    <value>在 pixiv 加书签</value>
+  </data>
+  <data name="Novel_BookmarkPublic" xml:space="preserve">
+    <value>加书签（公开）</value>
+  </data>
+  <data name="Novel_BookmarkPrivate" xml:space="preserve">
+    <value>加书签（不公开）</value>
+  </data>
+  <data name="Novel_RemoveBookmark" xml:space="preserve">
+    <value>移除书签</value>
+  </data>
+  <data name="Novel_More" xml:space="preserve">
+    <value>更多</value>
+  </data>
+  <data name="Novel_CopyLink" xml:space="preserve">
+    <value>复制链接</value>
+  </data>
+  <data name="Novel_CopyTitle" xml:space="preserve">
+    <value>复制标题</value>
+  </data>
+  <data name="Novel_OpenAuthor" xml:space="preserve">
+    <value>打开作者作品</value>
+  </data>
+  <data name="Novel_LinkCopied" xml:space="preserve">
+    <value>已复制链接</value>
+  </data>
+  <data name="Novel_ActionFailed" xml:space="preserve">
+    <value>无法连接 pixiv，请确认已登录。</value>
+  </data>
   <data name="Novel_Queued" xml:space="preserve">
     <value>已将 {0} 章添加到任务</value>
   </data>

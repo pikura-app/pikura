@@ -14,6 +14,10 @@ public sealed record NovelText
     public string Content { get; init; } = "";
     public IReadOnlyList<string> Tags { get; init; } = [];
     public int XRestrict { get; init; }
+    public bool IsLiked { get; init; }
+    /// <summary>Your pixiv bookmark id for this novel, or null when it isn't bookmarked.</summary>
+    public string? BookmarkId { get; init; }
+    public bool IsBookmarkPrivate { get; init; }
     public int BookmarkCount { get; init; }
     public int LikeCount { get; init; }
     public int ViewCount { get; init; }

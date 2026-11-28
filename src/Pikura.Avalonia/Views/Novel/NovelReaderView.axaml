@@ -63,7 +63,7 @@
                 <ToggleButton Classes="tb" Margin="0,0,4,4" IsChecked="{Binding IsSaved, Mode=OneWay}" Command="{Binding ToggleSaveCommand}"
                               ToolTip.Tip="{loc:Tr Novel_SaveForLater}">
                     <StackPanel Orientation="Horizontal" Spacing="5">
-                        <PathIcon Data="{StaticResource BookmarkIcon}" Width="14" Height="14" Foreground="{Binding $parent[ToggleButton].Foreground}"/>
+                        <TextBlock Text="⏱" VerticalAlignment="Center"/>
                         <TextBlock Text="{loc:Tr Novel_SaveForLater}" VerticalAlignment="Center"/>
                     </StackPanel>
                 </ToggleButton>
@@ -91,24 +91,62 @@
                         </Flyout>
                     </Button.Flyout>
                 </Button>
-                <SplitButton Margin="0,0,4,4" Height="28" Padding="9,0" CornerRadius="6" FontSize="12"
-                             Command="{Binding ToggleTranslateCommand}" ToolTip.Tip="{loc:Tr Novel_TranslateTip}">
+                <Button Classes="tb" Margin="0,0,0,4" CornerRadius="6,0,0,6" Command="{Binding ToggleTranslateCommand}"
+                        Classes.accent="{Binding IsTranslated}" ToolTip.Tip="{loc:Tr Novel_TranslateTip}">
                     <StackPanel Orientation="Horizontal" Spacing="5">
                         <TextBlock Text="文A" VerticalAlignment="Center"/>
                         <TextBlock Text="{Binding TranslateLabel}" VerticalAlignment="Center"/>
                     </StackPanel>
-                    <SplitButton.Flyout>
+                </Button>
+                <Button Classes="tb" Margin="1,0,4,4" Padding="6,0" CornerRadius="0,6,6,0" ToolTip.Tip="{loc:Tr Novel_TranslateWith}">
+                    <PathIcon Data="M7,10L12,15L17,10H7Z" Width="10" Height="10" Foreground="{Binding $parent[Button].Foreground}"/>
+                    <Button.Flyout>
                         <Flyout Placement="BottomEdgeAlignedLeft">
-                            <StackPanel Spacing="6" Width="260">
-                                <TextBlock Text="{loc:Tr Novel_TranslateWith}" FontSize="11" Foreground="{DynamicResource DefaultForegroundBrushSecondary}"/>
-                                <RadioButton Content="{loc:Tr Novel_TranslatorGoogle}" IsChecked="{Binding UseGoogle}"/>
-                                <RadioButton Content="{loc:Tr Novel_TranslatorHoshi}" IsChecked="{Binding UseHoshi}"/>
+                            <StackPanel Spacing="10" Margin="6,4" MinWidth="280">
+                                <TextBlock Text="{loc:Tr Novel_TranslateWith}" FontSize="12" FontWeight="SemiBold"/>
+                                <RadioButton Content="{loc:Tr Novel_TranslatorGoogle}" IsChecked="{Binding UseGoogle}" Padding="8,2"/>
+                                <RadioButton Content="{loc:Tr Novel_TranslatorHoshi}" IsChecked="{Binding UseHoshi}" Padding="8,2"/>
+                                <TextBlock Text="{loc:Tr Novel_TranslateTip}" FontSize="11" TextWrapping="Wrap"
+                                           Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                             </StackPanel>
                         </Flyout>
-                    </SplitButton.Flyout>
-                </SplitButton>
-                <Button Classes="tb" Margin="0,0,4,4" Command="{Binding OpenInBrowserCommand}" ToolTip.Tip="{loc:Tr Novel_OpenInBrowser}">
-                    <TextBlock Text="{loc:Tr Novel_OpenInBrowser}" VerticalAlignment="Center"/>
+                    </Button.Flyout>
+                </Button>
+                <Button Classes="tb" Margin="0,0,4,4" Command="{Binding LikeCommand}" Classes.accent="{Binding IsLiked}" ToolTip.Tip="{loc:Tr Novel_Like}">
+                    <StackPanel Orientation="Horizontal" Spacing="5">
+                        <PathIcon Data="{StaticResource HeartIcon}" Width="14" Height="14" Foreground="{Binding $parent[Button].Foreground}"/>
+                        <TextBlock Text="{Binding LikeLabel}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+                <Button Classes="tb" Margin="0,0,4,4" Command="{Binding ToggleFavoriteCommand}" Classes.accent="{Binding IsFavorite}" ToolTip.Tip="{loc:Tr Novel_FavoriteTip}">
+                    <StackPanel Orientation="Horizontal" Spacing="5">
+                        <PathIcon Data="{StaticResource StarIcon}" Width="14" Height="14" Foreground="{Binding $parent[Button].Foreground}"/>
+                        <TextBlock Text="{loc:Tr Novel_Favorite}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+                <Button Classes="tb" Margin="0,0,4,4" Classes.accent="{Binding IsBookmarked}" ToolTip.Tip="{loc:Tr Novel_BookmarkTip}">
+                    <StackPanel Orientation="Horizontal" Spacing="5">
+                        <PathIcon Data="{StaticResource BookmarkIcon}" Width="14" Height="14" Foreground="{Binding $parent[Button].Foreground}"/>
+                        <TextBlock Text="{Binding BookmarkLabel}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <Button.Flyout>
+                        <MenuFlyout Placement="BottomEdgeAlignedLeft">
+                            <MenuItem Header="{loc:Tr Novel_BookmarkPublic}" Command="{Binding BookmarkCommand}" CommandParameter="public"/>
+                            <MenuItem Header="{loc:Tr Novel_BookmarkPrivate}" Command="{Binding BookmarkCommand}" CommandParameter="private"/>
+                            <MenuItem Header="{loc:Tr Novel_RemoveBookmark}" Command="{Binding BookmarkCommand}" CommandParameter="remove" IsVisible="{Binding IsBookmarked}"/>
+                        </MenuFlyout>
+                    </Button.Flyout>
+                </Button>
+                <Button Classes="tb" Margin="0,0,4,4" Padding="8,0" ToolTip.Tip="{loc:Tr Novel_More}">
+                    <TextBlock Text="•••" VerticalAlignment="Center"/>
+                    <Button.Flyout>
+                        <MenuFlyout Placement="BottomEdgeAlignedRight">
+                            <MenuItem Header="{loc:Tr Novel_CopyLink}" Click="OnCopyLink"/>
+                            <MenuItem Header="{loc:Tr Novel_CopyTitle}" Click="OnCopyTitle"/>
+                            <MenuItem Header="{loc:Tr Novel_OpenAuthor}" Click="OnOpenAuthor"/>
+                            <MenuItem Header="{loc:Tr Novel_OpenInBrowser}" Command="{Binding OpenInBrowserCommand}"/>
+                        </MenuFlyout>
+                    </Button.Flyout>
                 </Button>
             </WrapPanel>
         </Border>

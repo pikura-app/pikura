@@ -2326,6 +2326,9 @@ if (result != null && presetWindow.DownloadClicked)
 
     /// <summary>Opens <paramref name="userId"/>'s gallery with the artist selected, then scrolls to
     /// <paramref name="artworkId"/> (default: the artwork on screen).</summary>
+    /// <summary>Opens an artist's gallery (used by novel tabs for the author).</summary>
+    public void OpenArtist(string userId) => NavigateToArtistGallery(userId, "");
+
     private async void NavigateToArtistGallery(string userId, string? artworkId = null)
     {
         var galleryVm = AppServices.Get<GalleryViewModel>();

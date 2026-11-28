@@ -7977,6 +7977,57 @@ Saved to: {3}</value>
   <data name="Settings_NovelTranslator" xml:space="preserve">
     <value>Novel translation</value>
   </data>
+  <data name="Novel_Like" xml:space="preserve">
+    <value>Like</value>
+  </data>
+  <data name="Novel_Liked" xml:space="preserve">
+    <value>Liked</value>
+  </data>
+  <data name="Novel_Favorite" xml:space="preserve">
+    <value>Favorite</value>
+  </data>
+  <data name="Novel_FavoriteTip" xml:space="preserve">
+    <value>Add to or remove from your local favorites</value>
+  </data>
+  <data name="Novel_FavoritesList" xml:space="preserve">
+    <value>Favorites</value>
+  </data>
+  <data name="Novel_Bookmark" xml:space="preserve">
+    <value>Bookmark</value>
+  </data>
+  <data name="Novel_Bookmarked" xml:space="preserve">
+    <value>Bookmarked</value>
+  </data>
+  <data name="Novel_BookmarkTip" xml:space="preserve">
+    <value>Bookmark on pixiv</value>
+  </data>
+  <data name="Novel_BookmarkPublic" xml:space="preserve">
+    <value>Bookmark (public)</value>
+  </data>
+  <data name="Novel_BookmarkPrivate" xml:space="preserve">
+    <value>Bookmark (private)</value>
+  </data>
+  <data name="Novel_RemoveBookmark" xml:space="preserve">
+    <value>Remove bookmark</value>
+  </data>
+  <data name="Novel_More" xml:space="preserve">
+    <value>More</value>
+  </data>
+  <data name="Novel_CopyLink" xml:space="preserve">
+    <value>Copy link</value>
+  </data>
+  <data name="Novel_CopyTitle" xml:space="preserve">
+    <value>Copy title</value>
+  </data>
+  <data name="Novel_OpenAuthor" xml:space="preserve">
+    <value>Open author's gallery</value>
+  </data>
+  <data name="Novel_LinkCopied" xml:space="preserve">
+    <value>Link copied</value>
+  </data>
+  <data name="Novel_ActionFailed" xml:space="preserve">
+    <value>Couldn't reach pixiv. Check that you're logged in.</value>
+  </data>
   <data name="Novel_Queued" xml:space="preserve">
     <value>Added {0} chapter(s) to Jobs</value>
   </data>

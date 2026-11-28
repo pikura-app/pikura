@@ -125,4 +125,33 @@ public partial class NovelReaderView : UserControl
         try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(url) { UseShellExecute = true }); }
         catch { }
     }
+
+    private async System.Threading.Tasks.Task CopyAsync(string text)
+    {
+        if (TopLevel.GetTopLevel(this)?.Clipboard is not { } cb || string.IsNullOrEmpty(text)) return;
+        var dt = new global::Avalonia.Input.DataTransfer();
+        dt.Add(global::Avalonia.Input.DataTransferItem.CreateText(text));
+        await cb.SetDataAsync(dt);
+    }
+
+    private async void OnCopyLink(object? sender, global::Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        if (_vm is null) return;
+        await CopyAsync(_vm.Url);
+        _vm.DownloadStatus = Pikura.Avalonia.Localization.LocalizationService.Instance["Novel_LinkCopied"];
+    }
+
+    private async void OnCopyTitle(object? sender, global::Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        if (_vm is not null) await CopyAsync(_vm.Title);
+    }
+
+    private void OnOpenAuthor(object? sender, global::Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        if (_vm?.Novel?.UserId is not { Length: > 0 } uid) return;
+        if (global::Avalonia.VisualTree.VisualExtensions.FindAncestorOfType<Pikura.Avalonia.Views.Gallery.InlineArtworkViewer>(this) is { } viewer)
+            viewer.OpenArtist(uid);
+        else
+            Open($"https://www.pixiv.net/users/{uid}");
+    }
 }

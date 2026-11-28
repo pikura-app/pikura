@@ -1437,6 +1437,10 @@ public sealed partial class PixivClient
             Content = S(b, "content"),
             Tags = tags,
             XRestrict = I(b, "xRestrict"),
+            IsLiked = b.TryGetProperty("likeData", out var like) && like.ValueKind == JsonValueKind.True,
+            BookmarkId = b.TryGetProperty("bookmarkData", out var bm) && bm.ValueKind == JsonValueKind.Object && S(bm, "id") is { Length: > 0 } bid ? bid : null,
+            IsBookmarkPrivate = b.TryGetProperty("bookmarkData", out var bm2) && bm2.ValueKind == JsonValueKind.Object
+                && bm2.TryGetProperty("private", out var pv) && pv.ValueKind == JsonValueKind.True,
             BookmarkCount = I(b, "bookmarkCount"),
             LikeCount = I(b, "likeCount"),
             ViewCount = I(b, "viewCount"),
@@ -2106,6 +2110,44 @@ public sealed partial class PixivClient
         var ok = await PostAjaxSuccessAsync(url, payload, referer, illustId, ct).ConfigureAwait(false);
         if (!ok) _logger.LogWarning("Like {Id} failed", illustId);
         else _logger.LogDebug("Like {Id} succeeded", illustId);
+        return ok;
+    }
+
+    /// <summary>POST /ajax/novels/like — like a novel with the web session, like the novel page's Like button.</summary>
+    public async Task<bool> LikeNovelAsync(string novelId, CancellationToken ct = default)
+    {
+        var ok = await PostAjaxSuccessAsync($"{BaseUrl}/ajax/novels/like", new { novel_id = novelId },
+            $"{BaseUrl}/novel/show.php?id={novelId}", null, ct).ConfigureAwait(false);
+        if (!ok) _logger.LogWarning("LikeNovel {Id} failed", novelId);
+        return ok;
+    }
+
+    /// <summary>POST /ajax/novels/bookmarks/add — bookmark a novel (public or private). Returns true on success.</summary>
+    public async Task<bool> AddNovelBookmarkAsync(string novelId, bool isPrivate, CancellationToken ct = default)
+    {
+        var payload = new { novel_id = novelId, restrict = isPrivate ? 1 : 0, comment = string.Empty, tags = Array.Empty<string>() };
+        var body = await PostAjaxAsync<object, JsonElement>($"{BaseUrl}/ajax/novels/bookmarks/add", payload,
+            $"{BaseUrl}/novel/show.php?id={novelId}", null, ct).ConfigureAwait(false);
+        if (body.ValueKind == JsonValueKind.Undefined) { _logger.LogWarning("AddNovelBookmark {Id} failed", novelId); return false; }
+        return true;
+    }
+
+    /// <summary>POST /ajax/novels/bookmarks/delete (form: del=1, book_id) — remove a novel bookmark.</summary>
+    public async Task<bool> DeleteNovelBookmarkAsync(string bookmarkId, string novelId, CancellationToken ct = default)
+    {
+        var csrf = await GetCsrfTokenAsync(null, ct).ConfigureAwait(false);
+        if (string.IsNullOrWhiteSpace(csrf)) return false;
+        var client = _httpFactory.GetClient();
+        using var req = new HttpRequestMessage(HttpMethod.Post, $"{BaseUrl}/ajax/novels/bookmarks/delete");
+        req.Headers.TryAddWithoutValidation("Referer", $"{BaseUrl}/novel/show.php?id={novelId}");
+        req.Headers.TryAddWithoutValidation("Accept", "application/json");
+        req.Headers.TryAddWithoutValidation("Origin", BaseUrl);
+        req.Headers.TryAddWithoutValidation("x-csrf-token", csrf);
+        req.Content = new FormUrlEncodedContent([new KeyValuePair<string, string>("del", "1"), new KeyValuePair<string, string>("book_id", bookmarkId)]);
+        using var resp = await client.SendAsync(req, ct).ConfigureAwait(false);
+        var body = await resp.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+        var ok = resp.IsSuccessStatusCode && !body.Contains("\"error\":true", StringComparison.Ordinal);
+        if (!ok) _logger.LogWarning("DeleteNovelBookmark {Id} -> {Code}: {Body}", bookmarkId, resp.StatusCode, body[..Math.Min(300, body.Length)]);
         return ok;
     }
 

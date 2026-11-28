@@ -101,7 +101,7 @@ public partial class EnhancedRankingsViewModel : ViewModelBase
     private void LoadNovelLibrary()
     {
         var lib = Pikura.Avalonia.Services.AppServices.Get<NovelLibraryService>();
-        var entries = SelectedMode == "novel_saved" ? lib.Saved : lib.History;
+        var entries = SelectedMode switch { "novel_saved" => lib.Saved, "novel_favorites" => lib.Favorites, _ => lib.History };
         var globalR18Off = _settingsService.Current.R18Mode == Pikura.Core.Settings.R18Mode.Off;
         var rank = 0;
         foreach (var e in entries)

@@ -7913,6 +7913,57 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="Settings_NovelTranslator" xml:space="preserve">
     <value>小説の翻訳</value>
   </data>
+  <data name="Novel_Like" xml:space="preserve">
+    <value>いいね</value>
+  </data>
+  <data name="Novel_Liked" xml:space="preserve">
+    <value>いいね済み</value>
+  </data>
+  <data name="Novel_Favorite" xml:space="preserve">
+    <value>お気に入り</value>
+  </data>
+  <data name="Novel_FavoriteTip" xml:space="preserve">
+    <value>ローカルのお気に入りに追加・削除</value>
+  </data>
+  <data name="Novel_FavoritesList" xml:space="preserve">
+    <value>お気に入り</value>
+  </data>
+  <data name="Novel_Bookmark" xml:space="preserve">
+    <value>ブックマーク</value>
+  </data>
+  <data name="Novel_Bookmarked" xml:space="preserve">
+    <value>ブックマーク済み</value>
+  </data>
+  <data name="Novel_BookmarkTip" xml:space="preserve">
+    <value>pixiv でブックマーク</value>
+  </data>
+  <data name="Novel_BookmarkPublic" xml:space="preserve">
+    <value>ブックマーク（公開）</value>
+  </data>
+  <data name="Novel_BookmarkPrivate" xml:space="preserve">
+    <value>ブックマーク（非公開）</value>
+  </data>
+  <data name="Novel_RemoveBookmark" xml:space="preserve">
+    <value>ブックマークを解除</value>
+  </data>
+  <data name="Novel_More" xml:space="preserve">
+    <value>その他</value>
+  </data>
+  <data name="Novel_CopyLink" xml:space="preserve">
+    <value>リンクをコピー</value>
+  </data>
+  <data name="Novel_CopyTitle" xml:space="preserve">
+    <value>タイトルをコピー</value>
+  </data>
+  <data name="Novel_OpenAuthor" xml:space="preserve">
+    <value>作者のギャラリーを開く</value>
+  </data>
+  <data name="Novel_LinkCopied" xml:space="preserve">
+    <value>リンクをコピーしました</value>
+  </data>
+  <data name="Novel_ActionFailed" xml:space="preserve">
+    <value>pixiv に接続できませんでした。ログインを確認してください。</value>
+  </data>
   <data name="Novel_Queued" xml:space="preserve">
     <value>{0} 話をジョブに追加しました</value>
   </data>

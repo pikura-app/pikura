@@ -353,6 +353,9 @@
                     <Button Content="{loc:Tr Rankings_Female}"   CornerRadius="6" Padding="12,5" FontSize="11"
                             Command="{Binding SelectModeCommand}" CommandParameter="female"
                             Classes.accent="{Binding SelectedMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=female}"/>
+                    <Button Content="{loc:Tr Novel_FavoritesList}" CornerRadius="6" Padding="12,5" FontSize="11"
+                            Command="{Binding SelectModeCommand}" CommandParameter="novel_favorites"
+                            Classes.accent="{Binding SelectedMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=novel_favorites}"/>
                     <Button Content="{loc:Tr Novel_SavedList}" CornerRadius="6" Padding="12,5" FontSize="11"
                             Command="{Binding SelectModeCommand}" CommandParameter="novel_saved"
                             Classes.accent="{Binding SelectedMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=novel_saved}"/>
