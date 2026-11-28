@@ -15,6 +15,8 @@ public sealed class NovelFullscreenWindow : Window
     {
         Title = reader.Title.Length > 0 ? reader.Title : "pixiv novel";
         WindowState = WindowState.FullScreen;
+        // Same theme-aware background as the image fullscreen window and the inline reader.
+        Bind(BackgroundProperty, this.GetResourceObservable("ImageCanvasBackgroundBrush"));
         var exit = new Button
         {
             Content = LocalizationService.Instance["Novel_ExitFullscreen"],
