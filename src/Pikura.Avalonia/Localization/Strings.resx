@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!--
     Base (English) UI strings for Pikura.
@@ -7766,5 +7766,77 @@ Saved to: {3}</value>
   </data>
   <data name="Settings_ThemeBlendAccentHint" xml:space="preserve">
     <value>Tint controls and borders with the second theme's color</value>
+  </data>
+  <data name="Nav_Dic" xml:space="preserve">
+    <value>Dic</value>
+  </data>
+  <data name="Dic_Popular" xml:space="preserve">
+    <value>Popular Articles</value>
+  </data>
+  <data name="Dic_Updated" xml:space="preserve">
+    <value>Updated Articles</value>
+  </data>
+  <data name="Dic_New" xml:space="preserve">
+    <value>New Articles</value>
+  </data>
+  <data name="Dic_SearchPlaceholder" xml:space="preserve">
+    <value>Search pixiv Encyclopedia</value>
+  </data>
+  <data name="Dic_Back" xml:space="preserve">
+    <value>Back</value>
+  </data>
+  <data name="Dic_Refresh" xml:space="preserve">
+    <value>Refresh</value>
+  </data>
+  <data name="Dic_OpenInBrowser" xml:space="preserve">
+    <value>Open in browser</value>
+  </data>
+  <data name="Dic_SearchPixiv" xml:space="preserve">
+    <value>Search pixiv for this tag</value>
+  </data>
+  <data name="Dic_Prev" xml:space="preserve">
+    <value>Previous</value>
+  </data>
+  <data name="Dic_Next" xml:space="preserve">
+    <value>Next</value>
+  </data>
+  <data name="Dic_Ranking" xml:space="preserve">
+    <value>Ranking</value>
+  </data>
+  <data name="Dic_Weekly" xml:space="preserve">
+    <value>Weekly</value>
+  </data>
+  <data name="Dic_Monthly" xml:space="preserve">
+    <value>Monthly</value>
+  </data>
+  <data name="Dic_Views" xml:space="preserve">
+    <value>Views</value>
+  </data>
+  <data name="Dic_Works" xml:space="preserve">
+    <value>Works</value>
+  </data>
+  <data name="Dic_Checklist" xml:space="preserve">
+    <value>Checklist</value>
+  </data>
+  <data name="Dic_UpdatedAt" xml:space="preserve">
+    <value>Updated</value>
+  </data>
+  <data name="Dic_Contents" xml:space="preserve">
+    <value>Contents</value>
+  </data>
+  <data name="Dic_Related" xml:space="preserve">
+    <value>Related articles</value>
+  </data>
+  <data name="Dic_NoArticles" xml:space="preserve">
+    <value>No articles found.</value>
+  </data>
+  <data name="Dic_NoArticleFor" xml:space="preserve">
+    <value>There is no article for "{0}" yet.</value>
+  </data>
+  <data name="Dic_Unavailable" xml:space="preserve">
+    <value>Couldn't reach pixiv Encyclopedia. Check your connection and press Refresh.</value>
+  </data>
+  <data name="Dic_LoadFailed" xml:space="preserve">
+    <value>pixiv Encyclopedia returned an error ({0}).</value>
   </data>
 </root>

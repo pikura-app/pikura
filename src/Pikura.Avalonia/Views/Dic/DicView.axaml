@@ -1,0 +1,212 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:loc="using:Pikura.Avalonia.Localization"
+             xmlns:vm="using:Pikura.Avalonia.ViewModels"
+             xmlns:conv="using:Pikura.Avalonia.Converters"
+             x:Class="Pikura.Avalonia.Views.Dic.DicView"
+             x:DataType="vm:DicViewModel">
+    <UserControl.Styles>
+        <Style Selector="Border.dicCard">
+            <Setter Property="Background" Value="{DynamicResource Container1BackgroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Container2BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="12"/>
+        </Style>
+        <Style Selector="Button.chip">
+            <Setter Property="Padding" Value="8,3"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Margin" Value="0,2,4,2"/>
+        </Style>
+        <Style Selector="Button.linkItem">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="4"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+        </Style>
+        <Style Selector="TextBlock.sideTitle">
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Margin" Value="0,0,0,6"/>
+        </Style>
+    </UserControl.Styles>
+
+    <UserControl.Resources>
+        <DataTemplate x:Key="SideItem" x:DataType="vm:DicArticleCard">
+            <Button Classes="linkItem" Click="OnArticleCardClick">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <Border Width="36" Height="36" CornerRadius="4" ClipToBounds="True"
+                            Background="{DynamicResource Container2BackgroundBrush}">
+                        <Image Source="{Binding Thumbnail}" Stretch="UniformToFill"/>
+                    </Border>
+                    <StackPanel VerticalAlignment="Center" MaxWidth="200">
+                        <TextBlock Text="{Binding Title}" FontSize="12" FontWeight="SemiBold"
+                                   TextTrimming="CharacterEllipsis" Foreground="{DynamicResource AccentBrush}"/>
+                        <TextBlock Text="{Binding Meta}" FontSize="10" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
+                    </StackPanel>
+                </StackPanel>
+            </Button>
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <Grid RowDefinitions="Auto,Auto,*" Margin="12">
+        <!-- Top bar: topics, search, language -->
+        <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto,Auto" Margin="0,0,0,8">
+            <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                <Button Content="←" Padding="10,5" Command="{Binding BackCommand}" IsVisible="{Binding CanGoBack}"
+                        ToolTip.Tip="{loc:Tr Dic_Back}"/>
+                <Button Content="{loc:Tr Dic_Popular}" Padding="14,5" CornerRadius="6" FontSize="12"
+                        Command="{Binding SelectTopicCommand}" CommandParameter="popular"
+                        Classes.accent="{Binding Topic, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=popular}"/>
+                <Button Content="{loc:Tr Dic_Updated}" Padding="14,5" CornerRadius="6" FontSize="12"
+                        Command="{Binding SelectTopicCommand}" CommandParameter="updates"
+                        Classes.accent="{Binding Topic, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=updates}"/>
+                <Button Content="{loc:Tr Dic_New}" Padding="14,5" CornerRadius="6" FontSize="12"
+                        Command="{Binding SelectTopicCommand}" CommandParameter="new"
+                        Classes.accent="{Binding Topic, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=new}"/>
+            </StackPanel>
+            <TextBox Grid.Column="1" Margin="12,0" MaxWidth="460" HorizontalAlignment="Stretch"
+                     Text="{Binding SearchText}" Watermark="{loc:Tr Dic_SearchPlaceholder}" KeyDown="OnSearchKeyDown"/>
+            <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                <Button Content="EN" Padding="10,5" CornerRadius="6" FontSize="12"
+                        Command="{Binding SetLanguageCommand}" CommandParameter="en" Classes.accent="{Binding IsEnglish}"/>
+                <Button Content="日本語" Padding="10,5" CornerRadius="6" FontSize="12"
+                        Command="{Binding SetLanguageCommand}" CommandParameter="ja" Classes.accent="{Binding IsJapanese}"/>
+            </StackPanel>
+            <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="4" Margin="8,0,0,0" VerticalAlignment="Center">
+                <Button Content="⟳" Padding="10,5" Command="{Binding RefreshCommand}" ToolTip.Tip="{loc:Tr Dic_Refresh}"/>
+                <Button Content="↗" Padding="10,5" Click="OnOpenInBrowser" ToolTip.Tip="{loc:Tr Dic_OpenInBrowser}"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- Categories and trending tags -->
+        <StackPanel Grid.Row="1" Spacing="4" Margin="0,0,0,8">
+            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                <ItemsControl ItemsSource="{Binding Categories}">
+                    <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal" Spacing="4"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:DicCategory">
+                            <Button Content="{Binding Name}" Padding="10,4" CornerRadius="6" FontSize="11"
+                                    Command="{Binding $parent[UserControl].((vm:DicViewModel)DataContext).SelectCategoryCommand}"
+                                    CommandParameter="{Binding}"
+                                    Classes.accent="{Binding IsSelected}"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+            <ItemsControl ItemsSource="{Binding Attentions}">
+                <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="x:String">
+                        <Button Classes="chip" Content="{Binding}" Click="OnTagChipClick"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </StackPanel>
+
+        <Grid Grid.Row="2" ColumnDefinitions="*,12,280">
+            <Grid>
+                <!-- Article list -->
+                <ScrollViewer x:Name="ListScroll" IsVisible="{Binding IsListOpen}">
+                    <StackPanel Spacing="8" Margin="0,0,8,0">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <TextBlock Text="{Binding Heading}" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding Info}" FontSize="11" VerticalAlignment="Center"
+                                       Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
+                        </StackPanel>
+                        <ItemsControl ItemsSource="{Binding Articles}">
+                            <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Spacing="8"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:DicArticleCard">
+                                    <Border Classes="dicCard">
+                                        <Grid ColumnDefinitions="Auto,*">
+                                            <Button Classes="linkItem" Padding="0" VerticalAlignment="Top" Click="OnArticleCardClick">
+                                                <Border Width="110" Height="110" CornerRadius="6" ClipToBounds="True"
+                                                        Background="{DynamicResource Container2BackgroundBrush}">
+                                                    <Image Source="{Binding Thumbnail}" Stretch="UniformToFill"
+                                                           RenderOptions.BitmapInterpolationMode="HighQuality"/>
+                                                </Border>
+                                            </Button>
+                                            <StackPanel Grid.Column="1" Margin="14,0,0,0" Spacing="4">
+                                                <Button Classes="linkItem" Padding="0" Click="OnArticleCardClick">
+                                                    <TextBlock Text="{Binding Title}" FontSize="17" FontWeight="SemiBold"
+                                                               Foreground="{DynamicResource AccentBrush}" TextWrapping="Wrap"/>
+                                                </Button>
+                                                <TextBlock Text="{Binding Summary}" TextWrapping="Wrap" FontSize="13" IsVisible="{Binding HasSummary}"/>
+                                                <TextBlock Text="{Binding Meta}" FontSize="10" TextWrapping="Wrap"
+                                                           Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
+                                                <ItemsControl ItemsSource="{Binding Related}" IsVisible="{Binding HasRelated}">
+                                                    <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate x:DataType="x:String">
+                                                            <Button Classes="chip" Content="{Binding}" Click="OnTagChipClick"/>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center" Margin="0,4,0,12">
+                            <Button Content="{loc:Tr Dic_Prev}" Command="{Binding PrevPageCommand}" IsEnabled="{Binding CanPrevPage}"/>
+                            <TextBlock Text="{Binding Page}" VerticalAlignment="Center"/>
+                            <Button Content="{loc:Tr Dic_Next}" Command="{Binding NextPageCommand}" IsEnabled="{Binding CanNextPage}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- Article -->
+                <ScrollViewer x:Name="ArticleScroll" IsVisible="{Binding IsArticleOpen}">
+                    <StackPanel x:Name="ArticleHost" Spacing="8" Margin="0,0,12,16" MaxWidth="900" HorizontalAlignment="Left"/>
+                </ScrollViewer>
+
+                <Border IsVisible="{Binding HasStatus}" Classes="dicCard" VerticalAlignment="Top" Margin="0,40,0,0">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="{Binding Status}" TextWrapping="Wrap"/>
+                        <Button Content="{loc:Tr Dic_SearchPixiv}" Click="OnSearchPixiv" IsVisible="{Binding IsArticleOpen}"/>
+                    </StackPanel>
+                </Border>
+                <ProgressBar IsIndeterminate="True" IsVisible="{Binding IsLoading}" VerticalAlignment="Top" Height="3"/>
+
+                <!-- Hidden browser that talks to dic.pixiv.net (Cloudflare blocks plain HTTP clients) -->
+                <NativeWebView x:Name="Web" Width="1" Height="1" HorizontalAlignment="Left" VerticalAlignment="Bottom"
+                               IsHitTestVisible="False"/>
+            </Grid>
+
+            <!-- Sidebar -->
+            <ScrollViewer Grid.Column="2">
+                <StackPanel Spacing="12">
+                    <Border Classes="dicCard">
+                        <StackPanel>
+                            <Grid ColumnDefinitions="*,Auto,Auto">
+                                <TextBlock Classes="sideTitle" Text="{loc:Tr Dic_Ranking}"/>
+                                <Button Grid.Column="1" Content="{loc:Tr Dic_Weekly}" Padding="8,2" FontSize="11" Margin="0,0,4,6"
+                                        Command="{Binding ToggleRankingPeriodCommand}" CommandParameter="weekly" Classes.accent="{Binding !ShowMonthly}"/>
+                                <Button Grid.Column="2" Content="{loc:Tr Dic_Monthly}" Padding="8,2" FontSize="11" Margin="0,0,0,6"
+                                        Command="{Binding ToggleRankingPeriodCommand}" CommandParameter="monthly" Classes.accent="{Binding ShowMonthly}"/>
+                            </Grid>
+                            <ItemsControl ItemsSource="{Binding WeeklyRanking}" ItemTemplate="{StaticResource SideItem}" IsVisible="{Binding !ShowMonthly}"/>
+                            <ItemsControl ItemsSource="{Binding MonthlyRanking}" ItemTemplate="{StaticResource SideItem}" IsVisible="{Binding ShowMonthly}"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Classes="dicCard">
+                        <StackPanel>
+                            <TextBlock Classes="sideTitle" Text="{loc:Tr Dic_Updated}"/>
+                            <ItemsControl ItemsSource="{Binding UpdatedArticles}" ItemTemplate="{StaticResource SideItem}"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Classes="dicCard">
+                        <StackPanel>
+                            <TextBlock Classes="sideTitle" Text="{loc:Tr Dic_New}"/>
+                            <ItemsControl ItemsSource="{Binding NewArticles}" ItemTemplate="{StaticResource SideItem}"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+    </Grid>
+</UserControl>

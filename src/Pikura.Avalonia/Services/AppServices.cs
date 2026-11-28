@@ -1,4 +1,4 @@
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Pikura.Avalonia.ViewModels;
@@ -265,6 +265,8 @@ public static class AppServices
                         provider.GetRequiredService<ViewedHistoryRepository>(),
                         provider.GetRequiredService<PixivImageLoader>(),
                         provider.GetRequiredService<SettingsService>()));
+                services.AddSingleton<DicService>();
+                services.AddSingleton<DicViewModel>();
                 services.AddSingleton<PixivisionViewModel>(provider =>
                     new PixivisionViewModel(
                         provider.GetRequiredService<PixivisionService>(),

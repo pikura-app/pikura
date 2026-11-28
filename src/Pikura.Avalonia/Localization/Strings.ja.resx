@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- Japanese. Machine-assisted — please have a native speaker review before release.
        Missing keys fall back to Strings.resx (English). -->
@@ -7702,5 +7702,77 @@ https://www.pixiv.net/en/artworks/12345678
   </data>
   <data name="Settings_ThemeBlendAccentHint" xml:space="preserve">
     <value>コントロールと枠線を2番目のテーマの色に</value>
+  </data>
+  <data name="Nav_Dic" xml:space="preserve">
+    <value>百科事典</value>
+  </data>
+  <data name="Dic_Popular" xml:space="preserve">
+    <value>注目の記事</value>
+  </data>
+  <data name="Dic_Updated" xml:space="preserve">
+    <value>更新記事</value>
+  </data>
+  <data name="Dic_New" xml:space="preserve">
+    <value>新着記事</value>
+  </data>
+  <data name="Dic_SearchPlaceholder" xml:space="preserve">
+    <value>ピクシブ百科事典を検索</value>
+  </data>
+  <data name="Dic_Back" xml:space="preserve">
+    <value>戻る</value>
+  </data>
+  <data name="Dic_Refresh" xml:space="preserve">
+    <value>更新</value>
+  </data>
+  <data name="Dic_OpenInBrowser" xml:space="preserve">
+    <value>ブラウザで開く</value>
+  </data>
+  <data name="Dic_SearchPixiv" xml:space="preserve">
+    <value>このタグでpixivを検索</value>
+  </data>
+  <data name="Dic_Prev" xml:space="preserve">
+    <value>前へ</value>
+  </data>
+  <data name="Dic_Next" xml:space="preserve">
+    <value>次へ</value>
+  </data>
+  <data name="Dic_Ranking" xml:space="preserve">
+    <value>ランキング</value>
+  </data>
+  <data name="Dic_Weekly" xml:space="preserve">
+    <value>週間</value>
+  </data>
+  <data name="Dic_Monthly" xml:space="preserve">
+    <value>月間</value>
+  </data>
+  <data name="Dic_Views" xml:space="preserve">
+    <value>閲覧数</value>
+  </data>
+  <data name="Dic_Works" xml:space="preserve">
+    <value>作品数</value>
+  </data>
+  <data name="Dic_Checklist" xml:space="preserve">
+    <value>チェックリスト</value>
+  </data>
+  <data name="Dic_UpdatedAt" xml:space="preserve">
+    <value>更新</value>
+  </data>
+  <data name="Dic_Contents" xml:space="preserve">
+    <value>目次</value>
+  </data>
+  <data name="Dic_Related" xml:space="preserve">
+    <value>関連記事</value>
+  </data>
+  <data name="Dic_NoArticles" xml:space="preserve">
+    <value>記事が見つかりません。</value>
+  </data>
+  <data name="Dic_NoArticleFor" xml:space="preserve">
+    <value>「{0}」の記事はまだありません。</value>
+  </data>
+  <data name="Dic_Unavailable" xml:space="preserve">
+    <value>ピクシブ百科事典に接続できませんでした。接続を確認して更新を押してください。</value>
+  </data>
+  <data name="Dic_LoadFailed" xml:space="preserve">
+    <value>ピクシブ百科事典がエラーを返しました（{0}）。</value>
   </data>
 </root>
