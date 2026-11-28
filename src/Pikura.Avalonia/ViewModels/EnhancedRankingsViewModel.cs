@@ -44,6 +44,8 @@ public partial class EnhancedRankingsViewModel : ViewModelBase
     [ObservableProperty] private bool _showTags = true;
     [ObservableProperty] private bool _showBadges = true;
     [ObservableProperty] private bool _showPreview;
+    [ObservableProperty] private bool _showNovelReader;
+    public NovelReaderViewModel NovelReader { get; }
 
     [ObservableProperty] private bool _isViewerExpanded;
     partial void OnIsViewerExpandedChanged(bool value) { OnPropertyChanged(nameof(IsViewerFullScreen)); }
@@ -151,6 +153,12 @@ public partial class EnhancedRankingsViewModel : ViewModelBase
 
     public EnhancedRankingsViewModel(PixivClient pixivClient, PixivImageLoader imageLoader, Pikura.Core.Settings.SettingsService settingsService, LocalFavoritesService favoritesService)
     {
+        NovelReader = new NovelReaderViewModel(pixivClient, imageLoader, settingsService);
+        NovelReader.CloseRequested += (_, _) =>
+        {
+            ShowNovelReader = false;
+            ShowPreview = GalleryVm.HasTabs;
+        };
         _pixivClient = pixivClient;
         _imageLoader = imageLoader;
         _settingsService = settingsService;
@@ -193,7 +201,7 @@ public partial class EnhancedRankingsViewModel : ViewModelBase
         // When all viewer tabs are closed (global state), also collapse the side panel here.
         GalleryVm.PropertyChanged += (_, e) =>
         {
-            if (e.PropertyName == nameof(GalleryViewModel.HasTabs) && !GalleryVm.HasTabs)
+            if (e.PropertyName == nameof(GalleryViewModel.HasTabs) && !GalleryVm.HasTabs && !ShowNovelReader)
             { ShowPreview = false; IsViewerExpanded = false; }
             if (e.PropertyName is nameof(GalleryViewModel.IsCollageMode)
                                or nameof(GalleryViewModel.HasStoredCollage)
@@ -299,6 +307,7 @@ public partial class EnhancedRankingsViewModel : ViewModelBase
         OnPropertyChanged(nameof(ShowUgoiraModes));
         OnPropertyChanged(nameof(ShowMangaModes));
         OnPropertyChanged(nameof(ShowNovelModes));
+        if (value != "novel") ShowNovelReader = false;
     }
 
     [RelayCommand] public void SetFixedHeight()  { IsFixedHeight = true;  IsNaturalHeight = false; }

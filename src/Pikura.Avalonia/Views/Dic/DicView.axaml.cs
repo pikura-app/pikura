@@ -103,11 +103,13 @@ public partial class DicView : UserControl
         _headings.Clear();
         if (_vm?.Article is not { } a) return;
 
-        var lang = _vm.Language;
+        var lang = _vm.ArticleLang;
         var title = Str(a, "tagName") ?? _vm.ArticleTag;
         ArticleHost.Children.Add(new SelectableTextBlock { Text = title, FontSize = 26, FontWeight = FontWeight.Bold, TextWrapping = TextWrapping.Wrap });
         var sub = string.Join("  ·  ", new[] { Str(a, "translatedTagName"), Str(a, "yomigana") }.Where(s => !string.IsNullOrWhiteSpace(s)));
         if (sub.Length > 0) ArticleHost.Children.Add(new TextBlock { Text = sub, Foreground = Muted, FontSize = 13 });
+        if (_vm.ArticleNote.Length > 0)
+            ArticleHost.Children.Add(new Border { Background = Panel2, CornerRadius = new CornerRadius(4), Padding = new Thickness(8, 4), HorizontalAlignment = HorizontalAlignment.Left, Child = new TextBlock { Text = _vm.ArticleNote, FontSize = 12, TextWrapping = TextWrapping.Wrap } });
 
         if (_vm.ArticleInfo is { } info)
         {

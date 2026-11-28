@@ -7775,4 +7775,46 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="Dic_LoadFailed" xml:space="preserve">
     <value>ピクシブ百科事典がエラーを返しました（{0}）。</value>
   </data>
+  <data name="Dic_Home" xml:space="preserve">
+    <value>ホーム</value>
+  </data>
+  <data name="Dic_AutoTranslated" xml:space="preserve">
+    <value>日本語記事からpixivが自動翻訳した記事です。</value>
+  </data>
+  <data name="Dic_JapaneseOriginal" xml:space="preserve">
+    <value>英語の記事はまだないため、日本語の記事を表示しています。</value>
+  </data>
+  <data name="Novel_OpenInBrowser" xml:space="preserve">
+    <value>ブラウザで開く</value>
+  </data>
+  <data name="Novel_Close" xml:space="preserve">
+    <value>閉じる</value>
+  </data>
+  <data name="Novel_Smaller" xml:space="preserve">
+    <value>文字を小さく</value>
+  </data>
+  <data name="Novel_Larger" xml:space="preserve">
+    <value>文字を大きく</value>
+  </data>
+  <data name="Novel_PrevEpisode" xml:space="preserve">
+    <value>← 前の話</value>
+  </data>
+  <data name="Novel_NextEpisode" xml:space="preserve">
+    <value>次の話 →</value>
+  </data>
+  <data name="Novel_Page" xml:space="preserve">
+    <value>{0} / {1} ページ</value>
+  </data>
+  <data name="Novel_Characters" xml:space="preserve">
+    <value>{0:N0}文字</value>
+  </data>
+  <data name="Novel_ReadingTime" xml:space="preserve">
+    <value>約{0}分</value>
+  </data>
+  <data name="Novel_LoadFailed" xml:space="preserve">
+    <value>この小説を読み込めませんでした。</value>
+  </data>
+  <data name="Novel_R18Hidden" xml:space="preserve">
+    <value>この小説はR-18です。読むには設定でR-18コンテンツをオンにしてください。</value>
+  </data>
 </root>

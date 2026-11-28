@@ -1,4 +1,5 @@
 ﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:novel="using:Pikura.Avalonia.Views.Novel"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:loc="using:Pikura.Avalonia.Localization"
              xmlns:actipro="http://schemas.actiprosoftware.com/avaloniaui"
@@ -456,10 +457,15 @@
                         BorderBrush="{DynamicResource Container1BorderBrush}"
                         BorderThickness="1,0,0,0"
                         IsVisible="{Binding ShowPreview}">
-                    <gallery:InlineArtworkViewer Name="RankingsInlineViewer"
-                                                 DataContext="{Binding GalleryVm}"
-                                                 IsExpanded="{Binding $parent[UserControl].((vm:EnhancedRankingsViewModel)DataContext).IsViewerExpanded}"
-                                                 IsPanelOpen="{Binding $parent[UserControl].((vm:EnhancedRankingsViewModel)DataContext).ShowPreview}"/>
+                    <Panel>
+                        <gallery:InlineArtworkViewer Name="RankingsInlineViewer"
+                                                     DataContext="{Binding GalleryVm}"
+                                                     IsVisible="{Binding !$parent[UserControl].((vm:EnhancedRankingsViewModel)DataContext).ShowNovelReader}"
+                                                     IsExpanded="{Binding $parent[UserControl].((vm:EnhancedRankingsViewModel)DataContext).IsViewerExpanded}"
+                                                     IsPanelOpen="{Binding $parent[UserControl].((vm:EnhancedRankingsViewModel)DataContext).ShowPreview}"/>
+                        <novel:NovelReaderView DataContext="{Binding NovelReader}"
+                                               IsVisible="{Binding $parent[UserControl].((vm:EnhancedRankingsViewModel)DataContext).ShowNovelReader}"/>
+                    </Panel>
                 </Border>
 
                 <!-- Main artwork area -->

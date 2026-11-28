@@ -1394,6 +1394,64 @@ public sealed partial class PixivClient
         return await GetAjaxAsync<NovelDetailResponse>(url, ct).ConfigureAwait(false);
     }
 
+    /// <summary>GET /ajax/novel/{id} — the novel's text plus what the reader shows around it.</summary>
+    public async Task<NovelText?> GetNovelTextAsync(string novelId, CancellationToken ct = default)
+    {
+        var url = $"{BaseUrl}/ajax/novel/{novelId}?lang={_settings.Current.Locale}";
+        var body = await GetAjaxAsync<JsonElement>(url, ct, $"{BaseUrl}/novel/show.php?id={novelId}").ConfigureAwait(false);
+        return body.ValueKind == JsonValueKind.Object ? ParseNovelText(body) : null;
+    }
+
+    public static NovelText ParseNovelText(JsonElement b)
+    {
+        static string S(JsonElement e, string n) => e.TryGetProperty(n, out var v) && v.ValueKind is JsonValueKind.String or JsonValueKind.Number
+            ? (v.ValueKind == JsonValueKind.String ? v.GetString() ?? "" : v.GetRawText()) : "";
+        static int I(JsonElement e, string n) => int.TryParse(S(e, n), out var i) ? i : 0;
+        static string? Nav(JsonElement series, string n, string field) =>
+            series.ValueKind == JsonValueKind.Object && series.TryGetProperty(n, out var x) && x.ValueKind == JsonValueKind.Object
+                ? S(x, field) is { Length: > 0 } v ? v : null : null;
+
+        var tags = new List<string>();
+        if (b.TryGetProperty("tags", out var t) && t.ValueKind == JsonValueKind.Object
+            && t.TryGetProperty("tags", out var list) && list.ValueKind == JsonValueKind.Array)
+            tags.AddRange(list.EnumerateArray().Select(x => S(x, "tag")).Where(x => x.Length > 0));
+
+        var images = new Dictionary<string, string>();
+        if (b.TryGetProperty("textEmbeddedImages", out var emb) && emb.ValueKind == JsonValueKind.Object)
+            foreach (var p in emb.EnumerateObject())
+                if (p.Value.TryGetProperty("urls", out var urls) && urls.ValueKind == JsonValueKind.Object)
+                {
+                    var u = S(urls, "1200x1200") is { Length: > 0 } big ? big : S(urls, "original");
+                    if (u.Length > 0) images[p.Name] = u;
+                }
+
+        b.TryGetProperty("seriesNavData", out var series);
+        return new NovelText
+        {
+            Id = S(b, "id"),
+            Title = S(b, "title"),
+            UserId = S(b, "userId"),
+            UserName = S(b, "userName"),
+            CoverUrl = S(b, "coverUrl") is { Length: > 0 } c ? c : null,
+            Description = S(b, "description"),
+            Content = S(b, "content"),
+            Tags = tags,
+            XRestrict = I(b, "xRestrict"),
+            BookmarkCount = I(b, "bookmarkCount"),
+            LikeCount = I(b, "likeCount"),
+            ViewCount = I(b, "viewCount"),
+            CharacterCount = I(b, "characterCount"),
+            ReadingTimeSeconds = I(b, "readingTime"),
+            CreateDate = S(b, "createDate"),
+            SeriesTitle = series.ValueKind == JsonValueKind.Object && S(series, "title") is { Length: > 0 } st ? st : null,
+            PrevId = Nav(series, "prev", "id"),
+            PrevTitle = Nav(series, "prev", "title"),
+            NextId = Nav(series, "next", "id"),
+            NextTitle = Nav(series, "next", "title"),
+            EmbeddedImages = images,
+        };
+    }
+
     /// <summary>
     /// GET /ajax/tags/suggest — tag autocomplete suggestions.
     /// </summary>

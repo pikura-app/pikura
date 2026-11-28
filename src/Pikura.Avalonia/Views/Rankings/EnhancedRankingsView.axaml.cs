@@ -1,4 +1,4 @@
-using Avalonia.Controls;
+﻿using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Input.Platform;
@@ -276,10 +276,12 @@ public partial class EnhancedRankingsView : UserControl
         if (VM == null) return;
         if (card.IsNovel)
         {
-            try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo($"https://www.pixiv.net/novel/show.php?id={card.Id}") { UseShellExecute = true }); }
-            catch { /* non-fatal */ }
+            VM.ShowNovelReader = true;
+            VM.ShowPreview = true;
+            _ = VM.NovelReader.LoadAsync(card.Id);
             return;
         }
+        VM.ShowNovelReader = false;
         try
         {
             var galleryVm = AppServices.Get<GalleryViewModel>();
@@ -347,7 +349,7 @@ public partial class EnhancedRankingsView : UserControl
     private void OnContextOpenPopup(object? sender, RoutedEventArgs e)
     {
         if (GetCardFromMenu(sender) is not { } card) return;
-        if (card.IsNovel) { OpenInlineViewer(card); return; } // opens browser tab instead
+        if (card.IsNovel) { Pikura.Avalonia.Views.Novel.NovelReaderWindow.Open(card.Id, this); return; }
         _ = OpenPopupAsync(card);
     }
 

@@ -267,6 +267,7 @@ public static class AppServices
                         provider.GetRequiredService<SettingsService>()));
                 services.AddSingleton<DicService>();
                 services.AddSingleton<DicViewModel>();
+                services.AddTransient<NovelReaderViewModel>();
                 services.AddSingleton<PixivisionViewModel>(provider =>
                     new PixivisionViewModel(
                         provider.GetRequiredService<PixivisionService>(),

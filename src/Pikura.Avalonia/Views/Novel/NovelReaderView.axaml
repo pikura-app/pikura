@@ -1,0 +1,78 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:loc="using:Pikura.Avalonia.Localization"
+             xmlns:vm="using:Pikura.Avalonia.ViewModels"
+             x:Class="Pikura.Avalonia.Views.Novel.NovelReaderView"
+             x:DataType="vm:NovelReaderViewModel">
+    <Grid RowDefinitions="Auto,Auto,*,Auto">
+        <!-- Toolbar -->
+        <Border Grid.Row="0" Padding="8,6" BorderBrush="{DynamicResource Container1BorderBrush}" BorderThickness="0,0,0,1">
+            <Grid ColumnDefinitions="Auto,*,Auto">
+                <StackPanel Orientation="Horizontal" Spacing="4">
+                    <Button Content="A−" Padding="8,3" Command="{Binding FontSmallerCommand}" ToolTip.Tip="{loc:Tr Novel_Smaller}"/>
+                    <Button Content="A+" Padding="8,3" Command="{Binding FontLargerCommand}" ToolTip.Tip="{loc:Tr Novel_Larger}"/>
+                </StackPanel>
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4">
+                    <Button Padding="8,3" Command="{Binding OpenInBrowserCommand}" ToolTip.Tip="{loc:Tr Novel_OpenInBrowser}">
+                        <TextBlock Text="{loc:Tr Novel_OpenInBrowser}" FontSize="12"/>
+                    </Button>
+                    <Button Content="✕" Padding="8,3" Command="{Binding CloseCommand}" ToolTip.Tip="{loc:Tr Novel_Close}"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Header -->
+        <Grid Grid.Row="1" ColumnDefinitions="Auto,*" Margin="14,12,14,6">
+            <Border Width="72" Height="100" CornerRadius="4" ClipToBounds="True" VerticalAlignment="Top"
+                    Background="{DynamicResource Container2BackgroundBrush}">
+                <Image Source="{Binding Cover}" Stretch="UniformToFill" x:Name="CoverImage"/>
+            </Border>
+            <StackPanel Grid.Column="1" Margin="12,0,0,0" Spacing="3">
+                <TextBlock Text="{Binding Series}" FontSize="11" IsVisible="{Binding HasSeries}" TextWrapping="Wrap"
+                           Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
+                <SelectableTextBlock Text="{Binding Title}" FontSize="18" FontWeight="Bold" TextWrapping="Wrap"/>
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <TextBlock Text="{Binding Author}" FontSize="12"/>
+                    <Border Background="#E0245E" CornerRadius="3" Padding="4,0" IsVisible="{Binding IsR18}">
+                        <TextBlock Text="R-18" FontSize="10" Foreground="White" FontWeight="Bold"/>
+                    </Border>
+                </StackPanel>
+                <TextBlock Text="{Binding Meta}" FontSize="11" TextWrapping="Wrap" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
+                <ItemsControl ItemsSource="{Binding Tags}">
+                    <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="x:String">
+                            <Border Margin="0,1,4,1" Padding="5,1" CornerRadius="3" Background="{DynamicResource Container2BackgroundBrush}">
+                                <TextBlock Text="{Binding}" FontSize="10"/>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </Grid>
+
+        <!-- Text -->
+        <Grid Grid.Row="2">
+            <ScrollViewer x:Name="TextScroll" Padding="18,6,18,18">
+                <StackPanel x:Name="PageHost" Spacing="10" MaxWidth="760" HorizontalAlignment="Center"/>
+            </ScrollViewer>
+            <TextBlock Text="{Binding Status}" IsVisible="{Binding HasStatus}" TextWrapping="Wrap" Margin="18" VerticalAlignment="Top"/>
+            <ProgressBar IsIndeterminate="True" IsVisible="{Binding IsLoading}" VerticalAlignment="Top" Height="3"/>
+        </Grid>
+
+        <!-- Paging -->
+        <Border Grid.Row="3" Padding="8,6" BorderBrush="{DynamicResource Container1BorderBrush}" BorderThickness="0,1,0,0">
+            <Grid ColumnDefinitions="Auto,*,Auto">
+                <Button Content="{loc:Tr Novel_PrevEpisode}" Padding="8,3" FontSize="12"
+                        Command="{Binding PrevEpisodeCommand}" IsVisible="{Binding HasPrevEpisode}"/>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center" IsVisible="{Binding HasPages}">
+                    <Button Content="‹" Padding="10,3" Command="{Binding PrevPageCommand}" IsEnabled="{Binding CanPrevPage}"/>
+                    <TextBlock Text="{Binding PageLabel}" VerticalAlignment="Center" FontSize="12"/>
+                    <Button Content="›" Padding="10,3" Command="{Binding NextPageCommand}" IsEnabled="{Binding CanNextPage}"/>
+                </StackPanel>
+                <Button Grid.Column="2" Content="{loc:Tr Novel_NextEpisode}" Padding="8,3" FontSize="12"
+                        Command="{Binding NextEpisodeCommand}" IsVisible="{Binding HasNextEpisode}"/>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

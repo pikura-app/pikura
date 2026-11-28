@@ -7775,4 +7775,46 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="Dic_LoadFailed" xml:space="preserve">
     <value>pixiv 百科返回错误（{0}）。</value>
   </data>
+  <data name="Dic_Home" xml:space="preserve">
+    <value>首页</value>
+  </data>
+  <data name="Dic_AutoTranslated" xml:space="preserve">
+    <value>由 pixiv 从日文条目自动翻译。</value>
+  </data>
+  <data name="Dic_JapaneseOriginal" xml:space="preserve">
+    <value>尚无英文条目，显示日文原文。</value>
+  </data>
+  <data name="Novel_OpenInBrowser" xml:space="preserve">
+    <value>在浏览器中打开</value>
+  </data>
+  <data name="Novel_Close" xml:space="preserve">
+    <value>关闭</value>
+  </data>
+  <data name="Novel_Smaller" xml:space="preserve">
+    <value>缩小文字</value>
+  </data>
+  <data name="Novel_Larger" xml:space="preserve">
+    <value>放大文字</value>
+  </data>
+  <data name="Novel_PrevEpisode" xml:space="preserve">
+    <value>← 上一话</value>
+  </data>
+  <data name="Novel_NextEpisode" xml:space="preserve">
+    <value>下一话 →</value>
+  </data>
+  <data name="Novel_Page" xml:space="preserve">
+    <value>第 {0} / {1} 页</value>
+  </data>
+  <data name="Novel_Characters" xml:space="preserve">
+    <value>{0:N0} 字</value>
+  </data>
+  <data name="Novel_ReadingTime" xml:space="preserve">
+    <value>约 {0} 分钟</value>
+  </data>
+  <data name="Novel_LoadFailed" xml:space="preserve">
+    <value>无法加载此小说。</value>
+  </data>
+  <data name="Novel_R18Hidden" xml:space="preserve">
+    <value>此小说为 R-18。请在设置中开启 R-18 内容后阅读。</value>
+  </data>
 </root>

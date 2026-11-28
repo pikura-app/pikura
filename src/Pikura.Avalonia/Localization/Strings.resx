@@ -7839,4 +7839,46 @@ Saved to: {3}</value>
   <data name="Dic_LoadFailed" xml:space="preserve">
     <value>pixiv Encyclopedia returned an error ({0}).</value>
   </data>
+  <data name="Dic_Home" xml:space="preserve">
+    <value>Home</value>
+  </data>
+  <data name="Dic_AutoTranslated" xml:space="preserve">
+    <value>Auto-translated by pixiv from the Japanese article.</value>
+  </data>
+  <data name="Dic_JapaneseOriginal" xml:space="preserve">
+    <value>No English article yet, showing the Japanese original.</value>
+  </data>
+  <data name="Novel_OpenInBrowser" xml:space="preserve">
+    <value>Open in browser</value>
+  </data>
+  <data name="Novel_Close" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="Novel_Smaller" xml:space="preserve">
+    <value>Smaller text</value>
+  </data>
+  <data name="Novel_Larger" xml:space="preserve">
+    <value>Larger text</value>
+  </data>
+  <data name="Novel_PrevEpisode" xml:space="preserve">
+    <value>← Previous episode</value>
+  </data>
+  <data name="Novel_NextEpisode" xml:space="preserve">
+    <value>Next episode →</value>
+  </data>
+  <data name="Novel_Page" xml:space="preserve">
+    <value>Page {0} / {1}</value>
+  </data>
+  <data name="Novel_Characters" xml:space="preserve">
+    <value>{0:N0} characters</value>
+  </data>
+  <data name="Novel_ReadingTime" xml:space="preserve">
+    <value>{0} min read</value>
+  </data>
+  <data name="Novel_LoadFailed" xml:space="preserve">
+    <value>Couldn't load this novel.</value>
+  </data>
+  <data name="Novel_R18Hidden" xml:space="preserve">
+    <value>This novel is R-18. Turn on R-18 content in Settings to read it.</value>
+  </data>
 </root>

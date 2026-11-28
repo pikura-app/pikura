@@ -27,6 +27,8 @@ public partial class DicArticleCard : ObservableObject
     public bool HasSummary => Summary.Length > 0;
     public bool HasRelated => Related.Count > 0;
     [ObservableProperty] private Bitmap? _thumbnail;
+    public bool HasThumbnail => Thumbnail is not null;
+    partial void OnThumbnailChanged(Bitmap? value) => OnPropertyChanged(nameof(HasThumbnail));
 
     public async Task LoadThumbnailAsync(PixivImageLoader loader)
     {
@@ -85,6 +87,9 @@ public partial class DicViewModel : ObservableObject
     [ObservableProperty] private bool _showMonthly;
     [ObservableProperty] private bool _isArticleOpen;
     [ObservableProperty] private string _articleTag = "";
+    /// <summary>Language of the article actually shown (an English request may fall back to Japanese).</summary>
+    [ObservableProperty] private string _articleLang = "en";
+    [ObservableProperty] private string _articleNote = "";
 
     /// <summary>The last <c>/get_article</c> body; the view renders its node tree.</summary>
     [ObservableProperty] private JsonElement? _article;
@@ -152,6 +157,20 @@ public partial class DicViewModel : ObservableObject
         Category = null;
         Page = 1;
         IsArticleOpen = false;
+        await LoadListAsync();
+    }
+
+    [RelayCommand]
+    private async Task HomeAsync()
+    {
+        Topic = "popular";
+        Category = null;
+        SearchText = "";
+        Page = 1;
+        _history.Clear();
+        IsArticleOpen = false;
+        Article = null;
+        ArticleInfo = null;
         await LoadListAsync();
     }
 
@@ -237,7 +256,7 @@ public partial class DicViewModel : ObservableObject
     }
 
     public string CurrentUrl => IsArticleOpen
-        ? $"{DicService.Origin}{Prefix}/a/{Uri.EscapeDataString(ArticleTag)}"
+        ? $"{DicService.Origin}{(ArticleLang == "en" ? "/en" : "")}/a/{Uri.EscapeDataString(ArticleTag)}"
         : DicService.Origin + ListPath();
 
     /// <summary>The Japanese tag for pixiv searches (English articles carry it as translatedTagName).</summary>
@@ -246,7 +265,7 @@ public partial class DicViewModel : ObservableObject
         get
         {
             if (Article is not { } a) return null;
-            if (IsEnglish && a.TryGetProperty("translatedTagName", out var t) && t.ValueKind == JsonValueKind.String
+            if (ArticleLang == "en" && a.TryGetProperty("translatedTagName", out var t) && t.ValueKind == JsonValueKind.String
                 && !string.IsNullOrWhiteSpace(t.GetString()))
                 return t.GetString();
             return a.TryGetProperty("tagName", out var n) ? n.GetString() : ArticleTag;
@@ -368,9 +387,23 @@ public partial class DicViewModel : ObservableObject
         try
         {
             var path = Uri.EscapeDataString(tag);
-            var (doc, status) = await _dic.GetApiAsync($"/get_article/{path}?lang={Language}&viewType=ugc");
-            if (id != _requestId) { doc?.Dispose(); return; }
+            // English: the community article, then pixiv's auto-translation, then the Japanese original.
+            var attempts = IsEnglish
+                ? new[] { ("en", "ugc", ""), ("en", "translation", "Dic_AutoTranslated"), ("ja", "ugc", "Dic_JapaneseOriginal") }
+                : new[] { ("ja", "ugc", "") };
+            JsonDocument? doc = null;
+            var status = 0;
+            var (lang, view, note) = attempts[0];
+            foreach (var attempt in attempts)
+            {
+                (lang, view, note) = attempt;
+                (doc, status) = await _dic.GetApiAsync($"/get_article/{path}?lang={lang}&viewType={view}");
+                if (id != _requestId) { doc?.Dispose(); return; }
+                if (doc is not null || status != 404) break;
+            }
             ArticleTag = tag;
+            ArticleLang = lang;
+            ArticleNote = note.Length > 0 ? LocalizationService.Instance[note] : "";
             IsArticleOpen = true;
             if (doc is null)
             {
@@ -384,7 +417,7 @@ public partial class DicViewModel : ObservableObject
             }
             using (doc) Article = doc.RootElement.Clone();
             OnPropertyChanged(nameof(PixivTag));
-            var (info, _) = await _dic.GetApiAsync($"/get_article_info/{path}?lang={Language}&viewType=ugc");
+            var (info, _) = await _dic.GetApiAsync($"/get_article_info/{path}?lang={lang}&viewType={view}");
             if (id != _requestId) { info?.Dispose(); return; }
             using (info) ArticleInfo = info?.RootElement.Clone();
         }
