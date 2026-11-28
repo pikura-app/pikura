@@ -179,6 +179,7 @@ public partial class NovelReaderViewModel : ObservableObject
         foreach (var p in new[] { nameof(Title), nameof(Author), nameof(Series), nameof(HasSeries), nameof(Tags), nameof(IsR18),
                      nameof(BlurCover), nameof(Meta), nameof(HasPrevEpisode), nameof(HasNextEpisode), nameof(Url) })
             OnPropertyChanged(p);
+        NotifyHeader();
     }
 
     partial void OnPagesChanged(IReadOnlyList<IReadOnlyList<NovelBlock>> value) { NotifyPaging(); PageContentChanged(); }
@@ -212,9 +213,45 @@ public partial class NovelReaderViewModel : ObservableObject
         PageContentChanged();
     }
 
+    // Header (title, series, tags) is translated once per novel alongside the page.
+    private readonly Dictionary<string, (string Title, string Series, IReadOnlyList<string> Tags)> _translatedHeader = new();
+    private string HeaderKey => $"{Novel?.Id}|{Translator}|{TargetLanguage}";
+    private (string Title, string Series, IReadOnlyList<string> Tags)? Header =>
+        IsTranslated && _translatedHeader.TryGetValue(HeaderKey, out var h) ? h : null;
+    public string DisplayTitle => Header?.Title ?? Title;
+    public string DisplaySeries => Header?.Series ?? Series;
+    public IReadOnlyList<string> DisplayTags => Header?.Tags ?? Tags;
+
+    private void NotifyHeader()
+    {
+        OnPropertyChanged(nameof(DisplayTitle));
+        OnPropertyChanged(nameof(DisplaySeries));
+        OnPropertyChanged(nameof(DisplayTags));
+    }
+
+    private async Task TranslateHeaderAsync()
+    {
+        if (!IsTranslated || Novel is not { Id.Length: > 0 } n) return;
+        var key = HeaderKey;
+        if (_translatedHeader.ContainsKey(key)) return;
+        var lines = new List<string> { n.Title, n.SeriesTitle ?? "" };
+        lines.AddRange(n.Tags);
+        try
+        {
+            var r = await NovelTranslation.TranslateAsync(lines, Translator, TargetLanguage, CancellationToken.None);
+            string Pick(int i, string original) => r[i].Length > 0 ? r[i] : original;
+            _translatedHeader[key] = (Pick(0, n.Title), Pick(1, n.SeriesTitle ?? ""),
+                n.Tags.Select((t, i) => Pick(i + 2, t)).ToList());
+            NotifyHeader();
+        }
+        catch { /* header stays original; the page status shows translation errors */ }
+    }
+
     private void PageContentChanged()
     {
         OnPropertyChanged(nameof(DisplayPage));
+        NotifyHeader();
+        if (IsTranslated) _ = TranslateHeaderAsync();
         if (IsTranslated) _ = TranslateCurrentPageAsync();
     }
 

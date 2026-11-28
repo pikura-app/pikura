@@ -158,9 +158,9 @@
                 <Image Source="{Binding Cover}" Stretch="UniformToFill" x:Name="CoverImage"/>
             </Border>
             <StackPanel Grid.Column="1" Margin="12,0,0,0" Spacing="3">
-                <TextBlock Text="{Binding Series}" FontSize="11" IsVisible="{Binding HasSeries}" TextWrapping="Wrap"
+                <TextBlock Text="{Binding DisplaySeries}" FontSize="11" IsVisible="{Binding HasSeries}" TextWrapping="Wrap"
                            Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
-                <SelectableTextBlock Text="{Binding Title}" FontSize="18" FontWeight="Bold" TextWrapping="Wrap"/>
+                <SelectableTextBlock Text="{Binding DisplayTitle}" FontSize="18" FontWeight="Bold" TextWrapping="Wrap"/>
                 <StackPanel Orientation="Horizontal" Spacing="6">
                     <TextBlock Text="{Binding Author}" FontSize="12"/>
                     <Border Background="#E0245E" CornerRadius="3" Padding="4,0" IsVisible="{Binding IsR18}">
@@ -168,7 +168,7 @@
                     </Border>
                 </StackPanel>
                 <TextBlock Text="{Binding Meta}" FontSize="11" TextWrapping="Wrap" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
-                <ItemsControl ItemsSource="{Binding Tags}">
+                <ItemsControl ItemsSource="{Binding DisplayTags}">
                     <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate x:DataType="x:String">
