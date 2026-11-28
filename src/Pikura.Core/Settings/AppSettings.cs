@@ -822,6 +822,9 @@ public sealed class AppSettings
     /// <summary>Articles per Pixivision page; 0 uses pixivision's own page size.</summary>
     public int PixivisionArticlesPerPage { get; set; }
 
+    /// <summary>Period the Analytics page opens with: 7d, 30d, 6m, 1y, 5y or all.</summary>
+    public string AnalyticsDefaultPeriod { get; set; } = "7d";
+
     /// <summary>Novel translator: "google" (Google Translate) or "hoshi" (local Ollama).</summary>
     public string NovelTranslator { get; set; } = "google";
 

@@ -8092,7 +8092,7 @@ Saved to: {3}</value>
     <value>Today</value>
   </data>
   <data name="Analytics_TodaySub" xml:space="preserve">
-    <value>{0} artworks viewed · {1} images downloaded · {2} articles read</value>
+    <value>{0} artworks viewed · {1} images downloaded · {2} articles read · {3} novels read</value>
   </data>
   <data name="Analytics_Past7" xml:space="preserve">
     <value>Past 7 days</value>
@@ -8234,6 +8234,15 @@ Saved to: {3}</value>
   </data>
   <data name="Analytics_SectionPeriodTip" xml:space="preserve">
     <value>Period for this section only</value>
+  </data>
+  <data name="Analytics_NovelsRead" xml:space="preserve">
+    <value>Novels read</value>
+  </data>
+  <data name="Analytics_RecentNovels" xml:space="preserve">
+    <value>Recently read novels</value>
+  </data>
+  <data name="Settings_AnalyticsDefaultPeriod" xml:space="preserve">
+    <value>Default period when opening Analytics</value>
   </data>
   <data name="Analytics_PeriodAll" xml:space="preserve">
     <value>All time</value>

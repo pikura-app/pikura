@@ -1,6 +1,6 @@
 namespace Pikura.Core.Services;
 
-public enum ActivityKind { View, ViewR18, Download, Article }
+public enum ActivityKind { View, ViewR18, Download, Article, Novel }
 
 public readonly record struct ActivityEvent(DateTime Local, ActivityKind Kind);
 
@@ -15,6 +15,8 @@ public sealed class ActivityStats
     public int Downloads { get; private init; }
     public int Articles { get; private init; }
     public int TodayArticles { get; private init; }
+    public int Novels { get; private init; }
+    public int TodayNovels { get; private init; }
     public int Today { get; private init; }
     public int TodayViews { get; private init; }
     public int TodayDownloads { get; private init; }
@@ -44,7 +46,7 @@ public sealed class ActivityStats
             daily[d] = daily.GetValueOrDefault(d) + 1;
             all[e.Local.Hour]++;
             if (e.Kind == ActivityKind.Download) downloads[e.Local.Hour]++;
-            else if (e.Kind != ActivityKind.Article) views[e.Local.Hour]++;
+            else if (e.Kind is ActivityKind.View or ActivityKind.ViewR18) views[e.Local.Hour]++;
             weekdays[(int)e.Local.DayOfWeek]++;
         }
 
@@ -74,6 +76,8 @@ public sealed class ActivityStats
             Downloads = list.Count(e => e.Kind == ActivityKind.Download),
             Articles = list.Count(e => e.Kind == ActivityKind.Article),
             TodayArticles = todayEvents.Count(e => e.Kind == ActivityKind.Article),
+            Novels = list.Count(e => e.Kind == ActivityKind.Novel),
+            TodayNovels = todayEvents.Count(e => e.Kind == ActivityKind.Novel),
             Today = todayEvents.Count,
             TodayViews = todayEvents.Count(e => e.Kind is ActivityKind.View or ActivityKind.ViewR18),
             TodayDownloads = todayEvents.Count(e => e.Kind == ActivityKind.Download),

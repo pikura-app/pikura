@@ -72,4 +72,17 @@ public class ActivityStatsTests
         Assert.Equal(new DateOnly(2026, 6, 1), months[0].Start);
         Assert.Equal(new[] { 1, 0, 0, 0, 0, 5 }, months.Select(d => d.Count));
     }
+
+    [Fact]
+    public void Novels_Are_Counted_Separately_And_Not_As_Views()
+    {
+        var today = new DateOnly(2026, 11, 28);
+        var at = today.ToDateTime(new TimeOnly(21, 0));
+        var stats = ActivityStats.Compute([new(at, ActivityKind.Novel), new(at, ActivityKind.Novel), new(at, ActivityKind.View)], today);
+        Assert.Equal(2, stats.Novels);
+        Assert.Equal(2, stats.TodayNovels);
+        Assert.Equal(3, stats.Total);
+        Assert.Equal(1, stats.HoursViews[21]);
+        Assert.Equal(3, stats.HoursAll[21]);
+    }
 }

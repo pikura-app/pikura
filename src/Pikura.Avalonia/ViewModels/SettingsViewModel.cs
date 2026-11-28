@@ -2033,6 +2033,13 @@ public partial class SettingsViewModel : ViewModelBase
     private bool _applyingIgpu;
 
     /// <summary>Let Ollama use the integrated GPU. Applying restarts Ollama (confirmed first).</summary>
+    public string[] AnalyticsPeriodOptions => SectionPeriod.Labels;
+    public int AnalyticsDefaultPeriodIndex
+    {
+        get => SectionPeriod.IndexOf(_settingsService.Current.AnalyticsDefaultPeriod);
+        set { _settingsService.Update(s => s.AnalyticsDefaultPeriod = SectionPeriod.CodeAt(value)); OnPropertyChanged(); }
+    }
+
     /// <summary>0 = Google Translate, 1 = Hoshi, for the novel reader's Translate button.</summary>
     public int NovelTranslatorIndex
     {

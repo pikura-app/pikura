@@ -265,7 +265,7 @@ public sealed class StackedBar : StatChart
         var values = Values ?? [];
         var total = values.Sum();
         if (total <= 0) { ctx.DrawRectangle(new SolidColorBrush(Colors.Gray, 0.2), null, new Rect(Bounds.Size), 7, 7); return; }
-        Color[] colors = [StatPalette.Accent(this), StatPalette.R18, StatPalette.Download, Colors.MediumPurple];
+        Color[] colors = [StatPalette.Accent(this), StatPalette.R18, StatPalette.Download, Colors.MediumPurple, Color.Parse("#E8A33D")];
         var x = 0.0;
         for (var i = 0; i < values.Length; i++)
         {

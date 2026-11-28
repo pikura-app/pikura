@@ -8028,7 +8028,7 @@ https://www.pixiv.net/en/artworks/12345678
     <value>今天</value>
   </data>
   <data name="Analytics_TodaySub" xml:space="preserve">
-    <value>作品 {0} · 图片 {1} · 文章 {2}</value>
+    <value>作品 {0} · 图片 {1} · 文章 {2} · 小说 {3}</value>
   </data>
   <data name="Analytics_Past7" xml:space="preserve">
     <value>过去 7 天</value>
@@ -8170,6 +8170,15 @@ https://www.pixiv.net/en/artworks/12345678
   </data>
   <data name="Analytics_SectionPeriodTip" xml:space="preserve">
     <value>仅此部分的期间</value>
+  </data>
+  <data name="Analytics_NovelsRead" xml:space="preserve">
+    <value>阅读的小说</value>
+  </data>
+  <data name="Analytics_RecentNovels" xml:space="preserve">
+    <value>最近阅读的小说</value>
+  </data>
+  <data name="Settings_AnalyticsDefaultPeriod" xml:space="preserve">
+    <value>打开统计时的默认期间</value>
   </data>
   <data name="Analytics_PeriodAll" xml:space="preserve">
     <value>全部</value>

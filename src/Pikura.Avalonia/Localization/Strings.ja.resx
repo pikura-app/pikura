@@ -8028,7 +8028,7 @@ https://www.pixiv.net/en/artworks/12345678
     <value>今日</value>
   </data>
   <data name="Analytics_TodaySub" xml:space="preserve">
-    <value>作品 {0} 件閲覧 · 画像 {1} 枚DL · 記事 {2} 件</value>
+    <value>作品 {0} 件閲覧 · 画像 {1} 枚DL · 記事 {2} 件 · 小説 {3} 件</value>
   </data>
   <data name="Analytics_Past7" xml:space="preserve">
     <value>過去7日間</value>
@@ -8170,6 +8170,15 @@ https://www.pixiv.net/en/artworks/12345678
   </data>
   <data name="Analytics_SectionPeriodTip" xml:space="preserve">
     <value>このセクションだけの期間</value>
+  </data>
+  <data name="Analytics_NovelsRead" xml:space="preserve">
+    <value>読んだ小説</value>
+  </data>
+  <data name="Analytics_RecentNovels" xml:space="preserve">
+    <value>最近読んだ小説</value>
+  </data>
+  <data name="Settings_AnalyticsDefaultPeriod" xml:space="preserve">
+    <value>分析を開いたときの既定の期間</value>
   </data>
   <data name="Analytics_PeriodAll" xml:space="preserve">
     <value>全期間</value>

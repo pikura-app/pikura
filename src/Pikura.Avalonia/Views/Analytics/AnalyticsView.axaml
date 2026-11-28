@@ -85,9 +85,13 @@
                                 <Border Width="12" Height="12" CornerRadius="2" Background="#1E9E6A"/>
                                 <TextBlock Text="{Binding DownloadsLegend}" FontSize="13"/>
                             </StackPanel>
-                            <StackPanel Orientation="Horizontal" Spacing="6">
+                            <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,0,24,0">
                                 <Border Width="12" Height="12" CornerRadius="2" Background="MediumPurple"/>
                                 <TextBlock Text="{Binding ArticlesLegend}" FontSize="13"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <Border Width="12" Height="12" CornerRadius="2" Background="#E8A33D"/>
+                                <TextBlock Text="{Binding NovelsLegend}" FontSize="13"/>
                             </StackPanel>
                         </WrapPanel>
                     </StackPanel>
@@ -168,7 +172,26 @@
                 <TextBlock Text="{loc:Tr Analytics_ViewCountsNew}" Classes="note" TextWrapping="Wrap" IsVisible="{Binding ViewCountsAreNew}"/>
             </StackPanel></Border>
 
-            <Grid>
+            <Grid ColumnDefinitions="*,14,*">
+                <Border Grid.Column="2" Classes="card"><StackPanel Spacing="6">
+                    <TextBlock Text="{loc:Tr Analytics_RecentNovels}" Classes="cardTitle"/>
+                    <ItemsControl ItemsSource="{Binding RecentNovels}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:AnalyticsNovel">
+                                <Button Background="Transparent" BorderThickness="0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Padding="4,5" Click="OnNovelClick">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <TextBlock Text="{Binding Title}" FontSize="13" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" MaxWidth="320"/>
+                                            <TextBlock Text="{Binding Author}" Classes="note" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" MaxWidth="140"/>
+                                        </StackPanel>
+                                        <TextBlock Grid.Column="1" Text="{Binding Caption}" Classes="note" Margin="8,0,0,0"/>
+                                    </Grid>
+                                </Button>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <TextBlock Text="{loc:Tr Analytics_NoDataYet}" Classes="note" IsVisible="{Binding !RecentNovels.Count}"/>
+                </StackPanel></Border>
                 <Border Classes="card"><StackPanel Spacing="6">
                     <TextBlock Text="{loc:Tr Analytics_RecentArticles}" Classes="cardTitle"/>
                     <ItemsControl ItemsSource="{Binding RecentArticles}">

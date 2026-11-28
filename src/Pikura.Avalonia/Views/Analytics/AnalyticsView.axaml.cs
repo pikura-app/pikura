@@ -26,6 +26,13 @@ public partial class AnalyticsView : UserControl
         if (!wasBlurred && TopLevel.GetTopLevel(this) is MainWindow main) main.LoadGalleryView();
     }
 
+    private void OnNovelClick(object? sender, RoutedEventArgs e)
+    {
+        if (VM is not { } vm || (sender as Control)?.DataContext is not AnalyticsNovel n) return;
+        vm.OpenNovel(n);
+        if (TopLevel.GetTopLevel(this) is MainWindow main) main.LoadGalleryView();
+    }
+
     private void OnArticleClick(object? sender, RoutedEventArgs e)
     {
         if ((sender as Control)?.DataContext is not AnalyticsArticle a || TopLevel.GetTopLevel(this) is not MainWindow main) return;

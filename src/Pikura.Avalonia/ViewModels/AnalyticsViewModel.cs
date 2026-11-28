@@ -30,6 +30,15 @@ public sealed class AnalyticsArtwork(ArtworkCardViewModel card, string caption)
     public string Caption { get; } = caption;
 }
 
+/// <summary>Novel row (from the novel reading history).</summary>
+public sealed class AnalyticsNovel
+{
+    public string Id { get; init; } = "";
+    public string Title { get; init; } = "";
+    public string Author { get; init; } = "";
+    public string Caption { get; init; } = "";
+}
+
 /// <summary>Dic or pixivision article row.</summary>
 public sealed class AnalyticsArticle
 {
@@ -49,7 +58,24 @@ public partial class AnalyticsViewModel : ViewModelBase
     public ObservableCollection<AnalyticsArtwork> RecentArtworks { get; } = [];
     public ObservableCollection<AnalyticsArtwork> MostViewedArtworks { get; } = [];
     public ObservableCollection<AnalyticsArticle> RecentArticles { get; } = [];
+    public ObservableCollection<AnalyticsNovel> RecentNovels { get; } = [];
     [ObservableProperty] private string _articlesLegend = "";
+    [ObservableProperty] private string _novelsLegend = "";
+    private readonly NovelLibraryService _novelLibrary;
+    private List<DateTime> _novelTimes = [];
+    private bool _bulkPeriod;
+    private SectionPeriod[] Sections => [TimelinePeriod, HoursPeriod, WeekdayPeriod, ArtistsPeriod, TagsPeriod, TypesPeriod, DownloadedPeriod, JobsPeriod];
+    private string DefaultPeriod => SectionPeriod.IsValid(_settings.Current.AnalyticsDefaultPeriod) ? _settings.Current.AnalyticsDefaultPeriod : "7d";
+
+    /// <summary>Puts the page and every section back on the default period (called when the tab opens).</summary>
+    public void ResetPeriods()
+    {
+        if (Period == DefaultPeriod) OnPeriodChanged(Period);
+        else Period = DefaultPeriod;
+    }
+
+    public void OpenNovel(AnalyticsNovel item) =>
+        Pikura.Avalonia.Services.AppServices.Get<GalleryViewModel>().OpenNovelInNewTab(item.Id, item.Title, "Analytics");
     [ObservableProperty] private bool _viewCountsAreNew;
     private readonly DownloadJobRepository _jobRepository;
     private readonly ViewedHistoryRepository _historyRepository;
@@ -75,7 +101,7 @@ public partial class AnalyticsViewModel : ViewModelBase
     [ObservableProperty] private DateOnly? _firstDay;
     [ObservableProperty] private string _activeDaysText = "";
     [ObservableProperty] private string _hourMode = "all";
-    [ObservableProperty] private string _period = "30d";
+    [ObservableProperty] private string _period = "";
     [ObservableProperty] private string _totalTitle = "";
     [ObservableProperty] private int[] _timeline = [];
     [ObservableProperty] private string[] _timelineLabels = [];
@@ -105,7 +131,8 @@ public partial class AnalyticsViewModel : ViewModelBase
     public ObservableCollection<StatRow> DownloadJobs { get; } = [];
 
     public AnalyticsViewModel(DownloadJobRepository jobRepository, ViewedHistoryRepository historyRepository, PixivImageLoader imageLoader,
-        Pikura.Core.Settings.SettingsService settings, DicLibraryService dicLibrary, PixivisionHistoryService pixivisionHistory)
+        Pikura.Core.Settings.SettingsService settings, DicLibraryService dicLibrary, PixivisionHistoryService pixivisionHistory,
+        NovelLibraryService novelLibrary)
     {
         _jobRepository = jobRepository;
         _historyRepository = historyRepository;
@@ -113,8 +140,10 @@ public partial class AnalyticsViewModel : ViewModelBase
         _settings = settings;
         _dicLibrary = dicLibrary;
         _pixivisionHistory = pixivisionHistory;
-        foreach (var section in new[] { TimelinePeriod, HoursPeriod, WeekdayPeriod, ArtistsPeriod, TagsPeriod, TypesPeriod, DownloadedPeriod, JobsPeriod })
-            section.Changed += () => _ = ApplyPeriodAsync();
+        _novelLibrary = novelLibrary;
+        Period = DefaultPeriod;
+        foreach (var section in Sections)
+            section.Changed += () => { if (!_bulkPeriod) _ = ApplyPeriodAsync(); };
         _ = LoadAnalyticsAsync();
     }
 
@@ -130,7 +159,14 @@ public partial class AnalyticsViewModel : ViewModelBase
 
     [RelayCommand] private void SetHourMode(string mode) => HourMode = mode;
     [RelayCommand] private void SetPeriod(string period) => Period = period;
-    partial void OnPeriodChanged(string value) => _ = ApplyPeriodAsync();
+    /// <summary>The page period sets every section; a section's own dropdown then changes only that section.</summary>
+    partial void OnPeriodChanged(string value)
+    {
+        _bulkPeriod = true;
+        foreach (var section in Sections) section.Code = value;
+        _bulkPeriod = false;
+        _ = ApplyPeriodAsync();
+    }
 
     private static DateTime? Cutoff(string period, DateOnly today) => period switch
     {
@@ -148,7 +184,7 @@ public partial class AnalyticsViewModel : ViewModelBase
         "1y" => "Analytics_Period1y", "5y" => "Analytics_Period5y", _ => "Analytics_PeriodAll",
     });
 
-    private string Effective(SectionPeriod section) => section.Override ?? Period;
+    private static string Effective(SectionPeriod section) => section.Code;
 
     private static (TimelineUnit Unit, int Buckets) TimelineShape(string period, DateOnly today, DateOnly? first) => period switch
     {
@@ -167,14 +203,14 @@ public partial class AnalyticsViewModel : ViewModelBase
         var version = ++_periodVersion;
         var period = Period;
         var today = DateOnly.FromDateTime(DateTime.Now);
-        var (views, jobs, articles, first) = (_views, _jobs, _articleTimes, FirstDay);
+        var (views, jobs, articles, novels, first) = (_views, _jobs, _articleTimes, _novelTimes, FirstDay);
         var timelinePeriod = Effective(TimelinePeriod);
         var (unit, buckets) = TimelineShape(timelinePeriod, today, first);
         var needed = new[] { period, timelinePeriod, Effective(HoursPeriod), Effective(WeekdayPeriod), Effective(ArtistsPeriod),
             Effective(TagsPeriod), Effective(TypesPeriod), Effective(DownloadedPeriod), Effective(JobsPeriod) }.Distinct().ToList();
         var (results, timeline) = await Task.Run(() =>
         {
-            var r = needed.ToDictionary(p => p, p => Compute(views, jobs, articles, today, Cutoff(p, today)));
+            var r = needed.ToDictionary(p => p, p => Compute(views, jobs, articles, novels, today, Cutoff(p, today)));
             return (r, ActivityStats.Timeline(r[timelinePeriod].Item3, today, unit, buckets));
         });
         if (version != _periodVersion) return;
@@ -225,8 +261,14 @@ public partial class AnalyticsViewModel : ViewModelBase
             try { most = await _historyRepository.GetMostViewedAsync(12); } catch { most = []; }
             var articleTimes = dicHistory.Select(d => d.Time.LocalDateTime).Concat(pvHistory.Select(p => p.ViewedAt.LocalDateTime)).ToList();
             var today = DateOnly.FromDateTime(DateTime.Now);
-            var (global, _, _) = await Task.Run(() => Compute(views, jobs, articleTimes, today, null));
-            (_views, _jobs, _articleTimes) = (views, jobs, articleTimes);
+            var novelHistory = _novelLibrary.History;
+            var novelTimes = novelHistory.Select(n => n.Time.LocalDateTime).ToList();
+            var (global, _, _) = await Task.Run(() => Compute(views, jobs, articleTimes, novelTimes, today, null));
+            (_views, _jobs, _articleTimes, _novelTimes) = (views, jobs, articleTimes, novelTimes);
+            RecentNovels.Clear();
+            var r18Off = _settings.Current.R18Mode == Pikura.Core.Settings.R18Mode.Off;
+            foreach (var n in novelHistory.Where(n => !(r18Off && n.XRestrict > 0)).Take(8))
+                RecentNovels.Add(new AnalyticsNovel { Id = n.Id, Title = n.Title, Author = n.Author, Caption = RelativeTime(n.Time.UtcDateTime) });
             ApplyGlobal(global);
             await ApplyPeriodAsync();
             FillArtworks(RecentArtworks, recent.Select(e => (e, RelativeTime(e.ViewedAt))));
@@ -251,7 +293,7 @@ public partial class AnalyticsViewModel : ViewModelBase
     private static DateTime TargetTime(DownloadJob job, DownloadTarget t) => (t.ProcessedAt ?? job.CompletedAt ?? job.CreatedAt).ToLocalTime();
 
     private static (ActivityStats, Tables, List<ActivityEvent>) Compute(List<ViewedHistoryRepository.ViewActivity> allViews, List<DownloadJob> allJobs,
-        List<DateTime> articleTimes, DateOnly today, DateTime? cutoff)
+        List<DateTime> articleTimes, List<DateTime> novelTimes, DateOnly today, DateTime? cutoff)
     {
         var from = cutoff ?? DateTime.MinValue;
         var views = cutoff is null ? allViews : allViews.Where(v => v.ViewedAtUtc.ToLocalTime() >= from).ToList();
@@ -260,6 +302,7 @@ public partial class AnalyticsViewModel : ViewModelBase
         var jobs = cutoff is null ? allJobs : allJobs.Where(j => j.CreatedAt.ToLocalTime() >= from).ToList();
         var events = new List<ActivityEvent>(views.Count + articleTimes.Count);
         foreach (var t in articleTimes) if (t >= from) events.Add(new ActivityEvent(t, ActivityKind.Article));
+        foreach (var t in novelTimes) if (t >= from) events.Add(new ActivityEvent(t, ActivityKind.Novel));
         foreach (var v in views)
             events.Add(new ActivityEvent(v.ViewedAtUtc.ToLocalTime(), v.XRestrict >= 1 ? ActivityKind.ViewR18 : ActivityKind.View));
         foreach (var x in targets)
@@ -360,7 +403,7 @@ public partial class AnalyticsViewModel : ViewModelBase
     {
         Subtitle = s.FirstDay is { } f ? F("Analytics_CountingSince", f.ToString("MMM d, yyyy", CultureInfo.CurrentCulture), N(s.DaysTracked)) : L("Analytics_NoDataYet");
         TodayText = N(s.Today);
-        TodaySub = F("Analytics_TodaySub", N(s.TodayViews), N(s.TodayDownloads), N(s.TodayArticles));
+        TodaySub = F("Analytics_TodaySub", N(s.TodayViews), N(s.TodayDownloads), N(s.TodayArticles), N(s.TodayNovels));
         Past7Text = N(s.Past7);
         Past7Sub = s.Prev7 == 0 ? L("Analytics_NoneBefore") : F("Analytics_Before", N(s.Prev7),
             (s.Past7 >= s.Prev7 ? "▲ " : "▼ ") + Pct(Math.Abs(s.Past7 - s.Prev7) * 100.0 / s.Prev7));
@@ -379,7 +422,8 @@ public partial class AnalyticsViewModel : ViewModelBase
         TotalText = N(s.Total);
         var weeks = Math.Max(1, s.DaysTracked / 7.0);
         TotalSub = s.Total == 0 ? "" : F("Analytics_PerWeek", N(Math.Round(s.Total / weeks)));
-        TotalSegments = [s.Views, s.ViewsR18, s.Downloads, s.Articles];
+        TotalSegments = [s.Views, s.ViewsR18, s.Downloads, s.Articles, s.Novels];
+        NovelsLegend = $"{L("Analytics_NovelsRead")}  {N(s.Novels)}  {Pct(s.Novels * 100.0 / Math.Max(1, s.Total))}";
         ArticlesLegend = $"{L("Analytics_ArticlesRead")}  {N(s.Articles)}  {Pct(s.Articles * 100.0 / Math.Max(1, s.Total))}";
         var total = Math.Max(1, s.Total);
         ViewsLegend = $"{L("Analytics_Views")}  {N(s.Views)}  {Pct(s.Views * 100.0 / total)}";
@@ -399,15 +443,19 @@ public partial class AnalyticsViewModel : ViewModelBase
     }
 }
 
-/// <summary>A chart or table's own period; index 0 follows the page-wide period.</summary>
+/// <summary>A chart or table's own period. The page period sets it; its dropdown then overrides it.</summary>
 public sealed partial class SectionPeriod : ObservableObject
 {
-    private static readonly string?[] Codes = [null, "7d", "30d", "6m", "1y", "5y", "all"];
-    private static readonly string[] Keys = ["Analytics_PeriodPage", "Analytics_Period7d", "Analytics_Period30d", "Analytics_Period6m",
+    private static readonly string[] Codes = ["7d", "30d", "6m", "1y", "5y", "all"];
+    private static readonly string[] Keys = ["Analytics_Period7d", "Analytics_Period30d", "Analytics_Period6m",
         "Analytics_Period1y", "Analytics_Period5y", "Analytics_PeriodAll"];
-    public string[] Options => Keys.Select(k => LocalizationService.Instance[k]).ToArray();
+    public static bool IsValid(string? code) => code is not null && Codes.Contains(code);
+    public static string[] Labels => Keys.Select(k => LocalizationService.Instance[k]).ToArray();
+    public static string CodeAt(int index) => Codes[Math.Clamp(index, 0, Codes.Length - 1)];
+    public static int IndexOf(string? code) => Math.Max(0, Array.IndexOf(Codes, code));
+    public string[] Options => Labels;
     [ObservableProperty] private int _index;
-    public string? Override => Codes[Math.Clamp(Index, 0, Codes.Length - 1)];
+    public string Code { get => CodeAt(Index); set => Index = IndexOf(value); }
     public event Action? Changed;
     partial void OnIndexChanged(int value) => Changed?.Invoke();
 }

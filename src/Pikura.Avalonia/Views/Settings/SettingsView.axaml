@@ -1225,6 +1225,15 @@
                                 <Border Background="{DynamicResource Container1BackgroundBrush}"
                                         BorderBrush="{DynamicResource Container1BorderBrush}"
                                         BorderThickness="1" CornerRadius="8" Padding="24">
+                                    <StackPanel Spacing="8">
+                                        <TextBlock Text="{loc:Tr Nav_Analytics}" FontWeight="SemiBold" FontSize="13"/>
+                                        <TextBlock Text="{loc:Tr Settings_AnalyticsDefaultPeriod}" FontSize="12"/>
+                                        <ComboBox ItemsSource="{Binding AnalyticsPeriodOptions}" SelectedIndex="{Binding AnalyticsDefaultPeriodIndex}" MinWidth="180"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Background="{DynamicResource Container1BackgroundBrush}"
+                                        BorderBrush="{DynamicResource Container1BorderBrush}"
+                                        BorderThickness="1" CornerRadius="8" Padding="24">
                                     <StackPanel Spacing="12">
                                         <TextBlock Text="{loc:Tr Settings_ReverseSearch}" FontWeight="SemiBold" FontSize="13"/>
                                         <TextBlock Text="{loc:Tr Settings_SauceNaoKeyHint}" FontSize="11" TextWrapping="Wrap"
