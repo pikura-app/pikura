@@ -74,6 +74,9 @@ public partial class DicViewModel : ObservableObject
         _dic = dic;
         _loader = loader;
         _settings = settings;
+        _initializingPerPage = true;
+        ArticlesPerPageIndex = Math.Max(0, Array.IndexOf(PerPageValues, settings.Current.DicArticlesPerPage));
+        _initializingPerPage = false;
         RebuildCategories();
     }
 
@@ -96,34 +99,28 @@ public partial class DicViewModel : ObservableObject
     [ObservableProperty] private string _articleNote = "";
     [ObservableProperty] private bool _isArticleSaved;
     [ObservableProperty] private int? _totalPages;
-    [ObservableProperty] private int _selectedPageOption;
     [ObservableProperty] private string _jumpPageText = "";
-    public ObservableCollection<int> PageOptions { get; } = [];
+    [ObservableProperty] private int _articlesPerPageIndex;
     public bool HasPaging => !IsArticleOpen && !IsLocalTopic && Topic != "updates";
-    public string PageCountText => TotalPages is { } t ? "/ " + t.ToString(System.Globalization.CultureInfo.CurrentCulture) : "";
-    private bool _syncingPage;
     public const int ArticlesPerPage = 12;
+    public static readonly int[] PerPageValues = [0, 24, 48, 96];
+    public string[] ArticlesPerPageOptions => PerPageValues
+        .Select(v => v == 0 ? LocalizationService.Instance["Pixivision_PerPageDefault"] : v.ToString(System.Globalization.CultureInfo.CurrentCulture)).ToArray();
+    private int PageSize => PerPageValues[Math.Clamp(ArticlesPerPageIndex, 0, PerPageValues.Length - 1)] is var v && v > 0 ? v : ArticlesPerPage;
+    public string PageLabel => LocalizationService.F("Common_PageN", Page) + (TotalPages is { } t ? " / " + t.ToString("N0", System.Globalization.CultureInfo.CurrentCulture) : "");
 
-    partial void OnTotalPagesChanged(int? value) { OnPropertyChanged(nameof(PageCountText)); OnPropertyChanged(nameof(CanNextPage)); }
+    partial void OnTotalPagesChanged(int? value) { OnPropertyChanged(nameof(PageLabel)); OnPropertyChanged(nameof(CanNextPage)); }
 
-    partial void OnSelectedPageOptionChanged(int value)
+    partial void OnArticlesPerPageIndexChanged(int oldValue, int newValue)
     {
-        if (_syncingPage || value < 1 || value == Page) return;
-        _ = GoToPageAsync(value);
+        var oldSize = PerPageValues[Math.Clamp(oldValue, 0, PerPageValues.Length - 1)] is var o && o > 0 ? o : ArticlesPerPage;
+        _settings.Update(s => s.DicArticlesPerPage = PerPageValues[Math.Clamp(newValue, 0, PerPageValues.Length - 1)]);
+        if (_initializingPerPage) return;
+        Page = (Page - 1) * oldSize / PageSize + 1;
+        TotalPages = null;
+        if (HasPaging) _ = LoadListAsync();
     }
-
-    private void RebuildPageOptions()
-    {
-        _syncingPage = true;
-        var last = TotalPages ?? Page + 9;
-        if (PageOptions.Count != last || PageOptions.Count == 0 || PageOptions[^1] != last)
-        {
-            PageOptions.Clear();
-            for (var i = 1; i <= last; i++) PageOptions.Add(i);
-        }
-        SelectedPageOption = Page;
-        _syncingPage = false;
-    }
+    private bool _initializingPerPage;
 
     private async Task GoToPageAsync(int page)
     {
@@ -139,12 +136,12 @@ public partial class DicViewModel : ObservableObject
         JumpPageText = "";
     }
 
-    /// <summary>Total page count from the list header ("7813 results", "153983件"), 12 articles per page.</summary>
-    public static int? ParseTotalPages(string info)
+    /// <summary>Total page count from the list header ("7813 results", "153983件").</summary>
+    public static int? ParseTotalPages(string info, int perPage = ArticlesPerPage)
     {
         var m = System.Text.RegularExpressions.Regex.Match(info, @"([\d,]+)\s*(results?|件)");
         if (!m.Success || !int.TryParse(m.Groups[1].Value.Replace(",", ""), out var n)) return null;
-        return Math.Max(1, (n + ArticlesPerPage - 1) / ArticlesPerPage);
+        return Math.Max(1, (n + perPage - 1) / perPage);
     }
     public bool IsLocalTopic => Topic is "saved" or "history";
     public bool IsHistoryTopic => Topic == "history";
@@ -189,7 +186,7 @@ public partial class DicViewModel : ObservableObject
         OnPropertyChanged(nameof(CanNextPage));
     }
 
-    partial void OnPageChanged(int value) => OnPropertyChanged(nameof(CanPrevPage));
+    partial void OnPageChanged(int value) { OnPropertyChanged(nameof(CanPrevPage)); OnPropertyChanged(nameof(PageLabel)); }
     partial void OnStatusChanged(string value) => OnPropertyChanged(nameof(HasStatus));
 
     partial void OnCategoryChanged(string? value)
@@ -332,9 +329,11 @@ public partial class DicViewModel : ObservableObject
         }
     }
 
-    private string ListPath()
+    private string ListPath() => ListPath(Page);
+
+    private string ListPath(int sitePage)
     {
-        var page = Page > 1 ? Page : 0;
+        var page = sitePage > 1 ? sitePage : 0;
         string WithPage(string path) => page == 0 ? path : path + (path.Contains('?') ? "&" : "?") + "page=" + page;
         return Topic switch
         {
@@ -416,39 +415,53 @@ public partial class DicViewModel : ObservableObject
         _ = LoadSidebarAsync();
         try
         {
-            var (doc, status) = await _dic.GetListAsync(ListPath());
-            if (id != _requestId) { doc?.Dispose(); return; }
-            Articles.Clear();
-            if (doc is null)
+            var size = PageSize;
+            var firstSite = (Page - 1) * size / ArticlesPerPage + 1;
+            var siteCount = Math.Max(1, size / ArticlesPerPage);
+            var cleared = false;
+            for (var sp = firstSite; sp < firstSite + siteCount; sp++)
             {
-                Status = status == 0
-                    ? LocalizationService.Instance["Dic_Unavailable"]
-                    : string.Format(LocalizationService.Instance["Dic_LoadFailed"], status);
-                return;
-            }
-            using (doc)
-            {
-                var root = doc.RootElement;
-                Heading = root.GetProperty("heading").GetString() ?? "";
-                Info = root.GetProperty("info").GetString() ?? "";
-                TotalPages = ParseTotalPages(Info);
-                RebuildPageOptions();
-                foreach (var item in root.GetProperty("items").EnumerateArray())
+                var (doc, status) = await _dic.GetListAsync(ListPath(sp));
+                if (id != _requestId) { doc?.Dispose(); return; }
+                if (!cleared) { Articles.Clear(); cleared = true; }
+                if (doc is null)
                 {
-                    var card = new DicArticleCard
-                    {
-                        Title = item.GetProperty("title").GetString() ?? "",
-                        Tag = TagFromHref(item.GetProperty("href").GetString()),
-                        Summary = item.GetProperty("summary").GetString() ?? "",
-                        Meta = string.Join("  ·  ", item.GetProperty("data").EnumerateArray().Select(d => d.GetString())),
-                        Related = item.GetProperty("related").EnumerateArray().Select(r => r.GetString() ?? "").Where(r => r.Length > 0).ToList(),
-                        ImageUrl = item.GetProperty("image").GetString(),
-                    };
-                    Articles.Add(card);
-                    _ = card.LoadThumbnailAsync(_loader);
+                    if (Articles.Count == 0)
+                        Status = status == 0
+                            ? LocalizationService.Instance["Dic_Unavailable"]
+                            : string.Format(LocalizationService.Instance["Dic_LoadFailed"], status);
+                    break;
                 }
-                if (Articles.Count == 0) Status = LocalizationService.Instance["Dic_NoArticles"];
+                int added;
+                using (doc)
+                {
+                    var root = doc.RootElement;
+                    if (sp == firstSite)
+                    {
+                        Heading = root.GetProperty("heading").GetString() ?? "";
+                        Info = root.GetProperty("info").GetString() ?? "";
+                        TotalPages = ParseTotalPages(Info, size);
+                    }
+                    added = 0;
+                    foreach (var item in root.GetProperty("items").EnumerateArray())
+                    {
+                        var card = new DicArticleCard
+                        {
+                            Title = item.GetProperty("title").GetString() ?? "",
+                            Tag = TagFromHref(item.GetProperty("href").GetString()),
+                            Summary = item.GetProperty("summary").GetString() ?? "",
+                            Meta = string.Join("  ·  ", item.GetProperty("data").EnumerateArray().Select(d => d.GetString())),
+                            Related = item.GetProperty("related").EnumerateArray().Select(r => r.GetString() ?? "").Where(r => r.Length > 0).ToList(),
+                            ImageUrl = item.GetProperty("image").GetString(),
+                        };
+                        Articles.Add(card);
+                        added++;
+                        _ = card.LoadThumbnailAsync(_loader);
+                    }
+                }
+                if (added < ArticlesPerPage) break;
             }
+            if (Articles.Count == 0 && Status.Length == 0) Status = LocalizationService.Instance["Dic_NoArticles"];
         }
         finally
         {

@@ -822,6 +822,9 @@ public sealed class AppSettings
     /// <summary>Articles per Pixivision page; 0 uses pixivision's own page size.</summary>
     public int PixivisionArticlesPerPage { get; set; }
 
+    /// <summary>Articles per Dic page; 0 uses dic.pixiv.net's own 12.</summary>
+    public int DicArticlesPerPage { get; set; }
+
     /// <summary>When true, History browses page-by-page instead of autoloading while scrolling
     /// (Default/flat mode only — Grouped/List mode always shows one date at a time).</summary>
     public bool HistoryUsePagination { get; set; } = false;
