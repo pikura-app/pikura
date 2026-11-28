@@ -7941,4 +7941,13 @@ Saved to: {3}</value>
   <data name="Dic_Remove" xml:space="preserve">
     <value>Remove</value>
   </data>
+  <data name="Dic_Page" xml:space="preserve">
+    <value>Page</value>
+  </data>
+  <data name="Dic_GoToPage" xml:space="preserve">
+    <value>Go to page</value>
+  </data>
+  <data name="Dic_Go" xml:space="preserve">
+    <value>Go</value>
+  </data>
 </root>

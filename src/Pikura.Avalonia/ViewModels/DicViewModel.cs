@@ -95,9 +95,60 @@ public partial class DicViewModel : ObservableObject
     [ObservableProperty] private string _articleLang = "en";
     [ObservableProperty] private string _articleNote = "";
     [ObservableProperty] private bool _isArticleSaved;
+    [ObservableProperty] private int? _totalPages;
+    [ObservableProperty] private int _selectedPageOption;
+    [ObservableProperty] private string _jumpPageText = "";
+    public ObservableCollection<int> PageOptions { get; } = [];
+    public bool HasPaging => !IsArticleOpen && !IsLocalTopic && Topic != "updates";
+    public string PageCountText => TotalPages is { } t ? "/ " + t.ToString(System.Globalization.CultureInfo.CurrentCulture) : "";
+    private bool _syncingPage;
+    public const int ArticlesPerPage = 12;
+
+    partial void OnTotalPagesChanged(int? value) { OnPropertyChanged(nameof(PageCountText)); OnPropertyChanged(nameof(CanNextPage)); }
+
+    partial void OnSelectedPageOptionChanged(int value)
+    {
+        if (_syncingPage || value < 1 || value == Page) return;
+        _ = GoToPageAsync(value);
+    }
+
+    private void RebuildPageOptions()
+    {
+        _syncingPage = true;
+        var last = TotalPages ?? Page + 9;
+        if (PageOptions.Count != last || PageOptions.Count == 0 || PageOptions[^1] != last)
+        {
+            PageOptions.Clear();
+            for (var i = 1; i <= last; i++) PageOptions.Add(i);
+        }
+        SelectedPageOption = Page;
+        _syncingPage = false;
+    }
+
+    private async Task GoToPageAsync(int page)
+    {
+        if (TotalPages is { } t) page = Math.Min(page, t);
+        Page = Math.Max(1, page);
+        await LoadListAsync();
+    }
+
+    [RelayCommand]
+    private async Task JumpToPageAsync()
+    {
+        if (int.TryParse(JumpPageText.Trim(), out var p) && p > 0) await GoToPageAsync(p);
+        JumpPageText = "";
+    }
+
+    /// <summary>Total page count from the list header ("7813 results", "153983件"), 12 articles per page.</summary>
+    public static int? ParseTotalPages(string info)
+    {
+        var m = System.Text.RegularExpressions.Regex.Match(info, @"([\d,]+)\s*(results?|件)");
+        if (!m.Success || !int.TryParse(m.Groups[1].Value.Replace(",", ""), out var n)) return null;
+        return Math.Max(1, (n + ArticlesPerPage - 1) / ArticlesPerPage);
+    }
     public bool IsLocalTopic => Topic is "saved" or "history";
     public bool IsHistoryTopic => Topic == "history";
-    partial void OnTopicChanged(string value) { OnPropertyChanged(nameof(IsLocalTopic)); OnPropertyChanged(nameof(IsHistoryTopic)); OnPropertyChanged(nameof(CanNextPage)); }
+    partial void OnTopicChanged(string value) { OnPropertyChanged(nameof(HasPaging)); OnPropertyChanged(nameof(IsLocalTopic)); OnPropertyChanged(nameof(IsHistoryTopic)); OnPropertyChanged(nameof(CanNextPage)); }
 
     /// <summary>The last <c>/get_article</c> body; the view renders its node tree.</summary>
     [ObservableProperty] private JsonElement? _article;
@@ -115,7 +166,7 @@ public partial class DicViewModel : ObservableObject
     public bool IsJapanese => Language == "ja";
     public bool CanGoBack => IsArticleOpen;
     public bool CanPrevPage => Page > 1 && !IsArticleOpen;
-    public bool CanNextPage => Articles.Count > 0 && !IsArticleOpen && Topic != "updates" && !IsLocalTopic;
+    public bool CanNextPage => Articles.Count > 0 && !IsArticleOpen && Topic != "updates" && !IsLocalTopic && (TotalPages is not { } tp || Page < tp);
     public bool IsListOpen => !IsArticleOpen;
     public bool HasStatus => Status.Length > 0;
     public bool BlurSensitive => _settings.Current.BlurR18Content;
@@ -132,6 +183,7 @@ public partial class DicViewModel : ObservableObject
     partial void OnIsArticleOpenChanged(bool value)
     {
         OnPropertyChanged(nameof(CanGoBack));
+        OnPropertyChanged(nameof(HasPaging));
         OnPropertyChanged(nameof(IsListOpen));
         OnPropertyChanged(nameof(CanPrevPage));
         OnPropertyChanged(nameof(CanNextPage));
@@ -379,6 +431,8 @@ public partial class DicViewModel : ObservableObject
                 var root = doc.RootElement;
                 Heading = root.GetProperty("heading").GetString() ?? "";
                 Info = root.GetProperty("info").GetString() ?? "";
+                TotalPages = ParseTotalPages(Info);
+                RebuildPageOptions();
                 foreach (var item in root.GetProperty("items").EnumerateArray())
                 {
                     var card = new DicArticleCard

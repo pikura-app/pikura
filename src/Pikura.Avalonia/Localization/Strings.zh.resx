@@ -7877,4 +7877,13 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="Dic_Remove" xml:space="preserve">
     <value>移除</value>
   </data>
+  <data name="Dic_Page" xml:space="preserve">
+    <value>页</value>
+  </data>
+  <data name="Dic_GoToPage" xml:space="preserve">
+    <value>跳转到页</value>
+  </data>
+  <data name="Dic_Go" xml:space="preserve">
+    <value>跳转</value>
+  </data>
 </root>

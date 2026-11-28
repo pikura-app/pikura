@@ -188,10 +188,14 @@
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
-                        <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center" Margin="0,4,0,12">
+                        <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center" Margin="0,4,0,12" IsVisible="{Binding HasPaging}">
                             <Button Content="{loc:Tr Dic_Prev}" Command="{Binding PrevPageCommand}" IsEnabled="{Binding CanPrevPage}"/>
-                            <TextBlock Text="{Binding Page}" VerticalAlignment="Center"/>
+                            <ComboBox ItemsSource="{Binding PageOptions}" SelectedItem="{Binding SelectedPageOption}" MinWidth="80" MaxDropDownHeight="360"
+                                      VerticalAlignment="Center" ToolTip.Tip="{loc:Tr Dic_Page}"/>
+                            <TextBlock Text="{Binding PageCountText}" VerticalAlignment="Center"/>
                             <Button Content="{loc:Tr Dic_Next}" Command="{Binding NextPageCommand}" IsEnabled="{Binding CanNextPage}"/>
+                            <TextBox Text="{Binding JumpPageText}" PlaceholderText="{loc:Tr Dic_GoToPage}" Width="110" VerticalAlignment="Center" KeyDown="OnJumpKeyDown"/>
+                            <Button Content="{loc:Tr Dic_Go}" Command="{Binding JumpToPageCommand}"/>
                         </StackPanel>
                     </StackPanel>
                 </ScrollViewer>

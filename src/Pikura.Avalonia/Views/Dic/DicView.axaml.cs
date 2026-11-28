@@ -38,10 +38,15 @@ public partial class DicView : UserControl
 
     private void Hook(DicViewModel? vm)
     {
-        if (_vm is not null) _vm.PropertyChanged -= OnVmPropertyChanged;
+        if (_vm is not null)
+        {
+            _vm.PropertyChanged -= OnVmPropertyChanged;
+            _vm.Articles.CollectionChanged -= OnArticlesChanged;
+        }
         _vm = vm;
         if (vm is null) return;
         vm.PropertyChanged += OnVmPropertyChanged;
+        vm.Articles.CollectionChanged += OnArticlesChanged;
         if (TopLevel.GetTopLevel(this) is not null)
         {
             vm.Service.Attach(Web);
@@ -53,6 +58,17 @@ public partial class DicView : UserControl
     {
         if (e.PropertyName is nameof(DicViewModel.Article) or nameof(DicViewModel.ArticleInfo))
             Dispatcher.UIThread.Post(RenderArticle);
+    }
+
+    private void OnJumpKeyDown(object? sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Enter && _vm is not null) _vm.JumpToPageCommand.Execute(null);
+    }
+
+    private void OnArticlesChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+    {
+        if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Reset)
+            Dispatcher.UIThread.Post(() => ListScroll.Offset = default);
     }
 
     private void OnSearchKeyDown(object? sender, KeyEventArgs e)

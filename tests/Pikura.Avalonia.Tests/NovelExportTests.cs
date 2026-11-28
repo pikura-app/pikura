@@ -101,3 +101,15 @@ public class DicLibraryTests
         }
     }
 }
+
+public class DicPagingTests
+{
+    [Theory]
+    [InlineData("Anime category : 7813 results", 652)]
+    [InlineData("アニメのカテゴリ：153983件", 12832)]
+    [InlineData("SearchArticles found：139 results", 12)]
+    [InlineData("Articles found：1,200 results", 100)]
+    [InlineData("", null)]
+    public void ParseTotalPages_Uses_Twelve_Per_Page(string info, int? expected) =>
+        Assert.Equal(expected, Pikura.Avalonia.ViewModels.DicViewModel.ParseTotalPages(info));
+}
