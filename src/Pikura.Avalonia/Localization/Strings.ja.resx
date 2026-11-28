@@ -7877,6 +7877,42 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="Novel_LibraryEmpty" xml:space="preserve">
     <value>まだありません。</value>
   </data>
+  <data name="Novel_Translate" xml:space="preserve">
+    <value>翻訳</value>
+  </data>
+  <data name="Novel_ShowOriginal" xml:space="preserve">
+    <value>原文を表示</value>
+  </data>
+  <data name="Novel_TranslateTip" xml:space="preserve">
+    <value>このページをアプリの言語に翻訳</value>
+  </data>
+  <data name="Novel_TranslateWith" xml:space="preserve">
+    <value>翻訳サービス</value>
+  </data>
+  <data name="Novel_TranslatorGoogle" xml:space="preserve">
+    <value>Google 翻訳（高速、テキストを Google に送信）</value>
+  </data>
+  <data name="Novel_TranslatorHoshi" xml:space="preserve">
+    <value>Hoshi（この PC 上、プライベート、低速）</value>
+  </data>
+  <data name="Novel_Translating" xml:space="preserve">
+    <value>{0} で翻訳中…</value>
+  </data>
+  <data name="Novel_TranslatedBy" xml:space="preserve">
+    <value>{0} による翻訳</value>
+  </data>
+  <data name="Novel_HoshiOff" xml:space="preserve">
+    <value>先に Hoshi 星 ページで Hoshi をオンにしてください。</value>
+  </data>
+  <data name="Novel_SelectedN" xml:space="preserve">
+    <value>{0} 件選択</value>
+  </data>
+  <data name="Novel_DownloadSelectedBtn" xml:space="preserve">
+    <value>選択をダウンロード</value>
+  </data>
+  <data name="Settings_NovelTranslator" xml:space="preserve">
+    <value>小説の翻訳</value>
+  </data>
   <data name="Novel_Queued" xml:space="preserve">
     <value>{0} 話をジョブに追加しました</value>
   </data>

@@ -482,6 +482,15 @@ public partial class MainWindow : Window
         }
     }
 
+    /// <summary>Switches to Search and runs <paramref name="query"/> there.</summary>
+    public void OpenSearch(string query)
+    {
+        SearchButton_Click(null, new RoutedEventArgs());
+        var vm = AppServices.Get<Pikura.Avalonia.ViewModels.GlobalSearchViewModel>();
+        vm.SearchQuery = query;
+        _ = vm.SearchAsync();
+    }
+
     private void SearchButton_Click(object? sender, RoutedEventArgs e)
     {
         try

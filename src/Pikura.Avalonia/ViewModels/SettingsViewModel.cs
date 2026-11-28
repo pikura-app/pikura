@@ -2033,6 +2033,13 @@ public partial class SettingsViewModel : ViewModelBase
     private bool _applyingIgpu;
 
     /// <summary>Let Ollama use the integrated GPU. Applying restarts Ollama (confirmed first).</summary>
+    /// <summary>0 = Google Translate, 1 = Hoshi, for the novel reader's Translate button.</summary>
+    public int NovelTranslatorIndex
+    {
+        get => _settingsService.Current.NovelTranslator == "hoshi" ? 1 : 0;
+        set { _settingsService.Update(s => s.NovelTranslator = value == 1 ? "hoshi" : "google"); OnPropertyChanged(); }
+    }
+
     public bool HoshiOllamaIgpu
     {
         get => _settingsService.Current.HoshiOllamaIgpu;

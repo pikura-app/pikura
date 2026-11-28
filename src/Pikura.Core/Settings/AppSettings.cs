@@ -822,6 +822,9 @@ public sealed class AppSettings
     /// <summary>Articles per Pixivision page; 0 uses pixivision's own page size.</summary>
     public int PixivisionArticlesPerPage { get; set; }
 
+    /// <summary>Novel translator: "google" (Google Translate) or "hoshi" (local Ollama).</summary>
+    public string NovelTranslator { get; set; } = "google";
+
     /// <summary>Articles per Dic page; 0 uses dic.pixiv.net's own 12.</summary>
     public int DicArticlesPerPage { get; set; }
 

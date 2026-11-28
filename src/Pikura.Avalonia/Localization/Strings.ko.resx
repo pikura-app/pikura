@@ -7877,6 +7877,42 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="Novel_LibraryEmpty" xml:space="preserve">
     <value>아직 없습니다.</value>
   </data>
+  <data name="Novel_Translate" xml:space="preserve">
+    <value>번역</value>
+  </data>
+  <data name="Novel_ShowOriginal" xml:space="preserve">
+    <value>원문 보기</value>
+  </data>
+  <data name="Novel_TranslateTip" xml:space="preserve">
+    <value>이 페이지를 앱 언어로 번역</value>
+  </data>
+  <data name="Novel_TranslateWith" xml:space="preserve">
+    <value>번역 서비스</value>
+  </data>
+  <data name="Novel_TranslatorGoogle" xml:space="preserve">
+    <value>Google 번역 (빠름, 텍스트를 Google로 전송)</value>
+  </data>
+  <data name="Novel_TranslatorHoshi" xml:space="preserve">
+    <value>Hoshi (이 PC에서, 비공개, 느림)</value>
+  </data>
+  <data name="Novel_Translating" xml:space="preserve">
+    <value>{0}(으)로 번역 중…</value>
+  </data>
+  <data name="Novel_TranslatedBy" xml:space="preserve">
+    <value>{0} 번역</value>
+  </data>
+  <data name="Novel_HoshiOff" xml:space="preserve">
+    <value>먼저 Hoshi 星 페이지에서 Hoshi를 켜세요.</value>
+  </data>
+  <data name="Novel_SelectedN" xml:space="preserve">
+    <value>{0}개 선택됨</value>
+  </data>
+  <data name="Novel_DownloadSelectedBtn" xml:space="preserve">
+    <value>선택 항목 다운로드</value>
+  </data>
+  <data name="Settings_NovelTranslator" xml:space="preserve">
+    <value>소설 번역</value>
+  </data>
   <data name="Novel_Queued" xml:space="preserve">
     <value>{0}개 챕터를 작업에 추가했습니다</value>
   </data>

@@ -64,8 +64,9 @@ public partial class NovelReaderViewModel : ObservableObject
     [ObservableProperty] private bool _exportPdf;
     [ObservableProperty] private bool _exportDocx;
     public int SelectedChapterCount => SeriesItems.Count(i => i.IsSelected);
-    public string DownloadSelectedLabel => LocalizationService.F("Novel_DownloadSelectedN", SelectedChapterCount);
-    private void NotifySelection() { OnPropertyChanged(nameof(SelectedChapterCount)); OnPropertyChanged(nameof(DownloadSelectedLabel)); }
+    public string SelectedCountLabel => LocalizationService.F("Novel_SelectedN", SelectedChapterCount);
+    public bool HasSelectedChapters => SelectedChapterCount > 0;
+    private void NotifySelection() { OnPropertyChanged(nameof(SelectedChapterCount)); OnPropertyChanged(nameof(SelectedCountLabel)); OnPropertyChanged(nameof(HasSelectedChapters)); }
 
     private static NovelLibraryService? Library { get { try { return AppServices.Get<NovelLibraryService>(); } catch { return null; } } }
     private static NovelLibraryEntry LibraryEntry(NovelText n) => new(n.Id, n.Title, n.UserName, n.CoverUrl, n.XRestrict, DateTimeOffset.Now, n.Tags);
@@ -133,8 +134,85 @@ public partial class NovelReaderViewModel : ObservableObject
             OnPropertyChanged(p);
     }
 
-    partial void OnPagesChanged(IReadOnlyList<IReadOnlyList<NovelBlock>> value) => NotifyPaging();
-    partial void OnPageIndexChanged(int value) => NotifyPaging();
+    partial void OnPagesChanged(IReadOnlyList<IReadOnlyList<NovelBlock>> value) { NotifyPaging(); PageContentChanged(); }
+    partial void OnPageIndexChanged(int value) { NotifyPaging(); PageContentChanged(); }
+
+    // ── Translation ──
+    [ObservableProperty] private bool _isTranslated;
+    [ObservableProperty] private bool _isTranslating;
+    [ObservableProperty] private string _translateStatus = "";
+    public bool HasTranslateStatus => TranslateStatus.Length > 0;
+    public string TranslateLabel => LocalizationService.Instance[IsTranslated ? "Novel_ShowOriginal" : "Novel_Translate"];
+    private readonly Dictionary<string, IReadOnlyList<NovelBlock>> _translated = new();
+    private CancellationTokenSource? _translateCts;
+    private string Translator => _settings.Current.NovelTranslator == "hoshi" ? "hoshi" : "google";
+    public string TranslatorName => Translator == "hoshi" ? "Hoshi" : "Google Translate";
+    public bool UseGoogle { get => Translator == "google"; set { if (value) SetTranslator("google"); } }
+    public bool UseHoshi { get => Translator == "hoshi"; set { if (value) SetTranslator("hoshi"); } }
+    private static string TargetLanguage => LocalizationService.Instance.Culture.TwoLetterISOLanguageName;
+    private string TranslationKey => $"{Novel?.Id}|{PageIndex}|{Translator}|{TargetLanguage}";
+
+    /// <summary>The current page's blocks, translated when translation is on and ready.</summary>
+    public IReadOnlyList<NovelBlock> DisplayPage => Pages.Count == 0 ? []
+        : IsTranslated && _translated.TryGetValue(TranslationKey, out var t) ? t : Pages[Math.Clamp(PageIndex, 0, Pages.Count - 1)];
+
+    private void SetTranslator(string provider)
+    {
+        _settings.Update(s => s.NovelTranslator = provider);
+        OnPropertyChanged(nameof(UseGoogle));
+        OnPropertyChanged(nameof(UseHoshi));
+        OnPropertyChanged(nameof(TranslatorName));
+        PageContentChanged();
+    }
+
+    private void PageContentChanged()
+    {
+        OnPropertyChanged(nameof(DisplayPage));
+        if (IsTranslated) _ = TranslateCurrentPageAsync();
+    }
+
+    [RelayCommand] private void ToggleTranslate() => IsTranslated = !IsTranslated;
+    partial void OnTranslateStatusChanged(string value) => OnPropertyChanged(nameof(HasTranslateStatus));
+    partial void OnIsTranslatedChanged(bool value)
+    {
+        OnPropertyChanged(nameof(TranslateLabel));
+        if (!value) { _translateCts?.Cancel(); IsTranslating = false; TranslateStatus = ""; }
+        PageContentChanged();
+    }
+
+    private async Task TranslateCurrentPageAsync()
+    {
+        if (!IsTranslated || Pages.Count == 0 || Novel is null) return;
+        var key = TranslationKey;
+        if (_translated.ContainsKey(key)) return;
+        _translateCts?.Cancel();
+        var cts = _translateCts = new CancellationTokenSource();
+        var page = Pages[Math.Clamp(PageIndex, 0, Pages.Count - 1)];
+        var idx = Enumerable.Range(0, page.Count).Where(i => page[i].Kind is NovelBlockKind.Text or NovelBlockKind.Chapter).ToList();
+        var lines = idx.Select(i => string.Concat(page[i].Spans.Select(s => s.Text)).Replace('\n', ' ')).ToList();
+        IsTranslating = true;
+        TranslateStatus = LocalizationService.F("Novel_Translating", TranslatorName);
+        try
+        {
+            var result = await NovelTranslation.TranslateAsync(lines, Translator, TargetLanguage, cts.Token);
+            var blocks = page.ToList();
+            for (var k = 0; k < idx.Count; k++)
+                if (result[k].Length > 0) blocks[idx[k]] = page[idx[k]] with { Spans = [new NovelSpan(result[k])] };
+            _translated[key] = blocks;
+            if (cts.IsCancellationRequested) return;
+            TranslateStatus = LocalizationService.F("Novel_TranslatedBy", TranslatorName);
+            OnPropertyChanged(nameof(DisplayPage));
+        }
+        catch (OperationCanceledException) { }
+        catch (Exception ex)
+        {
+            if (!cts.IsCancellationRequested) TranslateStatus = ex.Message;
+        }
+        finally
+        {
+            if (_translateCts == cts) IsTranslating = false;
+        }
+    }
     partial void OnStatusChanged(string value) => OnPropertyChanged(nameof(HasStatus));
     partial void OnDownloadStatusChanged(string value) => OnPropertyChanged(nameof(HasDownloadStatus));
     partial void OnLastExportPathChanged(string? value) => OnPropertyChanged(nameof(HasLastExport));

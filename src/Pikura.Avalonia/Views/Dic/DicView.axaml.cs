@@ -97,9 +97,7 @@ public partial class DicView : UserControl
     {
         var tag = _vm?.PixivTag ?? _vm?.ArticleTag;
         if (string.IsNullOrWhiteSpace(tag)) return;
-        var gallery = AppServices.Get<GalleryViewModel>();
-        _ = gallery.SearchByTagAsync(tag);
-        if (TopLevel.GetTopLevel(this) is MainWindow main) main.LoadGalleryView();
+        if (TopLevel.GetTopLevel(this) is MainWindow main) main.OpenSearch(tag);
     }
 
     private static void OpenUrl(string url)

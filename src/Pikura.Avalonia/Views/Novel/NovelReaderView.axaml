@@ -86,14 +86,27 @@
                                     <CheckBox Content="DOCX" IsChecked="{Binding ExportDocx}"/>
                                 </WrapPanel>
                                 <Button Content="{loc:Tr Novel_DownloadChapter}" HorizontalAlignment="Stretch" Command="{Binding DownloadChapterCommand}"/>
-                                <Button Content="{Binding DownloadSelectedLabel}" HorizontalAlignment="Stretch" Command="{Binding DownloadSelectedCommand}" IsVisible="{Binding HasSeries}"/>
-                                <TextBlock Text="{loc:Tr Novel_TickChaptersHint}" FontSize="11" TextWrapping="Wrap" IsVisible="{Binding HasSeries}"
-                                           Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                 <Button Content="{loc:Tr Novel_DownloadSeries}" HorizontalAlignment="Stretch" Command="{Binding DownloadSeriesCommand}" IsVisible="{Binding HasSeries}"/>
                             </StackPanel>
                         </Flyout>
                     </Button.Flyout>
                 </Button>
+                <SplitButton Margin="0,0,4,4" Height="28" Padding="9,0" CornerRadius="6" FontSize="12"
+                             Command="{Binding ToggleTranslateCommand}" ToolTip.Tip="{loc:Tr Novel_TranslateTip}">
+                    <StackPanel Orientation="Horizontal" Spacing="5">
+                        <TextBlock Text="文A" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding TranslateLabel}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <SplitButton.Flyout>
+                        <Flyout Placement="BottomEdgeAlignedLeft">
+                            <StackPanel Spacing="6" Width="260">
+                                <TextBlock Text="{loc:Tr Novel_TranslateWith}" FontSize="11" Foreground="{DynamicResource DefaultForegroundBrushSecondary}"/>
+                                <RadioButton Content="{loc:Tr Novel_TranslatorGoogle}" IsChecked="{Binding UseGoogle}"/>
+                                <RadioButton Content="{loc:Tr Novel_TranslatorHoshi}" IsChecked="{Binding UseHoshi}"/>
+                            </StackPanel>
+                        </Flyout>
+                    </SplitButton.Flyout>
+                </SplitButton>
                 <Button Classes="tb" Margin="0,0,4,4" Command="{Binding OpenInBrowserCommand}" ToolTip.Tip="{loc:Tr Novel_OpenInBrowser}">
                     <TextBlock Text="{loc:Tr Novel_OpenInBrowser}" VerticalAlignment="Center"/>
                 </Button>
@@ -139,7 +152,30 @@
             <Grid IsVisible="{Binding ShowSeries}" RowDefinitions="Auto,*">
                 <StackPanel Orientation="Horizontal" Spacing="6" Margin="16,6">
                     <Button Content="{loc:Tr Novel_SelectAll}" Command="{Binding SelectAllSeriesCommand}" Padding="8,3"/>
-                    <Button Content="{Binding DownloadSelectedLabel}" Command="{Binding DownloadSelectedCommand}" Padding="8,3"/>
+                    <TextBlock Text="{Binding SelectedCountLabel}" VerticalAlignment="Center" FontSize="12" Margin="4,0"
+                               Foreground="{DynamicResource DefaultForegroundBrushSecondary}"/>
+                    <Button Padding="8,3" IsEnabled="{Binding HasSelectedChapters}">
+                        <StackPanel Orientation="Horizontal" Spacing="5">
+                            <PathIcon Data="{StaticResource DownloadIcon}" Width="12" Height="12" Foreground="{Binding $parent[Button].Foreground}"/>
+                            <TextBlock Text="{loc:Tr Novel_DownloadSelectedBtn}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <Button.Flyout>
+                            <Flyout Placement="BottomEdgeAlignedLeft">
+                                <StackPanel Spacing="6" Width="230">
+                                    <TextBlock Text="{loc:Tr Novel_Formats}" FontSize="11" Foreground="{DynamicResource DefaultForegroundBrushSecondary}"/>
+                                    <WrapPanel>
+                                        <CheckBox Content="TXT" IsChecked="{Binding ExportTxt}" Margin="0,0,10,0"/>
+                                        <CheckBox Content="EPUB" IsChecked="{Binding ExportEpub}" Margin="0,0,10,0"/>
+                                        <CheckBox Content="PDF" IsChecked="{Binding ExportPdf}" Margin="0,0,10,0"/>
+                                        <CheckBox Content="DOCX" IsChecked="{Binding ExportDocx}"/>
+                                    </WrapPanel>
+                                    <Button Classes="accent" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Command="{Binding DownloadSelectedCommand}">
+                                        <TextBlock Text="{Binding SelectedCountLabel, StringFormat='↓ {0}'}"/>
+                                    </Button>
+                                </StackPanel>
+                            </Flyout>
+                        </Button.Flyout>
+                    </Button>
                 </StackPanel>
                 <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled">
                     <ItemsControl ItemsSource="{Binding SeriesItems}" Margin="16,0,16,12">
@@ -164,6 +200,10 @@
         <!-- Paging -->
         <Border Grid.Row="3" Padding="8,6" BorderBrush="{DynamicResource Container1BorderBrush}" BorderThickness="0,1,0,0">
           <StackPanel Spacing="4">
+            <StackPanel Orientation="Horizontal" Spacing="8" IsVisible="{Binding HasTranslateStatus}">
+                <ProgressBar IsIndeterminate="True" Width="60" Height="3" IsVisible="{Binding IsTranslating}" VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding TranslateStatus}" FontSize="11" TextWrapping="Wrap" VerticalAlignment="Center"/>
+            </StackPanel>
             <Grid ColumnDefinitions="*,Auto" IsVisible="{Binding HasDownloadStatus}">
                 <TextBlock Text="{Binding DownloadStatus}" FontSize="11" TextWrapping="Wrap" VerticalAlignment="Center"/>
                 <Button Grid.Column="1" Content="{loc:Tr Novel_ShowFile}" Padding="8,2" FontSize="11" Command="{Binding ShowExportCommand}" IsVisible="{Binding HasLastExport}"/>

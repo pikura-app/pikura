@@ -7877,6 +7877,42 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="Novel_LibraryEmpty" xml:space="preserve">
     <value>暂无内容。</value>
   </data>
+  <data name="Novel_Translate" xml:space="preserve">
+    <value>翻译</value>
+  </data>
+  <data name="Novel_ShowOriginal" xml:space="preserve">
+    <value>显示原文</value>
+  </data>
+  <data name="Novel_TranslateTip" xml:space="preserve">
+    <value>将此页翻译成应用语言</value>
+  </data>
+  <data name="Novel_TranslateWith" xml:space="preserve">
+    <value>翻译服务</value>
+  </data>
+  <data name="Novel_TranslatorGoogle" xml:space="preserve">
+    <value>Google 翻译（快速，文本会发送给 Google）</value>
+  </data>
+  <data name="Novel_TranslatorHoshi" xml:space="preserve">
+    <value>Hoshi（在本机运行，私密，较慢）</value>
+  </data>
+  <data name="Novel_Translating" xml:space="preserve">
+    <value>正在使用 {0} 翻译…</value>
+  </data>
+  <data name="Novel_TranslatedBy" xml:space="preserve">
+    <value>由 {0} 翻译</value>
+  </data>
+  <data name="Novel_HoshiOff" xml:space="preserve">
+    <value>请先在 Hoshi 星 页面开启 Hoshi。</value>
+  </data>
+  <data name="Novel_SelectedN" xml:space="preserve">
+    <value>已选 {0}</value>
+  </data>
+  <data name="Novel_DownloadSelectedBtn" xml:space="preserve">
+    <value>下载所选</value>
+  </data>
+  <data name="Settings_NovelTranslator" xml:space="preserve">
+    <value>小说翻译</value>
+  </data>
   <data name="Novel_Queued" xml:space="preserve">
     <value>已将 {0} 章添加到任务</value>
   </data>

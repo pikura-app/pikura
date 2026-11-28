@@ -33,7 +33,7 @@ public partial class NovelReaderView : UserControl
 
     private void OnVmChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName is nameof(NovelReaderViewModel.Pages) or nameof(NovelReaderViewModel.PageIndex) or nameof(NovelReaderViewModel.FontSize))
+        if (e.PropertyName is nameof(NovelReaderViewModel.DisplayPage) or nameof(NovelReaderViewModel.FontSize))
             Dispatcher.UIThread.Post(Render);
         if (e.PropertyName == nameof(NovelReaderViewModel.BlurCover))
             CoverImage.Effect = _vm?.BlurCover == true ? new BlurEffect { Radius = 18 } : null;
@@ -47,7 +47,7 @@ public partial class NovelReaderView : UserControl
         PageHost.Children.Clear();
         if (_vm is null || _vm.Pages.Count == 0) return;
         var size = _vm.FontSize;
-        foreach (var block in _vm.Pages[Math.Clamp(_vm.PageIndex, 0, _vm.Pages.Count - 1)])
+        foreach (var block in _vm.DisplayPage)
         {
             switch (block.Kind)
             {
@@ -87,8 +87,13 @@ public partial class NovelReaderView : UserControl
                     break;
             }
         }
-        TextScroll.Offset = default;
+        // Keep the reading position when only the text changed (translation, font size).
+        var pageKey = $"{_vm.Novel?.Id}|{_vm.PageIndex}";
+        if (pageKey != _renderedPage) TextScroll.Offset = default;
+        _renderedPage = pageKey;
     }
+
+    private string? _renderedPage;
 
     private async System.Threading.Tasks.Task LoadImageAsync(Image target, NovelBlock block)
     {

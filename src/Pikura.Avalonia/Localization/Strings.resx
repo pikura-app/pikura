@@ -7941,6 +7941,42 @@ Saved to: {3}</value>
   <data name="Novel_LibraryEmpty" xml:space="preserve">
     <value>Nothing here yet.</value>
   </data>
+  <data name="Novel_Translate" xml:space="preserve">
+    <value>Translate</value>
+  </data>
+  <data name="Novel_ShowOriginal" xml:space="preserve">
+    <value>Show original</value>
+  </data>
+  <data name="Novel_TranslateTip" xml:space="preserve">
+    <value>Translate this page into the app language</value>
+  </data>
+  <data name="Novel_TranslateWith" xml:space="preserve">
+    <value>Translate with</value>
+  </data>
+  <data name="Novel_TranslatorGoogle" xml:space="preserve">
+    <value>Google Translate (fast, sends text to Google)</value>
+  </data>
+  <data name="Novel_TranslatorHoshi" xml:space="preserve">
+    <value>Hoshi (on this PC, private, slower)</value>
+  </data>
+  <data name="Novel_Translating" xml:space="preserve">
+    <value>Translating with {0}…</value>
+  </data>
+  <data name="Novel_TranslatedBy" xml:space="preserve">
+    <value>Translated by {0}</value>
+  </data>
+  <data name="Novel_HoshiOff" xml:space="preserve">
+    <value>Turn on Hoshi on the Hoshi 星 page first.</value>
+  </data>
+  <data name="Novel_SelectedN" xml:space="preserve">
+    <value>{0} selected</value>
+  </data>
+  <data name="Novel_DownloadSelectedBtn" xml:space="preserve">
+    <value>Download selected</value>
+  </data>
+  <data name="Settings_NovelTranslator" xml:space="preserve">
+    <value>Novel translation</value>
+  </data>
   <data name="Novel_Queued" xml:space="preserve">
     <value>Added {0} chapter(s) to Jobs</value>
   </data>
