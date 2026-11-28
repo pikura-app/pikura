@@ -7881,4 +7881,64 @@ Saved to: {3}</value>
   <data name="Novel_R18Hidden" xml:space="preserve">
     <value>This novel is R-18. Turn on R-18 content in Settings to read it.</value>
   </data>
+  <data name="Novel_Comments" xml:space="preserve">
+    <value>Comments</value>
+  </data>
+  <data name="Novel_Series" xml:space="preserve">
+    <value>Series</value>
+  </data>
+  <data name="Novel_Download" xml:space="preserve">
+    <value>Download</value>
+  </data>
+  <data name="Novel_DownloadChapter" xml:space="preserve">
+    <value>This chapter</value>
+  </data>
+  <data name="Novel_DownloadSelected" xml:space="preserve">
+    <value>Selected chapters</value>
+  </data>
+  <data name="Novel_DownloadSeries" xml:space="preserve">
+    <value>Whole series</value>
+  </data>
+  <data name="Novel_Expand" xml:space="preserve">
+    <value>Expand</value>
+  </data>
+  <data name="Novel_Fullscreen" xml:space="preserve">
+    <value>Full screen</value>
+  </data>
+  <data name="Novel_MoreComments" xml:space="preserve">
+    <value>More comments</value>
+  </data>
+  <data name="Novel_SelectAll" xml:space="preserve">
+    <value>Select all</value>
+  </data>
+  <data name="Novel_ShowFile" xml:space="preserve">
+    <value>Show file</value>
+  </data>
+  <data name="Novel_Downloading" xml:space="preserve">
+    <value>Downloading chapter {0} of {1}…</value>
+  </data>
+  <data name="Novel_Saved" xml:space="preserve">
+    <value>Saved to {0}</value>
+  </data>
+  <data name="Dic_Saved" xml:space="preserve">
+    <value>Saved</value>
+  </data>
+  <data name="Dic_History" xml:space="preserve">
+    <value>History</value>
+  </data>
+  <data name="Dic_SaveArticle" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="Dic_ClearHistory" xml:space="preserve">
+    <value>Clear history</value>
+  </data>
+  <data name="Dic_SavedEmpty" xml:space="preserve">
+    <value>No saved articles yet. Open an article and click Save.</value>
+  </data>
+  <data name="Dic_HistoryEmpty" xml:space="preserve">
+    <value>No articles in your history yet.</value>
+  </data>
+  <data name="Dic_Remove" xml:space="preserve">
+    <value>Remove</value>
+  </data>
 </root>

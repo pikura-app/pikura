@@ -1,0 +1,29 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Pikura.Avalonia.ViewModels"
+             xmlns:novel="using:Pikura.Avalonia.Views.Novel"
+             x:Class="Pikura.Avalonia.Views.Novel.NovelReaderHostView"
+             x:DataType="vm:NovelReaderHostViewModel">
+    <Grid RowDefinitions="Auto,*">
+        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" IsVisible="{Binding HasManyTabs}">
+            <ItemsControl ItemsSource="{Binding Tabs}" Margin="6,4,6,0">
+                <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal" Spacing="4"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:NovelReaderViewModel">
+                        <Border CornerRadius="6,6,0,0" Padding="8,3" Background="{DynamicResource Container2BackgroundBrush}">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <Button Background="Transparent" BorderThickness="0" Padding="0" MaxWidth="160"
+                                        Command="{Binding $parent[UserControl].((vm:NovelReaderHostViewModel)DataContext).SelectCommand}" CommandParameter="{Binding}">
+                                    <TextBlock Text="{Binding Title}" FontSize="11" TextTrimming="CharacterEllipsis"/>
+                                </Button>
+                                <Button Content="✕" FontSize="9" Padding="3,0" Background="Transparent" BorderThickness="0"
+                                        Command="{Binding $parent[UserControl].((vm:NovelReaderHostViewModel)DataContext).CloseTabCommand}" CommandParameter="{Binding}"/>
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+        <novel:NovelReaderView Grid.Row="1" DataContext="{Binding SelectedTab}"/>
+    </Grid>
+</UserControl>

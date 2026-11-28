@@ -463,7 +463,7 @@
                                                      IsVisible="{Binding !$parent[UserControl].((vm:EnhancedRankingsViewModel)DataContext).ShowNovelReader}"
                                                      IsExpanded="{Binding $parent[UserControl].((vm:EnhancedRankingsViewModel)DataContext).IsViewerExpanded}"
                                                      IsPanelOpen="{Binding $parent[UserControl].((vm:EnhancedRankingsViewModel)DataContext).ShowPreview}"/>
-                        <novel:NovelReaderView DataContext="{Binding NovelReader}"
+                        <novel:NovelReaderHostView DataContext="{Binding NovelReaders}"
                                                IsVisible="{Binding $parent[UserControl].((vm:EnhancedRankingsViewModel)DataContext).ShowNovelReader}"/>
                     </Panel>
                 </Border>

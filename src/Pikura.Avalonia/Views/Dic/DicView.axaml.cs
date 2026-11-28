@@ -62,7 +62,9 @@ public partial class DicView : UserControl
 
     private void OnArticleCardClick(object? sender, RoutedEventArgs e)
     {
-        if ((sender as Control)?.DataContext is DicArticleCard card) _ = _vm?.OpenArticleAsync(card.Tag);
+        if ((sender as Control)?.DataContext is not DicArticleCard card || _vm is null) return;
+        if (card.Entry is { } entry && entry.Lang != _vm.Language) _vm.Language = entry.Lang;
+        _ = _vm.OpenArticleAsync(card.Tag);
     }
 
     private void OnTagChipClick(object? sender, RoutedEventArgs e)

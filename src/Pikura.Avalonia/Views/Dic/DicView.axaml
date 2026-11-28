@@ -76,6 +76,12 @@
                 <Button Content="{loc:Tr Dic_New}" Padding="14,5" CornerRadius="6" FontSize="12"
                         Command="{Binding SelectTopicCommand}" CommandParameter="new"
                         Classes.accent="{Binding Topic, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=new}"/>
+                <Button Content="{loc:Tr Dic_Saved}" Padding="14,5" CornerRadius="6" FontSize="12"
+                        Command="{Binding SelectTopicCommand}" CommandParameter="saved"
+                        Classes.accent="{Binding Topic, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=saved}"/>
+                <Button Content="{loc:Tr Dic_History}" Padding="14,5" CornerRadius="6" FontSize="12"
+                        Command="{Binding SelectTopicCommand}" CommandParameter="history"
+                        Classes.accent="{Binding Topic, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=history}"/>
             </StackPanel>
             <TextBox Grid.Column="1" Margin="12,0" MaxWidth="460" HorizontalAlignment="Stretch"
                      Text="{Binding SearchText}" PlaceholderText="{loc:Tr Dic_SearchPlaceholder}" KeyDown="OnSearchKeyDown"/>
@@ -86,6 +92,18 @@
                         Command="{Binding SetLanguageCommand}" CommandParameter="ja" Classes.accent="{Binding IsJapanese}"/>
             </StackPanel>
             <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="4" Margin="8,0,0,0" VerticalAlignment="Center">
+                <ToggleButton Padding="10,5" IsVisible="{Binding IsArticleOpen}" IsChecked="{Binding IsArticleSaved, Mode=OneWay}"
+                              Command="{Binding ToggleSaveCommand}" ToolTip.Tip="{loc:Tr Dic_SaveArticle}">
+                    <TextBlock Text="{loc:Tr Dic_SaveArticle}" FontSize="12"/>
+                </ToggleButton>
+                <Button Content="{loc:Tr Dic_ClearHistory}" Padding="10,5" FontSize="12" Command="{Binding ClearHistoryCommand}">
+                    <Button.IsVisible>
+                        <MultiBinding Converter="{x:Static BoolConverters.And}">
+                            <Binding Path="IsHistoryTopic"/>
+                            <Binding Path="IsListOpen"/>
+                        </MultiBinding>
+                    </Button.IsVisible>
+                </Button>
                 <Button Content="⟳" Padding="10,5" Command="{Binding RefreshCommand}" ToolTip.Tip="{loc:Tr Dic_Refresh}"/>
                 <Button Content="↗" Padding="10,5" Click="OnOpenInBrowser" ToolTip.Tip="{loc:Tr Dic_OpenInBrowser}"/>
             </StackPanel>
@@ -150,8 +168,12 @@
                                                                Foreground="{StaticResource DicLinkBrush}" TextWrapping="Wrap"/>
                                                 </Button>
                                                 <TextBlock Text="{Binding Summary}" TextWrapping="Wrap" FontSize="13" IsVisible="{Binding HasSummary}"/>
-                                                <TextBlock Text="{Binding Meta}" FontSize="10" TextWrapping="Wrap"
-                                                           Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
+                                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                                    <TextBlock Text="{Binding Meta}" FontSize="10" TextWrapping="Wrap" VerticalAlignment="Center"
+                                                               Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
+                                                    <Button Content="{loc:Tr Dic_Remove}" FontSize="10" Padding="6,1" IsVisible="{Binding HasEntry}"
+                                                            Command="{Binding $parent[UserControl].((vm:DicViewModel)DataContext).RemoveEntryCommand}" CommandParameter="{Binding}"/>
+                                                </StackPanel>
                                                 <ItemsControl ItemsSource="{Binding Related}" IsVisible="{Binding HasRelated}">
                                                     <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
                                                     <ItemsControl.ItemTemplate>

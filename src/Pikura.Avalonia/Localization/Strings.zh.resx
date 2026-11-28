@@ -7817,4 +7817,64 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="Novel_R18Hidden" xml:space="preserve">
     <value>此小说为 R-18。请在设置中开启 R-18 内容后阅读。</value>
   </data>
+  <data name="Novel_Comments" xml:space="preserve">
+    <value>评论</value>
+  </data>
+  <data name="Novel_Series" xml:space="preserve">
+    <value>系列</value>
+  </data>
+  <data name="Novel_Download" xml:space="preserve">
+    <value>下载</value>
+  </data>
+  <data name="Novel_DownloadChapter" xml:space="preserve">
+    <value>本话</value>
+  </data>
+  <data name="Novel_DownloadSelected" xml:space="preserve">
+    <value>所选章节</value>
+  </data>
+  <data name="Novel_DownloadSeries" xml:space="preserve">
+    <value>整个系列</value>
+  </data>
+  <data name="Novel_Expand" xml:space="preserve">
+    <value>展开</value>
+  </data>
+  <data name="Novel_Fullscreen" xml:space="preserve">
+    <value>全屏</value>
+  </data>
+  <data name="Novel_MoreComments" xml:space="preserve">
+    <value>更多评论</value>
+  </data>
+  <data name="Novel_SelectAll" xml:space="preserve">
+    <value>全选</value>
+  </data>
+  <data name="Novel_ShowFile" xml:space="preserve">
+    <value>显示文件</value>
+  </data>
+  <data name="Novel_Downloading" xml:space="preserve">
+    <value>正在下载第 {0}/{1} 话…</value>
+  </data>
+  <data name="Novel_Saved" xml:space="preserve">
+    <value>已保存到 {0}</value>
+  </data>
+  <data name="Dic_Saved" xml:space="preserve">
+    <value>已保存</value>
+  </data>
+  <data name="Dic_History" xml:space="preserve">
+    <value>历史</value>
+  </data>
+  <data name="Dic_SaveArticle" xml:space="preserve">
+    <value>保存</value>
+  </data>
+  <data name="Dic_ClearHistory" xml:space="preserve">
+    <value>清除历史</value>
+  </data>
+  <data name="Dic_SavedEmpty" xml:space="preserve">
+    <value>还没有保存的文章。打开文章并点击“保存”。</value>
+  </data>
+  <data name="Dic_HistoryEmpty" xml:space="preserve">
+    <value>还没有历史记录。</value>
+  </data>
+  <data name="Dic_Remove" xml:space="preserve">
+    <value>移除</value>
+  </data>
 </root>

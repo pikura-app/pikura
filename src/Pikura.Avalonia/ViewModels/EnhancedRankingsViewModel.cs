@@ -45,7 +45,8 @@ public partial class EnhancedRankingsViewModel : ViewModelBase
     [ObservableProperty] private bool _showBadges = true;
     [ObservableProperty] private bool _showPreview;
     [ObservableProperty] private bool _showNovelReader;
-    public NovelReaderViewModel NovelReader { get; }
+    [ObservableProperty] private bool _novelReaderExpanded;
+    public NovelReaderHostViewModel NovelReaders { get; }
 
     [ObservableProperty] private bool _isViewerExpanded;
     partial void OnIsViewerExpandedChanged(bool value) { OnPropertyChanged(nameof(IsViewerFullScreen)); }
@@ -153,12 +154,14 @@ public partial class EnhancedRankingsViewModel : ViewModelBase
 
     public EnhancedRankingsViewModel(PixivClient pixivClient, PixivImageLoader imageLoader, Pikura.Core.Settings.SettingsService settingsService, LocalFavoritesService favoritesService)
     {
-        NovelReader = new NovelReaderViewModel(pixivClient, imageLoader, settingsService);
-        NovelReader.CloseRequested += (_, _) =>
+        NovelReaders = new NovelReaderHostViewModel(pixivClient, imageLoader, settingsService);
+        NovelReaders.CloseRequested += (_, _) =>
         {
             ShowNovelReader = false;
+            NovelReaderExpanded = false;
             ShowPreview = GalleryVm.HasTabs;
         };
+        NovelReaders.ExpandRequested += (_, _) => NovelReaderExpanded = !NovelReaderExpanded;
         _pixivClient = pixivClient;
         _imageLoader = imageLoader;
         _settingsService = settingsService;
@@ -307,7 +310,7 @@ public partial class EnhancedRankingsViewModel : ViewModelBase
         OnPropertyChanged(nameof(ShowUgoiraModes));
         OnPropertyChanged(nameof(ShowMangaModes));
         OnPropertyChanged(nameof(ShowNovelModes));
-        if (value != "novel") ShowNovelReader = false;
+        if (value != "novel") { ShowNovelReader = false; NovelReaderExpanded = false; }
     }
 
     [RelayCommand] public void SetFixedHeight()  { IsFixedHeight = true;  IsNaturalHeight = false; }

@@ -266,6 +266,7 @@ public static class AppServices
                         provider.GetRequiredService<PixivImageLoader>(),
                         provider.GetRequiredService<SettingsService>()));
                 services.AddSingleton<DicService>();
+                services.AddSingleton<Pikura.Core.Services.DicLibraryService>();
                 services.AddSingleton<DicViewModel>();
                 services.AddTransient<NovelReaderViewModel>();
                 services.AddSingleton<PixivisionViewModel>(provider =>

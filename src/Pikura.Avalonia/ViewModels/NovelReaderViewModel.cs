@@ -1,4 +1,6 @@
 using System;
+using System.Collections.ObjectModel;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -15,6 +17,14 @@ using Pikura.Core.Settings;
 namespace Pikura.Avalonia.ViewModels;
 
 /// <summary>Reads a pixiv novel inside Pikura (Rankings side panel and the novel window).</summary>
+public partial class NovelSeriesItem(NovelSeriesEntry entry) : ObservableObject
+{
+    public NovelSeriesEntry Entry { get; } = entry;
+    public string Label => $"#{Entry.Order}  {Entry.Title}";
+    [ObservableProperty] private bool _isSelected;
+    [ObservableProperty] private bool _isCurrent;
+}
+
 public partial class NovelReaderViewModel : ObservableObject
 {
     private static double s_fontSize = 16;
@@ -31,6 +41,24 @@ public partial class NovelReaderViewModel : ObservableObject
     }
 
     public event EventHandler? CloseRequested;
+    public event EventHandler? ExpandRequested;
+    public event EventHandler? FullscreenRequested;
+
+    public ObservableCollection<PixivComment> Comments { get; } = [];
+    public ObservableCollection<NovelSeriesItem> SeriesItems { get; } = [];
+    public string[] ExportFormats { get; } = ["TXT", "EPUB", "PDF", "DOCX"];
+    [ObservableProperty] private bool _showComments;
+    [ObservableProperty] private bool _showSeries;
+    [ObservableProperty] private bool _canLoadMoreComments;
+    [ObservableProperty] private int _exportFormatIndex = 1;
+    [ObservableProperty] private string _downloadStatus = "";
+    [ObservableProperty] private string? _lastExportPath;
+    [ObservableProperty] private bool _isDownloading;
+    [ObservableProperty] private bool _canExpand = true;
+    public bool ShowText => !ShowComments && !ShowSeries;
+    public bool HasDownloadStatus => DownloadStatus.Length > 0;
+    public bool HasLastExport => LastExportPath is not null;
+    private string? _seriesLoadedFor;
 
     [ObservableProperty] private NovelText? _novel;
     [ObservableProperty] private IReadOnlyList<IReadOnlyList<NovelBlock>> _pages = [];
@@ -76,6 +104,10 @@ public partial class NovelReaderViewModel : ObservableObject
     partial void OnPagesChanged(IReadOnlyList<IReadOnlyList<NovelBlock>> value) => NotifyPaging();
     partial void OnPageIndexChanged(int value) => NotifyPaging();
     partial void OnStatusChanged(string value) => OnPropertyChanged(nameof(HasStatus));
+    partial void OnDownloadStatusChanged(string value) => OnPropertyChanged(nameof(HasDownloadStatus));
+    partial void OnLastExportPathChanged(string? value) => OnPropertyChanged(nameof(HasLastExport));
+    partial void OnShowCommentsChanged(bool value) { if (value) ShowSeries = false; OnPropertyChanged(nameof(ShowText)); if (value && Comments.Count == 0) _ = LoadCommentsAsync(false); }
+    partial void OnShowSeriesChanged(bool value) { if (value) ShowComments = false; OnPropertyChanged(nameof(ShowText)); if (value) _ = LoadSeriesAsync(); }
     partial void OnFontSizeChanged(double value) => s_fontSize = value;
 
     private void NotifyPaging()
@@ -115,6 +147,10 @@ public partial class NovelReaderViewModel : ObservableObject
             Novel = novel;
             Pages = NovelMarkup.Parse(novel.Content);
             PageIndex = 0;
+            Comments.Clear();
+            CanLoadMoreComments = false;
+            if (ShowComments) _ = LoadCommentsAsync(false);
+            foreach (var item in SeriesItems) item.IsCurrent = item.Entry.Id == novel.Id;
             if (novel.CoverUrl is { } c)
             {
                 using var sk = await _loader.FetchBitmapAsync(c, ThumbnailSize.Medium, cts.Token);
@@ -146,6 +182,101 @@ public partial class NovelReaderViewModel : ObservableObject
     {
         if (Url.Length == 0) return;
         try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(Url) { UseShellExecute = true }); }
+        catch { }
+    }
+
+    [RelayCommand] private void Expand() => ExpandRequested?.Invoke(this, EventArgs.Empty);
+    [RelayCommand] private void Fullscreen() => FullscreenRequested?.Invoke(this, EventArgs.Empty);
+    [RelayCommand] private void ToggleComments() => ShowComments = !ShowComments;
+    [RelayCommand] private void ToggleSeries() => ShowSeries = !ShowSeries;
+    [RelayCommand] private Task LoadMoreCommentsAsync() => LoadCommentsAsync(true);
+
+    private async Task LoadCommentsAsync(bool more)
+    {
+        if (Novel is not { } n) return;
+        try
+        {
+            var r = await _client.GetNovelCommentsAsync(n.Id, more ? Comments.Count : 0, 30);
+            if (Novel?.Id != n.Id || r is null) return;
+            if (!more) Comments.Clear();
+            foreach (var c in r.Comments) Comments.Add(c);
+            CanLoadMoreComments = r.HasNext;
+        }
+        catch { }
+    }
+
+    private async Task LoadSeriesAsync()
+    {
+        if (Novel?.SeriesId is not { } sid || _seriesLoadedFor == sid) return;
+        _seriesLoadedFor = sid;
+        SeriesItems.Clear();
+        try
+        {
+            foreach (var e in await _client.GetNovelSeriesContentAsync(sid))
+                SeriesItems.Add(new NovelSeriesItem(e) { IsCurrent = e.Id == Novel?.Id });
+        }
+        catch { _seriesLoadedFor = null; }
+    }
+
+    [RelayCommand] private Task OpenSeriesItemAsync(NovelSeriesItem item) { ShowSeries = false; return LoadAsync(item.Entry.Id); }
+    [RelayCommand] private void SelectAllSeries() { var all = SeriesItems.All(i => i.IsSelected); foreach (var i in SeriesItems) i.IsSelected = !all; }
+
+    [RelayCommand] private Task DownloadChapterAsync() => Novel is { } n ? ExportAsync([n.Id], n.Title) : Task.CompletedTask;
+    [RelayCommand] private Task DownloadSelectedAsync() =>
+        ExportAsync(SeriesItems.Where(i => i.IsSelected).Select(i => i.Entry.Id).ToList(), Novel?.SeriesTitle ?? Title);
+
+    [RelayCommand]
+    private async Task DownloadSeriesAsync()
+    {
+        if (Novel?.SeriesId is null) { await DownloadChapterAsync(); return; }
+        await LoadSeriesAsync();
+        await ExportAsync(SeriesItems.Select(i => i.Entry.Id).ToList(), Novel?.SeriesTitle ?? Title);
+    }
+
+    private async Task ExportAsync(IReadOnlyList<string> ids, string title)
+    {
+        if (ids.Count == 0 || IsDownloading) return;
+        IsDownloading = true;
+        LastExportPath = null;
+        try
+        {
+            var chapters = new List<NovelText>();
+            for (var i = 0; i < ids.Count; i++)
+            {
+                DownloadStatus = string.Format(LocalizationService.Instance["Novel_Downloading"], i + 1, ids.Count);
+                var c = ids[i] == Novel?.Id ? Novel : await _client.GetNovelTextAsync(ids[i]);
+                if (c is not null && c.Content.Length > 0) chapters.Add(c);
+                if (i < ids.Count - 1 && ids[i] != Novel?.Id) await Task.Delay(400);
+            }
+            if (chapters.Count == 0) { DownloadStatus = LocalizationService.Instance["Novel_LoadFailed"]; return; }
+            var format = (NovelExportFormat)ExportFormatIndex;
+            var author = chapters[0].UserName;
+            var dir = Path.Combine(_settings.Current.DownloadRoot, "Novels", NovelExporter.SafeFileName(author));
+            var name = NovelExporter.SafeFileName(chapters.Count == 1 ? chapters[0].Title : title);
+            var path = Path.Combine(dir, name + NovelExporter.Extension(format));
+            await Task.Run(() => NovelExporter.Export(chapters, chapters.Count == 1 ? chapters[0].Title : title, author, format, path));
+            LastExportPath = path;
+            DownloadStatus = string.Format(LocalizationService.Instance["Novel_Saved"], path);
+        }
+        catch (Exception ex)
+        {
+            DownloadStatus = ex.Message;
+        }
+        finally
+        {
+            IsDownloading = false;
+        }
+    }
+
+    [RelayCommand]
+    private void ShowExport()
+    {
+        if (LastExportPath is not { } p) return;
+        try
+        {
+            if (OperatingSystem.IsWindows()) System.Diagnostics.Process.Start("explorer.exe", $"/select,\"{p}\"");
+            else System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(Path.GetDirectoryName(p)!) { UseShellExecute = true });
+        }
         catch { }
     }
 }

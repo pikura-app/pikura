@@ -24,6 +24,8 @@ public partial class DicArticleCard : ObservableObject
     public string Meta { get; init; } = "";
     public IReadOnlyList<string> Related { get; init; } = [];
     public string? ImageUrl { get; init; }
+    public DicLibraryEntry? Entry { get; init; }
+    public bool HasEntry => Entry is not null;
     public bool HasSummary => Summary.Length > 0;
     public bool HasRelated => Related.Count > 0;
     [ObservableProperty] private Bitmap? _thumbnail;
@@ -61,12 +63,14 @@ public partial class DicViewModel : ObservableObject
     private readonly DicService _dic;
     private readonly PixivImageLoader _loader;
     private readonly SettingsService _settings;
+    private readonly DicLibraryService _library;
     private readonly Stack<string> _history = new();
     private int _requestId;
     private bool _sidebarLoaded;
 
-    public DicViewModel(DicService dic, PixivImageLoader loader, SettingsService settings)
+    public DicViewModel(DicService dic, PixivImageLoader loader, SettingsService settings, DicLibraryService library)
     {
+        _library = library;
         _dic = dic;
         _loader = loader;
         _settings = settings;
@@ -90,6 +94,10 @@ public partial class DicViewModel : ObservableObject
     /// <summary>Language of the article actually shown (an English request may fall back to Japanese).</summary>
     [ObservableProperty] private string _articleLang = "en";
     [ObservableProperty] private string _articleNote = "";
+    [ObservableProperty] private bool _isArticleSaved;
+    public bool IsLocalTopic => Topic is "saved" or "history";
+    public bool IsHistoryTopic => Topic == "history";
+    partial void OnTopicChanged(string value) { OnPropertyChanged(nameof(IsLocalTopic)); OnPropertyChanged(nameof(IsHistoryTopic)); OnPropertyChanged(nameof(CanNextPage)); }
 
     /// <summary>The last <c>/get_article</c> body; the view renders its node tree.</summary>
     [ObservableProperty] private JsonElement? _article;
@@ -107,7 +115,7 @@ public partial class DicViewModel : ObservableObject
     public bool IsJapanese => Language == "ja";
     public bool CanGoBack => IsArticleOpen;
     public bool CanPrevPage => Page > 1 && !IsArticleOpen;
-    public bool CanNextPage => Articles.Count > 0 && !IsArticleOpen && Topic != "updates";
+    public bool CanNextPage => Articles.Count > 0 && !IsArticleOpen && Topic != "updates" && !IsLocalTopic;
     public bool IsListOpen => !IsArticleOpen;
     public bool HasStatus => Status.Length > 0;
     public bool BlurSensitive => _settings.Current.BlurR18Content;
@@ -286,8 +294,70 @@ public partial class DicViewModel : ObservableObject
         };
     }
 
+    private void LoadLocalList()
+    {
+        ++_requestId;
+        IsLoading = false;
+        Status = "";
+        Articles.Clear();
+        var history = IsHistoryTopic;
+        Heading = LocalizationService.Instance[history ? "Dic_History" : "Dic_Saved"];
+        var entries = history ? _library.History : _library.Saved;
+        Info = entries.Count.ToString(System.Globalization.CultureInfo.CurrentCulture);
+        foreach (var e in entries)
+        {
+            var card = new DicArticleCard
+            {
+                Title = e.Title.Length > 0 ? e.Title : e.Tag,
+                Tag = e.Tag,
+                Summary = e.Summary,
+                Meta = $"{(e.Lang == "en" ? "EN" : "日本語")}  ·  {e.Time.ToLocalTime():g}",
+                Entry = e,
+                ImageUrl = e.ImageUrl,
+            };
+            Articles.Add(card);
+            if (card.ImageUrl is { Length: > 0 }) _ = card.LoadThumbnailAsync(_loader);
+        }
+        if (Articles.Count == 0) Status = LocalizationService.Instance[history ? "Dic_HistoryEmpty" : "Dic_SavedEmpty"];
+        OnPropertyChanged(nameof(CanNextPage));
+    }
+
+    [RelayCommand]
+    private void ToggleSave()
+    {
+        if (!IsArticleOpen || ArticleTag.Length == 0) return;
+        IsArticleSaved = _library.ToggleSaved(CurrentEntry());
+        if (IsLocalTopic) LoadLocalList();
+    }
+
+    [RelayCommand]
+    private void ClearHistory()
+    {
+        _library.ClearHistory();
+        if (IsHistoryTopic) LoadLocalList();
+    }
+
+    [RelayCommand]
+    private void RemoveEntry(DicArticleCard card)
+    {
+        if (card.Entry is not { } e) return;
+        _library.Remove(e, IsHistoryTopic);
+        LoadLocalList();
+    }
+
+    private DicLibraryEntry CurrentEntry()
+    {
+        string Str(string name) => Article is { } a && a.TryGetProperty(name, out var v) && v.ValueKind == JsonValueKind.String ? v.GetString() ?? "" : "";
+        var title = ArticleLang == "en" ? Str("translatedTagName") is { Length: > 0 } t ? $"{ArticleTag} ({t})" : ArticleTag : Str("tagName");
+        var summary = Str("abstract");
+        string? image = Article is { } art && art.TryGetProperty("mainIllust", out var mi) && mi.ValueKind == JsonValueKind.Object
+            && mi.TryGetProperty("imageUrl", out var iu) && iu.ValueKind == JsonValueKind.String ? iu.GetString() : null;
+        return new DicLibraryEntry(ArticleTag, title.Length > 0 ? title : ArticleTag, ArticleLang, summary, DateTimeOffset.Now, image);
+    }
+
     private async Task LoadListAsync()
     {
+        if (IsLocalTopic) { LoadLocalList(); return; }
         var id = ++_requestId;
         IsLoading = true;
         Status = "";
@@ -417,6 +487,8 @@ public partial class DicViewModel : ObservableObject
             }
             using (doc) Article = doc.RootElement.Clone();
             OnPropertyChanged(nameof(PixivTag));
+            _library.AddHistory(CurrentEntry());
+            IsArticleSaved = _library.IsSaved(tag, lang);
             var (info, _) = await _dic.GetApiAsync($"/get_article_info/{path}?lang={lang}&viewType={view}");
             if (id != _requestId) { info?.Dispose(); return; }
             using (info) ArticleInfo = info?.RootElement.Clone();

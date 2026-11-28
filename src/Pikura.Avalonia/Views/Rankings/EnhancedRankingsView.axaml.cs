@@ -119,8 +119,31 @@ public partial class EnhancedRankingsView : UserControl
             {
                 if (e.PropertyName == nameof(EnhancedRankingsViewModel.ShowPreview))
                     ApplyShowPreview(vm.ShowPreview);
+                if (e.PropertyName == nameof(EnhancedRankingsViewModel.NovelReaderExpanded))
+                    ApplyNovelExpanded(vm.NovelReaderExpanded);
             };
+            vm.NovelReaders.FullscreenRequested += (_, id) => Pikura.Avalonia.Views.Novel.NovelReaderWindow.Open(id, this, fullscreen: true);
             ApplyShowPreview(vm.ShowPreview);
+        }
+    }
+
+    private void ApplyNovelExpanded(bool expanded)
+    {
+        var grid = this.FindControl<Grid>("ContentGrid");
+        if (grid == null || grid.ColumnDefinitions.Count < 3) return;
+        var main = grid.ColumnDefinitions[0];
+        if (expanded)
+        {
+            if (grid.ColumnDefinitions[2].ActualWidth > 0) _lastSidePanelWidth = grid.ColumnDefinitions[2].ActualWidth;
+            main.MinWidth = 0;
+            main.Width = new GridLength(0);
+            grid.ColumnDefinitions[2].Width = new GridLength(1, GridUnitType.Star);
+        }
+        else
+        {
+            main.MinWidth = 280;
+            main.Width = new GridLength(1, GridUnitType.Star);
+            ApplyShowPreview(VM?.ShowPreview == true);
         }
     }
 
@@ -278,7 +301,7 @@ public partial class EnhancedRankingsView : UserControl
         {
             VM.ShowNovelReader = true;
             VM.ShowPreview = true;
-            _ = VM.NovelReader.LoadAsync(card.Id);
+            VM.NovelReaders.Open(card.Id);
             return;
         }
         VM.ShowNovelReader = false;

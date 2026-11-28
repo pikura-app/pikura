@@ -7817,4 +7817,64 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="Novel_R18Hidden" xml:space="preserve">
     <value>この小説はR-18です。読むには設定でR-18コンテンツをオンにしてください。</value>
   </data>
+  <data name="Novel_Comments" xml:space="preserve">
+    <value>コメント</value>
+  </data>
+  <data name="Novel_Series" xml:space="preserve">
+    <value>シリーズ</value>
+  </data>
+  <data name="Novel_Download" xml:space="preserve">
+    <value>ダウンロード</value>
+  </data>
+  <data name="Novel_DownloadChapter" xml:space="preserve">
+    <value>この話</value>
+  </data>
+  <data name="Novel_DownloadSelected" xml:space="preserve">
+    <value>選択した話</value>
+  </data>
+  <data name="Novel_DownloadSeries" xml:space="preserve">
+    <value>シリーズ全体</value>
+  </data>
+  <data name="Novel_Expand" xml:space="preserve">
+    <value>拡大</value>
+  </data>
+  <data name="Novel_Fullscreen" xml:space="preserve">
+    <value>全画面</value>
+  </data>
+  <data name="Novel_MoreComments" xml:space="preserve">
+    <value>さらに表示</value>
+  </data>
+  <data name="Novel_SelectAll" xml:space="preserve">
+    <value>すべて選択</value>
+  </data>
+  <data name="Novel_ShowFile" xml:space="preserve">
+    <value>ファイルを表示</value>
+  </data>
+  <data name="Novel_Downloading" xml:space="preserve">
+    <value>{1}話中{0}話目をダウンロード中…</value>
+  </data>
+  <data name="Novel_Saved" xml:space="preserve">
+    <value>{0} に保存しました</value>
+  </data>
+  <data name="Dic_Saved" xml:space="preserve">
+    <value>保存済み</value>
+  </data>
+  <data name="Dic_History" xml:space="preserve">
+    <value>履歴</value>
+  </data>
+  <data name="Dic_SaveArticle" xml:space="preserve">
+    <value>保存</value>
+  </data>
+  <data name="Dic_ClearHistory" xml:space="preserve">
+    <value>履歴を消去</value>
+  </data>
+  <data name="Dic_SavedEmpty" xml:space="preserve">
+    <value>保存した記事はまだありません。記事を開いて「保存」を押してください。</value>
+  </data>
+  <data name="Dic_HistoryEmpty" xml:space="preserve">
+    <value>履歴はまだありません。</value>
+  </data>
+  <data name="Dic_Remove" xml:space="preserve">
+    <value>削除</value>
+  </data>
 </root>
