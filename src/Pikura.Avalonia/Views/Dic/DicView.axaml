@@ -51,7 +51,7 @@
         </DataTemplate>
     </UserControl.Resources>
 
-    <Grid RowDefinitions="Auto,Auto,*" Margin="12">
+    <Grid RowDefinitions="Auto,Auto,*" Margin="12,40,12,12">
         <!-- Top bar: topics, search, language -->
         <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto,Auto" Margin="0,0,0,8">
             <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">

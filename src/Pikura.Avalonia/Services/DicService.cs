@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Threading;
+using Microsoft.Extensions.Logging;
 
 namespace Pikura.Avalonia.Services;
 
@@ -20,6 +21,9 @@ public sealed class DicService
     private NativeWebView? _web;
     private Task<bool>? _ready;
     private readonly SemaphoreSlim _gate = new(1, 1);
+    private readonly ILogger<DicService> _logger;
+
+    public DicService(ILogger<DicService> logger) => _logger = logger;
 
     public void Attach(NativeWebView web)
     {
@@ -40,16 +44,19 @@ public sealed class DicService
         try
         {
             await Dispatcher.UIThread.InvokeAsync(() => web.Navigate(new Uri(Origin + "/en/")));
-            await Task.WhenAny(navigated.Task, Task.Delay(30000));
+            var first = await Task.WhenAny(navigated.Task, Task.Delay(30000));
+            _logger.LogInformation("Dic: first navigation {Result}", first == navigated.Task ? navigated.Task.Result.ToString() : "timed out");
             // Cloudflare may show its "Just a moment" interstitial first and then reload.
+            string? state = null;
             for (var i = 0; i < 40; i++)
             {
-                var state = await InvokeAsync(web, "JSON.stringify(location.host + '|' + document.title)");
+                state = await InvokeAsync(web, "location.host + '|' + document.title");
                 if (state is not null && state.StartsWith("dic.pixiv.net|", StringComparison.Ordinal)
                     && !state.Contains("Just a moment", StringComparison.OrdinalIgnoreCase))
                     return true;
                 await Task.Delay(750);
             }
+            _logger.LogWarning("Dic: dic.pixiv.net never became ready (last state: {State})", state ?? "null");
             return false;
         }
         finally
@@ -94,8 +101,9 @@ public sealed class DicService
             var body = doc.RootElement.GetProperty("body").GetString() ?? "";
             return (status, body);
         }
-        catch
+        catch (Exception ex)
         {
+            _logger.LogWarning(ex, "Dic: request {Path} failed", path);
             return (0, "");
         }
         finally
