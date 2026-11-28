@@ -236,15 +236,31 @@ public partial class NovelReaderViewModel : ObservableObject
         var cts = _translateCts = new CancellationTokenSource();
         var page = Pages[Math.Clamp(PageIndex, 0, Pages.Count - 1)];
         var idx = Enumerable.Range(0, page.Count).Where(i => page[i].Kind is NovelBlockKind.Text or NovelBlockKind.Chapter).ToList();
-        var lines = idx.Select(i => string.Concat(page[i].Spans.Select(s => s.Text)).Replace('\n', ' ')).ToList();
+        // A text block holds many lines: translate line by line so paragraphs, blank lines and
+        // indentation (e.g. a leading full-width space) come back where they were.
+        var blockLines = idx.Select(i => string.Concat(page[i].Spans.Select(s => s.Text)).Split('\n')).ToList();
+        var lines = new List<string>();
+        var indents = new List<string>();
+        foreach (var line in blockLines.SelectMany(l => l))
+        {
+            var body = line.TrimStart(' ', '\t', '\u3000');
+            indents.Add(line[..(line.Length - body.Length)]);
+            lines.Add(body.TrimEnd());
+        }
         IsTranslating = true;
         TranslateStatus = LocalizationService.F("Novel_Translating", TranslatorName);
         try
         {
             var result = await NovelTranslation.TranslateAsync(lines, Translator, TargetLanguage, cts.Token);
             var blocks = page.ToList();
+            var pos = 0;
             for (var k = 0; k < idx.Count; k++)
-                if (result[k].Length > 0) blocks[idx[k]] = page[idx[k]] with { Spans = [new NovelSpan(result[k])] };
+            {
+                var parts = new string[blockLines[k].Length];
+                for (var j = 0; j < parts.Length; j++, pos++)
+                    parts[j] = lines[pos].Length > 0 && result[pos].Length > 0 ? indents[pos] + result[pos] : blockLines[k][j];
+                blocks[idx[k]] = page[idx[k]] with { Spans = [new NovelSpan(string.Join("\n", parts))] };
+            }
             _translated[key] = blocks;
             if (cts.IsCancellationRequested) return;
             TranslateStatus = LocalizationService.F("Novel_TranslatedBy", TranslatorName);
