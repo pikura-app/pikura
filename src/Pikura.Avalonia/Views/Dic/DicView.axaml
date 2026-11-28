@@ -36,7 +36,7 @@
     <UserControl.Resources>
         <SolidColorBrush x:Key="DicLinkBrush" Color="#4EA1F3"/>
         <DataTemplate x:Key="SideItem" x:DataType="vm:DicArticleCard">
-            <Button Classes="linkItem" Click="OnArticleCardClick">
+            <Button Classes="linkItem" Click="OnArticleCardClick" PointerEntered="OnArticleCardHover">
                 <StackPanel Orientation="Horizontal" Spacing="8">
                     <Border Width="36" Height="36" CornerRadius="4" ClipToBounds="True"
                             Background="{DynamicResource Container2BackgroundBrush}">
@@ -150,7 +150,7 @@
                                 <DataTemplate x:DataType="vm:DicArticleCard">
                                     <Border Classes="dicCard">
                                         <Grid ColumnDefinitions="Auto,*">
-                                            <Button Classes="linkItem" Padding="0" VerticalAlignment="Top" Click="OnArticleCardClick">
+                                            <Button Classes="linkItem" Padding="0" VerticalAlignment="Top" Click="OnArticleCardClick" PointerEntered="OnArticleCardHover">
                                                 <Border Width="110" Height="110" CornerRadius="6" ClipToBounds="True"
                                                         Background="{DynamicResource Container2BackgroundBrush}">
                                                     <Panel>
@@ -163,7 +163,7 @@
                                                 </Border>
                                             </Button>
                                             <StackPanel Grid.Column="1" Margin="14,0,0,0" Spacing="4">
-                                                <Button Classes="linkItem" Padding="0" Click="OnArticleCardClick">
+                                                <Button Classes="linkItem" Padding="0" Click="OnArticleCardClick" PointerEntered="OnArticleCardHover">
                                                     <TextBlock Text="{Binding Title}" FontSize="17" FontWeight="SemiBold"
                                                                Foreground="{StaticResource DicLinkBrush}" TextWrapping="Wrap"/>
                                                 </Button>

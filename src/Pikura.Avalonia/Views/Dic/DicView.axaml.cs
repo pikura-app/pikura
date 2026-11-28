@@ -83,6 +83,13 @@ public partial class DicView : UserControl
         _ = _vm.OpenArticleAsync(card.Tag);
     }
 
+    private async void OnArticleCardHover(object? sender, PointerEventArgs e)
+    {
+        if (sender is not Control { DataContext: DicArticleCard card } control || _vm is null) return;
+        await System.Threading.Tasks.Task.Delay(150);
+        if (control.IsPointerOver && (card.Entry is null || card.Entry.Lang == _vm.Language)) _vm.PrefetchArticle(card.Tag);
+    }
+
     private void OnTagChipClick(object? sender, RoutedEventArgs e)
     {
         if ((sender as Button)?.Content is string tag) _ = _vm?.OpenArticleAsync(tag);
@@ -113,8 +120,11 @@ public partial class DicView : UserControl
     private IBrush Panel2 => this.TryFindResource("Container2BackgroundBrush", ActualThemeVariant, out var b) && b is IBrush br ? br : Brushes.Transparent;
     private IBrush Border2 => this.TryFindResource("Container2BorderBrush", ActualThemeVariant, out var b) && b is IBrush br ? br : Brushes.Gray;
 
-    private void RenderArticle()
+    private int _renderId;
+
+    private async void RenderArticle()
     {
+        var renderId = ++_renderId;
         ArticleHost.Children.Clear();
         _headings.Clear();
         if (_vm?.Article is not { } a) return;
@@ -181,20 +191,44 @@ public partial class DicView : UserControl
             catch { }
         }
 
+        ArticleScroll.Offset = default;
+
         if (Str(a, "nodes") is { Length: > 2 } nodesJson)
         {
-            try
-            {
-                using var nodes = JsonDocument.Parse(nodesJson);
-                RenderBlocks(nodes.RootElement, ArticleHost, lang);
-            }
+            JsonDocument? nodes = null;
+            try { nodes = JsonDocument.Parse(nodesJson); }
             catch { }
+            if (nodes is not null)
+                using (nodes)
+                {
+                    // Long articles are built a section at a time so the top shows at once and the UI stays responsive.
+                    foreach (var chunk in Chunks(nodes.RootElement))
+                    {
+                        RenderBlocks(chunk, ArticleHost, lang);
+                        await Dispatcher.UIThread.InvokeAsync(() => { }, DispatcherPriority.Background);
+                        if (renderId != _renderId) return;
+                    }
+                }
         }
 
         if (a.TryGetProperty("relatedArticles", out var rel) && rel.ValueKind == JsonValueKind.Object)
             RenderRelated(rel);
+    }
 
-        ArticleScroll.Offset = default;
+    /// <summary>Splits top-level nodes into runs of about 40, breaking before a header (or a paragraph after 120).</summary>
+    private static IEnumerable<List<JsonElement>> Chunks(JsonElement nodes)
+    {
+        var chunk = new List<JsonElement>();
+        foreach (var n in nodes.EnumerateArray())
+        {
+            if (chunk.Count >= 40 && Str(n, "tag") is "header" or "sub_header" || chunk.Count >= 120 && Str(n, "tag") == "p")
+            {
+                yield return chunk;
+                chunk = new List<JsonElement>();
+            }
+            chunk.Add(n);
+        }
+        if (chunk.Count > 0) yield return chunk;
     }
 
     private Control MainIllust(JsonElement main, bool sensitive)
@@ -248,10 +282,12 @@ public partial class DicView : UserControl
     }
 
     /// <summary>Renders the encyclopedia's node tree (headers, paragraphs, lists, tables, links).</summary>
-    private void RenderBlocks(JsonElement nodes, Panel host, string lang)
+    private void RenderBlocks(JsonElement nodes, Panel host, string lang) => RenderBlocks(nodes.EnumerateArray(), host, lang);
+
+    private void RenderBlocks(IEnumerable<JsonElement> nodes, Panel host, string lang)
     {
         SelectableTextBlock? para = null;
-        foreach (var n in nodes.EnumerateArray())
+        foreach (var n in nodes)
         {
             var tag = Str(n, "tag") ?? "";
             switch (tag)

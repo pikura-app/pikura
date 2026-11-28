@@ -283,6 +283,7 @@ public partial class DicViewModel : ObservableObject
     private async Task RefreshAsync()
     {
         _sidebarLoaded = false;
+        _dic.ClearCache();
         if (IsArticleOpen) await LoadArticleAsync(ArticleTag, pushHistory: false);
         else await LoadListAsync();
     }
@@ -418,25 +419,30 @@ public partial class DicViewModel : ObservableObject
             var size = PageSize;
             var firstSite = (Page - 1) * size / ArticlesPerPage + 1;
             var siteCount = Math.Max(1, size / ArticlesPerPage);
-            var cleared = false;
-            for (var sp = firstSite; sp < firstSite + siteCount; sp++)
+            // Site pages hold 12 articles; larger page sizes fetch their site pages together.
+            var requests = Enumerable.Range(firstSite, siteCount).Select(sp => _dic.GetListAsync(ListPath(sp))).ToList();
+            var results = await Task.WhenAll(requests);
+            if (id != _requestId) { foreach (var r in results) r.Doc?.Dispose(); return; }
+            Articles.Clear();
+            var more = true;
+            for (var i = 0; i < results.Length; i++)
             {
-                var (doc, status) = await _dic.GetListAsync(ListPath(sp));
-                if (id != _requestId) { doc?.Dispose(); return; }
-                if (!cleared) { Articles.Clear(); cleared = true; }
+                var (doc, status) = results[i];
+                if (!more) { doc?.Dispose(); continue; }
                 if (doc is null)
                 {
                     if (Articles.Count == 0)
                         Status = status == 0
                             ? LocalizationService.Instance["Dic_Unavailable"]
                             : string.Format(LocalizationService.Instance["Dic_LoadFailed"], status);
-                    break;
+                    more = false;
+                    continue;
                 }
                 int added;
                 using (doc)
                 {
                     var root = doc.RootElement;
-                    if (sp == firstSite)
+                    if (i == 0)
                     {
                         Heading = root.GetProperty("heading").GetString() ?? "";
                         Info = root.GetProperty("info").GetString() ?? "";
@@ -459,8 +465,11 @@ public partial class DicViewModel : ObservableObject
                         _ = card.LoadThumbnailAsync(_loader);
                     }
                 }
-                if (added < ArticlesPerPage) break;
+                if (added < ArticlesPerPage) more = false;
             }
+            if (more && Articles.Count > 0 && (TotalPages is not { } total || Page < total))
+                for (var sp = firstSite + siteCount; sp < firstSite + 2 * siteCount; sp++)
+                    _dic.PrefetchList(ListPath(sp));
             if (Articles.Count == 0 && Status.Length == 0) Status = LocalizationService.Instance["Dic_NoArticles"];
         }
         finally
@@ -475,8 +484,9 @@ public partial class DicViewModel : ObservableObject
         if (_sidebarLoaded) return;
         _sidebarLoaded = true;
         var lang = Language;
+        var attentions = _dic.GetApiAsync($"/get_attentions?lang={lang}");
         var (doc, _) = await _dic.GetApiAsync($"/get_sidebar?lang={lang}");
-        if (doc is null) { _sidebarLoaded = false; return; }
+        if (doc is null) { _sidebarLoaded = false; (await attentions).Doc?.Dispose(); return; }
         using (doc)
         {
             Fill(WeeklyRanking, doc.RootElement, "weeklyRanking");
@@ -484,7 +494,7 @@ public partial class DicViewModel : ObservableObject
             Fill(UpdatedArticles, doc.RootElement, "updatedArticles");
             Fill(NewArticles, doc.RootElement, "newArticles");
         }
-        var (att, _) = await _dic.GetApiAsync($"/get_attentions?lang={lang}");
+        var (att, _) = await attentions;
         if (att is null) return;
         using (att)
         {
@@ -531,11 +541,14 @@ public partial class DicViewModel : ObservableObject
             JsonDocument? doc = null;
             var status = 0;
             var (lang, view, note) = attempts[0];
+            // The article's info usually belongs to the first attempt, so it's requested alongside it.
+            var firstInfo = _dic.GetApiAsync($"/get_article_info/{path}?lang={lang}&viewType={view}");
+            var infoTask = firstInfo;
             foreach (var attempt in attempts)
             {
                 (lang, view, note) = attempt;
                 (doc, status) = await _dic.GetApiAsync($"/get_article/{path}?lang={lang}&viewType={view}");
-                if (id != _requestId) { doc?.Dispose(); return; }
+                if (id != _requestId) { doc?.Dispose(); (await firstInfo).Doc?.Dispose(); return; }
                 if (doc is not null || status != 404) break;
             }
             ArticleTag = tag;
@@ -544,6 +557,7 @@ public partial class DicViewModel : ObservableObject
             IsArticleOpen = true;
             if (doc is null)
             {
+                (await infoTask).Doc?.Dispose();
                 Article = null;
                 ArticleInfo = null;
                 Status = status == 404
@@ -556,7 +570,12 @@ public partial class DicViewModel : ObservableObject
             OnPropertyChanged(nameof(PixivTag));
             _library.AddHistory(CurrentEntry());
             IsArticleSaved = _library.IsSaved(tag, lang);
-            var (info, _) = await _dic.GetApiAsync($"/get_article_info/{path}?lang={lang}&viewType={view}");
+            if ((lang, view) != (attempts[0].Item1, attempts[0].Item2))
+            {
+                (await firstInfo).Doc?.Dispose();
+                infoTask = _dic.GetApiAsync($"/get_article_info/{path}?lang={lang}&viewType={view}");
+            }
+            var (info, _) = await infoTask;
             if (id != _requestId) { info?.Dispose(); return; }
             using (info) ArticleInfo = info?.RootElement.Clone();
         }
@@ -564,6 +583,17 @@ public partial class DicViewModel : ObservableObject
         {
             if (id == _requestId) IsLoading = false;
         }
+    }
+
+    /// <summary>Starts loading an article (e.g. when its card is hovered) so opening it is instant.</summary>
+    public void PrefetchArticle(string? tag)
+    {
+        if (string.IsNullOrWhiteSpace(tag)) return;
+        var path = Uri.EscapeDataString(tag);
+        var lang = IsEnglish ? "en" : "ja";
+        const string view = "ugc";
+        _dic.PrefetchApi($"/get_article/{path}?lang={lang}&viewType={view}");
+        _dic.PrefetchApi($"/get_article_info/{path}?lang={lang}&viewType={view}");
     }
 
     public static string TagFromHref(string? href)

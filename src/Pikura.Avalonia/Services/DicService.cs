@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,7 +13,7 @@ namespace Pikura.Avalonia.Services;
 /// Reads pixiv Encyclopedia (dic.pixiv.net). Its Cloudflare bot management rejects .NET's
 /// HttpClient outright (403 even with browser headers), so every request goes through a
 /// hidden <see cref="NativeWebView"/> sitting on a dic.pixiv.net page: the JSON API under
-/// <c>/_api</c> and the server-rendered article lists are fetched with same-origin XHR.
+/// <c>/_api</c> and the server-rendered article lists are fetched with same-origin fetch().
 /// </summary>
 public sealed class DicService
 {
@@ -20,8 +21,18 @@ public sealed class DicService
 
     private NativeWebView? _web;
     private Task<bool>? _ready;
-    private readonly SemaphoreSlim _gate = new(1, 1);
+    private readonly SemaphoreSlim _slots = new(4, 4);
     private readonly ILogger<DicService> _logger;
+    private readonly object _lock = new();
+    private readonly Dictionary<int, TaskCompletionSource<(int, string)>> _pending = new();
+    private readonly Dictionary<string, Task<(int, string)>> _inflight = new();
+    private readonly Dictionary<string, (DateTime At, string Body)> _cache = new();
+    private readonly LinkedList<string> _cacheOrder = new();
+    private int _nextId;
+    private bool _polling;
+    private const int CacheCapacity = 200;
+    private static readonly TimeSpan CacheTtl = TimeSpan.FromMinutes(10);
+    private static readonly TimeSpan RequestTimeout = TimeSpan.FromSeconds(30);
 
     public DicService(ILogger<DicService> logger) => _logger = logger;
 
@@ -32,37 +43,41 @@ public sealed class DicService
         _ready = null;
     }
 
-    private Task<bool> EnsureReadyAsync() => _ready ??= OpenOriginAsync();
+    /// <summary>Starts opening dic.pixiv.net in the background so the first request doesn't wait for it.</summary>
+    public void WarmUp() => _ = EnsureReadyAsync();
+
+    /// <summary>Forgets cached responses (Refresh).</summary>
+    public void ClearCache()
+    {
+        lock (_lock) { _cache.Clear(); _cacheOrder.Clear(); }
+    }
+
+    private Task<bool> EnsureReadyAsync()
+    {
+        lock (_lock) return _ready ??= OpenOriginAsync();
+    }
 
     private async Task<bool> OpenOriginAsync()
     {
         var web = _web;
         if (web is null) return false;
-        var navigated = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
-        void OnCompleted(object? s, WebViewNavigationCompletedEventArgs e) => navigated.TrySetResult(e.IsSuccess);
-        web.NavigationCompleted += OnCompleted;
-        try
+        await Dispatcher.UIThread.InvokeAsync(() => web.Navigate(new Uri(Origin + "/en/")));
+        // Requests only need the origin's document and cookies, not the page's images and scripts, so
+        // poll for the document instead of waiting for the page's load event.
+        // Cloudflare may show its "Just a moment" interstitial first and then reload.
+        string? state = null;
+        var until = DateTime.UtcNow + TimeSpan.FromSeconds(45);
+        while (DateTime.UtcNow < until)
         {
-            await Dispatcher.UIThread.InvokeAsync(() => web.Navigate(new Uri(Origin + "/en/")));
-            var first = await Task.WhenAny(navigated.Task, Task.Delay(30000));
-            _logger.LogInformation("Dic: first navigation {Result}", first == navigated.Task ? navigated.Task.Result.ToString() : "timed out");
-            // Cloudflare may show its "Just a moment" interstitial first and then reload.
-            string? state = null;
-            for (var i = 0; i < 40; i++)
-            {
-                state = await InvokeAsync(web, "location.host + '|' + document.title");
-                if (state is not null && state.StartsWith("dic.pixiv.net|", StringComparison.Ordinal)
-                    && !state.Contains("Just a moment", StringComparison.OrdinalIgnoreCase))
-                    return true;
-                await Task.Delay(750);
-            }
-            _logger.LogWarning("Dic: dic.pixiv.net never became ready (last state: {State})", state ?? "null");
-            return false;
+            state = await InvokeAsync(web, "location.host + '|' + document.readyState + '|' + document.title");
+            if (state is not null && state.StartsWith("dic.pixiv.net|", StringComparison.Ordinal)
+                && !state.StartsWith("dic.pixiv.net|loading", StringComparison.Ordinal)
+                && !state.Contains("Just a moment", StringComparison.OrdinalIgnoreCase))
+                return true;
+            await Task.Delay(200);
         }
-        finally
-        {
-            web.NavigationCompleted -= OnCompleted;
-        }
+        _logger.LogWarning("Dic: dic.pixiv.net never became ready (last state: {State})", state ?? "null");
+        return false;
     }
 
     private static async Task<string?> InvokeAsync(NativeWebView web, string script)
@@ -77,31 +92,84 @@ public sealed class DicService
         return raw;
     }
 
-    /// <summary>Runs a script that returns <c>JSON.stringify({status, body})</c> after a sync XHR.</summary>
-    private async Task<(int Status, string Body)> GetAsync(string path, string? transform)
+    /// <summary>
+    /// Same-origin GET through the web view. Requests run asynchronously in the page (up to 4 at once),
+    /// identical requests in flight are shared, and successful responses are cached for 10 minutes.
+    /// </summary>
+    private Task<(int Status, string Body)> GetAsync(string path, string? transform)
     {
-        await _gate.WaitAsync();
+        var key = (transform is null ? "A " : "L ") + path;
+        lock (_lock)
+        {
+            if (_cache.TryGetValue(key, out var hit))
+            {
+                if (DateTime.UtcNow - hit.At < CacheTtl)
+                {
+                    _cacheOrder.Remove(key);
+                    _cacheOrder.AddFirst(key);
+                    return Task.FromResult((200, hit.Body));
+                }
+                _cache.Remove(key);
+                _cacheOrder.Remove(key);
+            }
+            if (_inflight.TryGetValue(key, out var running)) return running;
+            var task = FetchAsync(key, path, transform);
+            _inflight[key] = task;
+            return task;
+        }
+    }
+
+    /// <summary>Loads a response into the cache in the background (e.g. the next page of a list).</summary>
+    public void PrefetchList(string path) => _ = GetAsync(path, ListTransform);
+
+    /// <summary>Loads an <c>/_api</c> response into the cache in the background.</summary>
+    public void PrefetchApi(string path) => _ = GetAsync("/_api" + path, null);
+
+    private async Task<(int Status, string Body)> FetchAsync(string key, string path, string? transform)
+    {
+        await _slots.WaitAsync();
         try
         {
             if (!await EnsureReadyAsync())
             {
-                _ready = null;
+                lock (_lock) _ready = null;
                 return (0, "");
             }
+            var id = Interlocked.Increment(ref _nextId);
+            var tcs = new TaskCompletionSource<(int, string)>(TaskCreationOptions.RunContinuationsAsynchronously);
+            lock (_lock) _pending[id] = tcs;
             var script =
-                "(function(){try{var x=new XMLHttpRequest();x.open('GET'," + JsonSerializer.Serialize(path) + ",false);x.send();" +
-                "var body=x.responseText;" +
+                "(function(){var r=window.__pk||(window.__pk={});" +
+                "fetch(" + JsonSerializer.Serialize(path) + ",{credentials:'same-origin'}).then(function(x){return x.text().then(function(body){" +
                 (transform is null ? "" : "if(x.status===200){" + transform + "}") +
-                "return JSON.stringify({status:x.status,body:body,url:x.responseURL});" +
-                "}catch(e){return JSON.stringify({status:-1,body:String(e)});}})()";
-            var json = await InvokeAsync(_web!, script);
-            if (json is null) return (0, "");
-            using var doc = JsonDocument.Parse(json);
-            var status = doc.RootElement.GetProperty("status").GetInt32();
-            var body = doc.RootElement.GetProperty("body").GetString() ?? "";
-            if (doc.RootElement.TryGetProperty("url", out var final) && final.GetString() is { Length: > 0 } finalUrl
-                && !finalUrl.StartsWith(Origin + path.Split('?')[0], StringComparison.Ordinal))
-                _logger.LogInformation("Dic: {Path} was redirected to {Url}", path, finalUrl);
+                "r[" + id + "]={status:x.status,body:body};});})" +
+                ".catch(function(e){r[" + id + "]={status:-1,body:String(e)};});return '1';})()";
+            if (await InvokeAsync(_web!, script) is null)
+            {
+                lock (_lock) _pending.Remove(id);
+                return (0, "");
+            }
+            EnsurePolling();
+            var done = await Task.WhenAny(tcs.Task, Task.Delay(RequestTimeout));
+            if (done != tcs.Task)
+            {
+                lock (_lock) _pending.Remove(id);
+                _logger.LogWarning("Dic: request {Path} timed out", path);
+                return (0, "");
+            }
+            var (status, body) = tcs.Task.Result;
+            if (status == 200 && body.Length > 0)
+                lock (_lock)
+                {
+                    _cache[key] = (DateTime.UtcNow, body);
+                    _cacheOrder.Remove(key);
+                    _cacheOrder.AddFirst(key);
+                    while (_cacheOrder.Count > CacheCapacity)
+                    {
+                        _cache.Remove(_cacheOrder.Last!.Value);
+                        _cacheOrder.RemoveLast();
+                    }
+                }
             return (status, body);
         }
         catch (Exception ex)
@@ -111,7 +179,56 @@ public sealed class DicService
         }
         finally
         {
-            _gate.Release();
+            _slots.Release();
+            lock (_lock) _inflight.Remove(key);
+        }
+    }
+
+    private void EnsurePolling()
+    {
+        lock (_lock)
+        {
+            if (_polling) return;
+            _polling = true;
+        }
+        _ = PollAsync();
+    }
+
+    /// <summary>Collects every finished request in one script call until none are pending.</summary>
+    private async Task PollAsync()
+    {
+        try
+        {
+            while (true)
+            {
+                await Task.Delay(30);
+                lock (_lock)
+                {
+                    if (_pending.Count == 0) { _polling = false; return; }
+                }
+                string? json;
+                try { json = await InvokeAsync(_web!, "(function(){var r=window.__pk||{};window.__pk={};return JSON.stringify(r);})()"); }
+                catch { json = null; }
+                if (json is null || json.Length <= 2) continue;
+                using var doc = JsonDocument.Parse(json);
+                foreach (var p in doc.RootElement.EnumerateObject())
+                {
+                    if (!int.TryParse(p.Name, out var id)) continue;
+                    TaskCompletionSource<(int, string)>? tcs;
+                    lock (_lock)
+                    {
+                        if (!_pending.Remove(id, out tcs)) continue;
+                    }
+                    var status = p.Value.GetProperty("status").GetInt32();
+                    var body = p.Value.GetProperty("body").GetString() ?? "";
+                    tcs.TrySetResult((status, body));
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Dic: polling failed");
+            lock (_lock) _polling = false;
         }
     }
 
