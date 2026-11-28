@@ -7964,6 +7964,9 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="Novel_ActionFailed" xml:space="preserve">
     <value>pixiv に接続できませんでした。ログインを確認してください。</value>
   </data>
+  <data name="Novel_SearchTag" xml:space="preserve">
+    <value>このタグで小説を検索</value>
+  </data>
   <data name="Novel_Queued" xml:space="preserve">
     <value>{0} 話をジョブに追加しました</value>
   </data>

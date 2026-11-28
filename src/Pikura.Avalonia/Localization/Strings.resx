@@ -8028,6 +8028,9 @@ Saved to: {3}</value>
   <data name="Novel_ActionFailed" xml:space="preserve">
     <value>Couldn't reach pixiv. Check that you're logged in.</value>
   </data>
+  <data name="Novel_SearchTag" xml:space="preserve">
+    <value>Search novels with this tag</value>
+  </data>
   <data name="Novel_Queued" xml:space="preserve">
     <value>Added {0} chapter(s) to Jobs</value>
   </data>

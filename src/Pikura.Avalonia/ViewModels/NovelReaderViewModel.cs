@@ -213,20 +213,19 @@ public partial class NovelReaderViewModel : ObservableObject
         PageContentChanged();
     }
 
-    // Header (title, series, tags) is translated once per novel alongside the page.
-    private readonly Dictionary<string, (string Title, string Series, IReadOnlyList<string> Tags)> _translatedHeader = new();
+    // Title and series name are translated once per novel alongside the page; tags stay original
+    // so they can be searched.
+    private readonly Dictionary<string, (string Title, string Series)> _translatedHeader = new();
     private string HeaderKey => $"{Novel?.Id}|{Translator}|{TargetLanguage}";
-    private (string Title, string Series, IReadOnlyList<string> Tags)? Header =>
+    private (string Title, string Series)? Header =>
         IsTranslated && _translatedHeader.TryGetValue(HeaderKey, out var h) ? h : null;
     public string DisplayTitle => Header?.Title ?? Title;
     public string DisplaySeries => Header?.Series ?? Series;
-    public IReadOnlyList<string> DisplayTags => Header?.Tags ?? Tags;
 
     private void NotifyHeader()
     {
         OnPropertyChanged(nameof(DisplayTitle));
         OnPropertyChanged(nameof(DisplaySeries));
-        OnPropertyChanged(nameof(DisplayTags));
     }
 
     private async Task TranslateHeaderAsync()
@@ -235,13 +234,11 @@ public partial class NovelReaderViewModel : ObservableObject
         var key = HeaderKey;
         if (_translatedHeader.ContainsKey(key)) return;
         var lines = new List<string> { n.Title, n.SeriesTitle ?? "" };
-        lines.AddRange(n.Tags);
         try
         {
             var r = await NovelTranslation.TranslateAsync(lines, Translator, TargetLanguage, CancellationToken.None);
             string Pick(int i, string original) => r[i].Length > 0 ? r[i] : original;
-            _translatedHeader[key] = (Pick(0, n.Title), Pick(1, n.SeriesTitle ?? ""),
-                n.Tags.Select((t, i) => Pick(i + 2, t)).ToList());
+            _translatedHeader[key] = (Pick(0, n.Title), Pick(1, n.SeriesTitle ?? ""));
             NotifyHeader();
         }
         catch { /* header stays original; the page status shows translation errors */ }

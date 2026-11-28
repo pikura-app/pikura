@@ -7964,6 +7964,9 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="Novel_ActionFailed" xml:space="preserve">
     <value>pixiv에 연결할 수 없습니다. 로그인 상태를 확인하세요.</value>
   </data>
+  <data name="Novel_SearchTag" xml:space="preserve">
+    <value>이 태그로 소설 검색</value>
+  </data>
   <data name="Novel_Queued" xml:space="preserve">
     <value>{0}개 챕터를 작업에 추가했습니다</value>
   </data>

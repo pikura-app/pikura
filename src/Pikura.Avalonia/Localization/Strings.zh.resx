@@ -7964,6 +7964,9 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="Novel_ActionFailed" xml:space="preserve">
     <value>无法连接 pixiv，请确认已登录。</value>
   </data>
+  <data name="Novel_SearchTag" xml:space="preserve">
+    <value>用此标签搜索小说</value>
+  </data>
   <data name="Novel_Queued" xml:space="preserve">
     <value>已将 {0} 章添加到任务</value>
   </data>

@@ -154,4 +154,15 @@ public partial class NovelReaderView : UserControl
         else
             Open($"https://www.pixiv.net/users/{uid}");
     }
+
+    /// <summary>Searches novels with the clicked tag in the Search tab.</summary>
+    private void OnTagClicked(object? sender, global::Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        if (sender is not Control { Tag: string tag } || tag.Length == 0) return;
+        var top = TopLevel.GetTopLevel(this) as Window;
+        var main = top as Pikura.Avalonia.Views.MainWindow ?? top?.Owner as Pikura.Avalonia.Views.MainWindow;
+        if (main is null) return;
+        if (!ReferenceEquals(top, main)) top?.Close();
+        main.OpenSearch(tag, "novels");
+    }
 }
