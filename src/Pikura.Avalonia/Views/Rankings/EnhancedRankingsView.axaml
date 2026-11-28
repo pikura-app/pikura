@@ -185,6 +185,9 @@
                     <Button Content="{loc:Tr Search_Manga}"         CornerRadius="6" Padding="14,5" FontSize="12"
                             Command="{Binding SelectContentCommand}" CommandParameter="manga"
                             Classes.accent="{Binding SelectedContent, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=manga}"/>
+                    <Button Content="{loc:Tr Search_Novels}"        CornerRadius="6" Padding="14,5" FontSize="12"
+                            Command="{Binding SelectContentCommand}" CommandParameter="novel"
+                            Classes.accent="{Binding SelectedContent, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=novel}"/>
                 </StackPanel>
                 <!-- Spacer — visually separates content-type tabs from the view controls -->
                 <Rectangle Width="32" Fill="Transparent"/>
@@ -330,17 +333,19 @@
                             Classes.accent="{Binding SelectedMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=weekly}"/>
                     <Button Content="{loc:Tr Rankings_Monthly}"  CornerRadius="6" Padding="12,5" FontSize="11"
                             Command="{Binding SelectModeCommand}" CommandParameter="monthly"
-                            Classes.accent="{Binding SelectedMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=monthly}"/>
+                            Classes.accent="{Binding SelectedMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=monthly}"
+                            IsVisible="{Binding ShowNovelSafeOnlyModes}"/>
                     <Button Content="{loc:Tr Rankings_Rookie}"   CornerRadius="6" Padding="12,5" FontSize="11"
                             Command="{Binding SelectModeCommand}" CommandParameter="rookie"
-                            Classes.accent="{Binding SelectedMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=rookie}"/>
+                            Classes.accent="{Binding SelectedMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=rookie}"
+                            IsVisible="{Binding ShowNovelSafeOnlyModes}"/>
                     <Button Content="{loc:Tr Rankings_Original}" CornerRadius="6" Padding="12,5" FontSize="11"
                             Command="{Binding SelectModeCommand}" CommandParameter="weekly_original"
-                            Classes.accent="{Binding SelectedMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=weekly_original}"/>
+                            Classes.accent="{Binding SelectedMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=weekly_original}"
+                            IsVisible="{Binding ShowNovelSafeOnlyModes}"/>
                     <Button Content="{loc:Tr Rankings_AI}"       CornerRadius="6" Padding="12,5" FontSize="11"
                             Command="{Binding SelectModeCommand}" CommandParameter="weekly_ai"
-                            Classes.accent="{Binding SelectedMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=weekly_ai}"
-                            IsVisible="{Binding ShowAiButton}"/>
+                            Classes.accent="{Binding SelectedMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=weekly_ai}"/>
                     <Button Content="{loc:Tr Rankings_Male}"     CornerRadius="6" Padding="12,5" FontSize="11"
                             Command="{Binding SelectModeCommand}" CommandParameter="male"
                             Classes.accent="{Binding SelectedMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=male}"/>

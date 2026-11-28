@@ -1,4 +1,4 @@
-using System.Net.Http.Json;
+﻿using System.Net.Http.Json;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -485,14 +485,14 @@ public sealed partial class PixivClient
         int page = 1,
         CancellationToken ct = default)
     {
-        var qs = new List<string> { $"mode={Uri.EscapeDataString(mode)}", "format=json", $"p={page}" };
+        var qs = new List<string> { $"mode={Uri.EscapeDataString(mode)}", $"p={page}" };
         if (!string.IsNullOrEmpty(date)) qs.Add($"date={date}");
 
         var url = $"{BaseUrl}/novel/ranking.php?{string.Join("&", qs)}";
         var client = _httpFactory.GetClient();
         using var req = new HttpRequestMessage(HttpMethod.Get, url);
         req.Headers.TryAddWithoutValidation("Referer", BaseUrl + "/");
-        req.Headers.TryAddWithoutValidation("Accept", "application/json");
+        req.Headers.TryAddWithoutValidation("Accept", "text/html");
 
         using var resp = await client.SendAsync(req, ct).ConfigureAwait(false);
         if (!resp.IsSuccessStatusCode)
@@ -502,16 +502,94 @@ public sealed partial class PixivClient
         }
         try
         {
-            var body = await resp.Content.ReadFromJsonAsync<NovelRankingResponse>(JsonOpts, ct).ConfigureAwait(false);
-            return body ?? new NovelRankingResponse();
+            var html = await resp.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            return ParseNovelRankingPage(html);
         }
         catch (Exception ex)
         {
-            // Best-effort field mapping (see NovelRankingEntry) — degrade to empty
-            // rather than crash the Rankings tab if Pixiv's actual shape differs.
-            _logger.LogWarning(ex, "Novel ranking {Url} JSON parse failed", url);
+            _logger.LogWarning(ex, "Novel ranking {Url} parse failed", url);
             return new NovelRankingResponse();
         }
+    }
+
+    /// <summary>
+    /// The novel ranking no longer honours <c>format=json</c>; the page is a Next.js app whose
+    /// <c>__NEXT_DATA__</c> carries the ranking under <c>props.pageProps.assign.display_a</c>.
+    /// </summary>
+    public static NovelRankingResponse ParseNovelRankingPage(string html)
+    {
+        var m = Regex.Match(html, @"<script id=""__NEXT_DATA__""[^>]*>(.*?)</script>", RegexOptions.Singleline);
+        if (!m.Success) return new NovelRankingResponse();
+        using var doc = JsonDocument.Parse(m.Groups[1].Value);
+        if (!doc.RootElement.TryGetProperty("props", out var props)
+            || !props.TryGetProperty("pageProps", out var pageProps)
+            || !pageProps.TryGetProperty("assign", out var assign)
+            || !assign.TryGetProperty("display_a", out var display))
+            return new NovelRankingResponse();
+
+        static string Str(JsonElement e, string name) =>
+            e.TryGetProperty(name, out var v) ? v.ValueKind switch
+            {
+                JsonValueKind.String => v.GetString() ?? "",
+                JsonValueKind.Number => v.GetRawText(),
+                _ => "",
+            } : "";
+        static long Num(JsonElement e, string name) => long.TryParse(Str(e, name), out var n) ? n : 0;
+        static string? Date(JsonElement e, string name)
+        {
+            var d = Str(e, name);
+            return d.Length == 8 && d.All(char.IsDigit) ? d : null;
+        }
+
+        var entries = new List<NovelRankingEntry>();
+        if (display.TryGetProperty("rank_a", out var ranks) && ranks.ValueKind == JsonValueKind.Array)
+        {
+            foreach (var r in ranks.EnumerateArray())
+            {
+                var tags = r.TryGetProperty("tag_a", out var ta) && ta.ValueKind == JsonValueKind.Array
+                    ? ta.EnumerateArray().Where(t => t.ValueKind == JsonValueKind.String).Select(t => t.GetString()!).ToList()
+                    : new List<string>();
+                var seconds = Num(r, "reading_time");
+                var cover = Str(r, "url");
+                entries.Add(new NovelRankingEntry
+                {
+                    Rank = (int)Num(r, "rank"),
+                    NovelId = Num(r, "id"),
+                    Title = Str(r, "title"),
+                    UserId = Num(r, "user_id"),
+                    UserName = Str(r, "user_name"),
+                    ProfileImg = Str(r, "profile_img"),
+                    Tags = tags,
+                    ThumbnailUrl = string.IsNullOrEmpty(cover) ? null : cover.Replace("/c/100x100/", "/c/240x480_80/"),
+                    TextCount = (int)Num(r, "character_count"),
+                    ReadingTimeMinutes = seconds > 0 ? (int)Math.Ceiling(seconds / 60.0) : null,
+                    BookmarkCount = (int)Num(r, "bookmark_count"),
+                    XRestrict = (int)Num(r, "x_restrict"),
+                    IsAi = Num(r, "ai_type") == 2,
+                    SeriesTitle = Str(r, "series_title"),
+                });
+            }
+        }
+
+        var prev = Date(display, "prev_date");
+        var next = Date(display, "next_date");
+        var current = prev is not null && DateTime.TryParseExact(prev, "yyyyMMdd", null, System.Globalization.DateTimeStyles.None, out var pd)
+            ? pd.AddDays(1).ToString("yyyyMMdd")
+            : next is not null && DateTime.TryParseExact(next, "yyyyMMdd", null, System.Globalization.DateTimeStyles.None, out var nd)
+                ? nd.AddDays(-1).ToString("yyyyMMdd") : "";
+        var pages = display.TryGetProperty("page_a", out var pa) && pa.ValueKind == JsonValueKind.Object
+            ? pa.EnumerateObject().Count() : 1;
+        return new NovelRankingResponse
+        {
+            Contents = entries,
+            Mode = Str(display, "mode"),
+            Page = (int)Num(display, "page"),
+            Next = display.TryGetProperty("next", out var nx) && nx.ValueKind == JsonValueKind.Number ? nx.GetInt32() : null,
+            Date = current,
+            PrevDate = prev,
+            NextDate = next,
+            RankTotal = Math.Max(entries.Count, pages * 50),
+        };
     }
 
     /// <summary>Alias for GetRankingsAsync for backward compatibility.</summary>

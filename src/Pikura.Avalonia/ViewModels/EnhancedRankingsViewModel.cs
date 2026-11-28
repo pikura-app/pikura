@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
@@ -85,6 +85,25 @@ public partial class EnhancedRankingsViewModel : ViewModelBase
     public bool ShowUgoiraModes => SelectedContent == "ugoira";
     public bool ShowMangaModes => SelectedContent == "manga";
     public bool ShowNovelModes => SelectedContent == "novel";
+    // pixiv has no R-18 Monthly, Rookie or Original novel ranking.
+    public bool ShowNovelSafeOnlyModes => !WantsR18Novels;
+    private bool WantsR18Novels => _settingsService.Current.R18Mode switch
+    {
+        R18Mode.Off => false,
+        R18Mode.Only => true,
+        _ => ShowR18,
+    };
+
+    private string NovelMode(string mode)
+    {
+        var r18 = WantsR18Novels;
+        if (mode is "weekly_ai" or "weekly_r18_ai") return r18 ? "weekly_r18_ai" : "weekly_ai";
+        var safe = mode.Replace("_r18", "");
+        if (safe is not ("daily" or "weekly" or "monthly" or "rookie" or "weekly_original" or "male" or "female"))
+            safe = "daily";
+        if (!r18) return safe;
+        return safe is "daily" or "weekly" or "male" or "female" ? safe + "_r18" : "daily_r18";
+    }
 
     private CancellationTokenSource? _cts;
     private CancellationTokenSource? _loadMoreCts;
@@ -213,6 +232,7 @@ public partial class EnhancedRankingsViewModel : ViewModelBase
         }
         
         // Notify that AI button visibility may have changed
+        OnPropertyChanged(nameof(ShowNovelSafeOnlyModes));
         OnPropertyChanged(nameof(ShowAiButton));
         // Reload to apply R-18 filtering and update FilteredItems
         GalleryCurrentPage = 1;
@@ -384,6 +404,8 @@ public partial class EnhancedRankingsViewModel : ViewModelBase
 
             if (SelectedContent == "novel")
             {
+                effectiveMode = NovelMode(effectiveMode);
+                isR18Source = effectiveMode.Contains("_r18");
                 var novelResp = await _pixivClient.GetNovelRankingsAsync(effectiveMode, dateParam, 1, ct);
                 if (novelResp.Contents.Count == 0)
                 {
@@ -512,6 +534,8 @@ public partial class EnhancedRankingsViewModel : ViewModelBase
         {
             if (SelectedContent == "novel")
             {
+                effectiveMode = NovelMode(effectiveMode);
+                isR18Source = effectiveMode.Contains("_r18");
                 var novelResp = await _pixivClient.GetNovelRankingsAsync(effectiveMode, null, CurrentPage, ct);
 
                 foreach (var entry in novelResp.Contents)
