@@ -233,6 +233,19 @@
             </Setter>
         </Style>
 
+        <!-- Dropdowns use the same theme brushes as buttons, so they follow every theme and
+             Light/Dark mode instead of the dark default. -->
+        <Style Selector="ComboBox">
+            <Setter Property="Background" Value="{DynamicResource ControlBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource DefaultForegroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource ButtonBorderBrush}"/>
+            <Setter Property="CornerRadius" Value="8"/>
+        </Style>
+        <Style Selector="ComboBox:pointerover /template/ Border#Background">
+            <Setter Property="Background" Value="{DynamicResource ControlBackgroundBrushSoftAccent}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource ControlBackgroundBrushSoftAccentPressed}"/>
+        </Style>
+
         <!-- Light-mode friendly component styles. Custom keys use DynamicResource from the
              Light ThemeDictionary; Actipro keys use actipro:ThemeResource and are overridden above. -->
         <Style Selector="Button">
