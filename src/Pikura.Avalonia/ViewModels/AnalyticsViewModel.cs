@@ -88,6 +88,15 @@ public partial class AnalyticsViewModel : ViewModelBase
     [ObservableProperty] private string _busiestHourText = "";
     [ObservableProperty] private string _busiestWeekdayText = "";
 
+    public SectionPeriod TimelinePeriod { get; } = new();
+    public SectionPeriod HoursPeriod { get; } = new();
+    public SectionPeriod WeekdayPeriod { get; } = new();
+    public SectionPeriod ArtistsPeriod { get; } = new();
+    public SectionPeriod TagsPeriod { get; } = new();
+    public SectionPeriod TypesPeriod { get; } = new();
+    public SectionPeriod DownloadedPeriod { get; } = new();
+    public SectionPeriod JobsPeriod { get; } = new();
+
     public ObservableCollection<StatRow> Weekdays { get; } = [];
     public ObservableCollection<StatRow> MostViewedArtists { get; } = [];
     public ObservableCollection<StatRow> TopTags { get; } = [];
@@ -104,6 +113,8 @@ public partial class AnalyticsViewModel : ViewModelBase
         _settings = settings;
         _dicLibrary = dicLibrary;
         _pixivisionHistory = pixivisionHistory;
+        foreach (var section in new[] { TimelinePeriod, HoursPeriod, WeekdayPeriod, ArtistsPeriod, TagsPeriod, TypesPeriod, DownloadedPeriod, JobsPeriod })
+            section.Changed += () => _ = ApplyPeriodAsync();
         _ = LoadAnalyticsAsync();
     }
 
@@ -137,45 +148,60 @@ public partial class AnalyticsViewModel : ViewModelBase
         "1y" => "Analytics_Period1y", "5y" => "Analytics_Period5y", _ => "Analytics_PeriodAll",
     });
 
+    private string Effective(SectionPeriod section) => section.Override ?? Period;
+
+    private static (TimelineUnit Unit, int Buckets) TimelineShape(string period, DateOnly today, DateOnly? first) => period switch
+    {
+        "7d" => (TimelineUnit.Day, 7),
+        "30d" => (TimelineUnit.Day, 30),
+        "6m" => (TimelineUnit.Week, 26),
+        "1y" => (TimelineUnit.Week, 52),
+        "5y" => (TimelineUnit.Month, 60),
+        _ => (TimelineUnit.Month, first is { } f ? Math.Clamp((today.Year - f.Year) * 12 + today.Month - f.Month + 1, 1, 240) : 12),
+    };
+
+    /// <summary>Recomputes the page period and every section's own period. Each distinct period is
+    /// computed once, off the UI thread, however many sections share it.</summary>
     private async Task ApplyPeriodAsync()
     {
         var version = ++_periodVersion;
         var period = Period;
         var today = DateOnly.FromDateTime(DateTime.Now);
-        var cutoff = Cutoff(period, today);
         var (views, jobs, articles, first) = (_views, _jobs, _articleTimes, FirstDay);
-        var (unit, buckets) = period switch
+        var timelinePeriod = Effective(TimelinePeriod);
+        var (unit, buckets) = TimelineShape(timelinePeriod, today, first);
+        var needed = new[] { period, timelinePeriod, Effective(HoursPeriod), Effective(WeekdayPeriod), Effective(ArtistsPeriod),
+            Effective(TagsPeriod), Effective(TypesPeriod), Effective(DownloadedPeriod), Effective(JobsPeriod) }.Distinct().ToList();
+        var (results, timeline) = await Task.Run(() =>
         {
-            "7d" => (TimelineUnit.Day, 7),
-            "30d" => (TimelineUnit.Day, 30),
-            "6m" => (TimelineUnit.Week, 26),
-            "1y" => (TimelineUnit.Week, 52),
-            "5y" => (TimelineUnit.Month, 60),
-            _ => (TimelineUnit.Month, first is { } f ? Math.Clamp((today.Year - f.Year) * 12 + today.Month - f.Month + 1, 1, 240) : 12),
-        };
-        var (stats, tables, timeline) = await Task.Run(() =>
-        {
-            var (st, tb, events) = Compute(views, jobs, articles, today, cutoff);
-            return (st, tb, ActivityStats.Timeline(events, today, unit, buckets));
+            var r = needed.ToDictionary(p => p, p => Compute(views, jobs, articles, today, Cutoff(p, today)));
+            return (r, ActivityStats.Timeline(r[timelinePeriod].Item3, today, unit, buckets));
         });
         if (version != _periodVersion) return;
-        _stats = stats;
-        ApplyPeriodStats(stats, period);
+        _stats = results[period].Item1;
+        ApplyPeriodStats(_stats, period);
+        _hoursStats = results[Effective(HoursPeriod)].Item1;
+        ApplyHours();
+        ApplyWeekdays(results[Effective(WeekdayPeriod)].Item1);
         var fmt = unit == TimelineUnit.Month ? "MMM yyyy" : "MMM d";
         TimelineLabels = timeline.Select(t => t.Start.ToString(fmt, CultureInfo.CurrentCulture)).ToArray();
         Timeline = timeline.Select(t => t.Count).ToArray();
         TimelineUnitText = L(unit switch { TimelineUnit.Day => "Analytics_ByDay", TimelineUnit.Week => "Analytics_ByWeek", _ => "Analytics_ByMonth" });
-        Fill(MostViewedArtists, tables.Artists, n => N(n));
-        Fill(TopTags, tables.Tags, n => N(n));
-        Fill(ContentTypes, tables.Types, null, stats.Views + stats.ViewsR18);
-        Fill(MostDownloadedArtists, tables.Downloaded, n => N(n));
-        Fill(DownloadJobs, tables.Jobs, null, tables.Jobs.Sum(j => j.Item2));
+        Fill(MostViewedArtists, results[Effective(ArtistsPeriod)].Item2.Artists, n => N(n));
+        Fill(TopTags, results[Effective(TagsPeriod)].Item2.Tags, n => N(n));
+        var types = results[Effective(TypesPeriod)];
+        Fill(ContentTypes, types.Item2.Types, null, types.Item1.Views + types.Item1.ViewsR18);
+        Fill(MostDownloadedArtists, results[Effective(DownloadedPeriod)].Item2.Downloaded, n => N(n));
+        var jobTable = results[Effective(JobsPeriod)].Item2.Jobs;
+        Fill(DownloadJobs, jobTable, null, jobTable.Sum(j => j.Item2));
     }
+
+    private ActivityStats? _hoursStats;
 
     private void ApplyHours()
     {
-        if (_stats is null) return;
-        Hours = HourMode switch { "views" => _stats.HoursViews, "downloads" => _stats.HoursDownloads, _ => _stats.HoursAll };
+        if ((_hoursStats ?? _stats) is not { } hs) return;
+        Hours = HourMode switch { "views" => hs.HoursViews, "downloads" => hs.HoursDownloads, _ => hs.HoursAll };
         var peak = Hours.Max() == 0 ? -1 : Array.IndexOf(Hours, Hours.Max());
         BusiestHourText = peak < 0 ? "" : F("Analytics_BusiestHour", $"{peak:00}:00–{(peak + 1) % 24:00}:00");
     }
@@ -359,8 +385,10 @@ public partial class AnalyticsViewModel : ViewModelBase
         ViewsLegend = $"{L("Analytics_Views")}  {N(s.Views)}  {Pct(s.Views * 100.0 / total)}";
         R18Legend = $"{L("Analytics_ViewsR18")}  {N(s.ViewsR18)}  {Pct(s.ViewsR18 * 100.0 / total)}";
         DownloadsLegend = $"{L("Analytics_Downloads")}  {N(s.Downloads)}  {Pct(s.Downloads * 100.0 / total)}";
-        ApplyHours();
+    }
 
+    private void ApplyWeekdays(ActivityStats s)
+    {
         var names = CultureInfo.CurrentCulture.DateTimeFormat.AbbreviatedDayNames;
         var sum = Math.Max(1, s.Weekdays.Sum());
         var maxDay = s.Weekdays.Max();
@@ -369,4 +397,17 @@ public partial class AnalyticsViewModel : ViewModelBase
             Weekdays.Add(new StatRow { Name = names[d], Count = s.Weekdays[d], Percent = s.Weekdays[d] * 100.0 / sum, ValueText = Pct(s.Weekdays[d] * 100.0 / sum), IsTop = maxDay > 0 && s.Weekdays[d] == maxDay });
         BusiestWeekdayText = maxDay == 0 ? "" : F("Analytics_BusiestOn", CultureInfo.CurrentCulture.DateTimeFormat.GetDayName((DayOfWeek)Array.IndexOf(s.Weekdays, maxDay)));
     }
+}
+
+/// <summary>A chart or table's own period; index 0 follows the page-wide period.</summary>
+public sealed partial class SectionPeriod : ObservableObject
+{
+    private static readonly string?[] Codes = [null, "7d", "30d", "6m", "1y", "5y", "all"];
+    private static readonly string[] Keys = ["Analytics_PeriodPage", "Analytics_Period7d", "Analytics_Period30d", "Analytics_Period6m",
+        "Analytics_Period1y", "Analytics_Period5y", "Analytics_PeriodAll"];
+    public string[] Options => Keys.Select(k => LocalizationService.Instance[k]).ToArray();
+    [ObservableProperty] private int _index;
+    public string? Override => Codes[Math.Clamp(Index, 0, Codes.Length - 1)];
+    public event Action? Changed;
+    partial void OnIndexChanged(int value) => Changed?.Invoke();
 }

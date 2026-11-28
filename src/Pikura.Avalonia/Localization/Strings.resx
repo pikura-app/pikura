@@ -8139,6 +8139,12 @@ Saved to: {3}</value>
   <data name="Analytics_Period5y" xml:space="preserve">
     <value>5 years</value>
   </data>
+  <data name="Analytics_PeriodPage" xml:space="preserve">
+    <value>Page period</value>
+  </data>
+  <data name="Analytics_SectionPeriodTip" xml:space="preserve">
+    <value>Period for this section only</value>
+  </data>
   <data name="Analytics_PeriodAll" xml:space="preserve">
     <value>All time</value>
   </data>

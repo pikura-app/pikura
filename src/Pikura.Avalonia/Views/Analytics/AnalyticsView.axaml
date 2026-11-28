@@ -213,10 +213,13 @@
 
             <Border Classes="card">
                 <StackPanel Spacing="8">
-                    <StackPanel Orientation="Horizontal" Spacing="12">
-                        <TextBlock Text="{loc:Tr Analytics_OverTime}" Classes="cardTitle"/>
-                        <TextBlock Text="{Binding TimelineUnitText}" Classes="note"/>
-                    </StackPanel>
+                    <Grid ColumnDefinitions="*,Auto">
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <TextBlock Text="{loc:Tr Analytics_OverTime}" Classes="cardTitle"/>
+                            <TextBlock Text="{Binding TimelineUnitText}" Classes="note"/>
+                        </StackPanel>
+                        <ComboBox Grid.Column="1" ItemsSource="{Binding TimelinePeriod.Options}" SelectedIndex="{Binding TimelinePeriod.Index}" FontSize="11" MinHeight="26" Padding="8,2" VerticalAlignment="Center" ToolTip.Tip="{loc:Tr Analytics_SectionPeriodTip}"/>
+                    </Grid>
                     <ctl:TimelineChart Values="{Binding Timeline}" Labels="{Binding TimelineLabels}"/>
                 </StackPanel>
             </Border>
@@ -229,6 +232,7 @@
                             <TextBlock Text="{Binding BusiestHourText}" Classes="note"/>
                         </StackPanel>
                         <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6">
+                            <ComboBox ItemsSource="{Binding HoursPeriod.Options}" SelectedIndex="{Binding HoursPeriod.Index}" FontSize="11" MinHeight="26" Padding="8,2" VerticalAlignment="Center" ToolTip.Tip="{loc:Tr Analytics_SectionPeriodTip}"/>
                             <Button Content="{loc:Tr Analytics_All}" Padding="12,4" Command="{Binding SetHourModeCommand}" CommandParameter="all"
                                     Classes.accent="{Binding HourMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=all}"/>
                             <Button Content="{loc:Tr Analytics_Views}" Padding="12,4" Command="{Binding SetHourModeCommand}" CommandParameter="views"
@@ -243,14 +247,17 @@
 
             <Grid ColumnDefinitions="*,14,*">
                 <Border Classes="card"><StackPanel Spacing="8">
-                    <StackPanel Orientation="Horizontal" Spacing="12">
-                        <TextBlock Text="{loc:Tr Analytics_DayOfWeek}" Classes="cardTitle"/>
-                        <TextBlock Text="{Binding BusiestWeekdayText}" Classes="note"/>
-                    </StackPanel>
+                    <Grid ColumnDefinitions="*,Auto">
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <TextBlock Text="{loc:Tr Analytics_DayOfWeek}" Classes="cardTitle"/>
+                            <TextBlock Text="{Binding BusiestWeekdayText}" Classes="note"/>
+                        </StackPanel>
+                        <ComboBox Grid.Column="1" ItemsSource="{Binding WeekdayPeriod.Options}" SelectedIndex="{Binding WeekdayPeriod.Index}" FontSize="11" MinHeight="26" Padding="8,2" VerticalAlignment="Center" ToolTip.Tip="{loc:Tr Analytics_SectionPeriodTip}"/>
+                    </Grid>
                     <ItemsControl ItemsSource="{Binding Weekdays}"/>
                 </StackPanel></Border>
                 <Border Grid.Column="2" Classes="card"><StackPanel Spacing="8">
-                    <TextBlock Text="{loc:Tr Analytics_MostViewedArtists}" Classes="cardTitle"/>
+                    <Grid ColumnDefinitions="*,Auto"><TextBlock Text="{loc:Tr Analytics_MostViewedArtists}" Classes="cardTitle" VerticalAlignment="Center"/><ComboBox Grid.Column="1" ItemsSource="{Binding ArtistsPeriod.Options}" SelectedIndex="{Binding ArtistsPeriod.Index}" FontSize="11" MinHeight="26" Padding="8,2" VerticalAlignment="Center" ToolTip.Tip="{loc:Tr Analytics_SectionPeriodTip}"/></Grid>
                     <ItemsControl ItemsSource="{Binding MostViewedArtists}"/>
                     <TextBlock Text="{loc:Tr Analytics_NoDataYet}" Classes="note" IsVisible="{Binding !MostViewedArtists.Count}"/>
                 </StackPanel></Border>
@@ -258,24 +265,24 @@
 
             <Grid ColumnDefinitions="*,14,*">
                 <Border Classes="card"><StackPanel Spacing="8">
-                    <TextBlock Text="{loc:Tr Analytics_TopTags}" Classes="cardTitle"/>
+                    <Grid ColumnDefinitions="*,Auto"><TextBlock Text="{loc:Tr Analytics_TopTags}" Classes="cardTitle" VerticalAlignment="Center"/><ComboBox Grid.Column="1" ItemsSource="{Binding TagsPeriod.Options}" SelectedIndex="{Binding TagsPeriod.Index}" FontSize="11" MinHeight="26" Padding="8,2" VerticalAlignment="Center" ToolTip.Tip="{loc:Tr Analytics_SectionPeriodTip}"/></Grid>
                     <ItemsControl ItemsSource="{Binding TopTags}"/>
                     <TextBlock Text="{loc:Tr Analytics_NoDataYet}" Classes="note" IsVisible="{Binding !TopTags.Count}"/>
                 </StackPanel></Border>
                 <Border Grid.Column="2" Classes="card"><StackPanel Spacing="8">
-                    <TextBlock Text="{loc:Tr Analytics_ContentTypes}" Classes="cardTitle"/>
+                    <Grid ColumnDefinitions="*,Auto"><TextBlock Text="{loc:Tr Analytics_ContentTypes}" Classes="cardTitle" VerticalAlignment="Center"/><ComboBox Grid.Column="1" ItemsSource="{Binding TypesPeriod.Options}" SelectedIndex="{Binding TypesPeriod.Index}" FontSize="11" MinHeight="26" Padding="8,2" VerticalAlignment="Center" ToolTip.Tip="{loc:Tr Analytics_SectionPeriodTip}"/></Grid>
                     <ItemsControl ItemsSource="{Binding ContentTypes}"/>
                 </StackPanel></Border>
             </Grid>
 
             <Grid ColumnDefinitions="*,14,*">
                 <Border Classes="card"><StackPanel Spacing="8">
-                    <TextBlock Text="{loc:Tr Analytics_MostDownloadedArtists}" Classes="cardTitle"/>
+                    <Grid ColumnDefinitions="*,Auto"><TextBlock Text="{loc:Tr Analytics_MostDownloadedArtists}" Classes="cardTitle" VerticalAlignment="Center"/><ComboBox Grid.Column="1" ItemsSource="{Binding DownloadedPeriod.Options}" SelectedIndex="{Binding DownloadedPeriod.Index}" FontSize="11" MinHeight="26" Padding="8,2" VerticalAlignment="Center" ToolTip.Tip="{loc:Tr Analytics_SectionPeriodTip}"/></Grid>
                     <ItemsControl ItemsSource="{Binding MostDownloadedArtists}"/>
                     <TextBlock Text="{loc:Tr Analytics_NoDataYet}" Classes="note" IsVisible="{Binding !MostDownloadedArtists.Count}"/>
                 </StackPanel></Border>
                 <Border Grid.Column="2" Classes="card"><StackPanel Spacing="8">
-                    <TextBlock Text="{loc:Tr Analytics_DownloadJobs}" Classes="cardTitle"/>
+                    <Grid ColumnDefinitions="*,Auto"><TextBlock Text="{loc:Tr Analytics_DownloadJobs}" Classes="cardTitle" VerticalAlignment="Center"/><ComboBox Grid.Column="1" ItemsSource="{Binding JobsPeriod.Options}" SelectedIndex="{Binding JobsPeriod.Index}" FontSize="11" MinHeight="26" Padding="8,2" VerticalAlignment="Center" ToolTip.Tip="{loc:Tr Analytics_SectionPeriodTip}"/></Grid>
                     <ItemsControl ItemsSource="{Binding DownloadJobs}"/>
                     <TextBlock Text="{loc:Tr Analytics_NoDataYet}" Classes="note" IsVisible="{Binding !DownloadJobs.Count}"/>
                 </StackPanel></Border>

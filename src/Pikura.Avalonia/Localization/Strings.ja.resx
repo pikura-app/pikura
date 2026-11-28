@@ -8075,6 +8075,12 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="Analytics_Period5y" xml:space="preserve">
     <value>5年</value>
   </data>
+  <data name="Analytics_PeriodPage" xml:space="preserve">
+    <value>ページの期間</value>
+  </data>
+  <data name="Analytics_SectionPeriodTip" xml:space="preserve">
+    <value>このセクションだけの期間</value>
+  </data>
   <data name="Analytics_PeriodAll" xml:space="preserve">
     <value>全期間</value>
   </data>
