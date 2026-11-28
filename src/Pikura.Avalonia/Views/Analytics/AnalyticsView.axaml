@@ -40,18 +40,32 @@
                     <TextBlock Text="{loc:Tr Analytics_Stats}" FontSize="26" FontWeight="SemiBold"/>
                     <TextBlock Text="{Binding Subtitle}" Classes="sub" VerticalAlignment="Center"/>
                 </StackPanel>
-                <Button Grid.Column="2" Command="{Binding LoadAnalyticsCommand}" Padding="12,6">
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6">
+                    <Button Content="{loc:Tr Analytics_Period7d}" Padding="12,4" Command="{Binding SetPeriodCommand}" CommandParameter="7d"
+                            Classes.accent="{Binding Period, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=7d}"/>
+                    <Button Content="{loc:Tr Analytics_Period30d}" Padding="12,4" Command="{Binding SetPeriodCommand}" CommandParameter="30d"
+                            Classes.accent="{Binding Period, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=30d}"/>
+                    <Button Content="{loc:Tr Analytics_Period6m}" Padding="12,4" Command="{Binding SetPeriodCommand}" CommandParameter="6m"
+                            Classes.accent="{Binding Period, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=6m}"/>
+                    <Button Content="{loc:Tr Analytics_Period1y}" Padding="12,4" Command="{Binding SetPeriodCommand}" CommandParameter="1y"
+                            Classes.accent="{Binding Period, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=1y}"/>
+                    <Button Content="{loc:Tr Analytics_Period5y}" Padding="12,4" Command="{Binding SetPeriodCommand}" CommandParameter="5y"
+                            Classes.accent="{Binding Period, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=5y}"/>
+                    <Button Content="{loc:Tr Analytics_PeriodAll}" Padding="12,4" Command="{Binding SetPeriodCommand}" CommandParameter="all"
+                            Classes.accent="{Binding Period, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=all}"/>
+                <Button Command="{Binding LoadAnalyticsCommand}" Padding="12,6" Margin="8,0,0,0">
                     <StackPanel Orientation="Horizontal" Spacing="6">
                         <PathIcon Data="{StaticResource RefreshIcon}" Width="14" Height="14" Foreground="{Binding $parent[Button].Foreground}"/>
                         <TextBlock Text="{loc:Tr Common_Refresh}" FontSize="13"/>
                     </StackPanel>
                 </Button>
+                </StackPanel>
             </Grid>
 
             <Border Classes="card">
                 <Grid ColumnDefinitions="170,*">
                     <StackPanel Spacing="2">
-                        <TextBlock Text="{loc:Tr Analytics_Total}" Classes="cardTitle"/>
+                        <TextBlock Text="{Binding TotalTitle}" Classes="cardTitle"/>
                         <TextBlock Text="{Binding TotalText}" Classes="big"/>
                         <TextBlock Text="{Binding TotalSub}" Classes="sub"/>
                         <TextBlock Text="{loc:Tr Analytics_TotalHint}" Classes="note" TextWrapping="Wrap" Margin="0,4,8,0"/>
@@ -154,7 +168,7 @@
                 <TextBlock Text="{loc:Tr Analytics_ViewCountsNew}" Classes="note" TextWrapping="Wrap" IsVisible="{Binding ViewCountsAreNew}"/>
             </StackPanel></Border>
 
-            <Grid ColumnDefinitions="*,14,*">
+            <Grid>
                 <Border Classes="card"><StackPanel Spacing="6">
                     <TextBlock Text="{loc:Tr Analytics_RecentArticles}" Classes="cardTitle"/>
                     <ItemsControl ItemsSource="{Binding RecentArticles}">
@@ -173,25 +187,6 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
                     <TextBlock Text="{loc:Tr Analytics_NoDataYet}" Classes="note" IsVisible="{Binding !RecentArticles.Count}"/>
-                </StackPanel></Border>
-                <Border Grid.Column="2" Classes="card"><StackPanel Spacing="6">
-                    <TextBlock Text="{loc:Tr Analytics_MostReadArticles}" Classes="cardTitle"/>
-                    <ItemsControl ItemsSource="{Binding MostReadArticles}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate x:DataType="vm:AnalyticsArticle">
-                                <Button Background="Transparent" BorderThickness="0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Padding="4,5" Click="OnArticleClick">
-                                    <Grid ColumnDefinitions="Auto,*,Auto">
-                                        <Border CornerRadius="3" Padding="5,1" Margin="0,0,8,0" Background="{DynamicResource ControlBackgroundBrushSoftAccent}" VerticalAlignment="Center">
-                                            <TextBlock Text="{Binding Source}" FontSize="10"/>
-                                        </Border>
-                                        <TextBlock Grid.Column="1" Text="{Binding Title}" FontSize="13" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
-                                        <TextBlock Grid.Column="2" Text="{Binding Caption}" Classes="note" Margin="8,0,0,0"/>
-                                    </Grid>
-                                </Button>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                    <TextBlock Text="{loc:Tr Analytics_ViewCountsNew}" Classes="note" TextWrapping="Wrap" IsVisible="{Binding !MostReadArticles.Count}"/>
                 </StackPanel></Border>
             </Grid>
 
@@ -213,6 +208,16 @@
                         </StackPanel>
                     </Grid>
                     <ctl:ActivityHeatmap Data="{Binding Daily}" FirstDay="{Binding FirstDay}"/>
+                </StackPanel>
+            </Border>
+
+            <Border Classes="card">
+                <StackPanel Spacing="8">
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <TextBlock Text="{loc:Tr Analytics_OverTime}" Classes="cardTitle"/>
+                        <TextBlock Text="{Binding TimelineUnitText}" Classes="note"/>
+                    </StackPanel>
+                    <ctl:TimelineChart Values="{Binding Timeline}" Labels="{Binding TimelineLabels}"/>
                 </StackPanel>
             </Border>
 

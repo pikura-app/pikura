@@ -49,7 +49,6 @@ public partial class AnalyticsViewModel : ViewModelBase
     public ObservableCollection<AnalyticsArtwork> RecentArtworks { get; } = [];
     public ObservableCollection<AnalyticsArtwork> MostViewedArtworks { get; } = [];
     public ObservableCollection<AnalyticsArticle> RecentArticles { get; } = [];
-    public ObservableCollection<AnalyticsArticle> MostReadArticles { get; } = [];
     [ObservableProperty] private string _articlesLegend = "";
     [ObservableProperty] private bool _viewCountsAreNew;
     private readonly DownloadJobRepository _jobRepository;
@@ -76,6 +75,15 @@ public partial class AnalyticsViewModel : ViewModelBase
     [ObservableProperty] private DateOnly? _firstDay;
     [ObservableProperty] private string _activeDaysText = "";
     [ObservableProperty] private string _hourMode = "all";
+    [ObservableProperty] private string _period = "30d";
+    [ObservableProperty] private string _totalTitle = "";
+    [ObservableProperty] private int[] _timeline = [];
+    [ObservableProperty] private string[] _timelineLabels = [];
+    [ObservableProperty] private string _timelineUnitText = "";
+    private List<ViewedHistoryRepository.ViewActivity> _views = [];
+    private List<DownloadJob> _jobs = [];
+    private List<DateTime> _articleTimes = [];
+    private int _periodVersion;
     [ObservableProperty] private int[] _hours = new int[24];
     [ObservableProperty] private string _busiestHourText = "";
     [ObservableProperty] private string _busiestWeekdayText = "";
@@ -110,6 +118,59 @@ public partial class AnalyticsViewModel : ViewModelBase
     partial void OnHourModeChanged(string value) => ApplyHours();
 
     [RelayCommand] private void SetHourMode(string mode) => HourMode = mode;
+    [RelayCommand] private void SetPeriod(string period) => Period = period;
+    partial void OnPeriodChanged(string value) => _ = ApplyPeriodAsync();
+
+    private static DateTime? Cutoff(string period, DateOnly today) => period switch
+    {
+        "7d" => today.AddDays(-6).ToDateTime(TimeOnly.MinValue),
+        "30d" => today.AddDays(-29).ToDateTime(TimeOnly.MinValue),
+        "6m" => today.AddMonths(-6).AddDays(1).ToDateTime(TimeOnly.MinValue),
+        "1y" => today.AddYears(-1).AddDays(1).ToDateTime(TimeOnly.MinValue),
+        "5y" => today.AddYears(-5).AddDays(1).ToDateTime(TimeOnly.MinValue),
+        _ => null,
+    };
+
+    private static string PeriodName(string period) => L(period switch
+    {
+        "7d" => "Analytics_Period7d", "30d" => "Analytics_Period30d", "6m" => "Analytics_Period6m",
+        "1y" => "Analytics_Period1y", "5y" => "Analytics_Period5y", _ => "Analytics_PeriodAll",
+    });
+
+    private async Task ApplyPeriodAsync()
+    {
+        var version = ++_periodVersion;
+        var period = Period;
+        var today = DateOnly.FromDateTime(DateTime.Now);
+        var cutoff = Cutoff(period, today);
+        var (views, jobs, articles, first) = (_views, _jobs, _articleTimes, FirstDay);
+        var (unit, buckets) = period switch
+        {
+            "7d" => (TimelineUnit.Day, 7),
+            "30d" => (TimelineUnit.Day, 30),
+            "6m" => (TimelineUnit.Week, 26),
+            "1y" => (TimelineUnit.Week, 52),
+            "5y" => (TimelineUnit.Month, 60),
+            _ => (TimelineUnit.Month, first is { } f ? Math.Clamp((today.Year - f.Year) * 12 + today.Month - f.Month + 1, 1, 240) : 12),
+        };
+        var (stats, tables, timeline) = await Task.Run(() =>
+        {
+            var (st, tb, events) = Compute(views, jobs, articles, today, cutoff);
+            return (st, tb, ActivityStats.Timeline(events, today, unit, buckets));
+        });
+        if (version != _periodVersion) return;
+        _stats = stats;
+        ApplyPeriodStats(stats, period);
+        var fmt = unit == TimelineUnit.Month ? "MMM yyyy" : "MMM d";
+        TimelineLabels = timeline.Select(t => t.Start.ToString(fmt, CultureInfo.CurrentCulture)).ToArray();
+        Timeline = timeline.Select(t => t.Count).ToArray();
+        TimelineUnitText = L(unit switch { TimelineUnit.Day => "Analytics_ByDay", TimelineUnit.Week => "Analytics_ByWeek", _ => "Analytics_ByMonth" });
+        Fill(MostViewedArtists, tables.Artists, n => N(n));
+        Fill(TopTags, tables.Tags, n => N(n));
+        Fill(ContentTypes, tables.Types, null, stats.Views + stats.ViewsR18);
+        Fill(MostDownloadedArtists, tables.Downloaded, n => N(n));
+        Fill(DownloadJobs, tables.Jobs, null, tables.Jobs.Sum(j => j.Item2));
+    }
 
     private void ApplyHours()
     {
@@ -138,14 +199,10 @@ public partial class AnalyticsViewModel : ViewModelBase
             try { most = await _historyRepository.GetMostViewedAsync(12); } catch { most = []; }
             var articleTimes = dicHistory.Select(d => d.Time.LocalDateTime).Concat(pvHistory.Select(p => p.ViewedAt.LocalDateTime)).ToList();
             var today = DateOnly.FromDateTime(DateTime.Now);
-            var (stats, tables) = await Task.Run(() => Compute(views, jobs, articleTimes, today));
-            _stats = stats;
-            Apply(stats, today);
-            Fill(MostViewedArtists, tables.Artists, n => N(n));
-            Fill(TopTags, tables.Tags, n => N(n));
-            Fill(ContentTypes, tables.Types, null, stats.Views + stats.ViewsR18);
-            Fill(MostDownloadedArtists, tables.Downloaded, n => N(n));
-            Fill(DownloadJobs, tables.Jobs, null, jobs.Count);
+            var (global, _, _) = await Task.Run(() => Compute(views, jobs, articleTimes, today, null));
+            (_views, _jobs, _articleTimes) = (views, jobs, articleTimes);
+            ApplyGlobal(global);
+            await ApplyPeriodAsync();
             FillArtworks(RecentArtworks, recent.Select(e => (e, RelativeTime(e.ViewedAt))));
             ViewCountsAreNew = most.Count == 0 || most.Max(m => m.Views) <= 1;
             FillArtworks(MostViewedArtworks, most.Where(m => m.Views > 1).Select(m => (m.Entry, F("Analytics_ViewsCount", N(m.Views)))));
@@ -154,9 +211,6 @@ public partial class AnalyticsViewModel : ViewModelBase
                          .Concat(pvHistory.Select(p => (Time: p.ViewedAt, Item: new AnalyticsArticle { Title = p.Title, Source = "pixivision", Pixivision = p.ToSummary(), Caption = RelativeTime(p.ViewedAt.UtcDateTime) })))
                          .OrderByDescending(x => x.Time).Take(8))
                 RecentArticles.Add(a.Item);
-            MostReadArticles.Clear();
-            foreach (var d in dicHistory.Where(d => d.Views > 1).OrderByDescending(d => d.Views).ThenByDescending(d => d.Time).Take(8))
-                MostReadArticles.Add(new AnalyticsArticle { Title = d.Title, Source = "Dic", Dic = d, Caption = F("Analytics_ReadsCount", N(d.Views)) });
         }
         finally
         {
@@ -168,19 +222,25 @@ public partial class AnalyticsViewModel : ViewModelBase
         List<(string, int)> Artists, List<(string, int)> Tags, List<(string, int)> Types,
         List<(string, int)> Downloaded, List<(string, int)> Jobs);
 
-    private static (ActivityStats, Tables) Compute(List<ViewedHistoryRepository.ViewActivity> views, List<DownloadJob> jobs, List<DateTime> articleTimes, DateOnly today)
+    private static DateTime TargetTime(DownloadJob job, DownloadTarget t) => (t.ProcessedAt ?? job.CompletedAt ?? job.CreatedAt).ToLocalTime();
+
+    private static (ActivityStats, Tables, List<ActivityEvent>) Compute(List<ViewedHistoryRepository.ViewActivity> allViews, List<DownloadJob> allJobs,
+        List<DateTime> articleTimes, DateOnly today, DateTime? cutoff)
     {
+        var from = cutoff ?? DateTime.MinValue;
+        var views = cutoff is null ? allViews : allViews.Where(v => v.ViewedAtUtc.ToLocalTime() >= from).ToList();
+        var targets = allJobs.SelectMany(j => j.Targets.Where(t => t.Status == TargetStatus.Completed).Select(t => (Job: j, Target: t, At: TargetTime(j, t))))
+            .Where(x => x.At >= from).ToList();
+        var jobs = cutoff is null ? allJobs : allJobs.Where(j => j.CreatedAt.ToLocalTime() >= from).ToList();
         var events = new List<ActivityEvent>(views.Count + articleTimes.Count);
-        foreach (var t in articleTimes) events.Add(new ActivityEvent(t, ActivityKind.Article));
+        foreach (var t in articleTimes) if (t >= from) events.Add(new ActivityEvent(t, ActivityKind.Article));
         foreach (var v in views)
             events.Add(new ActivityEvent(v.ViewedAtUtc.ToLocalTime(), v.XRestrict >= 1 ? ActivityKind.ViewR18 : ActivityKind.View));
-        foreach (var job in jobs)
-            foreach (var t in job.Targets.Where(t => t.Status == TargetStatus.Completed))
-            {
-                var at = t.ProcessedAt ?? job.CompletedAt ?? job.CreatedAt;
-                var count = Math.Max(1, t.DownloadedItems);
-                for (var i = 0; i < count; i++) events.Add(new ActivityEvent(at.ToLocalTime(), ActivityKind.Download));
-            }
+        foreach (var x in targets)
+        {
+            var count = Math.Max(1, x.Target.DownloadedItems);
+            for (var i = 0; i < count; i++) events.Add(new ActivityEvent(x.At, ActivityKind.Download));
+        }
         var stats = ActivityStats.Compute(events, today);
 
         List<(string, int)> Top(IEnumerable<string> keys, int n = 8) => keys.Where(k => !string.IsNullOrWhiteSpace(k))
@@ -193,14 +253,14 @@ public partial class AnalyticsViewModel : ViewModelBase
             (L("Analytics_TypeUgoira"), views.Count(v => v.IllustType == 2)),
             ("R-18", views.Count(v => v.XRestrict >= 1)),
         };
-        var downloaded = jobs.SelectMany(j => j.Targets.Where(t => t.Status == TargetStatus.Completed)
+        var downloaded = targets.Select(x => x.Target)
                 .Select(t => (Name: !string.IsNullOrWhiteSpace(t.UserName) ? t.UserName!.Trim() : t.Type == TargetType.Artist ? ArtistName(t.Name) : "",
-                    Items: Math.Max(1, t.DownloadedItems))))
+                    Items: Math.Max(1, t.DownloadedItems)))
             .Where(t => t.Name.Length > 0)
             .GroupBy(t => t.Name).Select(g => (g.Key, g.Sum(t => t.Items)))
             .OrderByDescending(t => t.Item2).Take(8).ToList();
         var jobRows = jobs.GroupBy(j => j.Status).Select(g => (StatusName(g.Key), g.Count())).OrderByDescending(x => x.Item2).ToList();
-        return (stats, new Tables(Top(views.Select(v => v.UserName)), Top(views.SelectMany(v => v.Tags)), types, downloaded, jobRows));
+        return (stats, new Tables(Top(views.Select(v => v.UserName)), Top(views.SelectMany(v => v.Tags)), types, downloaded, jobRows), events);
     }
 
     private void FillArtworks(ObservableCollection<AnalyticsArtwork> target, IEnumerable<(ViewedHistoryEntry Entry, string Caption)> rows)
@@ -270,18 +330,9 @@ public partial class AnalyticsViewModel : ViewModelBase
         }
     }
 
-    private void Apply(ActivityStats s, DateOnly today)
+    private void ApplyGlobal(ActivityStats s)
     {
         Subtitle = s.FirstDay is { } f ? F("Analytics_CountingSince", f.ToString("MMM d, yyyy", CultureInfo.CurrentCulture), N(s.DaysTracked)) : L("Analytics_NoDataYet");
-        TotalText = N(s.Total);
-        var weeks = Math.Max(1, s.DaysTracked / 7.0);
-        TotalSub = s.Total == 0 ? "" : F("Analytics_PerWeek", N(Math.Round(s.Total / weeks)));
-        TotalSegments = [s.Views, s.ViewsR18, s.Downloads, s.Articles];
-        ArticlesLegend = $"{L("Analytics_ArticlesRead")}  {N(s.Articles)}  {Pct(s.Articles * 100.0 / Math.Max(1, s.Total))}";
-        var total = Math.Max(1, s.Total);
-        ViewsLegend = $"{L("Analytics_Views")}  {N(s.Views)}  {Pct(s.Views * 100.0 / total)}";
-        R18Legend = $"{L("Analytics_ViewsR18")}  {N(s.ViewsR18)}  {Pct(s.ViewsR18 * 100.0 / total)}";
-        DownloadsLegend = $"{L("Analytics_Downloads")}  {N(s.Downloads)}  {Pct(s.Downloads * 100.0 / total)}";
         TodayText = N(s.Today);
         TodaySub = F("Analytics_TodaySub", N(s.TodayViews), N(s.TodayDownloads), N(s.TodayArticles));
         Past7Text = N(s.Past7);
@@ -294,6 +345,20 @@ public partial class AnalyticsViewModel : ViewModelBase
         Daily = s.Daily;
         FirstDay = s.FirstDay;
         ActiveDaysText = F("Analytics_ActiveDays", N(s.ActiveDays), N(Math.Max(s.DaysTracked, 0)));
+    }
+
+    private void ApplyPeriodStats(ActivityStats s, string period)
+    {
+        TotalTitle = $"{L("Analytics_Total")} · {PeriodName(period)}";
+        TotalText = N(s.Total);
+        var weeks = Math.Max(1, s.DaysTracked / 7.0);
+        TotalSub = s.Total == 0 ? "" : F("Analytics_PerWeek", N(Math.Round(s.Total / weeks)));
+        TotalSegments = [s.Views, s.ViewsR18, s.Downloads, s.Articles];
+        ArticlesLegend = $"{L("Analytics_ArticlesRead")}  {N(s.Articles)}  {Pct(s.Articles * 100.0 / Math.Max(1, s.Total))}";
+        var total = Math.Max(1, s.Total);
+        ViewsLegend = $"{L("Analytics_Views")}  {N(s.Views)}  {Pct(s.Views * 100.0 / total)}";
+        R18Legend = $"{L("Analytics_ViewsR18")}  {N(s.ViewsR18)}  {Pct(s.ViewsR18 * 100.0 / total)}";
+        DownloadsLegend = $"{L("Analytics_Downloads")}  {N(s.Downloads)}  {Pct(s.Downloads * 100.0 / total)}";
         ApplyHours();
 
         var names = CultureInfo.CurrentCulture.DateTimeFormat.AbbreviatedDayNames;

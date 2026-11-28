@@ -4,6 +4,8 @@ public enum ActivityKind { View, ViewR18, Download, Article }
 
 public readonly record struct ActivityEvent(DateTime Local, ActivityKind Kind);
 
+public enum TimelineUnit { Day, Week, Month }
+
 /// <summary>Totals, streaks and day/hour distributions for the Analytics page.</summary>
 public sealed class ActivityStats
 {
@@ -90,5 +92,37 @@ public sealed class ActivityStats
             HoursDownloads = downloads,
             Weekdays = weekdays,
         };
+    }
+
+    /// <summary>Event counts in the last <paramref name="buckets"/> days, weeks (Monday start) or months, oldest first.</summary>
+    public static (DateOnly Start, int Count)[] Timeline(IEnumerable<ActivityEvent> events, DateOnly today, TimelineUnit unit, int buckets)
+    {
+        buckets = Math.Max(1, buckets);
+        DateOnly StartOf(DateOnly d) => unit switch
+        {
+            TimelineUnit.Day => d,
+            TimelineUnit.Week => d.AddDays(-(((int)d.DayOfWeek + 6) % 7)),
+            _ => new DateOnly(d.Year, d.Month, 1),
+        };
+        DateOnly Step(DateOnly d, int n) => unit switch
+        {
+            TimelineUnit.Day => d.AddDays(n),
+            TimelineUnit.Week => d.AddDays(7 * n),
+            _ => d.AddMonths(n),
+        };
+        var first = Step(StartOf(today), -(buckets - 1));
+        var counts = new int[buckets];
+        foreach (var e in events)
+        {
+            var s = StartOf(DateOnly.FromDateTime(e.Local));
+            var i = unit switch
+            {
+                TimelineUnit.Day => s.DayNumber - first.DayNumber,
+                TimelineUnit.Week => (s.DayNumber - first.DayNumber) / 7,
+                _ => (s.Year - first.Year) * 12 + s.Month - first.Month,
+            };
+            if (s >= first && i < buckets) counts[i]++;
+        }
+        return Enumerable.Range(0, buckets).Select(i => (Step(first, i), counts[i])).ToArray();
     }
 }

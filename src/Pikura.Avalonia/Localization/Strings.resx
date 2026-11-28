@@ -8097,4 +8097,34 @@ Saved to: {3}</value>
   <data name="Analytics_DaysAgo" xml:space="preserve">
     <value>{0} d ago</value>
   </data>
+  <data name="Analytics_Period7d" xml:space="preserve">
+    <value>7 days</value>
+  </data>
+  <data name="Analytics_Period30d" xml:space="preserve">
+    <value>30 days</value>
+  </data>
+  <data name="Analytics_Period6m" xml:space="preserve">
+    <value>6 months</value>
+  </data>
+  <data name="Analytics_Period1y" xml:space="preserve">
+    <value>1 year</value>
+  </data>
+  <data name="Analytics_Period5y" xml:space="preserve">
+    <value>5 years</value>
+  </data>
+  <data name="Analytics_PeriodAll" xml:space="preserve">
+    <value>All time</value>
+  </data>
+  <data name="Analytics_OverTime" xml:space="preserve">
+    <value>Activity over time</value>
+  </data>
+  <data name="Analytics_ByDay" xml:space="preserve">
+    <value>per day</value>
+  </data>
+  <data name="Analytics_ByWeek" xml:space="preserve">
+    <value>per week</value>
+  </data>
+  <data name="Analytics_ByMonth" xml:space="preserve">
+    <value>per month</value>
+  </data>
 </root>

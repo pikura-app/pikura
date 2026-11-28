@@ -52,4 +52,24 @@ public class ActivityStatsTests
         Assert.Equal(1, s.CurrentStreak);
         Assert.Equal(0, s.Today);
     }
+
+    [Fact]
+    public void Timeline_Buckets_By_Day_Week_And_Month()
+    {
+        var today = new DateOnly(2026, 11, 28); // Saturday
+        ActivityEvent E(DateOnly d) => new(d.ToDateTime(new TimeOnly(12, 0)), ActivityKind.View);
+        var events = new[] { E(today), E(today), E(today.AddDays(-1)), E(today.AddDays(-6)), E(today.AddDays(-7)), E(new DateOnly(2026, 6, 3)) };
+
+        var days = ActivityStats.Timeline(events, today, TimelineUnit.Day, 7);
+        Assert.Equal(today.AddDays(-6), days[0].Start);
+        Assert.Equal(new[] { 1, 0, 0, 0, 0, 1, 2 }, days.Select(d => d.Count));
+
+        var weeks = ActivityStats.Timeline(events, today, TimelineUnit.Week, 2);
+        Assert.Equal(new DateOnly(2026, 11, 16), weeks[0].Start);
+        Assert.Equal(new[] { 2, 3 }, weeks.Select(d => d.Count));
+
+        var months = ActivityStats.Timeline(events, today, TimelineUnit.Month, 6);
+        Assert.Equal(new DateOnly(2026, 6, 1), months[0].Start);
+        Assert.Equal(new[] { 1, 0, 0, 0, 0, 5 }, months.Select(d => d.Count));
+    }
 }

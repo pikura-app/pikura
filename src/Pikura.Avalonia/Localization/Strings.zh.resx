@@ -8033,4 +8033,34 @@ https://www.pixiv.net/en/artworks/12345678
   <data name="Analytics_DaysAgo" xml:space="preserve">
     <value>{0} 天前</value>
   </data>
+  <data name="Analytics_Period7d" xml:space="preserve">
+    <value>7天</value>
+  </data>
+  <data name="Analytics_Period30d" xml:space="preserve">
+    <value>30天</value>
+  </data>
+  <data name="Analytics_Period6m" xml:space="preserve">
+    <value>6个月</value>
+  </data>
+  <data name="Analytics_Period1y" xml:space="preserve">
+    <value>1年</value>
+  </data>
+  <data name="Analytics_Period5y" xml:space="preserve">
+    <value>5年</value>
+  </data>
+  <data name="Analytics_PeriodAll" xml:space="preserve">
+    <value>全部</value>
+  </data>
+  <data name="Analytics_OverTime" xml:space="preserve">
+    <value>活动趋势</value>
+  </data>
+  <data name="Analytics_ByDay" xml:space="preserve">
+    <value>按天</value>
+  </data>
+  <data name="Analytics_ByWeek" xml:space="preserve">
+    <value>按周</value>
+  </data>
+  <data name="Analytics_ByMonth" xml:space="preserve">
+    <value>按月</value>
+  </data>
 </root>

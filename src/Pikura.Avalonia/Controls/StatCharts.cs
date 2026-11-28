@@ -165,6 +165,92 @@ public sealed class HourBarChart : StatChart
     }
 }
 
+/// <summary>Activity per day/week/month; hovering a bar shows its period and count.</summary>
+public sealed class TimelineChart : StatChart
+{
+    public static readonly StyledProperty<int[]?> ValuesProperty = AvaloniaProperty.Register<TimelineChart, int[]?>(nameof(Values));
+    public static readonly StyledProperty<string[]?> LabelsProperty = AvaloniaProperty.Register<TimelineChart, string[]?>(nameof(Labels));
+    static TimelineChart() => AffectsRender<TimelineChart>(ValuesProperty, LabelsProperty);
+    public int[]? Values { get => GetValue(ValuesProperty); set => SetValue(ValuesProperty, value); }
+    public string[]? Labels { get => GetValue(LabelsProperty); set => SetValue(LabelsProperty, value); }
+
+    private const double Left = 34, Top = 22, Bottom = 24;
+    private int _hover = -1;
+
+    public TimelineChart() => Background = Brushes.Transparent;
+
+    public static readonly StyledProperty<IBrush?> BackgroundProperty = Border.BackgroundProperty.AddOwner<TimelineChart>();
+    public IBrush? Background { get => GetValue(BackgroundProperty); set => SetValue(BackgroundProperty, value); }
+
+    protected override Size MeasureOverride(Size available) => new(double.IsInfinity(available.Width) ? 600 : available.Width, 210);
+
+    private int IndexAt(Point p)
+    {
+        var n = Values?.Length ?? 0;
+        if (n == 0 || p.X < Left) return -1;
+        var i = (int)((p.X - Left) / ((Bounds.Width - Left) / n));
+        return i >= 0 && i < n ? i : -1;
+    }
+
+    protected override void OnPointerMoved(global::Avalonia.Input.PointerEventArgs e)
+    {
+        base.OnPointerMoved(e);
+        var i = IndexAt(e.GetPosition(this));
+        if (i != _hover) { _hover = i; InvalidateVisual(); }
+    }
+
+    protected override void OnPointerExited(global::Avalonia.Input.PointerEventArgs e)
+    {
+        base.OnPointerExited(e);
+        if (_hover != -1) { _hover = -1; InvalidateVisual(); }
+    }
+
+    public override void Render(DrawingContext ctx)
+    {
+        ctx.FillRectangle(Brushes.Transparent, new Rect(Bounds.Size));
+        var values = Values ?? [];
+        var labels = Labels ?? [];
+        var n = values.Length;
+        if (n == 0) return;
+        var max = Math.Max(1, values.Max());
+        var muted = StatPalette.Muted(this);
+        var fg = this.TryFindResource("DefaultForegroundBrush", ActualThemeVariant, out var fr) && fr is IBrush fb ? fb : Brushes.White;
+        var accent = StatPalette.Accent(this);
+        var w = Bounds.Width - Left;
+        var h = Bounds.Height - Top - Bottom;
+        var baseY = Top + h;
+        var grid = new Pen(new SolidColorBrush(Colors.Gray, 0.25), 1);
+        ctx.DrawLine(grid, new Point(Left, Top), new Point(Bounds.Width, Top));
+        ctx.DrawLine(grid, new Point(Left, baseY), new Point(Bounds.Width, baseY));
+        var maxText = StatPalette.Text(this, max.ToString("N0", CultureInfo.CurrentCulture), 11, muted);
+        ctx.DrawText(maxText, new Point(Left - 6 - maxText.Width, Top - maxText.Height / 2));
+        var zero = StatPalette.Text(this, "0", 11, muted);
+        ctx.DrawText(zero, new Point(Left - 6 - zero.Width, baseY - zero.Height / 2));
+        var slot = w / n;
+        var gap = slot > 6 ? slot * 0.18 : 0.5;
+        var peak = Array.IndexOf(values, values.Max());
+        var brushFull = new SolidColorBrush(accent);
+        var brushSoft = new SolidColorBrush(accent, 0.6);
+        var every = Math.Max(1, (int)Math.Ceiling(n / Math.Max(1, w / 80)));
+        for (var i = 0; i < n; i++)
+        {
+            if (values[i] > 0)
+            {
+                var bh = Math.Max(2, h * values[i] / max);
+                ctx.DrawRectangle(i == peak || i == _hover ? brushFull : brushSoft, null, new Rect(Left + i * slot + gap / 2, baseY - bh, Math.Max(1, slot - gap), bh), 2, 2);
+            }
+            if (i % every == 0 && i < labels.Length)
+                ctx.DrawText(StatPalette.Text(this, labels[i], 11, muted), new Point(Left + i * slot, baseY + 6));
+        }
+        if (_hover >= 0 && _hover < n)
+        {
+            var tip = StatPalette.Text(this, $"{(_hover < labels.Length ? labels[_hover] : "")}: {values[_hover].ToString("N0", CultureInfo.CurrentCulture)}", 12, fg);
+            var x = Math.Clamp(Left + _hover * slot + slot / 2 - tip.Width / 2, Left, Bounds.Width - tip.Width);
+            ctx.DrawText(tip, new Point(x, 2));
+        }
+    }
+}
+
 /// <summary>Single rounded bar split into colored segments.</summary>
 public sealed class StackedBar : StatChart
 {
