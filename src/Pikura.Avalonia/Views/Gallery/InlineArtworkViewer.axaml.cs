@@ -408,12 +408,14 @@ public partial class InlineArtworkViewer : UserControl
         if (_subscribedVm != null)
         {
             _subscribedVm.PropertyChanged -= OnVmPropertyChanged;
+            _subscribedVm.NovelFullscreenRequested -= OnNovelFullscreenRequested;
             _subscribedVm.ViewerTabs.CollectionChanged -= OnViewerTabsCollectionChanged;
             _subscribedVm = null;
         }
 
         if (VM is not { } vm) return;
         vm.PropertyChanged += OnVmPropertyChanged;
+        vm.NovelFullscreenRequested += OnNovelFullscreenRequested;
         vm.ViewerTabs.CollectionChanged += OnViewerTabsCollectionChanged;
         _subscribedVm = vm;
 
@@ -1949,10 +1951,28 @@ if (result != null && presetWindow.DownloadClicked)
         await viewer.ShowDialog(window);
     }
 
+    private void OnNovelFullscreenRequested(object? sender, string novelId)
+    {
+        if (!IsEffectivelyVisible || TopLevel.GetTopLevel(this) == null) return;
+        OpenNovelFullscreen();
+    }
+
+    private void OpenNovelFullscreen()
+    {
+        if (VM?.SelectedNovel is not { } reader || TopLevel.GetTopLevel(this) is not Window owner) return;
+        _ = new Pikura.Avalonia.Views.Novel.NovelFullscreenWindow(reader).ShowDialog(owner);
+    }
+
     private async void OnFullscreen(object? sender, RoutedEventArgs e)
     {
         var window = TopLevel.GetTopLevel(this) as Window;
         if (window == null || VM == null) return;
+
+        if (VM.SelectedViewerTab is { IsNovel: true })
+        {
+            OpenNovelFullscreen();
+            return;
+        }
 
         if (VM.IsCollageGridVisible && VM.CollageItems is { Count: > 0 } collageItems)
         {
@@ -2306,6 +2326,9 @@ if (result != null && presetWindow.DownloadClicked)
 
     /// <summary>Opens <paramref name="userId"/>'s gallery with the artist selected, then scrolls to
     /// <paramref name="artworkId"/> (default: the artwork on screen).</summary>
+    /// <summary>Opens an artist's gallery (used by novel tabs for the author).</summary>
+    public void OpenArtist(string userId) => NavigateToArtistGallery(userId, "");
+
     private async void NavigateToArtistGallery(string userId, string? artworkId = null)
     {
         var galleryVm = AppServices.Get<GalleryViewModel>();

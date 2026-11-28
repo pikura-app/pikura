@@ -27,6 +27,11 @@
                     <SolidColorBrush x:Key="Container3BackgroundBrush" Color="#FFFFFF"/>
                     <SolidColorBrush x:Key="Container4BackgroundBrush" Color="#F8FAFC"/>
                     <SolidColorBrush x:Key="Container1BorderBrush" Color="#E2E8F0"/>
+                    <!-- Actipro popup keys (dropdown lists, flyouts, menus) follow the card colours. -->
+                    <SolidColorBrush x:Key="PopupBackgroundBrush" Color="#FFFFFF"/>
+                    <SolidColorBrush x:Key="MenuPopupBackgroundBrush" Color="#FFFFFF"/>
+                    <SolidColorBrush x:Key="PopupBorderBrush" Color="#E2E8F0"/>
+                    <SolidColorBrush x:Key="MenuPopupBorderBrush" Color="#E2E8F0"/>
                     <SolidColorBrush x:Key="Container2BorderBrush" Color="#CBD5E0"/>
                     <SolidColorBrush x:Key="Container3BorderBrush" Color="#CBD5E0"/>
                     <SolidColorBrush x:Key="Container4BorderBrush" Color="#CBD5E0"/>
@@ -66,6 +71,11 @@
                     <SolidColorBrush x:Key="Container3BackgroundBrush" Color="#1A1A1E"/>
                     <SolidColorBrush x:Key="Container4BackgroundBrush" Color="#0F0F11"/>
                     <SolidColorBrush x:Key="Container1BorderBrush" Color="#2F2F35"/>
+                    <!-- Actipro popup keys (dropdown lists, flyouts, menus) follow the card colours. -->
+                    <SolidColorBrush x:Key="PopupBackgroundBrush" Color="#1A1A1E"/>
+                    <SolidColorBrush x:Key="MenuPopupBackgroundBrush" Color="#1A1A1E"/>
+                    <SolidColorBrush x:Key="PopupBorderBrush" Color="#2F2F35"/>
+                    <SolidColorBrush x:Key="MenuPopupBorderBrush" Color="#2F2F35"/>
                     <SolidColorBrush x:Key="Container2BorderBrush" Color="#3F3F46"/>
                     <SolidColorBrush x:Key="Container3BorderBrush" Color="#3F3F46"/>
                     <SolidColorBrush x:Key="Container4BorderBrush" Color="#3F3F46"/>
@@ -231,6 +241,19 @@
                     </animation:Transitions>
                 </Setter.Value>
             </Setter>
+        </Style>
+
+        <!-- Dropdowns use the same theme brushes as buttons, so they follow every theme and
+             Light/Dark mode instead of the dark default. -->
+        <Style Selector="ComboBox">
+            <Setter Property="Background" Value="{DynamicResource ControlBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource DefaultForegroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource ButtonBorderBrush}"/>
+            <Setter Property="CornerRadius" Value="8"/>
+        </Style>
+        <Style Selector="ComboBox:pointerover /template/ Border#Background">
+            <Setter Property="Background" Value="{DynamicResource ControlBackgroundBrushSoftAccent}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource ControlBackgroundBrushSoftAccentPressed}"/>
         </Style>
 
         <!-- Light-mode friendly component styles. Custom keys use DynamicResource from the

@@ -1,4 +1,4 @@
-using System.Net.Http.Json;
+﻿using System.Net.Http.Json;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -485,14 +485,14 @@ public sealed partial class PixivClient
         int page = 1,
         CancellationToken ct = default)
     {
-        var qs = new List<string> { $"mode={Uri.EscapeDataString(mode)}", "format=json", $"p={page}" };
+        var qs = new List<string> { $"mode={Uri.EscapeDataString(mode)}", $"p={page}" };
         if (!string.IsNullOrEmpty(date)) qs.Add($"date={date}");
 
         var url = $"{BaseUrl}/novel/ranking.php?{string.Join("&", qs)}";
         var client = _httpFactory.GetClient();
         using var req = new HttpRequestMessage(HttpMethod.Get, url);
         req.Headers.TryAddWithoutValidation("Referer", BaseUrl + "/");
-        req.Headers.TryAddWithoutValidation("Accept", "application/json");
+        req.Headers.TryAddWithoutValidation("Accept", "text/html");
 
         using var resp = await client.SendAsync(req, ct).ConfigureAwait(false);
         if (!resp.IsSuccessStatusCode)
@@ -502,16 +502,94 @@ public sealed partial class PixivClient
         }
         try
         {
-            var body = await resp.Content.ReadFromJsonAsync<NovelRankingResponse>(JsonOpts, ct).ConfigureAwait(false);
-            return body ?? new NovelRankingResponse();
+            var html = await resp.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            return ParseNovelRankingPage(html);
         }
         catch (Exception ex)
         {
-            // Best-effort field mapping (see NovelRankingEntry) — degrade to empty
-            // rather than crash the Rankings tab if Pixiv's actual shape differs.
-            _logger.LogWarning(ex, "Novel ranking {Url} JSON parse failed", url);
+            _logger.LogWarning(ex, "Novel ranking {Url} parse failed", url);
             return new NovelRankingResponse();
         }
+    }
+
+    /// <summary>
+    /// The novel ranking no longer honours <c>format=json</c>; the page is a Next.js app whose
+    /// <c>__NEXT_DATA__</c> carries the ranking under <c>props.pageProps.assign.display_a</c>.
+    /// </summary>
+    public static NovelRankingResponse ParseNovelRankingPage(string html)
+    {
+        var m = Regex.Match(html, @"<script id=""__NEXT_DATA__""[^>]*>(.*?)</script>", RegexOptions.Singleline);
+        if (!m.Success) return new NovelRankingResponse();
+        using var doc = JsonDocument.Parse(m.Groups[1].Value);
+        if (!doc.RootElement.TryGetProperty("props", out var props)
+            || !props.TryGetProperty("pageProps", out var pageProps)
+            || !pageProps.TryGetProperty("assign", out var assign)
+            || !assign.TryGetProperty("display_a", out var display))
+            return new NovelRankingResponse();
+
+        static string Str(JsonElement e, string name) =>
+            e.TryGetProperty(name, out var v) ? v.ValueKind switch
+            {
+                JsonValueKind.String => v.GetString() ?? "",
+                JsonValueKind.Number => v.GetRawText(),
+                _ => "",
+            } : "";
+        static long Num(JsonElement e, string name) => long.TryParse(Str(e, name), out var n) ? n : 0;
+        static string? Date(JsonElement e, string name)
+        {
+            var d = Str(e, name);
+            return d.Length == 8 && d.All(char.IsDigit) ? d : null;
+        }
+
+        var entries = new List<NovelRankingEntry>();
+        if (display.TryGetProperty("rank_a", out var ranks) && ranks.ValueKind == JsonValueKind.Array)
+        {
+            foreach (var r in ranks.EnumerateArray())
+            {
+                var tags = r.TryGetProperty("tag_a", out var ta) && ta.ValueKind == JsonValueKind.Array
+                    ? ta.EnumerateArray().Where(t => t.ValueKind == JsonValueKind.String).Select(t => t.GetString()!).ToList()
+                    : new List<string>();
+                var seconds = Num(r, "reading_time");
+                var cover = Str(r, "url");
+                entries.Add(new NovelRankingEntry
+                {
+                    Rank = (int)Num(r, "rank"),
+                    NovelId = Num(r, "id"),
+                    Title = Str(r, "title"),
+                    UserId = Num(r, "user_id"),
+                    UserName = Str(r, "user_name"),
+                    ProfileImg = Str(r, "profile_img"),
+                    Tags = tags,
+                    ThumbnailUrl = string.IsNullOrEmpty(cover) ? null : cover.Replace("/c/100x100/", "/c/240x480_80/"),
+                    TextCount = (int)Num(r, "character_count"),
+                    ReadingTimeMinutes = seconds > 0 ? (int)Math.Ceiling(seconds / 60.0) : null,
+                    BookmarkCount = (int)Num(r, "bookmark_count"),
+                    XRestrict = (int)Num(r, "x_restrict"),
+                    IsAi = Num(r, "ai_type") == 2,
+                    SeriesTitle = Str(r, "series_title"),
+                });
+            }
+        }
+
+        var prev = Date(display, "prev_date");
+        var next = Date(display, "next_date");
+        var current = prev is not null && DateTime.TryParseExact(prev, "yyyyMMdd", null, System.Globalization.DateTimeStyles.None, out var pd)
+            ? pd.AddDays(1).ToString("yyyyMMdd")
+            : next is not null && DateTime.TryParseExact(next, "yyyyMMdd", null, System.Globalization.DateTimeStyles.None, out var nd)
+                ? nd.AddDays(-1).ToString("yyyyMMdd") : "";
+        var pages = display.TryGetProperty("page_a", out var pa) && pa.ValueKind == JsonValueKind.Object
+            ? pa.EnumerateObject().Count() : 1;
+        return new NovelRankingResponse
+        {
+            Contents = entries,
+            Mode = Str(display, "mode"),
+            Page = (int)Num(display, "page"),
+            Next = display.TryGetProperty("next", out var nx) && nx.ValueKind == JsonValueKind.Number ? nx.GetInt32() : null,
+            Date = current,
+            PrevDate = prev,
+            NextDate = next,
+            RankTotal = Math.Max(entries.Count, pages * 50),
+        };
     }
 
     /// <summary>Alias for GetRankingsAsync for backward compatibility.</summary>
@@ -1316,6 +1394,112 @@ public sealed partial class PixivClient
         return await GetAjaxAsync<NovelDetailResponse>(url, ct).ConfigureAwait(false);
     }
 
+    /// <summary>GET /ajax/novel/{id} — the novel's text plus what the reader shows around it.</summary>
+    public async Task<NovelText?> GetNovelTextAsync(string novelId, CancellationToken ct = default)
+    {
+        var url = $"{BaseUrl}/ajax/novel/{novelId}?lang={_settings.Current.Locale}";
+        var body = await GetAjaxAsync<JsonElement>(url, ct, $"{BaseUrl}/novel/show.php?id={novelId}").ConfigureAwait(false);
+        return body.ValueKind == JsonValueKind.Object ? ParseNovelText(body) : null;
+    }
+
+    public static NovelText ParseNovelText(JsonElement b)
+    {
+        static string S(JsonElement e, string n) => e.TryGetProperty(n, out var v) && v.ValueKind is JsonValueKind.String or JsonValueKind.Number
+            ? (v.ValueKind == JsonValueKind.String ? v.GetString() ?? "" : v.GetRawText()) : "";
+        static int I(JsonElement e, string n) => int.TryParse(S(e, n), out var i) ? i : 0;
+        static string? Nav(JsonElement series, string n, string field) =>
+            series.ValueKind == JsonValueKind.Object && series.TryGetProperty(n, out var x) && x.ValueKind == JsonValueKind.Object
+                ? S(x, field) is { Length: > 0 } v ? v : null : null;
+
+        var tags = new List<string>();
+        if (b.TryGetProperty("tags", out var t) && t.ValueKind == JsonValueKind.Object
+            && t.TryGetProperty("tags", out var list) && list.ValueKind == JsonValueKind.Array)
+            tags.AddRange(list.EnumerateArray().Select(x => S(x, "tag")).Where(x => x.Length > 0));
+
+        var images = new Dictionary<string, string>();
+        if (b.TryGetProperty("textEmbeddedImages", out var emb) && emb.ValueKind == JsonValueKind.Object)
+            foreach (var p in emb.EnumerateObject())
+                if (p.Value.TryGetProperty("urls", out var urls) && urls.ValueKind == JsonValueKind.Object)
+                {
+                    var u = S(urls, "1200x1200") is { Length: > 0 } big ? big : S(urls, "original");
+                    if (u.Length > 0) images[p.Name] = u;
+                }
+
+        b.TryGetProperty("seriesNavData", out var series);
+        return new NovelText
+        {
+            Id = S(b, "id"),
+            Title = S(b, "title"),
+            UserId = S(b, "userId"),
+            UserName = S(b, "userName"),
+            CoverUrl = S(b, "coverUrl") is { Length: > 0 } c ? c : null,
+            Description = S(b, "description"),
+            Content = S(b, "content"),
+            Tags = tags,
+            XRestrict = I(b, "xRestrict"),
+            IsLiked = b.TryGetProperty("likeData", out var like) && like.ValueKind == JsonValueKind.True,
+            BookmarkId = b.TryGetProperty("bookmarkData", out var bm) && bm.ValueKind == JsonValueKind.Object && S(bm, "id") is { Length: > 0 } bid ? bid : null,
+            IsBookmarkPrivate = b.TryGetProperty("bookmarkData", out var bm2) && bm2.ValueKind == JsonValueKind.Object
+                && bm2.TryGetProperty("private", out var pv) && pv.ValueKind == JsonValueKind.True,
+            BookmarkCount = I(b, "bookmarkCount"),
+            LikeCount = I(b, "likeCount"),
+            ViewCount = I(b, "viewCount"),
+            CharacterCount = I(b, "characterCount"),
+            ReadingTimeSeconds = I(b, "readingTime"),
+            CreateDate = S(b, "createDate"),
+            SeriesId = series.ValueKind == JsonValueKind.Object && S(series, "seriesId") is { Length: > 0 } sid ? sid : null,
+            SeriesTitle = series.ValueKind == JsonValueKind.Object && S(series, "title") is { Length: > 0 } st ? st : null,
+            PrevId = Nav(series, "prev", "id"),
+            PrevTitle = Nav(series, "prev", "title"),
+            NextId = Nav(series, "next", "id"),
+            NextTitle = Nav(series, "next", "title"),
+            EmbeddedImages = images,
+        };
+    }
+
+    /// <summary>GET /ajax/novels/comments/roots — top-level comments on a novel.</summary>
+    public async Task<PixivCommentsRootsResponse?> GetNovelCommentsAsync(
+        string novelId, int offset = 0, int limit = 30, CancellationToken ct = default)
+    {
+        var url = $"{BaseUrl}/ajax/novels/comments/roots?novel_id={novelId}&offset={offset}&limit={limit}&lang={_settings.Current.Locale}";
+        return await GetAjaxAsync<PixivCommentsRootsResponse>(url, ct).ConfigureAwait(false);
+    }
+
+    /// <summary>GET /ajax/novel/series/{id}.</summary>
+    public async Task<NovelSeries?> GetNovelSeriesAsync(string seriesId, CancellationToken ct = default)
+    {
+        var url = $"{BaseUrl}/ajax/novel/series/{seriesId}?lang={_settings.Current.Locale}";
+        var b = await GetAjaxAsync<JsonElement>(url, ct).ConfigureAwait(false);
+        if (b.ValueKind != JsonValueKind.Object) return null;
+        static string S(JsonElement e, string n) => e.TryGetProperty(n, out var v) ? v.ValueKind == JsonValueKind.String ? v.GetString() ?? "" : v.GetRawText() : "";
+        return new NovelSeries(S(b, "id"), S(b, "title"), S(b, "userName"), S(b, "caption"),
+            int.TryParse(S(b, "total"), out var t) ? t : 0, int.TryParse(S(b, "xRestrict"), out var x) ? x : 0);
+    }
+
+    /// <summary>All chapters of a series, oldest first (pages of 30 via <c>last_order</c>).</summary>
+    public async Task<IReadOnlyList<NovelSeriesEntry>> GetNovelSeriesContentAsync(string seriesId, CancellationToken ct = default)
+    {
+        var all = new List<NovelSeriesEntry>();
+        static string S(JsonElement e, string n) => e.TryGetProperty(n, out var v) ? v.ValueKind == JsonValueKind.String ? v.GetString() ?? "" : v.GetRawText() : "";
+        for (var guard = 0; guard < 100; guard++)
+        {
+            var url = $"{BaseUrl}/ajax/novel/series_content/{seriesId}?limit=30&last_order={all.Count}&order_by=asc&lang={_settings.Current.Locale}";
+            var b = await GetAjaxAsync<JsonElement>(url, ct).ConfigureAwait(false);
+            if (b.ValueKind != JsonValueKind.Object || !b.TryGetProperty("page", out var page)
+                || !page.TryGetProperty("seriesContents", out var items) || items.ValueKind != JsonValueKind.Array)
+                break;
+            var before = all.Count;
+            foreach (var i in items.EnumerateArray())
+            {
+                var order = i.TryGetProperty("series", out var se) && int.TryParse(S(se, "contentOrder"), out var o) ? o : all.Count + 1;
+                all.Add(new NovelSeriesEntry(S(i, "id"), S(i, "title"), order,
+                    int.TryParse(S(i, "characterCount"), out var c) ? c : 0, int.TryParse(S(i, "xRestrict"), out var x) ? x : 0));
+            }
+            if (all.Count - before < 30) break;
+        }
+        return all;
+    }
+
     /// <summary>
     /// GET /ajax/tags/suggest — tag autocomplete suggestions.
     /// </summary>
@@ -1926,6 +2110,44 @@ public sealed partial class PixivClient
         var ok = await PostAjaxSuccessAsync(url, payload, referer, illustId, ct).ConfigureAwait(false);
         if (!ok) _logger.LogWarning("Like {Id} failed", illustId);
         else _logger.LogDebug("Like {Id} succeeded", illustId);
+        return ok;
+    }
+
+    /// <summary>POST /ajax/novels/like — like a novel with the web session, like the novel page's Like button.</summary>
+    public async Task<bool> LikeNovelAsync(string novelId, CancellationToken ct = default)
+    {
+        var ok = await PostAjaxSuccessAsync($"{BaseUrl}/ajax/novels/like", new { novel_id = novelId },
+            $"{BaseUrl}/novel/show.php?id={novelId}", null, ct).ConfigureAwait(false);
+        if (!ok) _logger.LogWarning("LikeNovel {Id} failed", novelId);
+        return ok;
+    }
+
+    /// <summary>POST /ajax/novels/bookmarks/add — bookmark a novel (public or private). Returns true on success.</summary>
+    public async Task<bool> AddNovelBookmarkAsync(string novelId, bool isPrivate, CancellationToken ct = default)
+    {
+        var payload = new { novel_id = novelId, restrict = isPrivate ? 1 : 0, comment = string.Empty, tags = Array.Empty<string>() };
+        var body = await PostAjaxAsync<object, JsonElement>($"{BaseUrl}/ajax/novels/bookmarks/add", payload,
+            $"{BaseUrl}/novel/show.php?id={novelId}", null, ct).ConfigureAwait(false);
+        if (body.ValueKind == JsonValueKind.Undefined) { _logger.LogWarning("AddNovelBookmark {Id} failed", novelId); return false; }
+        return true;
+    }
+
+    /// <summary>POST /ajax/novels/bookmarks/delete (form: del=1, book_id) — remove a novel bookmark.</summary>
+    public async Task<bool> DeleteNovelBookmarkAsync(string bookmarkId, string novelId, CancellationToken ct = default)
+    {
+        var csrf = await GetCsrfTokenAsync(null, ct).ConfigureAwait(false);
+        if (string.IsNullOrWhiteSpace(csrf)) return false;
+        var client = _httpFactory.GetClient();
+        using var req = new HttpRequestMessage(HttpMethod.Post, $"{BaseUrl}/ajax/novels/bookmarks/delete");
+        req.Headers.TryAddWithoutValidation("Referer", $"{BaseUrl}/novel/show.php?id={novelId}");
+        req.Headers.TryAddWithoutValidation("Accept", "application/json");
+        req.Headers.TryAddWithoutValidation("Origin", BaseUrl);
+        req.Headers.TryAddWithoutValidation("x-csrf-token", csrf);
+        req.Content = new FormUrlEncodedContent([new KeyValuePair<string, string>("del", "1"), new KeyValuePair<string, string>("book_id", bookmarkId)]);
+        using var resp = await client.SendAsync(req, ct).ConfigureAwait(false);
+        var body = await resp.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+        var ok = resp.IsSuccessStatusCode && !body.Contains("\"error\":true", StringComparison.Ordinal);
+        if (!ok) _logger.LogWarning("DeleteNovelBookmark {Id} -> {Code}: {Body}", bookmarkId, resp.StatusCode, body[..Math.Min(300, body.Length)]);
         return ok;
     }
 

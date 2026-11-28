@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -280,6 +280,7 @@ public partial class MainWindow : Window
         {
             case "Rankings": RankingsButton_Click(null, new RoutedEventArgs()); break;
             case "Pixivision": PixivisionButton_Click(null, new RoutedEventArgs()); break;
+            case "Dic": DicButton_Click(null, new RoutedEventArgs()); break;
             case "Discover": DiscoverButton_Click(null, new RoutedEventArgs()); break;
             case "Search": SearchButton_Click(null, new RoutedEventArgs()); break;
             case "Bookmarks": BookmarksButton_Click(null, new RoutedEventArgs()); break;
@@ -400,6 +401,7 @@ public partial class MainWindow : Window
     private Pikura.Avalonia.Views.History.HistoryView? _historyView;
     private Pikura.Avalonia.Views.History.ViewedHistoryView? _viewedHistoryView;
     private Pikura.Avalonia.Views.Pixivision.PixivisionView? _pixivisionView;
+    private Pikura.Avalonia.Views.Dic.DicView? _dicView;
     private Pikura.Avalonia.Views.Collections.CollectionsView? _collectionsView;
 
     private static LocalizationService Loc => LocalizationService.Instance;
@@ -478,6 +480,16 @@ public partial class MainWindow : Window
         {
             MainContentControl.Content = new TextBlock { Text = string.Format(Pikura.Avalonia.Localization.LocalizationService.Instance["Main_ErrorFormat"], Pikura.Avalonia.Localization.LocalizationService.Instance["Nav_Discover"], ex.Message), FontSize = 18, Foreground = Brush.Parse("#9CA3AF"), VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center };
         }
+    }
+
+    /// <summary>Switches to Search and runs <paramref name="query"/> there.</summary>
+    public void OpenSearch(string query, string? category = null)
+    {
+        SearchButton_Click(null, new RoutedEventArgs());
+        var vm = AppServices.Get<Pikura.Avalonia.ViewModels.GlobalSearchViewModel>();
+        if (category is not null) vm.SearchCategory = category;
+        vm.SearchQuery = query;
+        _ = vm.SearchAsync();
     }
 
     private void SearchButton_Click(object? sender, RoutedEventArgs e)
@@ -601,11 +613,41 @@ public partial class MainWindow : Window
         }
     }
 
+    public void OpenDicArticle(string tag, string lang)
+    {
+        DicButton_Click(null, new RoutedEventArgs());
+        var vm = AppServices.Get<Pikura.Avalonia.ViewModels.DicViewModel>();
+        if (vm.Language != lang) vm.Language = lang;
+        _ = vm.OpenArticleAsync(tag);
+    }
+
+    public void OpenPixivisionArticle(Pikura.Core.Models.PixivisionArticleSummary summary)
+    {
+        PixivisionButton_Click(null, new RoutedEventArgs());
+        _ = AppServices.Get<Pikura.Avalonia.ViewModels.PixivisionViewModel>().OpenArticleAsync(new Pikura.Avalonia.ViewModels.PixivisionArticleCardViewModel(summary));
+    }
+
+    private void DicButton_Click(object? sender, RoutedEventArgs e)
+    {
+        try
+        {
+            var vm = AppServices.Get<Pikura.Avalonia.ViewModels.DicViewModel>();
+            _dicView ??= new Pikura.Avalonia.Views.Dic.DicView { DataContext = vm };
+            MainContentControl.Content = _dicView;
+            SetSectionTitle("pixiv Encyclopedia");
+        }
+        catch (Exception ex)
+        {
+            MainContentControl.Content = new TextBlock { Text = string.Format(Pikura.Avalonia.Localization.LocalizationService.Instance["Main_ErrorFormat"], "Dic", ex.Message), FontSize = 18, Foreground = Brush.Parse("#9CA3AF"), VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center };
+        }
+    }
+
     private void AnalyticsButton_Click(object? sender, RoutedEventArgs e)
     {
         try
         {
             var vm = AppServices.Get<AnalyticsViewModel>();
+            vm.ResetPeriods();
             if (_analyticsView != null) _ = vm.LoadMostViewedArtistsAsync(); // History changes while browsing
             _analyticsView ??= new Pikura.Avalonia.Views.Analytics.AnalyticsView { DataContext = vm };
             MainContentControl.Content = _analyticsView;

@@ -1,0 +1,265 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:loc="using:Pikura.Avalonia.Localization"
+             xmlns:vm="using:Pikura.Avalonia.ViewModels"
+             xmlns:models="using:Pikura.Core.Models"
+             xmlns:ctl="using:Pikura.Avalonia.Controls"
+             x:Class="Pikura.Avalonia.Views.Novel.NovelReaderView"
+             x:DataType="vm:NovelReaderViewModel">
+    <UserControl.Styles>
+        <Style Selector="TextBlock.current"><Setter Property="FontWeight" Value="Bold"/></Style>
+        <Style Selector="Button.tb, ToggleButton.tb">
+            <Setter Property="Height" Value="28"/>
+            <Setter Property="MinHeight" Value="28"/>
+            <Setter Property="Padding" Value="9,0"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+    </UserControl.Styles>
+    <Grid RowDefinitions="Auto,Auto,*,Auto">
+        <!-- Toolbar -->
+        <Border Grid.Row="0" Padding="8,6" BorderBrush="{DynamicResource Container1BorderBrush}" BorderThickness="0,0,0,1">
+            <WrapPanel>
+                <Button Classes="tb" Content="A−" Margin="0,0,4,4" Command="{Binding FontSmallerCommand}" ToolTip.Tip="{loc:Tr Novel_Smaller}"/>
+                <Button Classes="tb" Content="A+" Margin="0,0,10,4" Command="{Binding FontLargerCommand}" ToolTip.Tip="{loc:Tr Novel_Larger}"/>
+                <Panel Margin="0,0,4,4">
+                    <ToggleButton x:Name="NovelCommentsBtn" Classes="tb" IsChecked="{Binding ShowComments}" ToolTip.Tip="{loc:Tr Viewer_ViewAndPostComments}">
+                        <StackPanel Orientation="Horizontal" Spacing="5">
+                            <PathIcon Data="{StaticResource CommentIcon}" Width="14" Height="14" Foreground="{Binding $parent[ToggleButton].Foreground}"/>
+                            <TextBlock Text="{Binding CommentsLabel}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </ToggleButton>
+                    <Popup PlacementTarget="{Binding #NovelCommentsBtn}" Placement="BottomEdgeAlignedLeft" IsLightDismissEnabled="True"
+                           IsOpen="{Binding ShowComments, Mode=TwoWay}" Width="400" MaxHeight="520">
+                        <Border Background="{DynamicResource Container1BackgroundBrush}" BorderBrush="{DynamicResource Container1BorderBrush}"
+                                BorderThickness="1" CornerRadius="8" Margin="0,4,0,0" BoxShadow="0 4 16 0 #55000000">
+                            <Grid RowDefinitions="Auto,*">
+                                <TextBlock Text="{Binding CommentsLabel}" FontWeight="SemiBold" FontSize="13" Margin="12,10,12,6"/>
+                                <ScrollViewer Grid.Row="1" MaxHeight="460" HorizontalScrollBarVisibility="Disabled">
+                                    <StackPanel Margin="12,0,12,10" Spacing="8">
+                    <ItemsControl ItemsSource="{Binding Comments}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="models:PixivComment">
+                                <StackPanel Margin="0,0,0,10" Spacing="2">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <TextBlock Text="{Binding UserName}" FontWeight="SemiBold" FontSize="12"/>
+                                        <TextBlock Text="{Binding CommentDate}" FontSize="11" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
+                                    </StackPanel>
+                                    <ctl:PixivCommentBody Comment="{Binding}"/>
+                                    
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <Button Content="{loc:Tr Novel_MoreComments}" Command="{Binding LoadMoreCommentsCommand}" IsVisible="{Binding CanLoadMoreComments}"/>
+                </StackPanel>
+            
+                                </ScrollViewer>
+                            </Grid>
+                        </Border>
+                    </Popup>
+                </Panel>
+                <ToggleButton Classes="tb" Margin="0,0,4,4" IsChecked="{Binding IsSaved, Mode=OneWay}" Command="{Binding ToggleSaveCommand}"
+                              ToolTip.Tip="{loc:Tr Novel_SaveForLater}">
+                    <StackPanel Orientation="Horizontal" Spacing="5">
+                        <TextBlock Text="⏱" VerticalAlignment="Center"/>
+                        <TextBlock Text="{loc:Tr Novel_SaveForLater}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </ToggleButton>
+                <ToggleButton Classes="tb" Margin="0,0,4,4" IsChecked="{Binding ShowSeries}" IsVisible="{Binding HasSeries}">
+                    <TextBlock Text="{loc:Tr Novel_Series}" VerticalAlignment="Center"/>
+                </ToggleButton>
+                <Button Classes="tb" Margin="0,0,4,4">
+                    <StackPanel Orientation="Horizontal" Spacing="5">
+                        <PathIcon Data="{StaticResource DownloadIcon}" Width="14" Height="14" Foreground="{Binding $parent[Button].Foreground}"/>
+                        <TextBlock Text="{loc:Tr Novel_Download}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <Button.Flyout>
+                        <Flyout Placement="BottomEdgeAlignedLeft">
+                            <StackPanel Spacing="6" Width="230">
+                                <TextBlock Text="{loc:Tr Novel_Formats}" FontSize="11" Foreground="{DynamicResource DefaultForegroundBrushSecondary}"/>
+                                <WrapPanel>
+                                    <CheckBox Content="TXT" IsChecked="{Binding ExportTxt}" Margin="0,0,10,0"/>
+                                    <CheckBox Content="EPUB" IsChecked="{Binding ExportEpub}" Margin="0,0,10,0"/>
+                                    <CheckBox Content="PDF" IsChecked="{Binding ExportPdf}" Margin="0,0,10,0"/>
+                                    <CheckBox Content="DOCX" IsChecked="{Binding ExportDocx}"/>
+                                </WrapPanel>
+                                <Button Content="{loc:Tr Novel_DownloadChapter}" HorizontalAlignment="Stretch" Command="{Binding DownloadChapterCommand}"/>
+                                <Button Content="{loc:Tr Novel_DownloadSeries}" HorizontalAlignment="Stretch" Command="{Binding DownloadSeriesCommand}" IsVisible="{Binding HasSeries}"/>
+                            </StackPanel>
+                        </Flyout>
+                    </Button.Flyout>
+                </Button>
+                <Button Classes="tb" Margin="0,0,0,4" CornerRadius="6,0,0,6" Command="{Binding ToggleTranslateCommand}"
+                        Classes.accent="{Binding IsTranslated}" ToolTip.Tip="{loc:Tr Novel_TranslateTip}">
+                    <StackPanel Orientation="Horizontal" Spacing="5">
+                        <TextBlock Text="文A" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding TranslateLabel}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+                <Button Classes="tb" Margin="1,0,4,4" Padding="6,0" CornerRadius="0,6,6,0" ToolTip.Tip="{loc:Tr Novel_TranslateWith}">
+                    <PathIcon Data="M7,10L12,15L17,10H7Z" Width="10" Height="10" Foreground="{Binding $parent[Button].Foreground}"/>
+                    <Button.Flyout>
+                        <Flyout Placement="BottomEdgeAlignedLeft">
+                            <StackPanel Spacing="10" Margin="6,4" MinWidth="280">
+                                <TextBlock Text="{loc:Tr Novel_TranslateWith}" FontSize="12" FontWeight="SemiBold"/>
+                                <RadioButton Content="{loc:Tr Novel_TranslatorGoogle}" IsChecked="{Binding UseGoogle}" Padding="8,2"/>
+                                <RadioButton Content="{loc:Tr Novel_TranslatorHoshi}" IsChecked="{Binding UseHoshi}" Padding="8,2"/>
+                                <TextBlock Text="{loc:Tr Novel_TranslateTip}" FontSize="11" TextWrapping="Wrap"
+                                           Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
+                            </StackPanel>
+                        </Flyout>
+                    </Button.Flyout>
+                </Button>
+                <Button Classes="tb" Margin="0,0,4,4" Command="{Binding LikeCommand}" Classes.accent="{Binding IsLiked}" ToolTip.Tip="{loc:Tr Novel_Like}">
+                    <StackPanel Orientation="Horizontal" Spacing="5">
+                        <PathIcon Data="{StaticResource HeartIcon}" Width="14" Height="14" Foreground="{Binding $parent[Button].Foreground}"/>
+                        <TextBlock Text="{Binding LikeLabel}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+                <Button Classes="tb" Margin="0,0,4,4" Command="{Binding ToggleFavoriteCommand}" Classes.accent="{Binding IsFavorite}" ToolTip.Tip="{loc:Tr Novel_FavoriteTip}">
+                    <StackPanel Orientation="Horizontal" Spacing="5">
+                        <PathIcon Data="{StaticResource StarIcon}" Width="14" Height="14" Foreground="{Binding $parent[Button].Foreground}"/>
+                        <TextBlock Text="{loc:Tr Novel_Favorite}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+                <Button Classes="tb" Margin="0,0,4,4" Classes.accent="{Binding IsBookmarked}" ToolTip.Tip="{loc:Tr Novel_BookmarkTip}">
+                    <StackPanel Orientation="Horizontal" Spacing="5">
+                        <PathIcon Data="{StaticResource BookmarkIcon}" Width="14" Height="14" Foreground="{Binding $parent[Button].Foreground}"/>
+                        <TextBlock Text="{Binding BookmarkLabel}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <Button.Flyout>
+                        <MenuFlyout Placement="BottomEdgeAlignedLeft">
+                            <MenuItem Header="{loc:Tr Novel_BookmarkPublic}" Command="{Binding BookmarkCommand}" CommandParameter="public"/>
+                            <MenuItem Header="{loc:Tr Novel_BookmarkPrivate}" Command="{Binding BookmarkCommand}" CommandParameter="private"/>
+                            <MenuItem Header="{loc:Tr Novel_RemoveBookmark}" Command="{Binding BookmarkCommand}" CommandParameter="remove" IsVisible="{Binding IsBookmarked}"/>
+                        </MenuFlyout>
+                    </Button.Flyout>
+                </Button>
+                <Button Classes="tb" Margin="0,0,4,4" Padding="8,0" ToolTip.Tip="{loc:Tr Novel_More}">
+                    <TextBlock Text="•••" VerticalAlignment="Center"/>
+                    <Button.Flyout>
+                        <MenuFlyout Placement="BottomEdgeAlignedRight">
+                            <MenuItem Header="{loc:Tr Novel_CopyLink}" Click="OnCopyLink"/>
+                            <MenuItem Header="{loc:Tr Novel_CopyTitle}" Click="OnCopyTitle"/>
+                            <MenuItem Header="{loc:Tr Novel_OpenAuthor}" Click="OnOpenAuthor"/>
+                            <MenuItem Header="{loc:Tr Novel_OpenInBrowser}" Command="{Binding OpenInBrowserCommand}"/>
+                        </MenuFlyout>
+                    </Button.Flyout>
+                </Button>
+            </WrapPanel>
+        </Border>
+
+        <!-- Header -->
+        <Grid Grid.Row="1" ColumnDefinitions="Auto,*" Margin="14,12,14,6">
+            <Border Width="72" Height="100" CornerRadius="4" ClipToBounds="True" VerticalAlignment="Top"
+                    Background="{DynamicResource Container2BackgroundBrush}">
+                <Image Source="{Binding Cover}" Stretch="UniformToFill" x:Name="CoverImage"/>
+            </Border>
+            <StackPanel Grid.Column="1" Margin="12,0,0,0" Spacing="3">
+                <TextBlock Text="{Binding DisplaySeries}" FontSize="11" IsVisible="{Binding HasSeries}" TextWrapping="Wrap"
+                           Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
+                <SelectableTextBlock Text="{Binding DisplayTitle}" FontSize="18" FontWeight="Bold" TextWrapping="Wrap"/>
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <TextBlock Text="{Binding Author}" FontSize="12"/>
+                    <Border Background="#E0245E" CornerRadius="3" Padding="4,0" IsVisible="{Binding IsR18}">
+                        <TextBlock Text="R-18" FontSize="10" Foreground="White" FontWeight="Bold"/>
+                    </Border>
+                </StackPanel>
+                <TextBlock Text="{Binding Meta}" FontSize="11" TextWrapping="Wrap" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
+                <ItemsControl ItemsSource="{Binding Tags}">
+                    <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="x:String">
+                            <Button Margin="0,1,4,1" Padding="6,1" MinHeight="0" CornerRadius="4" FontSize="10" BorderThickness="0"
+                                    Background="{DynamicResource Container2BackgroundBrush}" Cursor="Hand"
+                                    Tag="{Binding}" Click="OnTagClicked" ToolTip.Tip="{loc:Tr Novel_SearchTag}">
+                                <TextBlock Text="{Binding}" FontSize="10"/>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </Grid>
+
+        <!-- Text -->
+        <Grid Grid.Row="2">
+            <ScrollViewer x:Name="TextScroll" HorizontalScrollBarVisibility="Disabled" IsVisible="{Binding ShowText}">
+                <StackPanel x:Name="PageHost" Spacing="10" MaxWidth="760" Margin="18,6,22,18" HorizontalAlignment="Stretch"/>
+            </ScrollViewer>
+
+            <Grid IsVisible="{Binding ShowSeries}" RowDefinitions="Auto,*">
+                <StackPanel Orientation="Horizontal" Spacing="6" Margin="16,6">
+                    <Button Content="{loc:Tr Novel_SelectAll}" Command="{Binding SelectAllSeriesCommand}" Padding="8,3"/>
+                    <TextBlock Text="{Binding SelectedCountLabel}" VerticalAlignment="Center" FontSize="12" Margin="4,0"
+                               Foreground="{DynamicResource DefaultForegroundBrushSecondary}"/>
+                    <Button Padding="8,3" IsEnabled="{Binding HasSelectedChapters}">
+                        <StackPanel Orientation="Horizontal" Spacing="5">
+                            <PathIcon Data="{StaticResource DownloadIcon}" Width="12" Height="12" Foreground="{Binding $parent[Button].Foreground}"/>
+                            <TextBlock Text="{loc:Tr Novel_DownloadSelectedBtn}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <Button.Flyout>
+                            <Flyout Placement="BottomEdgeAlignedLeft">
+                                <StackPanel Spacing="6" Width="230">
+                                    <TextBlock Text="{loc:Tr Novel_Formats}" FontSize="11" Foreground="{DynamicResource DefaultForegroundBrushSecondary}"/>
+                                    <WrapPanel>
+                                        <CheckBox Content="TXT" IsChecked="{Binding ExportTxt}" Margin="0,0,10,0"/>
+                                        <CheckBox Content="EPUB" IsChecked="{Binding ExportEpub}" Margin="0,0,10,0"/>
+                                        <CheckBox Content="PDF" IsChecked="{Binding ExportPdf}" Margin="0,0,10,0"/>
+                                        <CheckBox Content="DOCX" IsChecked="{Binding ExportDocx}"/>
+                                    </WrapPanel>
+                                    <Button Classes="accent" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Command="{Binding DownloadSelectedCommand}">
+                                        <TextBlock Text="{Binding SelectedCountLabel, StringFormat='↓ {0}'}"/>
+                                    </Button>
+                                </StackPanel>
+                            </Flyout>
+                        </Button.Flyout>
+                    </Button>
+                </StackPanel>
+                <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled">
+                    <ItemsControl ItemsSource="{Binding SeriesItems}" Margin="16,0,16,12">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:NovelSeriesItem">
+                                <Grid ColumnDefinitions="Auto,*" Margin="0,2">
+                                    <CheckBox IsChecked="{Binding IsSelected}"/>
+                                    <Button Grid.Column="1" Background="Transparent" BorderThickness="0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
+                                            Command="{Binding $parent[UserControl].((vm:NovelReaderViewModel)DataContext).OpenSeriesItemCommand}" CommandParameter="{Binding}">
+                                        <TextBlock Text="{Binding Label}" TextTrimming="CharacterEllipsis" Classes.current="{Binding IsCurrent}"/>
+                                    </Button>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Grid>
+            <TextBlock Text="{Binding Status}" IsVisible="{Binding HasStatus}" TextWrapping="Wrap" Margin="18" VerticalAlignment="Top"/>
+            <ProgressBar IsIndeterminate="True" IsVisible="{Binding IsLoading}" VerticalAlignment="Top" Height="3"/>
+        </Grid>
+
+        <!-- Paging -->
+        <Border Grid.Row="3" Padding="8,6" BorderBrush="{DynamicResource Container1BorderBrush}" BorderThickness="0,1,0,0">
+          <StackPanel Spacing="4">
+            <StackPanel Orientation="Horizontal" Spacing="8" IsVisible="{Binding HasTranslateStatus}">
+                <ProgressBar IsIndeterminate="True" Width="60" Height="3" IsVisible="{Binding IsTranslating}" VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding TranslateStatus}" FontSize="11" TextWrapping="Wrap" VerticalAlignment="Center"/>
+            </StackPanel>
+            <Grid ColumnDefinitions="*,Auto" IsVisible="{Binding HasDownloadStatus}">
+                <TextBlock Text="{Binding DownloadStatus}" FontSize="11" TextWrapping="Wrap" VerticalAlignment="Center"/>
+                <Button Grid.Column="1" Content="{loc:Tr Novel_ShowFile}" Padding="8,2" FontSize="11" Command="{Binding ShowExportCommand}" IsVisible="{Binding HasLastExport}"/>
+            </Grid>
+            <Grid ColumnDefinitions="Auto,*,Auto">
+                <Button Content="{loc:Tr Novel_PrevEpisode}" Padding="8,3" FontSize="12"
+                        Command="{Binding PrevEpisodeCommand}" IsVisible="{Binding HasPrevEpisode}"/>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center" IsVisible="{Binding HasPages}">
+                    <Button Content="‹" Padding="10,3" Command="{Binding PrevPageCommand}" IsEnabled="{Binding CanPrevPage}"/>
+                    <TextBlock Text="{Binding PageLabel}" VerticalAlignment="Center" FontSize="12"/>
+                    <Button Content="›" Padding="10,3" Command="{Binding NextPageCommand}" IsEnabled="{Binding CanNextPage}"/>
+                </StackPanel>
+                <Button Grid.Column="2" Content="{loc:Tr Novel_NextEpisode}" Padding="8,3" FontSize="12"
+                        Command="{Binding NextEpisodeCommand}" IsVisible="{Binding HasNextEpisode}"/>
+            </Grid>
+          </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

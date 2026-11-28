@@ -33,6 +33,7 @@ public enum TargetType
     Post,        // FANBOX post
     Tag,         // Search tag
     Group,       // Pixiv group
+    Novel,       // pixiv novel chapter(s); TargetId is "FORMAT:id,id,..."
 }
 
 /// <summary>Status of an individual download target.</summary>

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- Simplified Chinese. Machine-assisted — please have a native speaker review before release.
        Missing keys fall back to Strings.resx (English). -->
@@ -7702,5 +7702,497 @@ https://www.pixiv.net/en/artworks/12345678
   </data>
   <data name="Settings_ThemeBlendAccentHint" xml:space="preserve">
     <value>控件和边框使用第二个主题的颜色</value>
+  </data>
+  <data name="Nav_Dic" xml:space="preserve">
+    <value>百科</value>
+  </data>
+  <data name="Dic_Popular" xml:space="preserve">
+    <value>热门条目</value>
+  </data>
+  <data name="Dic_Updated" xml:space="preserve">
+    <value>更新条目</value>
+  </data>
+  <data name="Dic_New" xml:space="preserve">
+    <value>新条目</value>
+  </data>
+  <data name="Dic_SearchPlaceholder" xml:space="preserve">
+    <value>搜索 pixiv 百科</value>
+  </data>
+  <data name="Dic_Back" xml:space="preserve">
+    <value>返回</value>
+  </data>
+  <data name="Dic_Refresh" xml:space="preserve">
+    <value>刷新</value>
+  </data>
+  <data name="Dic_OpenInBrowser" xml:space="preserve">
+    <value>在浏览器中打开</value>
+  </data>
+  <data name="Dic_SearchPixiv" xml:space="preserve">
+    <value>在 pixiv 搜索此标签</value>
+  </data>
+  <data name="Dic_Prev" xml:space="preserve">
+    <value>上一页</value>
+  </data>
+  <data name="Dic_Next" xml:space="preserve">
+    <value>下一页</value>
+  </data>
+  <data name="Dic_Ranking" xml:space="preserve">
+    <value>排行榜</value>
+  </data>
+  <data name="Dic_Weekly" xml:space="preserve">
+    <value>每周</value>
+  </data>
+  <data name="Dic_Monthly" xml:space="preserve">
+    <value>每月</value>
+  </data>
+  <data name="Dic_Views" xml:space="preserve">
+    <value>浏览数</value>
+  </data>
+  <data name="Dic_Works" xml:space="preserve">
+    <value>作品数</value>
+  </data>
+  <data name="Dic_Checklist" xml:space="preserve">
+    <value>收藏清单</value>
+  </data>
+  <data name="Dic_UpdatedAt" xml:space="preserve">
+    <value>更新</value>
+  </data>
+  <data name="Dic_Contents" xml:space="preserve">
+    <value>目录</value>
+  </data>
+  <data name="Dic_Related" xml:space="preserve">
+    <value>相关条目</value>
+  </data>
+  <data name="Dic_NoArticles" xml:space="preserve">
+    <value>未找到条目。</value>
+  </data>
+  <data name="Dic_NoArticleFor" xml:space="preserve">
+    <value>尚无"{0}"的条目。</value>
+  </data>
+  <data name="Dic_Unavailable" xml:space="preserve">
+    <value>无法连接 pixiv 百科。请检查网络后点击刷新。</value>
+  </data>
+  <data name="Dic_LoadFailed" xml:space="preserve">
+    <value>pixiv 百科返回错误（{0}）。</value>
+  </data>
+  <data name="Dic_Home" xml:space="preserve">
+    <value>首页</value>
+  </data>
+  <data name="Dic_AutoTranslated" xml:space="preserve">
+    <value>由 pixiv 从日文条目自动翻译。</value>
+  </data>
+  <data name="Dic_JapaneseOriginal" xml:space="preserve">
+    <value>尚无英文条目，显示日文原文。</value>
+  </data>
+  <data name="Novel_OpenInBrowser" xml:space="preserve">
+    <value>在浏览器中打开</value>
+  </data>
+  <data name="Novel_Close" xml:space="preserve">
+    <value>关闭</value>
+  </data>
+  <data name="Novel_Smaller" xml:space="preserve">
+    <value>缩小文字</value>
+  </data>
+  <data name="Novel_Larger" xml:space="preserve">
+    <value>放大文字</value>
+  </data>
+  <data name="Novel_PrevEpisode" xml:space="preserve">
+    <value>← 上一话</value>
+  </data>
+  <data name="Novel_NextEpisode" xml:space="preserve">
+    <value>下一话 →</value>
+  </data>
+  <data name="Novel_Page" xml:space="preserve">
+    <value>第 {0} / {1} 页</value>
+  </data>
+  <data name="Novel_Characters" xml:space="preserve">
+    <value>{0:N0} 字</value>
+  </data>
+  <data name="Novel_ReadingTime" xml:space="preserve">
+    <value>约 {0} 分钟</value>
+  </data>
+  <data name="Novel_LoadFailed" xml:space="preserve">
+    <value>无法加载此小说。</value>
+  </data>
+  <data name="Novel_R18Hidden" xml:space="preserve">
+    <value>此小说为 R-18。请在设置中开启 R-18 内容后阅读。</value>
+  </data>
+  <data name="Novel_Comments" xml:space="preserve">
+    <value>评论</value>
+  </data>
+  <data name="Novel_Series" xml:space="preserve">
+    <value>系列</value>
+  </data>
+  <data name="Novel_Download" xml:space="preserve">
+    <value>下载</value>
+  </data>
+  <data name="Novel_DownloadChapter" xml:space="preserve">
+    <value>本话</value>
+  </data>
+  <data name="Novel_DownloadSelected" xml:space="preserve">
+    <value>所选章节</value>
+  </data>
+  <data name="Novel_DownloadSeries" xml:space="preserve">
+    <value>整个系列</value>
+  </data>
+  <data name="Novel_Expand" xml:space="preserve">
+    <value>展开</value>
+  </data>
+  <data name="Novel_Fullscreen" xml:space="preserve">
+    <value>全屏</value>
+  </data>
+  <data name="Novel_MoreComments" xml:space="preserve">
+    <value>更多评论</value>
+  </data>
+  <data name="Novel_SelectAll" xml:space="preserve">
+    <value>全选</value>
+  </data>
+  <data name="Novel_ShowFile" xml:space="preserve">
+    <value>显示文件</value>
+  </data>
+  <data name="Novel_Downloading" xml:space="preserve">
+    <value>正在下载第 {0}/{1} 话…</value>
+  </data>
+  <data name="Novel_ExitFullscreen" xml:space="preserve">
+    <value>退出全屏</value>
+  </data>
+  <data name="Novel_SaveForLater" xml:space="preserve">
+    <value>稍后阅读</value>
+  </data>
+  <data name="Novel_Formats" xml:space="preserve">
+    <value>格式（每种一个任务）</value>
+  </data>
+  <data name="Novel_DownloadSelectedN" xml:space="preserve">
+    <value>所选章节 ({0})</value>
+  </data>
+  <data name="Novel_TickChaptersHint" xml:space="preserve">
+    <value>在系列中勾选章节。</value>
+  </data>
+  <data name="Novel_SavedList" xml:space="preserve">
+    <value>已保存</value>
+  </data>
+  <data name="Novel_HistoryList" xml:space="preserve">
+    <value>历史</value>
+  </data>
+  <data name="Novel_LibraryEmpty" xml:space="preserve">
+    <value>暂无内容。</value>
+  </data>
+  <data name="Novel_Translate" xml:space="preserve">
+    <value>翻译</value>
+  </data>
+  <data name="Novel_ShowOriginal" xml:space="preserve">
+    <value>显示原文</value>
+  </data>
+  <data name="Novel_TranslateTip" xml:space="preserve">
+    <value>将此页翻译成应用语言</value>
+  </data>
+  <data name="Novel_TranslateWith" xml:space="preserve">
+    <value>翻译服务</value>
+  </data>
+  <data name="Novel_TranslatorGoogle" xml:space="preserve">
+    <value>Google 翻译（快速，文本会发送给 Google）</value>
+  </data>
+  <data name="Novel_TranslatorHoshi" xml:space="preserve">
+    <value>Hoshi（在本机运行，私密，较慢）</value>
+  </data>
+  <data name="Novel_Translating" xml:space="preserve">
+    <value>正在使用 {0} 翻译…</value>
+  </data>
+  <data name="Novel_TranslatedBy" xml:space="preserve">
+    <value>由 {0} 翻译</value>
+  </data>
+  <data name="Novel_HoshiOff" xml:space="preserve">
+    <value>请先在 Hoshi 星 页面开启 Hoshi。</value>
+  </data>
+  <data name="Novel_SelectedN" xml:space="preserve">
+    <value>已选 {0}</value>
+  </data>
+  <data name="Novel_DownloadSelectedBtn" xml:space="preserve">
+    <value>下载所选</value>
+  </data>
+  <data name="Settings_NovelTranslator" xml:space="preserve">
+    <value>小说翻译</value>
+  </data>
+  <data name="Novel_Like" xml:space="preserve">
+    <value>赞</value>
+  </data>
+  <data name="Novel_Liked" xml:space="preserve">
+    <value>已赞</value>
+  </data>
+  <data name="Novel_Favorite" xml:space="preserve">
+    <value>收藏</value>
+  </data>
+  <data name="Novel_FavoriteTip" xml:space="preserve">
+    <value>添加到本地收藏或移除</value>
+  </data>
+  <data name="Novel_FavoritesList" xml:space="preserve">
+    <value>收藏</value>
+  </data>
+  <data name="Novel_Bookmark" xml:space="preserve">
+    <value>书签</value>
+  </data>
+  <data name="Novel_Bookmarked" xml:space="preserve">
+    <value>已加书签</value>
+  </data>
+  <data name="Novel_BookmarkTip" xml:space="preserve">
+    <value>在 pixiv 加书签</value>
+  </data>
+  <data name="Novel_BookmarkPublic" xml:space="preserve">
+    <value>加书签（公开）</value>
+  </data>
+  <data name="Novel_BookmarkPrivate" xml:space="preserve">
+    <value>加书签（不公开）</value>
+  </data>
+  <data name="Novel_RemoveBookmark" xml:space="preserve">
+    <value>移除书签</value>
+  </data>
+  <data name="Novel_More" xml:space="preserve">
+    <value>更多</value>
+  </data>
+  <data name="Novel_CopyLink" xml:space="preserve">
+    <value>复制链接</value>
+  </data>
+  <data name="Novel_CopyTitle" xml:space="preserve">
+    <value>复制标题</value>
+  </data>
+  <data name="Novel_OpenAuthor" xml:space="preserve">
+    <value>打开作者作品</value>
+  </data>
+  <data name="Novel_LinkCopied" xml:space="preserve">
+    <value>已复制链接</value>
+  </data>
+  <data name="Novel_ActionFailed" xml:space="preserve">
+    <value>无法连接 pixiv，请确认已登录。</value>
+  </data>
+  <data name="Novel_SearchTag" xml:space="preserve">
+    <value>用此标签搜索小说</value>
+  </data>
+  <data name="Novel_Queued" xml:space="preserve">
+    <value>已将 {0} 章添加到任务</value>
+  </data>
+  <data name="Novel_Saved" xml:space="preserve">
+    <value>已保存到 {0}</value>
+  </data>
+  <data name="Dic_Saved" xml:space="preserve">
+    <value>已保存</value>
+  </data>
+  <data name="Dic_History" xml:space="preserve">
+    <value>历史</value>
+  </data>
+  <data name="Dic_SaveArticle" xml:space="preserve">
+    <value>保存</value>
+  </data>
+  <data name="Dic_ClearHistory" xml:space="preserve">
+    <value>清除历史</value>
+  </data>
+  <data name="Dic_SavedEmpty" xml:space="preserve">
+    <value>还没有保存的文章。打开文章并点击“保存”。</value>
+  </data>
+  <data name="Dic_HistoryEmpty" xml:space="preserve">
+    <value>还没有历史记录。</value>
+  </data>
+  <data name="Dic_Remove" xml:space="preserve">
+    <value>移除</value>
+  </data>
+  <data name="Dic_Page" xml:space="preserve">
+    <value>页</value>
+  </data>
+  <data name="Dic_GoToPage" xml:space="preserve">
+    <value>跳转到页</value>
+  </data>
+  <data name="Dic_Go" xml:space="preserve">
+    <value>跳转</value>
+  </data>
+  <data name="Analytics_Stats" xml:space="preserve">
+    <value>统计</value>
+  </data>
+  <data name="Analytics_CountingSince" xml:space="preserve">
+    <value>自 {0} 起统计 · {1} 天</value>
+  </data>
+  <data name="Analytics_Total" xml:space="preserve">
+    <value>活动</value>
+  </data>
+  <data name="Analytics_PerWeek" xml:space="preserve">
+    <value>每周约 {0}</value>
+  </data>
+  <data name="Analytics_Views" xml:space="preserve">
+    <value>浏览的作品</value>
+  </data>
+  <data name="Analytics_ViewsR18" xml:space="preserve">
+    <value>浏览的 R-18 作品</value>
+  </data>
+  <data name="Analytics_Downloads" xml:space="preserve">
+    <value>下载的图片</value>
+  </data>
+  <data name="Analytics_Today" xml:space="preserve">
+    <value>今天</value>
+  </data>
+  <data name="Analytics_TodaySub" xml:space="preserve">
+    <value>作品 {0} · 图片 {1} · 文章 {2} · 小说 {3}</value>
+  </data>
+  <data name="Analytics_Past7" xml:space="preserve">
+    <value>过去 7 天</value>
+  </data>
+  <data name="Analytics_NoneBefore" xml:space="preserve">
+    <value>之前 7 天没有</value>
+  </data>
+  <data name="Analytics_Before" xml:space="preserve">
+    <value>之前 7 天 {0}（{1}）</value>
+  </data>
+  <data name="Analytics_Streak" xml:space="preserve">
+    <value>连续</value>
+  </data>
+  <data name="Analytics_Days" xml:space="preserve">
+    <value>{0} 天</value>
+  </data>
+  <data name="Analytics_LongestYet" xml:space="preserve">
+    <value>最长纪录</value>
+  </data>
+  <data name="Analytics_Longest" xml:space="preserve">
+    <value>最长：{0} 天</value>
+  </data>
+  <data name="Analytics_BusiestDay" xml:space="preserve">
+    <value>最忙的一天</value>
+  </data>
+  <data name="Analytics_EveryDay" xml:space="preserve">
+    <value>每天</value>
+  </data>
+  <data name="Analytics_ActiveDays" xml:space="preserve">
+    <value>{1} 天中有 {0} 天活跃</value>
+  </data>
+  <data name="Analytics_Less" xml:space="preserve">
+    <value>少</value>
+  </data>
+  <data name="Analytics_More" xml:space="preserve">
+    <value>多</value>
+  </data>
+  <data name="Analytics_TimeOfDay" xml:space="preserve">
+    <value>时段</value>
+  </data>
+  <data name="Analytics_BusiestHour" xml:space="preserve">
+    <value>最多 {0}</value>
+  </data>
+  <data name="Analytics_All" xml:space="preserve">
+    <value>全部</value>
+  </data>
+  <data name="Analytics_DayOfWeek" xml:space="preserve">
+    <value>星期</value>
+  </data>
+  <data name="Analytics_BusiestOn" xml:space="preserve">
+    <value>{0}最多</value>
+  </data>
+  <data name="Analytics_Night" xml:space="preserve">
+    <value>夜间</value>
+  </data>
+  <data name="Analytics_Morning" xml:space="preserve">
+    <value>上午</value>
+  </data>
+  <data name="Analytics_Afternoon" xml:space="preserve">
+    <value>下午</value>
+  </data>
+  <data name="Analytics_Evening" xml:space="preserve">
+    <value>傍晚</value>
+  </data>
+  <data name="Analytics_TopTags" xml:space="preserve">
+    <value>常看标签</value>
+  </data>
+  <data name="Analytics_ContentTypes" xml:space="preserve">
+    <value>浏览的作品类型</value>
+  </data>
+  <data name="Analytics_TypeIllust" xml:space="preserve">
+    <value>插画</value>
+  </data>
+  <data name="Analytics_TypeManga" xml:space="preserve">
+    <value>漫画</value>
+  </data>
+  <data name="Analytics_TypeUgoira" xml:space="preserve">
+    <value>动图</value>
+  </data>
+  <data name="Analytics_DownloadJobs" xml:space="preserve">
+    <value>下载任务</value>
+  </data>
+  <data name="Analytics_TotalHint" xml:space="preserve">
+    <value>打开的作品、下载的图片和阅读的文章</value>
+  </data>
+  <data name="Analytics_ArticlesRead" xml:space="preserve">
+    <value>阅读的文章</value>
+  </data>
+  <data name="Analytics_RecentlyViewed" xml:space="preserve">
+    <value>最近浏览的作品</value>
+  </data>
+  <data name="Analytics_MostViewedArtworks" xml:space="preserve">
+    <value>最常浏览的作品</value>
+  </data>
+  <data name="Analytics_RecentArticles" xml:space="preserve">
+    <value>最近阅读的文章</value>
+  </data>
+  <data name="Analytics_MostReadArticles" xml:space="preserve">
+    <value>最常阅读的百科文章</value>
+  </data>
+  <data name="Analytics_ViewCountsNew" xml:space="preserve">
+    <value>从现在开始统计重复浏览。</value>
+  </data>
+  <data name="Analytics_ViewsCount" xml:space="preserve">
+    <value>{0} 次浏览</value>
+  </data>
+  <data name="Analytics_ReadsCount" xml:space="preserve">
+    <value>{0} 次</value>
+  </data>
+  <data name="Analytics_JustNow" xml:space="preserve">
+    <value>刚刚</value>
+  </data>
+  <data name="Analytics_MinutesAgo" xml:space="preserve">
+    <value>{0} 分钟前</value>
+  </data>
+  <data name="Analytics_HoursAgo" xml:space="preserve">
+    <value>{0} 小时前</value>
+  </data>
+  <data name="Analytics_DaysAgo" xml:space="preserve">
+    <value>{0} 天前</value>
+  </data>
+  <data name="Analytics_Period7d" xml:space="preserve">
+    <value>7天</value>
+  </data>
+  <data name="Analytics_Period30d" xml:space="preserve">
+    <value>30天</value>
+  </data>
+  <data name="Analytics_Period6m" xml:space="preserve">
+    <value>6个月</value>
+  </data>
+  <data name="Analytics_Period1y" xml:space="preserve">
+    <value>1年</value>
+  </data>
+  <data name="Analytics_Period5y" xml:space="preserve">
+    <value>5年</value>
+  </data>
+  <data name="Analytics_PeriodPage" xml:space="preserve">
+    <value>页面期间</value>
+  </data>
+  <data name="Analytics_SectionPeriodTip" xml:space="preserve">
+    <value>仅此部分的期间</value>
+  </data>
+  <data name="Analytics_NovelsRead" xml:space="preserve">
+    <value>阅读的小说</value>
+  </data>
+  <data name="Analytics_RecentNovels" xml:space="preserve">
+    <value>最近阅读的小说</value>
+  </data>
+  <data name="Settings_AnalyticsDefaultPeriod" xml:space="preserve">
+    <value>打开统计时的默认期间</value>
+  </data>
+  <data name="Analytics_PeriodAll" xml:space="preserve">
+    <value>全部</value>
+  </data>
+  <data name="Analytics_OverTime" xml:space="preserve">
+    <value>活动趋势</value>
+  </data>
+  <data name="Analytics_ByDay" xml:space="preserve">
+    <value>按天</value>
+  </data>
+  <data name="Analytics_ByWeek" xml:space="preserve">
+    <value>按周</value>
+  </data>
+  <data name="Analytics_ByMonth" xml:space="preserve">
+    <value>按月</value>
   </data>
 </root>

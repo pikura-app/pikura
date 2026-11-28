@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- Japanese. Machine-assisted — please have a native speaker review before release.
        Missing keys fall back to Strings.resx (English). -->
@@ -7702,5 +7702,497 @@ https://www.pixiv.net/en/artworks/12345678
   </data>
   <data name="Settings_ThemeBlendAccentHint" xml:space="preserve">
     <value>コントロールと枠線を2番目のテーマの色に</value>
+  </data>
+  <data name="Nav_Dic" xml:space="preserve">
+    <value>百科事典</value>
+  </data>
+  <data name="Dic_Popular" xml:space="preserve">
+    <value>注目の記事</value>
+  </data>
+  <data name="Dic_Updated" xml:space="preserve">
+    <value>更新記事</value>
+  </data>
+  <data name="Dic_New" xml:space="preserve">
+    <value>新着記事</value>
+  </data>
+  <data name="Dic_SearchPlaceholder" xml:space="preserve">
+    <value>ピクシブ百科事典を検索</value>
+  </data>
+  <data name="Dic_Back" xml:space="preserve">
+    <value>戻る</value>
+  </data>
+  <data name="Dic_Refresh" xml:space="preserve">
+    <value>更新</value>
+  </data>
+  <data name="Dic_OpenInBrowser" xml:space="preserve">
+    <value>ブラウザで開く</value>
+  </data>
+  <data name="Dic_SearchPixiv" xml:space="preserve">
+    <value>このタグでpixivを検索</value>
+  </data>
+  <data name="Dic_Prev" xml:space="preserve">
+    <value>前へ</value>
+  </data>
+  <data name="Dic_Next" xml:space="preserve">
+    <value>次へ</value>
+  </data>
+  <data name="Dic_Ranking" xml:space="preserve">
+    <value>ランキング</value>
+  </data>
+  <data name="Dic_Weekly" xml:space="preserve">
+    <value>週間</value>
+  </data>
+  <data name="Dic_Monthly" xml:space="preserve">
+    <value>月間</value>
+  </data>
+  <data name="Dic_Views" xml:space="preserve">
+    <value>閲覧数</value>
+  </data>
+  <data name="Dic_Works" xml:space="preserve">
+    <value>作品数</value>
+  </data>
+  <data name="Dic_Checklist" xml:space="preserve">
+    <value>チェックリスト</value>
+  </data>
+  <data name="Dic_UpdatedAt" xml:space="preserve">
+    <value>更新</value>
+  </data>
+  <data name="Dic_Contents" xml:space="preserve">
+    <value>目次</value>
+  </data>
+  <data name="Dic_Related" xml:space="preserve">
+    <value>関連記事</value>
+  </data>
+  <data name="Dic_NoArticles" xml:space="preserve">
+    <value>記事が見つかりません。</value>
+  </data>
+  <data name="Dic_NoArticleFor" xml:space="preserve">
+    <value>「{0}」の記事はまだありません。</value>
+  </data>
+  <data name="Dic_Unavailable" xml:space="preserve">
+    <value>ピクシブ百科事典に接続できませんでした。接続を確認して更新を押してください。</value>
+  </data>
+  <data name="Dic_LoadFailed" xml:space="preserve">
+    <value>ピクシブ百科事典がエラーを返しました（{0}）。</value>
+  </data>
+  <data name="Dic_Home" xml:space="preserve">
+    <value>ホーム</value>
+  </data>
+  <data name="Dic_AutoTranslated" xml:space="preserve">
+    <value>日本語記事からpixivが自動翻訳した記事です。</value>
+  </data>
+  <data name="Dic_JapaneseOriginal" xml:space="preserve">
+    <value>英語の記事はまだないため、日本語の記事を表示しています。</value>
+  </data>
+  <data name="Novel_OpenInBrowser" xml:space="preserve">
+    <value>ブラウザで開く</value>
+  </data>
+  <data name="Novel_Close" xml:space="preserve">
+    <value>閉じる</value>
+  </data>
+  <data name="Novel_Smaller" xml:space="preserve">
+    <value>文字を小さく</value>
+  </data>
+  <data name="Novel_Larger" xml:space="preserve">
+    <value>文字を大きく</value>
+  </data>
+  <data name="Novel_PrevEpisode" xml:space="preserve">
+    <value>← 前の話</value>
+  </data>
+  <data name="Novel_NextEpisode" xml:space="preserve">
+    <value>次の話 →</value>
+  </data>
+  <data name="Novel_Page" xml:space="preserve">
+    <value>{0} / {1} ページ</value>
+  </data>
+  <data name="Novel_Characters" xml:space="preserve">
+    <value>{0:N0}文字</value>
+  </data>
+  <data name="Novel_ReadingTime" xml:space="preserve">
+    <value>約{0}分</value>
+  </data>
+  <data name="Novel_LoadFailed" xml:space="preserve">
+    <value>この小説を読み込めませんでした。</value>
+  </data>
+  <data name="Novel_R18Hidden" xml:space="preserve">
+    <value>この小説はR-18です。読むには設定でR-18コンテンツをオンにしてください。</value>
+  </data>
+  <data name="Novel_Comments" xml:space="preserve">
+    <value>コメント</value>
+  </data>
+  <data name="Novel_Series" xml:space="preserve">
+    <value>シリーズ</value>
+  </data>
+  <data name="Novel_Download" xml:space="preserve">
+    <value>ダウンロード</value>
+  </data>
+  <data name="Novel_DownloadChapter" xml:space="preserve">
+    <value>この話</value>
+  </data>
+  <data name="Novel_DownloadSelected" xml:space="preserve">
+    <value>選択した話</value>
+  </data>
+  <data name="Novel_DownloadSeries" xml:space="preserve">
+    <value>シリーズ全体</value>
+  </data>
+  <data name="Novel_Expand" xml:space="preserve">
+    <value>拡大</value>
+  </data>
+  <data name="Novel_Fullscreen" xml:space="preserve">
+    <value>全画面</value>
+  </data>
+  <data name="Novel_MoreComments" xml:space="preserve">
+    <value>さらに表示</value>
+  </data>
+  <data name="Novel_SelectAll" xml:space="preserve">
+    <value>すべて選択</value>
+  </data>
+  <data name="Novel_ShowFile" xml:space="preserve">
+    <value>ファイルを表示</value>
+  </data>
+  <data name="Novel_Downloading" xml:space="preserve">
+    <value>{1}話中{0}話目をダウンロード中…</value>
+  </data>
+  <data name="Novel_ExitFullscreen" xml:space="preserve">
+    <value>全画面を終了</value>
+  </data>
+  <data name="Novel_SaveForLater" xml:space="preserve">
+    <value>あとで読む</value>
+  </data>
+  <data name="Novel_Formats" xml:space="preserve">
+    <value>形式（形式ごとにジョブ）</value>
+  </data>
+  <data name="Novel_DownloadSelectedN" xml:space="preserve">
+    <value>選択した話 ({0})</value>
+  </data>
+  <data name="Novel_TickChaptersHint" xml:space="preserve">
+    <value>シリーズで話にチェックを入れて選択します。</value>
+  </data>
+  <data name="Novel_SavedList" xml:space="preserve">
+    <value>保存済み</value>
+  </data>
+  <data name="Novel_HistoryList" xml:space="preserve">
+    <value>履歴</value>
+  </data>
+  <data name="Novel_LibraryEmpty" xml:space="preserve">
+    <value>まだありません。</value>
+  </data>
+  <data name="Novel_Translate" xml:space="preserve">
+    <value>翻訳</value>
+  </data>
+  <data name="Novel_ShowOriginal" xml:space="preserve">
+    <value>原文を表示</value>
+  </data>
+  <data name="Novel_TranslateTip" xml:space="preserve">
+    <value>このページをアプリの言語に翻訳</value>
+  </data>
+  <data name="Novel_TranslateWith" xml:space="preserve">
+    <value>翻訳サービス</value>
+  </data>
+  <data name="Novel_TranslatorGoogle" xml:space="preserve">
+    <value>Google 翻訳（高速、テキストを Google に送信）</value>
+  </data>
+  <data name="Novel_TranslatorHoshi" xml:space="preserve">
+    <value>Hoshi（この PC 上、プライベート、低速）</value>
+  </data>
+  <data name="Novel_Translating" xml:space="preserve">
+    <value>{0} で翻訳中…</value>
+  </data>
+  <data name="Novel_TranslatedBy" xml:space="preserve">
+    <value>{0} による翻訳</value>
+  </data>
+  <data name="Novel_HoshiOff" xml:space="preserve">
+    <value>先に Hoshi 星 ページで Hoshi をオンにしてください。</value>
+  </data>
+  <data name="Novel_SelectedN" xml:space="preserve">
+    <value>{0} 件選択</value>
+  </data>
+  <data name="Novel_DownloadSelectedBtn" xml:space="preserve">
+    <value>選択をダウンロード</value>
+  </data>
+  <data name="Settings_NovelTranslator" xml:space="preserve">
+    <value>小説の翻訳</value>
+  </data>
+  <data name="Novel_Like" xml:space="preserve">
+    <value>いいね</value>
+  </data>
+  <data name="Novel_Liked" xml:space="preserve">
+    <value>いいね済み</value>
+  </data>
+  <data name="Novel_Favorite" xml:space="preserve">
+    <value>お気に入り</value>
+  </data>
+  <data name="Novel_FavoriteTip" xml:space="preserve">
+    <value>ローカルのお気に入りに追加・削除</value>
+  </data>
+  <data name="Novel_FavoritesList" xml:space="preserve">
+    <value>お気に入り</value>
+  </data>
+  <data name="Novel_Bookmark" xml:space="preserve">
+    <value>ブックマーク</value>
+  </data>
+  <data name="Novel_Bookmarked" xml:space="preserve">
+    <value>ブックマーク済み</value>
+  </data>
+  <data name="Novel_BookmarkTip" xml:space="preserve">
+    <value>pixiv でブックマーク</value>
+  </data>
+  <data name="Novel_BookmarkPublic" xml:space="preserve">
+    <value>ブックマーク（公開）</value>
+  </data>
+  <data name="Novel_BookmarkPrivate" xml:space="preserve">
+    <value>ブックマーク（非公開）</value>
+  </data>
+  <data name="Novel_RemoveBookmark" xml:space="preserve">
+    <value>ブックマークを解除</value>
+  </data>
+  <data name="Novel_More" xml:space="preserve">
+    <value>その他</value>
+  </data>
+  <data name="Novel_CopyLink" xml:space="preserve">
+    <value>リンクをコピー</value>
+  </data>
+  <data name="Novel_CopyTitle" xml:space="preserve">
+    <value>タイトルをコピー</value>
+  </data>
+  <data name="Novel_OpenAuthor" xml:space="preserve">
+    <value>作者のギャラリーを開く</value>
+  </data>
+  <data name="Novel_LinkCopied" xml:space="preserve">
+    <value>リンクをコピーしました</value>
+  </data>
+  <data name="Novel_ActionFailed" xml:space="preserve">
+    <value>pixiv に接続できませんでした。ログインを確認してください。</value>
+  </data>
+  <data name="Novel_SearchTag" xml:space="preserve">
+    <value>このタグで小説を検索</value>
+  </data>
+  <data name="Novel_Queued" xml:space="preserve">
+    <value>{0} 話をジョブに追加しました</value>
+  </data>
+  <data name="Novel_Saved" xml:space="preserve">
+    <value>{0} に保存しました</value>
+  </data>
+  <data name="Dic_Saved" xml:space="preserve">
+    <value>保存済み</value>
+  </data>
+  <data name="Dic_History" xml:space="preserve">
+    <value>履歴</value>
+  </data>
+  <data name="Dic_SaveArticle" xml:space="preserve">
+    <value>保存</value>
+  </data>
+  <data name="Dic_ClearHistory" xml:space="preserve">
+    <value>履歴を消去</value>
+  </data>
+  <data name="Dic_SavedEmpty" xml:space="preserve">
+    <value>保存した記事はまだありません。記事を開いて「保存」を押してください。</value>
+  </data>
+  <data name="Dic_HistoryEmpty" xml:space="preserve">
+    <value>履歴はまだありません。</value>
+  </data>
+  <data name="Dic_Remove" xml:space="preserve">
+    <value>削除</value>
+  </data>
+  <data name="Dic_Page" xml:space="preserve">
+    <value>ページ</value>
+  </data>
+  <data name="Dic_GoToPage" xml:space="preserve">
+    <value>ページへ移動</value>
+  </data>
+  <data name="Dic_Go" xml:space="preserve">
+    <value>移動</value>
+  </data>
+  <data name="Analytics_Stats" xml:space="preserve">
+    <value>統計</value>
+  </data>
+  <data name="Analytics_CountingSince" xml:space="preserve">
+    <value>{0} から集計 · {1} 日</value>
+  </data>
+  <data name="Analytics_Total" xml:space="preserve">
+    <value>アクティビティ</value>
+  </data>
+  <data name="Analytics_PerWeek" xml:space="preserve">
+    <value>週に約 {0}</value>
+  </data>
+  <data name="Analytics_Views" xml:space="preserve">
+    <value>閲覧した作品</value>
+  </data>
+  <data name="Analytics_ViewsR18" xml:space="preserve">
+    <value>閲覧した R-18 作品</value>
+  </data>
+  <data name="Analytics_Downloads" xml:space="preserve">
+    <value>ダウンロードした画像</value>
+  </data>
+  <data name="Analytics_Today" xml:space="preserve">
+    <value>今日</value>
+  </data>
+  <data name="Analytics_TodaySub" xml:space="preserve">
+    <value>作品 {0} 件閲覧 · 画像 {1} 枚DL · 記事 {2} 件 · 小説 {3} 件</value>
+  </data>
+  <data name="Analytics_Past7" xml:space="preserve">
+    <value>過去7日間</value>
+  </data>
+  <data name="Analytics_NoneBefore" xml:space="preserve">
+    <value>その前の7日間はなし</value>
+  </data>
+  <data name="Analytics_Before" xml:space="preserve">
+    <value>その前の7日間は {0}（{1}）</value>
+  </data>
+  <data name="Analytics_Streak" xml:space="preserve">
+    <value>連続日数</value>
+  </data>
+  <data name="Analytics_Days" xml:space="preserve">
+    <value>{0} 日</value>
+  </data>
+  <data name="Analytics_LongestYet" xml:space="preserve">
+    <value>過去最長</value>
+  </data>
+  <data name="Analytics_Longest" xml:space="preserve">
+    <value>最長: {0} 日</value>
+  </data>
+  <data name="Analytics_BusiestDay" xml:space="preserve">
+    <value>最も多かった日</value>
+  </data>
+  <data name="Analytics_EveryDay" xml:space="preserve">
+    <value>毎日</value>
+  </data>
+  <data name="Analytics_ActiveDays" xml:space="preserve">
+    <value>{1} 日中 {0} 日アクティブ</value>
+  </data>
+  <data name="Analytics_Less" xml:space="preserve">
+    <value>少</value>
+  </data>
+  <data name="Analytics_More" xml:space="preserve">
+    <value>多</value>
+  </data>
+  <data name="Analytics_TimeOfDay" xml:space="preserve">
+    <value>時間帯</value>
+  </data>
+  <data name="Analytics_BusiestHour" xml:space="preserve">
+    <value>最多 {0}</value>
+  </data>
+  <data name="Analytics_All" xml:space="preserve">
+    <value>すべて</value>
+  </data>
+  <data name="Analytics_DayOfWeek" xml:space="preserve">
+    <value>曜日</value>
+  </data>
+  <data name="Analytics_BusiestOn" xml:space="preserve">
+    <value>{0} が最多</value>
+  </data>
+  <data name="Analytics_Night" xml:space="preserve">
+    <value>深夜</value>
+  </data>
+  <data name="Analytics_Morning" xml:space="preserve">
+    <value>朝</value>
+  </data>
+  <data name="Analytics_Afternoon" xml:space="preserve">
+    <value>午後</value>
+  </data>
+  <data name="Analytics_Evening" xml:space="preserve">
+    <value>夜</value>
+  </data>
+  <data name="Analytics_TopTags" xml:space="preserve">
+    <value>よく見るタグ</value>
+  </data>
+  <data name="Analytics_ContentTypes" xml:space="preserve">
+    <value>閲覧した作品の種類</value>
+  </data>
+  <data name="Analytics_TypeIllust" xml:space="preserve">
+    <value>イラスト</value>
+  </data>
+  <data name="Analytics_TypeManga" xml:space="preserve">
+    <value>マンガ</value>
+  </data>
+  <data name="Analytics_TypeUgoira" xml:space="preserve">
+    <value>うごイラ</value>
+  </data>
+  <data name="Analytics_DownloadJobs" xml:space="preserve">
+    <value>ダウンロードジョブ</value>
+  </data>
+  <data name="Analytics_TotalHint" xml:space="preserve">
+    <value>開いた作品、ダウンロードした画像、読んだ記事</value>
+  </data>
+  <data name="Analytics_ArticlesRead" xml:space="preserve">
+    <value>読んだ記事</value>
+  </data>
+  <data name="Analytics_RecentlyViewed" xml:space="preserve">
+    <value>最近見た作品</value>
+  </data>
+  <data name="Analytics_MostViewedArtworks" xml:space="preserve">
+    <value>よく見る作品</value>
+  </data>
+  <data name="Analytics_RecentArticles" xml:space="preserve">
+    <value>最近読んだ記事</value>
+  </data>
+  <data name="Analytics_MostReadArticles" xml:space="preserve">
+    <value>よく読む大百科記事</value>
+  </data>
+  <data name="Analytics_ViewCountsNew" xml:space="preserve">
+    <value>今後の再閲覧から集計します。</value>
+  </data>
+  <data name="Analytics_ViewsCount" xml:space="preserve">
+    <value>{0} 回閲覧</value>
+  </data>
+  <data name="Analytics_ReadsCount" xml:space="preserve">
+    <value>{0} 回</value>
+  </data>
+  <data name="Analytics_JustNow" xml:space="preserve">
+    <value>たった今</value>
+  </data>
+  <data name="Analytics_MinutesAgo" xml:space="preserve">
+    <value>{0} 分前</value>
+  </data>
+  <data name="Analytics_HoursAgo" xml:space="preserve">
+    <value>{0} 時間前</value>
+  </data>
+  <data name="Analytics_DaysAgo" xml:space="preserve">
+    <value>{0} 日前</value>
+  </data>
+  <data name="Analytics_Period7d" xml:space="preserve">
+    <value>7日間</value>
+  </data>
+  <data name="Analytics_Period30d" xml:space="preserve">
+    <value>30日間</value>
+  </data>
+  <data name="Analytics_Period6m" xml:space="preserve">
+    <value>6か月</value>
+  </data>
+  <data name="Analytics_Period1y" xml:space="preserve">
+    <value>1年</value>
+  </data>
+  <data name="Analytics_Period5y" xml:space="preserve">
+    <value>5年</value>
+  </data>
+  <data name="Analytics_PeriodPage" xml:space="preserve">
+    <value>ページの期間</value>
+  </data>
+  <data name="Analytics_SectionPeriodTip" xml:space="preserve">
+    <value>このセクションだけの期間</value>
+  </data>
+  <data name="Analytics_NovelsRead" xml:space="preserve">
+    <value>読んだ小説</value>
+  </data>
+  <data name="Analytics_RecentNovels" xml:space="preserve">
+    <value>最近読んだ小説</value>
+  </data>
+  <data name="Settings_AnalyticsDefaultPeriod" xml:space="preserve">
+    <value>分析を開いたときの既定の期間</value>
+  </data>
+  <data name="Analytics_PeriodAll" xml:space="preserve">
+    <value>全期間</value>
+  </data>
+  <data name="Analytics_OverTime" xml:space="preserve">
+    <value>アクティビティの推移</value>
+  </data>
+  <data name="Analytics_ByDay" xml:space="preserve">
+    <value>日ごと</value>
+  </data>
+  <data name="Analytics_ByWeek" xml:space="preserve">
+    <value>週ごと</value>
+  </data>
+  <data name="Analytics_ByMonth" xml:space="preserve">
+    <value>月ごと</value>
   </data>
 </root>

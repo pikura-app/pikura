@@ -1225,6 +1225,15 @@
                                 <Border Background="{DynamicResource Container1BackgroundBrush}"
                                         BorderBrush="{DynamicResource Container1BorderBrush}"
                                         BorderThickness="1" CornerRadius="8" Padding="24">
+                                    <StackPanel Spacing="8">
+                                        <TextBlock Text="{loc:Tr Nav_Analytics}" FontWeight="SemiBold" FontSize="13"/>
+                                        <TextBlock Text="{loc:Tr Settings_AnalyticsDefaultPeriod}" FontSize="12"/>
+                                        <ComboBox ItemsSource="{Binding AnalyticsPeriodOptions}" SelectedIndex="{Binding AnalyticsDefaultPeriodIndex}" MinWidth="180"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Background="{DynamicResource Container1BackgroundBrush}"
+                                        BorderBrush="{DynamicResource Container1BorderBrush}"
+                                        BorderThickness="1" CornerRadius="8" Padding="24">
                                     <StackPanel Spacing="12">
                                         <TextBlock Text="{loc:Tr Settings_ReverseSearch}" FontWeight="SemiBold" FontSize="13"/>
                                         <TextBlock Text="{loc:Tr Settings_SauceNaoKeyHint}" FontSize="11" TextWrapping="Wrap"
@@ -1582,6 +1591,13 @@
                                     <!-- GPU for Ollama (integrated GPUs are skipped by Ollama unless enabled) -->
                                     <StackPanel Spacing="4">
                                         <CheckBox Content="{loc:Tr Hoshi_OllamaIgpu}" IsChecked="{Binding HoshiOllamaIgpu}"/>
+                                        <StackPanel Spacing="4" Margin="0,8,0,0">
+                                            <TextBlock Text="{loc:Tr Settings_NovelTranslator}" FontSize="12" FontWeight="SemiBold"/>
+                                            <ComboBox SelectedIndex="{Binding NovelTranslatorIndex}" MinWidth="280">
+                                                <ComboBoxItem Content="{loc:Tr Novel_TranslatorGoogle}"/>
+                                                <ComboBoxItem Content="{loc:Tr Novel_TranslatorHoshi}"/>
+                                            </ComboBox>
+                                        </StackPanel>
                                         <TextBlock Text="{loc:Tr Hoshi_OllamaIgpuHint}" FontSize="11" TextWrapping="Wrap" MaxWidth="520"
                                                    Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
                                         <StackPanel Orientation="Horizontal" Spacing="8">

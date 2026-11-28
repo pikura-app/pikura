@@ -1,4 +1,4 @@
-using Avalonia.Controls;
+﻿using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Input.Platform;
@@ -119,8 +119,35 @@ public partial class EnhancedRankingsView : UserControl
             {
                 if (e.PropertyName == nameof(EnhancedRankingsViewModel.ShowPreview))
                     ApplyShowPreview(vm.ShowPreview);
+                if (e.PropertyName == nameof(EnhancedRankingsViewModel.NovelReaderExpanded))
+                {
+                    vm.NovelReaders.IsExpanded = vm.NovelReaderExpanded;
+                    ApplyNovelExpanded(vm.NovelReaderExpanded);
+                }
             };
+            vm.NovelReaders.FullscreenRequested += (_, id) => Pikura.Avalonia.Views.Novel.NovelReaderWindow.Open(id, this, fullscreen: true);
+            vm.NovelReaders.PanelToggleRequested += (_, _) => OnViewerToggleBrowse(this, new RoutedEventArgs());
             ApplyShowPreview(vm.ShowPreview);
+        }
+    }
+
+    private void ApplyNovelExpanded(bool expanded)
+    {
+        var grid = this.FindControl<Grid>("ContentGrid");
+        if (grid == null || grid.ColumnDefinitions.Count < 3) return;
+        var main = grid.ColumnDefinitions[0];
+        if (expanded)
+        {
+            if (grid.ColumnDefinitions[2].ActualWidth > 0) _lastSidePanelWidth = grid.ColumnDefinitions[2].ActualWidth;
+            main.MinWidth = 0;
+            main.Width = new GridLength(0);
+            grid.ColumnDefinitions[2].Width = new GridLength(1, GridUnitType.Star);
+        }
+        else
+        {
+            main.MinWidth = 280;
+            main.Width = new GridLength(1, GridUnitType.Star);
+            ApplyShowPreview(VM?.ShowPreview == true);
         }
     }
 
@@ -276,10 +303,12 @@ public partial class EnhancedRankingsView : UserControl
         if (VM == null) return;
         if (card.IsNovel)
         {
-            try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo($"https://www.pixiv.net/novel/show.php?id={card.Id}") { UseShellExecute = true }); }
-            catch { /* non-fatal */ }
+            VM.ShowNovelReader = false;
+            AppServices.Get<GalleryViewModel>().OpenNovelInNewTab(card.Id, card.Title, "Rankings");
+            VM.ShowPreview = true;
             return;
         }
+        VM.ShowNovelReader = false;
         try
         {
             var galleryVm = AppServices.Get<GalleryViewModel>();
@@ -347,7 +376,7 @@ public partial class EnhancedRankingsView : UserControl
     private void OnContextOpenPopup(object? sender, RoutedEventArgs e)
     {
         if (GetCardFromMenu(sender) is not { } card) return;
-        if (card.IsNovel) { OpenInlineViewer(card); return; } // opens browser tab instead
+        if (card.IsNovel) { OpenInlineViewer(card); return; }
         _ = OpenPopupAsync(card);
     }
 

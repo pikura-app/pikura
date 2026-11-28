@@ -1,4 +1,4 @@
-using Avalonia.Controls;
+﻿using Avalonia.Controls;
 using Avalonia.Threading;
 using Avalonia.Input;
 using Avalonia.Input.Platform;
@@ -282,8 +282,7 @@ public partial class GlobalSearchView : UserControl
         if (sender is not Control ctrl) return;
         if (ctrl.DataContext is not NovelCardViewModel card) return;
         e.Handled = true;
-        try { Process.Start(new ProcessStartInfo($"https://www.pixiv.net/novel/show.php?id={card.Id}") { UseShellExecute = true }); }
-        catch { }
+        VM?.OpenNovel(card);
     }
 
     private void OnUserCardClicked(object? sender, PointerPressedEventArgs e)
@@ -527,6 +526,6 @@ public partial class GlobalSearchView : UserControl
     {
         if (_tapPtr == PointerType.Mouse) return; // mouse already handled via PointerPressed
         if (sender is not Control c || c.DataContext is not NovelCardViewModel card) return;
-        try { global::System.Diagnostics.Process.Start(new global::System.Diagnostics.ProcessStartInfo($"https://www.pixiv.net/novel/show.php?id={card.Id}") { UseShellExecute = true }); } catch { }
+        VM?.OpenNovel(card);
     }
 }

@@ -80,6 +80,11 @@ public partial class ViewerTab : ObservableObject
     /// than the faster-loading Regular preview.</summary>
     public bool CachedFullResLoaded { get; set; }
 
+    /// <summary>The embedded reader when this tab shows a pixiv novel instead of an artwork.</summary>
+    public NovelReaderViewModel? Novel { get; init; }
+    public string? NovelId { get; init; }
+    public bool IsNovel => Novel != null;
+
     public ViewerTab(ArtworkCardViewModel? card, IReadOnlyList<ArtworkCardViewModel>? navList = null,
         int totalCount = 0, Func<Task<IReadOnlyList<ArtworkCardViewModel>>>? loadMoreAsync = null,
         string source = "Gallery", string? header = null, bool isCollage = false)
@@ -1096,6 +1101,8 @@ ShowPreview = true;
     {
         if (!_restoringTabs) SaveViewerTabsState();
         OnPropertyChanged(nameof(IsLibraryTab));
+        OnPropertyChanged(nameof(SelectedNovel));
+        OnPropertyChanged(nameof(IsNovelTabSelected));
         InlineViewerCard = value?.Card;
         // Keep InlineViewerCardList in sync so the counter works for non-tab viewers too
         InlineViewerCardList = value?.NavList.Count > 0 ? value.NavList : null;
@@ -2955,7 +2962,7 @@ ShowPreview = true;
 
         // Plain click: replace the current image tab in-place, but never overwrite the collage tab.
         ViewerSource = source;
-        if (SelectedViewerTab is { IsCollage: false } active)
+        if (SelectedViewerTab is { IsCollage: false, IsNovel: false } active)
         {
             active.NavList.Clear();
             foreach (var c in list) active.NavList.Add(c);
@@ -3055,6 +3062,47 @@ ShowPreview = true;
         }
     }
 
+    public NovelReaderViewModel? SelectedNovel => SelectedViewerTab?.Novel;
+    public bool IsNovelTabSelected => SelectedViewerTab?.IsNovel == true;
+
+    /// <summary>Raised when a novel tab asks for fullscreen; the visible viewer opens the reader window.</summary>
+    public event EventHandler<string>? NovelFullscreenRequested;
+
+    /// <summary>Opens a pixiv novel as a global viewer tab (or selects its existing tab).</summary>
+    public void OpenNovelInNewTab(string novelId, string? title = null, string source = "Novels")
+    {
+        if (ViewerTabs.FirstOrDefault(t => t.NovelId == novelId) is { } existing)
+        {
+            SelectedViewerTab = existing;
+            ShowPreview = true;
+            return;
+        }
+        var reader = new NovelReaderViewModel(AppServices.Get<PixivClient>(), AppServices.Get<PixivImageLoader>(), _settingsService);
+        var header = string.IsNullOrWhiteSpace(title) ? "Novel" : title;
+        var tab = new ViewerTab(null, [], 0, null, source, header: header.Length > 24 ? header[..24] + "…" : header)
+        {
+            Novel = reader,
+            NovelId = novelId,
+        };
+        reader.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName is nameof(NovelReaderViewModel.Title) or nameof(NovelReaderViewModel.Novel) && reader.Title.Length > 0)
+            {
+                tab.Header = reader.Title.Length > 24 ? reader.Title[..24] + "…" : reader.Title;
+                if (!_restoringTabs) SaveViewerTabsState();
+            }
+        };
+        reader.CloseRequested += (_, _) => CloseViewerTab(tab);
+        reader.ExpandRequested += (_, _) => IsViewerExpanded = !IsViewerExpanded;
+        reader.FullscreenRequested += (_, _) => NovelFullscreenRequested?.Invoke(this, novelId);
+        ViewerTabs.Add(tab);
+        SelectedViewerTab = tab;
+        if (!_restoringTabs) ShowPreview = true;
+        _ = reader.LoadAsync(novelId);
+    }
+
+    public void RequestNovelFullscreen(string novelId) => NovelFullscreenRequested?.Invoke(this, novelId);
+
     [RelayCommand]
     public void CloseViewerTab(ViewerTab? tab)
     {
@@ -3094,7 +3142,11 @@ ShowPreview = true;
             var entries = new List<Pikura.Core.Settings.PersistedViewerTab>();
             foreach (var tab in ViewerTabs)
             {
-                if (tab.IsCollage)
+                if (tab.NovelId is { } novelId)
+                {
+                    entries.Add(new Pikura.Core.Settings.PersistedViewerTab { Source = tab.Source, Header = tab.Header, NovelId = novelId });
+                }
+                else if (tab.IsCollage)
                 {
                     if (tab.CollageItems.Count == 0) continue;
                     entries.Add(new Pikura.Core.Settings.PersistedViewerTab
@@ -3151,6 +3203,8 @@ ShowPreview = true;
             {
                 try
                 {
+                    if (!string.IsNullOrEmpty(entry.NovelId))
+                        return (entry, (List<ArtworkCardViewModel>?)null);
                     if (entry.IsCollage)
                     {
                         if (entry.CollageArtworkIds is not { Count: > 0 }) return (entry, (List<ArtworkCardViewModel>?)null);
@@ -3202,6 +3256,11 @@ ShowPreview = true;
                 {
                     foreach (var (entry, cards) in results)
                     {
+                        if (!string.IsNullOrEmpty(entry.NovelId))
+                        {
+                            OpenNovelInNewTab(entry.NovelId, entry.Header, entry.Source ?? "Novels");
+                            continue;
+                        }
                         if (cards is not { Count: > 0 }) continue;
                         if (entry.IsCollage)
                         {

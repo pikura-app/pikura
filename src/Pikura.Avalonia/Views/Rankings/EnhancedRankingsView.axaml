@@ -1,4 +1,5 @@
 ﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:novel="using:Pikura.Avalonia.Views.Novel"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:loc="using:Pikura.Avalonia.Localization"
              xmlns:actipro="http://schemas.actiprosoftware.com/avaloniaui"
@@ -185,6 +186,9 @@
                     <Button Content="{loc:Tr Search_Manga}"         CornerRadius="6" Padding="14,5" FontSize="12"
                             Command="{Binding SelectContentCommand}" CommandParameter="manga"
                             Classes.accent="{Binding SelectedContent, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=manga}"/>
+                    <Button Content="{loc:Tr Search_Novels}"        CornerRadius="6" Padding="14,5" FontSize="12"
+                            Command="{Binding SelectContentCommand}" CommandParameter="novel"
+                            Classes.accent="{Binding SelectedContent, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=novel}"/>
                 </StackPanel>
                 <!-- Spacer — visually separates content-type tabs from the view controls -->
                 <Rectangle Width="32" Fill="Transparent"/>
@@ -330,23 +334,34 @@
                             Classes.accent="{Binding SelectedMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=weekly}"/>
                     <Button Content="{loc:Tr Rankings_Monthly}"  CornerRadius="6" Padding="12,5" FontSize="11"
                             Command="{Binding SelectModeCommand}" CommandParameter="monthly"
-                            Classes.accent="{Binding SelectedMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=monthly}"/>
+                            Classes.accent="{Binding SelectedMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=monthly}"
+                            IsVisible="{Binding ShowNovelSafeOnlyModes}"/>
                     <Button Content="{loc:Tr Rankings_Rookie}"   CornerRadius="6" Padding="12,5" FontSize="11"
                             Command="{Binding SelectModeCommand}" CommandParameter="rookie"
-                            Classes.accent="{Binding SelectedMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=rookie}"/>
+                            Classes.accent="{Binding SelectedMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=rookie}"
+                            IsVisible="{Binding ShowNovelSafeOnlyModes}"/>
                     <Button Content="{loc:Tr Rankings_Original}" CornerRadius="6" Padding="12,5" FontSize="11"
                             Command="{Binding SelectModeCommand}" CommandParameter="weekly_original"
-                            Classes.accent="{Binding SelectedMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=weekly_original}"/>
+                            Classes.accent="{Binding SelectedMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=weekly_original}"
+                            IsVisible="{Binding ShowNovelSafeOnlyModes}"/>
                     <Button Content="{loc:Tr Rankings_AI}"       CornerRadius="6" Padding="12,5" FontSize="11"
                             Command="{Binding SelectModeCommand}" CommandParameter="weekly_ai"
-                            Classes.accent="{Binding SelectedMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=weekly_ai}"
-                            IsVisible="{Binding ShowAiButton}"/>
+                            Classes.accent="{Binding SelectedMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=weekly_ai}"/>
                     <Button Content="{loc:Tr Rankings_Male}"     CornerRadius="6" Padding="12,5" FontSize="11"
                             Command="{Binding SelectModeCommand}" CommandParameter="male"
                             Classes.accent="{Binding SelectedMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=male}"/>
                     <Button Content="{loc:Tr Rankings_Female}"   CornerRadius="6" Padding="12,5" FontSize="11"
                             Command="{Binding SelectModeCommand}" CommandParameter="female"
                             Classes.accent="{Binding SelectedMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=female}"/>
+                    <Button Content="{loc:Tr Novel_FavoritesList}" CornerRadius="6" Padding="12,5" FontSize="11"
+                            Command="{Binding SelectModeCommand}" CommandParameter="novel_favorites"
+                            Classes.accent="{Binding SelectedMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=novel_favorites}"/>
+                    <Button Content="{loc:Tr Novel_SavedList}" CornerRadius="6" Padding="12,5" FontSize="11"
+                            Command="{Binding SelectModeCommand}" CommandParameter="novel_saved"
+                            Classes.accent="{Binding SelectedMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=novel_saved}"/>
+                    <Button Content="{loc:Tr Novel_HistoryList}" CornerRadius="6" Padding="12,5" FontSize="11"
+                            Command="{Binding SelectModeCommand}" CommandParameter="novel_history"
+                            Classes.accent="{Binding SelectedMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=novel_history}"/>
                 </StackPanel>
             </StackPanel>
             </ScrollViewer>
@@ -369,6 +384,7 @@
                         <TextBlock Text="{Binding SelectedCount, StringFormat='Download Selected ({0})'}" />
                     </StackPanel>
                 </Button>
+                <StackPanel Orientation="Horizontal" Spacing="8" IsVisible="{Binding !ShowNovelModes}">
                 <Button CornerRadius="6" Padding="12,6" FontSize="11"
                         Command="{Binding ViewSelectedAsCollageCommand}"
                         IsVisible="{Binding CanViewSelectedAsCollage}"
@@ -402,6 +418,7 @@
                         <TextBlock Text="{loc:Tr Search_ViewInNewTabs}" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
+                </StackPanel>
                 <Button CornerRadius="6" Padding="12,6" FontSize="11"
                         Command="{Binding DownloadVisibleCommand}"
                         ToolTip.Tip="{loc:Tr Rankings_DownloadAllVisibleArtworks}">
@@ -413,6 +430,7 @@
                 <Button Content="{loc:Tr Search_DownloadPreset}" CornerRadius="6" Padding="12,6" FontSize="11"
                         Classes="accent"
                         Click="OnDownloadPresetClicked"
+                        IsVisible="{Binding !ShowNovelModes}"
                         IsEnabled="{Binding !IsLoading}"
                         ToolTip.Tip="{loc:Tr Search_DownloadWithImageProcessingPreset}"/>
                 <Button Content="{loc:Tr Search_SelectAll}" CornerRadius="6" Padding="12,6" FontSize="11"
@@ -451,10 +469,15 @@
                         BorderBrush="{DynamicResource Container1BorderBrush}"
                         BorderThickness="1,0,0,0"
                         IsVisible="{Binding ShowPreview}">
-                    <gallery:InlineArtworkViewer Name="RankingsInlineViewer"
-                                                 DataContext="{Binding GalleryVm}"
-                                                 IsExpanded="{Binding $parent[UserControl].((vm:EnhancedRankingsViewModel)DataContext).IsViewerExpanded}"
-                                                 IsPanelOpen="{Binding $parent[UserControl].((vm:EnhancedRankingsViewModel)DataContext).ShowPreview}"/>
+                    <Panel>
+                        <gallery:InlineArtworkViewer Name="RankingsInlineViewer"
+                                                     DataContext="{Binding GalleryVm}"
+                                                     IsVisible="{Binding !$parent[UserControl].((vm:EnhancedRankingsViewModel)DataContext).ShowNovelReader}"
+                                                     IsExpanded="{Binding $parent[UserControl].((vm:EnhancedRankingsViewModel)DataContext).IsViewerExpanded}"
+                                                     IsPanelOpen="{Binding $parent[UserControl].((vm:EnhancedRankingsViewModel)DataContext).ShowPreview}"/>
+                        <novel:NovelReaderHostView DataContext="{Binding NovelReaders}"
+                                               IsVisible="{Binding $parent[UserControl].((vm:EnhancedRankingsViewModel)DataContext).ShowNovelReader}"/>
+                    </Panel>
                 </Border>
 
                 <!-- Main artwork area -->

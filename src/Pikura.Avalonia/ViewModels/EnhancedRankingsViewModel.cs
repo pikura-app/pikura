@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
@@ -44,6 +44,9 @@ public partial class EnhancedRankingsViewModel : ViewModelBase
     [ObservableProperty] private bool _showTags = true;
     [ObservableProperty] private bool _showBadges = true;
     [ObservableProperty] private bool _showPreview;
+    [ObservableProperty] private bool _showNovelReader;
+    [ObservableProperty] private bool _novelReaderExpanded;
+    public NovelReaderHostViewModel NovelReaders { get; }
 
     [ObservableProperty] private bool _isViewerExpanded;
     partial void OnIsViewerExpandedChanged(bool value) { OnPropertyChanged(nameof(IsViewerFullScreen)); }
@@ -85,6 +88,56 @@ public partial class EnhancedRankingsViewModel : ViewModelBase
     public bool ShowUgoiraModes => SelectedContent == "ugoira";
     public bool ShowMangaModes => SelectedContent == "manga";
     public bool ShowNovelModes => SelectedContent == "novel";
+    // pixiv has no R-18 Monthly, Rookie or Original novel ranking.
+    public bool ShowNovelSafeOnlyModes => !WantsR18Novels;
+    private bool WantsR18Novels => _settingsService.Current.R18Mode switch
+    {
+        R18Mode.Off => false,
+        R18Mode.Only => true,
+        _ => ShowR18,
+    };
+
+    /// <summary>Fills the Novels tab from the local Saved / History lists instead of a pixiv ranking.</summary>
+    private void LoadNovelLibrary()
+    {
+        var lib = Pikura.Avalonia.Services.AppServices.Get<NovelLibraryService>();
+        var entries = SelectedMode switch { "novel_saved" => lib.Saved, "novel_favorites" => lib.Favorites, _ => lib.History };
+        var globalR18Off = _settingsService.Current.R18Mode == Pikura.Core.Settings.R18Mode.Off;
+        var rank = 0;
+        foreach (var e in entries)
+        {
+            if (globalR18Off && e.XRestrict > 0) continue;
+            var card = new RankingCardViewModel(new Pikura.Core.Models.NovelRankingEntry
+            {
+                NovelId = long.TryParse(e.Id, out var id) ? id : 0,
+                Title = e.Title,
+                UserName = e.Author,
+                ThumbnailUrl = e.CoverUrl,
+                Rank = ++rank,
+                XRestrict = e.XRestrict,
+                Tags = e.Tags ?? [],
+            });
+            card.IsBlurred = _settingsService.Current.BlurR18Content && card.IsR18;
+            card.PropertyChanged += OnCardPropertyChanged;
+            Items.Add(card);
+            _ = card.LoadThumbnailAsync(_imageLoader);
+        }
+        TotalItems = Items.Count;
+        CanLoadMore = false;
+        UpdateFilteredItems();
+        StatusMessage = Items.Count > 0 ? $"{Items.Count:N0}" : Pikura.Avalonia.Localization.LocalizationService.Instance["Novel_LibraryEmpty"];
+    }
+
+    private string NovelMode(string mode)
+    {
+        var r18 = WantsR18Novels;
+        if (mode is "weekly_ai" or "weekly_r18_ai") return r18 ? "weekly_r18_ai" : "weekly_ai";
+        var safe = mode.Replace("_r18", "");
+        if (safe is not ("daily" or "weekly" or "monthly" or "rookie" or "weekly_original" or "male" or "female"))
+            safe = "daily";
+        if (!r18) return safe;
+        return safe is "daily" or "weekly" or "male" or "female" ? safe + "_r18" : "daily_r18";
+    }
 
     private CancellationTokenSource? _cts;
     private CancellationTokenSource? _loadMoreCts;
@@ -132,6 +185,14 @@ public partial class EnhancedRankingsViewModel : ViewModelBase
 
     public EnhancedRankingsViewModel(PixivClient pixivClient, PixivImageLoader imageLoader, Pikura.Core.Settings.SettingsService settingsService, LocalFavoritesService favoritesService)
     {
+        NovelReaders = new NovelReaderHostViewModel(pixivClient, imageLoader, settingsService);
+        NovelReaders.CloseRequested += (_, _) =>
+        {
+            ShowNovelReader = false;
+            NovelReaderExpanded = false;
+            ShowPreview = GalleryVm.HasTabs;
+        };
+        NovelReaders.ExpandRequested += (_, _) => NovelReaderExpanded = !NovelReaderExpanded;
         _pixivClient = pixivClient;
         _imageLoader = imageLoader;
         _settingsService = settingsService;
@@ -174,7 +235,7 @@ public partial class EnhancedRankingsViewModel : ViewModelBase
         // When all viewer tabs are closed (global state), also collapse the side panel here.
         GalleryVm.PropertyChanged += (_, e) =>
         {
-            if (e.PropertyName == nameof(GalleryViewModel.HasTabs) && !GalleryVm.HasTabs)
+            if (e.PropertyName == nameof(GalleryViewModel.HasTabs) && !GalleryVm.HasTabs && !ShowNovelReader)
             { ShowPreview = false; IsViewerExpanded = false; }
             if (e.PropertyName is nameof(GalleryViewModel.IsCollageMode)
                                or nameof(GalleryViewModel.HasStoredCollage)
@@ -213,6 +274,7 @@ public partial class EnhancedRankingsViewModel : ViewModelBase
         }
         
         // Notify that AI button visibility may have changed
+        OnPropertyChanged(nameof(ShowNovelSafeOnlyModes));
         OnPropertyChanged(nameof(ShowAiButton));
         // Reload to apply R-18 filtering and update FilteredItems
         GalleryCurrentPage = 1;
@@ -279,6 +341,7 @@ public partial class EnhancedRankingsViewModel : ViewModelBase
         OnPropertyChanged(nameof(ShowUgoiraModes));
         OnPropertyChanged(nameof(ShowMangaModes));
         OnPropertyChanged(nameof(ShowNovelModes));
+        if (value != "novel") { ShowNovelReader = false; NovelReaderExpanded = false; if (SelectedMode.StartsWith("novel_", StringComparison.Ordinal)) SelectedMode = "daily"; }
     }
 
     [RelayCommand] public void SetFixedHeight()  { IsFixedHeight = true;  IsNaturalHeight = false; }
@@ -382,8 +445,15 @@ public partial class EnhancedRankingsViewModel : ViewModelBase
             var globalR18Off = _settingsService.Current.R18Mode == Pikura.Core.Settings.R18Mode.Off;
             var isR18Source = effectiveMode.Contains("_r18");
 
+            if (SelectedContent == "novel" && SelectedMode.StartsWith("novel_", StringComparison.Ordinal))
+            {
+                LoadNovelLibrary();
+                return;
+            }
             if (SelectedContent == "novel")
             {
+                effectiveMode = NovelMode(effectiveMode);
+                isR18Source = effectiveMode.Contains("_r18");
                 var novelResp = await _pixivClient.GetNovelRankingsAsync(effectiveMode, dateParam, 1, ct);
                 if (novelResp.Contents.Count == 0)
                 {
@@ -510,8 +580,15 @@ public partial class EnhancedRankingsViewModel : ViewModelBase
 
         try
         {
+            if (SelectedContent == "novel" && SelectedMode.StartsWith("novel_", StringComparison.Ordinal))
+            {
+                CanLoadMore = false;
+                return;
+            }
             if (SelectedContent == "novel")
             {
+                effectiveMode = NovelMode(effectiveMode);
+                isR18Source = effectiveMode.Contains("_r18");
                 var novelResp = await _pixivClient.GetNovelRankingsAsync(effectiveMode, null, CurrentPage, ct);
 
                 foreach (var entry in novelResp.Contents)

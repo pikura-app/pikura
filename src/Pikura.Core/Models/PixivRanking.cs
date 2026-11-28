@@ -142,13 +142,8 @@ public sealed record ArtworkSearchSection
 }
 
 /// <summary>
-/// Response shape of <c>GET /novel/ranking.php?format=json</c> — the same
-/// legacy PHP ranking engine as <see cref="RankingResponse"/> but for novels.
-/// NOTE: field names below are best-effort (mirrored from the confirmed illust
-/// ranking shape) — Pixiv doesn't publish a schema for the novel variant and it
-/// could not be fetched raw for verification. All novel-specific numeric fields
-/// are nullable so an unexpected/renamed field degrades to "stat unavailable"
-/// instead of throwing during deserialization.
+/// Novel ranking parsed from the <c>__NEXT_DATA__</c> of <c>/novel/ranking.php</c>
+/// (see <see cref="Pikura.Core.Services.PixivClient.ParseNovelRankingPage"/>).
 /// </summary>
 public sealed record NovelRankingResponse
 {
@@ -178,4 +173,8 @@ public sealed record NovelRankingEntry
     [JsonPropertyName("novel_text_count")] public int? TextCount { get; init; }
     [JsonPropertyName("novel_reading_time")] public int? ReadingTimeMinutes { get; init; }
     [JsonPropertyName("illust_content_type")] public IllustContentType ContentType { get; init; } = new();
+    [JsonPropertyName("bookmark_count")] public int BookmarkCount { get; init; }
+    [JsonPropertyName("x_restrict")] public int XRestrict { get; init; }
+    [JsonPropertyName("is_ai")] public bool IsAi { get; init; }
+    [JsonPropertyName("series_title")] public string SeriesTitle { get; init; } = string.Empty;
 }

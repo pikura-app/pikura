@@ -1,249 +1,315 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:loc="using:Pikura.Avalonia.Localization"
+             xmlns:loc="using:Pikura.Avalonia.Localization"
              xmlns:vm="using:Pikura.Avalonia.ViewModels"
-             xmlns:actipro="http://schemas.actiprosoftware.com/avaloniaui"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="800"
+             xmlns:ctl="using:Pikura.Avalonia.Controls"
+             xmlns:conv="using:Pikura.Avalonia.Converters"
              x:Class="Pikura.Avalonia.Views.Analytics.AnalyticsView"
              x:DataType="vm:AnalyticsViewModel">
+    <UserControl.Styles>
+        <Style Selector="Border.card">
+            <Setter Property="Background" Value="{DynamicResource Container2BackgroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Container2BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="18,14"/>
+        </Style>
+        <Style Selector="TextBlock.cardTitle"><Setter Property="FontSize" Value="15"/><Setter Property="FontWeight" Value="SemiBold"/></Style>
+        <Style Selector="TextBlock.big"><Setter Property="FontSize" Value="32"/><Setter Property="FontWeight" Value="SemiBold"/></Style>
+        <Style Selector="TextBlock.sub"><Setter Property="FontSize" Value="13"/><Setter Property="Foreground" Value="{DynamicResource DefaultForegroundBrushSecondary}"/></Style>
+        <Style Selector="TextBlock.note"><Setter Property="FontSize" Value="12"/><Setter Property="VerticalAlignment" Value="Center"/><Setter Property="Foreground" Value="{DynamicResource DefaultForegroundBrushTertiary}"/></Style>
+        <Style Selector="ProgressBar.stat"><Setter Property="Height" Value="10"/><Setter Property="MinHeight" Value="10"/><Setter Property="CornerRadius" Value="5"/><Setter Property="Foreground" Value="{DynamicResource ControlBackgroundBrushSolidAccent}"/><Setter Property="Maximum" Value="100"/><Setter Property="Opacity" Value="0.7"/></Style>
+        <Style Selector="ProgressBar.stat.top"><Setter Property="Opacity" Value="1"/></Style>
+        <Style Selector="TextBlock.top"><Setter Property="FontWeight" Value="Bold"/></Style>
+    </UserControl.Styles>
 
-    <Design.DataContext>
-        <vm:AnalyticsViewModel/>
-    </Design.DataContext>
+    <UserControl.DataTemplates>
+        <DataTemplate DataType="vm:StatRow">
+            <Grid ColumnDefinitions="150,*,110" Margin="0,4">
+                <TextBlock Text="{Binding Name}" FontSize="13" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Classes.top="{Binding IsTop}"/>
+                <ProgressBar Grid.Column="1" Classes="stat" Classes.top="{Binding IsTop}" Value="{Binding Percent}" VerticalAlignment="Center" Margin="8,0"/>
+                <TextBlock Grid.Column="2" Text="{Binding ValueText}" FontSize="12" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+            </Grid>
+        </DataTemplate>
+    </UserControl.DataTemplates>
 
-    <Grid RowDefinitions="Auto,*">
-        <!-- Header -->
-        <Border Grid.Row="0" Background="{DynamicResource Container1BackgroundBrush}"
-                BorderBrush="{DynamicResource Container1BorderBrush}"
-                BorderThickness="0,0,0,1" Padding="16,10"
-                Margin="0,32,0,0">
+    <ScrollViewer Margin="0,32,0,0" VerticalScrollBarVisibility="Auto">
+        <StackPanel Spacing="14" Margin="24,16,24,24">
             <Grid ColumnDefinitions="Auto,*,Auto">
-                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                    <TextBlock Text="📊" FontSize="18" VerticalAlignment="Center"/>
-                    <TextBlock Text="{loc:Tr Nav_Analytics}" FontWeight="SemiBold" FontSize="16" VerticalAlignment="Center"/>
-                    <TextBlock Text="{loc:Tr Analytics_DownloadStatisticsAndInsights}" FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}" VerticalAlignment="Center"/>
+                <StackPanel Orientation="Horizontal" Spacing="14" VerticalAlignment="Center">
+                    <TextBlock Text="{loc:Tr Analytics_Stats}" FontSize="26" FontWeight="SemiBold"/>
+                    <TextBlock Text="{Binding Subtitle}" Classes="sub" VerticalAlignment="Center"/>
                 </StackPanel>
-                <Border Grid.Column="1"/>
-                <Button Grid.Column="2"
-                        Command="{Binding LoadAnalyticsCommand}"
-                          FontSize="12">
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6">
+                    <Button Content="{loc:Tr Analytics_Period7d}" Padding="12,4" Command="{Binding SetPeriodCommand}" CommandParameter="7d"
+                            Classes.accent="{Binding Period, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=7d}"/>
+                    <Button Content="{loc:Tr Analytics_Period30d}" Padding="12,4" Command="{Binding SetPeriodCommand}" CommandParameter="30d"
+                            Classes.accent="{Binding Period, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=30d}"/>
+                    <Button Content="{loc:Tr Analytics_Period6m}" Padding="12,4" Command="{Binding SetPeriodCommand}" CommandParameter="6m"
+                            Classes.accent="{Binding Period, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=6m}"/>
+                    <Button Content="{loc:Tr Analytics_Period1y}" Padding="12,4" Command="{Binding SetPeriodCommand}" CommandParameter="1y"
+                            Classes.accent="{Binding Period, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=1y}"/>
+                    <Button Content="{loc:Tr Analytics_Period5y}" Padding="12,4" Command="{Binding SetPeriodCommand}" CommandParameter="5y"
+                            Classes.accent="{Binding Period, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=5y}"/>
+                    <Button Content="{loc:Tr Analytics_PeriodAll}" Padding="12,4" Command="{Binding SetPeriodCommand}" CommandParameter="all"
+                            Classes.accent="{Binding Period, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=all}"/>
+                <Button Command="{Binding LoadAnalyticsCommand}" Padding="12,6" Margin="8,0,0,0">
                     <StackPanel Orientation="Horizontal" Spacing="6">
-                        <PathIcon Data="{StaticResource RefreshIcon}" Width="14" Height="14"
-                                  VerticalAlignment="Center"
-                                  Foreground="{Binding $parent[Button].Foreground}"/>
-                        <TextBlock Text="{loc:Tr Common_Refresh}" FontSize="12" VerticalAlignment="Center"/>
+                        <PathIcon Data="{StaticResource RefreshIcon}" Width="14" Height="14" Foreground="{Binding $parent[Button].Foreground}"/>
+                        <TextBlock Text="{loc:Tr Common_Refresh}" FontSize="13"/>
                     </StackPanel>
                 </Button>
+                </StackPanel>
             </Grid>
-        </Border>
 
-        <!-- Content -->
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-            <StackPanel Spacing="20" Margin="20">
-                <!-- Overview Cards -->
-                <Grid ColumnDefinitions="*,*,*,*">
-                    <Border Grid.Column="0" Background="{DynamicResource Container2BackgroundBrush}"
-                            BorderBrush="{DynamicResource Container2BorderBrush}"
-                            BorderThickness="1" CornerRadius="8" Padding="16" Margin="0,0,8,0">
-                        <StackPanel Spacing="4">
-                            <TextBlock Text="{loc:Tr Analytics_TotalJobs}" FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
-                            <TextBlock Text="{Binding TotalJobs}" FontSize="24" FontWeight="SemiBold"/>
-                        </StackPanel>
-                    </Border>
-                    <Border Grid.Column="1" Background="{DynamicResource Container2BackgroundBrush}"
-                            BorderBrush="{DynamicResource Container2BorderBrush}"
-                            BorderThickness="1" CornerRadius="8" Padding="16" Margin="0,0,8,0">
-                        <StackPanel Spacing="4">
-                            <TextBlock Text="{loc:Tr History_Completed}" FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
-                            <TextBlock Text="{Binding CompletedJobs}" FontSize="24" FontWeight="SemiBold" Foreground="Green"/>
-                        </StackPanel>
-                    </Border>
-                    <Border Grid.Column="2" Background="{DynamicResource Container2BackgroundBrush}"
-                            BorderBrush="{DynamicResource Container2BorderBrush}"
-                            BorderThickness="1" CornerRadius="8" Padding="16" Margin="0,0,8,0">
-                        <StackPanel Spacing="4">
-                            <TextBlock Text="{loc:Tr History_Failed}" FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
-                            <TextBlock Text="{Binding FailedJobs}" FontSize="24" FontWeight="SemiBold" Foreground="Red"/>
-                        </StackPanel>
-                    </Border>
-                    <Border Grid.Column="3" Background="{DynamicResource Container2BackgroundBrush}"
-                            BorderBrush="{DynamicResource Container2BorderBrush}"
-                            BorderThickness="1" CornerRadius="8" Padding="16">
-                        <StackPanel Spacing="4">
-                            <TextBlock Text="{loc:Tr Analytics_SuccessRate}" FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
-                            <TextBlock Text="{Binding SuccessRate, StringFormat='{}{0:F1}%'}" FontSize="24" FontWeight="SemiBold"/>
-                        </StackPanel>
-                    </Border>
-                </Grid>
-
-                <!-- Download Stats -->
-                <Grid ColumnDefinitions="*,*">
-                    <Border Grid.Column="0" Background="{DynamicResource Container2BackgroundBrush}"
-                            BorderBrush="{DynamicResource Container2BorderBrush}"
-                            BorderThickness="1" CornerRadius="8" Padding="16" Margin="0,0,8,0">
-                        <StackPanel Spacing="4">
-                            <TextBlock Text="{loc:Tr Analytics_TotalDownloadedItems}" FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
-                            <TextBlock Text="{Binding TotalDownloadedItems}" FontSize="20" FontWeight="SemiBold"/>
-                        </StackPanel>
-                    </Border>
-                    <Border Grid.Column="1" Background="{DynamicResource Container2BackgroundBrush}"
-                            BorderBrush="{DynamicResource Container2BorderBrush}"
-                            BorderThickness="1" CornerRadius="8" Padding="16">
-                        <StackPanel Spacing="4">
-                            <TextBlock Text="{loc:Tr Analytics_TotalFailedItems}" FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
-                            <TextBlock Text="{Binding TotalFailedItems}" FontSize="20" FontWeight="SemiBold" Foreground="Red"/>
-                        </StackPanel>
-                    </Border>
-                </Grid>
-
-                <!-- Jobs by Type -->
-                <Border Background="{DynamicResource Container2BackgroundBrush}"
-                        BorderBrush="{DynamicResource Container2BorderBrush}"
-                        BorderThickness="1" CornerRadius="8" Padding="16">
-                    <StackPanel Spacing="12">
-                        <TextBlock Text="{loc:Tr Analytics_JobsByType}" FontSize="14" FontWeight="SemiBold"/>
-                        <ItemsControl ItemsSource="{Binding JobsByType}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Grid ColumnDefinitions="*,Auto">
-                                        <TextBlock Grid.Column="0" Text="{Binding Key}" FontSize="12"/>
-                                        <TextBlock Grid.Column="1" Text="{Binding Value}" FontWeight="SemiBold" FontSize="12"/>
-                                    </Grid>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
+            <Border Classes="card">
+                <Grid ColumnDefinitions="170,*">
+                    <StackPanel Spacing="2">
+                        <TextBlock Text="{Binding TotalTitle}" Classes="cardTitle"/>
+                        <TextBlock Text="{Binding TotalText}" Classes="big"/>
+                        <TextBlock Text="{Binding TotalSub}" Classes="sub"/>
+                        <TextBlock Text="{loc:Tr Analytics_TotalHint}" Classes="note" TextWrapping="Wrap" Margin="0,4,8,0"/>
                     </StackPanel>
-                </Border>
+                    <StackPanel Grid.Column="1" Spacing="12" VerticalAlignment="Center">
+                        <ctl:StackedBar Values="{Binding TotalSegments}"/>
+                        <WrapPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,0,24,0">
+                                <Border Width="12" Height="12" CornerRadius="2" Background="{DynamicResource ControlBackgroundBrushSolidAccent}"/>
+                                <TextBlock Text="{Binding ViewsLegend}" FontSize="13"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,0,24,0">
+                                <Border Width="12" Height="12" CornerRadius="2" Background="#E0245E"/>
+                                <TextBlock Text="{Binding R18Legend}" FontSize="13"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,0,24,0">
+                                <Border Width="12" Height="12" CornerRadius="2" Background="#1E9E6A"/>
+                                <TextBlock Text="{Binding DownloadsLegend}" FontSize="13"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,0,24,0">
+                                <Border Width="12" Height="12" CornerRadius="2" Background="MediumPurple"/>
+                                <TextBlock Text="{Binding ArticlesLegend}" FontSize="13"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <Border Width="12" Height="12" CornerRadius="2" Background="#E8A33D"/>
+                                <TextBlock Text="{Binding NovelsLegend}" FontSize="13"/>
+                            </StackPanel>
+                        </WrapPanel>
+                    </StackPanel>
+                </Grid>
+            </Border>
 
-                <!-- Recent Activity -->
-                <Border Background="{DynamicResource Container2BackgroundBrush}"
-                        BorderBrush="{DynamicResource Container2BorderBrush}"
-                        BorderThickness="1" CornerRadius="8" Padding="16">
-                    <StackPanel Spacing="12">
-                        <TextBlock Text="{loc:Tr Analytics_RecentActivity}" FontSize="14" FontWeight="SemiBold"/>
-                        <Border Background="{DynamicResource Container3BackgroundBrush}"
-                                BorderBrush="{DynamicResource Container3BorderBrush}"
-                                BorderThickness="1" CornerRadius="6" MaxHeight="300">
-                            <ScrollViewer VerticalScrollBarVisibility="Auto">
-                                <ItemsControl ItemsSource="{Binding RecentActivity}" Margin="8">
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <Border Background="{DynamicResource Container2BackgroundBrush}"
-                                                    BorderBrush="{DynamicResource Container2BorderBrush}"
-                                                    BorderThickness="1" CornerRadius="4" Padding="8" Margin="0,0,0,4">
-                                                <Grid ColumnDefinitions="*,Auto,Auto">
-                                                    <TextBlock Grid.Column="0" Text="{Binding Name}" FontSize="12" TextWrapping="Wrap"/>
-                                                    <TextBlock Grid.Column="1" Text="{Binding Status}" FontSize="10" Margin="8,0,8,0" VerticalAlignment="Center"/>
-                                                    <TextBlock Grid.Column="2" Text="{Binding Date, StringFormat='{}{0:MMM d}'}" FontSize="10" Foreground="{DynamicResource DefaultForegroundBrushTertiary}" VerticalAlignment="Center"/>
-                                                </Grid>
+            <Grid ColumnDefinitions="*,14,*,14,*,14,*">
+                <Border Classes="card"><StackPanel Spacing="2">
+                    <TextBlock Text="{loc:Tr Analytics_Today}" Classes="cardTitle"/>
+                    <TextBlock Text="{Binding TodayText}" Classes="big"/>
+                    <TextBlock Text="{Binding TodaySub}" Classes="sub" TextWrapping="Wrap"/>
+                </StackPanel></Border>
+                <Border Grid.Column="2" Classes="card"><StackPanel Spacing="2">
+                    <TextBlock Text="{loc:Tr Analytics_Past7}" Classes="cardTitle"/>
+                    <TextBlock Text="{Binding Past7Text}" Classes="big"/>
+                    <TextBlock Text="{Binding Past7Sub}" Classes="sub" TextWrapping="Wrap"/>
+                </StackPanel></Border>
+                <Border Grid.Column="4" Classes="card"><StackPanel Spacing="2">
+                    <TextBlock Text="{loc:Tr Analytics_Streak}" Classes="cardTitle"/>
+                    <TextBlock Text="{Binding StreakText}" Classes="big"/>
+                    <TextBlock Text="{Binding StreakSub}" Classes="sub" TextWrapping="Wrap"/>
+                </StackPanel></Border>
+                <Border Grid.Column="6" Classes="card"><StackPanel Spacing="2">
+                    <TextBlock Text="{loc:Tr Analytics_BusiestDay}" Classes="cardTitle"/>
+                    <TextBlock Text="{Binding BusiestText}" Classes="big"/>
+                    <TextBlock Text="{Binding BusiestSub}" Classes="sub" TextWrapping="Wrap"/>
+                </StackPanel></Border>
+            </Grid>
+
+
+            <Border Classes="card"><StackPanel Spacing="10">
+                <TextBlock Text="{loc:Tr Analytics_RecentlyViewed}" Classes="cardTitle"/>
+                <ItemsControl x:Name="RecentArtworksList" ItemsSource="{Binding RecentArtworks}">
+                        <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:AnalyticsArtwork">
+                                <StackPanel Width="120" Margin="0,0,10,10" Spacing="2" Cursor="Hand" Background="Transparent" PointerPressed="OnArtworkPressed" ToolTip.Tip="{Binding Card.Title}">
+                                    <Border Width="120" Height="120" CornerRadius="6" ClipToBounds="True" Background="{DynamicResource Container1BackgroundBrush}">
+                                        <Panel>
+                                            <Image Source="{Binding Card.Thumbnail}" Stretch="UniformToFill" RenderOptions.BitmapInterpolationMode="HighQuality"/>
+                                            <Border Background="#99000000" IsVisible="{Binding Card.IsBlurred}">
+                                                <TextBlock Text="R-18" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                             </Border>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                            </ScrollViewer>
-                        </Border>
-                    </StackPanel>
-                </Border>
+                                        </Panel>
+                                    </Border>
+                                    <TextBlock Text="{Binding Card.Title}" FontSize="12" TextTrimming="CharacterEllipsis"/>
+                                    <TextBlock Text="{Binding Card.UserName}" FontSize="11" TextTrimming="CharacterEllipsis" Foreground="{DynamicResource DefaultForegroundBrushSecondary}"/>
+                                    <TextBlock Text="{Binding Caption}" Classes="note"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <TextBlock Text="{loc:Tr Analytics_NoDataYet}" Classes="note" IsVisible="{Binding !RecentArtworks.Count}"/>
+            </StackPanel></Border>
 
-                <!-- Top Artists -->
-                <Grid ColumnDefinitions="*,*">
-                    <Border Grid.Column="0" Background="{DynamicResource Container2BackgroundBrush}"
-                            BorderBrush="{DynamicResource Container2BorderBrush}"
-                            BorderThickness="1" CornerRadius="8" Padding="16" Margin="0,0,8,0">
-                        <StackPanel Spacing="12">
-                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                <TextBlock Text="🏆" FontSize="14"/>
-                                <TextBlock Text="{loc:Tr Analytics_MostDownloadedArtists}" FontSize="14" FontWeight="SemiBold"/>
-                            </StackPanel>
-                            <TextBlock Text="{loc:Tr Analytics_RankedByTotalArtworksDownloaded}" FontSize="11"
-                                       Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
-                            <ItemsControl ItemsSource="{Binding TopArtists}">
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,3,0,3">
-                                            <TextBlock Grid.Column="0" Text="{Binding Rank}" FontSize="11"
-                                                       Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
-                                                       Width="22"/>
-                                            <TextBlock Grid.Column="1" Text="{Binding Name}" FontSize="12"
-                                                       TextTrimming="CharacterEllipsis"/>
-                                            <TextBlock Grid.Column="2" Text="{Binding Count, StringFormat='{}{0} imgs'}"
-                                                       FontSize="11" FontWeight="SemiBold"
-                                                       Foreground="{DynamicResource ControlForegroundBrushOutlineAccent}"/>
-                                        </Grid>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                            <TextBlock Text="{loc:Tr Analytics_NoDataYet}" FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}" HorizontalAlignment="Center"
-                                       IsVisible="{Binding !TopArtists.Count}"/>
-                        </StackPanel>
-                    </Border>
+            <Border Classes="card"><StackPanel Spacing="10">
+                <TextBlock Text="{loc:Tr Analytics_MostViewedArtworks}" Classes="cardTitle"/>
+                <ItemsControl x:Name="MostViewedList" ItemsSource="{Binding MostViewedArtworks}">
+                        <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:AnalyticsArtwork">
+                                <StackPanel Width="120" Margin="0,0,10,10" Spacing="2" Cursor="Hand" Background="Transparent" PointerPressed="OnArtworkPressed" ToolTip.Tip="{Binding Card.Title}">
+                                    <Border Width="120" Height="120" CornerRadius="6" ClipToBounds="True" Background="{DynamicResource Container1BackgroundBrush}">
+                                        <Panel>
+                                            <Image Source="{Binding Card.Thumbnail}" Stretch="UniformToFill" RenderOptions.BitmapInterpolationMode="HighQuality"/>
+                                            <Border Background="#99000000" IsVisible="{Binding Card.IsBlurred}">
+                                                <TextBlock Text="R-18" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </Panel>
+                                    </Border>
+                                    <TextBlock Text="{Binding Card.Title}" FontSize="12" TextTrimming="CharacterEllipsis"/>
+                                    <TextBlock Text="{Binding Card.UserName}" FontSize="11" TextTrimming="CharacterEllipsis" Foreground="{DynamicResource DefaultForegroundBrushSecondary}"/>
+                                    <TextBlock Text="{Binding Caption}" Classes="note"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <TextBlock Text="{loc:Tr Analytics_ViewCountsNew}" Classes="note" TextWrapping="Wrap" IsVisible="{Binding ViewCountsAreNew}"/>
+            </StackPanel></Border>
 
-                    <Border Grid.Column="1" Background="{DynamicResource Container2BackgroundBrush}"
-                            BorderBrush="{DynamicResource Container2BorderBrush}"
-                            BorderThickness="1" CornerRadius="8" Padding="16">
-                        <StackPanel Spacing="12">
-                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                <TextBlock Text="🔁" FontSize="14"/>
-                                <TextBlock Text="{loc:Tr Analytics_MostFrequentedArtists}" FontSize="14" FontWeight="SemiBold"/>
-                            </StackPanel>
-                            <TextBlock Text="{loc:Tr Analytics_RankedByNumberOfDownloadSessions}" FontSize="11"
-                                       Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
-                            <ItemsControl ItemsSource="{Binding MostFrequentedArtists}">
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,3,0,3">
-                                            <TextBlock Grid.Column="0" Text="{Binding Rank}" FontSize="11"
-                                                       Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
-                                                       Width="22"/>
-                                            <TextBlock Grid.Column="1" Text="{Binding Name}" FontSize="12"
-                                                       TextTrimming="CharacterEllipsis"/>
-                                            <TextBlock Grid.Column="2" Text="{Binding Count, StringFormat='{}{0}x'}"
-                                                       FontSize="11" FontWeight="SemiBold"
-                                                       Foreground="{DynamicResource ControlForegroundBrushOutlineAccent}"/>
-                                        </Grid>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                            <TextBlock Text="{loc:Tr Analytics_NoDataYet}" FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}" HorizontalAlignment="Center"
-                                       IsVisible="{Binding !MostFrequentedArtists.Count}"/>
-                        </StackPanel>
-                    </Border>
-                </Grid>
-
-                <!-- Most viewed artists (from viewing History) -->
-                <Border Background="{DynamicResource Container2BackgroundBrush}"
-                        BorderBrush="{DynamicResource Container2BorderBrush}"
-                        BorderThickness="1" CornerRadius="8" Padding="16">
-                    <StackPanel Spacing="12">
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <TextBlock Text="👁" FontSize="14"/>
-                            <TextBlock Text="{loc:Tr Analytics_MostViewedArtists}" FontSize="14" FontWeight="SemiBold"/>
-                        </StackPanel>
-                        <TextBlock Text="{loc:Tr Analytics_RankedByArtworksViewed}" FontSize="11"
-                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}"/>
-                        <ItemsControl ItemsSource="{Binding MostViewedArtists}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,3,0,3">
-                                        <TextBlock Grid.Column="0" Text="{Binding Rank}" FontSize="11"
-                                                   Foreground="{DynamicResource DefaultForegroundBrushTertiary}"
-                                                   Width="22"/>
-                                        <TextBlock Grid.Column="1" Text="{Binding Name}" FontSize="12"
-                                                   TextTrimming="CharacterEllipsis"/>
-                                        <TextBlock Grid.Column="2" Text="{Binding Count}"
-                                                   FontSize="11" FontWeight="SemiBold"
-                                                   Foreground="{DynamicResource ControlForegroundBrushOutlineAccent}"/>
+            <Grid ColumnDefinitions="*,14,*">
+                <Border Grid.Column="2" Classes="card"><StackPanel Spacing="6">
+                    <TextBlock Text="{loc:Tr Analytics_RecentNovels}" Classes="cardTitle"/>
+                    <ItemsControl ItemsSource="{Binding RecentNovels}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:AnalyticsNovel">
+                                <Button Background="Transparent" BorderThickness="0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Padding="4,5" Click="OnNovelClick">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <TextBlock Text="{Binding Title}" FontSize="13" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" MaxWidth="320"/>
+                                            <TextBlock Text="{Binding Author}" Classes="note" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" MaxWidth="140"/>
+                                        </StackPanel>
+                                        <TextBlock Grid.Column="1" Text="{Binding Caption}" Classes="note" Margin="8,0,0,0"/>
                                     </Grid>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                        <TextBlock Text="{loc:Tr Analytics_NoDataYet}" FontSize="12" Foreground="{DynamicResource DefaultForegroundBrushTertiary}" HorizontalAlignment="Center"
-                                   IsVisible="{Binding !MostViewedArtists.Count}"/>
-                    </StackPanel>
-                </Border>
-            </StackPanel>
-        </ScrollViewer>
-    </Grid>
+                                </Button>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <TextBlock Text="{loc:Tr Analytics_NoDataYet}" Classes="note" IsVisible="{Binding !RecentNovels.Count}"/>
+                </StackPanel></Border>
+                <Border Classes="card"><StackPanel Spacing="6">
+                    <TextBlock Text="{loc:Tr Analytics_RecentArticles}" Classes="cardTitle"/>
+                    <ItemsControl ItemsSource="{Binding RecentArticles}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:AnalyticsArticle">
+                                <Button Background="Transparent" BorderThickness="0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Padding="4,5" Click="OnArticleClick">
+                                    <Grid ColumnDefinitions="Auto,*,Auto">
+                                        <Border CornerRadius="3" Padding="5,1" Margin="0,0,8,0" Background="{DynamicResource ControlBackgroundBrushSoftAccent}" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding Source}" FontSize="10"/>
+                                        </Border>
+                                        <TextBlock Grid.Column="1" Text="{Binding Title}" FontSize="13" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="2" Text="{Binding Caption}" Classes="note" Margin="8,0,0,0"/>
+                                    </Grid>
+                                </Button>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <TextBlock Text="{loc:Tr Analytics_NoDataYet}" Classes="note" IsVisible="{Binding !RecentArticles.Count}"/>
+                </StackPanel></Border>
+            </Grid>
+
+            <Border Classes="card">
+                <StackPanel Spacing="12">
+                    <Grid ColumnDefinitions="Auto,*,Auto">
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <TextBlock Text="{loc:Tr Analytics_EveryDay}" Classes="cardTitle"/>
+                            <TextBlock Text="{Binding ActiveDaysText}" Classes="note"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                            <TextBlock Text="{loc:Tr Analytics_Less}" Classes="note" Margin="0,0,4,0"/>
+                            <Border Width="12" Height="12" CornerRadius="2" Background="#29808080"/>
+                            <Border Width="12" Height="12" CornerRadius="2" Background="{DynamicResource ControlBackgroundBrushSolidAccent}" Opacity="0.35"/>
+                            <Border Width="12" Height="12" CornerRadius="2" Background="{DynamicResource ControlBackgroundBrushSolidAccent}" Opacity="0.55"/>
+                            <Border Width="12" Height="12" CornerRadius="2" Background="{DynamicResource ControlBackgroundBrushSolidAccent}" Opacity="0.8"/>
+                            <Border Width="12" Height="12" CornerRadius="2" Background="{DynamicResource ControlBackgroundBrushSolidAccent}"/>
+                            <TextBlock Text="{loc:Tr Analytics_More}" Classes="note" Margin="4,0,0,0"/>
+                        </StackPanel>
+                    </Grid>
+                    <ctl:ActivityHeatmap Data="{Binding Daily}" FirstDay="{Binding FirstDay}"/>
+                </StackPanel>
+            </Border>
+
+            <Border Classes="card">
+                <StackPanel Spacing="8">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <TextBlock Text="{loc:Tr Analytics_OverTime}" Classes="cardTitle"/>
+                            <TextBlock Text="{Binding TimelineUnitText}" Classes="note"/>
+                        </StackPanel>
+                        <ComboBox Grid.Column="1" ItemsSource="{Binding TimelinePeriod.Options}" SelectedIndex="{Binding TimelinePeriod.Index}" FontSize="11" MinHeight="26" Padding="8,2" VerticalAlignment="Center" ToolTip.Tip="{loc:Tr Analytics_SectionPeriodTip}"/>
+                    </Grid>
+                    <ctl:TimelineChart Values="{Binding Timeline}" Labels="{Binding TimelineLabels}"/>
+                </StackPanel>
+            </Border>
+
+            <Border Classes="card">
+                <StackPanel Spacing="12">
+                    <Grid ColumnDefinitions="Auto,*,Auto">
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <TextBlock Text="{loc:Tr Analytics_TimeOfDay}" Classes="cardTitle"/>
+                            <TextBlock Text="{Binding BusiestHourText}" Classes="note"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6">
+                            <ComboBox ItemsSource="{Binding HoursPeriod.Options}" SelectedIndex="{Binding HoursPeriod.Index}" FontSize="11" MinHeight="26" Padding="8,2" VerticalAlignment="Center" ToolTip.Tip="{loc:Tr Analytics_SectionPeriodTip}"/>
+                            <Button Content="{loc:Tr Analytics_All}" Padding="12,4" Command="{Binding SetHourModeCommand}" CommandParameter="all"
+                                    Classes.accent="{Binding HourMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=all}"/>
+                            <Button Content="{loc:Tr Analytics_Views}" Padding="12,4" Command="{Binding SetHourModeCommand}" CommandParameter="views"
+                                    Classes.accent="{Binding HourMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=views}"/>
+                            <Button Content="{loc:Tr Analytics_Downloads}" Padding="12,4" Command="{Binding SetHourModeCommand}" CommandParameter="downloads"
+                                    Classes.accent="{Binding HourMode, Converter={x:Static conv:StringEqualityConverter.Instance}, ConverterParameter=downloads}"/>
+                        </StackPanel>
+                    </Grid>
+                    <ctl:HourBarChart Values="{Binding Hours}"/>
+                </StackPanel>
+            </Border>
+
+            <Grid ColumnDefinitions="*,14,*">
+                <Border Classes="card"><StackPanel Spacing="8">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <TextBlock Text="{loc:Tr Analytics_DayOfWeek}" Classes="cardTitle"/>
+                            <TextBlock Text="{Binding BusiestWeekdayText}" Classes="note"/>
+                        </StackPanel>
+                        <ComboBox Grid.Column="1" ItemsSource="{Binding WeekdayPeriod.Options}" SelectedIndex="{Binding WeekdayPeriod.Index}" FontSize="11" MinHeight="26" Padding="8,2" VerticalAlignment="Center" ToolTip.Tip="{loc:Tr Analytics_SectionPeriodTip}"/>
+                    </Grid>
+                    <ItemsControl ItemsSource="{Binding Weekdays}"/>
+                </StackPanel></Border>
+                <Border Grid.Column="2" Classes="card"><StackPanel Spacing="8">
+                    <Grid ColumnDefinitions="*,Auto"><TextBlock Text="{loc:Tr Analytics_MostViewedArtists}" Classes="cardTitle" VerticalAlignment="Center"/><ComboBox Grid.Column="1" ItemsSource="{Binding ArtistsPeriod.Options}" SelectedIndex="{Binding ArtistsPeriod.Index}" FontSize="11" MinHeight="26" Padding="8,2" VerticalAlignment="Center" ToolTip.Tip="{loc:Tr Analytics_SectionPeriodTip}"/></Grid>
+                    <ItemsControl ItemsSource="{Binding MostViewedArtists}"/>
+                    <TextBlock Text="{loc:Tr Analytics_NoDataYet}" Classes="note" IsVisible="{Binding !MostViewedArtists.Count}"/>
+                </StackPanel></Border>
+            </Grid>
+
+            <Grid ColumnDefinitions="*,14,*">
+                <Border Classes="card"><StackPanel Spacing="8">
+                    <Grid ColumnDefinitions="*,Auto"><TextBlock Text="{loc:Tr Analytics_TopTags}" Classes="cardTitle" VerticalAlignment="Center"/><ComboBox Grid.Column="1" ItemsSource="{Binding TagsPeriod.Options}" SelectedIndex="{Binding TagsPeriod.Index}" FontSize="11" MinHeight="26" Padding="8,2" VerticalAlignment="Center" ToolTip.Tip="{loc:Tr Analytics_SectionPeriodTip}"/></Grid>
+                    <ItemsControl ItemsSource="{Binding TopTags}"/>
+                    <TextBlock Text="{loc:Tr Analytics_NoDataYet}" Classes="note" IsVisible="{Binding !TopTags.Count}"/>
+                </StackPanel></Border>
+                <Border Grid.Column="2" Classes="card"><StackPanel Spacing="8">
+                    <Grid ColumnDefinitions="*,Auto"><TextBlock Text="{loc:Tr Analytics_ContentTypes}" Classes="cardTitle" VerticalAlignment="Center"/><ComboBox Grid.Column="1" ItemsSource="{Binding TypesPeriod.Options}" SelectedIndex="{Binding TypesPeriod.Index}" FontSize="11" MinHeight="26" Padding="8,2" VerticalAlignment="Center" ToolTip.Tip="{loc:Tr Analytics_SectionPeriodTip}"/></Grid>
+                    <ItemsControl ItemsSource="{Binding ContentTypes}"/>
+                </StackPanel></Border>
+            </Grid>
+
+            <Grid ColumnDefinitions="*,14,*">
+                <Border Classes="card"><StackPanel Spacing="8">
+                    <Grid ColumnDefinitions="*,Auto"><TextBlock Text="{loc:Tr Analytics_MostDownloadedArtists}" Classes="cardTitle" VerticalAlignment="Center"/><ComboBox Grid.Column="1" ItemsSource="{Binding DownloadedPeriod.Options}" SelectedIndex="{Binding DownloadedPeriod.Index}" FontSize="11" MinHeight="26" Padding="8,2" VerticalAlignment="Center" ToolTip.Tip="{loc:Tr Analytics_SectionPeriodTip}"/></Grid>
+                    <ItemsControl ItemsSource="{Binding MostDownloadedArtists}"/>
+                    <TextBlock Text="{loc:Tr Analytics_NoDataYet}" Classes="note" IsVisible="{Binding !MostDownloadedArtists.Count}"/>
+                </StackPanel></Border>
+                <Border Grid.Column="2" Classes="card"><StackPanel Spacing="8">
+                    <Grid ColumnDefinitions="*,Auto"><TextBlock Text="{loc:Tr Analytics_DownloadJobs}" Classes="cardTitle" VerticalAlignment="Center"/><ComboBox Grid.Column="1" ItemsSource="{Binding JobsPeriod.Options}" SelectedIndex="{Binding JobsPeriod.Index}" FontSize="11" MinHeight="26" Padding="8,2" VerticalAlignment="Center" ToolTip.Tip="{loc:Tr Analytics_SectionPeriodTip}"/></Grid>
+                    <ItemsControl ItemsSource="{Binding DownloadJobs}"/>
+                    <TextBlock Text="{loc:Tr Analytics_NoDataYet}" Classes="note" IsVisible="{Binding !DownloadJobs.Count}"/>
+                </StackPanel></Border>
+            </Grid>
+        </StackPanel>
+    </ScrollViewer>
 </UserControl>

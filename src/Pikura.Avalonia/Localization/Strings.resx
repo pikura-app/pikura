@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!--
     Base (English) UI strings for Pikura.
@@ -7766,5 +7766,497 @@ Saved to: {3}</value>
   </data>
   <data name="Settings_ThemeBlendAccentHint" xml:space="preserve">
     <value>Tint controls and borders with the second theme's color</value>
+  </data>
+  <data name="Nav_Dic" xml:space="preserve">
+    <value>Dic</value>
+  </data>
+  <data name="Dic_Popular" xml:space="preserve">
+    <value>Popular Articles</value>
+  </data>
+  <data name="Dic_Updated" xml:space="preserve">
+    <value>Updated Articles</value>
+  </data>
+  <data name="Dic_New" xml:space="preserve">
+    <value>New Articles</value>
+  </data>
+  <data name="Dic_SearchPlaceholder" xml:space="preserve">
+    <value>Search pixiv Encyclopedia</value>
+  </data>
+  <data name="Dic_Back" xml:space="preserve">
+    <value>Back</value>
+  </data>
+  <data name="Dic_Refresh" xml:space="preserve">
+    <value>Refresh</value>
+  </data>
+  <data name="Dic_OpenInBrowser" xml:space="preserve">
+    <value>Open in browser</value>
+  </data>
+  <data name="Dic_SearchPixiv" xml:space="preserve">
+    <value>Search pixiv for this tag</value>
+  </data>
+  <data name="Dic_Prev" xml:space="preserve">
+    <value>Previous</value>
+  </data>
+  <data name="Dic_Next" xml:space="preserve">
+    <value>Next</value>
+  </data>
+  <data name="Dic_Ranking" xml:space="preserve">
+    <value>Ranking</value>
+  </data>
+  <data name="Dic_Weekly" xml:space="preserve">
+    <value>Weekly</value>
+  </data>
+  <data name="Dic_Monthly" xml:space="preserve">
+    <value>Monthly</value>
+  </data>
+  <data name="Dic_Views" xml:space="preserve">
+    <value>Views</value>
+  </data>
+  <data name="Dic_Works" xml:space="preserve">
+    <value>Works</value>
+  </data>
+  <data name="Dic_Checklist" xml:space="preserve">
+    <value>Checklist</value>
+  </data>
+  <data name="Dic_UpdatedAt" xml:space="preserve">
+    <value>Updated</value>
+  </data>
+  <data name="Dic_Contents" xml:space="preserve">
+    <value>Contents</value>
+  </data>
+  <data name="Dic_Related" xml:space="preserve">
+    <value>Related articles</value>
+  </data>
+  <data name="Dic_NoArticles" xml:space="preserve">
+    <value>No articles found.</value>
+  </data>
+  <data name="Dic_NoArticleFor" xml:space="preserve">
+    <value>There is no article for "{0}" yet.</value>
+  </data>
+  <data name="Dic_Unavailable" xml:space="preserve">
+    <value>Couldn't reach pixiv Encyclopedia. Check your connection and press Refresh.</value>
+  </data>
+  <data name="Dic_LoadFailed" xml:space="preserve">
+    <value>pixiv Encyclopedia returned an error ({0}).</value>
+  </data>
+  <data name="Dic_Home" xml:space="preserve">
+    <value>Home</value>
+  </data>
+  <data name="Dic_AutoTranslated" xml:space="preserve">
+    <value>Auto-translated by pixiv from the Japanese article.</value>
+  </data>
+  <data name="Dic_JapaneseOriginal" xml:space="preserve">
+    <value>No English article yet, showing the Japanese original.</value>
+  </data>
+  <data name="Novel_OpenInBrowser" xml:space="preserve">
+    <value>Open in browser</value>
+  </data>
+  <data name="Novel_Close" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="Novel_Smaller" xml:space="preserve">
+    <value>Smaller text</value>
+  </data>
+  <data name="Novel_Larger" xml:space="preserve">
+    <value>Larger text</value>
+  </data>
+  <data name="Novel_PrevEpisode" xml:space="preserve">
+    <value>← Previous episode</value>
+  </data>
+  <data name="Novel_NextEpisode" xml:space="preserve">
+    <value>Next episode →</value>
+  </data>
+  <data name="Novel_Page" xml:space="preserve">
+    <value>Page {0} / {1}</value>
+  </data>
+  <data name="Novel_Characters" xml:space="preserve">
+    <value>{0:N0} characters</value>
+  </data>
+  <data name="Novel_ReadingTime" xml:space="preserve">
+    <value>{0} min read</value>
+  </data>
+  <data name="Novel_LoadFailed" xml:space="preserve">
+    <value>Couldn't load this novel.</value>
+  </data>
+  <data name="Novel_R18Hidden" xml:space="preserve">
+    <value>This novel is R-18. Turn on R-18 content in Settings to read it.</value>
+  </data>
+  <data name="Novel_Comments" xml:space="preserve">
+    <value>Comments</value>
+  </data>
+  <data name="Novel_Series" xml:space="preserve">
+    <value>Series</value>
+  </data>
+  <data name="Novel_Download" xml:space="preserve">
+    <value>Download</value>
+  </data>
+  <data name="Novel_DownloadChapter" xml:space="preserve">
+    <value>This chapter</value>
+  </data>
+  <data name="Novel_DownloadSelected" xml:space="preserve">
+    <value>Selected chapters</value>
+  </data>
+  <data name="Novel_DownloadSeries" xml:space="preserve">
+    <value>Whole series</value>
+  </data>
+  <data name="Novel_Expand" xml:space="preserve">
+    <value>Expand</value>
+  </data>
+  <data name="Novel_Fullscreen" xml:space="preserve">
+    <value>Full screen</value>
+  </data>
+  <data name="Novel_MoreComments" xml:space="preserve">
+    <value>More comments</value>
+  </data>
+  <data name="Novel_SelectAll" xml:space="preserve">
+    <value>Select all</value>
+  </data>
+  <data name="Novel_ShowFile" xml:space="preserve">
+    <value>Show file</value>
+  </data>
+  <data name="Novel_Downloading" xml:space="preserve">
+    <value>Downloading chapter {0} of {1}…</value>
+  </data>
+  <data name="Novel_ExitFullscreen" xml:space="preserve">
+    <value>Exit fullscreen</value>
+  </data>
+  <data name="Novel_SaveForLater" xml:space="preserve">
+    <value>Save for later</value>
+  </data>
+  <data name="Novel_Formats" xml:space="preserve">
+    <value>Formats (one job each)</value>
+  </data>
+  <data name="Novel_DownloadSelectedN" xml:space="preserve">
+    <value>Selected chapters ({0})</value>
+  </data>
+  <data name="Novel_TickChaptersHint" xml:space="preserve">
+    <value>Tick chapters in Series to pick them.</value>
+  </data>
+  <data name="Novel_SavedList" xml:space="preserve">
+    <value>Saved</value>
+  </data>
+  <data name="Novel_HistoryList" xml:space="preserve">
+    <value>History</value>
+  </data>
+  <data name="Novel_LibraryEmpty" xml:space="preserve">
+    <value>Nothing here yet.</value>
+  </data>
+  <data name="Novel_Translate" xml:space="preserve">
+    <value>Translate</value>
+  </data>
+  <data name="Novel_ShowOriginal" xml:space="preserve">
+    <value>Show original</value>
+  </data>
+  <data name="Novel_TranslateTip" xml:space="preserve">
+    <value>Translate this page into the app language</value>
+  </data>
+  <data name="Novel_TranslateWith" xml:space="preserve">
+    <value>Translate with</value>
+  </data>
+  <data name="Novel_TranslatorGoogle" xml:space="preserve">
+    <value>Google Translate (fast, sends text to Google)</value>
+  </data>
+  <data name="Novel_TranslatorHoshi" xml:space="preserve">
+    <value>Hoshi (on this PC, private, slower)</value>
+  </data>
+  <data name="Novel_Translating" xml:space="preserve">
+    <value>Translating with {0}…</value>
+  </data>
+  <data name="Novel_TranslatedBy" xml:space="preserve">
+    <value>Translated by {0}</value>
+  </data>
+  <data name="Novel_HoshiOff" xml:space="preserve">
+    <value>Turn on Hoshi on the Hoshi 星 page first.</value>
+  </data>
+  <data name="Novel_SelectedN" xml:space="preserve">
+    <value>{0} selected</value>
+  </data>
+  <data name="Novel_DownloadSelectedBtn" xml:space="preserve">
+    <value>Download selected</value>
+  </data>
+  <data name="Settings_NovelTranslator" xml:space="preserve">
+    <value>Novel translation</value>
+  </data>
+  <data name="Novel_Like" xml:space="preserve">
+    <value>Like</value>
+  </data>
+  <data name="Novel_Liked" xml:space="preserve">
+    <value>Liked</value>
+  </data>
+  <data name="Novel_Favorite" xml:space="preserve">
+    <value>Favorite</value>
+  </data>
+  <data name="Novel_FavoriteTip" xml:space="preserve">
+    <value>Add to or remove from your local favorites</value>
+  </data>
+  <data name="Novel_FavoritesList" xml:space="preserve">
+    <value>Favorites</value>
+  </data>
+  <data name="Novel_Bookmark" xml:space="preserve">
+    <value>Bookmark</value>
+  </data>
+  <data name="Novel_Bookmarked" xml:space="preserve">
+    <value>Bookmarked</value>
+  </data>
+  <data name="Novel_BookmarkTip" xml:space="preserve">
+    <value>Bookmark on pixiv</value>
+  </data>
+  <data name="Novel_BookmarkPublic" xml:space="preserve">
+    <value>Bookmark (public)</value>
+  </data>
+  <data name="Novel_BookmarkPrivate" xml:space="preserve">
+    <value>Bookmark (private)</value>
+  </data>
+  <data name="Novel_RemoveBookmark" xml:space="preserve">
+    <value>Remove bookmark</value>
+  </data>
+  <data name="Novel_More" xml:space="preserve">
+    <value>More</value>
+  </data>
+  <data name="Novel_CopyLink" xml:space="preserve">
+    <value>Copy link</value>
+  </data>
+  <data name="Novel_CopyTitle" xml:space="preserve">
+    <value>Copy title</value>
+  </data>
+  <data name="Novel_OpenAuthor" xml:space="preserve">
+    <value>Open author's gallery</value>
+  </data>
+  <data name="Novel_LinkCopied" xml:space="preserve">
+    <value>Link copied</value>
+  </data>
+  <data name="Novel_ActionFailed" xml:space="preserve">
+    <value>Couldn't reach pixiv. Check that you're logged in.</value>
+  </data>
+  <data name="Novel_SearchTag" xml:space="preserve">
+    <value>Search novels with this tag</value>
+  </data>
+  <data name="Novel_Queued" xml:space="preserve">
+    <value>Added {0} chapter(s) to Jobs</value>
+  </data>
+  <data name="Novel_Saved" xml:space="preserve">
+    <value>Saved to {0}</value>
+  </data>
+  <data name="Dic_Saved" xml:space="preserve">
+    <value>Saved</value>
+  </data>
+  <data name="Dic_History" xml:space="preserve">
+    <value>History</value>
+  </data>
+  <data name="Dic_SaveArticle" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="Dic_ClearHistory" xml:space="preserve">
+    <value>Clear history</value>
+  </data>
+  <data name="Dic_SavedEmpty" xml:space="preserve">
+    <value>No saved articles yet. Open an article and click Save.</value>
+  </data>
+  <data name="Dic_HistoryEmpty" xml:space="preserve">
+    <value>No articles in your history yet.</value>
+  </data>
+  <data name="Dic_Remove" xml:space="preserve">
+    <value>Remove</value>
+  </data>
+  <data name="Dic_Page" xml:space="preserve">
+    <value>Page</value>
+  </data>
+  <data name="Dic_GoToPage" xml:space="preserve">
+    <value>Go to page</value>
+  </data>
+  <data name="Dic_Go" xml:space="preserve">
+    <value>Go</value>
+  </data>
+  <data name="Analytics_Stats" xml:space="preserve">
+    <value>Stats</value>
+  </data>
+  <data name="Analytics_CountingSince" xml:space="preserve">
+    <value>Counting since {0} · {1} days</value>
+  </data>
+  <data name="Analytics_Total" xml:space="preserve">
+    <value>Activity</value>
+  </data>
+  <data name="Analytics_PerWeek" xml:space="preserve">
+    <value>about {0} a week</value>
+  </data>
+  <data name="Analytics_Views" xml:space="preserve">
+    <value>Artworks viewed</value>
+  </data>
+  <data name="Analytics_ViewsR18" xml:space="preserve">
+    <value>R-18 artworks viewed</value>
+  </data>
+  <data name="Analytics_Downloads" xml:space="preserve">
+    <value>Images downloaded</value>
+  </data>
+  <data name="Analytics_Today" xml:space="preserve">
+    <value>Today</value>
+  </data>
+  <data name="Analytics_TodaySub" xml:space="preserve">
+    <value>{0} artworks viewed · {1} images downloaded · {2} articles read · {3} novels read</value>
+  </data>
+  <data name="Analytics_Past7" xml:space="preserve">
+    <value>Past 7 days</value>
+  </data>
+  <data name="Analytics_NoneBefore" xml:space="preserve">
+    <value>none in the 7 days before</value>
+  </data>
+  <data name="Analytics_Before" xml:space="preserve">
+    <value>{0} in the 7 days before ({1})</value>
+  </data>
+  <data name="Analytics_Streak" xml:space="preserve">
+    <value>Streak</value>
+  </data>
+  <data name="Analytics_Days" xml:space="preserve">
+    <value>{0} days</value>
+  </data>
+  <data name="Analytics_LongestYet" xml:space="preserve">
+    <value>your longest yet</value>
+  </data>
+  <data name="Analytics_Longest" xml:space="preserve">
+    <value>longest: {0} days</value>
+  </data>
+  <data name="Analytics_BusiestDay" xml:space="preserve">
+    <value>Busiest day</value>
+  </data>
+  <data name="Analytics_EveryDay" xml:space="preserve">
+    <value>Every day</value>
+  </data>
+  <data name="Analytics_ActiveDays" xml:space="preserve">
+    <value>{0} of {1} days active</value>
+  </data>
+  <data name="Analytics_Less" xml:space="preserve">
+    <value>Less</value>
+  </data>
+  <data name="Analytics_More" xml:space="preserve">
+    <value>More</value>
+  </data>
+  <data name="Analytics_TimeOfDay" xml:space="preserve">
+    <value>Time of day</value>
+  </data>
+  <data name="Analytics_BusiestHour" xml:space="preserve">
+    <value>busiest {0}</value>
+  </data>
+  <data name="Analytics_All" xml:space="preserve">
+    <value>All</value>
+  </data>
+  <data name="Analytics_DayOfWeek" xml:space="preserve">
+    <value>Day of the week</value>
+  </data>
+  <data name="Analytics_BusiestOn" xml:space="preserve">
+    <value>busiest on {0}</value>
+  </data>
+  <data name="Analytics_Night" xml:space="preserve">
+    <value>Night</value>
+  </data>
+  <data name="Analytics_Morning" xml:space="preserve">
+    <value>Morning</value>
+  </data>
+  <data name="Analytics_Afternoon" xml:space="preserve">
+    <value>Afternoon</value>
+  </data>
+  <data name="Analytics_Evening" xml:space="preserve">
+    <value>Evening</value>
+  </data>
+  <data name="Analytics_TopTags" xml:space="preserve">
+    <value>Top tags viewed</value>
+  </data>
+  <data name="Analytics_ContentTypes" xml:space="preserve">
+    <value>What you view</value>
+  </data>
+  <data name="Analytics_TypeIllust" xml:space="preserve">
+    <value>Illustrations</value>
+  </data>
+  <data name="Analytics_TypeManga" xml:space="preserve">
+    <value>Manga</value>
+  </data>
+  <data name="Analytics_TypeUgoira" xml:space="preserve">
+    <value>Ugoira</value>
+  </data>
+  <data name="Analytics_DownloadJobs" xml:space="preserve">
+    <value>Download jobs</value>
+  </data>
+  <data name="Analytics_TotalHint" xml:space="preserve">
+    <value>Artworks opened, images downloaded and articles read</value>
+  </data>
+  <data name="Analytics_ArticlesRead" xml:space="preserve">
+    <value>Articles read</value>
+  </data>
+  <data name="Analytics_RecentlyViewed" xml:space="preserve">
+    <value>Recently viewed artworks</value>
+  </data>
+  <data name="Analytics_MostViewedArtworks" xml:space="preserve">
+    <value>Most viewed artworks</value>
+  </data>
+  <data name="Analytics_RecentArticles" xml:space="preserve">
+    <value>Recently read articles</value>
+  </data>
+  <data name="Analytics_MostReadArticles" xml:space="preserve">
+    <value>Most read Dic articles</value>
+  </data>
+  <data name="Analytics_ViewCountsNew" xml:space="preserve">
+    <value>Pikura counts repeat views from now on, so this fills in as you reopen things.</value>
+  </data>
+  <data name="Analytics_ViewsCount" xml:space="preserve">
+    <value>{0} views</value>
+  </data>
+  <data name="Analytics_ReadsCount" xml:space="preserve">
+    <value>{0} reads</value>
+  </data>
+  <data name="Analytics_JustNow" xml:space="preserve">
+    <value>just now</value>
+  </data>
+  <data name="Analytics_MinutesAgo" xml:space="preserve">
+    <value>{0} min ago</value>
+  </data>
+  <data name="Analytics_HoursAgo" xml:space="preserve">
+    <value>{0} h ago</value>
+  </data>
+  <data name="Analytics_DaysAgo" xml:space="preserve">
+    <value>{0} d ago</value>
+  </data>
+  <data name="Analytics_Period7d" xml:space="preserve">
+    <value>7 days</value>
+  </data>
+  <data name="Analytics_Period30d" xml:space="preserve">
+    <value>30 days</value>
+  </data>
+  <data name="Analytics_Period6m" xml:space="preserve">
+    <value>6 months</value>
+  </data>
+  <data name="Analytics_Period1y" xml:space="preserve">
+    <value>1 year</value>
+  </data>
+  <data name="Analytics_Period5y" xml:space="preserve">
+    <value>5 years</value>
+  </data>
+  <data name="Analytics_PeriodPage" xml:space="preserve">
+    <value>Page period</value>
+  </data>
+  <data name="Analytics_SectionPeriodTip" xml:space="preserve">
+    <value>Period for this section only</value>
+  </data>
+  <data name="Analytics_NovelsRead" xml:space="preserve">
+    <value>Novels read</value>
+  </data>
+  <data name="Analytics_RecentNovels" xml:space="preserve">
+    <value>Recently read novels</value>
+  </data>
+  <data name="Settings_AnalyticsDefaultPeriod" xml:space="preserve">
+    <value>Default period when opening Analytics</value>
+  </data>
+  <data name="Analytics_PeriodAll" xml:space="preserve">
+    <value>All time</value>
+  </data>
+  <data name="Analytics_OverTime" xml:space="preserve">
+    <value>Activity over time</value>
+  </data>
+  <data name="Analytics_ByDay" xml:space="preserve">
+    <value>per day</value>
+  </data>
+  <data name="Analytics_ByWeek" xml:space="preserve">
+    <value>per week</value>
+  </data>
+  <data name="Analytics_ByMonth" xml:space="preserve">
+    <value>per month</value>
   </data>
 </root>

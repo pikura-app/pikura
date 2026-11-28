@@ -152,6 +152,8 @@ public partial class App : Application
         ("SystemChromeLowColor", 0, 0.90, 0.85),
         ("Container4BackgroundBrush", 0, 0.90, 0.85),
         ("Container1BackgroundBrush", 1, 0.85, 0.60),
+        ("PopupBackgroundBrush", 1, 0.85, 0.60),
+        ("MenuPopupBackgroundBrush", 1, 0.85, 0.60),
         ("Container3BackgroundBrush", 1, 0.85, 0.60),
         ("ImageCanvasBackgroundBrush", 1, 0.70, 0.60),
         ("Container2BackgroundBrush", 2, 0.85, 0.75),
@@ -163,6 +165,8 @@ public partial class App : Application
         ("Container3BorderBrush", 2, 0.75, 0.70),
         ("Container4BorderBrush", 2, 0.75, 0.70),
         ("ControlBorderBrush", 2, 0.75, 0.70),
+        ("PopupBorderBrush", 2, 0.75, 0.70),
+        ("MenuPopupBorderBrush", 2, 0.75, 0.70),
     ];
     private static string? _appliedTint;
 

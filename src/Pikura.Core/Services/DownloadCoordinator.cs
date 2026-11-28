@@ -903,6 +903,11 @@ public sealed class DownloadCoordinator : IDisposable
                                 },
                                 onArtwork: jobArtworks.Add),
                             TargetType.Post    => await DownloadFanboxPostAsync(target, targetSettings, ct),
+                            TargetType.Novel   => await DownloadNovelAsync(target, ct, folder =>
+                                {
+                                    job.OutputFolder = folder;
+                                    _ = _jobRepository.SaveJobAsync(job, ct);
+                                }),
                             _ => throw new NotSupportedException($"Target type {target.Type} not supported")
                         };
                     }
@@ -1318,6 +1323,44 @@ public sealed class DownloadCoordinator : IDisposable
         if (from.HasValue && d < from.Value) return false;
         if (to.HasValue && d > to.Value) return false;
         return true;
+    }
+
+    /// <summary>Fetches the chapters in <c>"FORMAT:id,id"</c> and exports them as one file under
+    /// <c>DownloadRoot/Novels/author</c>.</summary>
+    private async Task<(int Found, int Downloaded)> DownloadNovelAsync(
+        DownloadTarget target, CancellationToken ct, Action<string>? onOutputFolder)
+    {
+        var (format, ids) = ParseNovelTargetId(target.TargetId);
+        if (ids.Count == 0) return (0, 0);
+        var chapters = new List<NovelText>();
+        for (var i = 0; i < ids.Count; i++)
+        {
+            ct.ThrowIfCancellationRequested();
+            var c = await _client.GetNovelTextAsync(ids[i], ct);
+            if (c is { Content.Length: > 0 }) chapters.Add(c);
+            target.DownloadedItems = chapters.Count;
+            if (i < ids.Count - 1) await Task.Delay(400, ct);
+        }
+        if (chapters.Count == 0) return (1, 0);
+        var author = chapters[0].UserName;
+        var title = chapters.Count == 1 ? chapters[0].Title : (target.Name.Length > 0 ? target.Name : chapters[0].Title);
+        var dir = Path.Combine(_settingsService.Current.DownloadRoot, "Novels", NovelExporter.SafeFileName(author));
+        var path = Path.Combine(dir, NovelExporter.SafeFileName(title) + NovelExporter.Extension(format));
+        await Task.Run(() => NovelExporter.Export(chapters, title, author, format, path), ct);
+        onOutputFolder?.Invoke(dir);
+        return (1, 1);
+    }
+
+    public static string NovelTargetId(NovelExportFormat format, IEnumerable<string> ids) =>
+        format.ToString().ToUpperInvariant() + ":" + string.Join(",", ids);
+
+    public static (NovelExportFormat Format, List<string> Ids) ParseNovelTargetId(string targetId)
+    {
+        var colon = targetId.IndexOf(':');
+        var format = colon > 0 && Enum.TryParse<NovelExportFormat>(targetId[..colon], true, out var f) ? f : NovelExportFormat.Epub;
+        var ids = targetId[(colon + 1)..].Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Where(id => id.All(char.IsAsciiDigit)).ToList();
+        return (format, ids);
     }
 
     private async Task<(int Found, int Downloaded)> DownloadArtworkAsync(

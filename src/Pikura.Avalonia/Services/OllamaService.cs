@@ -331,6 +331,34 @@ public sealed class OllamaService : IDisposable, Pikura.Avalonia.Localization.IL
     /// executes tool calls (max 4 rounds), then commits the turn to history.
     /// Replaces ChatAsync/ChatWithImageAsync.
     /// </summary>
+    /// <summary>One-off prompt with no chat history or tools (e.g. translation).</summary>
+    public async Task<string> CompleteAsync(string systemPrompt, string userMessage, CancellationToken ct = default)
+    {
+        EnsureReady();
+        var model = GetTextModel();
+        var caps = await GetCapabilitiesAsync(model, ct);
+        var req = new OllamaSharp.Models.Chat.ChatRequest
+        {
+            Model = model,
+            Stream = true,
+            Messages = new List<OllamaSharp.Models.Chat.Message>
+            {
+                new(OllamaSharp.Models.Chat.ChatRole.System, systemPrompt, null),
+                new(OllamaSharp.Models.Chat.ChatRole.User, userMessage, null),
+            },
+            Options = new OllamaSharp.Models.RequestOptions
+            {
+                NumThread = InferenceThreadCount,
+                NumCtx = 8192,
+                NumPredict = caps.Contains("thinking") ? 6144 : 3072,
+            },
+        };
+        var sb = new System.Text.StringBuilder();
+        await foreach (var chunk in _client!.ChatAsync(req, ct).ConfigureAwait(false))
+            if (chunk?.Message?.Content is { Length: > 0 } c) sb.Append(c);
+        return StripThink(sb.ToString()).Trim();
+    }
+
     public async IAsyncEnumerable<string> SendAsync(
         string userMessage,
         byte[]? image,

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -136,8 +136,8 @@ public partial class RankingCardViewModel : ObservableObject
         PageCount = 1;
         var hasR18Tag = entry.Tags.Any(t => t.Contains("R-18", StringComparison.OrdinalIgnoreCase));
         var hasR18GTag = entry.Tags.Any(t => t.Contains("R-18G", StringComparison.OrdinalIgnoreCase));
-        IsR18 = isR18Source || hasR18Tag || hasR18GTag;
-        IsR18G = (isR18Source && (entry.ContentType.Grotesque || entry.ContentType.Violent)) || hasR18GTag;
+        IsR18 = isR18Source || entry.XRestrict > 0 || hasR18Tag || hasR18GTag;
+        IsR18G = entry.XRestrict == 2 || (isR18Source && (entry.ContentType.Grotesque || entry.ContentType.Violent)) || hasR18GTag;
         YesterdayRank = entry.YesRank;
         RatingCount = entry.RatingCount;
         ViewCount = entry.ViewCount ?? 0;

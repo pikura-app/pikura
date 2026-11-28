@@ -1,0 +1,132 @@
+namespace Pikura.Core.Services;
+
+public enum ActivityKind { View, ViewR18, Download, Article, Novel }
+
+public readonly record struct ActivityEvent(DateTime Local, ActivityKind Kind);
+
+public enum TimelineUnit { Day, Week, Month }
+
+/// <summary>Totals, streaks and day/hour distributions for the Analytics page.</summary>
+public sealed class ActivityStats
+{
+    public int Total { get; private init; }
+    public int Views { get; private init; }
+    public int ViewsR18 { get; private init; }
+    public int Downloads { get; private init; }
+    public int Articles { get; private init; }
+    public int TodayArticles { get; private init; }
+    public int Novels { get; private init; }
+    public int TodayNovels { get; private init; }
+    public int Today { get; private init; }
+    public int TodayViews { get; private init; }
+    public int TodayDownloads { get; private init; }
+    public int Past7 { get; private init; }
+    public int Prev7 { get; private init; }
+    public int CurrentStreak { get; private init; }
+    public int LongestStreak { get; private init; }
+    public DateOnly? BusiestDay { get; private init; }
+    public int BusiestDayCount { get; private init; }
+    public DateOnly? FirstDay { get; private init; }
+    public int DaysTracked { get; private init; }
+    public int ActiveDays { get; private init; }
+    public IReadOnlyDictionary<DateOnly, int> Daily { get; private init; } = new Dictionary<DateOnly, int>();
+    public int[] HoursAll { get; private init; } = new int[24];
+    public int[] HoursViews { get; private init; } = new int[24];
+    public int[] HoursDownloads { get; private init; } = new int[24];
+    public int[] Weekdays { get; private init; } = new int[7];
+
+    public static ActivityStats Compute(IEnumerable<ActivityEvent> events, DateOnly today)
+    {
+        var list = events.ToList();
+        var daily = new Dictionary<DateOnly, int>();
+        int[] all = new int[24], views = new int[24], downloads = new int[24], weekdays = new int[7];
+        foreach (var e in list)
+        {
+            var d = DateOnly.FromDateTime(e.Local);
+            daily[d] = daily.GetValueOrDefault(d) + 1;
+            all[e.Local.Hour]++;
+            if (e.Kind == ActivityKind.Download) downloads[e.Local.Hour]++;
+            else if (e.Kind is ActivityKind.View or ActivityKind.ViewR18) views[e.Local.Hour]++;
+            weekdays[(int)e.Local.DayOfWeek]++;
+        }
+
+        var longest = 0;
+        var run = 0;
+        DateOnly? prev = null;
+        foreach (var d in daily.Keys.Order())
+        {
+            run = prev is { } p && p.AddDays(1) == d ? run + 1 : 1;
+            longest = Math.Max(longest, run);
+            prev = d;
+        }
+        var current = 0;
+        var cursor = daily.ContainsKey(today) ? today : today.AddDays(-1);
+        while (daily.ContainsKey(cursor)) { current++; cursor = cursor.AddDays(-1); }
+
+        int Range(int from, int to) => daily.Where(kv => kv.Key > today.AddDays(-to) && kv.Key <= today.AddDays(-from)).Sum(kv => kv.Value);
+        var busiest = daily.Count == 0 ? (KeyValuePair<DateOnly, int>?)null : daily.OrderByDescending(kv => kv.Value).ThenByDescending(kv => kv.Key).First();
+        DateOnly? first = daily.Count == 0 ? null : daily.Keys.Min();
+        var todayEvents = list.Where(e => DateOnly.FromDateTime(e.Local) == today).ToList();
+
+        return new ActivityStats
+        {
+            Total = list.Count,
+            Views = list.Count(e => e.Kind == ActivityKind.View),
+            ViewsR18 = list.Count(e => e.Kind == ActivityKind.ViewR18),
+            Downloads = list.Count(e => e.Kind == ActivityKind.Download),
+            Articles = list.Count(e => e.Kind == ActivityKind.Article),
+            TodayArticles = todayEvents.Count(e => e.Kind == ActivityKind.Article),
+            Novels = list.Count(e => e.Kind == ActivityKind.Novel),
+            TodayNovels = todayEvents.Count(e => e.Kind == ActivityKind.Novel),
+            Today = todayEvents.Count,
+            TodayViews = todayEvents.Count(e => e.Kind is ActivityKind.View or ActivityKind.ViewR18),
+            TodayDownloads = todayEvents.Count(e => e.Kind == ActivityKind.Download),
+            Past7 = Range(0, 7),
+            Prev7 = Range(7, 14),
+            CurrentStreak = current,
+            LongestStreak = longest,
+            BusiestDay = busiest?.Key,
+            BusiestDayCount = busiest?.Value ?? 0,
+            FirstDay = first,
+            DaysTracked = first is { } f ? today.DayNumber - f.DayNumber + 1 : 0,
+            ActiveDays = daily.Count,
+            Daily = daily,
+            HoursAll = all,
+            HoursViews = views,
+            HoursDownloads = downloads,
+            Weekdays = weekdays,
+        };
+    }
+
+    /// <summary>Event counts in the last <paramref name="buckets"/> days, weeks (Monday start) or months, oldest first.</summary>
+    public static (DateOnly Start, int Count)[] Timeline(IEnumerable<ActivityEvent> events, DateOnly today, TimelineUnit unit, int buckets)
+    {
+        buckets = Math.Max(1, buckets);
+        DateOnly StartOf(DateOnly d) => unit switch
+        {
+            TimelineUnit.Day => d,
+            TimelineUnit.Week => d.AddDays(-(((int)d.DayOfWeek + 6) % 7)),
+            _ => new DateOnly(d.Year, d.Month, 1),
+        };
+        DateOnly Step(DateOnly d, int n) => unit switch
+        {
+            TimelineUnit.Day => d.AddDays(n),
+            TimelineUnit.Week => d.AddDays(7 * n),
+            _ => d.AddMonths(n),
+        };
+        var first = Step(StartOf(today), -(buckets - 1));
+        var counts = new int[buckets];
+        foreach (var e in events)
+        {
+            var s = StartOf(DateOnly.FromDateTime(e.Local));
+            var i = unit switch
+            {
+                TimelineUnit.Day => s.DayNumber - first.DayNumber,
+                TimelineUnit.Week => (s.DayNumber - first.DayNumber) / 7,
+                _ => (s.Year - first.Year) * 12 + s.Month - first.Month,
+            };
+            if (s >= first && i < buckets) counts[i]++;
+        }
+        return Enumerable.Range(0, buckets).Select(i => (Step(first, i), counts[i])).ToArray();
+    }
+}

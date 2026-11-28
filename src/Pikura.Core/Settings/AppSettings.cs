@@ -822,6 +822,15 @@ public sealed class AppSettings
     /// <summary>Articles per Pixivision page; 0 uses pixivision's own page size.</summary>
     public int PixivisionArticlesPerPage { get; set; }
 
+    /// <summary>Period the Analytics page opens with: 7d, 30d, 6m, 1y, 5y or all.</summary>
+    public string AnalyticsDefaultPeriod { get; set; } = "7d";
+
+    /// <summary>Novel translator: "google" (Google Translate) or "hoshi" (local Ollama).</summary>
+    public string NovelTranslator { get; set; } = "google";
+
+    /// <summary>Articles per Dic page; 0 uses dic.pixiv.net's own 12.</summary>
+    public int DicArticlesPerPage { get; set; }
+
     /// <summary>When true, History browses page-by-page instead of autoloading while scrolling
     /// (Default/flat mode only — Grouped/List mode always shows one date at a time).</summary>
     public bool HistoryUsePagination { get; set; } = false;
@@ -1075,6 +1084,9 @@ public sealed class PersistedViewerTab
 
     /// <summary>True if this is the collage tab.</summary>
     public bool IsCollage { get; set; }
+
+    /// <summary>pixiv novel ID shown by a novel tab.</summary>
+    public string? NovelId { get; set; }
 
     /// <summary>Artwork ID shown by a regular (non-collage) tab.</summary>
     public string? ArtworkId { get; set; }
