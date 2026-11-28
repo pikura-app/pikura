@@ -38,7 +38,10 @@ public partial class NovelReaderViewModel : ObservableObject
         _client = client;
         _loader = loader;
         _settings = settings;
+        Comments.CollectionChanged += (_, _) => OnPropertyChanged(nameof(CommentsLabel));
     }
+
+    partial void OnCanLoadMoreCommentsChanged(bool value) => OnPropertyChanged(nameof(CommentsLabel));
 
     public event EventHandler? CloseRequested;
     public event EventHandler? ExpandRequested;
@@ -55,6 +58,10 @@ public partial class NovelReaderViewModel : ObservableObject
     [ObservableProperty] private string? _lastExportPath;
     [ObservableProperty] private bool _isDownloading;
     [ObservableProperty] private bool _canExpand = true;
+    [ObservableProperty] private bool _isActiveTab;
+    public string CommentsLabel => Comments.Count > 0
+        ? $"{Pikura.Avalonia.Localization.LocalizationService.Instance["Novel_Comments"]} ({Comments.Count}{(CanLoadMoreComments ? "+" : "")})"
+        : Pikura.Avalonia.Localization.LocalizationService.Instance["Novel_Comments"];
     public bool ShowText => !ShowComments && !ShowSeries;
     public bool HasDownloadStatus => DownloadStatus.Length > 0;
     public bool HasLastExport => LastExportPath is not null;

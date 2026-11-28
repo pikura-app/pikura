@@ -120,9 +120,13 @@ public partial class EnhancedRankingsView : UserControl
                 if (e.PropertyName == nameof(EnhancedRankingsViewModel.ShowPreview))
                     ApplyShowPreview(vm.ShowPreview);
                 if (e.PropertyName == nameof(EnhancedRankingsViewModel.NovelReaderExpanded))
+                {
+                    vm.NovelReaders.IsExpanded = vm.NovelReaderExpanded;
                     ApplyNovelExpanded(vm.NovelReaderExpanded);
+                }
             };
             vm.NovelReaders.FullscreenRequested += (_, id) => Pikura.Avalonia.Views.Novel.NovelReaderWindow.Open(id, this, fullscreen: true);
+            vm.NovelReaders.PanelToggleRequested += (_, _) => OnViewerToggleBrowse(this, new RoutedEventArgs());
             ApplyShowPreview(vm.ShowPreview);
         }
     }
@@ -301,7 +305,7 @@ public partial class EnhancedRankingsView : UserControl
         {
             VM.ShowNovelReader = true;
             VM.ShowPreview = true;
-            VM.NovelReaders.Open(card.Id);
+            VM.NovelReaders.Open(card.Id, newTab: true);
             return;
         }
         VM.ShowNovelReader = false;

@@ -16,7 +16,30 @@ public partial class NovelReaderHostViewModel(PixivClient client, PixivImageLoad
     public event EventHandler? CloseRequested;
     public event EventHandler? ExpandRequested;
     public event EventHandler<string>? FullscreenRequested;
+    public event EventHandler? PanelToggleRequested;
     public bool HasManyTabs => Tabs.Count > 1;
+    public bool HasTabs => Tabs.Count > 0;
+    public bool CanExpand => canExpand;
+    [ObservableProperty] private bool _isExpanded;
+
+    partial void OnSelectedTabChanged(NovelReaderViewModel? value)
+    {
+        foreach (var t in Tabs) t.IsActiveTab = t == value;
+    }
+
+    [RelayCommand] private void TogglePanel() => PanelToggleRequested?.Invoke(this, EventArgs.Empty);
+    [RelayCommand] private void Expand() => ExpandRequested?.Invoke(this, EventArgs.Empty);
+    [RelayCommand] private void Fullscreen() { if (SelectedTab?.Novel?.Id is { } id) FullscreenRequested?.Invoke(this, id); }
+
+    [RelayCommand]
+    private void CloseAll()
+    {
+        Tabs.Clear();
+        SelectedTab = null;
+        OnPropertyChanged(nameof(HasManyTabs));
+        OnPropertyChanged(nameof(HasTabs));
+        CloseRequested?.Invoke(this, EventArgs.Empty);
+    }
 
     public void Open(string novelId, bool newTab = false)
     {
@@ -29,6 +52,7 @@ public partial class NovelReaderHostViewModel(PixivClient client, PixivImageLoad
         tab.FullscreenRequested += (_, _) => { if (tab.Novel?.Id is { } id) FullscreenRequested?.Invoke(this, id); };
         Tabs.Add(tab);
         OnPropertyChanged(nameof(HasManyTabs));
+        OnPropertyChanged(nameof(HasTabs));
         SelectedTab = tab;
         _ = tab.LoadAsync(novelId);
     }
@@ -42,6 +66,7 @@ public partial class NovelReaderHostViewModel(PixivClient client, PixivImageLoad
         if (i < 0) return;
         Tabs.RemoveAt(i);
         OnPropertyChanged(nameof(HasManyTabs));
+        OnPropertyChanged(nameof(HasTabs));
         if (Tabs.Count == 0) { SelectedTab = null; CloseRequested?.Invoke(this, EventArgs.Empty); return; }
         if (SelectedTab == tab) SelectedTab = Tabs[Math.Min(i, Tabs.Count - 1)];
     }

@@ -1,29 +1,88 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:loc="using:Pikura.Avalonia.Localization"
              xmlns:vm="using:Pikura.Avalonia.ViewModels"
              xmlns:novel="using:Pikura.Avalonia.Views.Novel"
              x:Class="Pikura.Avalonia.Views.Novel.NovelReaderHostView"
-             x:DataType="vm:NovelReaderHostViewModel">
+             x:DataType="vm:NovelReaderHostViewModel"
+             Background="{DynamicResource Container1BackgroundBrush}">
+    <UserControl.Styles>
+        <Style Selector="Button.tb">
+            <Setter Property="Height" Value="28"/>
+            <Setter Property="MinHeight" Value="28"/>
+            <Setter Property="Padding" Value="9,0"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+        <Style Selector="Border.novelTab">
+            <Setter Property="Opacity" Value="0.6"/>
+            <Setter Property="Background" Value="{DynamicResource Container2BackgroundBrush}"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+        </Style>
+        <Style Selector="Border.novelTab:pointerover"><Setter Property="Opacity" Value="0.85"/></Style>
+        <Style Selector="Border.novelTab.active">
+            <Setter Property="Opacity" Value="1"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource ControlBackgroundBrushSolidAccent}"/>
+        </Style>
+    </UserControl.Styles>
     <Grid RowDefinitions="Auto,*">
-        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" IsVisible="{Binding HasManyTabs}">
-            <ItemsControl ItemsSource="{Binding Tabs}" Margin="6,4,6,0">
-                <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal" Spacing="4"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate x:DataType="vm:NovelReaderViewModel">
-                        <Border CornerRadius="6,6,0,0" Padding="8,3" Background="{DynamicResource Container2BackgroundBrush}">
-                            <StackPanel Orientation="Horizontal" Spacing="6">
-                                <Button Background="Transparent" BorderThickness="0" Padding="0" MaxWidth="160"
-                                        Command="{Binding $parent[UserControl].((vm:NovelReaderHostViewModel)DataContext).SelectCommand}" CommandParameter="{Binding}">
-                                    <TextBlock Text="{Binding Title}" FontSize="11" TextTrimming="CharacterEllipsis"/>
-                                </Button>
-                                <Button Content="✕" FontSize="9" Padding="3,0" Background="Transparent" BorderThickness="0"
-                                        Command="{Binding $parent[UserControl].((vm:NovelReaderHostViewModel)DataContext).CloseTabCommand}" CommandParameter="{Binding}"/>
-                            </StackPanel>
-                        </Border>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </ScrollViewer>
+        <Border Padding="6,4" BorderBrush="{DynamicResource Container1BorderBrush}" BorderThickness="0,0,0,1">
+            <Grid ColumnDefinitions="Auto,*">
+                <StackPanel Orientation="Horizontal" Spacing="4" Margin="0,0,8,0">
+                    <Button Classes="tb" Command="{Binding TogglePanelCommand}" IsVisible="{Binding CanExpand}" ToolTip.Tip="{loc:Tr Viewer_HideOrShowTheSidePanel}">
+                        <StackPanel Orientation="Horizontal" Spacing="5">
+                            <Path Data="{StaticResource HidePanelIcon}" Width="14" Height="14" Stretch="Uniform" StrokeThickness="1.5" StrokeLineCap="Round"
+                                  Stroke="{Binding $parent[Button].Foreground}" VerticalAlignment="Center"/>
+                            <TextBlock Text="{loc:Tr Search_HidePanel}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Classes="tb" Command="{Binding ExpandCommand}" IsVisible="{Binding CanExpand}" ToolTip.Tip="{loc:Tr Viewer_ExpandToFullScreenRestoreSide}">
+                        <StackPanel Orientation="Horizontal" Spacing="5">
+                            <PathIcon Data="{StaticResource FullscreenEnterIcon}" Width="14" Height="14" Foreground="{Binding $parent[Button].Foreground}"/>
+                            <TextBlock Text="{loc:Tr Viewer_Expand}" VerticalAlignment="Center" IsVisible="{Binding !IsExpanded}"/>
+                            <TextBlock Text="{loc:Tr Viewer_Restore}" VerticalAlignment="Center" IsVisible="{Binding IsExpanded}"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Classes="tb accent" Command="{Binding FullscreenCommand}" ToolTip.Tip="{loc:Tr Novel_Fullscreen}">
+                        <StackPanel Orientation="Horizontal" Spacing="5">
+                            <PathIcon Data="{StaticResource FullscreenEnterIcon}" Width="14" Height="14" Foreground="{Binding $parent[Button].Foreground}"/>
+                            <TextBlock Text="{loc:Tr Common_Fullscreen}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Classes="tb" Command="{Binding CloseAllCommand}" ToolTip.Tip="{loc:Tr Viewer_CloseAllTabs}">
+                        <StackPanel Orientation="Horizontal" Spacing="5">
+                            <Path Data="{StaticResource CloseIcon}" Width="14" Height="14" Stretch="Uniform" StrokeThickness="2" StrokeLineCap="Round"
+                                  Stroke="{Binding $parent[Button].Foreground}" VerticalAlignment="Center"/>
+                            <TextBlock Text="{loc:Tr Viewer_CloseAll}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+                <ScrollViewer Grid.Column="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                    <ItemsControl ItemsSource="{Binding Tabs}">
+                        <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal" Spacing="2"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:NovelReaderViewModel">
+                                <Border Classes="novelTab" Classes.active="{Binding IsActiveTab}" CornerRadius="6" BorderThickness="0,0,0,2"
+                                        Padding="4,2" MinWidth="80" MaxWidth="200" Cursor="Hand" Tag="{Binding}" PointerPressed="OnTabPressed"
+                                        ToolTip.Tip="{Binding Title}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding Title}" FontSize="12" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"
+                                                   MaxWidth="150" Margin="10,5,6,5"/>
+                                        <Button FontSize="9" Padding="4,2" Margin="0,3,4,3" CornerRadius="3" VerticalAlignment="Center"
+                                                ToolTip.Tip="{loc:Tr Viewer_CloseThisTab}"
+                                                Command="{Binding $parent[UserControl].((vm:NovelReaderHostViewModel)DataContext).CloseTabCommand}" CommandParameter="{Binding}">
+                                            <Path Data="{StaticResource CloseIcon}" Width="10" Height="10" Stretch="Uniform" StrokeThickness="2" StrokeLineCap="Round"
+                                                  Stroke="{Binding $parent[Button].Foreground}"/>
+                                        </Button>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Grid>
+        </Border>
         <novel:NovelReaderView Grid.Row="1" DataContext="{Binding SelectedTab}"/>
     </Grid>
 </UserControl>

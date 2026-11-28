@@ -7,39 +7,50 @@
              x:DataType="vm:NovelReaderViewModel">
     <UserControl.Styles>
         <Style Selector="TextBlock.current"><Setter Property="FontWeight" Value="Bold"/></Style>
+        <Style Selector="Button.tb, ToggleButton.tb">
+            <Setter Property="Height" Value="28"/>
+            <Setter Property="MinHeight" Value="28"/>
+            <Setter Property="Padding" Value="9,0"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
     </UserControl.Styles>
     <Grid RowDefinitions="Auto,Auto,*,Auto">
         <!-- Toolbar -->
         <Border Grid.Row="0" Padding="8,6" BorderBrush="{DynamicResource Container1BorderBrush}" BorderThickness="0,0,0,1">
-            <Grid ColumnDefinitions="Auto,*,Auto">
-                <StackPanel Orientation="Horizontal" Spacing="4">
-                    <Button Content="A−" Padding="8,3" Command="{Binding FontSmallerCommand}" ToolTip.Tip="{loc:Tr Novel_Smaller}"/>
-                    <Button Content="A+" Padding="8,3" Command="{Binding FontLargerCommand}" ToolTip.Tip="{loc:Tr Novel_Larger}"/>
-                </StackPanel>
-                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4">
-                    <ToggleButton Padding="8,3" IsChecked="{Binding ShowComments}"><TextBlock Text="{loc:Tr Novel_Comments}" FontSize="12"/></ToggleButton>
-                    <ToggleButton Padding="8,3" IsChecked="{Binding ShowSeries}" IsVisible="{Binding HasSeries}"><TextBlock Text="{loc:Tr Novel_Series}" FontSize="12"/></ToggleButton>
-                    <Button Padding="8,3">
-                        <TextBlock Text="{loc:Tr Novel_Download}" FontSize="12"/>
-                        <Button.Flyout>
-                            <Flyout Placement="BottomEdgeAlignedRight">
-                                <StackPanel Spacing="6" Width="230">
-                                    <ComboBox ItemsSource="{Binding ExportFormats}" SelectedIndex="{Binding ExportFormatIndex}" HorizontalAlignment="Stretch"/>
-                                    <Button Content="{loc:Tr Novel_DownloadChapter}" HorizontalAlignment="Stretch" Command="{Binding DownloadChapterCommand}"/>
-                                    <Button Content="{loc:Tr Novel_DownloadSelected}" HorizontalAlignment="Stretch" Command="{Binding DownloadSelectedCommand}" IsVisible="{Binding ShowSeries}"/>
-                                    <Button Content="{loc:Tr Novel_DownloadSeries}" HorizontalAlignment="Stretch" Command="{Binding DownloadSeriesCommand}" IsVisible="{Binding HasSeries}"/>
-                                </StackPanel>
-                            </Flyout>
-                        </Button.Flyout>
-                    </Button>
-                    <Button Padding="8,3" Command="{Binding OpenInBrowserCommand}" ToolTip.Tip="{loc:Tr Novel_OpenInBrowser}">
-                        <TextBlock Text="{loc:Tr Novel_OpenInBrowser}" FontSize="12"/>
-                    </Button>
-                    <Button Content="⤢" Padding="8,3" Command="{Binding ExpandCommand}" IsVisible="{Binding CanExpand}" ToolTip.Tip="{loc:Tr Novel_Expand}"/>
-                    <Button Content="⛶" Padding="8,3" Command="{Binding FullscreenCommand}" ToolTip.Tip="{loc:Tr Novel_Fullscreen}"/>
-                    <Button Content="✕" Padding="8,3" Command="{Binding CloseCommand}" ToolTip.Tip="{loc:Tr Novel_Close}"/>
-                </StackPanel>
-            </Grid>
+            <WrapPanel>
+                <Button Classes="tb" Content="A−" Margin="0,0,4,4" Command="{Binding FontSmallerCommand}" ToolTip.Tip="{loc:Tr Novel_Smaller}"/>
+                <Button Classes="tb" Content="A+" Margin="0,0,10,4" Command="{Binding FontLargerCommand}" ToolTip.Tip="{loc:Tr Novel_Larger}"/>
+                <ToggleButton Classes="tb" Margin="0,0,4,4" IsChecked="{Binding ShowComments}" ToolTip.Tip="{loc:Tr Viewer_ViewAndPostComments}">
+                    <StackPanel Orientation="Horizontal" Spacing="5">
+                        <PathIcon Data="{StaticResource CommentIcon}" Width="14" Height="14" Foreground="{Binding $parent[ToggleButton].Foreground}"/>
+                        <TextBlock Text="{Binding CommentsLabel}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </ToggleButton>
+                <ToggleButton Classes="tb" Margin="0,0,4,4" IsChecked="{Binding ShowSeries}" IsVisible="{Binding HasSeries}">
+                    <TextBlock Text="{loc:Tr Novel_Series}" VerticalAlignment="Center"/>
+                </ToggleButton>
+                <Button Classes="tb" Margin="0,0,4,4">
+                    <StackPanel Orientation="Horizontal" Spacing="5">
+                        <PathIcon Data="{StaticResource DownloadIcon}" Width="14" Height="14" Foreground="{Binding $parent[Button].Foreground}"/>
+                        <TextBlock Text="{loc:Tr Novel_Download}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <Button.Flyout>
+                        <Flyout Placement="BottomEdgeAlignedLeft">
+                            <StackPanel Spacing="6" Width="230">
+                                <ComboBox ItemsSource="{Binding ExportFormats}" SelectedIndex="{Binding ExportFormatIndex}" HorizontalAlignment="Stretch"/>
+                                <Button Content="{loc:Tr Novel_DownloadChapter}" HorizontalAlignment="Stretch" Command="{Binding DownloadChapterCommand}"/>
+                                <Button Content="{loc:Tr Novel_DownloadSelected}" HorizontalAlignment="Stretch" Command="{Binding DownloadSelectedCommand}" IsVisible="{Binding ShowSeries}"/>
+                                <Button Content="{loc:Tr Novel_DownloadSeries}" HorizontalAlignment="Stretch" Command="{Binding DownloadSeriesCommand}" IsVisible="{Binding HasSeries}"/>
+                            </StackPanel>
+                        </Flyout>
+                    </Button.Flyout>
+                </Button>
+                <Button Classes="tb" Margin="0,0,4,4" Command="{Binding OpenInBrowserCommand}" ToolTip.Tip="{loc:Tr Novel_OpenInBrowser}">
+                    <TextBlock Text="{loc:Tr Novel_OpenInBrowser}" VerticalAlignment="Center"/>
+                </Button>
+            </WrapPanel>
         </Border>
 
         <!-- Header -->

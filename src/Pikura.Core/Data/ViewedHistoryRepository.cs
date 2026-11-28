@@ -62,7 +62,17 @@ public sealed class ViewedHistoryRepository : IDisposable
             CREATE INDEX IF NOT EXISTS idx_viewed_history_viewed_at ON viewed_history(viewed_at);
         ", connection);
         cmd.ExecuteNonQuery();
+        try
+        {
+            using var alter = new SqliteCommand("ALTER TABLE viewed_history ADD COLUMN view_count INTEGER NOT NULL DEFAULT 1", connection);
+            alter.ExecuteNonQuery();
+        }
+        catch (SqliteException) { /* column exists */ }
     }
+
+    // Re-opening the same artwork (tab switches, restored tabs) within this window doesn't count as another view.
+    private static readonly TimeSpan RepeatViewWindow = TimeSpan.FromMinutes(10);
+    private readonly System.Collections.Concurrent.ConcurrentDictionary<string, DateTime> _lastCounted = new();
 
     private SqliteConnection CreateConnection() => new(_connectionString);
 
@@ -81,10 +91,20 @@ public sealed class ViewedHistoryRepository : IDisposable
             using var connection = CreateConnection();
             await connection.OpenAsync(ct).ConfigureAwait(false);
             using var cmd = new SqliteCommand(@"
-                INSERT OR REPLACE INTO viewed_history
-                    (artwork_id, title, user_id, user_name, thumbnail_url, illust_type, x_restrict, page_count, tags, viewed_at)
+                INSERT INTO viewed_history
+                    (artwork_id, title, user_id, user_name, thumbnail_url, illust_type, x_restrict, page_count, tags, viewed_at, view_count)
                 VALUES
-                    (@id, @title, @userId, @userName, @thumb, @illustType, @xRestrict, @pageCount, @tags, @viewedAt)", connection);
+                    (@id, @title, @userId, @userName, @thumb, @illustType, @xRestrict, @pageCount, @tags, @viewedAt, 1)
+                ON CONFLICT(artwork_id) DO UPDATE SET
+                    title = excluded.title, user_id = excluded.user_id, user_name = excluded.user_name,
+                    thumbnail_url = excluded.thumbnail_url, illust_type = excluded.illust_type, x_restrict = excluded.x_restrict,
+                    page_count = excluded.page_count, tags = excluded.tags, viewed_at = excluded.viewed_at,
+                    view_count = view_count + @inc", connection);
+
+            var now = DateTime.UtcNow;
+            var counted = !_lastCounted.TryGetValue(entry.ArtworkId, out var last) || now - last > RepeatViewWindow;
+            if (counted) _lastCounted[entry.ArtworkId] = now;
+            cmd.Parameters.AddWithValue("@inc", counted ? 1 : 0);
 
             cmd.Parameters.AddWithValue("@id", entry.ArtworkId);
             cmd.Parameters.AddWithValue("@title", entry.Title);
@@ -333,6 +353,38 @@ public sealed class ViewedHistoryRepository : IDisposable
             if (!DateTime.TryParse(reader.GetString(0), null, System.Globalization.DateTimeStyles.RoundtripKind, out var dt)) continue;
             rows.Add(new ViewActivity(dt.ToUniversalTime(), reader.GetString(1), reader.GetInt32(2), reader.GetInt32(3),
                 reader.GetString(4).Split(' ', StringSplitOptions.RemoveEmptyEntries)));
+        }
+        return rows;
+    }
+
+    public sealed record MostViewedArtwork(ViewedHistoryEntry Entry, int Views);
+
+    /// <summary>Artworks opened most often (view_count), newest first on ties.</summary>
+    public async Task<List<MostViewedArtwork>> GetMostViewedAsync(int limit, CancellationToken ct = default)
+    {
+        using var connection = CreateConnection();
+        await connection.OpenAsync(ct).ConfigureAwait(false);
+        using var cmd = new SqliteCommand(@"SELECT artwork_id, title, user_id, user_name, thumbnail_url, illust_type, x_restrict, page_count, tags, viewed_at, view_count
+            FROM viewed_history ORDER BY view_count DESC, viewed_at DESC LIMIT @limit", connection);
+        cmd.Parameters.AddWithValue("@limit", limit);
+        using var reader = await cmd.ExecuteReaderAsync(ct).ConfigureAwait(false);
+        var rows = new List<MostViewedArtwork>();
+        while (await reader.ReadAsync(ct).ConfigureAwait(false))
+        {
+            DateTime.TryParse(reader.GetString(9), null, System.Globalization.DateTimeStyles.RoundtripKind, out var at);
+            rows.Add(new MostViewedArtwork(new ViewedHistoryEntry
+            {
+                ArtworkId = reader.GetString(0),
+                Title = reader.GetString(1),
+                UserId = reader.GetString(2),
+                UserName = reader.GetString(3),
+                ThumbnailUrl = reader.IsDBNull(4) ? null : reader.GetString(4),
+                IllustType = reader.GetInt32(5),
+                XRestrict = reader.GetInt32(6),
+                PageCount = reader.GetInt32(7),
+                Tags = reader.GetString(8).Split(' ', StringSplitOptions.RemoveEmptyEntries).ToList(),
+                ViewedAt = at,
+            }, reader.GetInt32(10)));
         }
         return rows;
     }

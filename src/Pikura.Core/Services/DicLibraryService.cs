@@ -2,7 +2,7 @@ using System.Text.Json;
 
 namespace Pikura.Core.Services;
 
-public sealed record DicLibraryEntry(string Tag, string Title, string Lang, string Summary, DateTimeOffset Time, string? ImageUrl = null);
+public sealed record DicLibraryEntry(string Tag, string Title, string Lang, string Summary, DateTimeOffset Time, string? ImageUrl = null, int Views = 1);
 
 /// <summary>Saved pixiv Encyclopedia articles and article history, stored app-side in %APPDATA%\Pikura.</summary>
 public sealed class DicLibraryService
@@ -60,8 +60,9 @@ public sealed class DicLibraryService
     {
         lock (_gate)
         {
+            var views = _store.History.Where(e => Same(e, entry.Tag, entry.Lang)).Select(e => e.Views).DefaultIfEmpty(0).Max();
             _store.History.RemoveAll(e => Same(e, entry.Tag, entry.Lang));
-            _store.History.Add(entry);
+            _store.History.Add(entry with { Views = Math.Max(1, views + 1) });
             if (_store.History.Count > MaxHistory)
                 _store.History = _store.History.OrderByDescending(e => e.Time).Take(MaxHistory).ToList();
             Save();
